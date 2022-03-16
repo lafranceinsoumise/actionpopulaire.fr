@@ -15,16 +15,13 @@ import EventLocationCard from "./EventLocationCard";
 import EventPhotosCard from "./EventPhotosCard";
 import EventReportCard from "./EventReportCard";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
-import GroupCard from "@agir/groups/groupComponents/GroupCard";
+import GroupsCard from "@agir/groups/groupComponents/GroupsCard";
 import Link from "@agir/front/app/Link";
 import OnlineUrlCard from "./OnlineUrlCard";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
+import Spacer from "@agir/front/genericComponents/Spacer";
 
-const GroupCards = styled.div`
-  & > * {
-    margin-bottom: 1rem;
-  }
-`;
+
 const CardLikeSection = styled.section``;
 const StyledColumn = styled(Column)`
   a,
@@ -75,7 +72,15 @@ const IndexLinkAnchor = styled(Link)`
 `;
 
 const DesktopEventPage = (props) => {
-  const { logged, groups, contact, participantCount, routes, subtype } = props;
+  const {
+    logged,
+    groups,
+    groupsAttendees,
+    contact,
+    participantCount,
+    routes,
+    subtype,
+  } = props;
 
   return (
     <>
@@ -109,14 +114,12 @@ const DesktopEventPage = (props) => {
               <EventPhotosCard {...props} />
               <EventReportCard {...props} />
               <EventDescriptionCard {...props} />
-              {Array.isArray(groups) && groups.length > 0 && (
-                <GroupCards>
-                  <h3 style={{ marginTop: "2.5rem" }}>Organisé par</h3>
-                  {groups.map((group, key) => (
-                    <GroupCard key={key} {...group} isEmbedded />
-                  ))}
-                </GroupCards>
-              )}
+              <GroupsCard title="Organisé par" groups={groups} isDetailed />
+              <Spacer size="1rem" />
+              <GroupsCard
+                title={`${groupsAttendees.length} groupes participants`}
+                groups={groupsAttendees}
+              />
             </div>
           </Column>
           <StyledColumn width="380px">
@@ -157,7 +160,7 @@ DesktopEventPage.propTypes = {
   }),
   contact: PropTypes.shape(ContactCard.propTypes),
   options: PropTypes.shape({ price: PropTypes.string }),
-  groups: PropTypes.arrayOf(PropTypes.shape(GroupCard.propTypes)),
+  groups: PropTypes.array,
   routes: PropTypes.shape({
     page: PropTypes.string,
     map: PropTypes.string,

@@ -18,7 +18,7 @@ import EventInfoCard from "@agir/events/eventPage/EventInfoCard";
 import EventLocationCard from "./EventLocationCard";
 import EventPhotosCard from "./EventPhotosCard";
 import EventReportCard from "./EventReportCard";
-import GroupCard from "@agir/groups/groupComponents/GroupCard";
+import GroupsCard from "@agir/groups/groupComponents/GroupsCard";
 import OnlineUrlCard from "./OnlineUrlCard";
 import RenderIfVisible from "@agir/front/genericComponents/RenderIfVisible";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
@@ -94,8 +94,16 @@ const StyledMap = styled(RenderIfVisible)`
 `;
 
 const MobileEventPage = (props) => {
-  const { name, contact, routes, groups, illustration, location, subtype } =
-    props;
+  const {
+    name,
+    contact,
+    routes,
+    groups,
+    groupsAttendees,
+    illustration,
+    location,
+    subtype,
+  } = props;
 
   const hasMap = Array.isArray(location?.coordinates?.coordinates);
 
@@ -173,14 +181,11 @@ const MobileEventPage = (props) => {
         {contact && <ContactCard {...contact} />}
         {routes?.facebook && <EventFacebookLinkCard {...props} />}
         <ShareCard url={routes?.details} />
-        {Array.isArray(groups) && groups.length > 0 && (
-          <CardLikeSection>
-            <b>Organisé par</b>
-            {groups.map((group, key) => (
-              <GroupCard key={key} {...group} isEmbedded />
-            ))}
-          </CardLikeSection>
-        )}
+        <GroupsCard title="Organisé par" groups={groups} isDetailed />
+        <GroupsCard
+          title={`${groupsAttendees.length} groupes participants`}
+          groups={groupsAttendees}
+        />
       </StyledMain>
     </>
   );
@@ -212,7 +217,7 @@ MobileEventPage.propTypes = {
   }),
   contact: PropTypes.shape(ContactCard.propTypes),
   options: PropTypes.shape({ price: PropTypes.string }),
-  groups: PropTypes.arrayOf(PropTypes.shape(GroupCard.propTypes)),
+  groups: PropTypes.array,
   routes: PropTypes.shape({
     page: PropTypes.string,
     map: PropTypes.string,
