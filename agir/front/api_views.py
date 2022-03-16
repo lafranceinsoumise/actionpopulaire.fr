@@ -2,7 +2,6 @@ import json
 
 from django.conf import settings
 from django.utils import timezone
-from rest_framework import permissions
 from rest_framework.generics import (
     ListAPIView,
 )

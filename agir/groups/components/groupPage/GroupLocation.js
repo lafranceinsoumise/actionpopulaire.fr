@@ -101,9 +101,7 @@ const GroupLocation = (props) => {
           {(zip || city) && (
             <span>{[zip, city].filter(Boolean).join(" ")}</span>
           )}
-          {(state || country) && (
-            <span>{[state, country].filter(Boolean).join(", ")}</span>
-          )}
+          {state ? <span>{state}</span> : <span>{country}</span>}
         </p>
         <p>
           {coordinates && Array.isArray(coordinates.coordinates) ? (

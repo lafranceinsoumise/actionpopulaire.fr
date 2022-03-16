@@ -54,6 +54,7 @@ class LocationSerializer(serializers.Serializer):
     zip = serializers.CharField(source="location_zip")
     city = serializers.CharField(source="location_city")
     country = CountryField(source="location_country")
+    state = serializers.CharField(source="location_state")
     address = serializers.SerializerMethodField()
 
     shortAddress = serializers.CharField(source="short_address", required=False)
@@ -193,7 +194,7 @@ class NestedContactSerializer(serializers.Serializer):
 class NestedLocationSerializer(serializers.Serializer):
     """A nested serializer for the fields defined by :py:class:`lib.models.LocationMixin`
 
-    All these fields will be collected and serialized as a a JSON object.
+    All these fields will be collected and serialized as a JSON object.
     """
 
     name = NullableCharField(
@@ -226,12 +227,18 @@ class NestedLocationSerializer(serializers.Serializer):
     zip = NullableCharField(
         label="code postal", max_length=20, required=True, source="location_zip"
     )
-    state = NullableCharField(
-        label="état", max_length=40, required=False, source="location_state"
-    )
     country = NullableCountryField(
         label="pays", required=True, source="location_country"
     )
+    state = serializers.SerializerMethodField()
+
+    # Set state from country code
+    def get_state(self, obj):
+        country = obj.location_country
+        if not country:
+            return
+        obj.location_state = country.name
+        obj.save()
 
     def __init__(self, instance=None, data=empty, **kwargs):
         kwargs.setdefault("source", "*")
