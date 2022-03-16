@@ -3,7 +3,6 @@ from functools import partial
 
 from django.contrib import admin
 from django.contrib.postgres.search import SearchQuery
-from django.core.exceptions import ValidationError
 from django.db.models import Count, Sum, Subquery, OuterRef
 from django.http import QueryDict, HttpResponseRedirect
 from django.urls import reverse, path
@@ -16,7 +15,6 @@ from agir.lib.admin.panels import AddRelatedLinkMixin
 from agir.lib.admin.utils import display_list_of_links
 from agir.lib.display import display_price
 from agir.lib.geo import FRENCH_COUNTRY_CODES
-from agir.people.models import Person
 from .base import BaseGestionModelAdmin
 from .depenses import DepenseListMixin
 from .filters import (
@@ -52,7 +50,7 @@ from ..models import (
     Projet,
     InstanceCherchable,
 )
-from ..models.depenses import etat_initial
+from ..models.depenses import etat_initial, Reglement
 from ..models.projets import ProjetMilitant
 from ..models.virements import OrdreVirement
 from ..permissions import peut_voir_montant_depense
@@ -272,7 +270,6 @@ class DepenseAdmin(DepenseListMixin, BaseGestionModelAdmin, VersionAdmin):
 
     autocomplete_fields = (
         "projet",
-        "beneficiaires",
         "fournisseur",
         "depenses_refacturees",
     )
@@ -317,7 +314,7 @@ class DepenseAdmin(DepenseListMixin, BaseGestionModelAdmin, VersionAdmin):
             )
 
         return (
-            (None, {"fields": [*common_fields, "beneficiaires"]}),
+            (None, {"fields": common_fields}),
             ("Gestion", {"fields": rel_fields}),
             (
                 "Nature de la dépense",
@@ -388,14 +385,6 @@ class DepenseAdmin(DepenseListMixin, BaseGestionModelAdmin, VersionAdmin):
     def get_changeform_initial_data(self, request):
         initial = super().get_changeform_initial_data(request)
 
-        if "person" in request.GET:
-            try:
-                initial["beneficiaires"] = [
-                    Person.objects.get(id=request.GET["person"])
-                ]
-            except (Person.DoesNotExist, ValidationError):
-                pass
-
         if "projet" in request.GET:
             try:
                 initial["projet"] = Projet.objects.get(id=request.GET["projet"])
@@ -427,6 +416,22 @@ class DepenseAdmin(DepenseListMixin, BaseGestionModelAdmin, VersionAdmin):
         ]
 
         return additional_urls + urls
+
+    def has_change_permission(self, request, obj=None):
+        autorise = super().has_change_permission(request, obj=obj)
+        if obj is None:
+            return autorise and request.user.has_perm("valider_depense")
+
+        if obj.etat == Depense.Etat.FEC:
+            return False
+
+        if obj.etat == Depense.Etat.EXPERTISE:
+            return autorise and (
+                request.user.has_perm("valider_depense")
+                or request.user.has_perm("valider_depense", obj=obj.compte)
+            )
+
+        return autorise
 
     class Media:
         # media empty pour l'autocomplete filter
@@ -853,3 +858,51 @@ class InstanceCherchableAdmin(admin.ModelAdmin):
         return lien(obj.lien_admin(), str(obj.instance))
 
     lien_instance.short_description = "Titre"
+
+
+@admin.register(Reglement)
+class ReglementAdmin(admin.ModelAdmin):
+    list_display = (
+        "intitule",
+        "date",
+        "montant",
+        "depense",
+        "mode",
+    )
+
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    "intitule",
+                    "date",
+                    "date_releve",
+                    "montant",
+                    "mode",
+                )
+            },
+        ),
+        (
+            "Liens avec d'autres entités",
+            {
+                "fields": (
+                    "depense",
+                    "fournisseur",
+                    "preuve",
+                )
+            },
+        ),
+        (
+            "Autres informations",
+            {
+                "fields": (
+                    "statut",
+                    "endtoend_id",
+                    "ordre_virement",
+                )
+            },
+        ),
+    )
+
+    readonly_fields = ("statut", "endtoend_id", "ordre_virement")
