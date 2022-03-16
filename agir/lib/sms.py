@@ -196,6 +196,9 @@ def _send_sms_as_email(message, recipients, params):
 
 
 def _send_sms(message, recipients, at=None, sender=settings.OVH_DEFAULT_SENDER):
+    # Remove non 7bit characters from message to avoid errors
+    message = message.encode("ascii", errors="replace").decode("utf-8")
+
     params = dict(
         charset="UTF-8",
         coding="7bit",
