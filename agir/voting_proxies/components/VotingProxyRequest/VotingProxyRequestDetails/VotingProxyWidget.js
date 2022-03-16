@@ -3,6 +3,7 @@ import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
+import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 import {
@@ -36,6 +37,11 @@ const VotingProxyWidget = (props) => {
   const [isConfirmed, setIsConfirmed] = useState(
     votingProxyRequests.every((request) => request.status === "confirmed")
   );
+  const [shouldConfirm, setShouldConfirm] = useState(false);
+
+  const dismissConfirm = useCallback(() => {
+    setShouldConfirm(false);
+  }, []);
 
   const sendInformation = useCallback(async () => {
     setError("");
@@ -48,6 +54,10 @@ const VotingProxyWidget = (props) => {
   }, [votingProxyRequests]);
 
   const confirm = useCallback(async () => {
+    if (!shouldConfirm) {
+      setShouldConfirm(true);
+      return;
+    }
     setError("");
     setIsLoading("confirm");
     const result = await confirmVotingProxyRequests(votingProxyRequests);
@@ -56,8 +66,9 @@ const VotingProxyWidget = (props) => {
       setError(result.error);
     } else {
       setIsConfirmed(true);
+      setShouldConfirm(false);
     }
-  }, [votingProxyRequests]);
+  }, [shouldConfirm, votingProxyRequests]);
 
   return (
     <StyledWidget>
@@ -94,7 +105,6 @@ const VotingProxyWidget = (props) => {
         <Spacer size=".5rem" />
         <Button
           disabled={!!isLoading || isConfirmed}
-          loading={isLoading === "confirm"}
           small
           wrap
           color="primary"
@@ -107,6 +117,22 @@ const VotingProxyWidget = (props) => {
         </Button>
       </p>
       {error && <footer>{error}</footer>}
+      {!isConfirmed && (
+        <ModalConfirmation
+          shouldShow={shouldConfirm}
+          onClose={dismissConfirm}
+          onConfirm={confirm}
+          title={`Prévenir ${firstName} que vous avez établi la procuration`}
+          confirmationLabel="Je confirme que la procuration a été établie"
+          dismissLabel="Annuler"
+          isConfirming={isLoading === "confirm"}
+        >
+          <p>
+            Après validation, la personne sera prévenue par SMS qu'elle pourra
+            se présenter à votre bureau de vote pour voter à votre place.
+          </p>
+        </ModalConfirmation>
+      )}
     </StyledWidget>
   );
 };
