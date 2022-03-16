@@ -154,6 +154,8 @@ const VotingProxyForm = (props) => {
     return <NewVotingProxySuccess votingProxy={newVotingProxy} />;
   }
 
+  const globalError = errors?.detail || errors?.global;
+
   return (
     <Steps
       as="form"
@@ -325,6 +327,8 @@ const VotingProxyForm = (props) => {
         <Spacer size="1rem" />
         <TextField
           textArea
+          hasCounter={data.remarks}
+          maxLength={255}
           disabled={isLoading}
           id="remarks"
           name="remarks"
@@ -343,7 +347,7 @@ const VotingProxyForm = (props) => {
           onChange={handleChangeDataAgreement}
           label="J'autorise Mélenchon 2022 à partager mes coordonnées pour être mis·e en contact dans le cadre d'une procuration"
         />
-        {errors?.detail && (
+        {globalError && (
           <p
             css={`
               padding: 1rem 0 0;
@@ -352,7 +356,7 @@ const VotingProxyForm = (props) => {
               color: ${({ theme }) => theme.redNSP};
             `}
           >
-            {errors.detail}
+            {globalError}
           </p>
         )}
       </fieldset>
