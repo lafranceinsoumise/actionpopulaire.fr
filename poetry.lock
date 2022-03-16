@@ -584,11 +584,11 @@ slugify = ["unicode-slugify"]
 
 [[package]]
 name = "django-filter"
-version = "2.4.0"
+version = "21.1"
 description = "Django-filter is a reusable Django application for allowing users to filter querysets dynamically."
 category = "main"
 optional = false
-python-versions = ">=3.5"
+python-versions = ">=3.6"
 
 [package.dependencies]
 Django = ">=2.2"
@@ -2263,7 +2263,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "e809efafd1a7027b74ecf03cfefea3e08e9415b11eb652a08420b005adca2e00"
+content-hash = "04cbd4073fa219153e4307f6629b5b144e9a7c7ed6e1fd1be6905599ec30b483"
 
 [metadata.files]
 amqp = [
@@ -2624,8 +2624,8 @@ django-dynamic-filenames = [
     {file = "django_dynamic_filenames-1.2.0-py2.py3-none-any.whl", hash = "sha256:415ad481513f337e249510429fd6a8f014a41c5311202aa31b26329de32c623d"},
 ]
 django-filter = [
-    {file = "django-filter-2.4.0.tar.gz", hash = "sha256:84e9d5bb93f237e451db814ed422a3a625751cbc9968b484ecc74964a8696b06"},
-    {file = "django_filter-2.4.0-py3-none-any.whl", hash = "sha256:e00d32cebdb3d54273c48f4f878f898dced8d5dfaad009438fe61ebdf535ace1"},
+    {file = "django-filter-21.1.tar.gz", hash = "sha256:632a251fa8f1aadb4b8cceff932bb52fe2f826dd7dfe7f3eac40e5c463d6836e"},
+    {file = "django_filter-21.1-py3-none-any.whl", hash = "sha256:f4a6737a30104c98d2e2a5fb93043f36dd7978e0c7ddc92f5998e85433ea5063"},
 ]
 django-oauth-toolkit = [
     {file = "django-oauth-toolkit-1.5.0.tar.gz", hash = "sha256:650e5ef2244d1d8db8f507137e0d1e8b8aad1f4086a4a610526e8851f9a38308"},
