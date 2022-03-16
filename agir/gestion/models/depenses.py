@@ -35,6 +35,11 @@ def engagement_autorise(depense: "Depense", role):
     return False
 
 
+engagement_autorise.explication = (
+    "Vous n'avez pas les autorisations pour engager cette dépense"
+)
+
+
 def engager_depense(depense: "Depense"):
     if depense.date_depense is None:
         depense.date_depense = timezone.now()
@@ -46,11 +51,8 @@ class DepenseQuerySet(NumeroQueryset):
             prevu=models.Sum("reglement__montant"),
             regle=models.Sum(
                 "reglement__montant",
-                filter=Q(
-                    reglement__statut__in=[
-                        Reglement.Statut.REGLE,
-                        Reglement.Statut.RAPPROCHE,
-                    ],
+                filter=~Q(
+                    reglement__statut=Reglement.Statut.ATTENTE,
                 ),
             ),
         )
@@ -348,12 +350,61 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
         verbose_name_plural = "Dépenses"
 
 
+def peut_clore_reglement(reglement, role):
+    return role.has_perm("gestion.gerer_depense") or role.has_perm(
+        "gestion.gerer_depense", obj=reglement.depense.compte
+    )
+
+
+peut_clore_reglement.explication = (
+    "Vous n'avez pas les permissions pour valider ce règlement."
+)
+
+
+def peut_expertiser_reglement(reglement, role):
+    return role.has_perm("gestion.valider_depense") or role.has_perm(
+        "gestion.valider_depense", obj=reglement.depense.compte
+    )
+
+
+peut_expertiser_reglement.explication = (
+    "Seuls les experts comptables peuvent réaliser cette opération."
+)
+
+
 @reversion.register(follow=["depense"])
 class Reglement(TimeStampedModel):
     class Statut(models.TextChoices):
         ATTENTE = "C", "En cours"
         REGLE = "R", "Réglé"
         RAPPROCHE = "P", "Rapproché"
+        EXPERTISE = "E", "Attente de validation pour l'expertise comptable"
+        FEC = "F", "Intégré au FEC"
+
+    TRANSITIONS = {
+        Statut.REGLE: [
+            Transition(
+                nom="Clore le règlement",
+                vers=Statut.RAPPROCHE,
+                condition=peut_clore_reglement,
+                class_name="success",
+            )
+        ],
+        Statut.EXPERTISE: [
+            Transition(
+                nom="Renvoyer pour corrections",
+                vers=Statut.REGLE,
+                class_name="failure",
+                permissions=["validation_depense"],
+            ),
+            Transition(
+                nom="Intégrer au FEC",
+                vers=Statut.FEC,
+                class_name="success",
+                permissions=["validation_depense"],
+            ),
+        ],
+    }
 
     class Mode(models.TextChoices):
         VIREMENT = "V", "Par virement"
@@ -472,6 +523,12 @@ class Reglement(TimeStampedModel):
         "pays", blank_label="(sélectionner un pays)", default="FR", blank=False
     )
 
+    commentaires = models.ManyToManyField(
+        to="Commentaire",
+        verbose_name="Commentaires",
+        help_text="Ces commentaires permettent d'ajouter de garder la trace des opérations de traitement des différentes pièces.",
+    )
+
     search_config = (
         ("numero", "B"),
         ("titre", "A"),
@@ -508,9 +565,13 @@ class Reglement(TimeStampedModel):
             description=self.intitule,
         )
 
+    @property
+    def transitions(self) -> List[Transition["Reglement", Statut]]:
+        return self.TRANSITIONS.get(self.Statut(self.statut), [])
+
     class Meta:
         verbose_name = "règlement"
-        ordering = ("date",)
+        ordering = ("-date",)
 
 
 class TypeFournisseur(models.TextChoices):

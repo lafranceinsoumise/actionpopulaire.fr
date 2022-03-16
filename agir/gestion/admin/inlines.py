@@ -304,3 +304,6 @@ class OrdreVirementReglementInline(admin.TabularInline):
         )
 
     depense_link.short_description = "Dépense"
+
+    # TODO: gérer ici les permissions sur les règlements déjà validés à l'aide de la définiton de get_queryset
+    # il faut faire deux inlines différents, pour ceux en lecture seule et pour ceux modifiables
