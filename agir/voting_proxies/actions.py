@@ -7,7 +7,7 @@ from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.db import transaction
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Case, When, Value
 from django.utils import timezone
 
 from agir.lib.tasks import geocode_person
@@ -24,7 +24,6 @@ from agir.voting_proxies.tasks import (
     send_voting_proxy_request_accepted_text_messages,
     send_voting_proxy_request_confirmed_text_messages,
 )
-
 
 # TODO: Choose a proxy-to-request distance limit (in meters)
 PROXY_TO_REQUEST_DISTANCE_LIMIT = 30000  # 30 KM
@@ -142,7 +141,7 @@ def get_voting_proxy_requests_for_proxy(voting_proxy, voting_proxy_request_pks):
     if voting_proxy.consulate_id is not None:
         voting_proxy_requests = voting_proxy_requests.filter(
             consulate_id=voting_proxy.consulate_id,
-        )
+        ).annotate(distance=Value(0))
     # Use voting_proxy person address to request commune distance,
     # fallback to commune match for non-null commune proxies
     else:
@@ -162,19 +161,31 @@ def get_voting_proxy_requests_for_proxy(voting_proxy, voting_proxy_request_pks):
         else:
             voting_proxy_requests = voting_proxy_requests.filter(
                 commune_id=voting_proxy.commune_id,
-            )
+            ).annotate(distance=Value(0))
 
     if len(voting_proxy_request_pks) > 0:
         voting_proxy_requests = voting_proxy_requests.filter(
             id__in=voting_proxy_request_pks
         )
 
+    voting_proxy_requests = voting_proxy_requests.annotate(
+        polling_station_match=Case(
+            When(
+                commune_id=voting_proxy.commune_id,
+                polling_station_number__isnull=False,
+                polling_station_number__iexact=voting_proxy.polling_station_number,
+                then=1,
+            ),
+            default=0,
+        )
+    )
+
     # group by email to prioritize requests with the greatest matching date count
     voting_proxy_requests = (
         voting_proxy_requests.values("email")
         .annotate(ids=ArrayAgg("id"))
         .annotate(matching_date_count=Count("voting_date"))
-        .order_by("-matching_date_count")
+        .order_by("-matching_date_count", "-polling_station_match", "distance")
     )
 
     if not voting_proxy_requests.exists():
