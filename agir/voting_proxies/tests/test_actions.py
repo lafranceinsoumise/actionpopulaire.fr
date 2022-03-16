@@ -334,16 +334,16 @@ class MatchAvailableProxiesWithRequestsTestCase(TestCase):
     def test_matchings_takes_the_proxy_with_the_most_available_dates_first(
         self, notify_proxy
     ):
-        proxy = self.create_proxy(
-            email="a_proxy@proxy.com",
-            voting_dates=[self.available_date, self.another_available_date],
-        )
         another_proxy = self.create_proxy(
             email="another_proxy@proxy.com", voting_dates=[self.available_date]
         )
         yet_another_proxy = self.create_proxy(
             email="yet_another_proxy@proxy.com",
             voting_dates=[self.another_available_date],
+        )
+        the_right_proxy = self.create_proxy(
+            email="the_right_proxy@proxy.com",
+            voting_dates=[self.available_date, self.another_available_date],
         )
 
         a_request = self.create_request(
@@ -360,7 +360,7 @@ class MatchAvailableProxiesWithRequestsTestCase(TestCase):
         fulfilled = match_available_proxies_with_requests(qs, notify_proxy)
         notify_proxy.assert_called()
         self.assertEqual(len(fulfilled), 2)
-        self.assertEqual(notify_proxy.call_args[0][0].pk, proxy.pk)
+        self.assertEqual(notify_proxy.call_args[0][0].pk, the_right_proxy.pk)
 
 
 class FindVotingProxyCandidatesForRequestsTestCase(TestCase):

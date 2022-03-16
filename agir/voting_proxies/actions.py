@@ -227,9 +227,13 @@ def match_available_proxies_with_requests(
     fulfilled_request_ids = []
 
     # Retrieve all available proxy that has not been matched in the last two days
-    available_proxies = VotingProxy.objects.filter(
-        status__in=(VotingProxy.STATUS_CREATED, VotingProxy.STATUS_AVAILABLE),
-    ).exclude(last_matched__date__gt=timezone.now() - timedelta(days=2))
+    available_proxies = (
+        VotingProxy.objects.filter(
+            status__in=(VotingProxy.STATUS_CREATED, VotingProxy.STATUS_AVAILABLE),
+        )
+        .exclude(last_matched__date__gt=timezone.now() - timedelta(days=2))
+        .order_by("-voting_dates__len")
+    )
 
     # Try to match available voting proxies with pending requests
     for proxy in available_proxies:
