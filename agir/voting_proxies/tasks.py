@@ -20,7 +20,7 @@ def send_voting_proxy_request_confirmation(voting_proxy_request_pks):
         raise VotingProxyRequest.DoesNotExist()
     voting_proxy_request = voting_proxy_requests.first()
     message = (
-        "Votre demande est enregistrée. Nous vous recontacterons dès qu'un·e volontaire sera disponible pour prendre "
+        "Votre demande est enregistrée. Nous vous recontacterons dès qu'un-e volontaire sera disponible pour prendre "
         "votre procuration."
     )
     send_sms(message, voting_proxy_request.contact_phone, sender=SMS_SENDER)
