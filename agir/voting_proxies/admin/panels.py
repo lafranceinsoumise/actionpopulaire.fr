@@ -104,6 +104,7 @@ class VoterModelAdmin(admin.ModelAdmin):
         return instance.created.date()
 
     created__date.short_description = "date de création"
+    created__date.admin_order_field = "created"
 
     def commune_consulate(self, instance):
         if instance.commune is not None:
@@ -142,6 +143,7 @@ class InlineVotingProxyRequestAdmin(TabularInline):
         return f"{instance.first_name} {instance.last_name.upper()}"
 
     full_name.short_description = "mandataire"
+    full_name.admin_order_field = "last_name"
 
     def has_add_permission(self, request, obj):
         return False
@@ -216,6 +218,7 @@ class VotingProxyRequestAdmin(VoterModelAdmin):
         return voting_proxy_request.voting_date.strftime("%d %B %Y")
 
     voting_date__date.short_description = "date du scrutin"
+    voting_date__date.admin_order_field = "voting_date"
 
     def proxy_link(self, voting_proxy_request):
         if voting_proxy_request.proxy is None:
