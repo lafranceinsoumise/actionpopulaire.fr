@@ -8,6 +8,7 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
 from agir.lib.admin.autocomplete_filter import AutocompleteRelatedModelFilter
+from agir.lib.utils import front_url, shorten_url
 from agir.voting_proxies.admin.actions import fulfill_voting_proxy_requests
 from agir.voting_proxies.models import VotingProxy, VotingProxyRequest
 
@@ -265,21 +266,44 @@ class VotingProxyRequestAdmin(VoterModelAdmin):
         ] + super().get_urls()
 
     def matching_buttons(self, voting_proxy_request):
-        return format_html(
-            '<p><a href="{match_voting_proxy_request}" class="button">'
-            "  Chercher uniquement pour cette demande"
-            "</a></p>"
-            '<p style="margin-top: 4px;"><a href="{match_person_voting_proxy_requests}" class="button">'
-            "  Chercher pour toutes les demandes de cette personne"
-            "</a></p>",
-            match_voting_proxy_request=reverse(
-                "admin:votingproxies_votingproxyrequest_match_voting_proxy_request",
-                args=(voting_proxy_request.pk,),
-            ),
-            match_person_voting_proxy_requests=reverse(
-                "admin:votingproxies_votingproxyrequest_match_person_voting_proxy_requests",
-                args=(voting_proxy_request.pk,),
-            ),
-        )
+        if voting_proxy_request.status == VotingProxyRequest.STATUS_CANCELLED:
+            return "-"
+        elif voting_proxy_request.status == VotingProxyRequest.STATUS_CREATED:
+            return format_html(
+                '<p><a href="{match_voting_proxy_request}" class="button">'
+                "  Chercher uniquement pour cette demande"
+                "</a></p>"
+                '<p style="margin-top: 4px;"><a href="{match_person_voting_proxy_requests}" class="button">'
+                "  Chercher pour toutes les demandes de cette personne"
+                "</a></p>",
+                match_voting_proxy_request=reverse(
+                    "admin:votingproxies_votingproxyrequest_match_voting_proxy_request",
+                    args=(voting_proxy_request.pk,),
+                ),
+                match_person_voting_proxy_requests=reverse(
+                    "admin:votingproxies_votingproxyrequest_match_person_voting_proxy_requests",
+                    args=(voting_proxy_request.pk,),
+                ),
+            )
+        else:
+            related_requests = (
+                VotingProxyRequest.objects.filter(email=voting_proxy_request.email)
+                .exclude(
+                    status__in=(
+                        VotingProxyRequest.STATUS_CREATED,
+                        VotingProxyRequest.STATUS_CANCELLED,
+                    )
+                )
+                .values_list("pk", flat=True)
+            )
+            link = front_url(
+                "voting_proxy_request_details",
+                query={"vpr": ",".join([str(pk) for pk in related_requests])},
+            )
+            link = shorten_url(link, secret=True, djan_url_type="M2022")
+
+            return format_html(
+                f'<a class="button" href="{link}" target="_blank">➡ Lien vers la page de confirmation</a>'
+            )
 
     matching_buttons.short_description = "Recherche de volontaires"
