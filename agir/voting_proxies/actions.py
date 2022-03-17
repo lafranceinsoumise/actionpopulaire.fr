@@ -55,7 +55,7 @@ def create_or_update_voting_proxy_request(data):
 
 def create_or_update_voting_proxy(data):
     data["voting_dates"] = list(data.get("voting_dates"))
-    email = data.pop("email")
+    email = data.pop("email").lower()
 
     person_data = {
         "first_name": data.get("first_name", ""),
@@ -100,14 +100,12 @@ def create_or_update_voting_proxy(data):
         if voting_proxy.status == VotingProxy.STATUS_INVITED:
             voting_proxy.status = VotingProxy.STATUS_CREATED
             voting_proxy.save()
-
     if is_new_person and "welcome" in SUBSCRIPTIONS_EMAILS[SUBSCRIPTION_TYPE_AP]:
         from agir.people.tasks import send_welcome_mail
 
         send_welcome_mail.delay(person.pk, type=SUBSCRIPTION_TYPE_AP)
 
     geocode_person.delay(person.pk)
-
     data.update(
         {
             "id": voting_proxy.id,
