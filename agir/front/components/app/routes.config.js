@@ -351,6 +351,9 @@ export const routeConfig = {
     hasLayout: false,
     hideFeedbackButton: true,
     hideFooter: true,
+    topBarRightLink: {
+      messageSettings: true,
+    },
   }),
   createContact: new RouteConfig({
     id: "createContact",
