@@ -126,6 +126,7 @@ const VotingProxyWidget = (props) => {
           confirmationLabel="Je confirme que la procuration a été établie"
           dismissLabel="Annuler"
           isConfirming={isLoading === "confirm"}
+          shouldDismissOnClick={false}
         >
           <p>
             Après validation, la personne sera prévenue par SMS qu'elle pourra
