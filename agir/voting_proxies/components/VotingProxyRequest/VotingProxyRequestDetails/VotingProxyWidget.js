@@ -62,11 +62,11 @@ const VotingProxyWidget = (props) => {
     setIsLoading("confirm");
     const result = await confirmVotingProxyRequests(votingProxyRequests);
     setIsLoading(false);
+    setShouldConfirm(false);
     if (result.error) {
       setError(result.error);
     } else {
       setIsConfirmed(true);
-      setShouldConfirm(false);
     }
   }, [shouldConfirm, votingProxyRequests]);
 
@@ -117,23 +117,21 @@ const VotingProxyWidget = (props) => {
         </Button>
       </p>
       {error && <footer>{error}</footer>}
-      {!isConfirmed && (
-        <ModalConfirmation
-          shouldShow={shouldConfirm}
-          onClose={dismissConfirm}
-          onConfirm={confirm}
-          title={`Prévenir ${firstName} que vous avez établi la procuration`}
-          confirmationLabel="Je confirme que la procuration a été établie"
-          dismissLabel="Annuler"
-          isConfirming={isLoading === "confirm"}
-          shouldDismissOnClick={false}
-        >
-          <p>
-            Après validation, la personne sera prévenue par SMS qu'elle pourra
-            se présenter à votre bureau de vote pour voter à votre place.
-          </p>
-        </ModalConfirmation>
-      )}
+      <ModalConfirmation
+        shouldShow={shouldConfirm}
+        onClose={dismissConfirm}
+        onConfirm={confirm}
+        title={`Prévenir ${firstName} que vous avez établi la procuration`}
+        confirmationLabel="Je confirme que la procuration a été établie"
+        dismissLabel="Annuler"
+        isConfirming={isLoading === "confirm"}
+        shouldDismissOnClick={false}
+      >
+        <p>
+          Après validation, la personne sera prévenue par SMS qu'elle pourra se
+          présenter à votre bureau de vote pour voter à votre place.
+        </p>
+      </ModalConfirmation>
     </StyledWidget>
   );
 };
