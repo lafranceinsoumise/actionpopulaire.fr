@@ -6,7 +6,7 @@ const NewVotingProxyRequestHowTo = () => (
   <div>
     <h2
       css={`
-        color: ${(props) => props.theme.primary500};
+        color: ${({ theme }) => theme.primary500};
       `}
     >
       Comment ça marche&nbsp;?

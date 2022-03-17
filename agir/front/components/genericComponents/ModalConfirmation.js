@@ -35,9 +35,14 @@ const ModalContent = styled.div`
     font-size: 1rem;
   }
 
-  > ${Button} {
+  & > ${Button} {
     margin-bottom: 1rem;
     color: white;
+
+    &:hover,
+    &:focus {
+      color: white;
+    }
   }
 `;
 
@@ -52,6 +57,7 @@ const ModalConfirmation = (props) => {
     confirmationUrl = "",
     onConfirm = null,
     shouldDismissOnClick = true,
+    isConfirming = false,
   } = props;
 
   return (
@@ -72,28 +78,36 @@ const ModalConfirmation = (props) => {
           <Spacer size="1rem" />
           {!!confirmationUrl && (
             <Button
+              wrap
               style={{ backgroundColor: style.primary500 }}
               type="button"
               link
               route={confirmationUrl}
+              disabled={isConfirming}
+              loading={isConfirming}
             >
               {confirmationLabel}
             </Button>
           )}
           {!!onConfirm && (
             <Button
+              wrap
               style={{ backgroundColor: style.primary500 }}
               type="button"
               onClick={onConfirm}
+              disabled={isConfirming}
+              loading={isConfirming}
             >
               {confirmationLabel}
             </Button>
           )}
           {dismissLabel && (
             <Button
+              wrap
               type="button"
               onClick={onClose}
               style={{ color: style.black1000 }}
+              disabled={isConfirming}
             >
               {dismissLabel}
             </Button>
@@ -112,7 +126,9 @@ ModalConfirmation.propTypes = {
   dismissLabel: PropTypes.node,
   confirmationLabel: PropTypes.node,
   confirmationUrl: PropTypes.string,
+  onConfirm: PropTypes.func,
   shouldDismissOnClick: PropTypes.bool,
+  isConfirming: PropTypes.bool,
 };
 
 export default ModalConfirmation;

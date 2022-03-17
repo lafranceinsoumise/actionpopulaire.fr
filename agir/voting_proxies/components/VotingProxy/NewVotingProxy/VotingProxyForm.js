@@ -1,7 +1,6 @@
+import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useState } from "react";
-import styled from "styled-components";
 
-import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import Steps, { useSteps } from "@agir/front/genericComponents/Steps";
 
@@ -41,7 +40,7 @@ const VotingProxyForm = (props) => {
   const { user } = props;
   const [formStep, goToPreviousFormStep, goToNextFormStep, setFormStep] =
     useSteps(0);
-  const [isCreated, setIsCreated] = useState(false);
+  const [newVotingProxy, setNewVotingProxy] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [votingDateOptions, setVotingDateOptions] = useState([]);
   const [data, setData] = useState(getInitialData(user));
@@ -129,28 +128,33 @@ const VotingProxyForm = (props) => {
     if (response.error) {
       return handleErrors(response.error);
     }
-    setIsCreated(true);
+    setNewVotingProxy(response.data);
   };
 
-  useEffect(async () => {
-    setIsLoading(true);
-    const options = await createVotingProxyOptions();
-    setIsLoading(false);
-    if (options.error || !options.data?.votingDates) {
-      setErrors({ detail: options.error || "Une erreur est survenue." });
-    } else {
-      setVotingDateOptions(
-        options.data.votingDates.choices.map((choice) => ({
-          value: choice.value,
-          label: choice.display_name,
-        }))
-      );
-    }
+  useEffect(() => {
+    const init = async () => {
+      setIsLoading(true);
+      const options = await createVotingProxyOptions();
+      setIsLoading(false);
+      if (options.error || !options.data?.votingDates) {
+        setErrors({ detail: options.error || "Une erreur est survenue." });
+      } else {
+        setVotingDateOptions(
+          options.data.votingDates.choices.map((choice) => ({
+            value: choice.value,
+            label: choice.display_name,
+          }))
+        );
+      }
+    };
+    init();
   }, []);
 
-  if (isCreated) {
-    return <NewVotingProxySuccess />;
+  if (newVotingProxy) {
+    return <NewVotingProxySuccess votingProxy={newVotingProxy} />;
   }
+
+  const globalError = errors?.detail || errors?.global;
 
   return (
     <Steps
@@ -323,6 +327,8 @@ const VotingProxyForm = (props) => {
         <Spacer size="1rem" />
         <TextField
           textArea
+          hasCounter={data.remarks}
+          maxLength={255}
           disabled={isLoading}
           id="remarks"
           name="remarks"
@@ -341,7 +347,7 @@ const VotingProxyForm = (props) => {
           onChange={handleChangeDataAgreement}
           label="J'autorise Mélenchon 2022 à partager mes coordonnées pour être mis·e en contact dans le cadre d'une procuration"
         />
-        {errors?.detail && (
+        {globalError && (
           <p
             css={`
               padding: 1rem 0 0;
@@ -350,12 +356,16 @@ const VotingProxyForm = (props) => {
               color: ${({ theme }) => theme.redNSP};
             `}
           >
-            {errors.detail}
+            {globalError}
           </p>
         )}
       </fieldset>
     </Steps>
   );
+};
+
+VotingProxyForm.propTypes = {
+  user: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
 };
 
 export default VotingProxyForm;

@@ -1,7 +1,6 @@
+import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useState } from "react";
-import styled from "styled-components";
 
-import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import Steps, { useSteps } from "@agir/front/genericComponents/Steps";
 
@@ -112,25 +111,30 @@ const VotingProxyRequestForm = (props) => {
     setIsCreated(true);
   };
 
-  useEffect(async () => {
-    setIsLoading(true);
-    const options = await createVotingProxyRequestOptions();
-    setIsLoading(false);
-    if (options.error || !options.data?.votingDates) {
-      setErrors({ detail: options.error || "Une erreur est survenue." });
-    } else {
-      setVotingDateOptions(
-        options.data.votingDates.choices.map((choice) => ({
-          value: choice.value,
-          label: choice.display_name,
-        }))
-      );
-    }
+  useEffect(() => {
+    const effect = async () => {
+      setIsLoading(true);
+      const options = await createVotingProxyRequestOptions();
+      setIsLoading(false);
+      if (options.error || !options.data?.votingDates) {
+        setErrors({ detail: options.error || "Une erreur est survenue." });
+      } else {
+        setVotingDateOptions(
+          options.data.votingDates.choices.map((choice) => ({
+            value: choice.value,
+            label: choice.display_name,
+          }))
+        );
+      }
+    };
+    effect();
   }, []);
 
   if (isCreated) {
     return <NewVotingProxyRequestSuccess />;
   }
+
+  const globalError = errors?.global || errors?.detail;
 
   return (
     <Steps
@@ -255,7 +259,7 @@ const VotingProxyRequestForm = (props) => {
           onChange={handleChangeDataAgreement}
           label="J'autorise Mélenchon 2022 à partager mes coordonnées pour être mis·e en contact dans le cadre d'une procuration"
         />
-        {errors?.detail && (
+        {globalError && (
           <p
             css={`
               padding: 1rem 0 0;
@@ -264,12 +268,16 @@ const VotingProxyRequestForm = (props) => {
               color: ${({ theme }) => theme.redNSP};
             `}
           >
-            {errors.detail}
+            {Array.isArray(globalError) ? globalError[0] : globalError}
           </p>
         )}
       </fieldset>
     </Steps>
   );
+};
+
+VotingProxyRequestForm.propTypes = {
+  user: PropTypes.object,
 };
 
 export default VotingProxyRequestForm;

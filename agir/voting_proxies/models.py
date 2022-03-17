@@ -11,6 +11,8 @@ from agir.lib.models import BaseAPIResource
 
 __all__ = ["VotingProxy", "VotingProxyRequest"]
 
+from agir.lib.sms import to_7bit_string
+
 
 class AbstractVoter(BaseAPIResource):
     VOTING_DATE_CHOICES = (
@@ -149,6 +151,12 @@ class VotingProxy(AbstractVoter):
         default=list,
     )
     remarks = models.TextField("remarques", blank=True, null=False, default="")
+    last_matched = models.DateTimeField(
+        "date de la dernière proposition de procuration",
+        null=True,
+        blank=False,
+        editable=False,
+    )
 
     class Meta:
         verbose_name = "volontaire pour le vote par procuration"
@@ -239,11 +247,11 @@ class VotingProxyRequest(AbstractVoter):
         )
         text = (
             f"Procuration de vote ({voting_date_string}) :"
-            f" {self.proxy.first_name} {self.proxy.last_name.upper()}"
+            f" {to_7bit_string(self.proxy.first_name)} {to_7bit_string(self.proxy.last_name.upper())}"
             f" - né·e le {self.proxy.date_of_birth.strftime('%d/%m/%Y')}"
             f" - tél. {self.proxy.contact_phone}"
         )
         if self.proxy.remarks:
-            text += f" - {self.proxy.remarks}"
+            text += f" - {to_7bit_string(self.proxy.remarks)}"
         text += "."
         return text

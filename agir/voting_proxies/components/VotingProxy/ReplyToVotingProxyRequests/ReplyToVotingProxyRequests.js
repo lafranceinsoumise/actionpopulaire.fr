@@ -59,6 +59,7 @@ const ReplyToVotingProxyRequests = (props) => {
             votingProxyPk={votingProxyPk}
             firstName={data.firstName}
             requests={data.requests}
+            readOnly={data.readOnly}
           />
         ) : (
           <NoRequestFound />

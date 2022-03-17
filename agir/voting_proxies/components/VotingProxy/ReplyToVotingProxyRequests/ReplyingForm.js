@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
@@ -38,6 +38,10 @@ const StyledRecap = styled.div`
   p > span {
     color: ${({ theme }) => theme.primary500};
   }
+
+  p + p {
+    margin-top: 0.5rem;
+  }
 `;
 
 const StyledWrapper = styled.div`
@@ -59,7 +63,7 @@ const StyledWrapper = styled.div`
 `;
 
 const ReplyingForm = (props) => {
-  const { votingProxyPk, firstName, requests } = props;
+  const { votingProxyPk, firstName, requests, readOnly } = props;
   const [isAccepting, setIsAccepting] = useState(false);
   const [isDeclining, setIsDeclining] = useState(false);
   const [errors, setErrors] = useState(null);
@@ -103,6 +107,31 @@ const ReplyingForm = (props) => {
 
   if (typeof isAvailable === "boolean") {
     return <ReplySuccess isAvailable={isAvailable} />;
+  }
+
+  if (readOnly) {
+    return (
+      <StyledWrapper>
+        <h2>Mes procurations de vote</h2>
+        <Spacer size="1rem" />
+        <p>
+          Vous avez déjà accepté les procurations suivantes.{" "}
+          <strong>
+            Vérifiez vos SMS pour y retrouver toutes les informations.
+          </strong>
+        </p>
+        <Spacer size="1rem" />
+        <StyledRecap>
+          {requests.map((request) => (
+            <p key={request.id}>
+              <RawFeatherIcon name="calendar" />
+              Voter pour {request.firstName}, {request.votingDate}
+              &nbsp;&mdash;&nbsp;{request.commune || request.consulate}
+            </p>
+          ))}
+        </StyledRecap>
+      </StyledWrapper>
+    );
   }
 
   return (
@@ -168,13 +197,13 @@ const ReplyingForm = (props) => {
               color: ${({ theme }) => theme.redNSP};
             `}
           >
-            ⚠&ensp;Une erreur est survenue.
+            ⚠&ensp;{errors?.global || "Une erreur est survenue."}
           </p>
         )}
         <Spacer size="1.5rem" />
         <Button
           wrap
-          disabled={isLoading}
+          disabled={isLoading || !!errors?.global}
           loading={isAccepting}
           type="submit"
           color="success"
@@ -208,5 +237,6 @@ ReplyingForm.propTypes = {
       consulate: PropTypes.string,
     })
   ).isRequired,
+  readOnly: PropTypes.bool,
 };
 export default ReplyingForm;

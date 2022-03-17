@@ -431,7 +431,7 @@ class MandatDepartemental(MandatAbstrait):
         ordering = ("conseil", "person")
 
     def __str__(self):
-        if hasattr(self, "person") and hasattr(self, "conseil"):
+        if self.person is not None:
             if self.conseil is None:
                 return f"{self.person}, {genrer(self.person.gender, 'élu⋅e')} {genrer(self.person.gender, 'départemental⋅e')} (lieu inconnu)"
             return f"{self.person}, {genrer(self.person.gender, 'élu.e')} au {self.conseil.nom}"
@@ -535,15 +535,17 @@ class MandatRegional(MandatAbstrait):
         ordering = ("conseil", "person")
 
     def __str__(self):
-        if hasattr(self, "person") and hasattr(self, "conseil"):
+        if self.person:
             if self.person.gender == "M":
                 elu = "élu"
             elif self.person.gender == "F":
                 elu = "élue"
             else:
                 elu = "élu⋅e"
-                if self.conseil is None:
-                    return f"{self.person}, {genrer(self.person.gender, 'élu⋅e')} {genrer(self.person.gender, 'régional⋅e')} (lieu inconnu)"
+
+            if self.conseil is None:
+                return f"{self.person}, {genrer(self.person.gender, 'élu⋅e')} {genrer(self.person.gender, 'régional⋅e')} (lieu inconnu)"
+
             return f"{self.person}, {elu} au {self.conseil.nom}"
 
         return "Nouveau mandat régional"
@@ -630,7 +632,7 @@ class MandatConsulaire(MandatAbstrait):
     )
 
     def __str__(self):
-        if hasattr(self, "person") and hasattr(self, "conseil"):
+        if self.person:
             if self.conseil is None:
                 return f"{self.person}, {genrer(self.person.gender, self.get_mandat_display())} (circonscription inconnue)"
             return f"{self.person}, {genrer(self.person.gender, self.get_mandat_display())} ({self.conseil.nom})"

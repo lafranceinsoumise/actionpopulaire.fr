@@ -275,9 +275,8 @@ class AjoutRapideDepenseForm(forms.ModelForm):
         if self.cleaned_data.get("type_document") and self.cleaned_data.get("fichier"):
             type_document_label = TypeDocument(self.cleaned_data["type_document"]).label
             document = Document.objects.create(
-                titre=f"{type_document_label} pour {self.instance.titre}",
-                fichier=self.cleaned_data["fichier"],
                 type=self.cleaned_data["type_document"],
+                fichier=self.cleaned_data["fichier"],
             )
             self.instance.documents.add(document)
 
@@ -456,7 +455,6 @@ class ReglementForm(forms.ModelForm):
 
         if self.cleaned_data.get("preuve"):
             self.preuve = Document.objects.create(
-                titre=f"Preuve règlement {self.instance.intitule} — dépense {self.instance.depense.numero}",
                 type=TypeDocument.PAIEMENT,
                 requis=Document.Besoin.NECESSAIRE,
                 fichier=self.cleaned_data["preuve"],
