@@ -54,7 +54,7 @@ class LocationSerializer(serializers.Serializer):
     zip = serializers.CharField(source="location_zip")
     city = serializers.CharField(source="location_city")
     country = CountryField(source="location_country")
-    state = serializers.SerializerMethodField()
+    state = serializers.SerializerMethodField(read_only=True)
     address = serializers.SerializerMethodField()
 
     shortAddress = serializers.CharField(source="short_address", required=False)
@@ -238,7 +238,7 @@ class NestedLocationSerializer(serializers.Serializer):
     country = NullableCountryField(
         label="pays", required=True, source="location_country"
     )
-    state = serializers.SerializerMethodField()
+    state = serializers.SerializerMethodField(read_only=True)
 
     # Set state from country code
     def get_state(self, obj):
