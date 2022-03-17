@@ -38,7 +38,7 @@
     "cleave.js": "^1.6.0",
     "core-js": "^3.21.1",
     "cross-env": "^7.0.3",
-    "debug": "^4.3.3",
+    "debug": "^4.3.4",
     "dotenv": "^16.0.0",
     "emoji-mart": "^3.0.1",
     "eonasdan-bootstrap-datetimepicker": "^4.17.49",
