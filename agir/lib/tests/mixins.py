@@ -63,7 +63,7 @@ def create_location():
         "location_address2": "App. %s" % fake.building_number(),
         "location_city": fake.city(),
         "location_zip": fake.postcode(),
-        "location_state": "France",
+        "location_country_name": "France",
         "location_country": "FR",
     }
 
