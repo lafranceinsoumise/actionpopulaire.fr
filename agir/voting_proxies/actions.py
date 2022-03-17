@@ -262,7 +262,7 @@ def match_available_proxies_with_requests(
     return fulfilled_request_ids
 
 
-def invite_voting_proxy_candidates(candidates):
+def invite_voting_proxy_candidates(candidates, request):
     voting_proxy_candidates = [
         VotingProxy(
             status=VotingProxy.STATUS_INVITED,
@@ -323,7 +323,7 @@ def find_voting_proxy_candidates_for_requests(
         ]
 
         if candidates.exists():
-            invited_candidate_ids = send_invitations(candidates)
+            invited_candidate_ids = send_invitations(candidates, request)
             candidate_ids += invited_candidate_ids
             possibly_fulfilled_request_ids += request["ids"]
 
@@ -377,7 +377,7 @@ def find_voting_proxy_candidates_for_requests(
                 )
             ).order_by("-rsvp_count")[:PER_VOTING_PROXY_REQUEST_INVITATION_LIMIT]
 
-            invited_candidate_ids = send_invitations(candidates)
+            invited_candidate_ids = send_invitations(candidates, request)
             candidate_ids += invited_candidate_ids
             possibly_fulfilled_request_ids += request["ids"]
 
