@@ -33,7 +33,7 @@ def create_payment(*, person=None, type, price, mode=DEFAULT_MODE, meta=None, **
         "location_address1",
         "location_address2",
         "location_zip",
-        "location_state",
+        "location_country_name",
         "location_city",
         "location_country",
     ]

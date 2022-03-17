@@ -171,7 +171,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                     "location_address2",
                     "location_city",
                     "location_zip",
-                    "location_state",
+                    "location_country_name",
                     "location_country",
                     "coordinates",
                     "coordinates_type",

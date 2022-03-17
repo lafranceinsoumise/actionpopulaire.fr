@@ -209,7 +209,7 @@ MERGE_STRATEGIES = {
     "location_citycode": merge_nullable,
     "location_city": merge_text_fields,
     "location_zip": merge_text_fields,
-    "location_state": merge_text_fields,
+    "location_country_name": merge_text_fields,
     "location_country": merge_text_fields,
     "role": None,
     "auto_login_salt": None,

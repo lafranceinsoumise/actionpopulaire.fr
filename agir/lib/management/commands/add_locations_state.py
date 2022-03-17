@@ -10,24 +10,26 @@ class Command(BaseCommand):
 
     def update_groups_state(self):
         groups = SupportGroup.objects.exclude(
-            Q(location_country="") | Q(location_state="")
+            Q(location_country="") | Q(location_country_name="")
         )
 
         for group in groups:
             country = group.location_country
-            group.location_state = country.name
+            group.location_country_name = country.name
 
-        SupportGroup.objects.bulk_update(groups, ["location_state"])
+        SupportGroup.objects.bulk_update(groups, ["location_country_name"])
         self.print_line(f"Updated : {len(groups)} groupes")
 
     def update_events_state(self):
-        events = Event.objects.exclude(Q(location_country="") | Q(location_state=""))
+        events = Event.objects.exclude(
+            Q(location_country="") | Q(location_country_name="")
+        )
 
         for event in events:
             country = event.location_country
-            event.location_state = country.name
+            event.location_country_name = country.name
 
-        Event.objects.bulk_update(events, ["location_state"])
+        Event.objects.bulk_update(events, ["location_country_name"])
         self.print_line(f"Updated : {len(events)} événements")
 
     def handle(self, *args, **options):

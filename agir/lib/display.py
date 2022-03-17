@@ -18,8 +18,8 @@ def display_address(object):
         if object.location_address2:
             parts.append(object.location_address2)
 
-    if object.location_state:
-        parts.append(object.location_state)
+    if object.location_country_name:
+        parts.append(object.location_country_name)
 
     if object.location_zip and object.location_city:
         parts.append("{} {}".format(object.location_zip, object.location_city))
