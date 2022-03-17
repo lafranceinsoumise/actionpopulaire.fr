@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import React, { useEffect, useMemo } from "react";
 import { Redirect } from "react-router-dom";
 
+import { getMessageSubject } from "@agir/msgs/common/utils";
 import { routeConfig } from "@agir/front/app/routes.config";
 import { useGroupMessage } from "@agir/groups/groupPage/hooks";
 import { useIsOffline } from "@agir/front/offline/hooks";
@@ -10,7 +11,12 @@ import {
   useDispatch,
   useSelector,
 } from "@agir/front/globalContext/GlobalContext";
-import { setBackLink, setAdminLink } from "@agir/front/globalContext/actions";
+import {
+  setBackLink,
+  setAdminLink,
+  setPageTitle,
+  setTopBarRightLink,
+} from "@agir/front/globalContext/actions";
 import {
   getIsSessionLoaded,
   getUser,
@@ -87,6 +93,14 @@ const Page = ({ groupPk, messagePk }) => {
       );
     }
   }, [group, dispatch]);
+
+  useEffect(() => {
+    const pageTitle = message
+      ? getMessageSubject(message)
+      : "Message du groupe";
+    dispatch(setPageTitle(pageTitle));
+    dispatch(setTopBarRightLink({ message: message }));
+  }, [dispatch, message]);
 
   if (isOffline && (!group || !message)) {
     return <NotFoundPage reloadOnReconnection={false} isTopBar={false} />;
