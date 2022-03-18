@@ -28,6 +28,7 @@ class Command(BaseCommand):
         self.dry_run = None
         self.report = {
             "datetime": timezone.now().isoformat(),
+            "dry-run": False,
             "pending_request_count": 0,
             "matched_request_count": 0,
             "pending_requests": {},
@@ -76,10 +77,16 @@ class Command(BaseCommand):
 
     def report_matched_proxy(self, proxy, matching_request_ids):
         for vpr in matching_request_ids:
-            self.report["pending_requests"][str(vpr)]["matched_proxy"] = {
+            vpr = str(vpr)
+
+            if vpr not in self.report["pending_requests"]:
+                self.report["pending_requests"][vpr] = {"id": vpr}
+
+            self.report["pending_requests"][vpr]["matched_proxy"] = {
                 "id": str(proxy.id),
                 "email": proxy.email,
             }
+
         self.report["matched_proxies"].append(
             {
                 "id": str(proxy.id),
@@ -90,9 +97,15 @@ class Command(BaseCommand):
 
     def report_invitation(self, candidates, request):
         for vpr in request["ids"]:
+            vpr = str(vpr)
+
+            if vpr not in self.report["pending_requests"]:
+                self.report["pending_requests"][vpr] = {"id": vpr}
+
             self.report["pending_requests"][str(vpr)]["candidate_proxies"] = [
                 c.email for c in candidates
             ]
+
         self.report["invitations"].append(
             {
                 "from": request["email"],
@@ -121,9 +134,7 @@ class Command(BaseCommand):
         self.stdout.write(message)
 
     def send_report(self):
-        if self.dry_run:
-            return
-
+        self.report["dry_run"] = self.dry_run
         send_matching_report_email.delay(self.report)
 
     def handle(

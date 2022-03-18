@@ -169,6 +169,9 @@ def send_voting_proxy_request_confirmed_text_messages(voting_proxy_request_pks):
 @emailing_task
 def send_matching_report_email(data):
     subject = f"Rapport du script des procurations - {data['datetime']}"
+    if data["dry_run"]:
+        subject = "[DRY-RUN] " + subject
+
     body = f"""
 Bonjour,
 
@@ -201,7 +204,7 @@ L'équipe d'Action populaire.
             attachment.add_header(
                 "Content-Disposition",
                 "attachment",
-                filename=f"{filename}.json",
+                filename=f"{filename}{'.dry' if data['dry_run'] else ''}.json",
             )
             email.attach(attachment)
 
