@@ -147,12 +147,17 @@ def get_voting_proxy_requests_for_proxy(voting_proxy, voting_proxy_request_pks):
         if voting_proxy.person and voting_proxy.person.coordinates:
             near_requests = (
                 voting_proxy_requests.filter(commune__mairie_localisation__isnull=False)
+                .filter(
+                    commune__mairie_localisation__dwithin=(
+                        voting_proxy.person.coordinates,
+                        D(m=PROXY_TO_REQUEST_DISTANCE_LIMIT),
+                    )
+                )
                 .annotate(
                     distance=Distance(
                         "commune__mairie_localisation", voting_proxy.person.coordinates
                     )
                 )
-                .filter(distance__lte=PROXY_TO_REQUEST_DISTANCE_LIMIT)
             )
         if near_requests and near_requests.exists():
             voting_proxy_requests = near_requests
