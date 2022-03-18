@@ -1,6 +1,7 @@
 from django.core.management import BaseCommand
 from django.db.models import Case, When, BooleanField
 from django.utils import timezone
+from tqdm import tqdm
 
 from agir.voting_proxies.actions import (
     send_matching_requests_to_proxy,
@@ -25,6 +26,7 @@ class Command(BaseCommand):
 
     def __init__(self, stdout=None, stderr=None, no_color=False, force_color=False):
         super().__init__(stdout, stderr, no_color, force_color)
+        self.tqdm = None
         self.dry_run = None
         self.report = {
             "datetime": timezone.now().isoformat(),
@@ -45,20 +47,20 @@ class Command(BaseCommand):
             help="Execute without actually sending any notification or updating data",
         )
         parser.add_argument(
-            "-p",
-            "--print-unfulfilled",
-            dest="print_unfulfilled",
-            action="store_true",
-            default=False,
-            help="Print unfulfilled requests at the end of the script",
-        )
-        parser.add_argument(
             "-na",
             "--do-not-alternate",
             dest="do_not_alternate",
             action="store_true",
             default=False,
             help="Do not alternate between odd/even days for proxy invitations",
+        )
+        parser.add_argument(
+            "-s",
+            "--silent",
+            dest="silent",
+            action="store_true",
+            default=False,
+            help="Display a progress bar during the script execution",
         )
 
     def report_pending_requests(self, pending_requests):
@@ -76,6 +78,7 @@ class Command(BaseCommand):
         }
 
     def report_matched_proxy(self, proxy, matching_request_ids):
+        self.tqdm.update(len(matching_request_ids))
         for vpr in matching_request_ids:
             vpr = str(vpr)
 
@@ -96,6 +99,7 @@ class Command(BaseCommand):
         )
 
     def report_invitation(self, candidates, request):
+        self.tqdm.update(len(request["ids"]))
         for vpr in request["ids"]:
             vpr = str(vpr)
 
@@ -131,7 +135,7 @@ class Command(BaseCommand):
         return invite_voting_proxy_candidates(candidates, request)
 
     def log(self, message):
-        self.stdout.write(message)
+        self.tqdm.write(message)
 
     def send_report(self):
         self.report["dry_run"] = self.dry_run
@@ -141,8 +145,8 @@ class Command(BaseCommand):
         self,
         *args,
         dry_run=False,
-        print_unfulfilled=False,
         do_not_alternate=False,
+        silent=False,
         **kwargs,
     ):
         self.dry_run = dry_run
@@ -150,11 +154,15 @@ class Command(BaseCommand):
             status=VotingProxyRequest.STATUS_CREATED,
             proxy__isnull=True,
         )
+        self.tqdm = tqdm(
+            total=pending_requests.count(),
+            bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}]",
+            disable=silent,
+        )
         self.report_pending_requests(pending_requests)
         self.log(
             f"\n\nTrying to fulfill {pending_requests.count()} pending requests..."
         )
-
         fulfilled_request_ids = match_available_proxies_with_requests(
             pending_requests, notify_proxy=self.send_matching_requests_to_proxy
         )
@@ -189,7 +197,8 @@ class Command(BaseCommand):
                 possibly_fulfilled_request_ids,
                 candidate_ids,
             ) = find_voting_proxy_candidates_for_requests(
-                pending_requests, send_invitations=self.invite_voting_proxy_candidates
+                pending_requests,
+                send_invitations=self.invite_voting_proxy_candidates,
             )
             if len(possibly_fulfilled_request_ids) > 0:
                 pending_requests = pending_requests.exclude(
@@ -203,17 +212,12 @@ class Command(BaseCommand):
                 self.log(f" ☒ No voting proxy candidate found :-(")
 
         if pending_requests.count() > 0:
-            self.log(f"\n{pending_requests.count()} unfulfilled requests remaining\n")
-            if print_unfulfilled:
-                # Print remaining unfulfilled requests
-                for pending_request in pending_requests:
-                    self.log(
-                        f" — {pending_request}, "
-                        f"{pending_request.commune if pending_request.commune else pending_request.consulate}\n"
-                    )
-            self.log("\n")
+            self.log(f"\n{pending_requests.count()} unfulfilled requests remaining")
         else:
             self.log(f"\nNo unfulfilled requests remaining for today!")
 
+        self.log("\nSending script report")
         self.send_report()
-        self.log("Bye!\n\n")
+
+        self.log("\nBye!\n\n")
+        self.tqdm.close()
