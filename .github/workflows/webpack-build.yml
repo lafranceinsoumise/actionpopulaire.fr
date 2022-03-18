@@ -1,6 +1,6 @@
 name: Build front bundles
 concurrency:
-  group: '${{ github.ref }}'
+  group: "${{ github.ref }}"
   cancel-in-progress: true
 on: [push]
 
@@ -10,25 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2-beta
+      - uses: actions/setup-node@v2
         with:
-          node-version: '14'
-
-      - uses: actions/cache@v2
-        with:
-          path: ~/.npm
-          key: npm-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            npm-${{ hashFiles('package-lock.json') }}
-            npm-
-
-      - uses: actions/cache@v2
-        with:
-          path: ~/.babel-cache
-          key: babel-${{ hashFiles('agir/**/*.js') }}
-          restore-keys: |
-            babel-${{ hashFiles('agir/**/*.js') }}
-            babel-
+          node-version: "14"
+          cache: "npm"
 
       - name: Install node dependencies
         run: npm ci
