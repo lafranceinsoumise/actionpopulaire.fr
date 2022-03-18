@@ -91,6 +91,8 @@ class DocumentAjoutRapideForm(forms.ModelForm):
         required=False,
     )
 
+    date = forms.DateField(required=False, widget=CleavedDateInput(today_button=False))
+
     fichier = forms.FileField(required=False)
 
     def save(self, commit=False):

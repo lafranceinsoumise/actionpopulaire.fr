@@ -204,7 +204,7 @@ class AjouterDepenseInline(AjoutRapideMixin, admin.TabularInline):
 class BaseAjouterDocumentInline(AjoutRapideMixin, admin.TabularInline):
     verbose_name_plural = "Ajout rapide de documents justificatifs"
     form = DocumentAjoutRapideForm
-    fields = ("type", "identifiant", "precision", "fichier")
+    fields = ("type", "identifiant", "precision", "date", "fichier")
 
 
 class AjouterDocumentProjetInline(BaseAjouterDocumentInline):
