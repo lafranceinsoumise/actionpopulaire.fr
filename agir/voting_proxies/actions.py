@@ -135,6 +135,14 @@ def get_voting_proxy_requests_for_proxy(voting_proxy, voting_proxy_request_pks):
         proxy__isnull=True,
     ).exclude(email=voting_proxy.email)
 
+    if len(voting_proxy_request_pks) > 0:
+        voting_proxy_requests = voting_proxy_requests.filter(
+            id__in=voting_proxy_request_pks
+        )
+
+    if not voting_proxy_requests.exists():
+        raise VotingProxyRequest.DoesNotExist
+
     # Use consulate match for non-null consulate proxies
     if voting_proxy.consulate_id is not None:
         voting_proxy_requests = voting_proxy_requests.filter(
@@ -166,10 +174,8 @@ def get_voting_proxy_requests_for_proxy(voting_proxy, voting_proxy_request_pks):
                 commune_id=voting_proxy.commune_id,
             ).annotate(distance=Value(0))
 
-    if len(voting_proxy_request_pks) > 0:
-        voting_proxy_requests = voting_proxy_requests.filter(
-            id__in=voting_proxy_request_pks
-        )
+    if not voting_proxy_requests.exists():
+        raise VotingProxyRequest.DoesNotExist
 
     voting_proxy_requests = voting_proxy_requests.annotate(
         polling_station_match=Case(
@@ -190,9 +196,6 @@ def get_voting_proxy_requests_for_proxy(voting_proxy, voting_proxy_request_pks):
         .annotate(matching_date_count=Count("voting_date"))
         .order_by("-matching_date_count", "-polling_station_match", "distance")
     )
-
-    if not voting_proxy_requests.exists():
-        raise VotingProxyRequest.DoesNotExist
 
     return VotingProxyRequest.objects.filter(
         id__in=voting_proxy_requests.first()["ids"]
@@ -239,10 +242,12 @@ def match_available_proxies_with_requests(
     pending_requests, notify_proxy=send_matching_requests_to_proxy
 ):
     fulfilled_request_ids = []
+    pending_request_ids = list(pending_requests.values_list("id", flat=True))
 
     # Retrieve all available proxy that has not been matched in the last two days
     available_proxies = (
-        VotingProxy.objects.filter(
+        VotingProxy.objects.select_related("person")
+        .filter(
             status__in=(VotingProxy.STATUS_CREATED, VotingProxy.STATUS_AVAILABLE),
         )
         .exclude(last_matched__date__gt=timezone.now() - timedelta(days=2))
@@ -251,18 +256,22 @@ def match_available_proxies_with_requests(
 
     # Try to match available voting proxies with pending requests
     for proxy in available_proxies:
-        pending_requests = pending_requests.exclude(id__in=fulfilled_request_ids)
-        if not pending_requests.exists():
+        if len(pending_request_ids) == 0:
             break
         try:
             matching_request_ids = get_voting_proxy_requests_for_proxy(
-                proxy, pending_requests.values_list("id", flat=True)
+                proxy, pending_request_ids
             ).values_list("id", flat=True)
         except VotingProxyRequest.DoesNotExist:
             pass
         else:
             notify_proxy(proxy, matching_request_ids)
             fulfilled_request_ids += matching_request_ids
+            pending_request_ids = [
+                pending_request_id
+                for pending_request_id in pending_request_ids
+                if pending_request_id not in fulfilled_request_ids
+            ]
 
     return fulfilled_request_ids
 
