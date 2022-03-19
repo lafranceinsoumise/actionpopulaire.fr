@@ -199,7 +199,8 @@ L'équipe d'Action populaire.
         )
 
         for filename in ("pending_requests", "matched_proxies", "invitations"):
-            attachment = MIMEText(json.dumps(data[filename]))
+            content = json.dumps(data[filename])
+            attachment = MIMEText(content.rstrip("\n"), "plain", "utf-8")
             attachment.add_header("Content-Type", "application/json")
             attachment.add_header(
                 "Content-Disposition",
