@@ -64,7 +64,6 @@ class Command(BaseCommand):
         )
 
     def report_pending_requests(self, pending_requests):
-        self.report["pending_request_count"] = pending_requests.count()
         self.report["pending_requests"] = {
             str(request.id): {
                 "id": str(request.id),
@@ -74,7 +73,7 @@ class Command(BaseCommand):
                 "commune": request.commune.nom if request.commune else None,
                 "consulate": request.consulate.nom if request.consulate else None,
             }
-            for request in pending_requests
+            for request in pending_requests.select_related("commune", "consulate")
         }
 
     def report_matched_proxy(self, proxy, matching_request_ids):
@@ -154,15 +153,15 @@ class Command(BaseCommand):
             status=VotingProxyRequest.STATUS_CREATED,
             proxy__isnull=True,
         )
+        initial_request_count = len(pending_requests)
         self.tqdm = tqdm(
-            total=pending_requests.count(),
+            total=initial_request_count,
             bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}]",
             disable=silent,
         )
+        self.report["pending_request_count"] = initial_request_count
         self.report_pending_requests(pending_requests)
-        self.log(
-            f"\n\nTrying to fulfill {pending_requests.count()} pending requests..."
-        )
+        self.log(f"\n\nTrying to fulfill {initial_request_count} pending requests...")
         fulfilled_request_ids = match_available_proxies_with_requests(
             pending_requests, notify_proxy=self.send_matching_requests_to_proxy
         )
@@ -175,8 +174,9 @@ class Command(BaseCommand):
         else:
             self.log(f" ☒ No available voting proxy found :-(")
 
+        unfulfilled_request_count = len(pending_requests)
         # Invite AP users to join the voting proxy pool for the remaining requests
-        if pending_requests.count() > 0:
+        if unfulfilled_request_count > 0:
             if not do_not_alternate:
                 # Alternate sending of candidate invitations to leave past recipients
                 # at least one day to reply
@@ -189,9 +189,10 @@ class Command(BaseCommand):
                     )
                 ).filter(is_odd=is_an_odd_day)
                 self.log(f"\nToday is an {'odd' if is_an_odd_day else 'even'} day!")
+                unfulfilled_request_count = len(pending_requests)
 
             self.log(
-                f"\nLooking for voting proxy candidates for {pending_requests.count()} remaining requests..."
+                f"\nLooking for voting proxy candidates for {unfulfilled_request_count} remaining requests..."
             )
             (
                 possibly_fulfilled_request_ids,
@@ -204,6 +205,7 @@ class Command(BaseCommand):
                 pending_requests = pending_requests.exclude(
                     id__in=possibly_fulfilled_request_ids
                 )
+                unfulfilled_request_count -= len(possibly_fulfilled_request_ids)
                 self.log(
                     f" ☑ {len(candidate_ids)} voting proxy invitation(s) sent "
                     f"for {len(possibly_fulfilled_request_ids)} pending requests"
@@ -211,8 +213,8 @@ class Command(BaseCommand):
             else:
                 self.log(f" ☒ No voting proxy candidate found :-(")
 
-        if pending_requests.count() > 0:
-            self.log(f"\n{pending_requests.count()} unfulfilled requests remaining")
+        if unfulfilled_request_count > 0:
+            self.log(f"\n{unfulfilled_request_count} unfulfilled requests remaining")
         else:
             self.log(f"\nNo unfulfilled requests remaining for today!")
 
