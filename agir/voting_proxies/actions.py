@@ -2,12 +2,12 @@ from copy import deepcopy
 from datetime import timedelta
 from functools import partial
 
-from data_france.models import Commune
+from data_france.models import Commune, CirconscriptionConsulaire
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.db import transaction
-from django.db.models import Count, Q, Case, When, Value
+from django.db.models import Count, Q, Case, When, Value, F
 from django.utils import timezone
 
 from agir.lib.tasks import geocode_person
@@ -327,14 +327,18 @@ def find_voting_proxy_candidates_for_requests(
     # Find candidates for consulate requests
     for request in (
         pending_requests.exclude(consulate__pays__isnull=True)
-        .values("email", "consulate__pays")
+        .values("email")
         .annotate(ids=ArrayAgg("id"))
     ):
+        pays = [
+            country.code
+            for country in CirconscriptionConsulaire.objects.get(
+                id=VotingProxyRequest.objects.get(id=request["ids"][0]).consulate_id
+            ).pays
+        ]
         candidates = get_voting_proxy_candidates_queryset(
             request, candidate_ids
-        ).filter(location_country__in=request["consulate__pays"].split(","))[
-            :PER_VOTING_PROXY_REQUEST_INVITATION_LIMIT
-        ]
+        ).filter(location_country__in=pays)[:PER_VOTING_PROXY_REQUEST_INVITATION_LIMIT]
 
         if candidates.exists():
             invited_candidate_ids = send_invitations(candidates, request)
@@ -344,26 +348,23 @@ def find_voting_proxy_candidates_for_requests(
     # Find candidates for commune requests
     for request in (
         pending_requests.exclude(commune__isnull=True)
-        .values(
-            "email",
-            "commune__id",
-            "commune__mairie_localisation",
-        )
+        .values("email")
         .annotate(ids=ArrayAgg("id"))
     ):
+        commune = Commune.objects.get(
+            id=VotingProxyRequest.objects.get(id=request["ids"][0]).commune_id
+        )
         candidates = get_voting_proxy_candidates_queryset(request, candidate_ids)
-
         # Match by distance for geolocalised communes
-        if request["commune__mairie_localisation"]:
+        if commune.mairie_localisation:
             candidates = candidates.exclude(coordinates__isnull=True).filter(
                 coordinates__dwithin=(
-                    request["commune__mairie_localisation"],
+                    commune.mairie_localisation,
                     D(m=PROXY_TO_REQUEST_DISTANCE_LIMIT),
                 )
             )
         # Try to match by city code / zip code for non-geolocalised communes
         else:
-            commune = Commune.objects.get(id=request["commune__id"])
             candidates = (
                 candidates.exclude(
                     location_citycode__isnull=True, location_zip__isnull=True
