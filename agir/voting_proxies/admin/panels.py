@@ -170,6 +170,10 @@ class VotingProxyAdmin(VoterModelAdmin):
 
     inlines = [InlineVotingProxyRequestAdmin]
     readonly_fields = (*VoterModelAdmin.readonly_fields, "last_matched")
+    autocomplete_fields = (
+        *VoterModelAdmin.autocomplete_fields,
+        "person",
+    )
 
     def get_queryset(self, request):
         return (
@@ -211,6 +215,10 @@ class VotingProxyRequestAdmin(VoterModelAdmin):
         ("proxy", admin.EmptyFieldListFilter),
     )
     readonly_fields = ("matching_buttons",)
+    autocomplete_fields = (
+        *VoterModelAdmin.autocomplete_fields,
+        "proxy",
+    )
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related("proxy")
