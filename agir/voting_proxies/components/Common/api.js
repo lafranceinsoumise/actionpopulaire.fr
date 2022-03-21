@@ -88,7 +88,6 @@ export const createVotingProxyRequest = async (data) => {
       result.error = { detail: e.message || "Une erreur est survenue" };
     }
   }
-  console.log(result);
   return result;
 };
 

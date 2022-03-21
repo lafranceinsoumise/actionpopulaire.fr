@@ -1,23 +1,22 @@
+import _debounce from "lodash/debounce";
 import PropTypes from "prop-types";
-import React, { useState, useCallback } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import styled from "styled-components";
 import { mutate } from "swr";
 
-import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
+
 import * as api from "@agir/events/common/api";
 import * as apiGroup from "@agir/groups/utils/api";
-
-import Spacer from "@agir/front/genericComponents/Spacer.js";
-
-import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents.js";
-import GroupList from "../GroupList";
-import GroupItem from "../GroupItem";
+import { useToast } from "@agir/front/globalContext/hooks.js";
 
 import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButton.js";
 import Button from "@agir/front/genericComponents/Button";
+import GroupList from "../GroupList";
+import GroupItem from "../GroupItem";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-import { useToast } from "@agir/front/globalContext/hooks.js";
-import _debounce from "lodash/debounce";
+import Spacer from "@agir/front/genericComponents/Spacer.js";
+import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents.js";
 
 const StyledListBlock = styled.div`
   div {
@@ -36,7 +35,7 @@ const StyledSearch = styled.div`
   display: flex;
   height: 2.5rem;
 
-  > input {
+  & > input {
     width: 90%;
     height: 100%;
     border: none;
@@ -49,13 +48,15 @@ const StyledSearch = styled.div`
 `;
 
 const START_SEARCH = 3;
-const MAX_RESULTS = 20;
+const MAX_RESULTS = 2;
 
 export const AddGroupOrganizer = ({ eventPk, groups, onBack }) => {
-  const [selectedGroup, setSelectedGroup] = useState(null);
-  const [groupSearched, setGroupSearched] = useState([]);
-  const [search, setSearch] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [search, setSearch] = useState([]);
+  const [groupSuggestions, setGroupSuggestions] = useState([]);
+  const [groupSearchResults, setGroupSearchResults] = useState([]);
+  const [selectedGroup, setSelectedGroup] = useState(null);
+
   const sendToast = useToast();
 
   const onSubmit = async () => {
@@ -88,28 +89,37 @@ export const AddGroupOrganizer = ({ eventPk, groups, onBack }) => {
     onBack();
   };
 
-  const handleSearch = async (searchTerm) => {
-    const { data, errors } = await apiGroup.searchGroups(searchTerm);
-    // Filter already organizer groups
-    setGroupSearched(
-      data.results.filter(
-        (result) => !groups.some((group) => group.id === result.id)
-      )
-    );
-    setIsLoading(false);
-  };
-
-  const debouncedSearch = useCallback(_debounce(handleSearch, 300), []);
+  const handleSearch = useMemo(
+    () =>
+      _debounce(async (searchTerm) => {
+        const { data } = await apiGroup.searchGroups(searchTerm);
+        // Filter already organizer groups
+        setGroupSearchResults(
+          data.results
+            .filter((result) => !groups.some((group) => group.id === result.id))
+            .slice(0, MAX_RESULTS)
+        );
+        setIsLoading(false);
+      }, 300),
+    [groups]
+  );
 
   const handleChange = (e) => {
     setSearch(e.target.value);
-    setIsLoading(true);
-    setGroupSearched([]);
-
+    setGroupSearchResults([]);
     if (e.target.value.length >= START_SEARCH) {
-      debouncedSearch(e.target.value);
+      setIsLoading(true);
+      handleSearch(e.target.value);
     }
   };
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await api.getOrganizerGroupSuggestions(eventPk);
+      const suggestions = Array.isArray(data) ? data : [];
+      setGroupSuggestions(suggestions);
+    })();
+  }, [eventPk]);
 
   return (
     <>
@@ -139,37 +149,33 @@ export const AddGroupOrganizer = ({ eventPk, groups, onBack }) => {
               placeholder="Chercher un groupe..."
             />
           </StyledSearch>
-
-          {!!groupSearched?.length && (
-            <>
-              <Spacer size="2rem" />
-              {groupSearched.slice(0, MAX_RESULTS).length > MAX_RESULTS && (
-                <p>
-                  {MAX_RESULTS} des {groupSearched.length} résultats
-                </p>
-              )}
+          <Spacer size="1rem" />
+          <div>
+            {search.length < START_SEARCH ? (
+              <span>Ecrivez au moins {START_SEARCH} caractères</span>
+            ) : isLoading ? (
+              <span>Recherche en cours...</span>
+            ) : groupSearchResults.length === 0 ? (
+              <span>Aucun groupe ne correspond à cette recherche</span>
+            ) : (
+              <h4>Résultats</h4>
+            )}
+            {groupSearchResults.length > 0 && (
               <GroupList
-                groups={groupSearched.slice(0, MAX_RESULTS)}
+                groups={groupSearchResults}
                 selectGroup={setSelectedGroup}
               />
-              <Spacer size="1rem" />
-            </>
-          )}
-
-          {search.length < START_SEARCH && (
-            <p>
-              <Spacer size="1rem" />
-              Ecrivez au moins {START_SEARCH} caractères
-            </p>
-          )}
-
-          {search.length >= START_SEARCH && !groupSearched?.length && (
-            <p>
-              <Spacer size="1rem" />
-              {isLoading
-                ? "Recherche en cours ..."
-                : "Aucun groupe ne correspond à cette recherche"}
-            </p>
+            )}
+          </div>
+          <Spacer size="1rem" />
+          {groupSuggestions.length > 0 && (
+            <div>
+              <h4>Derniers groupes co-organisateurs</h4>
+              <GroupList
+                groups={groupSuggestions.slice(0, MAX_RESULTS)}
+                selectGroup={setSelectedGroup}
+              />
+            </div>
           )}
         </>
       ) : (

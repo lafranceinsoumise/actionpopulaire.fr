@@ -82,6 +82,8 @@ const StyledField = styled.label`
     grid-row: 4;
     grid-column: 2/3;
     text-align: right;
+    line-height: 1.5;
+    font-size: 0.875em;
   }
 `;
 

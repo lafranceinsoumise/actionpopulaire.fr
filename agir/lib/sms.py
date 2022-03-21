@@ -7,6 +7,7 @@ from django.conf import settings
 from django.utils import timezone
 from phonenumber_field.phonenumber import PhoneNumber
 from phonenumbers import number_type, PhoneNumberType
+from unidecode import unidecode
 
 from agir.lib.utils import grouper
 from agir.people.models import PersonQueryset
@@ -162,6 +163,11 @@ GSM7_CODEPOINTS = {
     0x00FC: 1,  # 	LATIN SMALL LETTER U WITH DIAERESIS
     0x00E0: 1,  # 	LATIN SMALL LETTER A WITH GRAVE
 }
+
+
+def to_7bit_string(string):
+    # Remove non 7bit characters from message to avoid errors
+    return unidecode(string).encode("ascii", errors="replace").decode("utf-8")
 
 
 def _send_sms_as_email(message, recipients, params):

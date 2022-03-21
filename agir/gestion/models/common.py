@@ -182,9 +182,10 @@ class Compte(TimeStampedModel):
                 "Voir les projets, dépenses et documents dont l'accès est indiqué commme secret.",
             ),
             ("engager_depense", "Engager une dépense pour ce compte"),
-            ("gerer_depense", "Gérer les dépenses"),
+            ("gerer_depense", "Gérer les dépenses après engagement"),
+            ("controler_depense", "Contrôler les dépenses a posteriori"),
+            ("validation_depense", "Validation comptable des dépenses"),
             ("voir_montant_depense", "Voir le montant des dépenses finalisées"),
-            ("controler_depense", "Contrôler les dépenses"),
             ("gerer_projet", "Gérer les projets"),
             ("controler_projet", "Contrôler les projets"),
         ]

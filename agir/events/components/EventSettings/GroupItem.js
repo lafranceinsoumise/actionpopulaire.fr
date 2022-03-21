@@ -93,40 +93,36 @@ const StyledGroup = styled.div`
   }
 `;
 
-const GroupItem = ({ id, name, image = "", selectGroup, label, disabled }) => {
-  return (
-    <StyledGroup
-      disabled={disabled}
-      isSelectGroup={!!selectGroup}
-      onClick={() => selectGroup && selectGroup({ id, name })}
-    >
-      <div>
-        {image ? (
-          <Avatar image={image} name={name} />
-        ) : (
-          <RawFeatherIcon width="1rem" height="1rem" name="users" />
-        )}
-        <Name>{name}</Name>
-        {selectGroup && (
-          <Button
-            color="choose"
-            small
-            onClick={() => selectGroup({ id, name })}
-          >
-            Inviter
-          </Button>
-        )}
-      </div>
-      <div>{!!label && <Label>{label}</Label>}</div>
-    </StyledGroup>
-  );
-};
+const GroupItem = ({ id, name, image = "", selectGroup, label, disabled }) => (
+  <StyledGroup
+    disabled={disabled}
+    isSelectGroup={!!selectGroup}
+    onClick={() => selectGroup && selectGroup({ id, name })}
+  >
+    <div>
+      {image ? (
+        <Avatar image={image} name={name} />
+      ) : (
+        <RawFeatherIcon width="1rem" height="1rem" name="users" />
+      )}
+      <Name>{name}</Name>
+      {selectGroup && (
+        <Button color="choose" small onClick={() => selectGroup({ id, name })}>
+          Inviter
+        </Button>
+      )}
+    </div>
+    <div>{!!label && <Label>{label}</Label>}</div>
+  </StyledGroup>
+);
 
 GroupItem.propTypes = {
   id: PropTypes.string,
   name: PropTypes.string,
   image: PropTypes.string,
   selectGroup: PropTypes.func,
+  label: PropTypes.string,
+  disabled: PropTypes.bool,
 };
 
 export default GroupItem;

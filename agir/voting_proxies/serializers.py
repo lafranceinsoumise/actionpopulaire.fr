@@ -183,6 +183,7 @@ class VotingProxySerializer(VoterSerializerMixin):
         label="Scrutins",
     )
     dateOfBirth = serializers.DateField(source="date_of_birth", required=True)
+    remarks = serializers.CharField(max_length=255, required=False, allow_blank=True)
 
     def update(self, instance, validated_data):
         if "commune" in validated_data or "consulate" in validated_data:
@@ -205,9 +206,9 @@ class VotingProxySerializer(VoterSerializerMixin):
             "consulate",
             "pollingStationNumber",
             "votingDates",
-            "remarks",
             "status",
             "dateOfBirth",
+            "remarks",
         )
 
 
@@ -249,6 +250,7 @@ class CreateVotingProxySerializer(VotingProxySerializer):
     class Meta:
         model = VotingProxy
         fields = (
+            "id",
             "firstName",
             "lastName",
             "email",
@@ -265,4 +267,5 @@ class CreateVotingProxySerializer(VotingProxySerializer):
             "address",
             "zip",
             "city",
+            "status",
         )

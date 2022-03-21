@@ -8,27 +8,13 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 import ButtonMuteMessage from "@agir/front/genericComponents/ButtonMuteMessage";
 import ButtonLockMessage from "@agir/front/genericComponents/ButtonLockMessage";
 
-import { MessageOptions } from "@agir/msgs/MessagePage/MessageThreadMenu.js";
+import { MessageOptions } from "@agir/msgs/MessagePage/MessageThreadMenu";
 import { IconLink } from "./StyledBar";
-import UserMenu from "../UserMenu";
-import { routeConfig } from "@agir/front/app/routes.config";
-import { useMessageSWR } from "@agir/msgs/common/hooks";
-import { useCurrentLocation } from "@agir/front/app/utils.js";
+import UserMenu from "@agir/front/app/Navigation/TopBar/UserMenu";
 
 export const RightLink = (props) => {
   const { isLoading, user, settingsLink } = props;
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-
-  const pathname = useCurrentLocation();
-  const matchMessagesPage = pathname === "/messages/";
-  const matchMessagePage =
-    routeConfig.messages.match(pathname) && !matchMessagesPage;
-  const cleanPathname = pathname.slice(0, pathname.length - 1);
-  const messagePk = matchMessagePage
-    ? cleanPathname.slice(cleanPathname.lastIndexOf("/") + 1)
-    : undefined;
-
-  const { currentMessage } = useMessageSWR(messagePk);
 
   if (isLoading) {
     return <IconLink as={Spacer} size="32px" />;
@@ -42,24 +28,25 @@ export const RightLink = (props) => {
     );
   }
 
-  if (matchMessagesPage) {
-    return <MessageOptions />;
-  }
-
   // Show muted message settings
-  if (matchMessagePage) {
-    const isAuthor = currentMessage?.author.id === user.id;
-    const isManager = currentMessage?.group?.isManager;
+  if (settingsLink?.message?.id) {
+    const { message } = settingsLink;
+    const isAuthor = message.author.id === user.id;
+    const isManager = message.group?.isManager;
 
     return (
       <>
         {(isManager || isAuthor) && (
-          <ButtonLockMessage message={{ id: messagePk }} />
+          <ButtonLockMessage message={{ id: message.id }} />
         )}
         <Spacer size="1rem" style={{ display: "inline-block" }} />
-        <ButtonMuteMessage message={{ id: messagePk }} />
+        <ButtonMuteMessage message={{ id: message.id }} />
       </>
     );
+  }
+
+  if (settingsLink?.messageSettings) {
+    return <MessageOptions />;
   }
 
   if (settingsLink) {
