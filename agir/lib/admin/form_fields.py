@@ -65,12 +65,19 @@ class AdminJsonWidget(forms.Textarea):
 
 
 class CleavedDateInput(forms.DateInput):
+    def __init__(self, attrs=None, format=None, *, today_button=True):
+        super().__init__(attrs, format)
+        self._today_button = today_button
+
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
         css_class = (
             f'cleaved-date-input {context["widget"]["attrs"].get("class", "")}'.strip()
         )
         context["widget"]["attrs"]["class"] = css_class
+        if self._today_button:
+            context["widget"]["attrs"]["data-today"] = "true"
+
         return context
 
     @property

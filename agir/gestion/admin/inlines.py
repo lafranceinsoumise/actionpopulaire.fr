@@ -201,10 +201,10 @@ class AjouterDepenseInline(AjoutRapideMixin, admin.TabularInline):
     fields = ("titre", "type", "montant", "compte", "type_document", "fichier")
 
 
-class BaseAjouterDocumentInline(AjouterDepenseInline, admin.TabularInline):
+class BaseAjouterDocumentInline(AjoutRapideMixin, admin.TabularInline):
     verbose_name_plural = "Ajout rapide de documents justificatifs"
     form = DocumentAjoutRapideForm
-    fields = ("type", "identifiant", "precision", "fichier")
+    fields = ("type", "identifiant", "precision", "date", "fichier")
 
 
 class AjouterDocumentProjetInline(BaseAjouterDocumentInline):
@@ -304,3 +304,6 @@ class OrdreVirementReglementInline(admin.TabularInline):
         )
 
     depense_link.short_description = "Dépense"
+
+    # TODO: gérer ici les permissions sur les règlements déjà validés à l'aide de la définiton de get_queryset
+    # il faut faire deux inlines différents, pour ceux en lecture seule et pour ceux modifiables

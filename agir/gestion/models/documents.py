@@ -50,6 +50,13 @@ class Document(ModeleGestionMixin, TimeStampedModel):
         help_text="Indiquez ici si ce document a un identifiant ou un numéro (numéro de facture ou de devis, identifiant de transaction, etc.)",
     )
 
+    date = models.DateField(
+        verbose_name="Date du document",
+        null=True,
+        blank=True,
+        help_text="Si le document a une date, indiquez-la ici.",
+    )
+
     type = models.CharField(
         verbose_name="Type de document", max_length=10, choices=TypeDocument.choices
     )
