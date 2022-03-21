@@ -35,6 +35,21 @@ def engagement_autorise(depense: "Depense", role):
     return False
 
 
+def depense_entierement_reglee(depense: "Depense", _role):
+    return depense.depense_reglee
+
+
+depense_entierement_reglee.explication = (
+    "La dépense doit être entièrement réglée pour pouvoir la clôturer."
+)
+
+
+def valider_reglements_lies(depense: "Depense"):
+    depense.reglements.filter(statut=Reglement.Statut.REGLE).update(
+        statut=Reglement.Statut.RAPPROCHE
+    )
+
+
 engagement_autorise.explication = (
     "Vous n'avez pas les autorisations pour engager cette dépense"
 )
@@ -107,6 +122,8 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
                 nom="Clôturer directement le dossier",
                 vers=Etat.CLOTURE,
                 permissions=["gestion.controler_depense"],
+                condition=depense_entierement_reglee,
+                effect=valider_reglements_lies,
                 class_name="warning",
             ),
         ],
@@ -122,6 +139,8 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
                 nom="Clôturer directement la dépense",
                 vers=Etat.CLOTURE,
                 permissions=["gestion.controler_depense"],
+                condition=depense_entierement_reglee,
+                effect=valider_reglements_lies,
                 class_name="warning",
             ),
         ],
@@ -136,6 +155,8 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
                 nom="Clôturer le dossier",
                 vers=Etat.CLOTURE,
                 permissions=["gestion.controler_depense"],
+                condition=depense_entierement_reglee,
+                effect=valider_reglements_lies,
                 class_name="success",
             ),
         ],
@@ -350,28 +371,6 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
         verbose_name_plural = "Dépenses"
 
 
-def peut_clore_reglement(reglement, role):
-    return role.has_perm("gestion.gerer_depense") or role.has_perm(
-        "gestion.gerer_depense", obj=reglement.depense.compte
-    )
-
-
-peut_clore_reglement.explication = (
-    "Vous n'avez pas les permissions pour valider ce règlement."
-)
-
-
-def peut_expertiser_reglement(reglement, role):
-    return role.has_perm("gestion.valider_depense") or role.has_perm(
-        "gestion.valider_depense", obj=reglement.depense.compte
-    )
-
-
-peut_expertiser_reglement.explication = (
-    "Seuls les experts comptables peuvent réaliser cette opération."
-)
-
-
 @reversion.register(follow=["depense"])
 class Reglement(TimeStampedModel):
     class Statut(models.TextChoices):
@@ -386,7 +385,7 @@ class Reglement(TimeStampedModel):
             Transition(
                 nom="Clore le règlement",
                 vers=Statut.RAPPROCHE,
-                condition=peut_clore_reglement,
+                permissions=["gestion.controler_depense"],
                 class_name="success",
             )
         ],
@@ -568,6 +567,10 @@ class Reglement(TimeStampedModel):
     @property
     def transitions(self) -> List[Transition["Reglement", Statut]]:
         return self.TRANSITIONS.get(self.Statut(self.statut), [])
+
+    @property
+    def compte(self):
+        return self.depense.compte
 
     class Meta:
         verbose_name = "règlement"
