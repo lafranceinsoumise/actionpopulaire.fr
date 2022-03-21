@@ -578,7 +578,7 @@ class FindVotingProxyCandidatesForRequestsTestCase(TestCase):
         ]
         request = self.create_request(consulate=None, commune=self.unloc_commune)
         qs = VotingProxyRequest.objects.filter(pk=request.pk)
-        send_invitations.return_value = [candidate.id for candidate in candidates]
+        send_invitations.spec = lambda cs: [c.id for c in cs]
         send_invitations.assert_not_called()
         (fulfilled, candidates) = find_voting_proxy_candidates_for_requests(
             qs, send_invitations
@@ -589,3 +589,34 @@ class FindVotingProxyCandidatesForRequestsTestCase(TestCase):
             PER_VOTING_PROXY_REQUEST_INVITATION_LIMIT,
         )
         self.assertEqual(len(fulfilled), 1)
+
+    @patch(
+        "agir.voting_proxies.actions.invite_voting_proxy_candidates",
+    )
+    def test_invitations_are_sent_for_all_requests(self, send_invitations):
+        another_country = "IT"
+        another_consulate = CirconscriptionConsulaire.objects.create(
+            nom="Circonscription Consulaire DEF",
+            consulats=["Consulat"],
+            nombre_conseillers=1,
+            pays=[another_country],
+        )
+        a_candidate = self.create_proxy_candidate(
+            email="a_candidate@agir.test", location_country=self.country
+        )
+        another_candidate = self.create_proxy_candidate(
+            email="another_candidate@agir.test", location_country=another_country
+        )
+        a_request = self.create_request(consulate=self.consulate, commune=None)
+        another_request = self.create_request(
+            email="another_voter@agir.test", consulate=another_consulate, commune=None
+        )
+        qs = VotingProxyRequest.objects.filter(
+            pk__in=[a_request.pk, another_request.pk]
+        )
+        send_invitations.spec = lambda cs: [c.id for c in cs]
+        send_invitations.assert_not_called()
+        (fulfilled, candidates) = find_voting_proxy_candidates_for_requests(
+            qs, send_invitations
+        )
+        self.assertEqual(len(fulfilled), 2)
