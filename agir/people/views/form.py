@@ -1,5 +1,7 @@
 import csv
+from urllib.parse import urljoin
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
@@ -41,7 +43,7 @@ class BasePeopleFormView(UpdateView, ObjectOpengraphMixin):
         return self.person_form_instance.meta_description
 
     def get_meta_image(self):
-        return static("front/assets/og_image_NSP.jpg")
+        return urljoin(settings.FRONT_DOMAIN, static("front/assets/og_image_NSP.jpg"))
 
     def get_success_url(self):
         return reverse(

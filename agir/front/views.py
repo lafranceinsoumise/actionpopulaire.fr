@@ -1,4 +1,5 @@
 import os
+from urllib.parse import urljoin
 
 from django.conf import settings
 from django.contrib.auth import logout
@@ -41,7 +42,7 @@ class BasicOpenGraphMixin(SimpleOpengraphMixin):
         "l'élection présidentielle de 2022. "
     )
     meta_type = "website"
-    meta_image = static("front/assets/og_image_NSP.jpg")
+    meta_image = urljoin(settings.FRONT_DOMAIN, static("front/assets/og_image_NSP.jpg"))
 
 
 ## BASE VIEWS
@@ -341,7 +342,7 @@ class VotingProxyView(BaseAppCachedView):
         "l'élection présidentielle le 10 et/ou 24 avril 2022."
     )
     meta_type = "website"
-    meta_image = static("front/assets/og_image_vp.jpg")
+    meta_image = urljoin(settings.FRONT_DOMAIN, static("front/assets/og_image_vp.jpg"))
 
 
 class VotingProxyRequestView(BaseAppCachedView):
@@ -351,4 +352,4 @@ class VotingProxyRequestView(BaseAppCachedView):
         "Mélenchon pour l'élection présidentielle du 10 et/ou 24 avril 2022."
     )
     meta_type = "website"
-    meta_image = static("front/assets/og_image_vpr.jpg")
+    meta_image = urljoin(settings.FRONT_DOMAIN, static("front/assets/og_image_vpr.jpg"))
