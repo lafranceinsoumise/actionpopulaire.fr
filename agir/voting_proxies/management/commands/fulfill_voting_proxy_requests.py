@@ -1,6 +1,7 @@
 from django.core.management import BaseCommand
 from django.db.models import Case, When, BooleanField
 from django.utils import timezone
+from tqdm import tqdm
 
 from agir.voting_proxies.actions import (
     send_matching_requests_to_proxy,
@@ -9,6 +10,7 @@ from agir.voting_proxies.actions import (
     find_voting_proxy_candidates_for_requests,
 )
 from agir.voting_proxies.models import VotingProxyRequest
+from agir.voting_proxies.tasks import send_matching_report_email
 
 
 class Command(BaseCommand):
@@ -24,7 +26,17 @@ class Command(BaseCommand):
 
     def __init__(self, stdout=None, stderr=None, no_color=False, force_color=False):
         super().__init__(stdout, stderr, no_color, force_color)
+        self.tqdm = None
         self.dry_run = None
+        self.report = {
+            "datetime": timezone.now().isoformat(),
+            "dry-run": False,
+            "pending_request_count": 0,
+            "matched_request_count": 0,
+            "pending_requests": {},
+            "matched_proxies": [],
+            "invitations": [],
+        }
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -35,14 +47,6 @@ class Command(BaseCommand):
             help="Execute without actually sending any notification or updating data",
         )
         parser.add_argument(
-            "-p",
-            "--print-unfulfilled",
-            dest="print_unfulfilled",
-            action="store_true",
-            default=False,
-            help="Print unfulfilled requests at the end of the script",
-        )
-        parser.add_argument(
             "-na",
             "--do-not-alternate",
             dest="do_not_alternate",
@@ -50,25 +54,98 @@ class Command(BaseCommand):
             default=False,
             help="Do not alternate between odd/even days for proxy invitations",
         )
+        parser.add_argument(
+            "-s",
+            "--silent",
+            dest="silent",
+            action="store_true",
+            default=False,
+            help="Display a progress bar during the script execution",
+        )
+
+    def report_pending_requests(self, pending_requests):
+        self.report["pending_requests"] = {
+            str(request.id): {
+                "id": str(request.id),
+                "created": request.created.isoformat(),
+                "date": request.voting_date.isoformat(),
+                "email": request.email,
+                "commune": request.commune.nom if request.commune else None,
+                "consulate": request.consulate.nom if request.consulate else None,
+            }
+            for request in pending_requests.select_related("commune", "consulate")
+        }
+
+    def report_matched_proxy(self, proxy, matching_request_ids):
+        self.tqdm.update(len(matching_request_ids))
+        for vpr in matching_request_ids:
+            vpr = str(vpr)
+
+            if vpr not in self.report["pending_requests"]:
+                self.report["pending_requests"][vpr] = {"id": vpr}
+
+            self.report["pending_requests"][vpr]["matched_proxy"] = {
+                "id": str(proxy.id),
+                "email": proxy.email,
+            }
+
+        self.report["matched_proxies"].append(
+            {
+                "id": str(proxy.id),
+                "email": proxy.email,
+                "vpr": [str(vpr) for vpr in matching_request_ids],
+            }
+        )
+
+    def report_invitation(self, candidates, request):
+        self.tqdm.update(len(request["ids"]))
+        for vpr in request["ids"]:
+            vpr = str(vpr)
+
+            if vpr not in self.report["pending_requests"]:
+                self.report["pending_requests"][vpr] = {"id": vpr}
+
+            self.report["pending_requests"][str(vpr)]["candidate_proxies"] = [
+                c.email for c in candidates
+            ]
+
+        self.report["invitations"].append(
+            {
+                "from": request["email"],
+                "to": [c.email for c in candidates],
+                "vpr": [str(vpr) for vpr in request["ids"]],
+            }
+        )
 
     def send_matching_requests_to_proxy(self, proxy, matching_request_ids):
+        self.report_matched_proxy(proxy, matching_request_ids)
+
         if self.dry_run:
             return
 
         send_matching_requests_to_proxy(proxy, matching_request_ids)
 
-    def invite_voting_proxy_candidates(self, candidates):
+    def invite_voting_proxy_candidates(self, candidates, request):
+        self.report_invitation(candidates, request)
+
         if self.dry_run:
             return candidates.values_list("id", flat=True)
 
-        return invite_voting_proxy_candidates(candidates)
+        return invite_voting_proxy_candidates(candidates, request)
+
+    def log(self, message):
+        self.tqdm.write(message)
+
+    def send_report(self):
+        self.report["dry_run"] = self.dry_run
+        send_matching_report_email.delay(self.report)
 
     def handle(
         self,
         *args,
         dry_run=False,
-        print_unfulfilled=False,
         do_not_alternate=False,
+        silent=False,
         **kwargs,
     ):
         self.dry_run = dry_run
@@ -76,23 +153,30 @@ class Command(BaseCommand):
             status=VotingProxyRequest.STATUS_CREATED,
             proxy__isnull=True,
         )
-        self.stdout.write(
-            f"\n\nTrying to fulfill {pending_requests.count()} pending requests..."
+        initial_request_count = len(pending_requests)
+        self.tqdm = tqdm(
+            total=initial_request_count,
+            bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}]",
+            disable=silent,
         )
+        self.report["pending_request_count"] = initial_request_count
+        self.report_pending_requests(pending_requests)
+        self.log(f"\n\nTrying to fulfill {initial_request_count} pending requests...")
         fulfilled_request_ids = match_available_proxies_with_requests(
             pending_requests, notify_proxy=self.send_matching_requests_to_proxy
         )
-
+        self.report["matched_request_count"] = len(fulfilled_request_ids)
         if len(fulfilled_request_ids) > 0:
             pending_requests = pending_requests.exclude(id__in=fulfilled_request_ids)
-            self.stdout.write(
+            self.log(
                 f" ☑ Available voting proxies found for {len(fulfilled_request_ids)} pending requests."
             )
         else:
-            self.stdout.write(f" ☒ No available voting proxy found :-(")
+            self.log(f" ☒ No available voting proxy found :-(")
 
+        unfulfilled_request_count = len(pending_requests)
         # Invite AP users to join the voting proxy pool for the remaining requests
-        if pending_requests.count() > 0:
+        if unfulfilled_request_count > 0:
             if not do_not_alternate:
                 # Alternate sending of candidate invitations to leave past recipients
                 # at least one day to reply
@@ -104,43 +188,38 @@ class Command(BaseCommand):
                         output_field=BooleanField(),
                     )
                 ).filter(is_odd=is_an_odd_day)
-                self.stdout.write(
-                    f"\nToday is an {'odd' if is_an_odd_day else 'even'} day!"
-                )
+                self.log(f"\nToday is an {'odd' if is_an_odd_day else 'even'} day!")
+                unfulfilled_request_count = len(pending_requests)
 
-            self.stdout.write(
-                f"\nLooking for voting proxy candidates for {pending_requests.count()} remaining requests..."
+            self.log(
+                f"\nLooking for voting proxy candidates for {unfulfilled_request_count} remaining requests..."
             )
             (
                 possibly_fulfilled_request_ids,
                 candidate_ids,
             ) = find_voting_proxy_candidates_for_requests(
-                pending_requests, send_invitations=self.invite_voting_proxy_candidates
+                pending_requests,
+                send_invitations=self.invite_voting_proxy_candidates,
             )
             if len(possibly_fulfilled_request_ids) > 0:
                 pending_requests = pending_requests.exclude(
                     id__in=possibly_fulfilled_request_ids
                 )
-                self.stdout.write(
+                unfulfilled_request_count -= len(possibly_fulfilled_request_ids)
+                self.log(
                     f" ☑ {len(candidate_ids)} voting proxy invitation(s) sent "
                     f"for {len(possibly_fulfilled_request_ids)} pending requests"
                 )
             else:
-                self.stdout.write(f" ☒ No voting proxy candidate found :-(")
+                self.log(f" ☒ No voting proxy candidate found :-(")
 
-        if pending_requests.count() > 0:
-            self.stdout.write(
-                f"\n{pending_requests.count()} unfulfilled requests remaining\n"
-            )
-            if print_unfulfilled:
-                # Print remaining unfulfilled requests
-                for pending_request in pending_requests:
-                    self.stdout.write(
-                        f" — {pending_request}, "
-                        f"{pending_request.commune if pending_request.commune else pending_request.consulate}\n"
-                    )
-            self.stdout.write("\n")
+        if unfulfilled_request_count > 0:
+            self.log(f"\n{unfulfilled_request_count} unfulfilled requests remaining")
         else:
-            self.stdout.write(f"\nNo unfulfilled requests remaining for today!")
+            self.log(f"\nNo unfulfilled requests remaining for today!")
 
-        self.stdout.write("Bye!\n\n")
+        self.log("\nSending script report")
+        self.send_report()
+
+        self.log("\nBye!\n\n")
+        self.tqdm.close()

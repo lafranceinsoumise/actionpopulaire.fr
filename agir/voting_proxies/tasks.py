@@ -1,5 +1,9 @@
+import json
+from email.mime.text import MIMEText
+
 from celery import shared_task
 from django.conf import settings
+from django.core.mail import get_connection, EmailMultiAlternatives
 
 from agir.lib.celery import post_save_task, emailing_task
 from agir.lib.mailing import send_mosaico_email
@@ -8,6 +12,7 @@ from agir.lib.utils import shorten_url, front_url
 from agir.voting_proxies.models import VotingProxyRequest, VotingProxy
 
 SMS_SENDER = "Melenchon22"
+REPORT_RECIPIENT_EMAIL = "procurations@actionpopulaire.fr"
 
 
 @shared_task
@@ -159,3 +164,49 @@ def send_voting_proxy_request_confirmed_text_messages(voting_proxy_request_pks):
     if voting_proxy_request.polling_station_number:
         message += f" - bureau de vote {to_7bit_string(voting_proxy_request.polling_station_number)}"
     send_sms(message, voting_proxy_request.proxy.contact_phone, sender=SMS_SENDER)
+
+
+@emailing_task
+def send_matching_report_email(data):
+    subject = f"Rapport du script des procurations - {data['datetime']}"
+    if data["dry_run"]:
+        subject = "[DRY-RUN] " + subject
+
+    body = f"""
+Bonjour,
+
+==============================================================
+PROCURATIONS - RAPPORT DE SCRIPT
+{data["datetime"]}
+
+- {data["pending_request_count"]} demande(s) de procuration en attente
+- {data["matched_request_count"]} demandes de procurations proposées à un·e volontaire
+- {len(data["invitations"])} invitation(s) envoyée(s) à des volontaires potentiels
+==============================================================
+
+Cordialement.
+
+L'équipe d'Action populaire.
+    """
+    connection = get_connection()
+    with connection:
+        email = EmailMultiAlternatives(
+            connection=connection,
+            from_email="robot@actionpopulaire.fr",
+            subject=subject,
+            to=(REPORT_RECIPIENT_EMAIL,),
+            body=body,
+        )
+
+        for filename in ("pending_requests", "matched_proxies", "invitations"):
+            content = json.dumps(data[filename])
+            attachment = MIMEText(content.rstrip("\n"), "plain", "utf-8")
+            attachment.add_header("Content-Type", "application/json")
+            attachment.add_header(
+                "Content-Disposition",
+                "attachment",
+                filename=f"{filename}{'.dry' if data['dry_run'] else ''}.json",
+            )
+            email.attach(attachment)
+
+        email.send()
