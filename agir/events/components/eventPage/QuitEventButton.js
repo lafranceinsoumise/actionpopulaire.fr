@@ -62,6 +62,7 @@ const StyledWrapper = styled.div`
   font-size: 1rem;
   font-weight: 600;
   font-color: ${(props) => props.theme.black500};
+  white-space: nowrap;
 `;
 
 const QuitEventButton = ({ eventPk, group, isOpen, setIsOpen }) => {

@@ -8,7 +8,15 @@ import StaticToast from "@agir/front/genericComponents/StaticToast";
 import QuitEventButton from "./QuitEventButton";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
-const StyledJoinEntry = styled.div``;
+import { useSelector } from "@agir/front/globalContext/GlobalContext";
+import { getUser } from "@agir/front/globalContext/reducers";
+import Link from "@agir/front/app/Link";
+
+const StyledContent = styled.div``;
+const StyledJoin = styled.div`
+  display: flex;
+  margin-bottom: 0.5rem;
+`;
 
 const GreenToast = styled(StaticToast)`
   border-radius: ${style.borderRadius};
@@ -17,50 +25,85 @@ const GreenToast = styled(StaticToast)`
   flex-direction: column;
 
   && {
-    margin-top: 1rem;
+    margin-top: 0.5rem;
   }
 
-  ${StyledJoinEntry} {
+  ${StyledContent} {
+    flex: 1;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.5rem;
     flex-wrap: wrap;
+    margin-bottom: 0.5rem;
 
-    div {
-      display: flex;
+    justify-content: space-between;
+    @media (max-width: ${style.collapse}px) {
+      flex-direction: column;
+      align-items: baseline;
     }
   }
 
-  ${StyledJoinEntry}:last-child {
+  ${StyledContent}:last-child {
     margin-bottom: 0;
   }
 `;
 
+const Joined = ({ hasPrice, eventPk, group }) => (
+  <StyledJoin>
+    <RawFeatherIcon
+      name="check"
+      color="green"
+      style={{ marginRight: "0.5rem" }}
+    />
+    <StyledContent>
+      <div>
+        {!group ? (
+          "Vous participez à l'événement"
+        ) : (
+          <>
+            Votre groupe&nbsp;
+            <Link route="groupDetails" routeParams={{ groupPk: group.id }}>
+              <b>{group.name}</b>
+            </Link>
+            &nbsp;participe à l'événement
+          </>
+        )}
+      </div>
+      {!group
+        ? !hasPrice && <QuitEventButton eventPk={eventPk} />
+        : group.isManager && (
+            <QuitEventButton eventPk={eventPk} group={group} />
+          )}
+    </StyledContent>
+  </StyledJoin>
+);
+Joined.propTypes = {
+  hasPrice: PropTypes.bool,
+  eventPk: PropTypes.string.isRequired,
+  group: PropTypes.shape({
+    id: PropTypes.string,
+    name: PropTypes.string,
+    isManager: PropTypes.bool,
+  }),
+};
+
 const JoiningDetails = ({ id, hasPrice, rsvped, groups, logged }) => {
+  const user = useSelector(getUser);
+  const groupsId = groups.map((group) => group.id);
+
+  // Get groups attendees from user only
+  const userGroupsAttendees = user?.groups.filter((group) =>
+    groupsId.includes(group.id)
+  );
+
   if ((!rsvped || !logged) && !groups?.length) {
     return null;
   }
   return (
     <GreenToast $color="green">
-      {logged && rsvped && (
-        <StyledJoinEntry>
-          <div>
-            <RawFeatherIcon name="check" color="green" /> &nbsp;Vous participez
-            à l'événement
-          </div>
-          {!hasPrice && <QuitEventButton eventPk={id} />}
-        </StyledJoinEntry>
-      )}
+      {logged && rsvped && <Joined eventPk={id} hasPrice={hasPrice} />}
 
-      {groups.map((group) => (
-        <StyledJoinEntry key={group.id}>
-          <div>
-            <RawFeatherIcon name="check" color="green" /> &nbsp;
-            <b>{group.name}</b>&nbsp;participe à l'événement
-          </div>
-          {group.isManager && <QuitEventButton eventPk={id} group={group} />}
-        </StyledJoinEntry>
+      {userGroupsAttendees.map((group) => (
+        <Joined key={group.id} eventPk={id} hasPrice={hasPrice} group={group} />
       ))}
     </GreenToast>
   );

@@ -5,6 +5,8 @@ import style from "@agir/front/genericComponents/_variables.scss";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getUser } from "@agir/front/globalContext/reducers";
+import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
+import BottomSheet from "@agir/front/genericComponents/BottomSheet";
 import Modal from "@agir/front/genericComponents/Modal";
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer";
@@ -99,7 +101,7 @@ const AddGroupAttendee = ({ id, groups, groupsAttendees }) => {
   const user = useSelector(getUser);
 
   const eventGroupsId = groups.map((group) => group.id);
-  const eventGroupsAttendeesId = groups.map((group) => group.id);
+  const eventGroupsAttendeesId = groupsAttendees.map((group) => group.id);
 
   const blackList = eventGroupsId.concat(eventGroupsAttendeesId);
 
@@ -110,7 +112,7 @@ const AddGroupAttendee = ({ id, groups, groupsAttendees }) => {
 
   const handleJoinAsGroup = async (group) => {
     setErrors({});
-    const { data, error } = await api.joinEventAsGroup(id, group.id);
+    const { _, error } = await api.joinEventAsGroup(id, group.id);
 
     if (error) {
       setErrors(error);
@@ -137,7 +139,9 @@ const AddGroupAttendee = ({ id, groups, groupsAttendees }) => {
           Participer avec mon groupe
         </Button>
       )}
-      <Modal
+      <ResponsiveLayout
+        DesktopLayout={Modal}
+        MobileLayout={BottomSheet}
         shouldShow={isModalOpen}
         isOpen={isModalOpen}
         onClose={closeModalJoin}
@@ -193,7 +197,7 @@ const AddGroupAttendee = ({ id, groups, groupsAttendees }) => {
             )}
           </div>
         </ModalContent>
-      </Modal>
+      </ResponsiveLayout>
     </>
   );
 };

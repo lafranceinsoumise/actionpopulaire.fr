@@ -68,9 +68,12 @@ const StyledButtonMenu = styled(ButtonMenu)``;
 const StyledActions = styled.div`
   display: flex;
   flex-wrap: wrap;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
 
   > ${Button}, > ${StyledButtonMenu} {
     margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
   }
 
   @media (max-width: ${style.collapse}px) {
@@ -165,26 +168,27 @@ const Actions = (props) => {
 
   if (!logged) {
     return (
-      <>
-        <StyledActions>
-          <Button color="secondary" disabled={true}>
-            Participer à l'événement
-          </Button>
-        </StyledActions>
-        <JoiningDetails
-          id={id}
-          hasPrice={hasPrice}
-          rsvped={rsvped}
-          groups={groupsAttendees}
-          logged={logged}
-        />
-      </>
+      <StyledActions>
+        <Button color="secondary" disabled={true}>
+          Participer à l'événement
+        </Button>
+      </StyledActions>
     );
   }
 
   return (
     <>
       <StyledActions>
+        {isOrganizer && (
+          <Button
+            icon="settings"
+            link
+            to={routeConfig.eventSettings.getLink({ eventPk: id })}
+            color="primary"
+          >
+            Gérer l'événement
+          </Button>
+        )}
         {!rsvped ? (
           <Button
             type="submit"
@@ -222,16 +226,6 @@ const Actions = (props) => {
           groups={groups}
           groupsAttendees={groupsAttendees}
         />
-        {isOrganizer && (
-          <Button
-            icon="settings"
-            link
-            to={routeConfig.eventSettings.getLink({ eventPk: id })}
-            color="primary"
-          >
-            Gérer l'événement
-          </Button>
-        )}
         {allowGuests && (hasSubscriptionForm || hasPrice) && (
           <Button link href={routes.rsvp}>
             Ajouter une personne

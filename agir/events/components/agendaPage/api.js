@@ -2,7 +2,7 @@ import { useState } from "react";
 import useSWR from "swr";
 
 export const EVENT_TYPES = {
-  nearEvents: "à proximité",
+  nearEvents: "suggestions",
   groupEvents: "dans mes groupes",
   ongoingEvents: "en cours",
   pastEvents: "passés",

@@ -24,13 +24,14 @@ export const EventGroupsAttendees = ({ groupsAttendees, isPast }) => {
     return null;
   }
 
-  const fromUserGroups =
-    user?.groups.reduce((arr, elt) => {
-      if (groupsAttendees.some((group) => group.id === elt.id)) {
-        return [...arr, elt];
-      }
-      return arr;
-    }, []) || [];
+  const userGroupsId = user?.groups.map((group) => group.id);
+  const userGroupsAttendees = groupsAttendees.filter((group) =>
+    userGroupsId.includes(group.id)
+  );
+
+  if (!userGroupsAttendees?.length) {
+    return null;
+  }
 
   return (
     <StyledGroupsAttendees>
@@ -40,19 +41,11 @@ export const EventGroupsAttendees = ({ groupsAttendees, isPast }) => {
         height="1rem"
         style={{ marginRight: "0.5rem" }}
       />
-      {fromUserGroups.length ? (
-        <>
-          Votre groupe&nbsp;<strong>{fromUserGroups[0].name}</strong>
-        </>
-      ) : (
-        <>
-          Le groupe&nbsp;<strong>{groupsAttendees[0].name}</strong>
-        </>
-      )}
+      Votre groupe&nbsp;<strong>{userGroupsAttendees[0].name}</strong>
       &nbsp;
-      {groupsAttendees.length > 1 ? (
+      {userGroupsAttendees.length > 1 ? (
         <>
-          et {groupsAttendees.length - 1} autres groupes&nbsp;
+          et {userGroupsAttendees.length - 1} autres groupes&nbsp;
           {isPast ? "y ont participé" : "y participent"}
         </>
       ) : (

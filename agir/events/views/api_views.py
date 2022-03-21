@@ -197,6 +197,7 @@ class OngoingRsvpedEventsAPIView(EventListAPIView):
         )
 
 
+# Get 20 upcoming suggestions of events : 10 national + 10 groups participants + rest near location
 class EventSuggestionsAPIView(EventListAPIView):
     def get_queryset(self):
         person = self.request.user.person
@@ -209,6 +210,17 @@ class EventSuggestionsAPIView(EventListAPIView):
         )
         national = events.national()
         near = events.none()
+        national_pks = national.values_list("pk", flat=True)
+
+        supportgroups = person.supportgroups.all()
+        from_groups_attendees = (
+            Event.objects.public()
+            .upcoming()
+            .filter(groups_attendees__in=supportgroups)
+            .exclude(pk__in=national_pks)
+            .order_by("start_time")
+        )[:10]
+        from_groups_attendees_pks = from_groups_attendees.values_list("pk", flat=True)
 
         if person.coordinates is not None:
             national = national.filter(
@@ -216,22 +228,26 @@ class EventSuggestionsAPIView(EventListAPIView):
             )[:10]
 
             near = (
-                events.exclude(pk__in=national.values_list("pk", flat=True))
+                events.exclude(pk__in=national_pks)
                 .filter(start_time__lt=timezone.now() + timedelta(days=30))
                 .filter(coordinates__dwithin=(person.coordinates, D(km=100)))
+                .exclude(pk__in=from_groups_attendees_pks)
                 .annotate(distance=Distance("coordinates", person.coordinates))
                 .order_by("distance")
-            )[:10]
+            )[: (10 - len(from_groups_attendees_pks))]
+
+        near_pks = near.values_list("pk", flat=True)
 
         segmented = (
-            events.exclude(pk__in=national.values_list("pk", flat=True))
-            .exclude(pk__in=near.values_list("pk", flat=True))
+            events.exclude(pk__in=national_pks)
+            .exclude(pk__in=near_pks)
+            .exclude(pk__in=from_groups_attendees_pks)
             .exclude(pk__in=events.grand().values_list("pk", flat=True))
             .for_segment_subscriber(person)
         )
 
         return sorted(
-            list(segmented) + list(national) + list(near),
+            list(segmented) + list(national) + list(from_groups_attendees) + list(near),
             key=lambda event: event.start_time,
         )
 
