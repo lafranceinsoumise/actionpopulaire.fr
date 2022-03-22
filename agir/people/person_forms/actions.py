@@ -53,7 +53,7 @@ def validate_custom_fields(custom_fields):
                     initial_field = fieldset["fields"].pop(i)
                     for location_field in [
                         "location_country",
-                        "location_country_name",
+                        "location_state",
                         "location_city",
                         "location_zip",
                         "location_address2",

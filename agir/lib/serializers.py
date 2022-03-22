@@ -67,7 +67,7 @@ class LocationSerializer(serializers.Serializer):
         country = obj.location_country
         if not country:
             return
-        obj.location_country_name = country.name
+        obj.location_state = country.name
         obj.save()
 
     def to_representation(self, instance):
@@ -245,7 +245,7 @@ class NestedLocationSerializer(serializers.Serializer):
         country = obj.location_country
         if not country:
             return
-        obj.location_country_name = country.name
+        obj.location_state = country.name
         obj.save()
 
     def __init__(self, instance=None, data=empty, **kwargs):

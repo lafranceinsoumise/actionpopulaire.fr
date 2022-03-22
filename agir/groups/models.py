@@ -51,9 +51,7 @@ class SupportGroupQuerySet(models.QuerySet):
                 models.F("location_zip"), config="french_unaccented", weight="B"
             )
             + SearchVector(
-                models.F("location_country_name"),
-                config="french_unaccented",
-                weight="B",
+                models.F("location_state"), config="french_unaccented", weight="B"
             )
             + SearchVector(
                 models.F("description"), config="french_unaccented", weight="C"

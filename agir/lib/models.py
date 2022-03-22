@@ -97,7 +97,7 @@ class LocationMixin(models.Model):
         "location_address2",
         "location_city",
         "location_zip",
-        "location_country_name",
+        "location_state",
         "location_country",
     }
 
@@ -122,10 +122,10 @@ class LocationMixin(models.Model):
     location_citycode = models.CharField(_("code INSEE"), max_length=20, blank=True)
     location_city = models.CharField(_("ville"), max_length=100, blank=True)
     location_zip = models.CharField(_("code postal"), max_length=20, blank=True)
+    location_state = models.CharField(_("état"), max_length=40, blank=True)
     location_country = CountryField(
         _("pays"), blank=True, blank_label=_("(sélectionner un pays)"), default="FR"
     )
-    location_country_name = models.CharField(_("état"), max_length=40, blank=True)
 
     def html_full_address(self):
         return display_address(self)
@@ -156,7 +156,7 @@ class LocationMixin(models.Model):
         ]
 
         if self.location_country not in FRANCE_COUNTRY_CODES:
-            attrs.extend(["location_country_name", "location_country"])
+            attrs.extend(["location_state", "location_country"])
 
         return ", ".join(
             str(getattr(self, attr)) for attr in attrs if getattr(self, attr)

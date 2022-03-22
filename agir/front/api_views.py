@@ -34,13 +34,13 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
     ORDER_BY_PLACES_ASC = [
         "location_city",
         "location_zip",
-        "location_country_name",
+        "location_state",
         "location_name",
     ]
     ORDER_BY_PLACES_DESC = [
         "-location_city",
         "-location_zip",
-        "-location_country_name",
+        "-location_state",
         "-location_name",
     ]
 

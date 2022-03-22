@@ -246,7 +246,7 @@ def geocode_internationally(item):
             item.location_address2,
             item.location_zip,
             item.location_city,
-            item.location_country_name,
+            item.location_state,
         ]
         if l
     )

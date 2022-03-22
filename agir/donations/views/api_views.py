@@ -142,7 +142,7 @@ class SendDonationAPIView(UpdateModelMixin, GenericAPIView):
         if validated_data["to"] == TO_2022:
             payment_type = Presidentielle2022Config.DONATION_PAYMENT_TYPE
 
-        validated_data["location_country_name"] = validated_data["location_country"]
+        validated_data["location_state"] = validated_data["location_country"]
 
         with transaction.atomic():
             payment = create_payment(
