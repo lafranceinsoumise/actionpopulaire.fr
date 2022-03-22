@@ -218,6 +218,7 @@ class EventSuggestionsAPIView(EventListAPIView):
             .upcoming()
             .filter(groups_attendees__in=supportgroups)
             .exclude(pk__in=national_pks)
+            .distinct()
             .order_by("start_time")
         )[:10]
         from_groups_attendees_pks = from_groups_attendees.values_list("pk", flat=True)
@@ -229,9 +230,9 @@ class EventSuggestionsAPIView(EventListAPIView):
 
             near = (
                 events.exclude(pk__in=national_pks)
+                .exclude(pk__in=from_groups_attendees_pks)
                 .filter(start_time__lt=timezone.now() + timedelta(days=30))
                 .filter(coordinates__dwithin=(person.coordinates, D(km=100)))
-                .exclude(pk__in=from_groups_attendees_pks)
                 .annotate(distance=Distance("coordinates", person.coordinates))
                 .order_by("distance")
             )[: (10 - len(from_groups_attendees_pks))]

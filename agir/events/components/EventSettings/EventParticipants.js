@@ -14,6 +14,7 @@ import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPa
 import MemberList from "./EventMemberList";
 import GroupItem from "./GroupItem";
 import GroupList from "./GroupList";
+import { routeConfig } from "./routes.config";
 
 const StyledLink = styled(Link)`
   font-size: 13px;
@@ -58,7 +59,10 @@ const EventParticipants = (props) => {
         <h3>{allParticipants.length} Participant·es</h3>
         {!event?.isPast && (
           <div>
-            <StyledLink to="../organisation/" style={{ marginLeft: "10px" }}>
+            <StyledLink
+              to={`../${routeConfig.organisation.path}`}
+              style={{ marginLeft: "10px" }}
+            >
               <RawFeatherIcon name="settings" height="13px" />
               Inviter à co-organiser
             </StyledLink>
@@ -87,7 +91,18 @@ const EventParticipants = (props) => {
             </h3>
           </BlockTitle>
           <Spacer size="0.5rem" />
-
+          Les groupes ayant indiqué leur participation. Ils ne sont pas indiqués
+          co-organisateurs de l'événement. Vous pouvez les inviter à
+          co-organiser cet événement depuis l'onglet&nbsp;
+          <Link
+            to={`../${routeConfig.organisation.path}`}
+            style={{ display: "inline-block" }}
+          >
+            <RawFeatherIcon name="settings" height="14px" />
+            Organisation
+          </Link>
+          .
+          <Spacer size="1rem" />
           <GroupList>
             {groupsAttendees.map((group) => (
               <GroupItem
@@ -95,6 +110,7 @@ const EventParticipants = (props) => {
                 id={group.id}
                 name={group.name}
                 image={group.image}
+                isLinked
               />
             ))}
           </GroupList>

@@ -22,9 +22,10 @@ import GroupsCard from "@agir/groups/groupComponents/GroupsCard";
 import OnlineUrlCard from "./OnlineUrlCard";
 import RenderIfVisible from "@agir/front/genericComponents/RenderIfVisible";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
-import Skeleton from "@agir/front/genericComponents/Skeleton";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import TokTokCard from "@agir/events/TokTok/TokTokCard";
+import { useSelector } from "@agir/front/globalContext/GlobalContext";
+import { getUser } from "@agir/front/globalContext/reducers";
 
 import { DOOR2DOOR_EVENT_SUBTYPE_LABEL } from "@agir/events/common/utils";
 
@@ -111,6 +112,13 @@ const MobileEventPage = (props) => {
   } = props;
 
   const hasMap = Array.isArray(location?.coordinates?.coordinates);
+
+  const user = useSelector(getUser);
+  const groupsId = groupsAttendees?.map((group) => group.id) || [];
+  // Get groups attendees from user only
+  const userGroupsAttendees = user?.groups.filter((group) =>
+    groupsId.includes(group.id)
+  );
 
   return (
     <>
@@ -199,6 +207,10 @@ const MobileEventPage = (props) => {
         {routes?.facebook && <EventFacebookLinkCard {...props} />}
         <ShareCard url={routes?.details} />
         <GroupsCard title="Organisé par" groups={groups} isDetailed />
+        <GroupsCard
+          title="Mes groupes y participent"
+          groups={userGroupsAttendees}
+        />
       </StyledMain>
     </>
   );
