@@ -21,6 +21,8 @@ import OnlineUrlCard from "./OnlineUrlCard";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import TokTokCard from "@agir/events/TokTok/TokTokCard";
+import { useSelector } from "@agir/front/globalContext/GlobalContext";
+import { getUser } from "@agir/front/globalContext/reducers";
 
 import { DOOR2DOOR_EVENT_SUBTYPE_LABEL } from "@agir/events/common/utils";
 
@@ -84,6 +86,13 @@ const DesktopEventPage = (props) => {
     subtype,
   } = props;
 
+  const user = useSelector(getUser);
+  const groupsId = groupsAttendees?.map((group) => group.id) || [];
+  // Get groups attendees from user only
+  const userGroupsAttendees = user?.groups.filter((group) =>
+    groupsId.includes(group.id)
+  );
+
   return (
     <>
       <Container
@@ -121,6 +130,11 @@ const DesktopEventPage = (props) => {
               <EventReportCard {...props} />
               <EventDescriptionCard {...props} />
               <GroupsCard title="Organisé par" groups={groups} isDetailed />
+              <Spacer size="1rem" />
+              <GroupsCard
+                title="Mes groupes y participent"
+                groups={userGroupsAttendees}
+              />
             </div>
           </Column>
           <StyledColumn width="380px">

@@ -16,6 +16,10 @@ const StyledContent = styled.div``;
 const StyledJoin = styled.div`
   display: flex;
   margin-bottom: 0.5rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 `;
 
 const GreenToast = styled(StaticToast)`
@@ -88,7 +92,7 @@ Joined.propTypes = {
 
 const JoiningDetails = ({ id, hasPrice, rsvped, groups, logged }) => {
   const user = useSelector(getUser);
-  const groupsId = groups.map((group) => group.id);
+  const groupsId = groups?.map((group) => group.id) || [];
 
   // Get groups attendees from user only
   const userGroupsAttendees = user?.groups.filter((group) =>
@@ -101,7 +105,6 @@ const JoiningDetails = ({ id, hasPrice, rsvped, groups, logged }) => {
   return (
     <GreenToast $color="green">
       {logged && rsvped && <Joined eventPk={id} hasPrice={hasPrice} />}
-
       {userGroupsAttendees.map((group) => (
         <Joined key={group.id} eventPk={id} hasPrice={hasPrice} group={group} />
       ))}
