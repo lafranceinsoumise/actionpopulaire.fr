@@ -62,8 +62,16 @@ const GroupLocation = (props) => {
     return null;
   }
 
-  const { name, address1, address2, city, zip, state, country, coordinates } =
-    location;
+  const {
+    name,
+    address1,
+    address2,
+    city,
+    zip,
+    countryName,
+    country,
+    coordinates,
+  } = location;
 
   if (
     !(
@@ -72,7 +80,7 @@ const GroupLocation = (props) => {
       address2 ||
       city ||
       zip ||
-      state ||
+      countryName ||
       country ||
       coordinates
     )
@@ -101,7 +109,7 @@ const GroupLocation = (props) => {
           {(zip || city) && (
             <span>{[zip, city].filter(Boolean).join(" ")}</span>
           )}
-          {state ? <span>{state}</span> : <span>{country}</span>}
+          {countryName ? <span>{countryName}</span> : <span>{country}</span>}
         </p>
         <p>
           {coordinates && Array.isArray(coordinates.coordinates) ? (
@@ -129,8 +137,8 @@ GroupLocation.propTypes = {
     address2: PropTypes.string,
     city: PropTypes.string,
     zip: PropTypes.string,
-    state: PropTypes.string,
     country: PropTypes.string,
+    countryName: PropTypes.string,
     coordinates: PropTypes.shape({
       coordinates: PropTypes.arrayOf(PropTypes.number),
     }),
