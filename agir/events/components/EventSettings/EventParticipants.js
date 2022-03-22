@@ -87,7 +87,10 @@ const EventParticipants = (props) => {
             </h3>
           </BlockTitle>
           <Spacer size="0.5rem" />
-
+          Les groupes ayant indiqué leur participation. Ils ne sont pas indiqués
+          co-organisateurs de l'événement. Vous pouvez les inviter à
+          co-organiser cet événement depuis l'onglet "Organisation".
+          <Spacer size="1rem" />
           <GroupList>
             {groupsAttendees.map((group) => (
               <GroupItem

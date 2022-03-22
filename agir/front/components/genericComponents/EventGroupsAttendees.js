@@ -49,7 +49,7 @@ export const EventGroupsAttendees = ({ groupsAttendees, isPast }) => {
           {isPast ? "y ont participé" : "y participent"}
         </>
       ) : (
-        <> {isPast ? "y a participé" : "y participe"}</>
+        <>{isPast ? "y a participé" : "y participe"}</>
       )}
     </StyledGroupsAttendees>
   );

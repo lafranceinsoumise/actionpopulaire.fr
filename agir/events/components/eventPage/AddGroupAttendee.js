@@ -163,6 +163,10 @@ const AddGroupAttendee = ({ id, groups, groupsAttendees }) => {
                 à l’événement.
                 <Spacer size="0.5rem" />
                 L’événement sera à ajouté à l’agenda du groupe.
+                <Spacer size="0.5rem" />
+                Les groupes participants n'ont pas de droit d'organisation de
+                l'événement. Seuls les groupes co-organisateurs peuvent inviter
+                d'autres groupes à co-organiser.
                 <Spacer size="1rem" />
                 {managingGroups.map((group) => (
                   <GroupItem
