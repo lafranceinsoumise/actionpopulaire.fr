@@ -89,7 +89,12 @@ const EventParticipants = (props) => {
           <Spacer size="0.5rem" />
           Les groupes ayant indiqué leur participation. Ils ne sont pas indiqués
           co-organisateurs de l'événement. Vous pouvez les inviter à
-          co-organiser cet événement depuis l'onglet "Organisation".
+          co-organiser cet événement depuis l'onglet&nbsp;
+          <Link to="../organisation/" style={{ display: "inline-block" }}>
+            <RawFeatherIcon name="settings" height="14px" />
+            Organisation
+          </Link>
+          .
           <Spacer size="1rem" />
           <GroupList>
             {groupsAttendees.map((group) => (
