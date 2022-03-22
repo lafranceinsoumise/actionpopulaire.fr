@@ -376,22 +376,26 @@ class EventGroupsOrganizersAPIView(ListCreateAPIView):
     # List will return the last co-organizer groups for the person's events
     def list(self, request, *args, **kwargs):
         event = self.get_object()
-        recent_coorganizers = (
-            SupportGroup.objects.active()
-            .exclude(pk__in=event.organizers_groups.values_list("id", flat=True))
-            .filter(
-                organized_events__in=(
-                    request.user.person.organized_events.exclude(
-                        visibility=Event.VISIBILITY_ADMIN
+        recent_coorganizers = SupportGroup.objects.filter(
+            pk__in=(
+                OrganizerConfig.objects.exclude(as_group__isnull=True)
+                .exclude(as_group__published=False)
+                .exclude(event_id=event.id)
+                .exclude(event__visibility=Event.VISIBILITY_ADMIN)
+                .filter(
+                    Q(person_id=request.user.person.id)
+                    | Q(
+                        as_group_id__in=event.organizers_groups.values_list(
+                            "id", flat=True
+                        )
                     )
-                    .exclude(id=event.id)
-                    .exclude(organizers_groups__isnull=True)
-                    .order_by("-end_time")
-                    .values_list("id", flat=True)
                 )
+                .distinct("as_group_id")
+                .order_by("as_group_id", "-event__end_time")
+                .values_list("as_group_id", flat=True)[:10]
             )
-            .distinct()[:10]
         )
+
         return Response(
             [
                 {
