@@ -14,7 +14,8 @@ import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPa
 import MemberList from "./EventMemberList";
 import GroupItem from "./GroupItem";
 import GroupList from "./GroupList";
-import { routeConfig } from "./routes.config";
+import { routeConfig, getMenuRoute } from "./routes.config";
+import { routeConfig as globalRouteConfig } from "@agir/front/app/routes.config";
 
 const StyledLink = styled(Link)`
   font-size: 13px;
@@ -52,6 +53,11 @@ const EventParticipants = (props) => {
   const groupsAttendees = event?.groupsAttendees || [];
   const severalGroups = groupsAttendees.length > 1;
 
+  const menuRoute = getMenuRoute(
+    globalRouteConfig.eventDetails.getLink({ eventPk })
+  ).path;
+  const organizationLink = `${menuRoute}${routeConfig.organisation.path}`;
+
   return (
     <>
       <HeaderPanel onBack={onBack} illustration={illustration} />
@@ -59,10 +65,7 @@ const EventParticipants = (props) => {
         <h3>{allParticipants.length} Participant·es</h3>
         {!event?.isPast && (
           <div>
-            <StyledLink
-              to={`../${routeConfig.organisation.path}`}
-              style={{ marginLeft: "10px" }}
-            >
+            <StyledLink to={organizationLink} style={{ marginLeft: "10px" }}>
               <RawFeatherIcon name="settings" height="13px" />
               Inviter à co-organiser
             </StyledLink>
@@ -94,10 +97,7 @@ const EventParticipants = (props) => {
           Les groupes ayant indiqué leur participation. Ils ne sont pas indiqués
           co-organisateurs de l'événement. Vous pouvez les inviter à
           co-organiser cet événement depuis l'onglet&nbsp;
-          <Link
-            to={`../${routeConfig.organisation.path}`}
-            style={{ display: "inline-block" }}
-          >
+          <Link to={organizationLink} style={{ display: "inline-block" }}>
             <RawFeatherIcon name="settings" height="14px" />
             Organisation
           </Link>
