@@ -98,6 +98,7 @@ const EventParticipants = (props) => {
                 id={group.id}
                 name={group.name}
                 image={group.image}
+                isLinked
               />
             ))}
           </GroupList>
