@@ -304,14 +304,14 @@ def invite_voting_proxy_candidates(candidates, request):
 
 def get_voting_proxy_candidates_queryset(request, blacklist_ids):
     candidates = (
-        Person.objects.exclude(
-            id__in=VotingProxy.objects.values_list("person_id", flat=True)
-        )
-        .exclude(emails__address=None)
+        Person.objects.exclude(emails__address=None)
+        .exclude(voting_proxy__isnull=False)
         .filter(is_2022=True, newsletters__len__gt=0)
     )
+
     if request and request["email"]:
         candidates = candidates.exclude(emails__address=request["email"])
+
     if blacklist_ids:
         candidates = candidates.exclude(id__in=blacklist_ids)
 
