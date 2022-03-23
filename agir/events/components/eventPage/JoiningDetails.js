@@ -99,9 +99,10 @@ const JoiningDetails = ({ id, hasPrice, rsvped, groups, logged }) => {
     (group) => groupsId.includes(group.id) && group.isManager
   );
 
-  if ((!rsvped || !logged) && !groups?.length) {
+  if ((!rsvped || !logged) && !managingGroupsAttendees?.length) {
     return null;
   }
+
   return (
     <GreenToast $color="green">
       {logged && rsvped && <Joined eventPk={id} hasPrice={hasPrice} />}
