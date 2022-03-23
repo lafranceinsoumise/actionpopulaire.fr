@@ -106,9 +106,6 @@ export const ActionTools = () => {
             <Button small link route="createEvent">
               Créer un événement
             </Button>
-            <Button small link route="publicMeeting">
-              Organiser une réunion publique
-            </Button>
           </span>
         </span>
       </StyledCardItem>
