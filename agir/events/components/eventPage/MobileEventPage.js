@@ -18,7 +18,10 @@ import EventInfoCard from "@agir/events/eventPage/EventInfoCard";
 import EventLocationCard from "./EventLocationCard";
 import EventPhotosCard from "./EventPhotosCard";
 import EventReportCard from "./EventReportCard";
-import GroupsCard from "@agir/groups/groupComponents/GroupsCard";
+import {
+  GroupsOrganizingCard,
+  GroupsJoiningCard,
+} from "@agir/groups/groupComponents/GroupsCard";
 import OnlineUrlCard from "./OnlineUrlCard";
 import RenderIfVisible from "@agir/front/genericComponents/RenderIfVisible";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
@@ -101,14 +104,18 @@ const StyledMap = styled(RenderIfVisible)`
 
 const MobileEventPage = (props) => {
   const {
+    id,
     name,
     contact,
     routes,
+    logged,
     groups,
     groupsAttendees,
     illustration,
     location,
     subtype,
+    isOrganizer,
+    isPast,
   } = props;
 
   const hasMap = Array.isArray(location?.coordinates?.coordinates);
@@ -156,19 +163,18 @@ const MobileEventPage = (props) => {
       <StyledMain once style={{ overflow: "hidden" }}>
         <Card>
           <EventHeader {...props} />
-          {props.isOrganizer && (
+          {isOrganizer && (
             <>
               <Spacer size="1rem" />
-              <ReportFormCard eventPk={props.id} />
+              <ReportFormCard eventPk={id} />
             </>
           )}
-          {props.logged &&
-            props.subtype.label === DOOR2DOOR_EVENT_SUBTYPE_LABEL && (
-              <>
-                <Spacer size="1rem" />
-                <TokTokCard />
-              </>
-            )}
+          {logged && subtype.label === DOOR2DOOR_EVENT_SUBTYPE_LABEL && (
+            <>
+              <Spacer size="1rem" />
+              <TokTokCard />
+            </>
+          )}
         </Card>
       </StyledMain>
 
@@ -177,7 +183,7 @@ const MobileEventPage = (props) => {
           <OnlineUrlCard
             onlineUrl={props.onlineUrl}
             youtubeVideoID={props.youtubeVideoID}
-            isPast={props.isPast}
+            isPast={isPast}
           />
         </Card>
       </StyledMain>
@@ -206,10 +212,20 @@ const MobileEventPage = (props) => {
         {contact && <ContactCard {...contact} />}
         {routes?.facebook && <EventFacebookLinkCard {...props} />}
         <ShareCard url={routes?.details} />
-        <GroupsCard title="Organisé par" groups={groups} isDetailed />
-        <GroupsCard
+        <GroupsOrganizingCard
+          title="Organisé par"
+          groups={groups}
+          isDetailed
+          eventPk={id}
+          isPast={isPast}
+          isOrganizer={isOrganizer}
+        />
+        <GroupsJoiningCard
           title="Mes groupes y participent"
-          groups={userGroupsAttendees}
+          eventPk={id}
+          isPast={isPast}
+          groups={groups}
+          groupsAttendees={userGroupsAttendees}
         />
       </StyledMain>
     </>
