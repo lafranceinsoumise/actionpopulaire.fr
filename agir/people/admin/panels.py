@@ -203,7 +203,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
                 )
             },
         ),
-        (_("Meta"), {"fields": ("meta",)}),
+        (_("Meta"), {"fields": ("meta", "form_submissions_link")}),
     )
 
     readonly_fields = (
@@ -221,6 +221,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "coordinates_type",
         "mandats",
         "location_citycode",
+        "form_submissions_link",
     )
 
     list_filter = (
@@ -380,6 +381,15 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
             return "-"
 
         return format_html_join(mark_safe("<br>"), '<a href="{}">{}</a>', mandats)
+
+    def form_submissions_link(self, obj):
+        return format_html(
+            '<a href="{}?person_id={}" class="button">Voir les formulaires remplis</a>',
+            reverse("admin:people_personformsubmission_changelist"),
+            str(obj.pk),
+        )
+
+    form_submissions_link.short_description = "Formulaires"
 
     def get_urls(self):
         return [
@@ -756,6 +766,32 @@ class PersonFormAdmin(FormSubmissionViewsMixin, admin.ModelAdmin):
 @admin.register(PersonFormSubmission)
 class PersonFormSubmissionAdmin(admin.ModelAdmin):
     autocomplete_fields = ("person",)
+    search_fields = ("person__search", "form__title")
+    list_display = ("created", "form_link", "person_link")
+
+    def person_link(self, instance):
+        if not instance.person:
+            return "-"
+
+        return format_html(
+            '<a href="{link}">{person}</a>',
+            person=str(instance.person),
+            link=reverse("admin:people_person_change", args=[instance.person.id]),
+        )
+
+    person_link.short_description = "Personne"
+
+    def form_link(self, instance):
+        if not instance.form:
+            return "-"
+
+        return format_html(
+            '<a href="{link}">{form}</a>',
+            form=str(instance.form),
+            link=reverse("admin:people_personform_change", args=[instance.form.id]),
+        )
+
+    form_link.short_description = "Formulaire"
 
     def has_add_permission(self, request):
         return False
@@ -820,6 +856,9 @@ class PersonFormSubmissionAdmin(admin.ModelAdmin):
                 name="people_personformsubmission_detail",
             )
         ] + super().get_urls()
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related("person", "form")
 
 
 class Contact(Person):
