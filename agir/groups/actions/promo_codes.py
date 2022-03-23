@@ -97,6 +97,10 @@ def get_promo_codes(group):
         current_expiration_date = date(today.year + 1, 1, 1)
         previous_expiration_date = date(today.year, 12, 1)
     else:
+        # TEMP: display promo code earlier for the april 2022 election
+        if today.day >= 23:
+            today = today.replace(month=today.month + 1)
+
         current_expiration_date = date(today.year, today.month + 2, 1)
         previous_expiration_date = date(today.year, today.month + 1, 1)
 
