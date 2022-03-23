@@ -94,9 +94,9 @@ const JoiningDetails = ({ id, hasPrice, rsvped, groups, logged }) => {
   const user = useSelector(getUser);
   const groupsId = groups?.map((group) => group.id) || [];
 
-  // Get groups attendees from user only
-  const userGroupsAttendees = user?.groups.filter((group) =>
-    groupsId.includes(group.id)
+  // Get managing groups attendees
+  const managingGroupsAttendees = user?.groups.filter(
+    (group) => groupsId.includes(group.id) && group.isManager
   );
 
   if ((!rsvped || !logged) && !groups?.length) {
@@ -105,7 +105,7 @@ const JoiningDetails = ({ id, hasPrice, rsvped, groups, logged }) => {
   return (
     <GreenToast $color="green">
       {logged && rsvped && <Joined eventPk={id} hasPrice={hasPrice} />}
-      {userGroupsAttendees.map((group) => (
+      {managingGroupsAttendees.map((group) => (
         <Joined key={group.id} eventPk={id} hasPrice={hasPrice} group={group} />
       ))}
     </GreenToast>
