@@ -236,7 +236,7 @@ const Actions = (props) => {
         id={id}
         hasPrice={hasPrice}
         rsvped={rsvped}
-        groups={[]}
+        groups={groupsAttendees}
         logged={logged}
       />
     </>
