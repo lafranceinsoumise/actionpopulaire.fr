@@ -21,6 +21,16 @@ const StyledList = styled.ul`
   }
 `;
 
+const StyledDiscountWarning = styled.p`
+  background-color: ${style.primary100};
+  border-radius: ${style.borderRadius};
+  color: ${style.black1000};
+  font-size: 0.875rem;
+  padding: 0.875rem;
+  line-height: 1.5;
+  margin: 0 0 0.5rem;
+`;
+
 const StyledCard = styled(Card)`
   && {
     background-color: ${style.black25};
@@ -42,14 +52,23 @@ const GroupOrders = (props) => {
   return isManager ? (
     <StyledCard title="Commander du matériel" outlined>
       {Array.isArray(codes) && codes.length > 0 ? (
-        <StyledList>
-          <li>Codes de réduction :</li>
-          {codes.map(({ code, expiration }) => (
-            <li key={code}>
-              {code} <span>(exp. {expiration})</span>
-            </li>
-          ))}
-        </StyledList>
+        <>
+          <StyledDiscountWarning>
+            <strong>Campagne présidentielle&nbsp;:</strong> exceptionnellement,
+            vos codes promo d'avril sont disponibles dès aujourd'hui.
+            <br />
+            Commandez votre matériel pour la dernière ligne droite
+            maintenant&nbsp;!
+          </StyledDiscountWarning>
+          <StyledList>
+            <li>Codes de réduction&nbsp;</li>
+            {codes.map(({ code, expiration }) => (
+              <li key={code}>
+                {code} <span>(exp. {expiration})</span>
+              </li>
+            ))}
+          </StyledList>
+        </>
       ) : null}
       {orderURL ? (
         <Button link href={orderURL} color="primary" small>
