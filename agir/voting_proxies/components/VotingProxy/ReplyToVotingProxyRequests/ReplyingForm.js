@@ -4,6 +4,7 @@ import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
+import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
@@ -65,6 +66,7 @@ const StyledWrapper = styled.div`
 const ReplyingForm = (props) => {
   const { votingProxyPk, firstName, requests, readOnly } = props;
   const [isAccepting, setIsAccepting] = useState(false);
+  const [shouldConfirm, setShouldConfirm] = useState(false);
   const [isDeclining, setIsDeclining] = useState(false);
   const [errors, setErrors] = useState(null);
   const [hasDataSharingConsent, setHasDataSharingConsent] = useState(false);
@@ -79,6 +81,10 @@ const ReplyingForm = (props) => {
     setHasDataSharingConsent(e.target.checked);
 
   const handleSubmit = async (isAvailable) => {
+    if (!isAvailable && !shouldConfirm) {
+      setShouldConfirm(true);
+      return;
+    }
     setErrors(null);
     setIsAccepting(isAvailable);
     setIsDeclining(!isAvailable);
@@ -88,6 +94,7 @@ const ReplyingForm = (props) => {
     });
     setIsAccepting(false);
     setIsDeclining(false);
+    setShouldConfirm(false);
     if (result.error) {
       setErrors(result.error);
       return;
@@ -103,6 +110,10 @@ const ReplyingForm = (props) => {
   const declineRequests = (e) => {
     e.preventDefault();
     handleSubmit(false);
+  };
+
+  const dismissConfirm = (e) => {
+    setShouldConfirm(false);
   };
 
   if (typeof isAvailable === "boolean") {
@@ -143,7 +154,6 @@ const ReplyingForm = (props) => {
       <p>
         {voter.firstName} n'est pas disponible pour se déplacer lors{" "}
         {requests.length === 1 ? "d'un jour" : "de certains jours"} de vote.
-        <br />
         Vous êtes présent·e&nbsp;? <strong>Prenez sa procuration&nbsp;!</strong>
       </p>
       <Spacer size="1.5rem" />
@@ -178,6 +188,7 @@ const ReplyingForm = (props) => {
           </p>
         ))}
       </StyledRecap>
+      <Spacer size="0.5rem" />
       <Spacer size="1.5rem" />
       <form onSubmit={acceptRequests}>
         <CheckboxField
@@ -201,6 +212,16 @@ const ReplyingForm = (props) => {
           </p>
         )}
         <Spacer size="1.5rem" />
+        <p style={{ fontSize: "0.875rem" }}>
+          <strong>
+            Cette proposition de prise de procuration ne vous convient
+            pas&nbsp;?
+          </strong>
+          <br />
+          Vous n'avez rien à faire&nbsp;! Vous recevrez une nouvelle proposition
+          lorsqu'une nouvelle demande sera créée près de chez vous.
+        </p>
+        <Spacer size="1rem" />
         <Button
           wrap
           disabled={isLoading || !!errors?.global}
@@ -221,6 +242,22 @@ const ReplyingForm = (props) => {
           Je ne suis plus disponible
         </Button>
       </form>
+      <ModalConfirmation
+        shouldShow={shouldConfirm}
+        onClose={dismissConfirm}
+        onConfirm={declineRequests}
+        title="Ne plus recevoir de proposition de prise de procuration"
+        confirmationLabel="Confirmer"
+        dismissLabel="Annuler"
+        isConfirming={isDeclining}
+        shouldDismissOnClick={false}
+      >
+        <p>
+          Souhaitez-vous ne plus être volontaire pour prendre des
+          procurations&nbsp;? Nous ne vous enverrons plus de message lorsqu'une
+          demande de procuration sera créée près de chez vous.
+        </p>
+      </ModalConfirmation>
     </StyledWrapper>
   );
 };
