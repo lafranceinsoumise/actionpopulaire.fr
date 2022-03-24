@@ -269,6 +269,10 @@ class VotingProxyRequest(AbstractVoter):
             f" - né·e le {self.proxy.date_of_birth.strftime('%d/%m/%Y')}"
             f" - tél. {self.proxy.contact_phone}"
         )
+        if self.commune:
+            text += f" - commune: {self.commune.nom_complet}"
+        else:
+            text += f" - consulat: {self.consulate.nom}"
         if self.proxy.remarks:
             text += f" - {to_7bit_string(self.proxy.remarks)}"
         text += "."
