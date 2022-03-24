@@ -8,7 +8,10 @@ import { useMessageSWR, useMessageActions } from "@agir/msgs/common/hooks";
 import { useCommentsSWR } from "@agir/msgs/common/hooks";
 import { mutate } from "swr";
 import { useDispatch } from "@agir/front/globalContext/GlobalContext";
-import { setPageTitle } from "@agir/front/globalContext/actions";
+import {
+  setPageTitle,
+  setTopBarRightLink,
+} from "@agir/front/globalContext/actions";
 import { getMessageSubject } from "@agir/msgs/common/utils";
 import { useIsOffline } from "@agir/front/offline/hooks";
 import { useInfiniteScroll } from "@agir/lib/utils/hooks";
@@ -109,16 +112,23 @@ const MessagePage = ({ messagePk }) => {
     !isLoadingInitialData && user && typeof messages !== "undefined";
 
   useEffect(() => {
+    const updateCount = async () => {
+      if (!messagePk) {
+        return;
+      }
+      await mutate("/api/user/messages/unread_count/");
+      mutateMessages && mutateMessages();
+    };
+    updateCount();
+  }, [mutateMessages, messagePk]);
+
+  useEffect(() => {
     dispatch(setPageTitle(pageTitle));
   }, [dispatch, pageTitle]);
 
-  useEffect(async () => {
-    if (!messagePk) {
-      return;
-    }
-    await mutate("/api/user/messages/unread_count/");
-    mutateMessages && mutateMessages();
-  }, [messagePk]);
+  useEffect(() => {
+    currentMessage && dispatch(setTopBarRightLink({ message: currentMessage }));
+  }, [dispatch, currentMessage]);
 
   return (
     <>

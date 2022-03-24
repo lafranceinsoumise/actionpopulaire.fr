@@ -19,6 +19,7 @@ from rest_framework.generics import (
     DestroyAPIView,
     UpdateAPIView,
     RetrieveUpdateAPIView,
+    ListCreateAPIView,
 )
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -83,6 +84,7 @@ from ..tasks import (
     send_cancellation_notification,
     send_group_coorganization_invitation_notification,
 )
+from ...groups.serializers import SupportGroupDetailSerializer
 from ...groups.tasks import send_new_group_event_email, notify_new_group_event
 
 
@@ -363,13 +365,51 @@ class CreateOrganizerConfigAPIView(APIView):
 
 
 # Send group invitations to organize an event
-class EventGroupsOrganizersAPIView(CreateAPIView):
+class EventGroupsOrganizersAPIView(ListCreateAPIView):
     permission_classes = (
         IsPersonPermission,
         EventManagementPermissions,
     )
     # Restrict to public and upcoming events
     queryset = Event.objects.public().upcoming()
+
+    # List will return the last co-organizer groups for the person's events
+    def list(self, request, *args, **kwargs):
+        event = self.get_object()
+        recent_coorganizers = SupportGroup.objects.filter(
+            pk__in=(
+                OrganizerConfig.objects.exclude(as_group__isnull=True)
+                .exclude(as_group__published=False)
+                .exclude(event_id=event.id)
+                .exclude(event__visibility=Event.VISIBILITY_ADMIN)
+                .filter(
+                    Q(person_id=request.user.person.id)
+                    | Q(
+                        as_group_id__in=event.organizers_groups.values_list(
+                            "id", flat=True
+                        )
+                    )
+                )
+                .distinct("as_group_id")
+                .order_by("as_group_id", "-event__end_time")
+                .values_list("as_group_id", flat=True)[:10]
+            )
+        )
+
+        return Response(
+            [
+                {
+                    "id": group.id,
+                    "name": group.name,
+                    "type": group.get_type_display(),
+                    "location": {
+                        "city": group.location_city,
+                        "zip": group.location_zip,
+                    },
+                }
+                for group in recent_coorganizers
+            ]
+        )
 
     def create(self, request, *args, **kwargs):
         # Use pk in URL to retrieve the event, returns 404 if not found,

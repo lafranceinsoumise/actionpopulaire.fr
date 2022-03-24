@@ -1,5 +1,5 @@
-import { useCallback, useMemo } from "react";
-import { useTimeout } from "react-use";
+import { useCallback, useEffect, useMemo } from "react";
+import { useSessionStorage, useTimeout } from "react-use";
 import useSWR from "swr";
 import useSWRInfinite from "swr/infinite";
 
@@ -69,21 +69,19 @@ export const useUnreadActivityCount = () => {
   const [isReady] = useTimeout(3000);
   const { data: session } = useSWR("/api/session/");
   const ready = isReady() && session?.user;
-  const { data, mutate } = useSWR(
-    ready && getActivityEndpoint("unreadActivityCount"),
-    {
-      dedupingInterval: 10000,
-      focusThrottleInterval: 10000,
-    }
-  );
+  const { data } = useSWR(ready && getActivityEndpoint("unreadActivityCount"), {
+    dedupingInterval: 10000,
+    focusThrottleInterval: 10000,
+  });
 
   return data?.unreadActivityCount || 0;
 };
 
 export const useCustomAnnouncement = (slug) => {
+  const [isPaused, setIsPaused] = useSessionStorage(`AP__${slug}__p`);
   const { data: session } = useSWR("/api/session/");
   const { data, mutate, error } = useSWR(
-    session?.user && slug
+    !isPaused && session?.user && slug
       ? getActivityEndpoint("customAnnouncement", { slug })
       : null,
     {
@@ -93,6 +91,7 @@ export const useCustomAnnouncement = (slug) => {
     }
   );
 
+  const errorStatus = error?.response?.status;
   const announcement =
     !data?.id || data?.status === ACTIVITY_STATUS.STATUS_INTERACTED
       ? null
@@ -114,9 +113,13 @@ export const useCustomAnnouncement = (slug) => {
     );
   }, [activityId, mutate]);
 
+  useEffect(() => {
+    errorStatus === 404 && setIsPaused(true);
+  }, [setIsPaused, errorStatus]);
+
   return [
     announcement,
     dismissCallback,
-    error?.response?.status !== 404 && typeof data === "undefined",
+    errorStatus !== 404 && typeof data === "undefined",
   ];
 };

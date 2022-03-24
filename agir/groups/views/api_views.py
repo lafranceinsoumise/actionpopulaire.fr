@@ -298,13 +298,14 @@ class GroupUpcomingEventsAPIView(ListAPIView):
         person = None
         if self.request.user.is_authenticated and self.request.user.person is not None:
             person = self.request.user.person
+
         events = (
             self.supportgroup.organized_events.with_serializer_prefetch(person)
+            .distinct()
             .listed()
             .upcoming()
             .order_by("start_time")
         )
-
         return events
 
     def get_serializer(self, *args, **kwargs):

@@ -13,6 +13,7 @@ export const PanelWrapper = styled(animated.div)`
   box-shadow: ${style.elaborateShadow};
   will-change: transform;
   overflow-y: auto;
+  z-index: ${style.zindexPanel};
 `;
 
 export default PanelWrapper;

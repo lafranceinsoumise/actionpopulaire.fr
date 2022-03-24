@@ -51,8 +51,17 @@ const DiscountCodesSection = styled.section`
   margin: 1.5rem 0 0;
 
   & > * {
-    color: ${style.black700};
+    color: ${style.black1000};
     margin: 0.5rem 0;
+  }
+
+  & > p {
+    background-color: ${style.primary100};
+    border-radius: ${style.borderRadius};
+    font-size: 0.875rem;
+    padding: 0.875rem;
+    line-height: 1.5;
+    margin: 0 0 1rem;
   }
 
   ul {
@@ -160,7 +169,14 @@ const GroupCard = ({
 
       {parsedDiscountCodes && parsedDiscountCodes.length > 0 && (
         <DiscountCodesSection>
-          <h5>Codes matériels :</h5>
+          <h5>Codes matériels</h5>
+          <p>
+            <strong>Campagne présidentielle&nbsp;:</strong> exceptionnellement,
+            vos codes promo d'avril sont disponibles dès aujourd'hui.
+            <br />
+            Commandez votre matériel pour la dernière ligne droite
+            maintenant&nbsp;!
+          </p>
           <ul>
             {parsedDiscountCodes.map(({ code, date }) => (
               <li key={code}>
