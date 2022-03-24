@@ -2,7 +2,6 @@ import json
 
 from django.conf import settings
 from django.utils import timezone
-from rest_framework import permissions
 from rest_framework.generics import (
     ListAPIView,
 )
@@ -29,7 +28,21 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
     SORT_ALPHA_DESC = "ALPHA_DESC"
     SORT_DATE_ASC = "DATE_ASC"
     SORT_DATE_DESC = "DATE_DESC"
+    SORT_PLACE_ASC = "PLACE_ASC"
+    SORT_PLACE_DESC = "PLACE_DESC"
     EVENT_FILTER_PAST = "PAST"
+    ORDER_BY_PLACES_ASC = [
+        "location_city",
+        "location_zip",
+        "location_state",
+        "location_name",
+    ]
+    ORDER_BY_PLACES_DESC = [
+        "-location_city",
+        "-location_zip",
+        "-location_state",
+        "-location_name",
+    ]
 
     def get_serializer(self, serializer_class, *args, **kwargs):
         kwargs.setdefault("many", True)
@@ -37,7 +50,6 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
         return serializer_class(*args, **kwargs)
 
     def get_groups(self, search_term, filters, result_limit=20):
-
         groupType = filters.get("groupType", None)
         groupSort = filters.get("groupSort", None)
         groupInactive = filters.get("groupInactive", None)
@@ -73,6 +85,10 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
                 groups = groups.order_by("name")
             if groupSort == self.SORT_ALPHA_DESC:
                 groups = groups.order_by("-name")
+            if groupSort == self.SORT_PLACE_ASC:
+                groups = groups.order_by(*self.ORDER_BY_PLACES_ASC)
+            if groupSort == self.SORT_PLACE_DESC:
+                groups = groups.order_by(*self.ORDER_BY_PLACES_DESC)
 
         groups = groups[:result_limit]
 
@@ -112,6 +128,10 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
                 events = events.order_by("name")
             if eventSort == self.SORT_ALPHA_DESC:
                 events = events.order_by("-name")
+            if eventSort == self.SORT_PLACE_ASC:
+                events = events.order_by(*self.ORDER_BY_PLACES_ASC)
+            if eventSort == self.SORT_PLACE_DESC:
+                events = events.order_by(*self.ORDER_BY_PLACES_DESC)
 
         events = events[:result_limit]
 

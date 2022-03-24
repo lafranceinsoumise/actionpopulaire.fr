@@ -35,13 +35,15 @@ export const SORTERS = {
   DATE_DESC: "DATE_DESC",
   ALPHA_ASC: "ALPHA_ASC",
   ALPHA_DESC: "ALPHA_DESC",
+  PLACE_ASC: "PLACE_ASC",
+  PLACE_DESC: "PLACE_DESC",
 };
 
 export const EventSort = [
   { label: <>Date &uarr;</>, value: SORTERS.DATE_ASC },
   { label: <>Date &darr;</>, value: SORTERS.DATE_DESC },
-  { label: <>Alphabétique &uarr;</>, value: SORTERS.ALPHA_ASC },
-  { label: <>Alphabétique &darr;</>, value: SORTERS.ALPHA_DESC },
+  { label: <>Lieu &uarr;</>, value: SORTERS.PLACE_ASC },
+  { label: <>Lieu &darr;</>, value: SORTERS.PLACE_DESC },
 ];
 export const EventCategory = [
   { label: "Tous les événements", value: 0 },
@@ -59,6 +61,8 @@ export const EventType = [
 export const GroupSort = [
   { label: <>Alphabétique &uarr;</>, value: SORTERS.ALPHA_ASC },
   { label: <>Alphabétique &darr;</>, value: SORTERS.ALPHA_DESC },
+  { label: <>Lieu &uarr;</>, value: SORTERS.PLACE_ASC },
+  { label: <>Lieu &darr;</>, value: SORTERS.PLACE_DESC },
 ];
 export const GroupType = [
   { label: "Tous les groupes", value: 0 },
