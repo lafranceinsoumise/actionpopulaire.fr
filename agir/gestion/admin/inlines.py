@@ -25,6 +25,7 @@ class BaseDocumentInline(admin.TabularInline):
     fields = readonly_fields = (
         "numero",
         "type_document",
+        "date",
         "precision",
         "identifiant",
         "fichier_document",
@@ -77,6 +78,13 @@ class BaseDocumentInline(admin.TabularInline):
         return "-"
 
     identifiant.short_description = "Numéro ou identifiant"
+
+    def date(self, obj):
+        if obj and obj.document:
+            return obj.document.date or "-"
+        return "-"
+
+    date.short_description = "Date"
 
 
 class DepenseDocumentInline(BaseDocumentInline):
@@ -280,6 +288,8 @@ class DepenseReglementInline(admin.TabularInline):
             )
 
         return "-"
+
+    fournisseur_link.short_description = "Fournisseur"
 
 
 class OrdreVirementReglementInline(admin.TabularInline):
