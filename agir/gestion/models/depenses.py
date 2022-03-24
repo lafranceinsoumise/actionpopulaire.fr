@@ -484,6 +484,7 @@ class Reglement(TimeStampedModel):
         verbose_name="Facture associée",
         related_name="comme_facture",
         null=True,
+        blank=True,
         on_delete=models.PROTECT,
         help_text="Indiquez laquelle des factures de la dépense est lié ce paiement.",
     )
