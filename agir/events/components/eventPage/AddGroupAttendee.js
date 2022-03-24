@@ -135,7 +135,7 @@ const AddGroupAttendee = ({ id, groups, groupsAttendees }) => {
   return (
     <>
       {!!managingGroups?.length && (
-        <Button onClick={showModalJoinAsGroup}>
+        <Button onClick={showModalJoinAsGroup} style={{ width: "fit-content" }}>
           Participer avec mon groupe
         </Button>
       )}
@@ -162,7 +162,7 @@ const AddGroupAttendee = ({ id, groups, groupsAttendees }) => {
                 Ajoutez un groupe dont vous êtes gestionnaire comme participant
                 à l’événement.
                 <Spacer size="0.5rem" />
-                L’événement sera à ajouté à l’agenda du groupe.
+                L’événement sera ajouté à l’agenda du groupe.
                 <Spacer size="0.5rem" />
                 Les groupes participants n'ont pas de droit d'organisation de
                 l'événement. Seuls les groupes co-organisateurs peuvent inviter

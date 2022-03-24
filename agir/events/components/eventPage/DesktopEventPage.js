@@ -1,6 +1,6 @@
 import { DateTime, Interval } from "luxon";
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import Card from "@agir/front/genericComponents/Card";
@@ -15,7 +15,10 @@ import EventLocationCard from "./EventLocationCard";
 import EventPhotosCard from "./EventPhotosCard";
 import EventReportCard from "./EventReportCard";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
-import GroupsCard from "@agir/groups/groupComponents/GroupsCard";
+import {
+  GroupsOrganizingCard,
+  GroupsJoiningCard,
+} from "@agir/groups/groupComponents/GroupsCard";
 import Link from "@agir/front/app/Link";
 import OnlineUrlCard from "./OnlineUrlCard";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
@@ -77,6 +80,7 @@ const IndexLinkAnchor = styled(Link)`
 
 const DesktopEventPage = (props) => {
   const {
+    id,
     logged,
     groups,
     groupsAttendees,
@@ -84,14 +88,21 @@ const DesktopEventPage = (props) => {
     participantCount,
     routes,
     subtype,
+    isOrganizer,
+    isPast,
   } = props;
 
   const user = useSelector(getUser);
-  const groupsId = groupsAttendees?.map((group) => group.id) || [];
-  // Get groups attendees from user only
-  const userGroupsAttendees = user?.groups.filter((group) =>
-    groupsId.includes(group.id)
-  );
+
+  // Get groups attendees not organizers, from user only
+  const userGroupsAttendees = useMemo(() => {
+    const groupsId = groups?.map((group) => group.id) || [];
+    const groupsAttendeesId = groupsAttendees?.map((group) => group.id) || [];
+    return user?.groups.filter(
+      (group) =>
+        groupsAttendeesId.includes(group.id) && !groupsId.includes(group.id)
+    );
+  }, [user, groups, groupsAttendees]);
 
   return (
     <>
@@ -116,24 +127,31 @@ const DesktopEventPage = (props) => {
           <Column grow>
             <div>
               <EventHeader {...props} />
-              {props.isOrganizer && <ReportFormCard eventPk={props.id} />}
-              {props.logged &&
-                props.subtype.label === DOOR2DOOR_EVENT_SUBTYPE_LABEL && (
-                  <TokTokCard flex />
-                )}
+              {isOrganizer && <ReportFormCard eventPk={id} />}
+              {logged && subtype.label === DOOR2DOOR_EVENT_SUBTYPE_LABEL && (
+                <TokTokCard flex />
+              )}
               <OnlineUrlCard
                 youtubeVideoID={props.youtubeVideoID}
                 onlineUrl={props.onlineUrl}
-                isPast={props.isPast}
+                isPast={isPast}
               />
               <EventPhotosCard {...props} />
               <EventReportCard {...props} />
               <EventDescriptionCard {...props} />
-              <GroupsCard title="Organisé par" groups={groups} isDetailed />
+              <GroupsOrganizingCard
+                groups={groups}
+                isDetailed
+                eventPk={id}
+                isPast={isPast}
+                isOrganizer={isOrganizer}
+              />
               <Spacer size="1rem" />
-              <GroupsCard
-                title="Mes groupes y participent"
-                groups={userGroupsAttendees}
+              <GroupsJoiningCard
+                eventPk={id}
+                isPast={isPast}
+                groups={groups}
+                groupsAttendees={userGroupsAttendees}
               />
             </div>
           </Column>

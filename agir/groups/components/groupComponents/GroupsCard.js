@@ -3,10 +3,14 @@ import React from "react";
 import styled from "styled-components";
 
 import { routeConfig } from "@agir/front/app/routes.config";
+import { routeConfig as eventRouteConfig } from "@agir/events/EventSettings/routes.config";
+
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import Link from "@agir/front/app/Link";
+import Button from "@agir/front/genericComponents/Button";
+import AddGroupAttendee from "@agir/events/eventPage/AddGroupAttendee";
 
 const GroupIcon = styled.div`
   display: flex;
@@ -58,7 +62,6 @@ const GroupLine = ({ id, name, eventCount, membersCount, isDetailed }) => (
         <FeatherIcon name="users" />
       </GroupIcon>
     </Link>
-
     <div style={{ paddingLeft: "1rem" }}>
       <h3 style={{ marginTop: 2, marginBottom: 2 }}>
         <Link to={routeConfig.groupDetails.getLink({ groupPk: id })}>
@@ -75,31 +78,91 @@ const GroupLine = ({ id, name, eventCount, membersCount, isDetailed }) => (
   </StyledGroupLine>
 );
 GroupLine.propTypes = {
+  id: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
-  description: PropTypes.string,
   eventCount: PropTypes.number,
   membersCount: PropTypes.number,
   isDetailed: PropTypes.bool,
 };
 
-const GroupsCard = ({ title, groups, isDetailed }) => {
+export const GroupsOrganizingCard = ({
+  groups,
+  isDetailed,
+  eventPk,
+  isOrganizer,
+  isPast,
+}) => {
   if (!groups?.length) {
-    return <></>;
+    return null;
   }
+
+  const coorganizeLink =
+    !!eventPk && isOrganizer
+      ? `${routeConfig.eventSettings.getLink({
+          eventPk,
+        })}${eventRouteConfig.organisation.path}`
+      : false;
+
   return (
     <StyledContainer>
-      <h3>{title}</h3>
+      <h3>Organisé par</h3>
       {groups.map((group) => (
-        <GroupLine {...group} isDetailed={isDetailed} />
+        <GroupLine key={group.id} isDetailed={isDetailed} {...group} />
       ))}
+      {coorganizeLink && !isPast && (
+        <Button
+          link
+          to={coorganizeLink}
+          style={{ width: "fit-content", marginTop: "1rem" }}
+        >
+          Inviter à co-organiser
+        </Button>
+      )}
     </StyledContainer>
   );
 };
 
-GroupsCard.propTypes = {
-  title: PropTypes.string,
+GroupsOrganizingCard.propTypes = {
   groups: PropTypes.array,
   isDetailed: PropTypes.bool,
+  eventPk: PropTypes.string,
+  isOrganizer: PropTypes.bool,
+  isPast: PropTypes.bool,
 };
 
-export default GroupsCard;
+export const GroupsJoiningCard = ({
+  groups,
+  groupsAttendees,
+  eventPk,
+  isPast,
+}) => {
+  if (!groupsAttendees?.length) {
+    return null;
+  }
+
+  return (
+    <StyledContainer>
+      <h3>
+        {!isPast ? "Mes groupes y participent" : "Mes groupes y ont participé"}
+      </h3>
+      {groupsAttendees.map((group) => (
+        <GroupLine key={group.id} {...group} />
+      ))}
+      {eventPk && !isPast && (
+        <AddGroupAttendee
+          id={eventPk}
+          groups={groups}
+          groupsAttendees={groupsAttendees}
+          style={{ width: "fit-content", marginTop: "1rem" }}
+        />
+      )}
+    </StyledContainer>
+  );
+};
+
+GroupsJoiningCard.propTypes = {
+  groups: PropTypes.array,
+  groupsAttendees: PropTypes.array,
+  eventPk: PropTypes.string,
+  isPast: PropTypes.bool,
+};
