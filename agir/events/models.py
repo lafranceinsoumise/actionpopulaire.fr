@@ -1046,7 +1046,7 @@ class CalendarItem(ExportModelOperationsMixin("calendar_item"), TimeStampedModel
         verbose_name = _("Élément de calendrier")
 
 
-class GroupAttendee(TimeStampedModel):
+class GroupAttendee(ExportModelOperationsMixin("group_attendee"), TimeStampedModel):
     """
     Model that represents a group attendee to an event.
     """
@@ -1066,7 +1066,9 @@ class GroupAttendee(TimeStampedModel):
     )
 
     class Meta:
-        verbose_name = "Group attendee for an event"
+        db_table = "group_attendee"
+        verbose_name = "Groupe participant"
+        verbose_name_plural = "Groupes participants"
         unique_together = ("event", "group")
 
     def __str__(self):

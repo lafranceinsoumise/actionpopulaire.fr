@@ -86,7 +86,6 @@ GroupLine.propTypes = {
 };
 
 export const GroupsOrganizingCard = ({
-  title,
   groups,
   isDetailed,
   eventPk,
@@ -106,7 +105,7 @@ export const GroupsOrganizingCard = ({
 
   return (
     <StyledContainer>
-      <h3>{title}</h3>
+      <h3>Organisé par</h3>
       {groups.map((group) => (
         <GroupLine key={group.id} isDetailed={isDetailed} {...group} />
       ))}
@@ -124,7 +123,6 @@ export const GroupsOrganizingCard = ({
 };
 
 GroupsOrganizingCard.propTypes = {
-  title: PropTypes.string,
   groups: PropTypes.array,
   isDetailed: PropTypes.bool,
   eventPk: PropTypes.string,
@@ -133,7 +131,6 @@ GroupsOrganizingCard.propTypes = {
 };
 
 export const GroupsJoiningCard = ({
-  title,
   groups,
   groupsAttendees,
   eventPk,
@@ -145,7 +142,9 @@ export const GroupsJoiningCard = ({
 
   return (
     <StyledContainer>
-      <h3>{title}</h3>
+      <h3>
+        {!isPast ? "Mes groupes y participent" : "Mes groupes y ont participé"}
+      </h3>
       {groupsAttendees.map((group) => (
         <GroupLine key={group.id} {...group} />
       ))}
@@ -162,7 +161,6 @@ export const GroupsJoiningCard = ({
 };
 
 GroupsJoiningCard.propTypes = {
-  title: PropTypes.string,
   groups: PropTypes.array,
   groupsAttendees: PropTypes.array,
   eventPk: PropTypes.string,

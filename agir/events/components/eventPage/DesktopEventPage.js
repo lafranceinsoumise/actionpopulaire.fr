@@ -1,6 +1,6 @@
 import { DateTime, Interval } from "luxon";
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import Card from "@agir/front/genericComponents/Card";
@@ -93,14 +93,16 @@ const DesktopEventPage = (props) => {
   } = props;
 
   const user = useSelector(getUser);
-  const groupsId = groups?.map((group) => group.id) || [];
-  const groupsAttendeesId = groupsAttendees?.map((group) => group.id) || [];
 
   // Get groups attendees not organizers, from user only
-  const userGroupsAttendees = user?.groups.filter(
-    (group) =>
-      groupsAttendeesId.includes(group.id) && !groupsId.includes(group.id)
-  );
+  const userGroupsAttendees = useMemo(() => {
+    const groupsId = groups?.map((group) => group.id) || [];
+    const groupsAttendeesId = groupsAttendees?.map((group) => group.id) || [];
+    return user?.groups.filter(
+      (group) =>
+        groupsAttendeesId.includes(group.id) && !groupsId.includes(group.id)
+    );
+  }, [user, groups, groupsAttendees]);
 
   return (
     <>
@@ -138,7 +140,6 @@ const DesktopEventPage = (props) => {
               <EventReportCard {...props} />
               <EventDescriptionCard {...props} />
               <GroupsOrganizingCard
-                title="Organisé par"
                 groups={groups}
                 isDetailed
                 eventPk={id}
@@ -147,7 +148,6 @@ const DesktopEventPage = (props) => {
               />
               <Spacer size="1rem" />
               <GroupsJoiningCard
-                title="Mes groupes y participent"
                 eventPk={id}
                 isPast={isPast}
                 groups={groups}

@@ -1,6 +1,6 @@
 import { DateTime, Interval } from "luxon";
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -121,11 +121,16 @@ const MobileEventPage = (props) => {
   const hasMap = Array.isArray(location?.coordinates?.coordinates);
 
   const user = useSelector(getUser);
-  const groupsId = groupsAttendees?.map((group) => group.id) || [];
-  // Get groups attendees from user only
-  const userGroupsAttendees = user?.groups.filter((group) =>
-    groupsId.includes(group.id)
-  );
+
+  // Get groups attendees not organizers, from user only
+  const userGroupsAttendees = useMemo(() => {
+    const groupsId = groups?.map((group) => group.id) || [];
+    const groupsAttendeesId = groupsAttendees?.map((group) => group.id) || [];
+    return user?.groups.filter(
+      (group) =>
+        groupsAttendeesId.includes(group.id) && !groupsId.includes(group.id)
+    );
+  }, [user, groups, groupsAttendees]);
 
   return (
     <>
@@ -213,7 +218,6 @@ const MobileEventPage = (props) => {
         {routes?.facebook && <EventFacebookLinkCard {...props} />}
         <ShareCard url={routes?.details} />
         <GroupsOrganizingCard
-          title="Organisé par"
           groups={groups}
           isDetailed
           eventPk={id}
@@ -221,7 +225,6 @@ const MobileEventPage = (props) => {
           isOrganizer={isOrganizer}
         />
         <GroupsJoiningCard
-          title="Mes groupes y participent"
           eventPk={id}
           isPast={isPast}
           groups={groups}
