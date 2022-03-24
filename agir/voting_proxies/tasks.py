@@ -180,7 +180,7 @@ PROCURATIONS - RAPPORT DE SCRIPT
 {data["datetime"]}
 
 - {data["pending_request_count"]} demande(s) de procuration en attente
-- {data["matched_request_count"]} demandes de procurations proposées à un·e volontaire
+- {data["matched_request_count"]} demande(s) de procuration proposée(s) à un·e volontaire
 - {len(data["invitations"])} invitation(s) envoyée(s) à des volontaires potentiels
 ==============================================================
 

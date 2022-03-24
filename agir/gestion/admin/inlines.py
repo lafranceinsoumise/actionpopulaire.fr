@@ -5,7 +5,11 @@ from django.utils.safestring import mark_safe
 
 from agir.gestion.admin.base import SearchableModelMixin
 from agir.gestion.admin.depenses import DepenseListMixin
-from agir.gestion.admin.forms import AjoutRapideDepenseForm, DocumentAjoutRapideForm
+from agir.gestion.admin.forms import (
+    AjoutRapideDepenseForm,
+    DocumentAjoutRapideForm,
+    InlineReglementForm,
+)
 from agir.gestion.models import Depense, Projet, Participation, Reglement
 from agir.gestion.models.documents import VersionDocument
 from agir.lib.admin.form_fields import CleavedDateInput
@@ -21,6 +25,7 @@ class BaseDocumentInline(admin.TabularInline):
     fields = readonly_fields = (
         "numero",
         "type_document",
+        "date",
         "precision",
         "identifiant",
         "fichier_document",
@@ -73,6 +78,13 @@ class BaseDocumentInline(admin.TabularInline):
         return "-"
 
     identifiant.short_description = "Numéro ou identifiant"
+
+    def date(self, obj):
+        if obj and obj.document:
+            return obj.document.date or "-"
+        return "-"
+
+    date.short_description = "Date"
 
 
 class DepenseDocumentInline(BaseDocumentInline):
@@ -218,6 +230,7 @@ class AjouterDocumentDepenseInline(BaseAjouterDocumentInline):
 class DepenseReglementInline(admin.TabularInline):
     classes = ("retirer-original",)
     model = Reglement
+    form = InlineReglementForm
 
     fields = (
         "intitule",
@@ -226,6 +239,7 @@ class DepenseReglementInline(admin.TabularInline):
         "montant",
         "date",
         "date_releve",
+        "facture",
         "preuve_link",
         "fournisseur_link",
     )
@@ -274,6 +288,8 @@ class DepenseReglementInline(admin.TabularInline):
             )
 
         return "-"
+
+    fournisseur_link.short_description = "Fournisseur"
 
 
 class OrdreVirementReglementInline(admin.TabularInline):

@@ -19,8 +19,11 @@
 
       if ($(this).data("today")) {
         const input = this;
-        $("<button class='button' type='button'>aujourd'hui</button>")
-          .click(function () {
+        $(
+          '<span class="datetimeshortcuts"><a href="#">Aujourd\'hui</button></span>'
+        )
+          .click(function (e) {
+            e.preventDefault();
             input.value = formatDate(new Date());
           })
           .insertAfter(this);

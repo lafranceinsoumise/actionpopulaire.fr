@@ -167,6 +167,7 @@ class DocumentAdmin(BaseGestionModelAdmin, VersionAdmin):
     list_display = (
         "numero",
         "type",
+        "date",
         "identifiant",
         "precision",
         "requis",
@@ -181,6 +182,7 @@ class DocumentAdmin(BaseGestionModelAdmin, VersionAdmin):
                 "fields": (
                     "numero_",
                     "type",
+                    "date",
                     "identifiant",
                     "precision",
                     "requis",
@@ -924,3 +926,6 @@ class ReglementAdmin(BaseGestionModelAdmin):
             )
 
         return autorise
+
+    def has_add_permission(self, request):
+        return False
