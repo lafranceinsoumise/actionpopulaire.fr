@@ -327,15 +327,10 @@ def find_voting_proxy_candidates_for_requests(
     # Find candidates for consulate requests
     for request in (
         pending_requests.exclude(consulate__pays__isnull=True)
-        .values("email")
+        .values("email", "consulate__pays")
         .annotate(ids=ArrayAgg("id"))
     ):
-        pays = [
-            country.code
-            for country in CirconscriptionConsulaire.objects.get(
-                id=VotingProxyRequest.objects.get(id=request["ids"][0]).consulate_id
-            ).pays
-        ]
+        pays = request["consulate__pays"].split(",")
         candidates = get_voting_proxy_candidates_queryset(
             request, candidate_ids
         ).filter(location_country__in=pays)[:PER_VOTING_PROXY_REQUEST_INVITATION_LIMIT]
@@ -348,12 +343,10 @@ def find_voting_proxy_candidates_for_requests(
     # Find candidates for commune requests
     for request in (
         pending_requests.exclude(commune__isnull=True)
-        .values("email")
+        .values("email", "commune_id")
         .annotate(ids=ArrayAgg("id"))
     ):
-        commune = Commune.objects.get(
-            id=VotingProxyRequest.objects.get(id=request["ids"][0]).commune_id
-        )
+        commune = Commune.objects.get(id=request["commune_id"])
         candidates = get_voting_proxy_candidates_queryset(request, candidate_ids)
         # Match by distance for geolocalised communes
         if commune.mairie_localisation:
