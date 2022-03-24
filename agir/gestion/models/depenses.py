@@ -321,10 +321,7 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
     def identifiant_facture(self):
         """S'il existe une unique facture avec un identifiant pour cette dépense, renvoie cet identifiant."""
         facture_avec_identifiant = self.documents.filter(
-            type__in=[
-                TypeDocument.FACTURE,
-                TypeDocument.FACTURE_AVOIR,
-            ]
+            type=TypeDocument.FACTURE,
         ).exclude(identifiant="")
 
         if facture_avec_identifiant.count() == 1:
