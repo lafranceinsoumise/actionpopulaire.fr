@@ -322,7 +322,7 @@
                       <p style="Margin: 1em 0px; Margin-top: 0px;">
                       <p style="Margin: 1em 0px; Margin-top: 0px;">Bonjour,</p>
                       <br />
-                      <p style="Margin: 1em 0px;">{{ MESSAGE_INTRO }}</p>
+                      <p style="Margin: 1em 0px;">{{ MESSAGE_INTRO|safe }}</p>
                   </tr>
                 </tbody>
               </table>
@@ -343,7 +343,7 @@
                 <tbody>
                   <tr>
                     <td class="long-text links-color" style="text-align: left; font-size: 16px; font-family: Arial, Helvetica, sans-serif; color: #000a2c;" align="left">
-                      <p style="Margin: 1em 0px; Margin-bottom: 0px; Margin-top: 0px;">{{ MESSAGE_BODY }}</p>
+                      <p style="Margin: 1em 0px; Margin-bottom: 0px; Margin-top: 0px;">{{ MESSAGE_BODY|safe }}</p>
                     </td>
                   </tr>
                 </tbody>

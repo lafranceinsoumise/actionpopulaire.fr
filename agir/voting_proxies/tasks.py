@@ -4,7 +4,7 @@ from email.mime.text import MIMEText
 from celery import shared_task
 from django.conf import settings
 from django.core.mail import get_connection, EmailMultiAlternatives
-from django.utils.html import format_html
+from django.utils.html import format_html, escape
 
 from agir.lib.celery import post_save_task, emailing_task
 from agir.lib.mailing import send_mosaico_email
@@ -233,15 +233,13 @@ def send_voting_proxy_request_confirmed_text_messages(voting_proxy_request_pks):
     voting_proxy_request = voting_proxy_requests.first()
 
     message = (
-        f"Date(s) : {voting_date_string} \n"
-        f"Volontaire : {voting_proxy_request.first_name} {voting_proxy_request.last_name.upper()} \n"
-        f"Circonscription : {voting_proxy_request.commune.nom if voting_proxy_request.commune else voting_proxy_request.consulate.nom} \n"
-        f"Téléphone : {voting_proxy_request.contact_phone} \n"
+        f"Date(s)&nbsp;: <strong>{escape(voting_date_string)}</strong><br>"
+        f"Volontaire&nbsp;: <strong>{escape(voting_proxy_request.first_name)} {escape(voting_proxy_request.last_name.upper())}</strong><br>"
+        f"Circonscription&nbsp;: <strong>{escape(voting_proxy_request.commune.nom if voting_proxy_request.commune else voting_proxy_request.consulate.nom)}</strong><br>"
+        f"Téléphone&nbsp;: <strong>{escape(voting_proxy_request.contact_phone)}</strong><br>"
     )
     if voting_proxy_request.polling_station_number:
-        message += f" \nBureau de vote {voting_proxy_request.polling_station_number}"
-
-    message += "."
+        message += f"Bureau de vote&nbsp;: <strong>{escape(voting_proxy_request.polling_station_number)}</strong>"
 
     message = format_html(message)
 

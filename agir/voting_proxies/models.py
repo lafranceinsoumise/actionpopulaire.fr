@@ -5,7 +5,8 @@ from data_france.models import Commune
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.functional import cached_property
-from django.utils.html import format_html
+from django.utils.html import format_html, html_safe, escape
+from django.utils.safestring import mark_safe, SafeString
 
 from agir.lib.model_fields import ChoiceArrayField
 from agir.lib.models import BaseAPIResource
@@ -245,16 +246,15 @@ class VotingProxyRequest(AbstractVoter):
             [voting_date.strftime("%d/%m/%Y") for voting_date in voting_dates]
         )
         text = (
-            f"Date(s)  : {voting_date_string}.\n"
-            f"Volontaire  : {self.proxy.first_name} {self.proxy.last_name.upper()}.\n"
-            f"Né·e le {self.proxy.date_of_birth.strftime('%d/%m/%Y')}.\n"
-            f"Téléphone  : {self.proxy.contact_phone}"
+            f"Date(s)&nbsp;: <strong>{escape(voting_date_string)}</strong><br>"
+            f"Volontaire&nbsp;: <strong>{escape(self.proxy.first_name)} {escape(self.proxy.last_name.upper())}</strong><br>"
+            f"Né·e le: <strong>{escape(self.proxy.date_of_birth.strftime('%d/%m/%Y'))}</strong><br>"
+            f"Téléphone&nbsp;: <strong>{escape(self.proxy.contact_phone)}</strong>"
         )
         if self.proxy.remarks:
-            text += f".\nDisponibilités  : {self.proxy.remarks}"
-        text += "."
+            text += f".<br>Disponibilités&nbsp;: <strong>{escape(self.proxy.remarks)}</strong>"
 
-        return format_html(text)
+        return mark_safe(text)
 
     def _get_voting_proxy_information_as_text(self):
         voting_dates = self.proxy.voting_proxy_requests.filter(
