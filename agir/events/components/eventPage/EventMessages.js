@@ -23,14 +23,10 @@ const StyledH3 = styled.h3`
 export const EventMessages = (props) => {
   const { eventPk } = props;
 
-  console.log("event messages, event pk : ", eventPk);
-
   const user = useSelector(getUser);
   const { data: messages, error } = useSWR(
-    getEventEndpoint("getEventMessages", { eventPk })
+    !!user && getEventEndpoint("getEventMessages", { eventPk })
   );
-
-  console.log("data messages : ", messages);
 
   const history = useHistory();
 
@@ -44,27 +40,26 @@ export const EventMessages = (props) => {
     [history]
   );
 
-  if (!messages?.length) {
-    return <></>;
+  if (!(Array.isArray(messages) && !!messages.length)) {
+    return null;
   }
 
   return (
     <>
       <StyledH3 style={{ marginTop: "2.5rem" }}>Messages</StyledH3>
       <article>
-        {Array.isArray(messages) &&
-          messages.map((message) => (
-            <Fragment key={message.id}>
-              <MessageCard
-                user={user}
-                message={message}
-                comments={message.comments || message.recentComments || []}
-                onClick={handleClickMessage}
-                withBottomButton
-              />
-              <Spacer size="1.5rem" style={{ backgroundColor: "inherit" }} />
-            </Fragment>
-          ))}
+        {messages.map((message) => (
+          <Fragment key={message.id}>
+            <MessageCard
+              user={user}
+              message={message}
+              comments={message.comments || message.recentComments || []}
+              onClick={handleClickMessage}
+              withBottomButton
+            />
+            <Spacer size="1.5rem" style={{ backgroundColor: "inherit" }} />
+          </Fragment>
+        ))}
       </article>
     </>
   );

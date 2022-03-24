@@ -3,7 +3,7 @@ from datetime import timedelta
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
 from django.db import transaction
-from django.db.models import Q, Value, CharField
+from django.db.models import Q, Value, CharField, OuterRef, Exists
 from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -12,6 +12,7 @@ from django.utils.functional import cached_property
 from django.utils.timezone import now
 from agir.msgs.serializers import SupportGroupMessageSerializer
 from agir.msgs.models import SupportGroupMessage
+from agir.msgs.actions import get_viewables_messages
 from rest_framework import exceptions, status
 from rest_framework.exceptions import NotFound, MethodNotAllowed
 from rest_framework.generics import (
@@ -627,17 +628,9 @@ class EventMessagesAPIView(ListAPIView):
 
     def get_queryset(self):
         person = self.request.user.person
-        messages = SupportGroupMessage.objects.filter(linked_event=self.event).order_by(
-            "-created"
-        )
-        messages_allowed = []
-        for message in messages:
-            group = message.supportgroup
-            memberships = group.memberships.filter(person=person)
-            user_permission = 0
-            if memberships.exists():
-                user_permission = memberships.first().membership_type
-            if message.required_membership_type <= user_permission:
-                messages_allowed += [message]
 
-        return messages_allowed
+        return (
+            get_viewables_messages(person)
+            .filter(linked_event=self.event)
+            .order_by("-created")
+        )
