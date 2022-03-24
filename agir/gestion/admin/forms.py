@@ -336,6 +336,13 @@ class ReglementForm(forms.ModelForm):
         self.initial["intitule"] = depense.titre
         self.initial["montant"] = montant_restant
 
+        # on limite le choix de la facture à celles associées à la dépense
+        facture_qs = depense.documents.filter(type=TypeDocument.FACTURE)
+        self.fields["facture"].queryset = facture_qs
+        # S'il n'y a qu'une seule facture associée à la dépense, on peut la présélectionner
+        if len(facture_qs) == 1:
+            self.fields["facture"].initial = facture_qs[0]
+
         # on pré-remplit les informations de Fournisseur s'il y en avait un de sélectionné.
         if depense.fournisseur:
             self.initial["fournisseur"] = depense.fournisseur
@@ -515,6 +522,7 @@ class ReglementForm(forms.ModelForm):
             "intitule",
             "mode",
             "montant",
+            "facture",
             "date",
             "fournisseur",
             "nom_fournisseur",
@@ -577,3 +585,18 @@ class OrdreVirementForm(forms.ModelForm):
                 r.save(update_fields=["ordre_virement", "endtoend_id"])
 
         super()._save_m2m()
+
+
+class InlineReglementForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if "facture" in self.fields:
+            try:
+                self.fields[
+                    "facture"
+                ].queryset = self.instance.depense.documents.filter(
+                    type=TypeDocument.FACTURE
+                )
+            except Depense.DoesNotExist:
+                self.fields["facture"].queryset = Document.objects.none()

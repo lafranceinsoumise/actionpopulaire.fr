@@ -924,3 +924,6 @@ class ReglementAdmin(BaseGestionModelAdmin):
             )
 
         return autorise
+
+    def has_add_permission(self, request):
+        return False

@@ -5,7 +5,11 @@ from django.utils.safestring import mark_safe
 
 from agir.gestion.admin.base import SearchableModelMixin
 from agir.gestion.admin.depenses import DepenseListMixin
-from agir.gestion.admin.forms import AjoutRapideDepenseForm, DocumentAjoutRapideForm
+from agir.gestion.admin.forms import (
+    AjoutRapideDepenseForm,
+    DocumentAjoutRapideForm,
+    InlineReglementForm,
+)
 from agir.gestion.models import Depense, Projet, Participation, Reglement
 from agir.gestion.models.documents import VersionDocument
 from agir.lib.admin.form_fields import CleavedDateInput
@@ -218,6 +222,7 @@ class AjouterDocumentDepenseInline(BaseAjouterDocumentInline):
 class DepenseReglementInline(admin.TabularInline):
     classes = ("retirer-original",)
     model = Reglement
+    form = InlineReglementForm
 
     fields = (
         "intitule",
@@ -226,6 +231,7 @@ class DepenseReglementInline(admin.TabularInline):
         "montant",
         "date",
         "date_releve",
+        "facture",
         "preuve_link",
         "fournisseur_link",
     )

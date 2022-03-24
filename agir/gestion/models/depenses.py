@@ -476,9 +476,19 @@ class Reglement(TimeStampedModel):
     preuve = models.ForeignKey(
         to="Document",
         verbose_name="Preuve de paiement",
+        related_name="comme_preuve_paiement",
         null=True,
         blank=True,
         on_delete=models.PROTECT,
+    )
+
+    facture = models.ForeignKey(
+        to="Document",
+        verbose_name="Facture associée",
+        related_name="comme_facture",
+        null=True,
+        on_delete=models.PROTECT,
+        help_text="Indiquez laquelle des factures de la dépense est lié ce paiement.",
     )
 
     statut = models.CharField(
@@ -535,10 +545,15 @@ class Reglement(TimeStampedModel):
     )
 
     def __repr__(self):
-        return f"<Reglement: {self.id}, dépense {self.depense.numero}>"
+        try:
+            return f"<Reglement: {self.id}, dépense {self.depense.numero}>"
+        except Depense.DoesNotExist:
+            return f"<Reglement: {self.id}, pas de dépense!>"
 
     def __str__(self):
-        return f"{self.intitule} — {self.fournisseur.nom}"
+        if self.fournisseur:
+            return f"{self.intitule} — {self.fournisseur.nom}"
+        return self.intitule
 
     def generer_virement(self, date):
         if (

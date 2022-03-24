@@ -12,7 +12,6 @@ class TypeDocument(TextChoices):
     CONTRAT = "CON", "Contrat"
 
     FACTURE = "FAC", "Facture"
-    FACTURE_AVOIR = "FAC-AVO", "Facture d'avoir"
 
     BDL = "BDL", "Bon de livraison"
 
