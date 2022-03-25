@@ -432,6 +432,9 @@ class Event(
     attendees = models.ManyToManyField(
         "people.Person", related_name="events", through="RSVP"
     )
+    groups_attendees = models.ManyToManyField(
+        "groups.SupportGroup", related_name="attended_event", through="GroupAttendee"
+    )
 
     organizers = models.ManyToManyField(
         "people.Person", related_name="organized_events", through="OrganizerConfig"
@@ -1044,6 +1047,35 @@ class CalendarItem(ExportModelOperationsMixin("calendar_item"), TimeStampedModel
 
     class Meta:
         verbose_name = _("Élément de calendrier")
+
+
+class GroupAttendee(TimeStampedModel):
+    """
+    Model that represents a group attendee to an event.
+    """
+
+    organizer = models.ForeignKey(
+        "people.Person",
+        related_name="group_event_participation",
+        on_delete=models.CASCADE,
+    )
+    group = models.ForeignKey(
+        "groups.supportgroup",
+        related_name="group_participation",
+        on_delete=models.CASCADE,
+    )
+    event = models.ForeignKey(
+        "Event", related_name="event_participation", on_delete=models.CASCADE
+    )
+
+    class Meta:
+        verbose_name = "Group attendee for an event"
+        unique_together = ("event", "group")
+
+    def __str__(self):
+        return "{group} participe à l'événement --> {event} | Par {organizer}".format(
+            group=self.group, event=self.event, organizer=self.organizer
+        )
 
 
 class RSVP(ExportModelOperationsMixin("rsvp"), TimeStampedModel):

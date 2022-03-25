@@ -18,16 +18,15 @@ import EventInfoCard from "@agir/events/eventPage/EventInfoCard";
 import EventLocationCard from "./EventLocationCard";
 import EventPhotosCard from "./EventPhotosCard";
 import EventReportCard from "./EventReportCard";
-import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
-import GroupCard from "@agir/groups/groupComponents/GroupCard";
-import Link from "@agir/front/app/Link";
+import GroupsCard from "@agir/groups/groupComponents/GroupsCard";
 import OnlineUrlCard from "./OnlineUrlCard";
 import RenderIfVisible from "@agir/front/genericComponents/RenderIfVisible";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
-import Skeleton from "@agir/front/genericComponents/Skeleton";
 import EventMessages from "./EventMessages";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import TokTokCard from "@agir/events/TokTok/TokTokCard";
+import { useSelector } from "@agir/front/globalContext/GlobalContext";
+import { getUser } from "@agir/front/globalContext/reducers";
 
 import { DOOR2DOOR_EVENT_SUBTYPE_LABEL } from "@agir/events/common/utils";
 
@@ -102,10 +101,25 @@ const StyledMap = styled(RenderIfVisible)`
 `;
 
 const MobileEventPage = (props) => {
-  const { name, contact, routes, groups, illustration, location, subtype } =
-    props;
+  const {
+    name,
+    contact,
+    routes,
+    groups,
+    groupsAttendees,
+    illustration,
+    location,
+    subtype,
+  } = props;
 
   const hasMap = Array.isArray(location?.coordinates?.coordinates);
+
+  const user = useSelector(getUser);
+  const groupsId = groupsAttendees?.map((group) => group.id) || [];
+  // Get groups attendees from user only
+  const userGroupsAttendees = user?.groups.filter((group) =>
+    groupsId.includes(group.id)
+  );
 
   return (
     <>
@@ -193,14 +207,11 @@ const MobileEventPage = (props) => {
         {contact && <ContactCard {...contact} />}
         {routes?.facebook && <EventFacebookLinkCard {...props} />}
         <ShareCard url={routes?.details} />
-        {Array.isArray(groups) && groups.length > 0 && (
-          <CardLikeSection>
-            <b>Organisé par</b>
-            {groups.map((group, key) => (
-              <GroupCard key={key} {...group} isEmbedded />
-            ))}
-          </CardLikeSection>
-        )}
+        <GroupsCard title="Organisé par" groups={groups} isDetailed />
+        <GroupsCard
+          title="Mes groupes y participent"
+          groups={userGroupsAttendees}
+        />
       </StyledMain>
 
       <EventMessages eventPk={props.id} />
@@ -234,7 +245,7 @@ MobileEventPage.propTypes = {
   }),
   contact: PropTypes.shape(ContactCard.propTypes),
   options: PropTypes.shape({ price: PropTypes.string }),
-  groups: PropTypes.arrayOf(PropTypes.shape(GroupCard.propTypes)),
+  groups: PropTypes.array,
   routes: PropTypes.shape({
     page: PropTypes.string,
     map: PropTypes.string,

@@ -3,8 +3,6 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
-
 import Card from "@agir/front/genericComponents/Card";
 import { Column, Container, Row } from "@agir/front/genericComponents/grid";
 import ContactCard from "@agir/front/genericComponents/ContactCard";
@@ -18,21 +16,17 @@ import EventLocationCard from "./EventLocationCard";
 import EventPhotosCard from "./EventPhotosCard";
 import EventReportCard from "./EventReportCard";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
-import GroupCard from "@agir/groups/groupComponents/GroupCard";
+import GroupsCard from "@agir/groups/groupComponents/GroupsCard";
 import Link from "@agir/front/app/Link";
 import OnlineUrlCard from "./OnlineUrlCard";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
-import Skeleton from "@agir/front/genericComponents/Skeleton";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import TokTokCard from "@agir/events/TokTok/TokTokCard";
+import { useSelector } from "@agir/front/globalContext/GlobalContext";
+import { getUser } from "@agir/front/globalContext/reducers";
 
 import { DOOR2DOOR_EVENT_SUBTYPE_LABEL } from "@agir/events/common/utils";
 
-const GroupCards = styled.div`
-  & > * {
-    margin-bottom: 1rem;
-  }
-`;
 const CardLikeSection = styled.section``;
 const StyledColumn = styled(Column)`
   a,
@@ -83,7 +77,22 @@ const IndexLinkAnchor = styled(Link)`
 `;
 
 const DesktopEventPage = (props) => {
-  const { logged, groups, contact, participantCount, routes, subtype } = props;
+  const {
+    logged,
+    groups,
+    groupsAttendees,
+    contact,
+    participantCount,
+    routes,
+    subtype,
+  } = props;
+
+  const user = useSelector(getUser);
+  const groupsId = groupsAttendees?.map((group) => group.id) || [];
+  // Get groups attendees from user only
+  const userGroupsAttendees = user?.groups.filter((group) =>
+    groupsId.includes(group.id)
+  );
 
   return (
     <>
@@ -121,13 +130,18 @@ const DesktopEventPage = (props) => {
               <EventPhotosCard {...props} />
               <EventReportCard {...props} />
               <EventDescriptionCard {...props} />
+
               {Array.isArray(groups) && groups.length > 0 && (
-                <GroupCards>
-                  <h3 style={{ marginTop: "2.5rem" }}>Organisé par</h3>
-                  {groups.map((group, key) => (
-                    <GroupCard key={key} {...group} isEmbedded />
-                  ))}
-                </GroupCards>
+                <>
+                  <GroupsCard title="Organisé par" groups={groups} isDetailed />
+                  <Spacer size="1rem" />
+                </>
+              )}
+              {userGroupsAttendees.length > 0 && (
+                <GroupsCard
+                  title="Mes groupes y participent"
+                  groups={userGroupsAttendees}
+                />
               )}
               <EventMessages eventPk={props.id} />
             </div>
@@ -170,7 +184,7 @@ DesktopEventPage.propTypes = {
   }),
   contact: PropTypes.shape(ContactCard.propTypes),
   options: PropTypes.shape({ price: PropTypes.string }),
-  groups: PropTypes.arrayOf(PropTypes.shape(GroupCard.propTypes)),
+  groups: PropTypes.array,
   routes: PropTypes.shape({
     page: PropTypes.string,
     map: PropTypes.string,

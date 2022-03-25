@@ -236,6 +236,20 @@ class NewAttendeeActivityNotificationSerializer(ActivityNotificationSerializer):
         )
 
 
+class NewGroupAttendeeActivityNotificationSerializer(ActivityNotificationSerializer):
+    title = serializers.ReadOnlyField(default="Nouveau groupe participant 👍")
+
+    def get_body(self, activity):
+        return f"{activity.supportgroup.name} participera à {activity.event.name} !"
+
+    def get_url(self, activity):
+        return activity_notification_url(
+            "manage_event",
+            activity=activity,
+            kwargs={"pk": activity.event_id},
+        )
+
+
 class EventUpdateActivityNotificationSerializer(ActivityNotificationSerializer):
     title = serializers.SerializerMethodField()
 
@@ -566,6 +580,7 @@ ACTIVITY_NOTIFICATION_SERIALIZERS = {
     Activity.TYPE_GROUP_INFO_UPDATE: GroupInfoUpdateActivityNotificationSerializer,
     Activity.TYPE_ACCEPTED_INVITATION_MEMBER: AcceptedInvitationMemberActivityNotificationSerializer,
     Activity.TYPE_NEW_ATTENDEE: NewAttendeeActivityNotificationSerializer,
+    Activity.TYPE_NEW_GROUP_ATTENDEE: NewGroupAttendeeActivityNotificationSerializer,
     Activity.TYPE_EVENT_UPDATE: EventUpdateActivityNotificationSerializer,
     Activity.TYPE_NEW_EVENT_MYGROUPS: NewEventMyGroupsActivityNotificationSerializer,
     Activity.TYPE_NEW_REPORT: NewReportActivityNotificationSerializer,

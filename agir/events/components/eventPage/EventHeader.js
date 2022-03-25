@@ -2,22 +2,25 @@ import { DateTime, Interval } from "luxon";
 import PropTypes from "prop-types";
 import React, { useCallback, useState } from "react";
 import { useLocation } from "react-router-dom";
-import styled from "styled-components";
 import { mutate } from "swr";
-import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import styled from "styled-components";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getIsConnected, getRoutes } from "@agir/front/globalContext/reducers";
 import * as api from "@agir/events/common/api";
 
+import style from "@agir/front/genericComponents/_variables.scss";
 import Button from "@agir/front/genericComponents/Button";
 import Link from "@agir/front/app/Link";
 import { Hide } from "@agir/front/genericComponents/grid";
+import Popin from "@agir/front/genericComponents/Popin";
 
-import style from "@agir/front/genericComponents/_variables.scss";
 import { displayHumanDate, displayIntervalEnd } from "@agir/lib/utils/time";
 import { routeConfig } from "@agir/front/app/routes.config";
 
+import JoiningDetails from "./JoiningDetails";
+import AddGroupAttendee from "./AddGroupAttendee";
+import ButtonMenu from "@agir/front/genericComponents/ButtonMenu";
 import QuitEventButton from "./QuitEventButton";
 
 import logger from "@agir/lib/utils/logger";
@@ -59,35 +62,55 @@ const ActionLink = styled(Link)`
   font-weight: 700;
   text-decoration: underline;
 `;
-const ActionDetails = styled.div`
-  margin-top: 0;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
 
-  div {
-    display: inline-flex;
-    align-items: center;
-  }
-`;
+const StyledButtonMenu = styled(ButtonMenu)``;
 
 const StyledActions = styled.div`
-  display: inline-grid;
-  grid-gap: 0.5rem;
-  grid-template-columns: auto auto;
-  padding: 0.5rem 0;
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+
+  > ${Button}, > ${StyledButtonMenu} {
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
 
   @media (max-width: ${style.collapse}px) {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    > ${Button} {
+      width: 100%;
+      margin-bottom: 0.5rem;
+    }
+    ${StyledButtonMenu} {
+      width: 100%;
+      margin-bottom: 0.5rem;
+    }
   }
 `;
 
-const RSVPButton = (props) => {
-  const { id, hasPrice, routes, hasSubscriptionForm, isOrganizer } = props;
+const Actions = (props) => {
+  const {
+    id,
+    past,
+    rsvped,
+    logged,
+    isOrganizer,
+    routes,
+    hasPrice,
+    allowGuests,
+    hasSubscriptionForm,
+    groups,
+    groupsAttendees,
+  } = props;
 
   const [isLoading, setIsLoading] = useState(false);
+
+  const [showQuitEvent, setShowQuitEvent] = useState(false);
+
+  const handleQuitEvent = (e) => {
+    e.preventDefault();
+    setShowQuitEvent(true);
+  };
 
   const handleRSVP = useCallback(
     async (e) => {
@@ -123,45 +146,6 @@ const RSVPButton = (props) => {
     [id, hasPrice, routes, hasSubscriptionForm]
   );
 
-  return (
-    <StyledActions>
-      <Button
-        type="submit"
-        color="primary"
-        loading={isLoading}
-        disabled={isLoading}
-        onClick={handleRSVP}
-      >
-        Participer à l'événement
-      </Button>
-      {isOrganizer && (
-        <Button
-          icon="settings"
-          link
-          to={routeConfig.eventSettings.getLink({ eventPk: id })}
-          color="primary"
-        >
-          Gérer l'événement
-        </Button>
-      )}
-    </StyledActions>
-  );
-};
-
-const Actions = (props) => {
-  const {
-    id,
-    name,
-    past,
-    rsvped,
-    logged,
-    isOrganizer,
-    routes,
-    hasPrice,
-    allowGuests,
-    hasSubscriptionForm,
-  } = props;
-
   if (past) {
     return (
       <StyledActions>
@@ -192,41 +176,73 @@ const Actions = (props) => {
     );
   }
 
-  if (rsvped) {
-    return (
-      <>
-        <StyledActions>
-          {isOrganizer && (
-            <Button
-              icon="settings"
-              link
-              to={routeConfig.eventSettings.getLink({ eventPk: id })}
-              color="primary"
-            >
-              Gérer l'événement
-            </Button>
-          )}
-          {allowGuests && (hasSubscriptionForm || hasPrice) && (
-            <Button link href={routes.rsvp}>
-              Ajouter une personne
-            </Button>
-          )}
-        </StyledActions>
-        <ActionDetails>
-          <div>
-            <RawFeatherIcon name="check" color="green" /> &nbsp;Vous participez
-            à l'évènement
-          </div>
-          &nbsp;&nbsp;
-          {!hasPrice && <QuitEventButton id={id} name={name} />}
-        </ActionDetails>
-      </>
-    );
-  }
-
-  return <RSVPButton {...props} />;
+  return (
+    <>
+      <StyledActions>
+        {isOrganizer && (
+          <Button
+            icon="settings"
+            link
+            to={routeConfig.eventSettings.getLink({ eventPk: id })}
+            color="primary"
+          >
+            Gérer l'événement
+          </Button>
+        )}
+        {!rsvped ? (
+          <Button
+            type="submit"
+            color="primary"
+            loading={isLoading}
+            disabled={isLoading}
+            onClick={handleRSVP}
+          >
+            Participer à l'événement
+          </Button>
+        ) : (
+          !hasPrice && (
+            <>
+              <StyledButtonMenu
+                color="success"
+                icon="check-circle"
+                text="Je participe"
+                shouldDismissOnClick
+                MobileLayout={Popin}
+              >
+                <a href="" onClick={handleQuitEvent}>
+                  Annuler
+                </a>
+              </StyledButtonMenu>
+              <QuitEventButton
+                eventPk={id}
+                isOpen={showQuitEvent}
+                setIsOpen={setShowQuitEvent}
+              />
+            </>
+          )
+        )}
+        <AddGroupAttendee
+          id={id}
+          groups={groups}
+          groupsAttendees={groupsAttendees}
+        />
+        {allowGuests && (hasSubscriptionForm || hasPrice) && (
+          <Button link href={routes.rsvp}>
+            Ajouter une personne
+          </Button>
+        )}
+      </StyledActions>
+      <JoiningDetails
+        id={id}
+        hasPrice={hasPrice}
+        rsvped={rsvped}
+        groups={[]}
+        logged={logged}
+      />
+    </>
+  );
 };
-RSVPButton.propTypes = Actions.propTypes = {
+Actions.propTypes = {
   id: PropTypes.string,
   name: PropTypes.string,
   hasSubscriptionForm: PropTypes.bool,
@@ -240,6 +256,20 @@ RSVPButton.propTypes = Actions.propTypes = {
     manage: PropTypes.string,
     rsvp: PropTypes.string,
   }),
+  groups: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string,
+      name: PropTypes.string,
+      isManager: PropTypes.bool,
+    })
+  ),
+  groupsAttendees: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string,
+      name: PropTypes.string,
+      isManager: PropTypes.bool,
+    })
+  ),
 };
 
 const AdditionalMessage = ({ isOrganizer, logged, rsvped, price }) => {
@@ -295,17 +325,21 @@ AdditionalMessage.propTypes = {
   routes: PropTypes.object,
 };
 
-const EventHeader = ({
-  id,
-  name,
-  rsvp,
-  options,
-  schedule,
-  routes,
-  isOrganizer,
-  allowGuests,
-  hasSubscriptionForm,
-}) => {
+const EventHeader = (props) => {
+  const {
+    id,
+    name,
+    rsvp,
+    options,
+    schedule,
+    routes,
+    isOrganizer,
+    allowGuests,
+    hasSubscriptionForm,
+    groups,
+    groupsAttendees,
+  } = props;
+
   const globalRoutes = useSelector(getRoutes);
   const logged = useSelector(getIsConnected);
 
@@ -334,6 +368,8 @@ const EventHeader = ({
         hasPrice={!!options && !!options.price}
         allowGuests={allowGuests}
         hasSubscriptionForm={hasSubscriptionForm}
+        groups={groups}
+        groupsAttendees={groupsAttendees}
       />
       {!past && (
         <AdditionalMessage

@@ -180,6 +180,12 @@ const GenericCard = (props) => {
           à votre événement {Event}
         </GenericCardContainer>
       );
+    case "new-group-attendee":
+      return (
+        <GenericCardContainer {...props}>
+          {SupportGroup} s'est inscrit à votre événement {Event}
+        </GenericCardContainer>
+      );
     case "event-update": {
       return (
         <GenericCardContainer {...props}>
@@ -193,6 +199,12 @@ const GenericCard = (props) => {
         <GenericCardContainer {...props}>
           {SupportGroup || Individual || "Quelqu'un"} a publié un nouvel
           événement
+        </GenericCardContainer>
+      );
+    case "new-event-participation-mygroups":
+      return (
+        <GenericCardContainer {...props}>
+          {SupportGroup} participe à l'événement {Event}
         </GenericCardContainer>
       );
     case "new-report":

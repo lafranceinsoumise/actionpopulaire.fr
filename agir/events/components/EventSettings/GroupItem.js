@@ -6,6 +6,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import Avatar from "@agir/front/genericComponents/Avatar";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Button from "@agir/front/genericComponents/Button";
+import Link from "@agir/front/app/Link";
 
 const Name = styled.span``;
 const Label = styled.span``;
@@ -78,6 +79,10 @@ const StyledGroup = styled.div`
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+
+    a {
+      color: inherit;
+    }
   }
 
   ${Label} {
@@ -93,7 +98,15 @@ const StyledGroup = styled.div`
   }
 `;
 
-const GroupItem = ({ id, name, image = "", selectGroup, label, disabled }) => (
+const GroupItem = ({
+  id,
+  name,
+  image = "",
+  selectGroup,
+  label,
+  disabled,
+  isLinked,
+}) => (
   <StyledGroup
     disabled={disabled}
     isSelectGroup={!!selectGroup}
@@ -105,7 +118,15 @@ const GroupItem = ({ id, name, image = "", selectGroup, label, disabled }) => (
       ) : (
         <RawFeatherIcon width="1rem" height="1rem" name="users" />
       )}
-      <Name>{name}</Name>
+      <Name>
+        {!isLinked ? (
+          name
+        ) : (
+          <Link route="groupDetails" routeParams={{ groupPk: id }}>
+            {name}
+          </Link>
+        )}
+      </Name>
       {selectGroup && (
         <Button color="choose" small onClick={() => selectGroup({ id, name })}>
           Inviter
@@ -123,6 +144,7 @@ GroupItem.propTypes = {
   selectGroup: PropTypes.func,
   label: PropTypes.string,
   disabled: PropTypes.bool,
+  isLinked: PropTypes.bool,
 };
 
 export default GroupItem;

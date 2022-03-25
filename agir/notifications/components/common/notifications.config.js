@@ -122,7 +122,6 @@ const PERSON_NOTIFICATIONS = [
     hasPush: true,
     activityTypes: [],
   },
-
   {
     id: "event_suggestions",
     type: "Événements",
@@ -174,6 +173,16 @@ const PERSON_NOTIFICATIONS = [
     activityTypes: ["new-attendee"],
   },
   {
+    id: "event_group_attendee_notifications",
+    type: "Événements",
+    icon: "calendar",
+    subtype: "Événements que j'organise",
+    label: "Nouveaux groupes participants",
+    hasEmail: false,
+    hasPush: true,
+    activityTypes: ["new-group-attendee"],
+  },
+  {
     id: "event_task_reminders",
     type: "Événements",
     icon: "calendar",
@@ -200,6 +209,17 @@ const PERSON_NOTIFICATIONS = [
 ].filter((notification) => notification.activityTypes.length > 0);
 
 const GROUP_NOTIFICATIONS = [
+  {
+    id: "group_join_event",
+    type: "Groupes",
+    icon: "users",
+    subtype: "Événements",
+    label: "Participation à un événement",
+    hasEmail: false,
+    hasPush: true,
+    isActive: (group) => !group.isReferent,
+    activityTypes: ["new-event-participation-mygroups"],
+  },
   {
     id: "group_event_notifications",
     type: "Groupes",

@@ -87,3 +87,17 @@ export const usePastEventReports = (group) => {
 
   return hasPastEventReports && !error ? data : [];
 };
+
+export const useEventsJoinedByGroup = (group) => {
+  const { data: events, error } = useSWR(
+    group &&
+      api.getGroupEndpoint("getEventsJoinedByGroup", {
+        groupPk: group.id,
+      })
+  );
+
+  if (error) {
+    return [];
+  }
+  return events;
+};
