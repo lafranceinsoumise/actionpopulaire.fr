@@ -90,6 +90,7 @@ from ..tasks import (
 )
 from ...groups.serializers import SupportGroupDetailSerializer
 from ...groups.tasks import send_new_group_event_email, notify_new_group_event
+from ...lib.models import LocationMixin
 
 
 class EventAPIView(RetrieveAPIView):
@@ -132,7 +133,10 @@ class EventRsvpedAPIView(EventListAPIView):
     def get(self, request, *args, **kwargs):
         person = request.user.person
 
-        if person.coordinates_type is None:
+        if (
+            person.coordinates is None
+            or person.coordinates_type >= LocationMixin.COORDINATES_NO_POSITION
+        ):
             geocode_person.delay(person.pk)
 
         return super().get(request, *args, **kwargs)
