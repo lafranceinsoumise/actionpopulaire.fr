@@ -14,6 +14,7 @@ from agir.people.actions.subscription import (
 )
 from agir.people.model_fields import NestableKeyTextTransform
 from agir.people.models import Person
+from agir.voting_proxies.models import VotingProxy, VotingProxyRequest
 
 EVENT_SUBTYPES = {"porte-a-porte": 9, "caravane": 4, "inscription-listes": 5}
 SORTED_SUBSCRIPTION_TYPES = (
@@ -134,6 +135,25 @@ def get_general_stats(start, end):
             meta__subscriptions__AP__date__gt=start.isoformat(),
             meta__subscriptions__AP__date__lt=end.isoformat(),
         ).count(),
+        "voting_proxy_candidates": VotingProxy.objects.filter(
+            status=VotingProxy.STATUS_INVITED, created__range=(start, end)
+        ).count(),
+        "voting_proxies": VotingProxy.objects.filter(
+            status__in=(VotingProxy.STATUS_CREATED, VotingProxy.STATUS_AVAILABLE),
+            created__range=(start, end),
+        ).count(),
+        "voting_proxy_requests": VotingProxyRequest.objects.filter(
+            created__range=(start, end)
+        ).count(),
+        "voting_proxy_requests__created": VotingProxyRequest.objects.filter(
+            status=VotingProxyRequest.STATUS_CREATED, created__range=(start, end)
+        ).count(),
+        "voting_proxy_requests__accepted": VotingProxyRequest.objects.filter(
+            status=VotingProxyRequest.STATUS_ACCEPTED, created__range=(start, end)
+        ).count(),
+        "voting_proxy_requests__confirmed": VotingProxyRequest.objects.filter(
+            status=VotingProxyRequest.STATUS_CONFIRMED, created__range=(start, end)
+        ).count(),
     }
 
 
@@ -233,5 +253,21 @@ def get_instant_stats():
         .count(),
         "contacts": Person.objects.filter(
             meta__subscriptions__AP__subscriber__isnull=False
+        ).count(),
+        "voting_proxy_candidates": VotingProxy.objects.filter(
+            status=VotingProxy.STATUS_INVITED
+        ).count(),
+        "voting_proxies": VotingProxy.objects.filter(
+            status__in=(VotingProxy.STATUS_CREATED, VotingProxy.STATUS_AVAILABLE),
+        ).count(),
+        "voting_proxy_requests": VotingProxyRequest.objects.filter().count(),
+        "voting_proxy_requests__created": VotingProxyRequest.objects.filter(
+            status=VotingProxyRequest.STATUS_CREATED
+        ).count(),
+        "voting_proxy_requests__accepted": VotingProxyRequest.objects.filter(
+            status=VotingProxyRequest.STATUS_ACCEPTED
+        ).count(),
+        "voting_proxy_requests__confirmed": VotingProxyRequest.objects.filter(
+            status=VotingProxyRequest.STATUS_CONFIRMED
         ).count(),
     }
