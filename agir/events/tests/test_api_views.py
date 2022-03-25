@@ -1180,7 +1180,7 @@ class EventTestMessageAPITestCase(APITestCase):
         self.client.force_login(self.referent.role)
         res = self.client.get(f"/api/evenements/{self.event.pk}/messages/")
         self.assertEqual(res.status_code, 200)
-        self.assertEqual(len(res.data), 2)
+        self.assertEqual(len(res.data), 3)
 
     def test_members_cannot_get_others_group_messages(self):
         self.client.force_login(self.member.role)
