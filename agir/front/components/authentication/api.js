@@ -133,26 +133,15 @@ export const getProfileOptions = async () => {
   return result;
 };
 
-export const updateProfile = async (data) => {
+export const updateProfile = async (body) => {
   const result = {
     data: null,
     error: null,
   };
 
-  let formData = {
-    is2022: data.is2022,
-    isInsoumise: data.isInsoumise,
-    newsletters: data.newsletters,
-    displayName: data.displayName,
-    firstName: data.firstName,
-    lastName: data.lastName,
-    contactPhone: data.phone,
-    mandat: data.mandat,
-  };
-
   const url = ENDPOINT.updateProfile;
   try {
-    const response = await axios.patch(url, formData);
+    const response = await axios.patch(url, body);
     result.data = response.data;
   } catch (e) {
     result.error = (e.response && e.response.data) || e.message;
