@@ -158,6 +158,14 @@ const TellMore = ({ dismiss }) => {
     }));
   }, []);
 
+  const handleChangePhone = useCallback((e) => {
+    const { value } = e.target;
+    setFormData((formData) => ({
+      ...formData,
+      contactPhone: value,
+    }));
+  }, []);
+
   const toggleShowMandat = useCallback(() => {
     setFormData((formData) => ({
       ...formData,
@@ -271,6 +279,7 @@ const TellMore = ({ dismiss }) => {
                   onChange={handleInputChange}
                   value={formData.zip}
                   disabled={isLoading}
+                  required
                 />
                 <Spacer size="1rem" />
               </div>
@@ -285,7 +294,7 @@ const TellMore = ({ dismiss }) => {
                   id="contactPhone"
                   name="contactPhone"
                   error={error && error.contactPhone}
-                  onChange={handleInputChange}
+                  onChange={handleChangePhone}
                   value={formData.contactPhone}
                   disabled={isLoading}
                 />

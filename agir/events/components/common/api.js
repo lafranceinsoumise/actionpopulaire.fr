@@ -12,6 +12,7 @@ export const ENDPOINT = {
   eventPropertyOptions: "/api/evenements/options/",
   createEvent: "/api/evenements/creer/",
   updateEvent: "/api/evenements/:eventPk/modifier/",
+  getEventMessages: "/api/evenements/:eventPk/messages/",
   eventProjects: "/api/evenements/projets/",
   eventProject: "/api/evenements/:eventPk/projet/",
   addEventProjectDocument: "/api/evenements/:eventPk/projet/document/",
@@ -300,6 +301,23 @@ export const inviteGroupOrganizer = async (eventPk, data) => {
       created: response.status === 201,
       accepted: response.status === 202,
     };
+  } catch (e) {
+    result.errors = (e.response && e.response.data) || { global: e.message };
+  }
+
+  return result;
+};
+
+export const getEventMessages = async (eventPk) => {
+  const result = {
+    data: null,
+    errors: null,
+  };
+
+  const url = getEventEndpoint("getEventMessages", { eventPk });
+  try {
+    const response = await axios.patch(url, data);
+    result.data = response.data;
   } catch (e) {
     result.errors = (e.response && e.response.data) || { global: e.message };
   }

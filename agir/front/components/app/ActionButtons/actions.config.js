@@ -164,6 +164,7 @@ const DEFAULT_ACTION_ORDER = [
   "donations",
   "createEvent",
   "materiel",
+  "votingProxy",
   "pollingStationAssessorForm",
   "createContact",
   "coupDeFil",
@@ -173,6 +174,7 @@ const DEFAULT_ACTION_ORDER = [
 const GROUP_MANAGER_ACTION_ORDER = [
   "createEvent",
   "materiel",
+  "votingProxy",
   "pollingStationAssessorForm",
   "createContact",
   "toktokPreview",

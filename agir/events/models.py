@@ -210,6 +210,9 @@ class EventQuerySet(models.QuerySet):
             + SearchVector(
                 models.F("report_content"), config="french_unaccented", weight="C"
             )
+            + SearchVector(
+                models.F("location_state"), config="french_unaccented", weight="D"
+            )
         )
         query = PrefixSearchQuery(query, config="french_unaccented")
 
