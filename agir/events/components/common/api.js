@@ -294,7 +294,6 @@ export const getEventMessages = async (eventPk) => {
   };
 
   const url = getEventEndpoint("getEventMessages", { eventPk });
-
   try {
     const response = await axios.patch(url, data);
     result.data = response.data;
