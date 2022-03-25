@@ -207,8 +207,7 @@ class EventSuggestionsAPIView(EventListAPIView):
         if person.coordinates is not None:
             national = national.filter(
                 coordinates__dwithin=(person.coordinates, D(km=100))
-            )[:10]
-
+            )
             near = (
                 events.exclude(pk__in=national.values_list("pk", flat=True))
                 .filter(start_time__lt=timezone.now() + timedelta(days=30))
@@ -216,6 +215,8 @@ class EventSuggestionsAPIView(EventListAPIView):
                 .annotate(distance=Distance("coordinates", person.coordinates))
                 .order_by("distance")
             )[:10]
+
+        national = national[:10]
 
         segmented = (
             events.exclude(pk__in=national.values_list("pk", flat=True))
