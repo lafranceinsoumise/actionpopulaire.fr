@@ -25,6 +25,7 @@ import OnlineUrlCard from "./OnlineUrlCard";
 import RenderIfVisible from "@agir/front/genericComponents/RenderIfVisible";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
+import EventMessages from "./EventMessages";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import TokTokCard from "@agir/events/TokTok/TokTokCard";
 
@@ -201,6 +202,8 @@ const MobileEventPage = (props) => {
           </CardLikeSection>
         )}
       </StyledMain>
+
+      <EventMessages eventPk={props.id} />
     </>
   );
 };

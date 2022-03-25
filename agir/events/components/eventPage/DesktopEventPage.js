@@ -12,6 +12,7 @@ import EventDescriptionCard from "./EventDescriptionCard";
 import EventFacebookLinkCard from "./EventFacebookLinkCard";
 import ReportFormCard from "./ReportFormCard";
 import EventHeader from "./EventHeader";
+import EventMessages from "./EventMessages";
 import EventInfoCard from "@agir/events/eventPage/EventInfoCard";
 import EventLocationCard from "./EventLocationCard";
 import EventPhotosCard from "./EventPhotosCard";
@@ -128,6 +129,7 @@ const DesktopEventPage = (props) => {
                   ))}
                 </GroupCards>
               )}
+              <EventMessages eventPk={props.id} />
             </div>
           </Column>
           <StyledColumn width="380px">
