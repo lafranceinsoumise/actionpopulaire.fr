@@ -11,6 +11,7 @@ import Button from "@agir/front/genericComponents/Button";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const IconLink = styled(Link)``;
+const StyledLink = styled(Link)``;
 const StyledUserMenu = styled.div`
   margin: -1rem;
   padding: 1.5rem 0 0;
@@ -66,9 +67,16 @@ const StyledUserMenu = styled.div`
     padding: 1rem 0;
     margin: 0;
 
-    p {
+    ${StyledLink} {
+      display: block;
+      color: ${style.black1000};
       margin: 0;
       padding: 0;
+
+      &:hover,
+      &:focus {
+        text-decoration: none;
+      }
 
       &:empty {
         display: none;
@@ -110,11 +118,19 @@ export const UserMenu = (props) => {
         </IconLink>
       </header>
       <article>
-        <p>
+        <StyledLink route="personalInformation">
           <strong>{user.displayName}</strong>
-        </p>
-        {user.fullName !== user.email && <p>{user.fullName}</p>}
-        <p>{user.email}</p>
+        </StyledLink>
+        {user.fullName !== user.email && (
+          <StyledLink route="personalInformation">{user.fullName}</StyledLink>
+        )}
+        <StyledLink route="personalInformation">{user.email}</StyledLink>
+        <StyledLink
+          route="personalInformation"
+          style={{ color: style.black500, lineHeight: 2 }}
+        >
+          {user.zip}
+        </StyledLink>
         <Button
           link
           route="personalInformation"
@@ -154,6 +170,7 @@ UserMenu.propTypes = {
     fullName: PropTypes.string,
     email: PropTypes.string,
     image: PropTypes.string,
+    zip: PropTypes.string,
   }),
 };
 
