@@ -99,6 +99,17 @@ const TokTokPreview = (props) => {
             >
               Ouvrir TokTok
             </Button>
+            <Spacer size=".5rem" />
+            <Button
+              link
+              block
+              route="toktokVideo"
+              icon="youtube"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Voir la vidéo de présentation
+            </Button>
           </p>
         </PageFadeIn>
       </PageContent>
