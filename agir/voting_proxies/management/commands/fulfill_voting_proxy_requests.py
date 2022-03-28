@@ -149,10 +149,7 @@ class Command(BaseCommand):
         **kwargs,
     ):
         self.dry_run = dry_run
-        pending_requests = VotingProxyRequest.objects.filter(
-            status=VotingProxyRequest.STATUS_CREATED,
-            proxy__isnull=True,
-        )
+        pending_requests = VotingProxyRequest.objects.pending()
         initial_request_count = len(pending_requests)
         self.tqdm = tqdm(
             total=initial_request_count,

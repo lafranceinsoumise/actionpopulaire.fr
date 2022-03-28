@@ -1,12 +1,13 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pytz
 from data_france.models import Commune
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils import timezone
 from django.utils.functional import cached_property
-from django.utils.html import format_html, html_safe, escape
-from django.utils.safestring import mark_safe, SafeString
+from django.utils.html import escape
+from django.utils.safestring import mark_safe
 
 from agir.lib.model_fields import ChoiceArrayField
 from agir.lib.models import BaseAPIResource
@@ -182,6 +183,15 @@ class VotingProxy(AbstractVoter):
         return [date for date in self.voting_dates if date not in accepted_dates]
 
 
+class VotingProxyRequestQuerySet(models.QuerySet):
+    def pending(self):
+        return self.filter(
+            status=VotingProxyRequest.STATUS_CREATED,
+            proxy__isnull=True,
+            voting_date__gte=(timezone.now() + timedelta(days=2)).date(),
+        )
+
+
 class VotingProxyRequest(AbstractVoter):
     STATUS_CREATED = "created"
     STATUS_ACCEPTED = "accepted"
@@ -194,6 +204,8 @@ class VotingProxyRequest(AbstractVoter):
         (STATUS_CONFIRMED, "procuration confirmée"),
         (STATUS_CANCELLED, "demande annulée"),
     )
+
+    objects = VotingProxyRequestQuerySet.as_manager()
 
     status = models.CharField(
         "statut de la demande",
