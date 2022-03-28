@@ -79,27 +79,6 @@ def get_results_from_ban(query):
 
 
 def geocode_data_france(item):
-    if item.location_citycode:
-        try:
-            commune = Commune.objects.get(code=item.location_citycode)
-        except Commune.MultipleObjectsReturned:
-            commune = Commune.objects.get(
-                code=item.location_citycode, type=Commune.TYPE_COMMUNE
-            )
-        except Commune.DoesNotExist:
-            commune = None
-
-        if commune is not None:
-            item.coordinates = commune.geometry.centroid
-            item.coordinates_type = (
-                LocationMixin.COORDINATES_CITY
-                if commune.type == Commune.TYPE_COMMUNE
-                else LocationMixin.COORDINATES_DISTRICT
-            )
-            item.location_city = commune.nom_complet
-            item.location_citycode = commune.code
-            return
-
     if item.location_zip:
         try:
             code_postal = CodePostal.objects.get(code=item.location_zip)
@@ -177,6 +156,27 @@ def geocode_data_france(item):
                 item.location_city = commune.nom_complet
                 item.location_citycode = commune.code
                 return
+
+    if item.location_citycode:
+        try:
+            commune = Commune.objects.get(code=item.location_citycode)
+        except Commune.MultipleObjectsReturned:
+            commune = Commune.objects.get(
+                code=item.location_citycode, type=Commune.TYPE_COMMUNE
+            )
+        except Commune.DoesNotExist:
+            commune = None
+
+        if commune is not None:
+            item.coordinates = commune.geometry.centroid
+            item.coordinates_type = (
+                LocationMixin.COORDINATES_CITY
+                if commune.type == Commune.TYPE_COMMUNE
+                else LocationMixin.COORDINATES_DISTRICT
+            )
+            item.location_city = commune.nom_complet
+            item.location_citycode = commune.code
+            return
 
     item.coordinates = None
     item.coordinates_type = LocationMixin.COORDINATES_NOT_FOUND
