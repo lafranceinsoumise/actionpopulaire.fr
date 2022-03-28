@@ -12,6 +12,7 @@ from agir.gestion.admin.forms import (
 )
 from agir.gestion.models import Depense, Projet, Participation, Reglement
 from agir.gestion.models.documents import VersionDocument
+from agir.gestion.utils import lien
 from agir.lib.admin.form_fields import CleavedDateInput
 
 
@@ -233,8 +234,8 @@ class DepenseReglementInline(admin.TabularInline):
     form = InlineReglementForm
 
     fields = (
+        "statut_lien",
         "intitule",
-        "statut",
         "mode",
         "montant",
         "date",
@@ -245,7 +246,7 @@ class DepenseReglementInline(admin.TabularInline):
     )
 
     readonly_fields = (
-        "statut",
+        "statut_lien",
         "mode",
         "preuve_link",
         "fournisseur_link",
@@ -254,6 +255,21 @@ class DepenseReglementInline(admin.TabularInline):
     def has_add_permission(self, request, obj):
         return False
 
+    def get_formset(self, request, obj=None, **kwargs):
+        kwargs.setdefault("widgets", {}).setdefault("date_releve", CleavedDateInput)
+        return super().get_formset(request, obj=obj, **kwargs)
+
+    @admin.display(description="Statut")
+    def statut_lien(self, obj):
+        if obj.id:
+            return lien(
+                reverse("admin:gestion_reglement_change", args=(obj.id,)),
+                obj.get_statut_display(),
+            )
+
+        return obj.get_statut_display()
+
+    @admin.display(description="Preuve de paiement")
     def preuve_link(self, obj):
         if obj and obj.preuve:
             change_url = reverse("admin:gestion_document_change", args=(obj.preuve_id,))
@@ -266,19 +282,13 @@ class DepenseReglementInline(admin.TabularInline):
                     obj.preuve.fichier.url,
                 )
 
-            return format_html(
-                '<a href="{}">{}</a>',
+            return lien(
                 change_url,
                 obj.preuve.precision,
             )
         return "-"
 
-    def get_formset(self, request, obj=None, **kwargs):
-        kwargs.setdefault("widgets", {}).setdefault("date_releve", CleavedDateInput)
-        return super().get_formset(request, obj=obj, **kwargs)
-
-    preuve_link.short_description = "Preuve de paiement"
-
+    @admin.display(description="Fournisseur")
     def fournisseur_link(self, obj):
         if obj and obj.fournisseur:
             return format_html(
@@ -288,8 +298,6 @@ class DepenseReglementInline(admin.TabularInline):
             )
 
         return "-"
-
-    fournisseur_link.short_description = "Fournisseur"
 
 
 class OrdreVirementReglementInline(admin.TabularInline):

@@ -355,13 +355,11 @@ class DepenseAdmin(DepenseListMixin, BaseGestionModelAdmin, VersionAdmin):
         if obj is None or obj.id is None:
             return "-"
 
-        if obj.montant_restant > 0:
-            return format_html(
-                '{}<br><a href="{}">Ajouter un règlement</a>',
-                self.reglement(obj),
-                reverse("admin:gestion_depense_reglement", args=(obj.id,)),
-            )
-        return self.reglement(obj)
+        return format_html(
+            '{}<br><a href="{}">Ajouter un règlement</a>',
+            self.reglement(obj),
+            reverse("admin:gestion_depense_reglement", args=(obj.id,)),
+        )
 
     reglements.short_description = "Statut du règlement"
 

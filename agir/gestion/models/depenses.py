@@ -422,7 +422,7 @@ class Reglement(TimeStampedModel):
         verbose_name="Ordre de virement",
         related_name="reglements",
         related_query_name="reglement",
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
         null=True,
     )
 
@@ -484,6 +484,7 @@ class Reglement(TimeStampedModel):
         verbose_name="Facture associée",
         related_name="comme_facture",
         null=True,
+        blank=True,
         on_delete=models.PROTECT,
         help_text="Indiquez laquelle des factures de la dépense est lié ce paiement.",
     )
@@ -552,6 +553,11 @@ class Reglement(TimeStampedModel):
             return f"{self.intitule} — {self.fournisseur.nom}"
         return self.intitule
 
+    @property
+    def numero_facture(self):
+        if self.facture and self.facture.identifiant:
+            return self.facture.identifiant
+
     def generer_virement(self, date):
         if (
             self.mode != Reglement.Mode.VIREMENT
@@ -566,14 +572,14 @@ class Reglement(TimeStampedModel):
         beneficiaire = Partie(
             nom=self.nom_fournisseur,
             iban=self.iban_fournisseur,
-            bic=self.bic_founisseur,
+            bic=self.bic_fournisseur,
         )
 
         return Virement(
             beneficiaire=beneficiaire,
             montant=round(self.montant * 100),
             date_execution=date,
-            description=self.intitule,
+            description=self.numero_facture or self.intitule,
         )
 
     @property
