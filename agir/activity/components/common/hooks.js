@@ -117,9 +117,8 @@ export const useCustomAnnouncement = (slug) => {
     errorStatus === 404 && setIsPaused(true);
   }, [setIsPaused, errorStatus]);
 
-  return [
-    announcement,
-    dismissCallback,
-    errorStatus !== 404 && typeof data === "undefined",
-  ];
+  const isLoading =
+    !isPaused && errorStatus !== 404 && typeof data === "undefined";
+
+  return [announcement, dismissCallback, isLoading];
 };
