@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
-
 import AppStore from "@agir/front/genericComponents/AppStore";
 import Modal from "@agir/front/genericComponents/Modal";
 import Spacer from "@agir/front/genericComponents/Spacer";
