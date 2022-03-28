@@ -167,6 +167,7 @@ class DocumentAdmin(BaseGestionModelAdmin, VersionAdmin):
     list_display = (
         "numero",
         "type",
+        "date",
         "identifiant",
         "precision",
         "requis",
@@ -181,6 +182,7 @@ class DocumentAdmin(BaseGestionModelAdmin, VersionAdmin):
                 "fields": (
                     "numero_",
                     "type",
+                    "date",
                     "identifiant",
                     "precision",
                     "requis",
@@ -353,13 +355,11 @@ class DepenseAdmin(DepenseListMixin, BaseGestionModelAdmin, VersionAdmin):
         if obj is None or obj.id is None:
             return "-"
 
-        if obj.montant_restant > 0:
-            return format_html(
-                '{}<br><a href="{}">Ajouter un règlement</a>',
-                self.reglement(obj),
-                reverse("admin:gestion_depense_reglement", args=(obj.id,)),
-            )
-        return self.reglement(obj)
+        return format_html(
+            '{}<br><a href="{}">Ajouter un règlement</a>',
+            self.reglement(obj),
+            reverse("admin:gestion_depense_reglement", args=(obj.id,)),
+        )
 
     reglements.short_description = "Statut du règlement"
 
@@ -420,15 +420,15 @@ class DepenseAdmin(DepenseListMixin, BaseGestionModelAdmin, VersionAdmin):
     def has_change_permission(self, request, obj=None):
         autorise = super().has_change_permission(request, obj=obj)
         if obj is None:
-            return autorise and request.user.has_perm("valider_depense")
+            return autorise and request.user.has_perm("gestion.valider_depense")
 
         if obj.etat == Depense.Etat.FEC:
             return False
 
         if obj.etat == Depense.Etat.EXPERTISE:
             return autorise and (
-                request.user.has_perm("valider_depense")
-                or request.user.has_perm("valider_depense", obj=obj.compte)
+                request.user.has_perm("gestion.valider_depense")
+                or request.user.has_perm("gestion.valider_depense", obj=obj.compte)
             )
 
         return autorise
@@ -861,7 +861,7 @@ class InstanceCherchableAdmin(admin.ModelAdmin):
 
 
 @admin.register(Reglement)
-class ReglementAdmin(admin.ModelAdmin):
+class ReglementAdmin(BaseGestionModelAdmin):
     list_display = (
         "intitule",
         "date",
@@ -887,9 +887,9 @@ class ReglementAdmin(admin.ModelAdmin):
             "Liens avec d'autres entités",
             {
                 "fields": (
-                    "depense",
-                    "fournisseur",
-                    "preuve",
+                    "depense_link",
+                    "fournisseur_link",
+                    "preuve_link",
                 )
             },
         ),
@@ -906,3 +906,24 @@ class ReglementAdmin(admin.ModelAdmin):
     )
 
     readonly_fields = ("statut", "endtoend_id", "ordre_virement")
+
+    def has_change_permission(self, request, obj=None):
+        autorise = super().has_change_permission(request, obj=obj)
+        if obj is None:
+            return autorise and request.user.has_perm("gestion.valider_depense")
+
+        if obj.statut == Reglement.Statut.FEC:
+            return False
+
+        if obj.statut == Reglement.Statut.EXPERTISE:
+            return autorise and (
+                request.user.has_perm("gestion.valider_depense")
+                or request.user.has_perm(
+                    "gestion.valider_depense", obj=obj.depense.compte
+                )
+            )
+
+        return autorise
+
+    def has_add_permission(self, request):
+        return False

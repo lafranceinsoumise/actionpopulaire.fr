@@ -51,6 +51,7 @@ from agir.groups.serializers import (
     SupportGroupExternalLinkSerializer,
     MemberPersonalInformationSerializer,
 )
+from agir.groups.utils import is_active_group_filter
 from agir.lib.pagination import APIPaginator
 from agir.lib.utils import front_url
 from agir.msgs.actions import update_recipient_message
@@ -166,32 +167,33 @@ class UserGroupsView(ListAPIView):
 class UserGroupSuggestionsView(ListAPIView):
     serializer_class = SupportGroupSerializer
     permission_classes = (IsPersonPermission,)
-    queryset = SupportGroup.objects.active().with_serializer_prefetch()
+    queryset = SupportGroup.objects.active()
 
     def get_queryset(self):
         person = self.request.user.person
-        if person.coordinates is not None:
-            base_queryset = self.queryset.exclude(
-                pk__in=person.supportgroups.values_list("id", flat=True)
-            )
-            # Try to find groups within 100km distance first
-            near_groups = (
-                base_queryset.filter(
-                    coordinates__dwithin=(person.coordinates, D(km=100))
-                )
-                .annotate(distance=Distance("coordinates", person.coordinates))
-                .order_by("distance")[:3]
-            )
+        if person.coordinates is None:
+            return self.queryset.none()
 
-            if len(near_groups) > 0:
-                return near_groups
+        base_queryset = (
+            self.queryset.filter(is_active_group_filter())
+            .exclude(pk__in=person.supportgroups.values_list("id", flat=True))
+            .with_serializer_prefetch()
+        )
 
-            # Fallback on all groups
-            return base_queryset.annotate(
-                distance=Distance("coordinates", person.coordinates)
-            ).order_by("distance")[:3]
+        # Try to find groups within 100km distance first
+        near_groups = (
+            base_queryset.filter(coordinates__dwithin=(person.coordinates, D(km=100)))
+            .annotate(distance=Distance("coordinates", person.coordinates))
+            .order_by("distance")[:3]
+        )
 
-        return self.queryset.none()
+        if len(near_groups) > 0:
+            return near_groups
+
+        # Fallback on all groups
+        return base_queryset.annotate(
+            distance=Distance("coordinates", person.coordinates)
+        ).order_by("distance")[:3]
 
 
 class GroupDetailPermissions(GlobalOrObjectPermissions):

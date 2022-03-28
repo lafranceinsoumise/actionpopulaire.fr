@@ -2,12 +2,12 @@ from copy import deepcopy
 from datetime import timedelta
 from functools import partial
 
-from data_france.models import Commune
+from data_france.models import Commune, CirconscriptionConsulaire
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.db import transaction
-from django.db.models import Count, Q, Case, When, Value
+from django.db.models import Count, Q, Case, When, Value, F
 from django.utils import timezone
 
 from agir.lib.tasks import geocode_person
@@ -135,6 +135,14 @@ def get_voting_proxy_requests_for_proxy(voting_proxy, voting_proxy_request_pks):
         proxy__isnull=True,
     ).exclude(email=voting_proxy.email)
 
+    if len(voting_proxy_request_pks) > 0:
+        voting_proxy_requests = voting_proxy_requests.filter(
+            id__in=voting_proxy_request_pks
+        )
+
+    if not voting_proxy_requests.exists():
+        raise VotingProxyRequest.DoesNotExist
+
     # Use consulate match for non-null consulate proxies
     if voting_proxy.consulate_id is not None:
         voting_proxy_requests = voting_proxy_requests.filter(
@@ -147,12 +155,17 @@ def get_voting_proxy_requests_for_proxy(voting_proxy, voting_proxy_request_pks):
         if voting_proxy.person and voting_proxy.person.coordinates:
             near_requests = (
                 voting_proxy_requests.filter(commune__mairie_localisation__isnull=False)
+                .filter(
+                    commune__mairie_localisation__dwithin=(
+                        voting_proxy.person.coordinates,
+                        D(m=PROXY_TO_REQUEST_DISTANCE_LIMIT),
+                    )
+                )
                 .annotate(
                     distance=Distance(
                         "commune__mairie_localisation", voting_proxy.person.coordinates
                     )
                 )
-                .filter(distance__lte=PROXY_TO_REQUEST_DISTANCE_LIMIT)
             )
         if near_requests and near_requests.exists():
             voting_proxy_requests = near_requests
@@ -161,10 +174,8 @@ def get_voting_proxy_requests_for_proxy(voting_proxy, voting_proxy_request_pks):
                 commune_id=voting_proxy.commune_id,
             ).annotate(distance=Value(0))
 
-    if len(voting_proxy_request_pks) > 0:
-        voting_proxy_requests = voting_proxy_requests.filter(
-            id__in=voting_proxy_request_pks
-        )
+    if not voting_proxy_requests.exists():
+        raise VotingProxyRequest.DoesNotExist
 
     voting_proxy_requests = voting_proxy_requests.annotate(
         polling_station_match=Case(
@@ -185,9 +196,6 @@ def get_voting_proxy_requests_for_proxy(voting_proxy, voting_proxy_request_pks):
         .annotate(matching_date_count=Count("voting_date"))
         .order_by("-matching_date_count", "-polling_station_match", "distance")
     )
-
-    if not voting_proxy_requests.exists():
-        raise VotingProxyRequest.DoesNotExist
 
     return VotingProxyRequest.objects.filter(
         id__in=voting_proxy_requests.first()["ids"]
@@ -234,10 +242,12 @@ def match_available_proxies_with_requests(
     pending_requests, notify_proxy=send_matching_requests_to_proxy
 ):
     fulfilled_request_ids = []
+    pending_request_ids = list(pending_requests.values_list("id", flat=True))
 
     # Retrieve all available proxy that has not been matched in the last two days
     available_proxies = (
-        VotingProxy.objects.filter(
+        VotingProxy.objects.select_related("person")
+        .filter(
             status__in=(VotingProxy.STATUS_CREATED, VotingProxy.STATUS_AVAILABLE),
         )
         .exclude(last_matched__date__gt=timezone.now() - timedelta(days=2))
@@ -246,23 +256,27 @@ def match_available_proxies_with_requests(
 
     # Try to match available voting proxies with pending requests
     for proxy in available_proxies:
-        pending_requests = pending_requests.exclude(id__in=fulfilled_request_ids)
-        if not pending_requests.exists():
+        if len(pending_request_ids) == 0:
             break
         try:
             matching_request_ids = get_voting_proxy_requests_for_proxy(
-                proxy, pending_requests.values_list("id", flat=True)
+                proxy, pending_request_ids
             ).values_list("id", flat=True)
         except VotingProxyRequest.DoesNotExist:
             pass
         else:
             notify_proxy(proxy, matching_request_ids)
             fulfilled_request_ids += matching_request_ids
+            pending_request_ids = [
+                pending_request_id
+                for pending_request_id in pending_request_ids
+                if pending_request_id not in fulfilled_request_ids
+            ]
 
     return fulfilled_request_ids
 
 
-def invite_voting_proxy_candidates(candidates):
+def invite_voting_proxy_candidates(candidates, request):
     voting_proxy_candidates = [
         VotingProxy(
             status=VotingProxy.STATUS_INVITED,
@@ -290,14 +304,14 @@ def invite_voting_proxy_candidates(candidates):
 
 def get_voting_proxy_candidates_queryset(request, blacklist_ids):
     candidates = (
-        Person.objects.exclude(
-            id__in=VotingProxy.objects.values_list("person_id", flat=True)
-        )
-        .exclude(emails__address=None)
+        Person.objects.exclude(emails__address=None)
+        .exclude(voting_proxy__isnull=False)
         .filter(is_2022=True, newsletters__len__gt=0)
     )
+
     if request and request["email"]:
         candidates = candidates.exclude(emails__address=request["email"])
+
     if blacklist_ids:
         candidates = candidates.exclude(id__in=blacklist_ids)
 
@@ -316,40 +330,34 @@ def find_voting_proxy_candidates_for_requests(
         .values("email", "consulate__pays")
         .annotate(ids=ArrayAgg("id"))
     ):
+        pays = request["consulate__pays"].split(",")
         candidates = get_voting_proxy_candidates_queryset(
             request, candidate_ids
-        ).filter(location_country__in=request["consulate__pays"].split(","))[
-            :PER_VOTING_PROXY_REQUEST_INVITATION_LIMIT
-        ]
+        ).filter(location_country__in=pays)[:PER_VOTING_PROXY_REQUEST_INVITATION_LIMIT]
 
         if candidates.exists():
-            invited_candidate_ids = send_invitations(candidates)
+            invited_candidate_ids = send_invitations(candidates, request)
             candidate_ids += invited_candidate_ids
             possibly_fulfilled_request_ids += request["ids"]
 
     # Find candidates for commune requests
     for request in (
         pending_requests.exclude(commune__isnull=True)
-        .values(
-            "email",
-            "commune__id",
-            "commune__mairie_localisation",
-        )
+        .values("email", "commune_id")
         .annotate(ids=ArrayAgg("id"))
     ):
+        commune = Commune.objects.get(id=request["commune_id"])
         candidates = get_voting_proxy_candidates_queryset(request, candidate_ids)
-
         # Match by distance for geolocalised communes
-        if request["commune__mairie_localisation"]:
+        if commune.mairie_localisation:
             candidates = candidates.exclude(coordinates__isnull=True).filter(
                 coordinates__dwithin=(
-                    request["commune__mairie_localisation"],
+                    commune.mairie_localisation,
                     D(m=PROXY_TO_REQUEST_DISTANCE_LIMIT),
                 )
             )
         # Try to match by city code / zip code for non-geolocalised communes
         else:
-            commune = Commune.objects.get(id=request["commune__id"])
             candidates = (
                 candidates.exclude(
                     location_citycode__isnull=True, location_zip__isnull=True
@@ -377,7 +385,7 @@ def find_voting_proxy_candidates_for_requests(
                 )
             ).order_by("-rsvp_count")[:PER_VOTING_PROXY_REQUEST_INVITATION_LIMIT]
 
-            invited_candidate_ids = send_invitations(candidates)
+            invited_candidate_ids = send_invitations(candidates, request)
             candidate_ids += invited_candidate_ids
             possibly_fulfilled_request_ids += request["ids"]
 

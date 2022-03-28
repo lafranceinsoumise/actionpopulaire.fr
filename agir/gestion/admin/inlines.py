@@ -5,9 +5,14 @@ from django.utils.safestring import mark_safe
 
 from agir.gestion.admin.base import SearchableModelMixin
 from agir.gestion.admin.depenses import DepenseListMixin
-from agir.gestion.admin.forms import AjoutRapideDepenseForm, DocumentAjoutRapideForm
+from agir.gestion.admin.forms import (
+    AjoutRapideDepenseForm,
+    DocumentAjoutRapideForm,
+    InlineReglementForm,
+)
 from agir.gestion.models import Depense, Projet, Participation, Reglement
 from agir.gestion.models.documents import VersionDocument
+from agir.gestion.utils import lien
 from agir.lib.admin.form_fields import CleavedDateInput
 
 
@@ -21,6 +26,7 @@ class BaseDocumentInline(admin.TabularInline):
     fields = readonly_fields = (
         "numero",
         "type_document",
+        "date",
         "precision",
         "identifiant",
         "fichier_document",
@@ -73,6 +79,13 @@ class BaseDocumentInline(admin.TabularInline):
         return "-"
 
     identifiant.short_description = "Numéro ou identifiant"
+
+    def date(self, obj):
+        if obj and obj.document:
+            return obj.document.date or "-"
+        return "-"
+
+    date.short_description = "Date"
 
 
 class DepenseDocumentInline(BaseDocumentInline):
@@ -201,10 +214,10 @@ class AjouterDepenseInline(AjoutRapideMixin, admin.TabularInline):
     fields = ("titre", "type", "montant", "compte", "type_document", "fichier")
 
 
-class BaseAjouterDocumentInline(AjouterDepenseInline, admin.TabularInline):
+class BaseAjouterDocumentInline(AjoutRapideMixin, admin.TabularInline):
     verbose_name_plural = "Ajout rapide de documents justificatifs"
     form = DocumentAjoutRapideForm
-    fields = ("type", "identifiant", "precision", "fichier")
+    fields = ("type", "identifiant", "precision", "date", "fichier")
 
 
 class AjouterDocumentProjetInline(BaseAjouterDocumentInline):
@@ -218,20 +231,22 @@ class AjouterDocumentDepenseInline(BaseAjouterDocumentInline):
 class DepenseReglementInline(admin.TabularInline):
     classes = ("retirer-original",)
     model = Reglement
+    form = InlineReglementForm
 
     fields = (
+        "statut_lien",
         "intitule",
-        "statut",
         "mode",
         "montant",
         "date",
         "date_releve",
+        "facture",
         "preuve_link",
         "fournisseur_link",
     )
 
     readonly_fields = (
-        "statut",
+        "statut_lien",
         "mode",
         "preuve_link",
         "fournisseur_link",
@@ -240,6 +255,21 @@ class DepenseReglementInline(admin.TabularInline):
     def has_add_permission(self, request, obj):
         return False
 
+    def get_formset(self, request, obj=None, **kwargs):
+        kwargs.setdefault("widgets", {}).setdefault("date_releve", CleavedDateInput)
+        return super().get_formset(request, obj=obj, **kwargs)
+
+    @admin.display(description="Statut")
+    def statut_lien(self, obj):
+        if obj.id:
+            return lien(
+                reverse("admin:gestion_reglement_change", args=(obj.id,)),
+                obj.get_statut_display(),
+            )
+
+        return obj.get_statut_display()
+
+    @admin.display(description="Preuve de paiement")
     def preuve_link(self, obj):
         if obj and obj.preuve:
             change_url = reverse("admin:gestion_document_change", args=(obj.preuve_id,))
@@ -252,19 +282,13 @@ class DepenseReglementInline(admin.TabularInline):
                     obj.preuve.fichier.url,
                 )
 
-            return format_html(
-                '<a href="{}">{}</a>',
+            return lien(
                 change_url,
                 obj.preuve.precision,
             )
         return "-"
 
-    def get_formset(self, request, obj=None, **kwargs):
-        kwargs.setdefault("widgets", {}).setdefault("date_releve", CleavedDateInput)
-        return super().get_formset(request, obj=obj, **kwargs)
-
-    preuve_link.short_description = "Preuve de paiement"
-
+    @admin.display(description="Fournisseur")
     def fournisseur_link(self, obj):
         if obj and obj.fournisseur:
             return format_html(
@@ -304,3 +328,6 @@ class OrdreVirementReglementInline(admin.TabularInline):
         )
 
     depense_link.short_description = "Dépense"
+
+    # TODO: gérer ici les permissions sur les règlements déjà validés à l'aide de la définiton de get_queryset
+    # il faut faire deux inlines différents, pour ceux en lecture seule et pour ceux modifiables

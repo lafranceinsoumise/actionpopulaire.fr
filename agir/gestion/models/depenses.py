@@ -35,6 +35,26 @@ def engagement_autorise(depense: "Depense", role):
     return False
 
 
+def depense_entierement_reglee(depense: "Depense", _role):
+    return depense.depense_reglee
+
+
+depense_entierement_reglee.explication = (
+    "La dépense doit être entièrement réglée pour pouvoir la clôturer."
+)
+
+
+def valider_reglements_lies(depense: "Depense"):
+    depense.reglements.filter(statut=Reglement.Statut.REGLE).update(
+        statut=Reglement.Statut.RAPPROCHE
+    )
+
+
+engagement_autorise.explication = (
+    "Vous n'avez pas les autorisations pour engager cette dépense"
+)
+
+
 def engager_depense(depense: "Depense"):
     if depense.date_depense is None:
         depense.date_depense = timezone.now()
@@ -46,11 +66,8 @@ class DepenseQuerySet(NumeroQueryset):
             prevu=models.Sum("reglement__montant"),
             regle=models.Sum(
                 "reglement__montant",
-                filter=Q(
-                    reglement__statut__in=[
-                        Reglement.Statut.REGLE,
-                        Reglement.Statut.RAPPROCHE,
-                    ],
+                filter=~Q(
+                    reglement__statut=Reglement.Statut.ATTENTE,
                 ),
             ),
         )
@@ -105,6 +122,8 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
                 nom="Clôturer directement le dossier",
                 vers=Etat.CLOTURE,
                 permissions=["gestion.controler_depense"],
+                condition=depense_entierement_reglee,
+                effect=valider_reglements_lies,
                 class_name="warning",
             ),
         ],
@@ -120,6 +139,8 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
                 nom="Clôturer directement la dépense",
                 vers=Etat.CLOTURE,
                 permissions=["gestion.controler_depense"],
+                condition=depense_entierement_reglee,
+                effect=valider_reglements_lies,
                 class_name="warning",
             ),
         ],
@@ -134,6 +155,8 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
                 nom="Clôturer le dossier",
                 vers=Etat.CLOTURE,
                 permissions=["gestion.controler_depense"],
+                condition=depense_entierement_reglee,
+                effect=valider_reglements_lies,
                 class_name="success",
             ),
         ],
@@ -298,10 +321,7 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
     def identifiant_facture(self):
         """S'il existe une unique facture avec un identifiant pour cette dépense, renvoie cet identifiant."""
         facture_avec_identifiant = self.documents.filter(
-            type__in=[
-                TypeDocument.FACTURE,
-                TypeDocument.FACTURE_AVOIR,
-            ]
+            type=TypeDocument.FACTURE,
         ).exclude(identifiant="")
 
         if facture_avec_identifiant.count() == 1:
@@ -354,6 +374,33 @@ class Reglement(TimeStampedModel):
         ATTENTE = "C", "En cours"
         REGLE = "R", "Réglé"
         RAPPROCHE = "P", "Rapproché"
+        EXPERTISE = "E", "Attente de validation pour l'expertise comptable"
+        FEC = "F", "Intégré au FEC"
+
+    TRANSITIONS = {
+        Statut.REGLE: [
+            Transition(
+                nom="Clore le règlement",
+                vers=Statut.RAPPROCHE,
+                permissions=["gestion.controler_depense"],
+                class_name="success",
+            )
+        ],
+        Statut.EXPERTISE: [
+            Transition(
+                nom="Renvoyer pour corrections",
+                vers=Statut.REGLE,
+                class_name="failure",
+                permissions=["validation_depense"],
+            ),
+            Transition(
+                nom="Intégrer au FEC",
+                vers=Statut.FEC,
+                class_name="success",
+                permissions=["validation_depense"],
+            ),
+        ],
+    }
 
     class Mode(models.TextChoices):
         VIREMENT = "V", "Par virement"
@@ -375,7 +422,7 @@ class Reglement(TimeStampedModel):
         verbose_name="Ordre de virement",
         related_name="reglements",
         related_query_name="reglement",
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
         null=True,
     )
 
@@ -426,9 +473,20 @@ class Reglement(TimeStampedModel):
     preuve = models.ForeignKey(
         to="Document",
         verbose_name="Preuve de paiement",
+        related_name="comme_preuve_paiement",
         null=True,
         blank=True,
         on_delete=models.PROTECT,
+    )
+
+    facture = models.ForeignKey(
+        to="Document",
+        verbose_name="Facture associée",
+        related_name="comme_facture",
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        help_text="Indiquez laquelle des factures de la dépense est lié ce paiement.",
     )
 
     statut = models.CharField(
@@ -472,6 +530,12 @@ class Reglement(TimeStampedModel):
         "pays", blank_label="(sélectionner un pays)", default="FR", blank=False
     )
 
+    commentaires = models.ManyToManyField(
+        to="Commentaire",
+        verbose_name="Commentaires",
+        help_text="Ces commentaires permettent d'ajouter de garder la trace des opérations de traitement des différentes pièces.",
+    )
+
     search_config = (
         ("numero", "B"),
         ("titre", "A"),
@@ -479,10 +543,20 @@ class Reglement(TimeStampedModel):
     )
 
     def __repr__(self):
-        return f"<Reglement: {self.id}, dépense {self.depense.numero}>"
+        try:
+            return f"<Reglement: {self.id}, dépense {self.depense.numero}>"
+        except Depense.DoesNotExist:
+            return f"<Reglement: {self.id}, pas de dépense!>"
 
     def __str__(self):
-        return f"{self.intitule} — {self.fournisseur.nom}"
+        if self.fournisseur:
+            return f"{self.intitule} — {self.fournisseur.nom}"
+        return self.intitule
+
+    @property
+    def numero_facture(self):
+        if self.facture and self.facture.identifiant:
+            return self.facture.identifiant
 
     def generer_virement(self, date):
         if (
@@ -498,19 +572,27 @@ class Reglement(TimeStampedModel):
         beneficiaire = Partie(
             nom=self.nom_fournisseur,
             iban=self.iban_fournisseur,
-            bic=self.bic_founisseur,
+            bic=self.bic_fournisseur,
         )
 
         return Virement(
             beneficiaire=beneficiaire,
             montant=round(self.montant * 100),
             date_execution=date,
-            description=self.intitule,
+            description=self.numero_facture or self.intitule,
         )
+
+    @property
+    def transitions(self) -> List[Transition["Reglement", Statut]]:
+        return self.TRANSITIONS.get(self.Statut(self.statut), [])
+
+    @property
+    def compte(self):
+        return self.depense.compte
 
     class Meta:
         verbose_name = "règlement"
-        ordering = ("date",)
+        ordering = ("-date",)
 
 
 class TypeFournisseur(models.TextChoices):

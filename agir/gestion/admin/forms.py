@@ -65,28 +65,35 @@ class DocumentForm(forms.ModelForm):
 
 
 class DocumentAjoutRapideForm(forms.ModelForm):
+    """Formulaire pour ajouter rapidement un document à une dépense ou un projet.
+
+    Du fait du fonctionnement de Django, ce ModelForm aura pour modèle le modèle de liaison entre la dépense ou le
+    projet, et le document, et non le document lui même. C'est pour cette raison qu'on définit explicitement les champs.
+
+    Petite particularité de Django : dans un inline, l'admin tente de récupérer label et help_text sur le modèle et pas
+    sur le formulaire, ce qui est la raison pour laquelle ceux-ci sont définis ici dans la classe Meta (où Django va
+    bien voir), et non directement sur les champs de formulaire.
+    """
+
     type = forms.ChoiceField(
-        label="Type",
         choices=[("", "---")] + TypeDocument.choices,
         widget=HierarchicalSelect,
         required=True,
     )
 
     precision = forms.CharField(
-        label="Précision",
         max_length=200,
         required=False,
-        help_text="Indiquez ici tout élément qui permet de distinguer ce document d'un autre.",
     )
 
     identifiant = forms.CharField(
-        label="Numéro ou autre identifiant",
         max_length=100,
         required=False,
-        help_text="Le numéro qui identifie le document : numéro de facture, de devis, de bon de livraison, etc.",
     )
 
-    fichier = forms.FileField(label="Fichier", required=False)
+    date = forms.DateField(required=False, widget=CleavedDateInput(today_button=False))
+
+    fichier = forms.FileField(required=False)
 
     def save(self, commit=False):
         self.document = Document.objects.create(
@@ -107,6 +114,20 @@ class DocumentAjoutRapideForm(forms.ModelForm):
                 titre="Version initiale",
                 fichier=self.cleaned_data["fichier"],
             )
+
+    class Meta:
+        # les labels et help_texts doivent être définis ici, voir doctext plus haut.
+        labels = {
+            f.name: f.verbose_name
+            for f in Document._meta.get_fields()
+            if getattr(f, "verbose_name", None) and f.verbose_name != f.name
+        }
+
+        help_texts = {
+            f.name: f.help_text
+            for f in Document._meta.get_fields()
+            if getattr(f, "help_text", None)
+        }
 
 
 class DepenseForm(forms.ModelForm):
@@ -315,6 +336,13 @@ class ReglementForm(forms.ModelForm):
         self.initial["intitule"] = depense.titre
         self.initial["montant"] = montant_restant
 
+        # on limite le choix de la facture à celles associées à la dépense
+        facture_qs = depense.documents.filter(type=TypeDocument.FACTURE)
+        self.fields["facture"].queryset = facture_qs
+        # S'il n'y a qu'une seule facture associée à la dépense, on peut la présélectionner
+        if len(facture_qs) == 1:
+            self.fields["facture"].initial = facture_qs[0]
+
         # on pré-remplit les informations de Fournisseur s'il y en avait un de sélectionné.
         if depense.fournisseur:
             self.initial["fournisseur"] = depense.fournisseur
@@ -494,6 +522,7 @@ class ReglementForm(forms.ModelForm):
             "intitule",
             "mode",
             "montant",
+            "facture",
             "date",
             "fournisseur",
             "nom_fournisseur",
@@ -556,3 +585,18 @@ class OrdreVirementForm(forms.ModelForm):
                 r.save(update_fields=["ordre_virement", "endtoend_id"])
 
         super()._save_m2m()
+
+
+class InlineReglementForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if "facture" in self.fields:
+            try:
+                self.fields[
+                    "facture"
+                ].queryset = self.instance.depense.documents.filter(
+                    type=TypeDocument.FACTURE
+                )
+            except Depense.DoesNotExist:
+                self.fields["facture"].queryset = Document.objects.none()

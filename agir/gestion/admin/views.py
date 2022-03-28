@@ -66,7 +66,16 @@ class AjouterReglementView(AdminViewMixin, CreateView):
                 fieldsets=[
                     (
                         None,
-                        {"fields": ("intitule", "mode", "montant", "date", "preuve")},
+                        {
+                            "fields": (
+                                "intitule",
+                                "mode",
+                                "montant",
+                                "date",
+                                "facture",
+                                "preuve",
+                            )
+                        },
                     ),
                     (
                         "Sélectionnez un fournisseur existant",

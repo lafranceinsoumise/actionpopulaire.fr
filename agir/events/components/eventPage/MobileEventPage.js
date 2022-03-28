@@ -25,6 +25,7 @@ import {
 import OnlineUrlCard from "./OnlineUrlCard";
 import RenderIfVisible from "@agir/front/genericComponents/RenderIfVisible";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
+import EventMessages from "./EventMessages";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import TokTokCard from "@agir/events/TokTok/TokTokCard";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
@@ -217,13 +218,15 @@ const MobileEventPage = (props) => {
         {contact && <ContactCard {...contact} />}
         {routes?.facebook && <EventFacebookLinkCard {...props} />}
         <ShareCard url={routes?.details} />
-        <GroupsOrganizingCard
-          groups={groups}
-          isDetailed
-          eventPk={id}
-          isPast={isPast}
-          isOrganizer={isOrganizer}
-        />
+        {Array.isArray(groups) && groups.length > 0 && (
+          <GroupsOrganizingCard
+            groups={groups}
+            isDetailed
+            eventPk={id}
+            isPast={isPast}
+            isOrganizer={isOrganizer}
+          />
+        )}
         <GroupsJoiningCard
           eventPk={id}
           isPast={isPast}
@@ -231,6 +234,8 @@ const MobileEventPage = (props) => {
           groupsAttendees={userGroupsAttendees}
         />
       </StyledMain>
+
+      <EventMessages eventPk={props.id} />
     </>
   );
 };

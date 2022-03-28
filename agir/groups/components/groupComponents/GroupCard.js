@@ -12,7 +12,6 @@ import Card from "@agir/front/genericComponents/Card";
 import Collapsible from "@agir/front/genericComponents/Collapsible.js";
 import { Column, Hide, Row } from "@agir/front/genericComponents/grid";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
-import Spacer from "@agir/front/genericComponents/Spacer";
 import Link from "@agir/front/app/Link";
 import ShareLink from "@agir/front/genericComponents/ShareLink";
 
@@ -51,8 +50,17 @@ const DiscountCodesSection = styled.section`
   margin: 1.5rem 0 0;
 
   & > * {
-    color: ${style.black700};
+    color: ${style.black1000};
     margin: 0.5rem 0;
+  }
+
+  & > p {
+    background-color: ${style.primary100};
+    border-radius: ${style.borderRadius};
+    font-size: 0.875rem;
+    padding: 0.875rem;
+    line-height: 1.5;
+    margin: 0 0 1rem;
   }
 
   ul {
@@ -68,6 +76,13 @@ const DiscountCodesSection = styled.section`
   }
 `;
 
+const StyledRow = styled(Row)`
+  ${Button} {
+    margin-bottom: 0.5rem;
+    margin-right: 0.5rem;
+  }
+`;
+
 const GroupCard = ({
   id,
   name,
@@ -78,7 +93,6 @@ const GroupCard = ({
   isManager,
   typeLabel,
   labels,
-  routes,
   discountCodes,
   displayGroupLogo,
   displayType,
@@ -140,7 +154,7 @@ const GroupCard = ({
       </Row>
 
       {displayType && typeLabel && (
-        <div style={{ marginTop: "24px" }}>
+        <div style={{ marginTop: "1rem" }}>
           <Label main>{typeLabel}</Label>
           {labels &&
             labels.map((label, index) => <Label key={index}>{label}</Label>)}
@@ -148,7 +162,7 @@ const GroupCard = ({
       )}
 
       {displayDescription && description && (
-        <div style={{ margin: "24px 0" }}>
+        <div style={{ marginTop: "1rem" }}>
           <Collapsible
             maxHeight={100}
             expanderLabel="Lire la suite"
@@ -160,7 +174,14 @@ const GroupCard = ({
 
       {parsedDiscountCodes && parsedDiscountCodes.length > 0 && (
         <DiscountCodesSection>
-          <h5>Codes matériels :</h5>
+          <h5>Codes matériels</h5>
+          <p>
+            <strong>Campagne présidentielle&nbsp;:</strong> exceptionnellement,
+            vos codes promo d'avril sont disponibles dès aujourd'hui.
+            <br />
+            Commandez votre matériel pour la dernière ligne droite
+            maintenant&nbsp;!
+          </p>
           <ul>
             {parsedDiscountCodes.map(({ code, date }) => (
               <li key={code}>
@@ -178,63 +199,52 @@ const GroupCard = ({
           </ul>
         </DiscountCodesSection>
       )}
-      <Row gutter={6} style={{ paddingTop: ".5rem" }}>
-        {[
-          !isEmbedded && !isMember && (
-            <Button
-              style={{ marginTop: "1rem" }}
-              key="join"
-              color="primary"
-              link
-              to={routeConfig.groupDetails.getLink({ groupPk: id })}
-            >
-              Rejoindre
-              <Hide as="span" under={800}>
-                &nbsp;le groupe
-              </Hide>
-            </Button>
-          ),
+
+      <StyledRow gutter={6} style={{ paddingTop: ".5rem" }}>
+        {!isEmbedded && !isMember && (
           <Button
-            style={{ marginTop: "1rem" }}
+            key="join"
+            color="primary"
             link
-            key="browse"
-            color="default"
             to={routeConfig.groupDetails.getLink({ groupPk: id })}
           >
-            Voir le groupe
-          </Button>,
-          isCertified && (
-            <Button
-              link
-              style={{ marginTop: "1rem" }}
-              key="fund"
-              icon="fast-forward"
-              route="donations"
-              params={{ group: id }}
-            >
-              Financer
-            </Button>
-          ),
-          isManager && (
-            <Button
-              style={{ marginTop: "1rem" }}
-              key="manage"
-              link
-              to={routeConfig.groupSettings.getLink({ groupPk: id })}
-              icon="settings"
-            >
-              Gestion
-            </Button>
-          ),
-        ]
-          .filter(Boolean)
-          .map((button, i) => (
-            <React.Fragment key={button.key + i}>
-              {i > 0 && <Spacer size="0.5rem" />}
-              {button}
-            </React.Fragment>
-          ))}
-      </Row>
+            Rejoindre
+            <Hide as="span" under={800}>
+              &nbsp;le groupe
+            </Hide>
+          </Button>
+        )}
+        <Button
+          link
+          key="browse"
+          color="default"
+          to={routeConfig.groupDetails.getLink({ groupPk: id })}
+        >
+          Voir le groupe
+        </Button>
+        {isCertified && (
+          <Button
+            link
+            key="fund"
+            icon="fast-forward"
+            route="donations"
+            params={{ group: id }}
+          >
+            Financer
+          </Button>
+        )}
+        {isManager && (
+          <Button
+            key="manage"
+            link
+            to={routeConfig.groupSettings.getLink({ groupPk: id })}
+            icon="settings"
+          >
+            Gestion
+          </Button>
+        )}
+      </StyledRow>
+
       {displayMembership && isMember && (
         <div style={{ marginTop: "1em" }}>
           <FeatherIcon small inline name="check" /> Vous êtes membre du groupe

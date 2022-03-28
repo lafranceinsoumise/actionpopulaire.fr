@@ -6,7 +6,6 @@ require("dotenv").config({
   path: path.join(__dirname, ".env"),
 });
 
-const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const { InjectManifest } = require("workbox-webpack-plugin");
 const webpack = require("webpack");
@@ -238,7 +237,6 @@ module.exports = (type = CONFIG_TYPES.ES5) => ({
     components
   ),
   plugins: [
-    type !== CONFIG_TYPES.ES2015 && new CleanWebpackPlugin(),
     ...htmlPlugins(type),
     new MiniCssExtractPlugin({ filename: "[name]-[chunkhash].css" }),
     type !== CONFIG_TYPES.DEV &&
@@ -321,7 +319,7 @@ module.exports = (type = CONFIG_TYPES.ES5) => ({
     library: ["Agir", "[name]"],
     filename: `[name]-[chunkhash].${
       type === CONFIG_TYPES.ES2015 ? "mjs" : "js"
-    }?cv=3`,
+    }?cv=4`,
     path: DISTPATH,
   },
   module: {

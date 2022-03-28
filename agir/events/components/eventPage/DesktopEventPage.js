@@ -10,6 +10,7 @@ import EventDescriptionCard from "./EventDescriptionCard";
 import EventFacebookLinkCard from "./EventFacebookLinkCard";
 import ReportFormCard from "./ReportFormCard";
 import EventHeader from "./EventHeader";
+import EventMessages from "./EventMessages";
 import EventInfoCard from "@agir/events/eventPage/EventInfoCard";
 import EventLocationCard from "./EventLocationCard";
 import EventPhotosCard from "./EventPhotosCard";
@@ -139,20 +140,27 @@ const DesktopEventPage = (props) => {
               <EventPhotosCard {...props} />
               <EventReportCard {...props} />
               <EventDescriptionCard {...props} />
-              <GroupsOrganizingCard
-                groups={groups}
-                isDetailed
-                eventPk={id}
-                isPast={isPast}
-                isOrganizer={isOrganizer}
-              />
-              <Spacer size="1rem" />
+
+              {Array.isArray(groups) && groups.length > 0 && (
+                <>
+                  <GroupsOrganizingCard
+                    groups={groups}
+                    isDetailed
+                    eventPk={id}
+                    isPast={isPast}
+                    isOrganizer={isOrganizer}
+                  />
+                  <Spacer size="1rem" />
+                </>
+              )}
               <GroupsJoiningCard
                 eventPk={id}
                 isPast={isPast}
                 groups={groups}
                 groupsAttendees={userGroupsAttendees}
               />
+
+              <EventMessages eventPk={props.id} />
             </div>
           </Column>
           <StyledColumn width="380px">

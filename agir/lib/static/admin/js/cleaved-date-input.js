@@ -17,12 +17,18 @@
         datePattern: ["d", "m", "Y"],
       });
 
-      const input = this;
-      $("<button class='button' type='button'>aujourd'hui</button>")
-        .click(function () {
-          input.value = formatDate(new Date());
-        })
-        .insertAfter(this);
+      if ($(this).data("today")) {
+        const input = this;
+        $(
+          '<span class="datetimeshortcuts"><a href="#">Aujourd\'hui</button></span>'
+        )
+          .click(function (e) {
+            e.preventDefault();
+            input.value = formatDate(new Date());
+          })
+          .insertAfter(this);
+      }
+
       return this;
     });
   };

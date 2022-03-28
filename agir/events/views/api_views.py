@@ -4,13 +4,16 @@ from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
 from django.contrib import messages
 from django.db import transaction
-from django.db.models import Q, Value, CharField
+from django.db.models import Q, Value, CharField, OuterRef, Exists
 from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.timezone import now
+from agir.msgs.serializers import SupportGroupMessageSerializer
+from agir.msgs.models import SupportGroupMessage
+from agir.msgs.actions import get_viewables_messages
 from rest_framework import exceptions, status
 from rest_framework.exceptions import NotFound, MethodNotAllowed
 from rest_framework.generics import (
@@ -70,6 +73,7 @@ __all__ = [
     "EventGroupsOrganizersAPIView",
     "CancelEventAPIView",
     "EventReportPersonFormAPIView",
+    "EventMessagesAPIView",
 ]
 
 from agir.gestion.models import Projet
@@ -403,22 +407,26 @@ class EventGroupsOrganizersAPIView(ListCreateAPIView):
     # List will return the last co-organizer groups for the person's events
     def list(self, request, *args, **kwargs):
         event = self.get_object()
-        recent_coorganizers = (
-            SupportGroup.objects.active()
-            .exclude(pk__in=event.organizers_groups.values_list("id", flat=True))
-            .filter(
-                organized_events__in=(
-                    request.user.person.organized_events.exclude(
-                        visibility=Event.VISIBILITY_ADMIN
+        recent_coorganizers = SupportGroup.objects.filter(
+            pk__in=(
+                OrganizerConfig.objects.exclude(as_group__isnull=True)
+                .exclude(as_group__published=False)
+                .exclude(event_id=event.id)
+                .exclude(event__visibility=Event.VISIBILITY_ADMIN)
+                .filter(
+                    Q(person_id=request.user.person.id)
+                    | Q(
+                        as_group_id__in=event.organizers_groups.values_list(
+                            "id", flat=True
+                        )
                     )
-                    .exclude(id=event.id)
-                    .exclude(organizers_groups__isnull=True)
-                    .order_by("-end_time")
-                    .values_list("id", flat=True)
                 )
+                .distinct("as_group_id")
+                .order_by("as_group_id", "-event__end_time")
+                .values_list("as_group_id", flat=True)[:10]
             )
-            .distinct()[:10]
         )
+
         return Response(
             [
                 {
@@ -744,3 +752,26 @@ class EventReportPersonFormAPIView(RetrieveAPIView):
             event_pk=Value(event.pk, output_field=CharField())
         )
         return get_object_or_404(queryset, event_subtype=event.subtype)
+
+
+class EventMessagesAPIView(ListAPIView):
+    serializer_class = SupportGroupMessageSerializer
+    permission_classes = (IsPersonPermission,)
+
+    def initial(self, request, *args, **kwargs):
+        try:
+            self.event = Event.objects.get(pk=kwargs["pk"])
+        except Event.DoesNotExist:
+            raise NotFound()
+
+        super().initial(request, *args, **kwargs)
+        self.check_object_permissions(request, self.event)
+
+    def get_queryset(self):
+        person = self.request.user.person
+
+        return (
+            get_viewables_messages(person)
+            .filter(linked_event=self.event)
+            .order_by("-created")
+        )

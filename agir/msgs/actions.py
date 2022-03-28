@@ -31,8 +31,8 @@ def update_recipient_message(message, recipient):
     return obj, created
 
 
-def get_viewable_messages_ids(person):
-    message_ids = (
+def get_viewables_messages(person):
+    return (
         SupportGroupMessage.objects.active()
         .annotate(
             has_required_membership_type=Exists(
@@ -43,9 +43,11 @@ def get_viewable_messages_ids(person):
             )
         )
         .filter(Q(author_id=person.id) | Q(has_required_membership_type=True))
-        .values_list("id", flat=True)
     )
 
+
+def get_viewable_messages_ids(person):
+    message_ids = get_viewables_messages(person).values_list("id", flat=True)
     return list(set(message_ids))
 
 

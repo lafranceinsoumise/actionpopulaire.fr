@@ -32,18 +32,22 @@ const MobileInfoRoute = (props) => {
   const { group, groupSuggestions, goToMessagesTab, groupSettingsLinks } =
     props;
 
+  if (!group) {
+    return <></>;
+  }
+
   return (
     <>
-      {group && (group.hasUpcomingEvents || group.hasPastEvents) ? (
+      {(group.hasUpcomingEvents || group.hasPastEvents) && (
         <AgendaRoutePreview {...props} />
-      ) : null}
-      {group && group.hasMessages ? <MessagesRoutePreview {...props} /> : null}
-      {group && !group.hasMessages && group.isManager ? (
+      )}
+      {group.hasMessages && <MessagesRoutePreview {...props} />}
+      {!group.hasMessages && group.isManager && (
         <>
           <PromoMessage goToMessages onClick={goToMessagesTab} />
           <Spacer size="1.5rem" />
         </>
-      ) : null}
+      )}
 
       <GroupContactCard
         contact={group?.contact}
@@ -74,21 +78,24 @@ const MobileInfoRoute = (props) => {
 const DesktopInfoRoute = (props) => {
   const { group, goToMessagesTab, groupSettingsLinks } = props;
 
+  if (!group) {
+    return <></>;
+  }
+
   return (
     <>
-      {group && (group.hasUpcomingEvents || group.hasPastEvents) ? (
+      {(group.hasUpcomingEvents || group.hasPastEvents) && (
         <AgendaRoutePreview {...props} />
-      ) : null}
-      {group && group.hasMessages ? <MessagesRoutePreview {...props} /> : null}
-      {group && !group.hasMessages && group.isManager ? (
+      )}
+      {group.hasMessages && <MessagesRoutePreview {...props} />}
+      {!group.hasMessages && group.isManager && (
         <>
           <PromoMessage goToMessages onClick={goToMessagesTab} />
           <Spacer size="1.5rem" />
         </>
-      ) : null}
+      )}
 
-      {group &&
-      (group.hasUpcomingEvents || group.hasPastEvents || group.hasMessages) ? (
+      {group.hasUpcomingEvents || group.hasPastEvents || group.hasMessages ? (
         <>
           <GroupLocation {...group} groupSettingsLinks={groupSettingsLinks} />
           <ShareCard

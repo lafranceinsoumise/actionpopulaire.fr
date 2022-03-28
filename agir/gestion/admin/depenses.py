@@ -1,6 +1,6 @@
 from django.utils.safestring import mark_safe
 
-from agir.gestion.models import Compte
+from agir.gestion.models import Compte, Reglement
 from agir.lib.display import display_price
 
 
