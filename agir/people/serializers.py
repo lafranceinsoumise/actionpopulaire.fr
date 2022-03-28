@@ -1,3 +1,6 @@
+from functools import partial
+
+from django.db import transaction
 from django.http import Http404
 from django_countries.serializer_fields import CountryField
 from phonenumber_field.serializerfields import PhoneNumberField
@@ -21,6 +24,7 @@ from .actions.subscription import (
 from .models import Person
 from .tasks import send_confirmation_email
 from ..groups.models import SupportGroup
+from ..lib.tasks import geocode_person
 from ..lib.token_bucket import TokenBucket
 
 person_fields = {f.name: f for f in models.Person._meta.get_fields()}
@@ -310,9 +314,23 @@ class PersonSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
 
     gender = serializers.CharField(required=False)
 
-    zip = serializers.CharField(
-        required=False, allow_blank=True, source="location_zip", label="Code postal"
+    address1 = serializers.CharField(
+        required=False, allow_blank=True, source="location_address1"
     )
+    address2 = serializers.CharField(
+        required=False, allow_blank=True, source="location_address2"
+    )
+    zip = serializers.CharField(required=False, allow_blank=True, source="location_zip")
+    city = serializers.CharField(
+        required=False, allow_blank=True, source="location_city"
+    )
+    country = CountryField(required=False, allow_blank=False, default="FR")
+
+    def update(self, instance, validated_data):
+        instance = super().update(instance, validated_data)
+        if any(field in validated_data for field in instance.GEOCODING_FIELDS):
+            transaction.on_commit(partial(geocode_person.delay, instance.pk))
+        return instance
 
     class Meta:
         model = models.Person
@@ -329,7 +347,11 @@ class PersonSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
             "referrerId",
             "newsletters",
             "gender",
+            "address1",
+            "address2",
             "zip",
+            "city",
+            "country",
             "mandat",
         )
 

@@ -3,6 +3,7 @@ import uuid
 from django.contrib import messages
 from django.db.models import F
 from django.urls import reverse
+from django_countries.serializer_fields import CountryField
 from rest_framework import serializers
 
 from agir.authentication.utils import (
@@ -31,8 +32,10 @@ class UserContextSerializer(serializers.Serializer):
     isAgir = serializers.BooleanField(source="is_agir")
     groups = serializers.SerializerMethodField()
     address1 = serializers.CharField(source="location_address1")
+    address2 = serializers.CharField(source="location_address2")
     city = serializers.CharField(source="location_city")
     zip = serializers.CharField(source="location_zip")
+    country = CountryField(source="location_country")
 
     def get_full_name(self, obj):
         return obj.get_full_name()
