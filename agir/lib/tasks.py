@@ -1,29 +1,19 @@
 from django.contrib.gis.geos import Point
 from django.db import IntegrityError
 from agir.people.models import Person
-from .celery import http_task
+from .celery import http_task, post_save_task
 from .geo import geocode_element
 from agir.carte.models import StaticMapImage
 
 __all__ = ["geocode_person", "create_static_map_image_from_coordinates"]
 
 
-def create_geocoder(model):
-    def geocode_model(pk):
-        try:
-            item = model.objects.get(pk=pk)
-        except model.DoesNotExist:
-            return
-
-        geocode_element(item)
-        item.save()
-
-    geocode_model.__name__ = "geocode_{}".format(model.__name__.lower())
-
-    return http_task(geocode_model)
-
-
-geocode_person = create_geocoder(Person)
+@http_task
+@post_save_task
+def geocode_person(person_pk):
+    person = Person.objects.get(pk=person_pk)
+    geocode_element(person)
+    person.save()
 
 
 @http_task

@@ -199,6 +199,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
                     "location_citycode",
                     "coordinates",
                     "coordinates_type",
+                    "coordinates_value",
                     "redo_geocoding",
                 )
             },
@@ -219,6 +220,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "supportgroups",
         "events",
         "coordinates_type",
+        "coordinates_value",
         "mandats",
         "location_citycode",
         "form_submissions_link",
@@ -260,6 +262,11 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
 
     def get_queryset(self, request):
         return super().get_queryset(request)
+
+    def coordinates_value(self, obj):
+        return f"{obj.coordinates.coords[1]}, {obj.coordinates.coords[0]}"
+
+    coordinates_value.short_description = _("Coordoonées")
 
     def role_link(self, obj):
         if obj.role_id is not None:
