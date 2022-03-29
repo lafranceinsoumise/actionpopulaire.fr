@@ -80,14 +80,10 @@ class ModifierRechercheSerializer(serializers.Serializer):
         return value
 
     def validate(self, attrs):
-        if (
-            attrs["statut"]
-            in [
-                RechercheParrainage.Statut.NE_SAIT_PAS,
-                RechercheParrainage.Statut.AUTRE_ENGAGEMENT,
-            ]
-            and not attrs.get("commentaires")
-        ):
+        if attrs["statut"] in [
+            RechercheParrainage.Statut.NE_SAIT_PAS,
+            RechercheParrainage.Statut.AUTRE_ENGAGEMENT,
+        ] and not attrs.get("commentaires"):
             raise serializers.ValidationError(
                 detail={"commentaires": "Ce champ est requis avec ce statut."},
                 code="commentaires_requis",
