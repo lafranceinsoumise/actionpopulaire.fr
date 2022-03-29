@@ -243,19 +243,15 @@ class VotingProxyRequestAdmin(VoterModelAdmin):
     proxy_link.short_description = "volontaire"
 
     def match_voting_proxy_request_view(self, request, pk):
-        voting_proxy_request = VotingProxyRequest.objects.filter(
-            status=VotingProxyRequest.STATUS_CREATED,
-            proxy__isnull=True,
-        ).filter(pk=pk)
+        voting_proxy_request = VotingProxyRequest.objects.pending().filter(pk=pk)
 
         return fulfill_voting_proxy_requests(request, pk, voting_proxy_request)
 
     def match_person_voting_proxy_request_view(self, request, pk):
         voting_proxy_request = self.get_object(request, pk)
-        person_voting_proxy_requests = VotingProxyRequest.objects.filter(
-            status=VotingProxyRequest.STATUS_CREATED,
-            proxy__isnull=True,
-        ).filter(email=voting_proxy_request.email)
+        person_voting_proxy_requests = VotingProxyRequest.objects.pending().filter(
+            email=voting_proxy_request.email
+        )
 
         return fulfill_voting_proxy_requests(request, pk, person_voting_proxy_requests)
 
