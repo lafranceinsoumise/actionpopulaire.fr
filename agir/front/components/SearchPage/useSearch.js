@@ -10,7 +10,13 @@ export const useSearchResults = (search, type, filters) => {
 
   let filtersValue = {};
   Object.entries(filters).map(([key, value]) => {
-    filtersValue = { ...filtersValue, [key]: value?.value };
+    let v;
+    if (typeof value !== "object") {
+      v = value;
+    } else {
+      v = value?.value;
+    }
+    filtersValue = { ...filtersValue, [key]: v };
   });
 
   useEffect(async () => {

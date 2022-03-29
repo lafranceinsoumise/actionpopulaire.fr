@@ -14,6 +14,52 @@ import SearchPageTab from "./SearchPageTab";
 import { TABS } from "./config.js";
 import { useSearchResults } from "./useSearch";
 import { useFilters } from "./useFilters";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import CountryField from "@agir/front/formComponents/CountryField";
+import styled from "styled-components";
+import style from "@agir/front/genericComponents/_variables.scss";
+
+const StyledSelectCountry = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  flex-wrap: wrap;
+
+  > label {
+    min-width: 300px;
+
+    @media (min-width: ${style.collapse}px) {
+      display: flex;
+      align-items: center;
+
+      > div:nth-child(2) {
+        flex: 1;
+      }
+    }
+
+    @media (max-width: ${style.collapse}px) {
+      span:first-child {
+        display: none;
+      }
+    }
+  }
+`;
+
+const CancelCountry = styled.div`
+  border-radius: ${style.borderRadius};
+  border: 1px solid #ddd;
+  margin-left: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  width: 40px;
+  cursor: pointer;
+
+  :hover {
+    opacity: 0.6;
+  }
+`;
 
 export const SearchPage = () => {
   const isDesktop = useIsDesktop();
@@ -47,6 +93,10 @@ export const SearchPage = () => {
     resetFilters();
   };
 
+  const handleChangeCountry = (country) => {
+    setFilters((filters) => ({ ...filters, country }));
+  };
+
   return (
     <StyledContainer>
       <HeaderSearch querySearch={search} mapRoute={activeTab.mapRoute} />
@@ -59,7 +109,27 @@ export const SearchPage = () => {
         />
       )}
       <SearchTooShort search={search} />
-      <Spacer size="1rem" />
+      <Spacer size="0.5rem" />
+
+      <StyledSelectCountry>
+        <CountryField
+          label="Pays"
+          name="country"
+          autoComplete="country-name"
+          placeholder="Pays"
+          value={filters.country}
+          onChange={handleChangeCountry}
+        />
+        {!!filters.country && (
+          <CancelCountry
+            onClick={() => setFilters({ ...filters, country: "" })}
+          >
+            <RawFeatherIcon name="x" height="1rem" color={style.black1000} />
+          </CancelCountry>
+        )}
+      </StyledSelectCountry>
+      <Spacer size="0.5rem" />
+
       <Tabs
         tabs={Object.values(TABS)}
         activeIndex={Object.keys(TABS).findIndex((key) => key === activeTabId)}
