@@ -125,6 +125,9 @@ const MobileEventPage = (props) => {
 
   // Get groups attendees not organizers, from user only
   const userGroupsAttendees = useMemo(() => {
+    if (!Array.isArray(user?.groups)) {
+      return [];
+    }
     const groupsId = groups?.map((group) => group.id) || [];
     const groupsAttendeesId = groupsAttendees?.map((group) => group.id) || [];
     return user?.groups.filter(
