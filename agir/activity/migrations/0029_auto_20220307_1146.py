@@ -23,7 +23,8 @@ def add_group_attendee_subscriptions(apps, schema_editor):
             person_id=p["id"],
         )
         for p in Person.objects.filter(
-            notification_subscriptions__activity_type=TYPE_NEW_ATTENDEE, notification_subscriptions__type=SUBSCRIPTION_PUSH
+            notification_subscriptions__activity_type=TYPE_NEW_ATTENDEE,
+            notification_subscriptions__type=SUBSCRIPTION_PUSH,
         ).values("id")
     ]
     Subscription.objects.bulk_create(subscriptions, ignore_conflicts=True)
