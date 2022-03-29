@@ -8,6 +8,12 @@ from pytz import utc, InvalidTimeError
 from rest_framework import serializers
 from rest_framework.fields import empty
 
+from django.db.models import (
+    OuterRef,
+    Exists,
+    Value,
+)
+
 from agir.activity.models import Activity
 from agir.events.tasks import NOTIFIED_CHANGES
 from agir.front.serializer_utils import RoutesField
@@ -129,6 +135,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         "location",
         "groups",
         "subtype",
+        "groupsAttendees",
     ]
 
     id = serializers.UUIDField()
@@ -161,6 +168,8 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     routes = RoutesField(routes=EVENT_ROUTES)
 
     groups = serializers.SerializerMethodField()
+
+    groupsAttendees = serializers.SerializerMethodField()
 
     contact = ContactMixinSerializer(source="*")
 
@@ -308,6 +317,31 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
                 "is2022",
             ],
         ).data
+
+    def get_groupsAttendees(self, obj):
+        user = self.context["request"].user
+        self.person = None
+        if not user.is_anonymous and user.person:
+            self.person = user.person
+
+        if user.is_anonymous or user.person is None:
+            return (
+                obj.groups_attendees.all()
+                .annotate(isManager=Value(False))
+                .values("id", "name", "isManager")
+            )
+        return (
+            obj.groups_attendees.all()
+            .annotate(
+                isManager=Exists(
+                    self.person.memberships.filter(
+                        supportgroup_id=OuterRef("id"),
+                        membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+                    )
+                )
+            )
+            .values("id", "name", "isManager")
+        )
 
     def get_is_past(self, obj):
         return obj.is_past()

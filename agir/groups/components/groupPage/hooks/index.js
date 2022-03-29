@@ -12,6 +12,7 @@ export const useGroupDetail = (groupPk) => {
   const group = useGroup(groupPk);
   const groupSuggestions = useGroupSuggestions(group);
   const upcomingEvents = useUpcomingEvents(group);
+
   const {
     pastEvents,
     pastEventCount,

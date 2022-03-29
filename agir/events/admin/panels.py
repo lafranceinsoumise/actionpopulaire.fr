@@ -22,6 +22,7 @@ from agir.lib.admin.filters import (
 from agir.lib.admin.panels import CenterOnFranceMixin
 from agir.lib.utils import front_url, replace_datetime_timezone
 from agir.people.admin.views import FormSubmissionViewsMixin
+from agir.events.models import GroupAttendee
 from agir.people.models import PersonFormSubmission
 from agir.people.person_forms.display import PersonFormDisplay
 from . import actions
@@ -267,6 +268,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
                     "allow_guests",
                     "subscription_form",
                     "participants_display",
+                    "group_participants_display",
                     "rsvps_buttons",
                     "payment_parameters",
                     "enable_jitsi",
@@ -321,6 +323,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "coordinates_type",
         "rsvps_buttons",
         "participants_display",
+        "group_participants_display",
     )
     date_hierarchy = "start_time"
 
@@ -453,6 +456,15 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
 
     participants_display.short_description = "Nombre de participants"
 
+    def group_participants_display(self, obj):
+        if obj.groups_attendees.exists():
+            return mark_safe(
+                f"{obj.groups_attendees.count()}&emsp;{self.event_group_attendees_changelist_link(obj)}"
+            )
+        return "-"
+
+    group_participants_display.short_description = "Nombre de groupes participants"
+
     def add_organizer(self, request, pk):
         return views.add_organizer(self, request, pk)
 
@@ -523,6 +535,13 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         )
 
     event_rsvp_changelist_link.short_description = ""
+
+    def event_group_attendees_changelist_link(self, obj):
+        return format_html(
+            '<a class="button" style="color: white;" href="{link}?event={event_id}">Voir les groupes</a>',
+            link=reverse("admin:events_groupattendee_changelist"),
+            event_id=str(obj.id),
+        )
 
     def get_list_display(self, request):
         if request.user.has_perm("events.view_rsvp"):
@@ -614,15 +633,104 @@ class JitsiMeetingAdmin(admin.ModelAdmin):
 
 @admin.register(RSVP)
 class RSVPAdmin(admin.ModelAdmin):
-    list_display = (
+    list_display = [
         "id",
         "person_link",
         "event_link",
         "status",
         "guest_count",
-    )
+    ]
     search_fields = ("person__search", "event__name")
     list_filter = (RelatedEventFilter, "status")
+    list_display_links = None
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return request.user.has_perm("events.delete_rsvp")
+
+    def has_view_permission(self, request, obj=None):
+        return request.user.has_perm("events.view_rsvp")
+
+    def get_list_display(self, request):
+        if not request.user.has_perm("events.view_event"):
+            return self.list_display
+
+        if request.GET.get("event") is not None:
+            try:
+                self.list_display.remove("event_link")
+            except ValueError:
+                pass
+
+            if "person_contact_phone" not in self.list_display:
+                self.list_display.insert(2, "person_contact_phone")
+            return self.list_display
+
+        return self.list_display + [
+            "filter_by_event_button",
+        ]
+
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request)
+            .select_related("event", "person")
+            .prefetch_related("identified_guests")
+        )
+
+    def person_link(self, obj):
+        return format_html(
+            '<a href="{link}">{person}</a>',
+            person=str(obj.person),
+            link=reverse("admin:people_person_change", args=[obj.person.pk]),
+        )
+
+    person_link.short_description = "Personne"
+
+    def person_contact_phone(self, obj):
+        return obj.person.contact_phone
+
+    person_contact_phone.short_description = "Numéro de téléphone"
+
+    def event_link(self, obj):
+        return format_html(
+            '<a href="{link}">{event}</a>',
+            event=str(obj.event),
+            link=reverse("admin:events_event_change", args=[obj.id]),
+        )
+
+    event_link.short_description = "Événement"
+
+    def filter_by_event_button(self, obj):
+        return format_html(
+            '<a class="button default" style="color: white;" href="{link}?event={event_id}">Voir uniquement cet événement</a>',
+            link=reverse("admin:events_rsvp_changelist"),
+            event_id=str(obj.event_id),
+        )
+
+    filter_by_event_button.short_description = ""
+
+    def guest_count(self, obj):
+        return obj.guests
+
+    guest_count.short_description = "Invités"
+
+    class Media:
+        pass
+
+
+@admin.register(GroupAttendee)
+class GroupAttendeeAdmin(admin.ModelAdmin):
+    list_display = (
+        "organizer",
+        "group",
+        "event",
+    )
+    search_fields = ("organizer__search", "event__name", "group__name")
     list_display_links = None
 
     def has_add_permission(self, request, obj=None):
@@ -645,10 +753,7 @@ class RSVPAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         return (
-            super()
-            .get_queryset(request)
-            .select_related("event", "person")
-            .prefetch_related("identified_guests")
+            super().get_queryset(request).select_related("event", "organizer", "group")
         )
 
     def person_link(self, obj):
@@ -672,7 +777,7 @@ class RSVPAdmin(admin.ModelAdmin):
     def filter_by_event_button(self, obj):
         return format_html(
             '<a class="button default" style="color: white;" href="{link}?event={event_id}">Voir uniquement cet événement</a>',
-            link=reverse("admin:events_rsvp_changelist"),
+            link=reverse("admin:events_groupattendee_changelist"),
             event_id=str(obj.event_id),
         )
 

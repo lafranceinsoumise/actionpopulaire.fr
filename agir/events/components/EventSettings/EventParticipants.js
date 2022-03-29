@@ -12,6 +12,10 @@ import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
 import MemberList from "./EventMemberList";
+import GroupItem from "./GroupItem";
+import GroupList from "./GroupList";
+import { routeConfig, getMenuRoute } from "./routes.config";
+import { routeConfig as globalRouteConfig } from "@agir/front/app/routes.config";
 
 const StyledLink = styled(Link)`
   font-size: 13px;
@@ -46,14 +50,22 @@ const EventParticipants = (props) => {
   const organizers = useMemo(() => event?.organizers || [], [event]);
   const allParticipants = participants.concat(organizers);
 
+  const groupsAttendees = event?.groupsAttendees || [];
+  const severalGroups = groupsAttendees.length > 1;
+
+  const menuRoute = getMenuRoute(
+    globalRouteConfig.eventDetails.getLink({ eventPk })
+  ).path;
+  const organizationLink = `${menuRoute}${routeConfig.organisation.path}`;
+
   return (
     <>
       <HeaderPanel onBack={onBack} illustration={illustration} />
       <BlockTitle>
         <h3>{allParticipants.length} Participant·es</h3>
-        {event && !event.isPast && (
+        {!event?.isPast && (
           <div>
-            <StyledLink to="../organisation/" style={{ marginLeft: "10px" }}>
+            <StyledLink to={organizationLink} style={{ marginLeft: "10px" }}>
               <RawFeatherIcon name="settings" height="13px" />
               Inviter à co-organiser
             </StyledLink>
@@ -69,9 +81,41 @@ const EventParticipants = (props) => {
         $wrap
       />
 
-      <Spacer size="2rem" />
+      <Spacer size="2.5rem" />
       <MemberList key={1} members={allParticipants} />
       <Spacer size="1rem" />
+
+      {!!groupsAttendees.length && (
+        <>
+          <BlockTitle>
+            <h3>
+              {groupsAttendees.length} Groupe{severalGroups && "s"} participant
+              {severalGroups && "s"}
+            </h3>
+          </BlockTitle>
+          <Spacer size="0.5rem" />
+          Les groupes ayant indiqué leur participation. Ils ne sont pas indiqués
+          co-organisateurs de l'événement. Vous pouvez les inviter à
+          co-organiser cet événement depuis l'onglet&nbsp;
+          <Link to={organizationLink} style={{ display: "inline-block" }}>
+            <RawFeatherIcon name="settings" height="14px" />
+            Organisation
+          </Link>
+          .
+          <Spacer size="1rem" />
+          <GroupList>
+            {groupsAttendees.map((group) => (
+              <GroupItem
+                key={group.id}
+                id={group.id}
+                name={group.name}
+                image={group.image}
+                isLinked
+              />
+            ))}
+          </GroupList>
+        </>
+      )}
     </>
   );
 };

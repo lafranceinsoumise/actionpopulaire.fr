@@ -54,22 +54,12 @@ class LocationSerializer(serializers.Serializer):
     zip = serializers.CharField(source="location_zip")
     city = serializers.CharField(source="location_city")
     country = CountryField(source="location_country")
-    countryName = serializers.SerializerMethodField(read_only=True)
     address = serializers.SerializerMethodField()
 
     shortAddress = serializers.CharField(source="short_address", required=False)
     shortLocation = serializers.CharField(source="short_location", required=False)
     coordinates = GeometryField(required=False)
     staticMapUrl = serializers.SerializerMethodField(read_only=True)
-
-    # Set countryName from country code
-    def get_countryName(self, obj):
-        country = obj.location_country
-        if not country:
-            return
-        obj.location_state = country.name
-        obj.save()
-        return country.name
 
     def to_representation(self, instance):
         data = super().to_representation(instance=instance)
@@ -110,61 +100,6 @@ class LocationSerializer(serializers.Serializer):
             return ""
 
         return static_map_image.image.url
-
-
-class NestedLocationSerializer(serializers.Serializer):
-    """A nested serializer for the fields defined by :py:class:`lib.models.LocationMixin`
-
-    All these fields will be collected and serialized as a JSON object.
-    """
-
-    name = NullableCharField(
-        label="nom du lieu",
-        max_length=255,
-        required=True,
-        source="location_name",
-    )
-    address = NullableCharField(
-        label="adresse complète",
-        max_length=255,
-        required=False,
-        source="location_address",
-    )
-    address1 = NullableCharField(
-        label="adresse (1ère ligne)",
-        max_length=100,
-        required=True,
-        source="location_address1",
-    )
-    address2 = NullableCharField(
-        label="adresse (2ème ligne)",
-        max_length=100,
-        required=False,
-        source="location_address2",
-    )
-    city = NullableCharField(
-        label="ville", max_length=100, required=True, source="location_city"
-    )
-    zip = NullableCharField(
-        label="code postal", max_length=20, required=True, source="location_zip"
-    )
-    country = NullableCountryField(
-        label="pays", required=True, source="location_country"
-    )
-    countryName = serializers.SerializerMethodField(read_only=True)
-
-    # Set countryName from country code
-    def get_countryName(self, obj):
-        country = obj.location_country
-        if not country:
-            return
-        obj.location_state = country.name
-        obj.save()
-        return country.name
-
-    def __init__(self, instance=None, data=empty, **kwargs):
-        kwargs.setdefault("source", "*")
-        super().__init__(instance, data, **kwargs)
 
 
 class RelatedLabelField(serializers.SlugRelatedField):
@@ -248,6 +183,54 @@ class NestedContactSerializer(serializers.Serializer):
         required=False,
         default=False,
         source="contact_hide_phone",
+    )
+
+    def __init__(self, instance=None, data=empty, **kwargs):
+        kwargs.setdefault("source", "*")
+        super().__init__(instance, data, **kwargs)
+
+
+class NestedLocationSerializer(serializers.Serializer):
+    """A nested serializer for the fields defined by :py:class:`lib.models.LocationMixin`
+
+    All these fields will be collected and serialized as a a JSON object.
+    """
+
+    name = NullableCharField(
+        label="nom du lieu",
+        max_length=255,
+        required=True,
+        source="location_name",
+    )
+    address = NullableCharField(
+        label="adresse complète",
+        max_length=255,
+        required=False,
+        source="location_address",
+    )
+    address1 = NullableCharField(
+        label="adresse (1ère ligne)",
+        max_length=100,
+        required=True,
+        source="location_address1",
+    )
+    address2 = NullableCharField(
+        label="adresse (2ème ligne)",
+        max_length=100,
+        required=False,
+        source="location_address2",
+    )
+    city = NullableCharField(
+        label="ville", max_length=100, required=True, source="location_city"
+    )
+    zip = NullableCharField(
+        label="code postal", max_length=20, required=True, source="location_zip"
+    )
+    state = NullableCharField(
+        label="état", max_length=40, required=False, source="location_state"
+    )
+    country = NullableCountryField(
+        label="pays", required=True, source="location_country"
     )
 
     def __init__(self, instance=None, data=empty, **kwargs):
