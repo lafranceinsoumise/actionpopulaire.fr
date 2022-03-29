@@ -67,8 +67,8 @@ export const UpdateAddressModal = (props) => {
         <h4>Localisation</h4>
         <Spacer size=".5rem" />
         <p>
-          Prenez une seconde pour compléter ou vérifier que votre adresse est
-          bien à jour.
+          Entrez votre adresse pour que nous puissions vous suggérer les
+          événements à proximité de chez vous.
         </p>
         <Spacer size="1.5rem" />
         <form onSubmit={handleSubmit}>

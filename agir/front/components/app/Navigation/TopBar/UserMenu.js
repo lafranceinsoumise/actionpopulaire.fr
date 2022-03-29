@@ -13,6 +13,7 @@ import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 const IconLink = styled(Link)``;
 const StyledLink = styled(Link)``;
 const StyledUserMenu = styled.div`
+  width: 250px;
   margin: -1rem;
   padding: 1.5rem 0 0;
   text-align: center;
@@ -129,7 +130,7 @@ export const UserMenu = (props) => {
           route="personalInformation"
           style={{ color: style.black500, lineHeight: 2 }}
         >
-          {user.zip}
+          {`${user.zip} ${user.city}`.trim()}
         </StyledLink>
         <Button
           link
@@ -171,6 +172,7 @@ UserMenu.propTypes = {
     email: PropTypes.string,
     image: PropTypes.string,
     zip: PropTypes.string,
+    city: PropTypes.string,
   }),
 };
 
