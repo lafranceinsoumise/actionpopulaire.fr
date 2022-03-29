@@ -3,7 +3,9 @@
 from django.db import migrations, models
 
 SUBSCRIPTION_PUSH = "push"
+TYPE_NEW_ATTENDEE = "new-attendee"
 TYPE_NEW_GROUP_ATTENDEE = "new-group-attendee"
+TYPE_NEW_EVENT_MYGROUPS = "new-event-mygroups"
 TYPE_NEW_EVENT_PARTICIPATION_MYGROUPS = "new-event-participation-mygroups"
 MEMBERSHIP_TYPE_REFERENT = 100
 
@@ -20,7 +22,9 @@ def add_group_attendee_subscriptions(apps, schema_editor):
             activity_type=TYPE_NEW_GROUP_ATTENDEE,
             person_id=p["id"],
         )
-        for p in Person.objects.all().values("id")
+        for p in Person.objects.filter(
+            notification_subscriptions=TYPE_NEW_ATTENDEE, type=SUBSCRIPTION_PUSH
+        ).values("id")
     ]
     Subscription.objects.bulk_create(subscriptions, ignore_conflicts=True)
 
@@ -32,7 +36,10 @@ def add_group_attendee_subscriptions(apps, schema_editor):
             membership=membership,
             person_id=membership.person.id,
         )
-        for membership in Membership.objects.all()
+        for membership in Membership.objects.filter(
+            person__notification_subscriptions__type=SUBSCRIPTION_PUSH,
+            person__notification_subscriptions__activity_type=TYPE_NEW_EVENT_MYGROUPS,
+        )
         if membership.membership_type < MEMBERSHIP_TYPE_REFERENT
     ]
     Subscription.objects.bulk_create(subscriptions, ignore_conflicts=True)
