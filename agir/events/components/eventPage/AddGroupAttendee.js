@@ -100,15 +100,17 @@ const AddGroupAttendee = ({ id, groups, groupsAttendees }) => {
   // Get groups where im manager
   const user = useSelector(getUser);
 
-  const eventGroupsId = groups.map((group) => group.id);
-  const eventGroupsAttendeesId = groupsAttendees.map((group) => group.id);
+  const eventGroupsId = groups?.map((group) => group.id) || [];
+  const eventGroupsAttendeesId =
+    groupsAttendees?.map((group) => group.id) || [];
 
   const blackList = eventGroupsId.concat(eventGroupsAttendeesId);
 
   // Get managing groups not attendees
-  const managingGroups = user?.groups.filter(
-    (group) => group.isManager && !blackList.includes(group.id)
-  );
+  const managingGroups =
+    user?.groups?.filter(
+      (group) => group.isManager && !blackList.includes(group.id)
+    ) || [];
 
   const handleJoinAsGroup = async (group) => {
     setErrors({});
