@@ -2,17 +2,17 @@ from decimal import Decimal
 
 from hypothesis import strategies as st
 
-from agir.gestion.models import Depense, Projet, Compte
+from agir.gestion.models import Depense, Projet, Compte, Fournisseur
 from agir.gestion.typologies import TypeDepense, TypeProjet
-from agir.lib.tests.strategies import to_strategy, printable_text
+from agir.lib.tests.strategies import to_strategy, printable_text, iban, bic
 
 
 @st.composite
 def compte(draw, **kwargs):
     kwargs = {
         "designation": printable_text(min_size=1, max_size=5),
-        "nom": printable_text(min_size=1, max_size=200),
-        "description": printable_text(),
+        "nom": printable_text(min_size=1, max_size=10),
+        "description": printable_text(max_size=10),
         "beneficiaire_iban": "",
         "beneficiaire_bic": "",
         "emetteur_iban": "",
@@ -26,8 +26,8 @@ def compte(draw, **kwargs):
 @st.composite
 def depense(draw, **kwargs):
     kwargs = {
-        "titre": printable_text(min_size=1, max_size=100),
-        "description": printable_text(),
+        "titre": printable_text(min_size=1, max_size=10),
+        "description": printable_text(max_size=10),
         "etat": st.sampled_from(Depense.Etat.values),
         "compte": compte(),
         "projet": st.one_of(st.just(None), projet()),
@@ -51,12 +51,34 @@ def depense(draw, **kwargs):
 @st.composite
 def projet(draw, **kwargs):
     kwargs = {
-        "titre": printable_text(min_size=1, max_size=200),
+        "titre": printable_text(min_size=1, max_size=10),
         "type": st.sampled_from(TypeProjet.values),
         "origine": st.sampled_from(Projet.Origin.values),
         "etat": st.sampled_from(Projet.Etat.values),
-        "description": printable_text(),
+        "description": printable_text(max_size=10),
         **kwargs,
     }
 
     return Projet.objects.create(**{k: draw(to_strategy(v)) for k, v in kwargs.items()})
+
+
+@st.composite
+def fournisseur(draw, **kwargs):
+    kwargs = {
+        "nom": printable_text(min_size=1, max_size=10),
+        "location_city": printable_text(min_size=1, max_size=10),
+        "location_country": "FR",
+        "iban": st.one_of(st.just(""), iban()),
+        **kwargs,
+    }
+
+    f = Fournisseur(**{k: draw(to_strategy(v)) for k, v in kwargs.items()})
+
+    if f.iban and not f.bic and "bic" not in kwargs:
+        try:
+            f.iban.bic
+        except AttributeError:
+            f.bic = draw(bic(country=f.iban.as_stored_value[:2]))
+
+    f.save()
+    return f

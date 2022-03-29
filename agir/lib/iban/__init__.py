@@ -6,6 +6,17 @@ from importlib.resources import open_text
 from django.core import validators
 
 
+def _iban_regex(s: str):
+    raw = s.replace("d", "[0-9]").replace("l", "[A-Z]").replace("a", "[A-Z0-9]")
+    return re.compile(f"^{raw}$")
+
+
+with open_text("agir.lib.iban", "formats_iban.csv") as fd:
+    IBAN_REGEX_NATIONALES = {
+        country["code"]: _iban_regex(country["regex"]) for country in csv.DictReader(fd)
+    }
+
+
 CIB_TO_BIC = None
 
 
@@ -54,7 +65,7 @@ class IBAN:
         self.value = value.translate(str.maketrans("", "", string.whitespace)).upper()
 
     def _get_modulo(self):
-        # 1. on déplace les 4 premiers symbole à la fin
+        # 1. on déplace les 4 premiers symboles à la fin
         # 2. on substitue à chaque lettre deux chiffres selon la règle A=10, B=11, C=12
         # 3. cela nous donne un grand entier (plus long)
         # 4. on vérifie que ce grand entier est bien congruent à 1 modulo 97
@@ -66,7 +77,23 @@ class IBAN:
         return subst % 97
 
     def is_valid(self):
-        return self.regex.match(self.value) and self._get_modulo() == 1
+        # respect du format général d'un IBAN
+        if not self.regex.match(self.value):
+            return False
+
+        code_pays = self.value[:2]
+        partie_nationale = self.value[4:]
+
+        # le code pays doit être correct
+        if code_pays not in IBAN_REGEX_NATIONALES:
+            return False
+
+        # la partie nationale doit satisfaire la regex nationale
+        if not IBAN_REGEX_NATIONALES[code_pays].match(partie_nationale):
+            return False
+
+        # le checksum doit être correct
+        return self._get_modulo() == 1
 
     def __str__(self):
         return " ".join(self.value[i : i + 4] for i in range(0, len(self.value), 4))
