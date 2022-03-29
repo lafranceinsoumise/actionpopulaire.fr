@@ -534,9 +534,9 @@ class ReglementForm(forms.ModelForm):
                 setattr(self.instance, f"{f}_fournisseur", getattr(self.fournisseur, f))
 
         if not self.cleaned_data.get("preuve"):
-            self.instance.statut = Reglement.Statut.ATTENTE
+            self.instance.etat = Reglement.Etat.ATTENTE
         else:
-            self.instance.statut = Reglement.Statut.REGLE
+            self.instance.etat = Reglement.Etat.REGLE
 
         return super().save(commit=commit)
 
@@ -565,7 +565,7 @@ class ReglementForm(forms.ModelForm):
 class OrdreVirementForm(forms.ModelForm):
     reglements = forms.ModelMultipleChoiceField(
         queryset=Reglement.objects.filter(
-            statut=Reglement.Statut.ATTENTE,
+            etat=Reglement.Etat.ATTENTE,
             mode=Reglement.Mode.VIREMENT,
             ordre_virement__isnull=True,
         ),

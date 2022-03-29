@@ -132,7 +132,7 @@ class Projet(ModeleGestionMixin, TimeStampedModel):
     )
 
     etat = models.CharField(
-        verbose_name="Statut",
+        verbose_name="État",
         max_length=3,
         choices=Etat.choices,
         blank=False,

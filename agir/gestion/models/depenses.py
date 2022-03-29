@@ -45,8 +45,8 @@ depense_entierement_reglee.explication = (
 
 
 def valider_reglements_lies(depense: "Depense"):
-    depense.reglements.filter(statut=Reglement.Statut.REGLE).update(
-        statut=Reglement.Statut.RAPPROCHE
+    depense.reglements.filter(etat=Reglement.Etat.REGLE).update(
+        etat=Reglement.Etat.RAPPROCHE
     )
 
 
@@ -67,7 +67,7 @@ class DepenseQuerySet(NumeroQueryset):
             regle=models.Sum(
                 "reglement__montant",
                 filter=~Q(
-                    reglement__statut=Reglement.Statut.ATTENTE,
+                    reglement__etat=Reglement.Etat.ATTENTE,
                 ),
             ),
         )
@@ -338,7 +338,7 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
     @property
     def depense_reglee(self):
         return (
-            self.reglements.filter(statut=Reglement.Statut.REGLE).aggregate(
+            self.reglements.exclude(etat=Reglement.Etat.ATTENTE).aggregate(
                 paye=models.Sum("montant")
             )["paye"]
             == self.montant
@@ -370,7 +370,7 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
 
 @reversion.register(follow=["depense"])
 class Reglement(TimeStampedModel):
-    class Statut(models.TextChoices):
+    class Etat(models.TextChoices):
         ATTENTE = "C", "En cours"
         REGLE = "R", "Réglé"
         RAPPROCHE = "P", "Rapproché"
@@ -378,24 +378,24 @@ class Reglement(TimeStampedModel):
         FEC = "F", "Intégré au FEC"
 
     TRANSITIONS = {
-        Statut.REGLE: [
+        Etat.REGLE: [
             Transition(
                 nom="Clore le règlement",
-                vers=Statut.RAPPROCHE,
+                vers=Etat.RAPPROCHE,
                 permissions=["gestion.controler_depense"],
                 class_name="success",
             )
         ],
-        Statut.EXPERTISE: [
+        Etat.EXPERTISE: [
             Transition(
                 nom="Renvoyer pour corrections",
-                vers=Statut.REGLE,
+                vers=Etat.REGLE,
                 class_name="failure",
                 permissions=["validation_depense"],
             ),
             Transition(
                 nom="Intégrer au FEC",
-                vers=Statut.FEC,
+                vers=Etat.FEC,
                 class_name="success",
                 permissions=["validation_depense"],
             ),
@@ -489,8 +489,12 @@ class Reglement(TimeStampedModel):
         help_text="Indiquez laquelle des factures de la dépense est lié ce paiement.",
     )
 
-    statut = models.CharField(
-        max_length=1, blank=False, choices=Statut.choices, default=Statut.ATTENTE
+    etat = models.CharField(
+        verbose_name="état",
+        max_length=1,
+        blank=False,
+        choices=Etat.choices,
+        default=Etat.ATTENTE,
     )
 
     # lien vers le fournisseur
@@ -559,10 +563,7 @@ class Reglement(TimeStampedModel):
             return self.facture.identifiant
 
     def generer_virement(self, date):
-        if (
-            self.mode != Reglement.Mode.VIREMENT
-            or self.statut != Reglement.Statut.ATTENTE
-        ):
+        if self.mode != Reglement.Mode.VIREMENT or self.etat != Reglement.Etat.ATTENTE:
             raise ValueError("Impossible de générer ")
 
         if not self.iban_fournisseur:
@@ -583,8 +584,8 @@ class Reglement(TimeStampedModel):
         )
 
     @property
-    def transitions(self) -> List[Transition["Reglement", Statut]]:
-        return self.TRANSITIONS.get(self.Statut(self.statut), [])
+    def transitions(self) -> List[Transition["Reglement", Etat]]:
+        return self.TRANSITIONS.get(self.Etat(self.etat), [])
 
     @property
     def compte(self):

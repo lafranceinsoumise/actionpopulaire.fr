@@ -361,7 +361,7 @@ class DepenseAdmin(DepenseListMixin, BaseGestionModelAdmin, VersionAdmin):
             reverse("admin:gestion_depense_reglement", args=(obj.id,)),
         )
 
-    reglements.short_description = "Statut du règlement"
+    reglements.short_description = "État du règlement"
 
     def save_model(self, request, obj, form, change):
         """
@@ -866,12 +866,12 @@ class ReglementAdmin(BaseGestionModelAdmin):
         "intitule",
         "date",
         "montant",
-        "statut",
+        "etat",
         "depense",
         "mode",
     )
 
-    list_filter = ("statut", "mode")
+    list_filter = ("etat", "mode")
 
     fieldsets = (
         (
@@ -879,7 +879,7 @@ class ReglementAdmin(BaseGestionModelAdmin):
             {
                 "fields": (
                     "intitule",
-                    "statut",
+                    "etat",
                     "date",
                     "date_releve",
                     "montant",
@@ -908,17 +908,17 @@ class ReglementAdmin(BaseGestionModelAdmin):
         ),
     )
 
-    readonly_fields = ("statut", "endtoend_id", "ordre_virement")
+    readonly_fields = ("etat", "endtoend_id", "ordre_virement")
 
     def has_change_permission(self, request, obj=None):
         autorise = super().has_change_permission(request, obj=obj)
         if obj is None:
             return autorise and request.user.has_perm("gestion.valider_depense")
 
-        if obj.statut == Reglement.Statut.FEC:
+        if obj.etat == Reglement.Etat.FEC:
             return False
 
-        if obj.statut == Reglement.Statut.EXPERTISE:
+        if obj.etat == Reglement.Etat.EXPERTISE:
             return autorise and (
                 request.user.has_perm("gestion.valider_depense")
                 or request.user.has_perm(
