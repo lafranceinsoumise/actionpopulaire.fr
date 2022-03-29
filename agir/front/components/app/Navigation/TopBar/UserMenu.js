@@ -13,6 +13,7 @@ import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 const IconLink = styled(Link)``;
 const StyledLink = styled(Link)``;
 const StyledUserMenu = styled.div`
+  width: 250px;
   margin: -1rem;
   padding: 1.5rem 0 0;
   text-align: center;
