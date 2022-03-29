@@ -41,6 +41,7 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
         groupType = filters.get("groupType", None)
         groupSort = filters.get("groupSort", None)
         groupInactive = filters.get("groupInactive", None)
+        country = filters.get("country", None)
 
         groups = (
             SupportGroup.objects.active()
@@ -48,7 +49,10 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
             .with_static_map_image()
         )
 
-        # Filter
+        # Filters
+        if country:
+            groups = groups.filter(location_country=country)
+
         if groupType:
             if groupType == self.GROUP_FILTER_CERTIFIED:
                 groups = groups.filter(
@@ -87,10 +91,13 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
         eventType = filters.get("eventType", None)
         eventCategory = filters.get("eventCategory", None)
         eventSort = filters.get("eventSort", None)
+        country = filters.get("country", None)
 
         events = Event.objects.listed().with_serializer_prefetch(None)
 
         # Filters
+        if country:
+            events = events.filter(location_country=country)
         if eventType:
             events = events.filter(subtype__type=eventType)
         if eventCategory:

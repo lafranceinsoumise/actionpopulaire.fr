@@ -93,6 +93,7 @@ from ..tasks import (
 )
 from ...groups.serializers import SupportGroupDetailSerializer
 from ...groups.tasks import send_new_group_event_email, notify_new_group_event
+from ...lib.models import LocationMixin
 
 
 class EventAPIView(RetrieveAPIView):
@@ -135,7 +136,10 @@ class EventRsvpedAPIView(EventListAPIView):
     def get(self, request, *args, **kwargs):
         person = request.user.person
 
-        if person.coordinates_type is None:
+        if (
+            person.coordinates is None
+            or person.coordinates_type >= LocationMixin.COORDINATES_NO_POSITION
+        ):
             geocode_person.delay(person.pk)
 
         return super().get(request, *args, **kwargs)
@@ -230,8 +234,7 @@ class EventSuggestionsAPIView(EventListAPIView):
         if person.coordinates is not None:
             national = national.filter(
                 coordinates__dwithin=(person.coordinates, D(km=100))
-            )[:10]
-
+            )
             near = (
                 events.exclude(pk__in=national_pks)
                 .exclude(pk__in=from_groups_attendees_pks)
@@ -242,6 +245,8 @@ class EventSuggestionsAPIView(EventListAPIView):
             )[: (10 - len(from_groups_attendees_pks))]
 
         near_pks = near.values_list("pk", flat=True)
+
+        national = national[:10]
 
         segmented = (
             events.exclude(pk__in=national_pks)
