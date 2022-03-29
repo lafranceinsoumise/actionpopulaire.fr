@@ -633,13 +633,13 @@ class JitsiMeetingAdmin(admin.ModelAdmin):
 
 @admin.register(RSVP)
 class RSVPAdmin(admin.ModelAdmin):
-    list_display = (
+    list_display = [
         "id",
         "person_link",
         "event_link",
         "status",
         "guest_count",
-    )
+    ]
     search_fields = ("person__search", "event__name")
     list_filter = (RelatedEventFilter, "status")
     list_display_links = None
@@ -660,7 +660,19 @@ class RSVPAdmin(admin.ModelAdmin):
         if not request.user.has_perm("events.view_event"):
             return self.list_display
 
-        return self.list_display + ("filter_by_event_button",)
+        if request.GET.get("event") is not None:
+            try:
+                self.list_display.remove("event_link")
+            except ValueError:
+                pass
+
+            if "person_contact_phone" not in self.list_display:
+                self.list_display.insert(2, "person_contact_phone")
+            return self.list_display
+
+        return self.list_display + [
+            "filter_by_event_button",
+        ]
 
     def get_queryset(self, request):
         return (
@@ -674,10 +686,15 @@ class RSVPAdmin(admin.ModelAdmin):
         return format_html(
             '<a href="{link}">{person}</a>',
             person=str(obj.person),
-            link=reverse("admin:people_person_change", args=[obj.id]),
+            link=reverse("admin:people_person_change", args=[obj.person.pk]),
         )
 
     person_link.short_description = "Personne"
+
+    def person_contact_phone(self, obj):
+        return obj.person.contact_phone
+
+    person_contact_phone.short_description = "Numéro de téléphone"
 
     def event_link(self, obj):
         return format_html(
