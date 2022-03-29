@@ -191,6 +191,13 @@ class VotingProxyRequestQuerySet(models.QuerySet):
             voting_date__gte=(timezone.now() + timedelta(days=2)).date(),
         )
 
+    def waiting_confirmation(self):
+        return self.filter(
+            status=VotingProxyRequest.STATUS_ACCEPTED,
+            proxy__isnull=False,
+            voting_date__gte=(timezone.now() + timedelta(days=2)).date(),
+        )
+
 
 class VotingProxyRequest(AbstractVoter):
     STATUS_CREATED = "created"
