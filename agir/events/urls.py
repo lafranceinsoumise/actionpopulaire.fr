@@ -146,6 +146,11 @@ urlpatterns = [
         name="api_event_projects",
     ),
     path(
+        "api/evenements/<uuid:pk>/messages/",
+        views.EventMessagesAPIView.as_view(),
+        name="api_event_messages",
+    ),
+    path(
         "api/evenements/<uuid:pk>/",
         views.EventAPIView.as_view(),
         name="api_event",
@@ -159,6 +164,16 @@ urlpatterns = [
         "api/evenements/<uuid:pk>/inscription/",
         views.RSVPEventAPIView.as_view(),
         name="api_rsvp_event",
+    ),
+    path(
+        "api/evenements/<uuid:pk>/inscription/<uuid:groupPk>/",
+        views.RSVPEventAPIView.as_view(),
+        name="api_quit_rsvp_event_as_group",
+    ),
+    path(
+        "api/evenements/<uuid:pk>/inscription-groupe/",
+        views.RSVPEventAsGroupAPIView.as_view(),
+        name="api_rsvp_event_as_group",
     ),
     path(
         "api/evenements/<uuid:event_id>/projet/",

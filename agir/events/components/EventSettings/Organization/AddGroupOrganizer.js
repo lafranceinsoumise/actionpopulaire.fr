@@ -48,7 +48,7 @@ const StyledSearch = styled.div`
 `;
 
 const START_SEARCH = 3;
-const MAX_RESULTS = 2;
+const MAX_RESULTS = 20;
 
 export const AddGroupOrganizer = ({ eventPk, groups, onBack }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -172,7 +172,7 @@ export const AddGroupOrganizer = ({ eventPk, groups, onBack }) => {
             <div>
               <h4>Derniers groupes co-organisateurs</h4>
               <GroupList
-                groups={groupSuggestions.slice(0, MAX_RESULTS)}
+                groups={groupSuggestions}
                 selectGroup={setSelectedGroup}
               />
             </div>

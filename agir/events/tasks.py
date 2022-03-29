@@ -20,7 +20,8 @@ from agir.lib.html import sanitize_html
 from agir.lib.mailing import send_mosaico_email
 from agir.lib.utils import front_url, is_absolute_url
 from agir.people.models import Person
-from .models import Event, RSVP, Invitation, OrganizerConfig
+from agir.groups.models import Membership
+from .models import Event, RSVP, GroupAttendee, Invitation, OrganizerConfig
 from ..activity.models import Activity
 from ..notifications.models import Subscription
 
@@ -233,14 +234,71 @@ def send_rsvp_notification(rsvp_pk):
             bindings=organizer_bindings,
         )
 
-    for r in recipients:
-        # can merge activity with previous one if not displayed yet
-        Activity.objects.create(
-            recipient=r,
-            type=Activity.TYPE_NEW_ATTENDEE,
-            event=rsvp.event,
-            individual=rsvp.person,
-        )
+    # can merge activity with previous one if not displayed yet
+    Activity.objects.bulk_create(
+        [
+            Activity(
+                recipient=r,
+                type=Activity.TYPE_NEW_ATTENDEE,
+                event=rsvp.event,
+                individual=rsvp.person,
+            )
+            for r in recipients
+        ],
+        send_post_save_signal=True,
+    )
+
+
+@post_save_task
+# Send notification new-group-attendee to all organizers (referents from groups co-organizing)
+# Send notification new-event-participation-mygroups to members of group (not referents)
+def send_group_attendee_notification(group_attendee_pk):
+    group_attendee = GroupAttendee.objects.get(pk=group_attendee_pk)
+
+    # Get all organizers (with group organizers)
+    from agir.events.serializers import EventAdvancedSerializer
+
+    organizers = EventAdvancedSerializer().get_organizers(group_attendee.event)
+    organizers_id = [
+        organizer["id"]
+        for organizer in organizers
+        if organizer["id"] != group_attendee.organizer.pk
+    ]
+
+    recipients = Person.objects.filter(pk__in=organizers_id)
+
+    Activity.objects.bulk_create(
+        [
+            Activity(
+                recipient=r,
+                type=Activity.TYPE_NEW_GROUP_ATTENDEE,
+                event=group_attendee.event,
+                supportgroup=group_attendee.group,
+            )
+            for r in recipients
+        ],
+        send_post_save_signal=True,
+    )
+
+    # Send notification group_join_event to members
+    members = Membership.objects.filter(
+        supportgroup=group_attendee.group,
+        membership_type__lt=Membership.MEMBERSHIP_TYPE_REFERENT,
+    )
+    recipients = [member.person for member in members]
+
+    Activity.objects.bulk_create(
+        [
+            Activity(
+                recipient=r,
+                type=Activity.TYPE_NEW_EVENT_PARTICIPATION_MYGROUPS,
+                event=group_attendee.event,
+                supportgroup=group_attendee.group,
+            )
+            for r in recipients
+        ],
+        send_post_save_signal=True,
+    )
 
 
 @emailing_task

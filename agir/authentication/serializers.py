@@ -57,6 +57,9 @@ class UserContextSerializer(serializers.Serializer):
                 "isManager": (
                     group.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER
                 ),
+                "isReferent": (
+                    group.membership_type == Membership.MEMBERSHIP_TYPE_REFERENT
+                ),
             }
             for group in person_groups
         ]

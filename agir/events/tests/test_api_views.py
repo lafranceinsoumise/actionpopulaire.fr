@@ -4,9 +4,10 @@ from unittest.mock import patch
 
 from PIL import Image
 from django.utils import timezone
+from agir.msgs.models import SupportGroupMessage
 from rest_framework.test import APITestCase
 
-from agir.events.models import Event, EventSubtype, OrganizerConfig, RSVP
+from agir.events.models import Event, EventSubtype, GroupAttendee, OrganizerConfig, RSVP
 from agir.events.serializers import EventProjectSerializer
 from agir.gestion.models import Projet
 from agir.gestion.typologies import TypeProjet
@@ -510,6 +511,97 @@ class RSVPEventAPITestCase(APITestCase):
                 person=self.person,
             ).exists()
         )
+
+    def test_person_can_rsvp_as_a_group(self):
+        group = SupportGroup.objects.create()
+        event = Event.objects.create(
+            name="Event", start_time=self.start_time, end_time=self.end_time
+        )
+
+        referent = Person.objects.create_person(
+            email="referent@agir.local", create_role=True
+        )
+        Membership.objects.create(
+            supportgroup=group,
+            person=referent,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
+
+        self.client.force_login(referent.role)
+        res = self.client.post(
+            f"/api/evenements/{event.pk}/inscription-groupe/",
+            data={"groupPk": group.id},
+        )
+        self.assertEqual(res.status_code, 201)
+
+    def test_person_cannot_rsvp_for_group_without_permission(self):
+        group = SupportGroup.objects.create()
+        event = Event.objects.create(
+            name="Event", start_time=self.start_time, end_time=self.end_time
+        )
+        member = Person.objects.create_person(
+            email="member@agir.local", create_role=True
+        )
+        Membership.objects.create(
+            supportgroup=group,
+            person=member,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+        )
+
+        self.client.force_login(member.role)
+        res = self.client.post(
+            f"/api/evenements/{event.pk}/inscription-groupe/",
+            data={"groupPk": group.id},
+        )
+        self.assertEqual(res.status_code, 405)
+
+    def test_person_can_quit_event_as_group(self):
+        group = SupportGroup.objects.create()
+        event = Event.objects.create(
+            name="Event", start_time=self.start_time, end_time=self.end_time
+        )
+        referent = Person.objects.create_person(
+            email="referent@agir.local", create_role=True
+        )
+        Membership.objects.create(
+            supportgroup=group,
+            person=referent,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
+        GroupAttendee.objects.create(group=group, event=event, organizer=referent)
+
+        self.client.force_login(referent.role)
+        res = self.client.delete(
+            f"/api/evenements/{event.pk}/inscription/{group.id}/",
+        )
+        self.assertEqual(res.status_code, 204)
+
+    def test_person_cannot_quit_event_as_group_without_permission(self):
+        group = SupportGroup.objects.create()
+        event = Event.objects.create(
+            name="Event", start_time=self.start_time, end_time=self.end_time
+        )
+        member = Person.objects.create_person(
+            email="member@agir.local", create_role=True
+        )
+        Membership.objects.create(
+            supportgroup=group,
+            person=member,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+        )
+        referent = Person.objects.create_person(
+            email="referent@agir.local", create_role=True
+        )
+        Membership.objects.create(
+            supportgroup=group,
+            person=referent,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
+        GroupAttendee.objects.create(group=group, event=event, organizer=referent)
+
+        self.client.force_login(member.role)
+        res = self.client.delete(f"/api/evenements/{event.pk}/inscription/{group.id}/")
+        self.assertEqual(res.status_code, 405)
 
 
 class QuitEventAPITestCase(APITestCase):
@@ -1109,3 +1201,81 @@ class EventReportPersonFormAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 200)
         self.assertIn("submitted", res.data)
         self.assertTrue(res.data["submitted"])
+
+
+class EventTestMessageAPITestCase(APITestCase):
+    def setUp(self):
+        self.organizer = Person.objects.create_person(
+            email="organizer@example.com",
+            create_role=True,
+        )
+        start_time = timezone.now() + timezone.timedelta(days=3)
+        end_time = timezone.now() + timezone.timedelta(days=3, hours=4)
+        self.event = Event.objects.create(
+            name="Event",
+            start_time=start_time,
+            end_time=end_time,
+            for_users=Event.FOR_USERS_INSOUMIS,
+            organizer_person=self.organizer,
+        )
+
+        self.group = SupportGroup.objects.create(name="Groupe 1")
+        self.group2 = SupportGroup.objects.create(name="Groupe 2")
+        self.referent = Person.objects.create_person(
+            email="referent@example.com",
+            create_role=True,
+        )
+        Membership.objects.create(
+            supportgroup=self.group,
+            person=self.referent,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
+        self.member = Person.objects.create_person(
+            email="member@example.com",
+            create_role=True,
+        )
+        Membership.objects.create(
+            supportgroup=self.group,
+            person=self.member,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+        )
+
+        # 3 messages on event : 2 from group1 with different permission, 1 from group2
+        SupportGroupMessage.objects.create(
+            supportgroup=self.group,
+            author=self.referent,
+            text="Lorem",
+            linked_event=self.event,
+        )
+        SupportGroupMessage.objects.create(
+            supportgroup=self.group,
+            author=self.referent,
+            text="Lorem",
+            required_membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+            linked_event=self.event,
+        )
+        self.other_message = SupportGroupMessage.objects.create(
+            supportgroup=self.group2,
+            author=self.referent,
+            text="Lorem",
+            linked_event=self.event,
+        )
+
+    def test_members_can_get_own_group_messages(self):
+        self.client.force_login(self.member.role)
+        res = self.client.get(f"/api/evenements/{self.event.pk}/messages/")
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(len(res.data), 1)
+
+    def test_referent_can_get_own_group_messages(self):
+        self.client.force_login(self.referent.role)
+        res = self.client.get(f"/api/evenements/{self.event.pk}/messages/")
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(len(res.data), 3)
+
+    def test_members_cannot_get_others_group_messages(self):
+        self.client.force_login(self.member.role)
+        res = self.client.get(f"/api/evenements/{self.event.pk}/messages/")
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(len(res.data), 1)
+        self.assertEqual(res.data[0]["id"] == self.other_message.pk, False)

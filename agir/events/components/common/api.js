@@ -7,11 +7,13 @@ export const ENDPOINT = {
   getEventCard: "/api/evenements/:eventPk/",
   getEvent: "/api/evenements/:eventPk/details/",
   rsvpEvent: "/api/evenements/:eventPk/inscription/",
-  quitEvent: "/api/evenements/:eventPk/inscription/",
+  quitEvent: "/api/evenements/:eventPk/inscription/:groupPk/",
+  joinEventAsGroup: "/api/evenements/:eventPk/inscription-groupe/",
 
   eventPropertyOptions: "/api/evenements/options/",
   createEvent: "/api/evenements/creer/",
   updateEvent: "/api/evenements/:eventPk/modifier/",
+  getEventMessages: "/api/evenements/:eventPk/messages/",
   eventProjects: "/api/evenements/projets/",
   eventProject: "/api/evenements/:eventPk/projet/",
   addEventProjectDocument: "/api/evenements/:eventPk/projet/document/",
@@ -30,7 +32,11 @@ export const getEventEndpoint = (key, params) => {
   let endpoint = ENDPOINT[key] || "";
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
-      endpoint = endpoint.replace(`:${key}`, value);
+      if (!value) {
+        endpoint = endpoint.replace(`:${key}/`, "");
+      } else {
+        endpoint = endpoint.replace(`:${key}`, value);
+      }
     });
   }
   return endpoint;
@@ -53,14 +59,31 @@ export const rsvpEvent = async (eventPk) => {
   return result;
 };
 
-export const quitEvent = async (eventPk) => {
+export const quitEvent = async (eventPk, groupPk) => {
   const result = {
     data: null,
     error: null,
   };
-  const url = getEventEndpoint("quitEvent", { eventPk });
+  const url = getEventEndpoint("quitEvent", { eventPk, groupPk });
   try {
     const response = await axios.delete(url);
+    result.data = response.data;
+  } catch (e) {
+    result.error = (e.response && e.response.data) || e.message;
+  }
+
+  return result;
+};
+
+export const joinEventAsGroup = async (eventPk, groupPk) => {
+  const result = {
+    data: null,
+    error: null,
+  };
+  const url = getEventEndpoint("joinEventAsGroup", { eventPk });
+  const body = { groupPk };
+  try {
+    const response = await axios.post(url, body);
     result.data = response.data;
   } catch (e) {
     result.error = (e.response && e.response.data) || e.message;
@@ -300,6 +323,23 @@ export const inviteGroupOrganizer = async (eventPk, data) => {
       created: response.status === 201,
       accepted: response.status === 202,
     };
+  } catch (e) {
+    result.errors = (e.response && e.response.data) || { global: e.message };
+  }
+
+  return result;
+};
+
+export const getEventMessages = async (eventPk) => {
+  const result = {
+    data: null,
+    errors: null,
+  };
+
+  const url = getEventEndpoint("getEventMessages", { eventPk });
+  try {
+    const response = await axios.patch(url, data);
+    result.data = response.data;
   } catch (e) {
     result.errors = (e.response && e.response.data) || { global: e.message };
   }

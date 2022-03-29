@@ -1,9 +1,7 @@
 import { DateTime, Interval } from "luxon";
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
-
-import style from "@agir/front/genericComponents/_variables.scss";
 
 import Card from "@agir/front/genericComponents/Card";
 import { Column, Container, Row } from "@agir/front/genericComponents/grid";
@@ -12,26 +10,26 @@ import EventDescriptionCard from "./EventDescriptionCard";
 import EventFacebookLinkCard from "./EventFacebookLinkCard";
 import ReportFormCard from "./ReportFormCard";
 import EventHeader from "./EventHeader";
+import EventMessages from "./EventMessages";
 import EventInfoCard from "@agir/events/eventPage/EventInfoCard";
 import EventLocationCard from "./EventLocationCard";
 import EventPhotosCard from "./EventPhotosCard";
 import EventReportCard from "./EventReportCard";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
-import GroupCard from "@agir/groups/groupComponents/GroupCard";
+import {
+  GroupsOrganizingCard,
+  GroupsJoiningCard,
+} from "@agir/groups/groupComponents/GroupsCard";
 import Link from "@agir/front/app/Link";
 import OnlineUrlCard from "./OnlineUrlCard";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
-import Skeleton from "@agir/front/genericComponents/Skeleton";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import TokTokCard from "@agir/events/TokTok/TokTokCard";
+import { useSelector } from "@agir/front/globalContext/GlobalContext";
+import { getUser } from "@agir/front/globalContext/reducers";
 
 import { DOOR2DOOR_EVENT_SUBTYPE_LABEL } from "@agir/events/common/utils";
 
-const GroupCards = styled.div`
-  & > * {
-    margin-bottom: 1rem;
-  }
-`;
 const CardLikeSection = styled.section``;
 const StyledColumn = styled(Column)`
   a,
@@ -82,7 +80,30 @@ const IndexLinkAnchor = styled(Link)`
 `;
 
 const DesktopEventPage = (props) => {
-  const { logged, groups, contact, participantCount, routes, subtype } = props;
+  const {
+    id,
+    logged,
+    groups,
+    groupsAttendees,
+    contact,
+    participantCount,
+    routes,
+    subtype,
+    isOrganizer,
+    isPast,
+  } = props;
+
+  const user = useSelector(getUser);
+
+  // Get groups attendees not organizers, from user only
+  const userGroupsAttendees = useMemo(() => {
+    const groupsId = groups?.map((group) => group.id) || [];
+    const groupsAttendeesId = groupsAttendees?.map((group) => group.id) || [];
+    return user?.groups.filter(
+      (group) =>
+        groupsAttendeesId.includes(group.id) && !groupsId.includes(group.id)
+    );
+  }, [user, groups, groupsAttendees]);
 
   return (
     <>
@@ -107,27 +128,39 @@ const DesktopEventPage = (props) => {
           <Column grow>
             <div>
               <EventHeader {...props} />
-              {props.isOrganizer && <ReportFormCard eventPk={props.id} />}
-              {props.logged &&
-                props.subtype.label === DOOR2DOOR_EVENT_SUBTYPE_LABEL && (
-                  <TokTokCard flex />
-                )}
+              {isOrganizer && <ReportFormCard eventPk={id} />}
+              {logged && subtype.label === DOOR2DOOR_EVENT_SUBTYPE_LABEL && (
+                <TokTokCard flex />
+              )}
               <OnlineUrlCard
                 youtubeVideoID={props.youtubeVideoID}
                 onlineUrl={props.onlineUrl}
-                isPast={props.isPast}
+                isPast={isPast}
               />
               <EventPhotosCard {...props} />
               <EventReportCard {...props} />
               <EventDescriptionCard {...props} />
+
               {Array.isArray(groups) && groups.length > 0 && (
-                <GroupCards>
-                  <h3 style={{ marginTop: "2.5rem" }}>Organisé par</h3>
-                  {groups.map((group, key) => (
-                    <GroupCard key={key} {...group} isEmbedded />
-                  ))}
-                </GroupCards>
+                <>
+                  <GroupsOrganizingCard
+                    groups={groups}
+                    isDetailed
+                    eventPk={id}
+                    isPast={isPast}
+                    isOrganizer={isOrganizer}
+                  />
+                  <Spacer size="1rem" />
+                </>
               )}
+              <GroupsJoiningCard
+                eventPk={id}
+                isPast={isPast}
+                groups={groups}
+                groupsAttendees={userGroupsAttendees}
+              />
+
+              <EventMessages eventPk={props.id} />
             </div>
           </Column>
           <StyledColumn width="380px">
@@ -168,7 +201,7 @@ DesktopEventPage.propTypes = {
   }),
   contact: PropTypes.shape(ContactCard.propTypes),
   options: PropTypes.shape({ price: PropTypes.string }),
-  groups: PropTypes.arrayOf(PropTypes.shape(GroupCard.propTypes)),
+  groups: PropTypes.array,
   routes: PropTypes.shape({
     page: PropTypes.string,
     map: PropTypes.string,

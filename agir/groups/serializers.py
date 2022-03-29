@@ -152,8 +152,6 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
         return obj.is_full
 
     def get_eventCount(self, obj):
-        if hasattr(obj, "organized_event_count"):
-            return obj.organized_event_count
         return obj.events_count
 
     def get_isCertified(self, obj):

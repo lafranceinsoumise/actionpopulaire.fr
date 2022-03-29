@@ -2,14 +2,18 @@ from datetime import timedelta
 
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
+from django.contrib import messages
 from django.db import transaction
-from django.db.models import Q, Value, CharField
+from django.db.models import Q, Value, CharField, OuterRef, Exists
 from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.timezone import now
+from agir.msgs.serializers import SupportGroupMessageSerializer
+from agir.msgs.models import SupportGroupMessage
+from agir.msgs.actions import get_viewables_messages
 from rest_framework import exceptions, status
 from rest_framework.exceptions import NotFound, MethodNotAllowed
 from rest_framework.generics import (
@@ -28,7 +32,7 @@ from agir.events.actions.rsvps import (
     rsvp_to_free_event,
     is_participant,
 )
-from agir.events.models import Event, OrganizerConfig, Invitation
+from agir.events.models import Event, GroupAttendee, OrganizerConfig, Invitation
 from agir.events.models import RSVP
 from agir.events.serializers import (
     EventSerializer,
@@ -61,6 +65,7 @@ __all__ = [
     "CreateEventAPIView",
     "UpdateEventAPIView",
     "RSVPEventAPIView",
+    "RSVPEventAsGroupAPIView",
     "EventProjectAPIView",
     "CreateEventProjectDocumentAPIView",
     "EventProjectsAPIView",
@@ -68,6 +73,7 @@ __all__ = [
     "EventGroupsOrganizersAPIView",
     "CancelEventAPIView",
     "EventReportPersonFormAPIView",
+    "EventMessagesAPIView",
 ]
 
 from agir.gestion.models import Projet
@@ -83,6 +89,7 @@ from agir.lib.tasks import geocode_person
 from ..tasks import (
     send_cancellation_notification,
     send_group_coorganization_invitation_notification,
+    send_group_attendee_notification,
 )
 from ...groups.serializers import SupportGroupDetailSerializer
 from ...groups.tasks import send_new_group_event_email, notify_new_group_event
@@ -158,6 +165,7 @@ class PastRsvpedEventAPIView(EventListAPIView):
         managed_groups = person.memberships.filter(
             membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER
         ).values_list("supportgroup_id", flat=True)
+        supportgroups = person.supportgroups.all()
 
         return (
             Event.objects.with_serializer_prefetch(person)
@@ -167,26 +175,33 @@ class PastRsvpedEventAPIView(EventListAPIView):
                 Q(attendees=person)
                 | Q(organizers=person)
                 | Q(organizers_groups__id__in=managed_groups)
-            )[:20]
-        )
+                | Q(groups_attendees__in=supportgroups)
+            )
+        )[:20]
 
 
 class OngoingRsvpedEventsAPIView(EventListAPIView):
     def get_queryset(self):
         now = timezone.now()
         person = self.request.user.person
+        supportgroups = person.supportgroups.all()
 
         return (
             Event.objects.public()
             .with_serializer_prefetch(person)
             .upcoming()
-            .filter(Q(attendees=person) | Q(organizers=person))
+            .filter(
+                Q(attendees=person)
+                | Q(organizers=person)
+                | Q(groups_attendees__in=supportgroups)
+            )
             .filter(start_time__lte=now, end_time__gte=now)
             .distinct()
             .order_by("start_time")
         )
 
 
+# Get 20 upcoming suggestions of events : 10 national + 10 groups participants + rest near location
 class EventSuggestionsAPIView(EventListAPIView):
     def get_queryset(self):
         person = self.request.user.person
@@ -199,6 +214,18 @@ class EventSuggestionsAPIView(EventListAPIView):
         )
         national = events.national()
         near = events.none()
+        national_pks = national.values_list("pk", flat=True)
+
+        supportgroups = person.supportgroups.all()
+        from_groups_attendees = (
+            Event.objects.public()
+            .upcoming()
+            .filter(groups_attendees__in=supportgroups)
+            .exclude(pk__in=national_pks)
+            .distinct()
+            .order_by("start_time")
+        )[:10]
+        from_groups_attendees_pks = from_groups_attendees.values_list("pk", flat=True)
 
         if person.coordinates is not None:
             national = national.filter(
@@ -206,22 +233,26 @@ class EventSuggestionsAPIView(EventListAPIView):
             )[:10]
 
             near = (
-                events.exclude(pk__in=national.values_list("pk", flat=True))
+                events.exclude(pk__in=national_pks)
+                .exclude(pk__in=from_groups_attendees_pks)
                 .filter(start_time__lt=timezone.now() + timedelta(days=30))
                 .filter(coordinates__dwithin=(person.coordinates, D(km=100)))
                 .annotate(distance=Distance("coordinates", person.coordinates))
                 .order_by("distance")
-            )[:10]
+            )[: (10 - len(from_groups_attendees_pks))]
+
+        near_pks = near.values_list("pk", flat=True)
 
         segmented = (
-            events.exclude(pk__in=national.values_list("pk", flat=True))
-            .exclude(pk__in=near.values_list("pk", flat=True))
+            events.exclude(pk__in=national_pks)
+            .exclude(pk__in=near_pks)
+            .exclude(pk__in=from_groups_attendees_pks)
             .exclude(pk__in=events.grand().values_list("pk", flat=True))
             .for_segment_subscriber(person)
         )
 
         return sorted(
-            list(segmented) + list(national) + list(near),
+            list(segmented) + list(national) + list(from_groups_attendees) + list(near),
             key=lambda event: event.start_time,
         )
 
@@ -535,6 +566,31 @@ class RSVPEventAPIView(DestroyAPIView, CreateAPIView):
         return super().post(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):
+        groupPk = kwargs.get("groupPk", None)
+
+        # Delete group attendee if a groupPk is sent
+        if groupPk is not None:
+            group = get_object_or_404(SupportGroup.objects.active(), id=groupPk)
+            # Check permission manager
+            if not self.request.user.person in group.managers:
+                text = "Vous n'avez pas le rôle requis pour retirer ce groupe de l'événement"
+                messages.add_message(
+                    request=request,
+                    level=messages.ERROR,
+                    message=text,
+                )
+                raise MethodNotAllowed(
+                    "DELETE",
+                    detail={"text": text},
+                )
+
+            group_attendee = get_object_or_404(
+                GroupAttendee.objects.all(), group=group, event=self.object
+            )
+            group_attendee.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        # Delete current user as attendee
         try:
             rsvp = (
                 RSVP.objects.filter(event__end_time__gte=now())
@@ -545,8 +601,57 @@ class RSVPEventAPIView(DestroyAPIView, CreateAPIView):
             raise NotFound()
 
         rsvp.delete()
-
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class RSVPEventAsGroupAPIView(CreateAPIView):
+    queryset = Event.objects.public()
+    permission_classes = (
+        IsPersonPermission,
+        RSVPEventPermissions,
+    )
+
+    def initial(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.check_object_permissions(request, self.object)
+        super().initial(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        # Check group exist and current user is manager
+        group = get_object_or_404(
+            SupportGroup.objects.active(), pk=request.data.get("groupPk")
+        )
+
+        if not Membership.objects.filter(
+            person=self.request.user.person,
+            supportgroup=group,
+            membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+        ).exists():
+            raise MethodNotAllowed(
+                "POST",
+                detail={
+                    "text": "Vous n'avez pas le rôle requis pour faire rejoindre ce groupe à l'événement"
+                },
+            )
+
+        if group in self.object.organizers_groups.all():
+            raise exceptions.ValidationError(
+                detail={"text": "Ce groupe organise déjà l'événement !"},
+                code="invalid_format",
+            )
+
+        # Add to event groups attendees if not exist
+        if GroupAttendee.objects.filter(event=self.object, group=group).exists():
+            raise exceptions.ValidationError(
+                detail={"text": "Ce groupe participe déjà à l'événement !"},
+                code="invalid_format",
+            )
+
+        group_attendee = GroupAttendee.objects.create(
+            event=self.object, group=group, organizer=self.request.user.person
+        )
+        send_group_attendee_notification.delay(group_attendee.pk)
+        return Response(status=status.HTTP_201_CREATED)
 
 
 class EventProjectPermission(GlobalOrObjectPermissions):
@@ -647,3 +752,26 @@ class EventReportPersonFormAPIView(RetrieveAPIView):
             event_pk=Value(event.pk, output_field=CharField())
         )
         return get_object_or_404(queryset, event_subtype=event.subtype)
+
+
+class EventMessagesAPIView(ListAPIView):
+    serializer_class = SupportGroupMessageSerializer
+    permission_classes = (IsPersonPermission,)
+
+    def initial(self, request, *args, **kwargs):
+        try:
+            self.event = Event.objects.get(pk=kwargs["pk"])
+        except Event.DoesNotExist:
+            raise NotFound()
+
+        super().initial(request, *args, **kwargs)
+        self.check_object_permissions(request, self.event)
+
+    def get_queryset(self):
+        person = self.request.user.person
+
+        return (
+            get_viewables_messages(person)
+            .filter(linked_event=self.event)
+            .order_by("-created")
+        )

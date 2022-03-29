@@ -27,8 +27,8 @@
     "@react-spring/core": "^9.4.4",
     "@react-spring/shared": "^9.4.4",
     "@react-spring/web": "^9.4.4",
-    "@sentry/react": "^6.19.1",
-    "@sentry/tracing": "^6.19.1",
+    "@sentry/react": "^6.19.2",
+    "@sentry/tracing": "^6.19.2",
     "@storybook/manager-webpack5": "^6.4.19",
     "@use-gesture/react": "^10.2.10",
     "axios": "^0.26.1",
@@ -82,18 +82,18 @@
     "sass": "~1.32.13",
     "sass-loader": "12.6.0",
     "short-uuid": "^4.2.0",
-    "styled-components": "^5.3.3",
+    "styled-components": "^5.3.5",
     "swiper": "^8.0.7",
     "swr": "^1.2.2",
     "tinymce": "^5.10.3",
     "tinymce-i18n": "^22.2.11",
     "url": "^0.11.0",
     "validate.js": "^0.13.1",
-    "workbox-cacheable-response": "^6.5.1",
-    "workbox-expiration": "^6.5.1",
-    "workbox-precaching": "^6.5.1",
-    "workbox-routing": "^6.5.1",
-    "workbox-strategies": "^6.5.1"
+    "workbox-cacheable-response": "^6.5.2",
+    "workbox-expiration": "^6.5.2",
+    "workbox-precaching": "^6.5.2",
+    "workbox-routing": "^6.5.2",
+    "workbox-strategies": "^6.5.2"
   },
   "devDependencies": {
     "@babel/core": "^7.17.8",
@@ -110,7 +110,7 @@
     "@storybook/builder-webpack5": "^6.4.19",
     "@storybook/cli": "^6.4.19",
     "@storybook/react": "^6.4.19",
-    "@testing-library/jest-dom": "^5.16.2",
+    "@testing-library/jest-dom": "^5.16.3",
     "@testing-library/react": "^12.1.4",
     "@testing-library/react-hooks": "^7.0.2",
     "babel-jest": "^27.5.1",
@@ -129,7 +129,7 @@
     "html-webpack-plugin": "^5.5.0",
     "jest": "^27.5.1",
     "mini-css-extract-plugin": "^2.6.0",
-    "prettier": "^2.6.0",
+    "prettier": "^2.6.1",
     "react-is": "^17.0.2",
     "react-refresh": "^0.11.0",
     "react-test-renderer": "^17.0.2",
@@ -141,6 +141,6 @@
     "webpack-merge": "^5.8.0",
     "webpack-stats-plugin": "^1.0.3",
     "webpackbar": "5.0.2",
-    "workbox-webpack-plugin": "^6.5.1"
+    "workbox-webpack-plugin": "^6.5.2"
   }
 }
