@@ -3,8 +3,8 @@ from datetime import timedelta
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
 from django.contrib import messages
-from django.db import transaction
-from django.db.models import Q, Value, CharField, OuterRef, Exists
+from django.db import transaction, IntegrityError
+from django.db.models import Q, Value, CharField
 from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -12,7 +12,6 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.timezone import now
 from agir.msgs.serializers import SupportGroupMessageSerializer
-from agir.msgs.models import SupportGroupMessage
 from agir.msgs.actions import get_viewables_messages
 from rest_framework import exceptions, status
 from rest_framework.exceptions import NotFound, MethodNotAllowed
@@ -647,15 +646,16 @@ class RSVPEventAsGroupAPIView(CreateAPIView):
             )
 
         # Add to event groups attendees if not exist
-        if GroupAttendee.objects.filter(event=self.object, group=group).exists():
+        try:
+            group_attendee = GroupAttendee.objects.create(
+                event=self.object, group=group, organizer=self.request.user.person
+            )
+        except IntegrityError:
             raise exceptions.ValidationError(
                 detail={"text": "Ce groupe participe déjà à l'événement !"},
                 code="invalid_format",
             )
 
-        group_attendee = GroupAttendee.objects.create(
-            event=self.object, group=group, organizer=self.request.user.person
-        )
         send_group_attendee_notification.delay(group_attendee.pk)
         return Response(status=status.HTTP_201_CREATED)
 
