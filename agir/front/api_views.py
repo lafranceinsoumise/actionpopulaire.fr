@@ -110,8 +110,14 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
         events = events.search(search_term).distinct()
 
         # Default: get upcoming events
-        if not eventCategory and events.upcoming().count() >= result_limit:
-            events = events.upcoming()
+        if not eventCategory:
+            countUpcoming = events.upcoming().count()
+            if countUpcoming >= result_limit:
+                events = events.upcoming()
+            else:
+                # Fill with past events if results < limit
+                events_past = events.past()[: (result_limit - countUpcoming)]
+                events = events.upcoming().union(events_past)
 
         # Sort
         if eventSort:
