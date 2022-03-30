@@ -255,6 +255,10 @@ class DepenseReglementInline(admin.TabularInline):
     def has_add_permission(self, request, obj):
         return False
 
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.exclude(etat__in=[Reglement.Etat.EXPERTISE, Reglement.Etat.FEC])
+
     def get_formset(self, request, obj=None, **kwargs):
         kwargs.setdefault("widgets", {}).setdefault("date_releve", CleavedDateInput)
         return super().get_formset(request, obj=obj, **kwargs)
@@ -298,6 +302,20 @@ class DepenseReglementInline(admin.TabularInline):
             )
 
         return "-"
+
+
+class DepenseReglementLectureSeuleInline(DepenseReglementInline):
+    verbose_name_plural = "Règlements clos"
+    can_delete = False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def get_queryset(self, request):
+        # appeler le parent d'au-dessus
+        qs = super(DepenseReglementInline, self).get_queryset(request)
+
+        return qs.filter(etat__in=[Reglement.Etat.EXPERTISE, Reglement.Etat.FEC])
 
 
 class OrdreVirementReglementInline(admin.TabularInline):

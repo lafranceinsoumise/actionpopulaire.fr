@@ -40,6 +40,7 @@ from .inlines import (
     AjouterDocumentProjetInline,
     DepenseReglementInline,
     OrdreVirementReglementInline,
+    DepenseReglementLectureSeuleInline,
 )
 from .views import AjouterReglementView, ObtenirFichierOrdreVirementView
 from ..models import (
@@ -276,6 +277,7 @@ class DepenseAdmin(DepenseListMixin, BaseGestionModelAdmin, VersionAdmin):
         "depenses_refacturees",
     )
     inlines = [
+        DepenseReglementLectureSeuleInline,
         DepenseReglementInline,
         DepenseDocumentInline,
         AjouterDocumentDepenseInline,
