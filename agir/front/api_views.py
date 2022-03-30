@@ -106,14 +106,14 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
             else:
                 events = events.filter(end_time__gte=timezone.now())
         else:
-            # Show upcoming events by default
+            # Default: get only upcoming events
             eventsQueryFiltered = events
             events = events.filter(end_time__gte=timezone.now())
 
         # Query
         events = events.search(search_term).distinct()
 
-        # No time filter : add future events to result_limit and fill with past events
+        # Default: fill with past events if results < result_limit
         if not eventCategory:
             countFutureEvents = events.count()
             if countFutureEvents < result_limit:
