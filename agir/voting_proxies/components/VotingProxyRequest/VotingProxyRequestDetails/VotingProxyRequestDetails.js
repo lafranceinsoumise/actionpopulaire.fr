@@ -1,4 +1,3 @@
-import PropTypes from "prop-types";
 import React from "react";
 import { useLocation } from "react-router-dom";
 import useSWR from "swr";
@@ -96,7 +95,19 @@ const VotingProxyRequestDetails = () => {
                 Une fois la procuration validée, prévenez le ou la volontaire.
               </li>
             </ol>
-            <Spacer size="3rem" />
+            <Spacer size="1.5rem" />
+            <div
+              css={`
+                display: flex;
+                flex-flow: column nowrap;
+                gap: 1rem;
+              `}
+            >
+              {groupRequestByProxy(data).map((proxy) => (
+                <VotingProxyWidget key={proxy.id} {...proxy} />
+              ))}
+            </div>
+            <Spacer size="1.5rem" />
             <div
               css={`
                 text-align: center;
@@ -128,18 +139,6 @@ const VotingProxyRequestDetails = () => {
               >
                 en 2mn sur le site du service public
               </p>
-            </div>
-            <Spacer size="1.5rem" />
-            <div
-              css={`
-                display: flex;
-                flex-flow: column nowrap;
-                gap: 1rem;
-              `}
-            >
-              {groupRequestByProxy(data).map((proxy) => (
-                <VotingProxyWidget key={proxy.id} {...proxy} />
-              ))}
             </div>
             <Spacer size="1.5rem" />
             <footer
