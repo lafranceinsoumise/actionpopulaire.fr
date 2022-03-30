@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useSWR from "swr";
+
+import { MANUAL_REVALIDATION_SWR_CONFIG } from "@agir/front/allPages/SWRContext";
 
 export const EVENT_TYPES = {
   nearEvents: "suggestions pour moi",
@@ -32,9 +34,23 @@ export const getAgendaEndpoint = (key, params) => {
 export const useEventSuggestions = (isPaused = false) => {
   const [activeType, setActiveType] = useState(0);
   const activeKey = Object.keys(EVENT_TYPES)[activeType];
-  const { data: events } = useSWR(activeKey && getAgendaEndpoint(activeKey), {
-    isPaused,
-  });
+  const { data: session } = useSWR(
+    "/api/session/",
+    MANUAL_REVALIDATION_SWR_CONFIG
+  );
+  const { data: events, mutate } = useSWR(
+    activeKey && getAgendaEndpoint(activeKey),
+    {
+      isPaused,
+    }
+  );
+
+  const userID = session?.user && session.user.id;
+  const userZip = session?.user && session.user.zip;
+
+  useEffect(() => {
+    userID && userZip && mutate();
+  }, [userID, userZip, mutate]);
 
   return [Object.values(EVENT_TYPES), activeType, setActiveType, events];
 };
