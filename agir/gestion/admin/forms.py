@@ -308,6 +308,8 @@ class AjoutRapideDepenseForm(forms.ModelForm):
 
 
 class ReglementForm(forms.ModelForm):
+    VIREMENT_PLATEFORME = "VP"
+
     CHAMPS_FOURNISSEURS = [
         "nom",
         "iban",
@@ -321,6 +323,18 @@ class ReglementForm(forms.ModelForm):
         "location_country",
     ]
     CHAMPS_FOURNISSEURS_REQUIS = ["nom", "location_city"]
+
+    choix_mode = forms.ChoiceField(
+        choices=(
+            ("", "Choisissez un type de règlement"),
+            ("Règlement à enregistrer", Reglement.Mode.choices),
+            (
+                "Via la plateforme",
+                ((VIREMENT_PLATEFORME, "Virement à effectuer via la plateforme"),),
+            ),
+        ),
+        required=True,
+    )
 
     preuve = forms.FileField(
         label="Preuve de paiement",
@@ -360,10 +374,22 @@ class ReglementForm(forms.ModelForm):
         # deux cas possibles pour le choix du fournisseur :
         # - soit on a choisi un fournisseur existant sans remplir aucun champ de fournisseur dans la section en-dessous
         # - soit on crée un nouveau fournisseur via la section inférieure
+        super().clean()
+
         if any(
             f"{field}_fournisseur" in self.changed_data
             for field in self.CHAMPS_FOURNISSEURS
         ):
+            # Il ne faut pas sélectionner de fournisseur dans ce cas
+            if self.cleaned_data.get("fournisseur"):
+                self.add_error(
+                    "fournisseur",
+                    ValidationError(
+                        "Vous ne pouvez pas remplir les cases ci-dessous si vous avez sélectionné un fournisseur existant ici.",
+                        code="nouveau_ou_existant",
+                    ),
+                )
+
             # cas de la création d'un nouveau fournisseur
             for f in self.CHAMPS_FOURNISSEURS_REQUIS:
                 if not self.cleaned_data.get(f"{f}_fournisseur"):
@@ -406,24 +432,21 @@ class ReglementForm(forms.ModelForm):
                 self.add_error(
                     "fournisseur",
                     ValidationError(
-                        "Sélectionner un fournisseur, ou créez-en un nouveau grâce aux champs ci-dessous."
+                        "Sélectionner un fournisseur ici, ou créez-en un nouveau grâce aux champs ci-dessous."
                     ),
                 )
 
-        if (
-            self.fournisseur
-            and self.cleaned_data.get("mode") == Reglement.Mode.VIREMENT
-            and "preuve" not in self.cleaned_data
-        ):
-            # Si on enregistre un virement à effectuer via un ordre de virement (en l'absence de preuve)
-            # il faut avoir une désignation, l'IBAN et le BIC pour pouvoir effectuer un virement
-            if not self.fournisseur.nom and "nom" not in self.errors:
+        if self.cleaned_data.get("choix_mode") == self.VIREMENT_PLATEFORME:
+            # Si on enregistre un virement à effectuer via un ordre de virement
+            # - il ne doit pas y avoir de preuve de paiement
+            # - il faut avoir une désignation, l'IBAN et le BIC pour pouvoir effectuer un virement
+
+            if self.cleaned_data.get("preuve"):
                 self.add_error(
-                    "nom_fournisseur"
-                    if self.fournisseur._state.adding
-                    else "fournisseur",
+                    "preuve",
                     ValidationError(
-                        "Le fournisseur doit avoir une désignation pour réaliser un virement."
+                        "Il ne devrait pas y avoir de preuve de paiement pour un virement",
+                        code="preuve_interdite",
                     ),
                 )
 
@@ -461,11 +484,7 @@ class ReglementForm(forms.ModelForm):
                     )
 
         # Pour les autres modes, il faut fournir la preuve que le paiement a été effectué
-        elif self.cleaned_data.get("mode") in [
-            Reglement.Mode.CASH,
-            Reglement.Mode.CARTE,
-            Reglement.Mode.CHEQUE,
-        ]:
+        elif self.cleaned_data.get("choix_mode"):
             if not self.cleaned_data.get("preuve") and "preuve" not in self.errors:
                 self.add_error(
                     "preuve",
@@ -504,6 +523,11 @@ class ReglementForm(forms.ModelForm):
             self.instance.save()
 
     def save(self, commit=True):
+        if self.cleaned_data["choix_mode"] == self.VIREMENT_PLATEFORME:
+            self.instance.mode = Reglement.Mode.VIREMENT
+        else:
+            self.instance.mode = self.cleaned_data["choix_mode"]
+
         if not self.fournisseur._state.adding:
             # on copie les valeurs du fournisseur existant pour les conserver sur le règlement
             for f in self.CHAMPS_FOURNISSEURS:
@@ -520,7 +544,6 @@ class ReglementForm(forms.ModelForm):
         model = Reglement
         fields = (
             "intitule",
-            "mode",
             "montant",
             "facture",
             "date",

@@ -8,7 +8,6 @@ import style from "@agir/front/genericComponents/_variables.scss";
 
 const StyledMenu = styled.nav`
   position: sticky;
-  z-index: 1;
   top: ${({ $stickyOffset }) => ($stickyOffset || 0) - 1}px;
   left: 0;
   right: 0;

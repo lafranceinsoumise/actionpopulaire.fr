@@ -866,9 +866,12 @@ class ReglementAdmin(BaseGestionModelAdmin):
         "intitule",
         "date",
         "montant",
+        "statut",
         "depense",
         "mode",
     )
+
+    list_filter = ("statut", "mode")
 
     fieldsets = (
         (
@@ -876,6 +879,7 @@ class ReglementAdmin(BaseGestionModelAdmin):
             {
                 "fields": (
                     "intitule",
+                    "statut",
                     "date",
                     "date_releve",
                     "montant",
@@ -894,10 +898,9 @@ class ReglementAdmin(BaseGestionModelAdmin):
             },
         ),
         (
-            "Autres informations",
+            "Pour les paiements via la plateforme",
             {
                 "fields": (
-                    "statut",
                     "endtoend_id",
                     "ordre_virement",
                 )

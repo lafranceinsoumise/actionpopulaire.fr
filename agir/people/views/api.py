@@ -16,8 +16,6 @@ from rest_framework.views import APIView
 from agir.lib.rest_framework_permissions import (
     GlobalOrObjectPermissions,
     GlobalOnlyPermissions,
-    IsPersonPermission,
-    IsPersonOrTokenHasScopePermission,
     IsActionPopulaireClientPermission,
 )
 from agir.people.actions.subscription import SUBSCRIPTION_TYPE_AP
@@ -93,7 +91,11 @@ class PersonProfileAPIView(RetrieveUpdateAPIView):
                 "displayName",
                 "firstName",
                 "lastName",
+                "address1",
+                "address2",
                 "zip",
+                "city",
+                "country",
                 "contactPhone",
                 "isInsoumise",
                 "is2022",
