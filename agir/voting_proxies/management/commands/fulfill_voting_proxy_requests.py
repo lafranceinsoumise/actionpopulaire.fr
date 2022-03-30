@@ -47,14 +47,6 @@ class Command(BaseCommand):
             help="Execute without actually sending any notification or updating data",
         )
         parser.add_argument(
-            "-na",
-            "--do-not-alternate",
-            dest="do_not_alternate",
-            action="store_true",
-            default=False,
-            help="Do not alternate between odd/even days for proxy invitations",
-        )
-        parser.add_argument(
             "-s",
             "--silent",
             dest="silent",
@@ -144,15 +136,11 @@ class Command(BaseCommand):
         self,
         *args,
         dry_run=False,
-        do_not_alternate=False,
         silent=False,
         **kwargs,
     ):
         self.dry_run = dry_run
-        pending_requests = VotingProxyRequest.objects.filter(
-            status=VotingProxyRequest.STATUS_CREATED,
-            proxy__isnull=True,
-        )
+        pending_requests = VotingProxyRequest.objects.pending()
         initial_request_count = len(pending_requests)
         self.tqdm = tqdm(
             total=initial_request_count,
@@ -167,7 +155,6 @@ class Command(BaseCommand):
         )
         self.report["matched_request_count"] = len(fulfilled_request_ids)
         if len(fulfilled_request_ids) > 0:
-            pending_requests = pending_requests.exclude(id__in=fulfilled_request_ids)
             self.log(
                 f" ☑ Available voting proxies found for {len(fulfilled_request_ids)} pending requests."
             )
@@ -175,24 +162,10 @@ class Command(BaseCommand):
             self.log(f" ☒ No available voting proxy found :-(")
 
         unfulfilled_request_count = len(pending_requests)
-        # Invite AP users to join the voting proxy pool for the remaining requests
+        # Invite AP users to join the voting proxy pool for the requests
         if unfulfilled_request_count > 0:
-            if not do_not_alternate:
-                # Alternate sending of candidate invitations to leave past recipients
-                # at least one day to reply
-                is_an_odd_day = (timezone.now().day % 2) > 0
-                pending_requests = pending_requests.annotate(
-                    is_odd=Case(
-                        When(created__day__iregex="[13579]$", then=True),
-                        default=False,
-                        output_field=BooleanField(),
-                    )
-                ).filter(is_odd=is_an_odd_day)
-                self.log(f"\nToday is an {'odd' if is_an_odd_day else 'even'} day!")
-                unfulfilled_request_count = len(pending_requests)
-
             self.log(
-                f"\nLooking for voting proxy candidates for {unfulfilled_request_count} remaining requests..."
+                f"\nLooking for voting proxy candidates for {unfulfilled_request_count} requests..."
             )
             (
                 possibly_fulfilled_request_ids,
@@ -202,9 +175,7 @@ class Command(BaseCommand):
                 send_invitations=self.invite_voting_proxy_candidates,
             )
             if len(possibly_fulfilled_request_ids) > 0:
-                pending_requests = pending_requests.exclude(
-                    id__in=possibly_fulfilled_request_ids
-                )
+                pending_requests.exclude(id__in=possibly_fulfilled_request_ids)
                 unfulfilled_request_count -= len(possibly_fulfilled_request_ids)
                 self.log(
                     f" ☑ {len(candidate_ids)} voting proxy invitation(s) sent "

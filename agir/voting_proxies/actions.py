@@ -2,12 +2,12 @@ from copy import deepcopy
 from datetime import timedelta
 from functools import partial
 
-from data_france.models import Commune, CirconscriptionConsulaire
+from data_france.models import Commune
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.db import transaction
-from django.db.models import Count, Q, Case, When, Value, F
+from django.db.models import Count, Q, Case, When, Value
 from django.utils import timezone
 
 from agir.lib.tasks import geocode_person
@@ -129,11 +129,11 @@ def update_voting_proxy(instance, data):
 
 
 def get_voting_proxy_requests_for_proxy(voting_proxy, voting_proxy_request_pks):
-    voting_proxy_requests = VotingProxyRequest.objects.filter(
-        status=VotingProxyRequest.STATUS_CREATED,
-        voting_date__in=voting_proxy.available_voting_dates,
-        proxy__isnull=True,
-    ).exclude(email=voting_proxy.email)
+    voting_proxy_requests = (
+        VotingProxyRequest.objects.pending()
+        .filter(voting_date__in=voting_proxy.available_voting_dates)
+        .exclude(email=voting_proxy.email)
+    )
 
     if len(voting_proxy_request_pks) > 0:
         voting_proxy_requests = voting_proxy_requests.filter(

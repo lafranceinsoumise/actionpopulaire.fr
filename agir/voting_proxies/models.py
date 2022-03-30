@@ -1,10 +1,13 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pytz
 from data_france.models import Commune
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils import timezone
 from django.utils.functional import cached_property
+from django.utils.html import escape
+from django.utils.safestring import mark_safe
 
 from agir.lib.model_fields import ChoiceArrayField
 from agir.lib.models import BaseAPIResource
@@ -180,6 +183,22 @@ class VotingProxy(AbstractVoter):
         return [date for date in self.voting_dates if date not in accepted_dates]
 
 
+class VotingProxyRequestQuerySet(models.QuerySet):
+    def pending(self):
+        return self.filter(
+            status=VotingProxyRequest.STATUS_CREATED,
+            proxy__isnull=True,
+            voting_date__gte=(timezone.now() + timedelta(days=2)).date(),
+        )
+
+    def waiting_confirmation(self):
+        return self.filter(
+            status=VotingProxyRequest.STATUS_ACCEPTED,
+            proxy__isnull=False,
+            voting_date__gte=(timezone.now() + timedelta(days=2)).date(),
+        )
+
+
 class VotingProxyRequest(AbstractVoter):
     STATUS_CREATED = "created"
     STATUS_ACCEPTED = "accepted"
@@ -192,6 +211,8 @@ class VotingProxyRequest(AbstractVoter):
         (STATUS_CONFIRMED, "procuration confirmée"),
         (STATUS_CANCELLED, "demande annulée"),
     )
+
+    objects = VotingProxyRequestQuerySet.as_manager()
 
     status = models.CharField(
         "statut de la demande",
@@ -236,9 +257,25 @@ class VotingProxyRequest(AbstractVoter):
             f"{self.first_name} {self.last_name} <{self.email}> --> {self.voting_date}"
         )
 
-    def get_voting_proxy_information(self):
-        if self.proxy is None:
-            return ""
+    def _get_voting_proxy_information_as_html(self):
+        voting_dates = self.proxy.voting_proxy_requests.filter(
+            email=self.email
+        ).values_list("voting_date", flat=True)
+        voting_date_string = ", ".join(
+            [voting_date.strftime("%d/%m/%Y") for voting_date in voting_dates]
+        )
+        text = (
+            f"Date(s)&nbsp;: <strong>{escape(voting_date_string)}</strong><br>"
+            f"Volontaire&nbsp;: <strong>{escape(self.proxy.first_name)} {escape(self.proxy.last_name.upper())}</strong><br>"
+            f"Né·e le: <strong>{escape(self.proxy.date_of_birth.strftime('%d/%m/%Y'))}</strong><br>"
+            f"Téléphone&nbsp;: <strong>{escape(self.proxy.contact_phone)}</strong>"
+        )
+        if self.proxy.remarks:
+            text += f".<br>Disponibilités&nbsp;: <strong>{escape(self.proxy.remarks)}</strong>"
+
+        return mark_safe(text)
+
+    def _get_voting_proxy_information_as_text(self):
         voting_dates = self.proxy.voting_proxy_requests.filter(
             email=self.email
         ).values_list("voting_date", flat=True)
@@ -258,4 +295,14 @@ class VotingProxyRequest(AbstractVoter):
         if self.proxy.remarks:
             text += f" - {to_7bit_string(self.proxy.remarks)}"
         text += "."
+
         return text
+
+    def get_voting_proxy_information(self, as_html=False):
+        if self.proxy is None:
+            return ""
+
+        if as_html:
+            return self._get_voting_proxy_information_as_html()
+
+        return self._get_voting_proxy_information_as_text()

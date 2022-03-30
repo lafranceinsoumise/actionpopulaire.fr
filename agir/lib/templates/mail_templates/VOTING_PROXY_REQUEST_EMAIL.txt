@@ -1,0 +1,24 @@
+Bonjour,
+
+{% if MESSAGE_INTRO %}
+{{ MESSAGE_INTRO }}
+
+{% endif %}
+{% if MESSAGE_BODY %}
+{{ MESSAGE_BODY }}
+
+{% endif %}
+{% if LINK_HREF and LINK_LABEL %}
+>> {{ LINK_LABEL }} :
+{{ LINK_HREF }}
+
+{% endif %}
+
+Merci pour votre aide ! Notre force est dans le nombre.
+
+
+Amitiés,
+L’équipe d’Action Populaire
+
+------------------------------------------------------------------
+Cet email a été envoyé à {{ email }}. Il est personnel, ne le transférez pas.

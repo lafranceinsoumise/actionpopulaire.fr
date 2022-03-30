@@ -99,7 +99,7 @@ const VotingProxyWidget = (props) => {
             onClick={sendInformation}
             icon="message-square"
           >
-            Recevoir par SMS les informations pour établir la procuration
+            Recevoir les informations pour établir la procuration
           </Button>
         )}
         <Spacer size=".5rem" />
@@ -128,7 +128,7 @@ const VotingProxyWidget = (props) => {
         shouldDismissOnClick={false}
       >
         <p>
-          Après validation, la personne sera prévenue par SMS qu'elle pourra se
+          Après validation, la personne sera prévenue qu'elle pourra se
           présenter à votre bureau de vote pour voter à votre place.
         </p>
       </ModalConfirmation>
