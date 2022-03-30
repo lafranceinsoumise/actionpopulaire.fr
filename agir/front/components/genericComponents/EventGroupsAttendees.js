@@ -24,11 +24,14 @@ export const EventGroupsAttendees = ({ groupsAttendees, isPast }) => {
     return null;
   }
 
-  const userGroupsId = user?.groups?.map((group) => group.id) || [];
-  const userGroupsAttendees =
-    groupsAttendees?.filter((group) => userGroupsId.includes(group.id)) || [];
+  const userGroupsId = Array.isArray(user?.groups)
+    ? user.groups.map((group) => group.id)
+    : [];
+  const userGroupsAttendees = Array.isArray(groupsAttendees)
+    ? groupsAttendees.filter((group) => userGroupsId.includes(group.id))
+    : [];
 
-  if (!userGroupsAttendees?.length) {
+  if (!userGroupsAttendees.length) {
     return null;
   }
 
