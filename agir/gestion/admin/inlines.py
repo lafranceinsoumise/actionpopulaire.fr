@@ -234,7 +234,7 @@ class DepenseReglementInline(admin.TabularInline):
     form = InlineReglementForm
 
     fields = (
-        "statut_lien",
+        "etat_lien",
         "intitule",
         "mode",
         "montant",
@@ -246,7 +246,7 @@ class DepenseReglementInline(admin.TabularInline):
     )
 
     readonly_fields = (
-        "statut_lien",
+        "etat_lien",
         "mode",
         "preuve_link",
         "fournisseur_link",
@@ -259,15 +259,15 @@ class DepenseReglementInline(admin.TabularInline):
         kwargs.setdefault("widgets", {}).setdefault("date_releve", CleavedDateInput)
         return super().get_formset(request, obj=obj, **kwargs)
 
-    @admin.display(description="Statut")
-    def statut_lien(self, obj):
+    @admin.display(description="État")
+    def etat_lien(self, obj):
         if obj.id:
             return lien(
                 reverse("admin:gestion_reglement_change", args=(obj.id,)),
-                obj.get_statut_display(),
+                obj.get_etat_display(),
             )
 
-        return obj.get_statut_display()
+        return obj.get_etat_display()
 
     @admin.display(description="Preuve de paiement")
     def preuve_link(self, obj):

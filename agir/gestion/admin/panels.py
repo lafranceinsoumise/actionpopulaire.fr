@@ -361,7 +361,7 @@ class DepenseAdmin(DepenseListMixin, BaseGestionModelAdmin, VersionAdmin):
             reverse("admin:gestion_depense_reglement", args=(obj.id,)),
         )
 
-    reglements.short_description = "Statut du règlement"
+    reglements.short_description = "État du règlement"
 
     def save_model(self, request, obj, form, change):
         """
@@ -866,12 +866,13 @@ class ReglementAdmin(BaseGestionModelAdmin):
         "intitule",
         "date",
         "montant",
-        "statut",
-        "depense",
+        "etat",
         "mode",
+        "compte_link",
+        "depense_link",
     )
 
-    list_filter = ("statut", "mode")
+    list_filter = ("etat", "mode", "depense__compte")
 
     fieldsets = (
         (
@@ -879,7 +880,7 @@ class ReglementAdmin(BaseGestionModelAdmin):
             {
                 "fields": (
                     "intitule",
-                    "statut",
+                    "etat",
                     "date",
                     "date_releve",
                     "montant",
@@ -892,8 +893,10 @@ class ReglementAdmin(BaseGestionModelAdmin):
             {
                 "fields": (
                     "depense_link",
+                    "compte_link",
                     "fournisseur_link",
                     "preuve_link",
+                    "facture_link",
                 )
             },
         ),
@@ -902,23 +905,23 @@ class ReglementAdmin(BaseGestionModelAdmin):
             {
                 "fields": (
                     "endtoend_id",
-                    "ordre_virement",
+                    "ordre_virement_link",
                 )
             },
         ),
     )
 
-    readonly_fields = ("statut", "endtoend_id", "ordre_virement")
+    readonly_fields = ("etat", "endtoend_id", "compte_link")
 
     def has_change_permission(self, request, obj=None):
         autorise = super().has_change_permission(request, obj=obj)
         if obj is None:
             return autorise and request.user.has_perm("gestion.valider_depense")
 
-        if obj.statut == Reglement.Statut.FEC:
+        if obj.etat == Reglement.Etat.FEC:
             return False
 
-        if obj.statut == Reglement.Statut.EXPERTISE:
+        if obj.etat == Reglement.Etat.EXPERTISE:
             return autorise and (
                 request.user.has_perm("gestion.valider_depense")
                 or request.user.has_perm(
@@ -930,3 +933,13 @@ class ReglementAdmin(BaseGestionModelAdmin):
 
     def has_add_permission(self, request):
         return False
+
+    @admin.display(description="Compte")
+    def compte_link(self, obj):
+        try:
+            return lien(
+                reverse("admin:gestion_compte_change", args=(obj.depense.compte_id,)),
+                obj.depense.compte.designation,
+            )
+        except (Depense.DoesNotExist, Compte.DoesNotExist):
+            return "-"

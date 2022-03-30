@@ -1,13 +1,12 @@
 from django.core.files.base import ContentFile
-from django.urls import reverse
 from django.utils import timezone
-from hypothesis import given, strategies as st, settings
-from hypothesis.extra.django import from_model, TestCase
+from hypothesis import given, strategies as st
+from hypothesis.extra.django import TestCase
 
 from agir.gestion.admin.forms import ReglementForm
 from agir.gestion.models import Reglement
-from agir.gestion.tests.strategies import depense, projet, compte, fournisseur
-from agir.lib.tests.strategies import person_with_role, iban
+from agir.gestion.tests.strategies import depense, fournisseur
+from agir.lib.tests.strategies import iban
 
 
 class NouveauReglementFormTestCase(TestCase):
@@ -51,7 +50,7 @@ class NouveauReglementFormTestCase(TestCase):
 
         r = f.save()
 
-        self.assertEqual(r.statut, Reglement.Statut.ATTENTE)
+        self.assertEqual(r.etat, Reglement.Etat.ATTENTE)
         self.assertEqual(r.mode, Reglement.Mode.VIREMENT)
 
     @given(depense(), fournisseur(iban=""), st.sampled_from(Reglement.Mode.values))
@@ -74,4 +73,4 @@ class NouveauReglementFormTestCase(TestCase):
         r = f.save()
 
         self.assertEqual(r.mode, mode)
-        self.assertEqual(r.statut, Reglement.Statut.REGLE)
+        self.assertEqual(r.etat, Reglement.Etat.REGLE)

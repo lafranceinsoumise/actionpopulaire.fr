@@ -31,7 +31,7 @@ def retry_strategy(
                     countdown = start + increment * self.request.retries
                 else:
                     countdown = (
-                        start * exp_base**self.request.retries
+                        start * exp_base ** self.request.retries
                     )  # self.retries starts at 0
 
                 countdown = builtins.max(builtins.min(countdown, max), min)
