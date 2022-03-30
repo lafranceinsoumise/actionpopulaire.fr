@@ -135,7 +135,7 @@ def send_voting_proxy_request_accepted_text_messages(voting_proxy_request_pks):
         raise VotingProxyRequest.DoesNotExist()
 
     voting_proxy_request = voting_proxy_requests.first()
-    voting_dates = ",".join(
+    voting_dates = ", ".join(
         [vpr.voting_date.strftime("%d %B") for vpr in voting_proxy_requests]
     )
     if len(voting_proxy_request_pks) > 1:
@@ -153,10 +153,10 @@ def send_voting_proxy_request_accepted_text_messages(voting_proxy_request_pks):
         # Send acceptance EMAIL to request owner
         send_voting_proxy_request_email.delay(
             [voting_proxy_request.email],
-            subject="Procuration de vote acceptée",
+            subject=f"{voting_proxy_request.proxy.first_name} s’est porté-e volontaire pour prendre votre procuration",
             intro=f"{voting_proxy_request.proxy.first_name} s’est porté-e volontaire pour voter "
             f"en votre nom {voting_dates} !",
-            link_label="Voir le détail",
+            link_label="Voir la marche à suivre",
             link_href=link,
         )
 

@@ -14,9 +14,10 @@ const NewVotingProxyRequestSuccess = () => (
     </p>
     <Spacer size="0.875rem" />
     <p>
-      <strong>Vous recevrez un SMS</strong> lorsqu’une personne se manifestera
-      pour porter votre procuration. Vous pourrez alors prendre contact avec
-      elle et établir la procuration avec ses informations personnelles.
+      <strong>Vous recevrez un SMS et un e-mail</strong> lorsqu’une personne se
+      manifestera pour porter votre procuration. Vous pourrez alors prendre
+      contact avec elle et établir la procuration avec ses informations
+      personnelles.
     </p>
   </FormSuccess>
 );
