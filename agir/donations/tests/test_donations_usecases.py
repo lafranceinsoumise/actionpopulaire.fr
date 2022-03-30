@@ -540,11 +540,6 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
             "<li>6,00\u00A0€ sont alloués aux actions du groupe &laquo;&nbsp;Groupe&nbsp;&raquo;</li>",
             html=True,
         )
-        self.assertContains(
-            res,
-            f'<input type="hidden" name="previous_subscription" value="{s.id}" id="id_previous_subscription">',
-            html=True,
-        )
 
     @mock.patch(
         "agir.donations.views.api_views.send_monthly_donation_confirmation_email"
