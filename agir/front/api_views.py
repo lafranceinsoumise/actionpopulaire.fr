@@ -89,7 +89,7 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
     def get_events(self, search_term, filters, result_limit=20):
         eventType = filters.get("eventType", None)
         eventCategory = filters.get("eventCategory", None)
-        eventSort = filters.get("eventSort", None)
+        eventSort = filters.get("eventSort", self.SORT_DATE_ASC)
         country = filters.get("country", None)
 
         events = Event.objects.listed().with_serializer_prefetch(None)
@@ -102,25 +102,16 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
 
         if eventCategory:
             if eventCategory == self.EVENT_FILTER_PAST:
-                events = events.filter(end_time__lte=timezone.now())
+                events = events.past()
             else:
-                events = events.filter(end_time__gte=timezone.now())
-        else:
-            # Default: get only upcoming events
-            eventsQueryFiltered = events
-            events = events.filter(end_time__gte=timezone.now())
+                events = events.upcoming()
 
         # Query
         events = events.search(search_term).distinct()
 
-        # Default: fill with past events if results < result_limit
-        if not eventCategory:
-            countFutureEvents = events.count()
-            if countFutureEvents < result_limit:
-                events_past = eventsQueryFiltered.filter(end_time__lte=timezone.now())[
-                    : (result_limit - countFutureEvents)
-                ]
-                events = events | events_past
+        # Default: get upcoming events
+        if not eventCategory and events.upcoming().count() >= result_limit:
+            events = events.upcoming()
 
         # Sort
         if eventSort:
@@ -132,8 +123,6 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
                 events = events.order_by("name")
             if eventSort == self.SORT_ALPHA_DESC:
                 events = events.order_by("-name")
-        else:
-            events = events.order_by("start_time")
 
         events = events[:result_limit]
 
