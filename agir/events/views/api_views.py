@@ -137,7 +137,8 @@ class EventRsvpedAPIView(EventListAPIView):
         person = request.user.person
 
         if (
-            person.coordinates is None
+            not person.coordinates
+            or not person.coordinates_type
             or person.coordinates_type >= LocationMixin.COORDINATES_NO_POSITION
         ):
             geocode_person.delay(person.pk)
