@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useState } from "react";
 import styled from "styled-components";
+import { mutate } from "swr";
 
 import { updateProfile } from "@agir/front/authentication/api";
 
@@ -197,6 +198,10 @@ const ConnectedUpdateAddressModal = (props) => {
         setErrors(error);
         return;
       }
+      mutate("/api/session/", (session) => ({
+        ...session,
+        user: { ...session.user, zip },
+      }));
       onClose && onClose();
     },
     [onClose]
