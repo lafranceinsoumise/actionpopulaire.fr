@@ -145,7 +145,6 @@ const StyledContent = styled.div`
   padding: 0;
   font-size: inherit;
   line-height: 1.65;
-  cursor: pointer;
 
   @media (max-width: ${style.collapse}px) {
     font-size: 0.875rem;
