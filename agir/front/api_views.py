@@ -2,7 +2,6 @@ import json
 
 from django.conf import settings
 from django.utils import timezone
-from rest_framework import permissions
 from rest_framework.generics import (
     ListAPIView,
 )
@@ -100,14 +99,28 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
             events = events.filter(location_country=country)
         if eventType:
             events = events.filter(subtype__type=eventType)
+
         if eventCategory:
             if eventCategory == self.EVENT_FILTER_PAST:
                 events = events.filter(end_time__lte=timezone.now())
             else:
                 events = events.filter(end_time__gte=timezone.now())
+        else:
+            # Show upcoming events by default
+            eventsQueryFiltered = events
+            events = events.filter(end_time__gte=timezone.now())
 
         # Query
         events = events.search(search_term).distinct()
+
+        # No time filter : add future events to result_limit and fill with past events
+        if not eventCategory:
+            countFutureEvents = events.count()
+            if countFutureEvents < result_limit:
+                events_past = eventsQueryFiltered.filter(end_time__lte=timezone.now())[
+                    : (result_limit - countFutureEvents)
+                ]
+                events = events | events_past
 
         # Sort
         if eventSort:
@@ -119,6 +132,8 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
                 events = events.order_by("name")
             if eventSort == self.SORT_ALPHA_DESC:
                 events = events.order_by("-name")
+        else:
+            events = events.order_by("start_time")
 
         events = events[:result_limit]
 
