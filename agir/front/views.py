@@ -7,6 +7,7 @@ from django.http import (
     HttpResponsePermanentRedirect,
     Http404,
     FileResponse,
+    HttpResponseRedirect,
 )
 from django.shortcuts import get_object_or_404
 from django.templatetags.static import static
@@ -143,19 +144,22 @@ class UserMessagesView(BaseAppHardAuthView):
 
 
 class UserMessageView(
+    BaseAppHardAuthView,
     GlobalOrObjectPermissionRequiredMixin,
-    UserMessagesView,
 ):
     permission_required = ("msgs.view_supportgroupmessage",)
-
     queryset = SupportGroupMessage.objects.active()
 
-    def get_object(self):
-        return get_object_or_404(self.queryset, pk=self.kwargs.get("pk"))
+    def handle_no_permission(self):
+        if self.raise_exception or self.request.user.is_authenticated:
+            return HttpResponseRedirect(reverse_lazy("user_messages"))
+
+        return super().handle_no_permission()
 
     def get_api_preloads(self):
         return super().get_api_preloads() + [
-            reverse_lazy("api_group_message_detail", kwargs=self.kwargs)
+            f"{reverse_lazy('api_user_messages')}?page=1&page_size=10",
+            reverse_lazy("api_group_message_detail", kwargs=self.kwargs),
         ]
 
 
