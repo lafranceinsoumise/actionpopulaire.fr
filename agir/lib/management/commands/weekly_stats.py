@@ -135,6 +135,15 @@ class Command(BaseCommand):
         print_stock(" ├── dont contacts", "liaisons_contacts")
         print_stock(" └── dont auto-ajoutés", "liaisons_auto")
 
+        # VOTING PROXIES
+        self.print_section_title("Procurations")
+        print_stock("Invitations envoyées", "voting_proxy_candidates")
+        print_stock("Volontaires", "voting_proxies")
+        print_stock("Demandes de procurations", "voting_proxy_requests")
+        print_stock(" ├── en attente", "voting_proxy_requests__created")
+        print_stock(" ├── acceptées", "voting_proxy_requests__accepted")
+        print_stock(" └── confirmées", "voting_proxy_requests__confirmed")
+
         # PROGRESSION POSSIBLE
         self.print_section_title("Progression possible")
         self.print_line(f"Insoumis non 2022 : {instant_stats['insoumis_non_2022']}")
