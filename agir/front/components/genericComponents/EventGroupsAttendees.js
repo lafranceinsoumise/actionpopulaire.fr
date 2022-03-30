@@ -24,10 +24,9 @@ export const EventGroupsAttendees = ({ groupsAttendees, isPast }) => {
     return null;
   }
 
-  const userGroupsId = user?.groups.map((group) => group.id);
-  const userGroupsAttendees = groupsAttendees.filter((group) =>
-    userGroupsId.includes(group.id)
-  );
+  const userGroupsId = user?.groups?.map((group) => group.id) || [];
+  const userGroupsAttendees =
+    groupsAttendees?.filter((group) => userGroupsId.includes(group.id)) || [];
 
   if (!userGroupsAttendees?.length) {
     return null;

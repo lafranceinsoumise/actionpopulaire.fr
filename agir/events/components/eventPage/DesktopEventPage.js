@@ -102,7 +102,7 @@ const DesktopEventPage = (props) => {
     }
     const groupsId = groups?.map((group) => group.id) || [];
     const groupsAttendeesId = groupsAttendees?.map((group) => group.id) || [];
-    return user?.groups.filter(
+    return user.groups.filter(
       (group) =>
         groupsAttendeesId.includes(group.id) && !groupsId.includes(group.id)
     );
