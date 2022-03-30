@@ -137,7 +137,16 @@ const AddGroupAttendee = ({ id, groups, groupsAttendees }) => {
   return (
     <>
       {!!managingGroups?.length && (
-        <Button onClick={showModalJoinAsGroup} style={{ width: "fit-content" }}>
+        <Button
+          onClick={showModalJoinAsGroup}
+          css={`
+            width: fit-content;
+
+            @media (max-width: ${style.collapse}px) {
+              width: 100%;
+            }
+          `}
+        >
           Participer avec mon groupe
         </Button>
       )}
