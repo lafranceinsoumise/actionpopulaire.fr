@@ -1,6 +1,6 @@
 import { Interval } from "luxon";
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useMemo } from "react";
 import RenderIfVisible from "@agir/front/genericComponents/RenderIfVisible";
 import styled from "styled-components";
 import useSWR from "swr";
@@ -9,6 +9,8 @@ import EventCard from "@agir/front/genericComponents/EventCard";
 import FilterTabs from "@agir/front/genericComponents/FilterTabs";
 import Link from "@agir/front/app/Link";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
+
+import getMultiMeeting from "./multimeeting.hack";
 
 import { dateFromISOString, displayHumanDay } from "@agir/lib/utils/time";
 
@@ -76,7 +78,7 @@ const EventSuggestions = ({ isPaused }) => {
 
   const [tabs, activeTab, setActiveTab, events] = useEventSuggestions(isPaused);
 
-  const byDay = React.useMemo(
+  const byDay = useMemo(
     () =>
       Array.isArray(events)
         ? events.reduce((days, event) => {
@@ -94,6 +96,17 @@ const EventSuggestions = ({ isPaused }) => {
     [events]
   );
 
+  const hackedGrandEvents = useMemo(() => {
+    const events = Array.isArray(grandEvents) ? grandEvents : [];
+    const multimeetingEvent = getMultiMeeting();
+    if (!multimeetingEvent) {
+      return events;
+    }
+    return [...events, multimeetingEvent].sort((a, b) =>
+      a.startTime < b.startTime ? -1 : a.startTime > b.startTime ? 1 : 0
+    );
+  }, [grandEvents]);
+
   return (
     <>
       <FilterTabs
@@ -101,14 +114,13 @@ const EventSuggestions = ({ isPaused }) => {
         activeTab={activeTab}
         onTabChange={setActiveTab}
       />
-
       {/* GRAND EVENTS */}
       {activeTab === 0 && (
         <PageFadeIn ready={Array.isArray(grandEvents)} wait={<Skeleton />}>
-          {Array.isArray(grandEvents) && grandEvents.length > 0 && (
+          {hackedGrandEvents.length > 0 && (
             <div key={`${activeTab}__grand`}>
               <Day>Grands événements</Day>
-              {grandEvents.map((event, i) => (
+              {hackedGrandEvents.map((event, i) => (
                 <RenderIfVisible
                   key={`${activeTab}__${event.id}`}
                   style={{ marginTop: i && "1rem" }}
