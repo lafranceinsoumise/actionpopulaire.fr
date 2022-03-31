@@ -296,7 +296,7 @@ const CommentField = (props) => {
         scrollerElement.scrollTo(0, scrollerElement.scrollHeight);
         clearInterval(pid);
       }
-    }, 50);
+    }, 100);
   };
 
   const handleFocus = () => {
