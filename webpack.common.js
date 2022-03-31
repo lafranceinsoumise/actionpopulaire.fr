@@ -353,7 +353,7 @@ module.exports = (type = CONFIG_TYPES.ES5) => ({
         use: ["style-loader", "css-loader"],
       },
       {
-        test: /\.(jpg|jpeg|png|woff|woff2|eot|ttf|svg)$/,
+        test: /\.(jpg|jpeg|png|woff|woff2|eot|ttf|svg|webp)$/,
         exclude: [new RegExp("node_modules\\" + path.sep + "tinymce")],
         type: "asset/resource",
       },

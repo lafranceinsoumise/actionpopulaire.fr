@@ -2,7 +2,6 @@ import { DateTime, Interval } from "luxon";
 import PropTypes from "prop-types";
 import React, { useRef } from "react";
 import styled from "styled-components";
-import style from "@agir/front/genericComponents/_variables.scss";
 
 import { displayIntervalStart, displayIntervalEnd } from "@agir/lib/utils/time";
 
@@ -212,6 +211,7 @@ const EventCard = (props) => {
     name,
     groups,
     groupsAttendees,
+    eventPageLink,
   } = props;
 
   const now = DateTime.local();
@@ -222,7 +222,7 @@ const EventCard = (props) => {
     ? displayIntervalEnd(schedule)
     : displayIntervalStart(schedule);
 
-  const handleClick = React.useCallback((e) => {
+  const handleClick = React.useCallback(() => {
     linkRef.current && linkRef.current.click();
   }, []);
 
@@ -247,8 +247,9 @@ const EventCard = (props) => {
           </h4>
           <StyledLink
             ref={linkRef}
-            route="eventDetails"
-            routeParams={{ eventPk: id }}
+            href={eventPageLink || undefined}
+            route={!eventPageLink ? "eventDetails" : undefined}
+            routeParams={!eventPageLink ? { eventPk: id } : undefined}
           >
             {name}
           </StyledLink>
@@ -294,6 +295,7 @@ EventCard.propTypes = {
     })
   ),
   subtype: PropTypes.object,
+  eventPageLink: PropTypes.string,
 };
 
 export default EventCard;
