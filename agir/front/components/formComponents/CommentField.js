@@ -281,8 +281,12 @@ const CommentField = (props) => {
   const maySend = !isLoading && value && value.trim().length <= 1000;
 
   const updateScroll = () => {
-    setTimeout(() => {
-      scrollerRef.current.scrollTo(0, scrollerRef.current.scrollHeight);
+    const pid = setInterval(() => {
+      const scrollerElement = scrollerRef.current;
+      if (!!scrollerElement) {
+        scrollerElement.scrollTo(0, scrollerElement.scrollHeight);
+        clearInterval(pid);
+      }
     }, 50);
   };
 
