@@ -103,7 +103,7 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
         return super().to_representation(instance)
 
     def get_membersCount(self, obj):
-        return obj.members_count
+        return obj.active_members_count
 
     def get_isMember(self, obj):
         return self.membership is not None
