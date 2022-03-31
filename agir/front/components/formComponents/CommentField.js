@@ -256,6 +256,7 @@ const CommentField = (props) => {
     user,
     initialValue,
     id,
+    comments,
     onSend,
     isLoading,
     disabled,
@@ -281,7 +282,15 @@ const CommentField = (props) => {
   const maySend = !isLoading && value && value.trim().length <= 1000;
 
   const updateScroll = () => {
+    const scrollerElement = scrollerRef.current;
+    if (!!scrollerElement) {
+      scrollerElement.scrollTo(0, scrollerElement.scrollHeight);
+    }
+  };
+
+  const updateScrollTimeout = () => {
     const pid = setInterval(() => {
+      scrollerRef.current.scrollTo(0, scrollerRef.current.scrollHeight);
       const scrollerElement = scrollerRef.current;
       if (!!scrollerElement) {
         scrollerElement.scrollTo(0, scrollerElement.scrollHeight);
@@ -301,10 +310,7 @@ const CommentField = (props) => {
         setIsFocused(false);
       }
       if (autoScroll) {
-        updateScroll(
-          rootElementRef.current,
-          !isDesktop ? messageRef.current : null
-        );
+        updateScroll();
       }
     },
     [isDesktop, autoScroll]
@@ -318,10 +324,7 @@ const CommentField = (props) => {
       setIsFocused(false);
     }
     if (autoScroll) {
-      updateScroll(
-        rootElementRef.current,
-        !isDesktop ? messageRef.current : null
-      );
+      updateScroll();
     }
   }, [isDesktop, autoScroll]);
 
@@ -403,7 +406,11 @@ const CommentField = (props) => {
 
   useEffect(() => {
     updateScroll();
-  }, [isFocused, value]);
+  }, [scrollerRef, value, id, comments]);
+
+  useEffect(() => {
+    updateScrollTimeout();
+  }, [scrollerRef, isFocused]);
 
   if (isLocked) {
     return (
@@ -482,6 +489,7 @@ CommentField.propTypes = {
   }).isRequired,
   initialValue: PropTypes.string,
   id: PropTypes.string,
+  comments: PropTypes.array,
   onSend: PropTypes.func.isRequired,
   isLoading: PropTypes.bool,
   disabled: PropTypes.bool,
