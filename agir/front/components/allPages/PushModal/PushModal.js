@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useState } from "react";
+import { useTimeout } from "react-use";
 
 import UpdateAddressModal from "./UpdateAddressModal";
 import MobileAppModal from "./MobileAppModal";
@@ -18,10 +19,14 @@ export const PushModal = ({ isActive = true }) => {
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const user = useSelector(getUser);
 
+  const [isReady, _, resetTimeout] = useTimeout(2000);
   const [shouldShow, setShouldShow] = useState(null);
   const [active, setActive] = useState(null);
   const { isMobileApp } = useMobileApp();
-  const isHomepage = routeConfig.events.match(window?.location?.pathname);
+
+  const currentPath = window?.location?.pathname;
+  const isHomepage = !!currentPath && !!routeConfig.events.match(currentPath);
+  const mayShow = !routeConfig.tellMore.match(currentPath) && isReady();
 
   const [MobileAppAnnouncement, dismissMobileAppAnnouncement] =
     useCustomAnnouncement("MobileAppAnnouncement");
@@ -34,6 +39,14 @@ export const PushModal = ({ isActive = true }) => {
     setShouldShow(false);
     dismissMobileAppAnnouncement && dismissMobileAppAnnouncement();
   }, [dismissMobileAppAnnouncement]);
+
+  useEffect(() => {
+    currentPath && resetTimeout();
+  }, [currentPath, resetTimeout]);
+
+  useEffect(() => {
+    active && mayShow && setShouldShow(true);
+  }, [active, mayShow]);
 
   useEffect(() => {
     if (!isSessionLoaded || !isActive || typeof shouldShow === "boolean") {
@@ -56,20 +69,6 @@ export const PushModal = ({ isActive = true }) => {
     user,
     isHomepage,
   ]);
-
-  useEffect(() => {
-    let displayTimeout;
-    if (active) {
-      displayTimeout = setTimeout(() => {
-        window.location?.pathname &&
-          !routeConfig.tellMore.match(window.location.pathname) &&
-          setShouldShow(true);
-      }, 1000);
-    }
-    return () => {
-      clearTimeout(displayTimeout);
-    };
-  }, [active]);
 
   if (active === "UpdateAddressModal") {
     return (

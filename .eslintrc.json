@@ -30,7 +30,9 @@
         "vars": "all",
         "args": "all",
         "ignoreRestSiblings": false,
-        "argsIgnorePattern": "^_"
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "destructuredArrayIgnorePattern": "^_"
       }
     ]
   },
