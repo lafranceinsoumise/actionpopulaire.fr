@@ -401,9 +401,10 @@ export const useMessageActions = (
     if (messageAction === "delete" && selectedMessage && selectedComment) {
       mutate(`/api/groupes/messages/${selectedMessage.id}/`, (data) => ({
         ...data,
-        comments: data.comments.filter(
-          (comment) => comment.id === selectedComment.id
-        ),
+        comments:
+          data.comments?.filter(
+            (comment) => comment.id === selectedComment.id
+          ) || [],
       }));
     } else if (messageAction === "delete") {
       mutateMessages();
