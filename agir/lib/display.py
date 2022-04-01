@@ -6,6 +6,7 @@ from django.utils.html import format_html, format_html_join, mark_safe
 from django.utils.formats import date_format
 from django.utils.timezone import utc, is_aware
 from django.utils.translation import gettext as _, ngettext
+import json
 
 
 def display_address(object):
@@ -44,6 +45,28 @@ def display_price(price, price_in_cents=True):
     if price_in_cents:
         price = price / 100
     return "{}\u00A0€".format(floatformat(price, 2))
+
+
+def display_allocations(obj):
+    allocations = json.loads(obj)
+    id = 0
+    amount = 0
+    for alloc in allocations:
+        if isinstance(alloc, dict):
+            id = alloc.get("group")
+            amount = alloc.get("amount")
+
+    if id == 0 or amount == 0:
+        return "-"
+
+    from agir.groups.models import SupportGroup
+
+    try:
+        group = SupportGroup.objects.get(pk=id)
+    except SupportGroup.DoesNotExist:
+        raise Exception("SupportGroup does not exist")
+
+    return f"dont {amount/100}€ vers {group.name}"
 
 
 def pretty_time_since(d, relative_to=None):

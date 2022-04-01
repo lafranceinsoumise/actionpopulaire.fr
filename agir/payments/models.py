@@ -6,10 +6,10 @@ from django_prometheus.models import ExportModelOperationsMixin
 from phonenumber_field.modelfields import PhoneNumberField
 
 from agir.lib.models import LocationMixin, TimeStampedModel
-from agir.lib.display import display_address, display_price
+from agir.lib.display import display_address, display_price, display_allocations
 from agir.lib.utils import front_url
 from agir.payments.model_fields import AmountField
-from .types import get_payment_choices, PAYMENT_TYPES
+from .types import PAYMENT_TYPES
 from .payment_modes import PAYMENT_MODES
 
 __all__ = ["Payment", "Subscription"]
@@ -103,6 +103,12 @@ class Payment(ExportModelOperationsMixin("payment"), TimeStampedModel, LocationM
 
     get_type_display.short_description = "Type de paiement"
 
+    def get_allocations_display(self):
+        allocations = self.meta.get("allocations", "{}")
+        return display_allocations(allocations)
+
+    get_allocations_display.short_description = "Don fléché"
+
     def get_payment_url(self):
         return front_url("payment_page", args=[self.pk])
 
@@ -194,6 +200,12 @@ class Subscription(ExportModelOperationsMixin("subscription"), TimeStampedModel)
         return display_price(self.price)
 
     get_price_display.short_description = "Prix"
+
+    def get_allocations_display(self):
+        allocations = self.meta.get("allocations", "{}")
+        return display_allocations(allocations)
+
+    get_allocations_display.short_description = "Don fléché"
 
     def get_mode_display(self):
         return (

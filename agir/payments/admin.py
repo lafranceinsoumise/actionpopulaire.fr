@@ -227,6 +227,7 @@ class PaymentAdmin(PaymentManagementAdminMixin, AddRelatedLinkMixin, admin.Model
         "first_name",
         "last_name",
         "get_price_display",
+        "get_allocations_display",
         "status",
         "created",
         "get_mode_display",
@@ -252,6 +253,7 @@ class PaymentAdmin(PaymentManagementAdminMixin, AddRelatedLinkMixin, admin.Model
         "change_mode_buttons",
         "status_buttons",
         "get_price_display",
+        "get_allocations_display",
     )
     fieldsets = (
         (
@@ -341,6 +343,7 @@ class SubscriptionAdmin(PersonLinkMixin, admin.ModelAdmin):
         "id",
         "person_link",
         "get_price_display",
+        "get_allocations_display",
         "type",
         "status",
         "created",
@@ -352,6 +355,7 @@ class SubscriptionAdmin(PersonLinkMixin, admin.ModelAdmin):
         "type",
         "person_link",
         "get_price_display",
+        "get_allocations_display",
         "status",
         "terminate_button",
     )
