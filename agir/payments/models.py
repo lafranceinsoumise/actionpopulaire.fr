@@ -11,6 +11,7 @@ from agir.lib.utils import front_url
 from agir.payments.model_fields import AmountField
 from .types import PAYMENT_TYPES
 from .payment_modes import PAYMENT_MODES
+import json
 
 __all__ = ["Payment", "Subscription"]
 
@@ -105,6 +106,7 @@ class Payment(ExportModelOperationsMixin("payment"), TimeStampedModel, LocationM
 
     def get_allocations_display(self):
         allocations = self.meta.get("allocations", "{}")
+        allocations = json.loads(allocations)
         return display_allocations(allocations)
 
     get_allocations_display.short_description = "Don fléché"
@@ -203,6 +205,7 @@ class Subscription(ExportModelOperationsMixin("subscription"), TimeStampedModel)
 
     def get_allocations_display(self):
         allocations = self.meta.get("allocations", "{}")
+        allocations = json.loads(allocations)
         return display_allocations(allocations)
 
     get_allocations_display.short_description = "Don fléché"

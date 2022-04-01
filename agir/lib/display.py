@@ -6,7 +6,6 @@ from django.utils.html import format_html, format_html_join, mark_safe
 from django.utils.formats import date_format
 from django.utils.timezone import utc, is_aware
 from django.utils.translation import gettext as _, ngettext
-import json
 
 
 def display_address(object):
@@ -47,8 +46,7 @@ def display_price(price, price_in_cents=True):
     return "{}\u00A0€".format(floatformat(price, 2))
 
 
-def display_allocations(obj):
-    allocations = json.loads(obj)
+def display_allocations(allocations):
     id = 0
     amount = 0
     for alloc in allocations:
@@ -61,10 +59,7 @@ def display_allocations(obj):
 
     from agir.groups.models import SupportGroup
 
-    try:
-        group = SupportGroup.objects.get(pk=id)
-    except SupportGroup.DoesNotExist:
-        raise Exception("SupportGroup does not exist")
+    group = SupportGroup.objects.get(pk=id)
 
     return f"dont {amount/100}€ vers {group.name}"
 
