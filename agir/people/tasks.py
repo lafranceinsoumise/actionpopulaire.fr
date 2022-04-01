@@ -25,7 +25,7 @@ from .models import Person, PersonFormSubmission, PersonEmail, PersonValidationS
 from .person_forms.display import default_person_form_display
 
 
-@emailing_task
+@emailing_task()
 def send_welcome_mail(person_pk, type):
     person = Person.objects.prefetch_related("emails").get(pk=person_pk)
     message_info = SUBSCRIPTIONS_EMAILS[type].get("welcome")
@@ -40,7 +40,7 @@ def send_welcome_mail(person_pk, type):
         )
 
 
-@emailing_task
+@emailing_task()
 def send_confirmation_email(email, type=SUBSCRIPTION_TYPE_LFI, **kwargs):
     if PersonEmail.objects.filter(address__iexact=email).exists():
         p = Person.objects.get_by_natural_key(email)
@@ -81,7 +81,7 @@ def send_confirmation_email(email, type=SUBSCRIPTION_TYPE_LFI, **kwargs):
     )
 
 
-@emailing_task
+@emailing_task()
 def send_confirmation_merge_account(user_pk_requester, user_pk_merge, **kwargs):
     """Envoie une demande de fusion de compte.
 
@@ -124,8 +124,7 @@ def send_confirmation_merge_account(user_pk_requester, user_pk_merge, **kwargs):
     )
 
 
-@emailing_task
-@post_save_task
+@emailing_task(post_save=True)
 def send_confirmation_change_email(new_email, user_pk, **kwargs):
     Person.objects.get(pk=user_pk)
 
@@ -151,7 +150,7 @@ def send_confirmation_change_email(new_email, user_pk, **kwargs):
     )
 
 
-@emailing_task
+@emailing_task()
 def send_unsubscribe_email(person_pk):
     person = Person.objects.prefetch_related("emails").get(pk=person_pk)
 
@@ -166,8 +165,7 @@ def send_unsubscribe_email(person_pk):
     )
 
 
-@emailing_task
-@post_save_task
+@emailing_task(post_save=True)
 def send_person_form_confirmation(submission_pk):
     submission = PersonFormSubmission.objects.get(pk=submission_pk)
     person = submission.person
@@ -184,8 +182,7 @@ def send_person_form_confirmation(submission_pk):
     )
 
 
-@emailing_task
-@post_save_task
+@emailing_task(post_save=True)
 def send_person_form_notification(submission_pk):
     submission = PersonFormSubmission.objects.get(pk=submission_pk)
     form = submission.form
@@ -222,8 +219,7 @@ def send_person_form_notification(submission_pk):
     )
 
 
-@shared_task
-@post_save_task
+@post_save_task()
 def send_validation_sms(sms_id):
     sms = PersonValidationSMS.objects.get(id=sms_id)
     formatted_code = sms.code[:3] + " " + sms.code[3:]
@@ -258,8 +254,7 @@ def notify_referrer(referrer_id, referred_id, referral_type):
     )
 
 
-@shared_task
-@post_save_task
+@post_save_task()
 def notify_contact(person_pk, is_new=False):
     person = Person.objects.prefetch_related("emails").get(pk=person_pk)
     bindings = {

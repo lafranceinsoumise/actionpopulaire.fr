@@ -13,7 +13,7 @@ def interleave_spaces(s, n=3):
     return " ".join([s[i : i + n] for i in range(0, len(s), n)])
 
 
-@emailing_task
+@emailing_task()
 def send_login_email(email, short_code, expiry_time):
     utc_expiry_time = timezone.make_aware(
         timezone.datetime.utcfromtimestamp(expiry_time), timezone.utc
@@ -33,7 +33,7 @@ def send_login_email(email, short_code, expiry_time):
     )
 
 
-@emailing_task
+@emailing_task()
 def send_no_account_email(email, subscription_type=SUBSCRIPTION_TYPE_AP, **kwargs):
     subscription_token = subscription_confirmation_token_generator.make_token(
         email=email, type=subscription_type, **kwargs

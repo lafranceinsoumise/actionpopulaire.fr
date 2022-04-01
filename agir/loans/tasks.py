@@ -5,7 +5,7 @@ from django.conf import settings
 from django.utils import timezone
 from slugify import slugify
 
-from agir.lib.celery import emailing_task, retriable_task, post_save_task
+from agir.lib.celery import retriable_task, emailing_task
 from agir.lib.mailing import send_mosaico_email
 from agir.loans.actions import save_pdf_contract
 from agir.loans.display import SUBSTITUTIONS
@@ -49,8 +49,7 @@ def generate_contract(payment_id, force=False):
     return contract_path
 
 
-@emailing_task
-@post_save_task
+@emailing_task(post_save=True)
 def send_contract_confirmation_email(payment_id):
     payment = Payment.objects.get(id=payment_id)
     person = payment.person

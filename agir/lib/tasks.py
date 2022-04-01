@@ -3,20 +3,20 @@ from django.db import IntegrityError
 
 from agir.carte.models import StaticMapImage
 from agir.people.models import Person
-from .celery import http_task, post_save_http_task
+from .celery import http_task
 from .geo import geocode_element
 
 __all__ = ["geocode_person", "create_static_map_image_from_coordinates"]
 
 
-@post_save_http_task
+@http_task(post_save=True)
 def geocode_person(person_pk):
     person = Person.objects.get(pk=person_pk)
     geocode_element(person)
     person.save()
 
 
-@http_task
+@http_task()
 def create_static_map_image_from_coordinates(coordinates):
     center = Point(*coordinates)
     try:

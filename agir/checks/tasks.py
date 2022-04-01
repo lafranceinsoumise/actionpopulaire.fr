@@ -3,13 +3,12 @@ from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
 
 from agir.checks.models import CheckPayment
-from agir.lib.celery import emailing_task, post_save_task
+from agir.lib.celery import emailing_task
 from agir.lib.mailing import send_mosaico_email
 from agir.payments.payment_modes import PAYMENT_MODES
 
 
-@emailing_task
-@post_save_task
+@emailing_task(post_save=True)
 def send_check_information(check_id, force=False):
     check = CheckPayment.objects.get(id=check_id)
     mail_sent = check.meta.get("information_email_sent")

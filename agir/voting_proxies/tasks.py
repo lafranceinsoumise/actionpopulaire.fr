@@ -5,7 +5,7 @@ from django.conf import settings
 from django.core.mail import get_connection, EmailMultiAlternatives
 from django.utils.html import format_html, escape
 
-from agir.lib.celery import post_save_task, emailing_task, post_save_emailing_task
+from agir.lib.celery import post_save_task, emailing_task
 from agir.lib.mailing import send_mosaico_email
 from agir.lib.sms import send_sms, SMSSendException, to_7bit_string
 from agir.lib.utils import shorten_url, front_url
@@ -15,7 +15,7 @@ SMS_SENDER = "Melenchon22"
 REPORT_RECIPIENT_EMAIL = "procurations@actionpopulaire.fr"
 
 
-@emailing_task
+@emailing_task()
 def send_voting_proxy_request_email(
     recipients, subject="", intro="", body="", link_label="", link_href=""
 ):
@@ -34,7 +34,7 @@ def send_voting_proxy_request_email(
     )
 
 
-@post_save_task
+@post_save_task()
 def send_voting_proxy_request_confirmation(voting_proxy_request_pks):
     voting_proxy_requests = VotingProxyRequest.objects.filter(
         pk__in=voting_proxy_request_pks
@@ -59,7 +59,7 @@ def send_voting_proxy_request_confirmation(voting_proxy_request_pks):
     send_sms(message, voting_proxy_request.contact_phone, sender=SMS_SENDER)
 
 
-@post_save_task
+@post_save_task()
 def send_matching_request_to_voting_proxy(voting_proxy_pk, voting_proxy_request_pks):
     voting_proxy = VotingProxy.objects.get(pk=voting_proxy_pk)
     voting_proxy_requests = VotingProxyRequest.objects.filter(
@@ -101,7 +101,7 @@ def send_matching_request_to_voting_proxy(voting_proxy_pk, voting_proxy_request_
     send_sms(message, voting_proxy.contact_phone, sender=SMS_SENDER)
 
 
-@post_save_emailing_task
+@emailing_task(post_save=True)
 def send_voting_proxy_candidate_invitation_email(voting_proxy_canditate_emails):
     bindings = {
         "VOTING_PROXY_REQUEST_CREATION_LINK": front_url("new_voting_proxy"),
@@ -115,7 +115,7 @@ def send_voting_proxy_candidate_invitation_email(voting_proxy_canditate_emails):
     )
 
 
-@post_save_task
+@post_save_task()
 def send_voting_proxy_request_accepted_text_messages(voting_proxy_request_pks):
     voting_proxy_requests = VotingProxyRequest.objects.filter(
         pk__in=voting_proxy_request_pks
@@ -190,7 +190,7 @@ def send_voting_proxy_request_accepted_text_messages(voting_proxy_request_pks):
         pass
 
 
-@post_save_task
+@post_save_task()
 def send_voting_proxy_information_for_request(voting_proxy_request_pk):
     voting_proxy_request = VotingProxyRequest.objects.get(pk=voting_proxy_request_pk)
     # Send information EMAIL
@@ -206,7 +206,7 @@ def send_voting_proxy_information_for_request(voting_proxy_request_pk):
     send_sms(message, voting_proxy_request.contact_phone, sender=SMS_SENDER)
 
 
-@post_save_task
+@post_save_task()
 def send_voting_proxy_request_confirmed_text_messages(voting_proxy_request_pks):
     voting_proxy_requests = VotingProxyRequest.objects.filter(
         pk__in=voting_proxy_request_pks
@@ -252,7 +252,7 @@ def send_voting_proxy_request_confirmed_text_messages(voting_proxy_request_pks):
     send_sms(message, voting_proxy_request.proxy.contact_phone, sender=SMS_SENDER)
 
 
-@post_save_task
+@post_save_task()
 def send_voting_proxy_request_confirmation_reminder(voting_proxy_request_pks):
     voting_proxy_requests = VotingProxyRequest.objects.filter(
         pk__in=voting_proxy_request_pks
@@ -292,7 +292,7 @@ def send_voting_proxy_request_confirmation_reminder(voting_proxy_request_pks):
         pass
 
 
-@emailing_task
+@emailing_task()
 def send_matching_report_email(data):
     subject = f"Rapport du script des procurations - {data['datetime']}"
     if data["dry_run"]:

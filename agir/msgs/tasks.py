@@ -1,12 +1,11 @@
 from django.core.mail import get_connection, EmailMultiAlternatives
 
 from agir.lib.admin.utils import admin_url
-from agir.lib.celery import emailing_task, post_save_task
+from agir.lib.celery import post_save_task
 from agir.msgs.models import UserReport
 
 
-@emailing_task
-@post_save_task
+@post_save_task()
 def send_message_report_email(report_pk):
     report = UserReport.objects.get(pk=report_pk)
     connection = get_connection()
