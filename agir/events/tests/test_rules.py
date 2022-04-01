@@ -152,7 +152,7 @@ class ChangeEventPermissionsTestCase(TestCase):
         )
 
     def test_group_manager_can_change_any_event(self):
-        self.assertTrue(
+        self.assertFalse(
             self.event_organizer_group_manager.has_perm(
                 "events.change_event", self.personal_event
             )
