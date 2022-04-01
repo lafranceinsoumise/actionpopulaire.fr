@@ -22,6 +22,7 @@ from agir.donations.forms import AllocationSubscriptionForm
 from agir.donations.views import DONATION_SESSION_NAMESPACE, AskAmountView
 from agir.payments.models import Payment, Subscription
 from agir.people.actions.management import merge_persons
+from agir.people.admin.actions import unsubscribe_from_all_newsletters
 from agir.people.forms import (
     Person,
     AddEmailMergeAccountForm,
@@ -104,10 +105,11 @@ class ContactView(SoftLoginRequiredMixin, UpdateView):
         res = super().form_valid(form)
 
         if getattr(form, "no_mail", False):
+            unsubscribe_from_all_newsletters(self.request.user.person)
             messages.add_message(
                 self.request,
                 messages.INFO,
-                "Vous êtes maintenant désinscrit⋅e de toutes les lettres d'information de la France insoumise.",
+                "Vous êtes maintenant désinscrit⋅e de tous les envois de lettres d'information, SMS et notifications.",
             )
 
         return res

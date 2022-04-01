@@ -674,16 +674,30 @@ class EventProjectsAPIView(ListAPIView):
     serializer_class = EventProjectListItemSerializer
     queryset = Projet.objects.filter(event__isnull=False)
 
+    # Get projects from events user organize or is manager from group organizer
     def get_queryset(self):
-        organized_events = self.request.user.person.organizer_configs.exclude(
-            event__visibility=Event.VISIBILITY_ADMIN
-        ).values_list("event_id", flat=True)
+        person = self.request.user.person
 
-        if len(organized_events) == 0:
+        as_manager_events = (
+            OrganizerConfig.objects.filter(
+                Q(person=person)
+                | Q(
+                    as_group_id__in=Membership.objects.filter(
+                        person=person,
+                        membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+                    ).values_list("supportgroup_id", flat=True)
+                )
+            )
+            .distinct("pk")
+            .exclude(event__visibility=Event.VISIBILITY_ADMIN)
+            .values_list("event_id", flat=True)
+        )
+
+        if len(as_manager_events) == 0:
             return self.queryset.none()
 
         return (
-            self.queryset.filter(event__in=organized_events)
+            self.queryset.filter(event__in=as_manager_events)
             .select_related("event", "event__subtype")
             .order_by("event__end_time")
         )

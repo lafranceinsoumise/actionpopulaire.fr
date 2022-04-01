@@ -37,6 +37,26 @@ def is_organizer_of_event(role, event=None):
 
 
 @rules.predicate
+# From organizers and group organizers of event : get is at least manager
+def is_at_least_manager_of_event(role, event=None):
+    if event is None:
+        return False
+
+    # The person who created the event:
+    if role.person.organized_events.filter(pk=event.pk).exists():
+        return True
+
+    # All the managers of the groups organizing the event:
+    if event.organizers_groups.filter(
+        memberships__person=role.person,
+        memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+    ).exists():
+        return True
+
+    return False
+
+
+@rules.predicate
 def is_own_rsvp(role, rsvp=None):
     return rsvp is not None and role.person == rsvp.person
 
@@ -86,22 +106,22 @@ rules.add_perm(
 rules.add_perm(
     "events.view_event",
     is_public_event
-    | (~is_hidden_event & is_authenticated_person & is_organizer_of_event),
+    | (~is_hidden_event & is_authenticated_person & is_at_least_manager_of_event),
 )
 rules.add_perm(
     "events.view_event_settings",
-    ~is_hidden_event & is_authenticated_person & is_organizer_of_event,
+    ~is_hidden_event & is_authenticated_person & is_at_least_manager_of_event,
 )
 rules.add_perm(
     "events.upload_event_documents",
-    ~is_hidden_event & is_authenticated_person & is_organizer_of_event,
+    ~is_hidden_event & is_authenticated_person & is_at_least_manager_of_event,
 )
 rules.add_perm(
     "events.change_event",
     ~is_hidden_event
     & is_editable_event
     & is_authenticated_person
-    & is_organizer_of_event,
+    & is_at_least_manager_of_event,
 )
 rules.add_perm(
     "events.delete_event",

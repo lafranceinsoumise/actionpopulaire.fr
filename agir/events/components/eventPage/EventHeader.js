@@ -94,7 +94,7 @@ const Actions = (props) => {
     past,
     rsvped,
     logged,
-    isOrganizer,
+    isManager,
     routes,
     hasPrice,
     allowGuests,
@@ -152,7 +152,7 @@ const Actions = (props) => {
         <Button disabled color="unavailable">
           Événement terminé
         </Button>
-        {isOrganizer && (
+        {isManager && (
           <Button
             icon="settings"
             link
@@ -179,7 +179,7 @@ const Actions = (props) => {
   return (
     <>
       <StyledActions>
-        {isOrganizer && (
+        {isManager && (
           <Button
             icon="settings"
             link
@@ -250,7 +250,7 @@ Actions.propTypes = {
   past: PropTypes.bool,
   rsvped: PropTypes.bool,
   logged: PropTypes.bool,
-  isOrganizer: PropTypes.bool,
+  isManager: PropTypes.bool,
   allowGuests: PropTypes.bool,
   routes: PropTypes.shape({
     manage: PropTypes.string,
@@ -334,6 +334,7 @@ const EventHeader = (props) => {
     schedule,
     routes,
     isOrganizer,
+    isManager,
     allowGuests,
     hasSubscriptionForm,
     groups,
@@ -364,7 +365,7 @@ const EventHeader = (props) => {
         logged={logged}
         rsvped={rsvped}
         routes={routes}
-        isOrganizer={isOrganizer}
+        isManager={isManager}
         hasPrice={!!options && !!options.price}
         allowGuests={allowGuests}
         hasSubscriptionForm={hasSubscriptionForm}

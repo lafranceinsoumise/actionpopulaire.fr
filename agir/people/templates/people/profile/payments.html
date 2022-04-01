@@ -1,13 +1,7 @@
 {% extends "front/layout.html" %}
 {% load static %}
-{% load crispy_forms_tags %}
 
 {% block title %}Dons et paiements{% endblock %}
-
-{% block extra_scripts %}
-    {% include "donations/donationForm.bundle.html" %}
-{% endblock %}
-
 
 {% block main %}
   <div class="row">
@@ -45,11 +39,6 @@
                     <a href="{% url "subscription_terminate" subscription.pk %}" class="btn btn-block btn-sm btn-default margintop">
                       Mettre fin à ce paiement
                     </a>
-                  </div>
-                </div>
-                <div class="collapse margintopmore" id="edit-{{ subscription.pk }}">
-                  <div class="well">
-                      {% crispy subscription.modify_form %}
                   </div>
                 </div>
               </div>
