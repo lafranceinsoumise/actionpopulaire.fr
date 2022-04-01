@@ -5,7 +5,10 @@ from django.urls import reverse
 
 from agir.authentication.tokens import monthly_donation_confirmation_token_generator
 from agir.donations.models import SpendingRequest
-from agir.lib.celery import emailing_task, http_task, post_save_task
+from agir.lib.celery import (
+    emailing_task,
+    http_task,
+)
 from agir.lib.mailing import send_mosaico_email, add_params_to_urls
 from agir.lib.phone_numbers import is_french_number, is_mobile_number
 from agir.lib.sms import send_sms
@@ -13,11 +16,9 @@ from agir.lib.utils import front_url, generate_token_params, shorten_url
 from agir.payments.types import PAYMENT_TYPES
 from agir.people.models import Person
 from agir.system_pay.models import SystemPaySubscription
-from agir.presidentielle2022.apps import Presidentielle2022Config
 
 
-@emailing_task
-@post_save_task
+@emailing_task(post_save=True)
 def send_donation_email(person_pk, payment_type):
     person = Person.objects.prefetch_related("emails").get(pk=person_pk)
     template_code = "DONATION_MESSAGE"
@@ -46,8 +47,7 @@ def send_donation_email(person_pk, payment_type):
     )
 
 
-@emailing_task
-@post_save_task
+@emailing_task(post_save=True)
 def send_spending_request_to_review_email(spending_request_pk):
     spending_request = SpendingRequest.objects.prefetch_related("group").get(
         pk=spending_request_pk
@@ -71,7 +71,7 @@ def send_spending_request_to_review_email(spending_request_pk):
     )
 
 
-@emailing_task
+@emailing_task()
 def send_monthly_donation_confirmation_email(
     email, confirmation_view_name="monthly_donation_confirm", **kwargs
 ):
@@ -105,8 +105,7 @@ def send_monthly_donation_confirmation_email(
     )
 
 
-@emailing_task
-@post_save_task
+@emailing_task(post_save=True)
 def send_expiration_email_reminder(sp_subscription_pk):
     sp_subscription = SystemPaySubscription.objects.select_related(
         "subscription__person", "alias"
@@ -125,8 +124,7 @@ def send_expiration_email_reminder(sp_subscription_pk):
     )
 
 
-@http_task
-@post_save_task
+@http_task(post_save=True)
 def send_expiration_sms_reminder(sp_subscription_pk):
     sp_subscription = SystemPaySubscription.objects.select_related(
         "subscription__person", "alias"

@@ -1,7 +1,6 @@
 from collections import OrderedDict
 
 import ics
-from celery import shared_task
 from django.conf import settings
 from django.db.models import Q
 from django.template.defaultfilters import date as _date
@@ -12,7 +11,11 @@ from django.utils.translation import gettext_lazy as _
 
 from agir.events.models import Event, OrganizerConfig
 from agir.groups.display import genrer_membership
-from agir.lib.celery import emailing_task, http_task, post_save_task
+from agir.lib.celery import (
+    emailing_task,
+    post_save_task,
+    http_task,
+)
 from agir.lib.geo import geocode_element
 from agir.lib.html import sanitize_html
 from agir.lib.mailing import send_mosaico_email
@@ -57,8 +60,7 @@ GROUP_MEMBERSHIP_LIMIT_NOTIFICATION_STEPS = [
 ]
 
 
-@emailing_task
-@post_save_task
+@emailing_task(post_save=True)
 def send_support_group_creation_notification(membership_pk):
     membership = Membership.objects.select_related("supportgroup", "person").get(
         pk=membership_pk
@@ -83,8 +85,7 @@ def send_support_group_creation_notification(membership_pk):
     )
 
 
-@shared_task
-@post_save_task
+@post_save_task()
 def create_group_creation_confirmation_activity(membership_pk):
     membership = Membership.objects.select_related("supportgroup", "person").get(
         pk=membership_pk
@@ -100,8 +101,7 @@ def create_group_creation_confirmation_activity(membership_pk):
     )
 
 
-@emailing_task
-@post_save_task
+@emailing_task(post_save=True)
 def send_support_group_changed_notification(support_group_pk, changed_data):
     group = SupportGroup.objects.get(pk=support_group_pk, published=True)
     changed_categories = {
@@ -150,8 +150,7 @@ def send_support_group_changed_notification(support_group_pk, changed_data):
     )
 
 
-@emailing_task
-@post_save_task
+@emailing_task(post_save=True)
 def send_joined_notification_email(membership_pk):
     membership = Membership.objects.select_related("person", "supportgroup").get(
         pk=membership_pk
@@ -190,8 +189,7 @@ ALERT_CAPACITY_SUBJECTS = {
 }
 
 
-@emailing_task
-@post_save_task
+@emailing_task(post_save=True)
 def send_alert_capacity_email(supportgroup_pk, count):
     assert count in [21, 30]
     supportgroup = SupportGroup.objects.get(pk=supportgroup_pk)
@@ -209,8 +207,7 @@ def send_alert_capacity_email(supportgroup_pk, count):
     )
 
 
-@emailing_task
-@post_save_task
+@emailing_task(post_save=True)
 def invite_to_group(group_id, invited_email, inviter_id):
     group = SupportGroup.objects.get(pk=group_id)
 
@@ -265,7 +262,7 @@ def invite_to_group(group_id, invited_email, inviter_id):
         )
 
 
-@emailing_task
+@emailing_task()
 def send_abuse_report_message(inviter_id):
     if not inviter_id:
         return
@@ -283,8 +280,7 @@ def send_abuse_report_message(inviter_id):
     )
 
 
-@shared_task
-@post_save_task
+@post_save_task()
 def notify_new_group_event(group_pk, event_pk):
     if not OrganizerConfig.objects.filter(event_id=event_pk, as_group_id=group_pk):
         return
@@ -329,8 +325,7 @@ def notify_new_group_event(group_pk, event_pk):
     )
 
 
-@post_save_task
-@emailing_task
+@emailing_task(post_save=True)
 def send_new_group_event_email(group_pk, event_pk):
     if not OrganizerConfig.objects.filter(event_id=event_pk, as_group_id=group_pk):
         return
@@ -406,7 +401,7 @@ def send_new_group_event_email(group_pk, event_pk):
     )
 
 
-@emailing_task
+@emailing_task()
 def send_membership_transfer_sender_confirmation(bindings, recipients_pks):
     recipients = Person.objects.filter(pk__in=recipients_pks)
 
@@ -419,7 +414,7 @@ def send_membership_transfer_sender_confirmation(bindings, recipients_pks):
     )
 
 
-@emailing_task
+@emailing_task()
 def send_membership_transfer_receiver_confirmation(bindings, recipients_pks):
 
     recipients = Person.objects.filter(
@@ -440,8 +435,7 @@ def send_membership_transfer_receiver_confirmation(bindings, recipients_pks):
     )
 
 
-@emailing_task
-@post_save_task
+@emailing_task(post_save=True)
 def send_membership_transfer_alert(bindings, recipient_pk):
     recipient = Person.objects.get(pk=recipient_pk)
 
@@ -454,8 +448,7 @@ def send_membership_transfer_alert(bindings, recipient_pk):
     )
 
 
-@http_task
-@post_save_task
+@http_task(post_save=True)
 def geocode_support_group(supportgroup_pk):
     supportgroup = SupportGroup.objects.get(pk=supportgroup_pk)
 
@@ -483,8 +476,7 @@ def geocode_support_group(supportgroup_pk):
         )
 
 
-@shared_task
-@post_save_task
+@post_save_task()
 def create_accepted_invitation_member_activity(new_membership_pk):
     new_membership = Membership.objects.get(pk=new_membership_pk)
 
@@ -508,8 +500,7 @@ def create_accepted_invitation_member_activity(new_membership_pk):
     )
 
 
-@emailing_task
-@post_save_task
+@emailing_task(post_save=True)
 def send_message_notification_email(message_pk):
 
     message = SupportGroupMessage.objects.get(pk=message_pk)
@@ -570,8 +561,7 @@ def send_message_notification_email(message_pk):
     )
 
 
-@emailing_task
-@post_save_task
+@emailing_task(post_save=True)
 def send_comment_notification_email(comment_pk):
     comment = SupportGroupMessageComment.objects.get(pk=comment_pk)
     message = comment.message

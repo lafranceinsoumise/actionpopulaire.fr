@@ -3,7 +3,6 @@ from datetime import timedelta
 
 import ics
 import requests
-from celery import shared_task
 from django.conf import settings
 from django.template.defaultfilters import date as _date
 from django.template.loader import render_to_string
@@ -13,14 +12,18 @@ from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
 from agir.authentication.tokens import subscription_confirmation_token_generator
-from agir.lib.celery import emailing_task, http_task, post_save_task
+from agir.groups.models import Membership
+from agir.lib.celery import (
+    emailing_task,
+    post_save_task,
+    http_task,
+)
 from agir.lib.display import str_summary
 from agir.lib.geo import geocode_element
 from agir.lib.html import sanitize_html
 from agir.lib.mailing import send_mosaico_email
 from agir.lib.utils import front_url, is_absolute_url
 from agir.people.models import Person
-from agir.groups.models import Membership
 from .models import Event, RSVP, GroupAttendee, Invitation, OrganizerConfig
 from ..activity.models import Activity
 from ..notifications.models import Subscription
@@ -53,8 +56,7 @@ CHANGE_DESCRIPTION = OrderedDict(
 )
 
 
-@emailing_task
-@post_save_task
+@emailing_task(post_save=True)
 def send_event_creation_notification(organizer_config_pk):
     organizer_config = OrganizerConfig.objects.select_related("event", "person").get(
         pk=organizer_config_pk
@@ -105,8 +107,7 @@ def send_event_creation_notification(organizer_config_pk):
     )
 
 
-@emailing_task
-@post_save_task
+@emailing_task(post_save=True)
 def send_event_changed_notification(event_pk, changed_data):
     event = Event.objects.get(pk=event_pk)
 
@@ -158,8 +159,7 @@ def send_event_changed_notification(event_pk, changed_data):
     )
 
 
-@emailing_task
-@post_save_task
+@emailing_task(post_save=True)
 def send_rsvp_notification(rsvp_pk):
     rsvp = RSVP.objects.select_related("person", "event").get(pk=rsvp_pk)
     person_information = str(rsvp.person)
@@ -249,7 +249,7 @@ def send_rsvp_notification(rsvp_pk):
     )
 
 
-@post_save_task
+@post_save_task()
 # Send notification new-group-attendee to all organizers (referents from groups co-organizing)
 # Send notification new-event-participation-mygroups to members of group (not referents)
 def send_group_attendee_notification(group_attendee_pk):
@@ -301,8 +301,7 @@ def send_group_attendee_notification(group_attendee_pk):
     )
 
 
-@emailing_task
-@post_save_task
+@emailing_task(post_save=True)
 def send_guest_confirmation(rsvp_pk):
     rsvp = RSVP.objects.select_related("person", "event").get(pk=rsvp_pk)
 
@@ -325,8 +324,7 @@ def send_guest_confirmation(rsvp_pk):
     )
 
 
-@emailing_task
-@post_save_task
+@emailing_task(post_save=True)
 def send_cancellation_notification(event_pk):
     event = Event.objects.get(pk=event_pk)
 
@@ -363,8 +361,7 @@ def send_cancellation_notification(event_pk):
     )
 
 
-@emailing_task
-@post_save_task
+@emailing_task(post_save=True)
 def send_external_rsvp_confirmation(event_pk, email, **kwargs):
     event = Event.objects.get(pk=event_pk)
     subscription_token = subscription_confirmation_token_generator.make_token(
@@ -387,8 +384,7 @@ def send_external_rsvp_confirmation(event_pk, email, **kwargs):
     )
 
 
-@emailing_task
-@post_save_task
+@emailing_task(post_save=True)
 def send_event_report(event_pk):
     event = Event.objects.get(pk=event_pk)
     if event.report_summary_sent:
@@ -423,8 +419,7 @@ def send_event_report(event_pk):
     event.save()
 
 
-@http_task
-@post_save_task
+@http_task(post_save=True)
 def update_ticket(rsvp_pk, metas=None):
     rsvp = RSVP.objects.get(pk=rsvp_pk)
     data = {
@@ -458,8 +453,7 @@ def update_ticket(rsvp_pk, metas=None):
         ).raise_for_status()
 
 
-@emailing_task
-@post_save_task
+@emailing_task(post_save=True)
 def send_secretariat_notification(event_pk, person_pk, complete=True):
     event = Event.objects.get(pk=event_pk)
     person = Person.objects.get(pk=person_pk)
@@ -490,8 +484,7 @@ def send_secretariat_notification(event_pk, person_pk, complete=True):
     )
 
 
-@emailing_task
-@post_save_task
+@emailing_task(post_save=True)
 def send_organizer_validation_notification(event_pk):
     event = Event.objects.get(pk=event_pk)
     bindings = {
@@ -514,8 +507,7 @@ def send_organizer_validation_notification(event_pk):
     )
 
 
-@shared_task
-@post_save_task
+@post_save_task()
 def notify_on_event_report(event_pk):
     event = Event.objects.get(pk=event_pk)
     Activity.objects.bulk_create(
@@ -527,8 +519,7 @@ def notify_on_event_report(event_pk):
     )
 
 
-@http_task
-@post_save_task
+@http_task(post_save=True)
 def geocode_event(event_pk):
     event = Event.objects.get(pk=event_pk)
     geocode_element(event)
@@ -551,7 +542,7 @@ def geocode_event(event_pk):
         )
 
 
-@emailing_task
+@emailing_task()
 def send_pre_event_required_documents_reminder_email(event_pk):
     event = Event.objects.select_related("subtype").get(pk=event_pk)
     organizers = event.organizers.all()
@@ -576,7 +567,7 @@ def send_pre_event_required_documents_reminder_email(event_pk):
     )
 
 
-@emailing_task
+@emailing_task()
 def send_post_event_required_documents_reminder_email(event_pk):
     event = Event.objects.select_related("subtype").get(pk=event_pk)
     organizers = event.organizers.all()
@@ -601,7 +592,7 @@ def send_post_event_required_documents_reminder_email(event_pk):
     )
 
 
-@emailing_task
+@emailing_task()
 def send_event_suggestion_email(event_pk, recipient_pk):
     try:
         event = Event.objects.get(pk=event_pk)
@@ -662,8 +653,7 @@ def send_event_suggestion_email(event_pk, recipient_pk):
     )
 
 
-@emailing_task
-@post_save_task
+@emailing_task(post_save=True)
 def send_group_coorganization_invitation_notification(invitation_pk):
     invitation = Invitation.objects.get(pk=invitation_pk)
     event = invitation.event
@@ -734,8 +724,7 @@ def send_group_coorganization_invitation_notification(invitation_pk):
     )
 
 
-@emailing_task
-@post_save_task
+@emailing_task(post_save=True)
 def send_accepted_group_coorganization_invitation_notification(
     invitation_id, recipient_ids
 ):
@@ -792,8 +781,7 @@ def send_accepted_group_coorganization_invitation_notification(
     )
 
 
-@emailing_task
-@post_save_task
+@emailing_task(post_save=True)
 def send_refused_group_coorganization_invitation_notification(
     invitation_id, recipient_ids
 ):
@@ -822,7 +810,7 @@ def send_refused_group_coorganization_invitation_notification(
     )
 
 
-@emailing_task
+@emailing_task()
 def send_event_report_form_reminder_email(event_pk):
     event = Event.objects.select_related("subtype", "subtype__report_person_form").get(
         pk=event_pk
