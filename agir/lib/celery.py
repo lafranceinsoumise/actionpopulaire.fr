@@ -89,6 +89,14 @@ retry_on_http_and_object_does_not_exist_strategy = retry_strategy(
 retry_on_smtp_strategy = retry_strategy(
     start=10, retry_on=(smtplib.SMTPException, socket.error)
 )
+retry_on_smtp_and_object_does_not_exist_strategy = retry_strategy(
+    start=10,
+    retry_on=(
+        smtplib.SMTPException,
+        socket.error,
+        ObjectDoesNotExist,
+    ),
+)
 retry_on_object_does_not_exist_strategy = retry_strategy(
     start=10, retry_on=(ObjectDoesNotExist,)
 )
@@ -98,4 +106,7 @@ post_save_http_task = retriable_task(
     strategy=retry_on_http_and_object_does_not_exist_strategy
 )
 emailing_task = retriable_task(strategy=retry_on_smtp_strategy)
+post_save_emailing_task = retriable_task(
+    strategy=retry_on_smtp_and_object_does_not_exist_strategy
+)
 post_save_task = retriable_task(strategy=retry_on_object_does_not_exist_strategy)

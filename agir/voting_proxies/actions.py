@@ -295,8 +295,12 @@ def invite_voting_proxy_candidates(candidates, request):
     voting_proxy_candidates_ids = [
         voting_proxy_candidate.pk for voting_proxy_candidate in voting_proxy_candidates
     ]
+    voting_proxy_candidates_emails = [
+        voting_proxy_candidate.email
+        for voting_proxy_candidate in voting_proxy_candidates
+    ]
     tasks.send_voting_proxy_candidate_invitation_email.delay(
-        voting_proxy_candidates_ids
+        voting_proxy_candidates_emails
     )
 
     return voting_proxy_candidates_ids
