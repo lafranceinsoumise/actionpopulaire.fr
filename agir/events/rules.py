@@ -106,7 +106,7 @@ rules.add_perm(
 rules.add_perm(
     "events.view_event",
     is_public_event
-    | (~is_hidden_event & is_authenticated_person & is_organizer_of_event),
+    | (~is_hidden_event & is_authenticated_person & is_at_least_manager_of_event),
 )
 rules.add_perm(
     "events.view_event_settings",
@@ -121,7 +121,7 @@ rules.add_perm(
     ~is_hidden_event
     & is_editable_event
     & is_authenticated_person
-    & is_organizer_of_event,
+    & is_at_least_manager_of_event,
 )
 rules.add_perm(
     "events.delete_event",
