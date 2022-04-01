@@ -159,6 +159,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     location = LocationSerializer(source="*")
 
     isOrganizer = serializers.SerializerMethodField()
+    isManager = serializers.SerializerMethodField()
     isEditable = serializers.BooleanField(source="subtype.is_editable", read_only=True)
 
     rsvp = serializers.SerializerMethodField()
@@ -247,6 +248,23 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         if obj.organizers_groups.filter(
             memberships__person=user.person,
             memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
+        ).exists():
+            return True
+
+        return False
+
+    def get_isManager(self, obj):
+        user = self.context["request"].user
+
+        if not user.is_authenticated or not user.person:
+            return False
+
+        if bool(self.organizer_config):
+            return True
+
+        if obj.organizers_groups.filter(
+            memberships__person=user.person,
+            memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
         ).exists():
             return True
 

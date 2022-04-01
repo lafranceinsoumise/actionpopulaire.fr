@@ -115,6 +115,7 @@ const MobileEventPage = (props) => {
     illustration,
     location,
     subtype,
+    isManager,
     isOrganizer,
     isPast,
   } = props;
@@ -172,7 +173,7 @@ const MobileEventPage = (props) => {
       <StyledMain once style={{ overflow: "hidden" }}>
         <Card>
           <EventHeader {...props} />
-          {isOrganizer && (
+          {isManager && (
             <>
               <Spacer size="1rem" />
               <ReportFormCard eventPk={id} />
@@ -248,6 +249,7 @@ MobileEventPage.propTypes = {
   name: PropTypes.string.isRequired,
   hasSubscriptionForm: PropTypes.bool,
   isOrganizer: PropTypes.bool,
+  isManager: PropTypes.bool,
   rsvp: PropTypes.string,
   compteRendu: PropTypes.string,
   compteRenduPhotos: PropTypes.arrayOf(PropTypes.object),

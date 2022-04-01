@@ -90,6 +90,7 @@ const DesktopEventPage = (props) => {
     routes,
     subtype,
     isOrganizer,
+    isManager,
     isPast,
   } = props;
 
@@ -131,7 +132,7 @@ const DesktopEventPage = (props) => {
           <Column grow>
             <div>
               <EventHeader {...props} />
-              {isOrganizer && <ReportFormCard eventPk={id} />}
+              {isManager && <ReportFormCard eventPk={id} />}
               {logged && subtype.label === DOOR2DOOR_EVENT_SUBTYPE_LABEL && (
                 <TokTokCard flex />
               )}
@@ -186,6 +187,7 @@ DesktopEventPage.propTypes = {
   name: PropTypes.string.isRequired,
   hasSubscriptionForm: PropTypes.bool,
   isOrganizer: PropTypes.bool,
+  isManager: PropTypes.bool,
   rsvp: PropTypes.string,
   compteRendu: PropTypes.string,
   compteRenduPhotos: PropTypes.arrayOf(PropTypes.object),

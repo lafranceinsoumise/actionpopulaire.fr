@@ -19,7 +19,7 @@ export const EventSettings = (props) => {
   const isDesktop = useIsDesktop();
 
   const redirectTo = useMemo(() => {
-    if (!event?.isOrganizer) {
+    if (!event?.isManager) {
       return basePath;
     }
     if (isAuthorized === false) {
