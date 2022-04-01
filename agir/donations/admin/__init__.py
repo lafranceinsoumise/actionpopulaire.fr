@@ -2,8 +2,11 @@ from django.contrib import admin
 from django.urls import reverse, path
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
-from functools import partial
 
+from agir.donations.admin.filters import (
+    MonthlyAllocationGroupFilter,
+    MonthlyAllocationSubscriptionPersonFilter,
+)
 from agir.donations.admin.forms import HandleRequestForm
 from agir.donations.admin.views import HandleRequestView
 from agir.donations.models import (
@@ -147,5 +150,12 @@ class OperationAdmin(admin.ModelAdmin):
 @admin.register(MonthlyAllocation)
 class MonthlyAllocationAdmin(admin.ModelAdmin):
     list_display = ("__str__", "group", "amount", "subscription")
-
+    list_filter = (
+        MonthlyAllocationGroupFilter,
+        MonthlyAllocationSubscriptionPersonFilter,
+        "subscription__status",
+    )
     readonly_fields = ("group", "subscription", "amount")
+
+    class Media:
+        pass
