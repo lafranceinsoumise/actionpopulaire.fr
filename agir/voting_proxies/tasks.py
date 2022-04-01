@@ -1,12 +1,11 @@
 import json
 from email.mime.text import MIMEText
 
-from celery import shared_task
 from django.conf import settings
 from django.core.mail import get_connection, EmailMultiAlternatives
 from django.utils.html import format_html, escape
 
-from agir.lib.celery import post_save_task, emailing_task
+from agir.lib.celery import post_save_task, emailing_task, post_save_emailing_task
 from agir.lib.mailing import send_mosaico_email
 from agir.lib.sms import send_sms, SMSSendException, to_7bit_string
 from agir.lib.utils import shorten_url, front_url
@@ -35,7 +34,6 @@ def send_voting_proxy_request_email(
     )
 
 
-@shared_task
 @post_save_task
 def send_voting_proxy_request_confirmation(voting_proxy_request_pks):
     voting_proxy_requests = VotingProxyRequest.objects.filter(
@@ -61,7 +59,6 @@ def send_voting_proxy_request_confirmation(voting_proxy_request_pks):
     send_sms(message, voting_proxy_request.contact_phone, sender=SMS_SENDER)
 
 
-@shared_task
 @post_save_task
 def send_matching_request_to_voting_proxy(voting_proxy_pk, voting_proxy_request_pks):
     voting_proxy = VotingProxy.objects.get(pk=voting_proxy_pk)
@@ -104,14 +101,8 @@ def send_matching_request_to_voting_proxy(voting_proxy_pk, voting_proxy_request_
     send_sms(message, voting_proxy.contact_phone, sender=SMS_SENDER)
 
 
-@emailing_task
-@post_save_task
-def send_voting_proxy_candidate_invitation_email(voting_proxy_canditate_pks):
-    recipients = VotingProxy.objects.filter(pk__in=voting_proxy_canditate_pks)
-
-    if not recipients.exists():
-        raise VotingProxy.DoesNotExist()
-
+@post_save_emailing_task
+def send_voting_proxy_candidate_invitation_email(voting_proxy_canditate_emails):
     bindings = {
         "VOTING_PROXY_REQUEST_CREATION_LINK": front_url("new_voting_proxy"),
     }
@@ -119,12 +110,11 @@ def send_voting_proxy_candidate_invitation_email(voting_proxy_canditate_pks):
         code="VOTING_PROXY_CANDIDATE_INVITATION",
         subject="Êtes-vous disponible pour prendre une procuration ?",
         from_email=settings.EMAIL_FROM,
-        recipients=(recipient.email for recipient in recipients),
+        recipients=voting_proxy_canditate_emails,
         bindings=bindings,
     )
 
 
-@shared_task
 @post_save_task
 def send_voting_proxy_request_accepted_text_messages(voting_proxy_request_pks):
     voting_proxy_requests = VotingProxyRequest.objects.filter(
@@ -200,7 +190,6 @@ def send_voting_proxy_request_accepted_text_messages(voting_proxy_request_pks):
         pass
 
 
-@shared_task
 @post_save_task
 def send_voting_proxy_information_for_request(voting_proxy_request_pk):
     voting_proxy_request = VotingProxyRequest.objects.get(pk=voting_proxy_request_pk)
@@ -217,7 +206,6 @@ def send_voting_proxy_information_for_request(voting_proxy_request_pk):
     send_sms(message, voting_proxy_request.contact_phone, sender=SMS_SENDER)
 
 
-@shared_task
 @post_save_task
 def send_voting_proxy_request_confirmed_text_messages(voting_proxy_request_pks):
     voting_proxy_requests = VotingProxyRequest.objects.filter(
@@ -264,7 +252,6 @@ def send_voting_proxy_request_confirmed_text_messages(voting_proxy_request_pks):
     send_sms(message, voting_proxy_request.proxy.contact_phone, sender=SMS_SENDER)
 
 
-@shared_task
 @post_save_task
 def send_voting_proxy_request_confirmation_reminder(voting_proxy_request_pks):
     voting_proxy_requests = VotingProxyRequest.objects.filter(
