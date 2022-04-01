@@ -688,6 +688,8 @@ const MessageCard = (props) => {
               {!!onComment &&
                 (withMobileCommentField ? (
                   <CommentField
+                    id={message.id}
+                    comments={comments}
                     isLoading={isLoading}
                     disabled={isLocked}
                     isLocked={isLocked}
@@ -698,6 +700,8 @@ const MessageCard = (props) => {
                   />
                 ) : (
                   <ResponsiveLayout
+                    id={message.id}
+                    comments={comments}
                     MobileLayout={CommentButton}
                     DesktopLayout={CommentField}
                     isLoading={isLoading}

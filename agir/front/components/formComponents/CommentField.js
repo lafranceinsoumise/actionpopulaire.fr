@@ -10,7 +10,7 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import { useIsDesktop } from "@agir/front/genericComponents/grid";
+import { useResizeObserver } from "@agir/lib/utils/hooks";
 import { lazy } from "@agir/front/app/utils";
 
 import AnimatedMoreHorizontal from "@agir/front/genericComponents/AnimatedMoreHorizontal";
@@ -256,11 +256,11 @@ const CommentField = (props) => {
     user,
     initialValue,
     id,
+    comments,
     onSend,
     isLoading,
     disabled,
     isLocked,
-    autoScroll,
     placeholder,
     scrollerRef,
   } = props;
@@ -272,7 +272,6 @@ const CommentField = (props) => {
   const fieldWrapperRef = useRef();
   const textFieldRef = useRef();
   const textFieldCursorPosition = useRef();
-  const isDesktop = useIsDesktop();
 
   const [isFocused, setIsFocused] = useState(false);
   const [value, setValue] = useState(initialValue || "");
@@ -280,31 +279,24 @@ const CommentField = (props) => {
   const isExpanded = !!value || isFocused;
   const maySend = !isLoading && value && value.trim().length <= 1000;
 
+  const { height } = useResizeObserver(messageRef);
+
   const updateScroll = () => {
-    setTimeout(() => {
-      scrollerRef.current.scrollTo(0, scrollerRef.current.scrollHeight);
-    }, 50);
+    const scrollerElement = scrollerRef.current;
+    if (!!scrollerElement) {
+      scrollerElement.scrollTo(0, scrollerElement.scrollHeight);
+    }
   };
 
   const handleFocus = () => {
     setIsFocused(true);
-    updateScroll();
   };
 
-  const blurOnClickOutside = useCallback(
-    (event) => {
-      if (!fieldWrapperRef.current?.contains(event.target)) {
-        setIsFocused(false);
-      }
-      if (autoScroll) {
-        updateScroll(
-          rootElementRef.current,
-          !isDesktop ? messageRef.current : null
-        );
-      }
-    },
-    [isDesktop, autoScroll]
-  );
+  const blurOnClickOutside = useCallback((event) => {
+    if (!fieldWrapperRef.current?.contains(event.target)) {
+      setIsFocused(false);
+    }
+  }, []);
 
   const blurOnFocusOutside = useCallback(() => {
     if (
@@ -313,13 +305,7 @@ const CommentField = (props) => {
     ) {
       setIsFocused(false);
     }
-    if (autoScroll) {
-      updateScroll(
-        rootElementRef.current,
-        !isDesktop ? messageRef.current : null
-      );
-    }
-  }, [isDesktop, autoScroll]);
+  }, []);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -399,7 +385,11 @@ const CommentField = (props) => {
 
   useEffect(() => {
     updateScroll();
-  }, [isFocused, value]);
+  }, [scrollerRef, id, comments]);
+
+  useEffect(() => {
+    scrollerRef.current?.scrollTo(0, scrollerRef.current.scrollHeight);
+  }, [scrollerRef, isFocused, height, value]);
 
   if (isLocked) {
     return (
@@ -478,9 +468,12 @@ CommentField.propTypes = {
   }).isRequired,
   initialValue: PropTypes.string,
   id: PropTypes.string,
+  comments: PropTypes.array,
   onSend: PropTypes.func.isRequired,
   isLoading: PropTypes.bool,
   disabled: PropTypes.bool,
-  autoScroll: PropTypes.bool,
+  isLocked: PropTypes.bool,
+  placeholder: PropTypes.string,
+  scrollerRef: PropTypes.object,
 };
 export default CommentField;
