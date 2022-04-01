@@ -8,7 +8,6 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from dynamic_filenames import FilePattern
-from reversion.models import Revision, Version
 
 from agir.donations.model_fields import BalanceField
 from agir.lib.history import HistoryMixin

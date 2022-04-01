@@ -46,6 +46,24 @@ def display_price(price, price_in_cents=True):
     return "{}\u00A0€".format(floatformat(price, 2))
 
 
+def display_allocations(allocations):
+    id = 0
+    amount = 0
+    for alloc in allocations:
+        if isinstance(alloc, dict):
+            id = alloc.get("group")
+            amount = alloc.get("amount")
+
+    if id == 0 or amount == 0:
+        return "-"
+
+    from agir.groups.models import SupportGroup
+
+    group = SupportGroup.objects.get(pk=id)
+
+    return f"dont {amount/100}€ vers {group.name}"
+
+
 def pretty_time_since(d, relative_to=None):
     """Convert datetime.date to datetime.datetime for comparison."""
     if not isinstance(d, datetime.datetime):
