@@ -72,14 +72,12 @@ class IsAvailableForMatchingListFilter(admin.SimpleListFilter):
                         VotingProxy.STATUS_CREATED,
                         VotingProxy.STATUS_AVAILABLE,
                     ),
-                )
-                .exclude(last_matched__date__gt=timezone.now() - timedelta(days=2))
-                .values_list("pk", flat=True)
+                ).values_list("pk", flat=True)
             )
         if self.value() == "1":
             return queryset.filter(
                 status__in=(VotingProxy.STATUS_CREATED, VotingProxy.STATUS_AVAILABLE),
-            ).exclude(last_matched__date__gt=timezone.now() - timedelta(days=2))
+            )
 
         return queryset
 
