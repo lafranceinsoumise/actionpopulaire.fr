@@ -285,22 +285,6 @@ class MatchAvailableProxiesWithRequestsTestCase(TestCase):
         self.assertEqual(len(fulfilled), 0)
 
     @patch("agir.voting_proxies.actions.send_matching_requests_to_proxy")
-    def test_cannot_match_proxy_already_matched_less_than_2_days_ago(
-        self, notify_proxy
-    ):
-        self.create_proxy(
-            email="matched_proxy@proxy.com",
-            status=VotingProxy.STATUS_CREATED,
-            last_matched=timezone.now() - timedelta(days=1),
-        )
-        request = self.create_request()
-        qs = VotingProxyRequest.objects.filter(pk=request.pk)
-        notify_proxy.assert_not_called()
-        fulfilled = match_available_proxies_with_requests(qs, notify_proxy)
-        notify_proxy.assert_not_called()
-        self.assertEqual(len(fulfilled), 0)
-
-    @patch("agir.voting_proxies.actions.send_matching_requests_to_proxy")
     def test_cannot_match_the_same_request_multiple_times(self, notify_proxy):
         proxy = self.create_proxy(email="a_proxy@proxy.com")
         another_proxy = self.create_proxy(email="another_proxy@proxy.com")
