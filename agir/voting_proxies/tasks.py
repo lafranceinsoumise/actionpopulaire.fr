@@ -164,10 +164,10 @@ def send_voting_proxy_request_accepted_text_messages(voting_proxy_request_pks):
     try:
         # Send acceptance EMAIL to voting proxy
         voting_proxy_message = format_html(
-            f"Vous avez accepté de voter pour {to_7bit_string(voting_proxy_request.first_name)} {voting_dates}."
+            f"Vous avez accepté de voter pour {voting_proxy_request.first_name} {voting_dates}."
             "\n\n"
-            f"Nous vous préviendrons lorsque {to_7bit_string(voting_proxy_request.first_name)} aura établi "
-            f"la procuration de vote."
+            f"Nous vous préviendrons lorsque {voting_proxy_request.first_name} aura établi "
+            f"la procuration de vote. Son numéro : {voting_proxy_request.contact_phone}"
         )
         send_voting_proxy_request_email.delay(
             [voting_proxy_request.proxy.email],
@@ -179,7 +179,7 @@ def send_voting_proxy_request_accepted_text_messages(voting_proxy_request_pks):
         voting_proxy_message = (
             f"Vous avez accepté de voter pour {to_7bit_string(voting_proxy_request.first_name)} {voting_dates}. "
             f"Nous vous préviendrons lorsque {to_7bit_string(voting_proxy_request.first_name)} aura établi "
-            f"la procuration de vote."
+            f"la procuration de vote. Son numéro : {voting_proxy_request.contact_phone}"
         )
         send_sms(
             voting_proxy_message,
