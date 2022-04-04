@@ -47,28 +47,26 @@ def display_price(price, price_in_cents=True):
 
 
 def display_allocations(allocations):
-    id = 0
-    amount = 0
-
-    if isinstance(allocations, dict):
-        for key in allocations.keys():
-            id = key
-        for value in allocations.values():
-            amount = value
-    else:
-        for alloc in allocations:
-            if isinstance(alloc, dict):
-                id = alloc.get("group")
-                amount = alloc.get("amount")
-
-    if id == 0 or amount == 0:
-        return "-"
+    """Display each group allocations if exist"""
+    if isinstance(allocations, list):
+        allocations = {
+            allocation["group"]: allocation["amount"] for allocation in allocations
+        }
 
     from agir.groups.models import SupportGroup
 
-    group = SupportGroup.objects.get(pk=id)
+    strings = []
+    for group_id, amount in allocations.items():
+        try:
+            group = SupportGroup.objects.get(pk=group_id)
+            strings.append(f"{amount/100}€ vers {group.name}")
+        except SupportGroup.DoesNotExist:
+            strings.append(f"{amount/100}€ vers {group_id}")
 
-    return f"dont {amount/100}€ vers {group.name}"
+    if not strings:
+        return "-"
+
+    return f"dont {', '.join(strings)}"
 
 
 def pretty_time_since(d, relative_to=None):
