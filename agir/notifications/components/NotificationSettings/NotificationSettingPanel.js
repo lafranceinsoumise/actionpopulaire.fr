@@ -17,7 +17,6 @@ import { getUser } from "@agir/front/globalContext/reducers";
 
 import { useMobileApp } from "@agir/front/app/hooks";
 import { usePush } from "@agir/notifications/push/subscriptions";
-import nonReactRoutes from "@agir/front/mockData/routes";
 
 const StyledGroupName = styled.div`
   display: grid;
@@ -199,7 +198,7 @@ const NotificationSettingPanel = (props) => {
         <Link route="personalInformation">(modifier)</Link>
       </p>
       <div style={{ marginLeft: "20px", marginBottom: "20px" }}>
-        <Button small link href={nonReactRoutes.contactConfiguration}>
+        <Button small link route="contactConfiguration">
           Gérer mes paramètres de contact
         </Button>
       </div>
