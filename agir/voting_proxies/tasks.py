@@ -164,10 +164,10 @@ def send_voting_proxy_request_accepted_text_messages(voting_proxy_request_pks):
     try:
         # Send acceptance EMAIL to voting proxy
         voting_proxy_message = format_html(
-            f"Vous avez accepté de voter pour {to_7bit_string(voting_proxy_request.first_name)} {voting_dates}."
+            f"Vous avez accepté de voter pour {voting_proxy_request.first_name} {voting_dates}."
             "\n\n"
-            f"Nous vous préviendrons lorsque {to_7bit_string(voting_proxy_request.first_name)} aura établi "
-            f"la procuration de vote."
+            f"Nous vous préviendrons lorsque {voting_proxy_request.first_name} aura établi "
+            f"la procuration de vote. Son numéro : {voting_proxy_request.contact_phone}"
         )
         send_voting_proxy_request_email.delay(
             [voting_proxy_request.proxy.email],
@@ -179,7 +179,7 @@ def send_voting_proxy_request_accepted_text_messages(voting_proxy_request_pks):
         voting_proxy_message = (
             f"Vous avez accepté de voter pour {to_7bit_string(voting_proxy_request.first_name)} {voting_dates}. "
             f"Nous vous préviendrons lorsque {to_7bit_string(voting_proxy_request.first_name)} aura établi "
-            f"la procuration de vote."
+            f"la procuration de vote. Son numéro : {voting_proxy_request.contact_phone}"
         )
         send_sms(
             voting_proxy_message,
@@ -270,7 +270,7 @@ def send_voting_proxy_request_confirmation_reminder(voting_proxy_request_pks):
         )
         link = shorten_url(link, secret=True, djan_url_type="M2022")
 
-        # Send acceptance EMAIL to request owner
+        # Send confirmation reminder EMAIL to request owner
         send_voting_proxy_request_email.delay(
             [voting_proxy_request.email],
             subject="Confirmation de votre procuration de vote",
@@ -280,13 +280,37 @@ def send_voting_proxy_request_confirmation_reminder(voting_proxy_request_pks):
             link_href=link,
         )
 
-        # Send acceptance SMS to request owner
+        # Send confirmation reminder SMS to request owner
         request_owner_message = (
             f"Envoyez une confirmation à {to_7bit_string(voting_proxy_request.proxy.first_name)} que votre "
             f"procuration de vote a été établie à son nom et que tout est prêt pour le jour du scrutin. {link}"
         )
         send_sms(
             request_owner_message, voting_proxy_request.contact_phone, sender=SMS_SENDER
+        )
+    except SMSSendException:
+        pass
+
+    try:
+        # Send confirmation reminder EMAIL to voting proxy
+        send_voting_proxy_request_email.delay(
+            [voting_proxy_request.proxy.email],
+            subject="Procuration de vote",
+            intro=(
+                f"{voting_proxy_request.first_name} n'a pas encore confirmé l'établissement de la procuration de vote. "
+                f"Assurez-vous que vous pourrez voter en son nom ! "
+                f"Son numéro : {voting_proxy_request.contact_phone}"
+            ),
+        )
+
+        # Send confirmation reminder SMS to voting proxy
+        proxy_message = (
+            f"{to_7bit_string(voting_proxy_request.first_name)} n'a pas encore confirmé l'établissement de la "
+            f"procuration de vote. Assurez-vous que vous pourrez voter en son nom ! "
+            f"Son numéro : {voting_proxy_request.contact_phone}"
+        )
+        send_sms(
+            proxy_message, voting_proxy_request.proxy.contact_phone, sender=SMS_SENDER
         )
     except SMSSendException:
         pass
