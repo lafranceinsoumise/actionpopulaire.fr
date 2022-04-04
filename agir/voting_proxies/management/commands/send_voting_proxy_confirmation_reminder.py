@@ -1,18 +1,9 @@
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.core.management import BaseCommand
-from django.db.models import Case, When, BooleanField
-from django.utils import timezone
 from tqdm import tqdm
 
-from agir.voting_proxies.actions import (
-    send_matching_requests_to_proxy,
-    match_available_proxies_with_requests,
-    invite_voting_proxy_candidates,
-    find_voting_proxy_candidates_for_requests,
-)
 from agir.voting_proxies.models import VotingProxyRequest
 from agir.voting_proxies.tasks import (
-    send_matching_report_email,
     send_voting_proxy_request_confirmation_reminder,
 )
 

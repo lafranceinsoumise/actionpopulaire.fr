@@ -8,6 +8,7 @@ from django.contrib.gis.measure import D
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.db import transaction
 from django.db.models import Count, Q, Case, When, Value
+from django.db.models.functions import Coalesce
 from django.utils import timezone
 
 from agir.lib.tasks import geocode_person
@@ -194,7 +195,7 @@ def get_voting_proxy_requests_for_proxy(voting_proxy, voting_proxy_request_pks):
         voting_proxy_requests.values("email")
         .annotate(ids=ArrayAgg("id"))
         .annotate(matching_date_count=Count("voting_date"))
-        .order_by("-matching_date_count", "-polling_station_match", "distance")
+        .order_by("distance", "-matching_date_count", "-polling_station_match")
     )
 
     return VotingProxyRequest.objects.filter(
@@ -250,8 +251,10 @@ def match_available_proxies_with_requests(
         .filter(
             status__in=(VotingProxy.STATUS_CREATED, VotingProxy.STATUS_AVAILABLE),
         )
-        .exclude(last_matched__date__gt=timezone.now() - timedelta(days=2))
-        .order_by("-voting_dates__len")
+        .order_by(
+            "-voting_dates__len",
+            Coalesce("last_matched", Value("2022-01-01 00:00:00")).asc(),
+        )
     )
 
     # Try to match available voting proxies with pending requests

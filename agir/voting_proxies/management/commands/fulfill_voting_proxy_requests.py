@@ -1,5 +1,4 @@
 from django.core.management import BaseCommand
-from django.db.models import Case, When, BooleanField
 from django.utils import timezone
 from tqdm import tqdm
 
