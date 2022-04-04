@@ -69,7 +69,7 @@ class AjouterReglementView(AdminViewMixin, CreateView):
                         {
                             "fields": (
                                 "intitule",
-                                "mode",
+                                "choix_mode",
                                 "montant",
                                 "date",
                                 "facture",
