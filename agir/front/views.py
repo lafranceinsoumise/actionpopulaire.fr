@@ -9,7 +9,6 @@ from django.http import (
     FileResponse,
     HttpResponseRedirect,
 )
-from django.shortcuts import get_object_or_404
 from django.templatetags.static import static
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
@@ -347,6 +346,10 @@ class VotingProxyView(BaseAppCachedView):
     )
     meta_type = "website"
     meta_image = urljoin(settings.FRONT_DOMAIN, static("front/assets/og_image_vp.jpg"))
+
+
+class AcceptedVotingProxyRequestsView(SoftLoginRequiredMixin, VotingProxyView):
+    pass
 
 
 class VotingProxyRequestView(BaseAppCachedView):
