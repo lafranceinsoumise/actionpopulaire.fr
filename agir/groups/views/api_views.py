@@ -859,10 +859,11 @@ class GroupMemberUpdateAPIView(UpdateAPIView):
 
     def check_request_data_permissions(self, request, obj):
         # Group manager can only change membership type for members / followers
+        membershipType = request.data.get("membershipType", 0)
         user_should_be_at_least_referent = (
-            request.data.get("membershipType", 0) >= Membership.MEMBERSHIP_TYPE_MANAGER
-            or obj.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER
-        )
+            membershipType is not None
+            and membershipType >= Membership.MEMBERSHIP_TYPE_MANAGER
+        ) or obj.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER
         if (
             user_should_be_at_least_referent
             and Membership.objects.get(
