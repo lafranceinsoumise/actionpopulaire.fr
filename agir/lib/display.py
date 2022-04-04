@@ -49,10 +49,17 @@ def display_price(price, price_in_cents=True):
 def display_allocations(allocations):
     id = 0
     amount = 0
-    for alloc in allocations:
-        if isinstance(alloc, dict):
-            id = alloc.get("group")
-            amount = alloc.get("amount")
+
+    if isinstance(allocations, dict):
+        for key in allocations.keys():
+            id = key
+        for value in allocations.values():
+            amount = value
+    else:
+        for alloc in allocations:
+            if isinstance(alloc, dict):
+                id = alloc.get("group")
+                amount = alloc.get("amount")
 
     if id == 0 or amount == 0:
         return "-"
