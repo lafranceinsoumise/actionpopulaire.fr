@@ -95,6 +95,7 @@ const StyledCard = styled(Card)`
     flex: 0 0 225px;
     margin: 0;
     padding: 0;
+    min-height: 125px;
   }
 
   main {
