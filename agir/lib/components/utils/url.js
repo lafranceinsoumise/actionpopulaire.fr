@@ -16,7 +16,9 @@ export const addQueryStringParams = (url, params = {}, relative = false) => {
     let parsedURL = url;
     parsedURL = parseURL(url);
     Object.entries(params).forEach(([key, value]) => {
-      parsedURL.searchParams.set(key, value);
+      if (typeof value !== "undefined") {
+        parsedURL.searchParams.set(key, value);
+      }
     });
     parsedURL = parsedURL.toString();
     if (window?.location && relative) {

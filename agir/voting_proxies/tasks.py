@@ -292,6 +292,12 @@ def send_voting_proxy_request_confirmation_reminder(voting_proxy_request_pks):
         pass
 
     try:
+        link = front_url(
+            "accepted_voting_proxy_requests",
+            kwargs={"pk": voting_proxy_request.proxy.pk},
+        )
+        link = shorten_url(link, secret=True, djan_url_type="M2022")
+
         # Send confirmation reminder EMAIL to voting proxy
         send_voting_proxy_request_email.delay(
             [voting_proxy_request.proxy.email],
@@ -301,13 +307,15 @@ def send_voting_proxy_request_confirmation_reminder(voting_proxy_request_pks):
                 f"Assurez-vous que vous pourrez voter en son nom ! "
                 f"Son numéro : {voting_proxy_request.contact_phone}"
             ),
+            link_label="Voir mes procurations acceptées",
+            link_href=link,
         )
 
         # Send confirmation reminder SMS to voting proxy
         proxy_message = (
             f"{to_7bit_string(voting_proxy_request.first_name)} n'a pas encore confirmé l'établissement de la "
             f"procuration de vote. Assurez-vous que vous pourrez voter en son nom ! "
-            f"Son numéro : {voting_proxy_request.contact_phone}"
+            f"Son numéro : {voting_proxy_request.contact_phone} - {link}"
         )
         send_sms(
             proxy_message, voting_proxy_request.proxy.contact_phone, sender=SMS_SENDER

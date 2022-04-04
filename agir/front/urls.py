@@ -178,6 +178,11 @@ voting_proxy_patterns = [
         views.VotingProxyView.as_view(),
         name="reply_to_voting_proxy_requests",
     ),
+    path(
+        "prendre-une-procuration/<uuid:pk>/demandes/",
+        views.AcceptedVotingProxyRequestsView.as_view(),
+        name="accepted_voting_proxy_requests",
+    ),
 ]
 
 urlpatterns = [

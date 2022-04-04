@@ -114,7 +114,7 @@ class ReplyToVotingProxyRequestsAPIView(RetrieveUpdateAPIView):
         voting_proxy = self.get_object()
         voting_proxy_request_pks = []
         voting_proxy_requests = []
-        is_read_only = False
+        is_read_only = request.GET.get("ro", "0") == "1"
 
         if request.GET.get("vpr", None):
             voting_proxy_request_pks = request.GET.get("vpr").split(",")
@@ -124,32 +124,41 @@ class ReplyToVotingProxyRequestsAPIView(RetrieveUpdateAPIView):
                 voting_proxy, voting_proxy_request_pks
             )
         except VotingProxyRequest.DoesNotExist:
-            # Check if request exist that are already been accepted by the user
             is_read_only = True
-            if request.user.is_authenticated and request.user.person is not None:
-                voting_proxy_requests = VotingProxyRequest.objects.filter(
-                    proxy__person=request.user.person
-                )
+
+        # Check if request exist that are already been accepted by the user
+        if (
+            is_read_only
+            and request.user.is_authenticated
+            and request.user.person is not None
+        ):
+            voting_proxy_requests = VotingProxyRequest.objects.filter(
+                proxy__person=request.user.person
+            )
 
         return Response(
             {
                 "firstName": voting_proxy.first_name,
                 "readOnly": is_read_only,
-                "requests": [
-                    {
-                        "id": request.id,
-                        "firstName": request.first_name,
-                        "pollingStationNumber": request.polling_station_number,
-                        "votingDate": dict(VotingProxyRequest.VOTING_DATE_CHOICES)[
-                            request.voting_date
-                        ],
-                        "commune": request.commune.nom if request.commune else None,
-                        "consulate": request.consulate.nom
-                        if request.consulate
-                        else None,
-                    }
-                    for request in voting_proxy_requests
-                ],
+                "requests": sorted(
+                    [
+                        {
+                            "id": request.id,
+                            "status": request.status,
+                            "firstName": request.first_name,
+                            "pollingStationNumber": request.polling_station_number,
+                            "votingDate": dict(VotingProxyRequest.VOTING_DATE_CHOICES)[
+                                request.voting_date
+                            ],
+                            "commune": request.commune.nom if request.commune else None,
+                            "consulate": request.consulate.nom
+                            if request.consulate
+                            else None,
+                        }
+                        for request in voting_proxy_requests
+                    ],
+                    key=lambda r: r["votingDate"],
+                ),
             }
         )
 
