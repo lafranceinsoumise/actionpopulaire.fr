@@ -32,7 +32,7 @@ PER_VOTING_PROXY_REQUEST_INVITATION_LIMIT = 10
 
 def create_or_update_voting_proxy_request(data):
     data = deepcopy(data)
-    email = data.pop("email")
+    email = data.pop("email").lower()
     voting_dates = data.pop("votingDates")
     updated = False
     voting_proxy_request_pks = []
