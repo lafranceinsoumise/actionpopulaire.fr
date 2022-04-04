@@ -113,10 +113,6 @@ const Container = styled.div`
   }
 `;
 
-const StyledLabel = styled.div`
-  color: ${style.redNSP};
-`;
-
 const Title = styled.div`
   margin: 0.5rem 0;
   font-size: 1.5rem;
@@ -227,7 +223,6 @@ export const PromoMessage = (props) => {
 
   return (
     <Container>
-      <StyledLabel>Nouveau</StyledLabel>
       <Title>La messagerie de votre groupe</Title>
       <div>
         <Arrow>
