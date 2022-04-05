@@ -9,6 +9,7 @@ import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 import ReplySuccess from "./ReplySuccess";
+import AcceptedRequests from "./AcceptedRequests";
 
 import { replyToVotingProxyRequests } from "@agir/voting_proxies/Common/api";
 
@@ -40,6 +41,10 @@ const StyledRecap = styled.div`
     color: ${({ theme }) => theme.primary500};
   }
 
+  p > strong {
+    text-transform: capitalize;
+  }
+
   p + p {
     margin-top: 0.5rem;
   }
@@ -64,7 +69,8 @@ const StyledWrapper = styled.div`
 `;
 
 const ReplyingForm = (props) => {
-  const { votingProxyPk, firstName, requests, readOnly } = props;
+  const { votingProxyPk, firstName, requests, readOnly, refreshRequests } =
+    props;
   const [isAccepting, setIsAccepting] = useState(false);
   const [shouldConfirm, setShouldConfirm] = useState(false);
   const [isDeclining, setIsDeclining] = useState(false);
@@ -112,7 +118,7 @@ const ReplyingForm = (props) => {
     handleSubmit(false);
   };
 
-  const dismissConfirm = (e) => {
+  const dismissConfirm = () => {
     setShouldConfirm(false);
   };
 
@@ -120,28 +126,9 @@ const ReplyingForm = (props) => {
     return <ReplySuccess isAvailable={isAvailable} />;
   }
 
-  if (readOnly) {
+  if (Array.isArray(requests) && requests.length > 0 && readOnly) {
     return (
-      <StyledWrapper>
-        <h2>Mes procurations de vote</h2>
-        <Spacer size="1rem" />
-        <p>
-          Vous avez déjà accepté les procurations suivantes.{" "}
-          <strong>
-            Vérifiez vos SMS pour y retrouver toutes les informations.
-          </strong>
-        </p>
-        <Spacer size="1rem" />
-        <StyledRecap>
-          {requests.map((request) => (
-            <p key={request.id}>
-              <RawFeatherIcon name="calendar" />
-              Voter pour {request.firstName}, {request.votingDate}
-              &nbsp;&mdash;&nbsp;{request.commune || request.consulate}
-            </p>
-          ))}
-        </StyledRecap>
-      </StyledWrapper>
+      <AcceptedRequests requests={requests} refreshRequests={refreshRequests} />
     );
   }
 
@@ -275,5 +262,6 @@ ReplyingForm.propTypes = {
     })
   ).isRequired,
   readOnly: PropTypes.bool,
+  refreshRequests: PropTypes.func,
 };
 export default ReplyingForm;

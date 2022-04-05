@@ -3,7 +3,9 @@ from operator import neg
 from typing import Tuple
 
 import pandas as pd
+from agir.lib.admin.utils import get_admin_link
 from django.db.models import Subquery, OuterRef
+from django.urls import reverse
 from django.utils import timezone
 from glom import glom, Val, T, M, Coalesce
 
@@ -49,6 +51,7 @@ spec_fec = {
     "DateDébut": "depense.date_debut",
     "DateFin": "depense.date_fin",
     "Quantité": "depense.quantite",
+    "LienRèglement": (get_admin_link,),
 }
 
 
@@ -60,13 +63,6 @@ def exporter_compte(
 
     qs = (
         Reglement.objects.order_by("date")
-        .annotate(
-            code_insee=Subquery(
-                Event.objects.filter(
-                    projet__depense__reglement__id=OuterRef("id")
-                ).values("location_citycode")[:1]
-            ),
-        )
         .filter(
             depense__compte=compte,
             etat__in=[Reglement.Etat.RAPPROCHE, Reglement.Etat.EXPERTISE],
