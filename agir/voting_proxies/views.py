@@ -136,25 +136,22 @@ class ReplyToVotingProxyRequestsAPIView(RetrieveUpdateAPIView):
             {
                 "firstName": voting_proxy.first_name,
                 "readOnly": is_read_only,
-                "requests": sorted(
-                    [
-                        {
-                            "id": request.id,
-                            "status": request.status,
-                            "firstName": request.first_name,
-                            "pollingStationNumber": request.polling_station_number,
-                            "votingDate": dict(VotingProxyRequest.VOTING_DATE_CHOICES)[
-                                request.voting_date
-                            ],
-                            "commune": request.commune.nom if request.commune else None,
-                            "consulate": request.consulate.nom
-                            if request.consulate
-                            else None,
-                        }
-                        for request in voting_proxy_requests
-                    ],
-                    key=lambda r: r["votingDate"],
-                ),
+                "requests": [
+                    {
+                        "id": request.id,
+                        "status": request.status,
+                        "firstName": request.first_name,
+                        "pollingStationNumber": request.polling_station_number,
+                        "votingDate": dict(VotingProxyRequest.VOTING_DATE_CHOICES)[
+                            request.voting_date
+                        ],
+                        "commune": request.commune.nom if request.commune else None,
+                        "consulate": request.consulate.nom
+                        if request.consulate
+                        else None,
+                    }
+                    for request in voting_proxy_requests.order_by("voting_date")
+                ],
             }
         )
 
