@@ -127,13 +127,9 @@ class ReplyToVotingProxyRequestsAPIView(RetrieveUpdateAPIView):
             is_read_only = True
 
         # Check if request exist that are already been accepted by the user
-        if (
-            is_read_only
-            and request.user.is_authenticated
-            and request.user.person is not None
-        ):
+        if is_read_only:
             voting_proxy_requests = VotingProxyRequest.objects.filter(
-                proxy__person=request.user.person
+                proxy=voting_proxy
             )
 
         return Response(

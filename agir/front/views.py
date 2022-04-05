@@ -348,10 +348,6 @@ class VotingProxyView(BaseAppCachedView):
     meta_image = urljoin(settings.FRONT_DOMAIN, static("front/assets/og_image_vp.jpg"))
 
 
-class AcceptedVotingProxyRequestsView(SoftLoginRequiredMixin, VotingProxyView):
-    pass
-
-
 class VotingProxyRequestView(BaseAppCachedView):
     meta_title = "Voter par procuration pour Jean-Luc Mélenchon — Action Populaire"
     meta_description = (
