@@ -22,14 +22,24 @@ const slideInTransition = {
 };
 
 const EventSubtypeField = (props) => {
-  const { name, value, options, onChange, disabled } = props;
+  const { name, value, options, onChange, disabled, whiteList } = props;
 
   const subtypeOptions = useMemo(() => {
     if (!Array.isArray(options) || options.length === 0) {
       return [];
     }
+
+    let filteredOptions = [];
+    if (Array.isArray(whiteList) && whiteList.length > 0) {
+      filteredOptions = options.filter((option) =>
+        whiteList.includes(option.type)
+      );
+    } else {
+      filteredOptions = options;
+    }
+
     const categories = {};
-    options.forEach((subtype) => {
+    filteredOptions.forEach((subtype) => {
       const category =
         subtype.type && EVENT_TYPES[subtype.type] ? subtype.type : "O";
       categories[category] = categories[category] || {
@@ -42,7 +52,7 @@ const EventSubtypeField = (props) => {
     return Object.values(categories).filter((category) =>
       Array.isArray(category.subtypes)
     );
-  }, [options]);
+  }, [options, whiteList]);
 
   const selectedSubtype = useMemo(
     () =>
@@ -70,27 +80,27 @@ const EventSubtypeField = (props) => {
         <label>Type de l'événement</label>
       </div>
 
-      {selectedSubtype && (
-        <div>
-          <StyledDefaultOptions style={{ display: "inline-flex" }}>
+      <div>
+        <StyledDefaultOptions style={{ display: "inline-flex" }}>
+          {selectedSubtype && (
             <DefaultOption
               option={selectedSubtype}
               onClick={openMenu}
               disabled={disabled}
               selected
             />
-          </StyledDefaultOptions>
-          <Button
-            type="button"
-            color="link"
-            onClick={openMenu}
-            style={{ marginLeft: "0.5rem" }}
-            disabled={disabled}
-          >
-            Changer
-          </Button>
-        </div>
-      )}
+          )}
+        </StyledDefaultOptions>
+        <Button
+          type="button"
+          color="link"
+          onClick={openMenu}
+          style={{ marginLeft: "0.5rem" }}
+          disabled={disabled}
+        >
+          {!!selectedSubtype ? "Changer" : "Choisir"}
+        </Button>
+      </div>
 
       {transition(
         (style, item) =>

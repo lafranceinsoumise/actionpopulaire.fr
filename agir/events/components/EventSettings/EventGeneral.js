@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import useSWR from "swr";
+import { DateTime } from "luxon";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
@@ -20,6 +21,13 @@ import { DEFAULT_FORM_DATA } from "@agir/events/common/eventForm.config";
 import * as api from "@agir/events/common/api";
 import { useToast } from "@agir/front/globalContext/hooks";
 import { useEventFormOptions } from "@agir/events/common/hooks";
+
+import { ToastElectionInfo } from "@agir/events/createEventPage/CreateEvent";
+import {
+  TZ_PARIS,
+  datesRestricted,
+  subtypesRestricted,
+} from "@agir/events/createEventPage/EventForm/index";
 
 const StyledDateField = styled(DateField)`
   @media (min-width: ${style.collapse}px) {
@@ -54,6 +62,38 @@ const EventGeneral = (props) => {
   const [imageHasChanged, setImageHasChanged] = useState(false);
   const [hasCheckedImageLicence, setHasCheckedImageLicence] = useState(false);
 
+  const [isBetweenDatesRestricted, setIsBetweenDatesRestricted] =
+    useState(false);
+
+  const updateDatesRestricted = ({
+    startTime,
+    endTime,
+    outEuropeTimezone = false,
+  }) => {
+    if (!startTime || !endTime) {
+      setIsBetweenDatesRestricted(false);
+      return;
+    }
+    // Retrieve one day from start if outside europe timezone
+    const startElection = outEuropeTimezone
+      ? datesRestricted.start.plus({ days: -1 })
+      : datesRestricted.start;
+    const endElection = datesRestricted.end;
+    setIsBetweenDatesRestricted(
+      DateTime.fromISO(startTime) < endElection &&
+        DateTime.fromISO(endTime) > startElection
+    );
+  };
+
+  useEffect(() => {
+    if (isBetweenDatesRestricted) {
+      // Unselect forbidden types
+      if (!subtypesRestricted.includes(formData.subtype?.type)) {
+        setFormData((state) => ({ ...state, subtype: null }));
+      }
+    }
+  }, [isBetweenDatesRestricted]);
+
   useEffect(() => {
     setImageHasChanged(false);
     setHasCheckedImageLicence(false);
@@ -77,10 +117,13 @@ const EventGeneral = (props) => {
     setFormData((formData) => ({ ...formData, [name]: value }));
   };
 
-  const handleChangeValue = useCallback((name, value) => {
-    setErrors((errors) => ({ ...errors, [name]: null }));
-    setFormData((formData) => ({ ...formData, [name]: value }));
-  }, []);
+  const handleChangeValue = useCallback(
+    (name, value) => {
+      setErrors((errors) => ({ ...errors, [name]: null }));
+      setFormData((formData) => ({ ...formData, [name]: value }));
+    },
+    [formData]
+  );
 
   const handleDescriptionChange = useCallback((value) => {
     setFormData((formData) => ({ ...formData, description: value }));
@@ -106,8 +149,16 @@ const EventGeneral = (props) => {
       handleChangeValue("startTime", startTime);
       handleChangeValue("endTime", endTime);
     },
-    [handleChangeValue]
+    [handleChangeValue, formData]
   );
+
+  useEffect(() => {
+    updateDatesRestricted({
+      startTime: formData.startTime,
+      endTime: formData.endTime,
+      outEuropeTimezone: !(formData.timezone === TZ_PARIS),
+    });
+  }, [formData]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -155,6 +206,7 @@ const EventGeneral = (props) => {
         <span style={{ color: style.black700 }}>
           Ces informations seront affichées en public.
         </span>
+        <ToastElectionInfo />
         <Spacer size="1rem" />
         <TextField
           id="name"
@@ -245,6 +297,9 @@ const EventGeneral = (props) => {
               options={options?.subtype}
               onChange={handleChangeValue}
               disabled={isDisabled}
+              whiteList={
+                isBetweenDatesRestricted ? subtypesRestricted : undefined
+              }
             />
           </>
         )}

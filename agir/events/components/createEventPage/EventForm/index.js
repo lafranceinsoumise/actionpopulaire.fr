@@ -64,7 +64,15 @@ const StyledForm = styled.form`
     }
   }
 `;
-const TZ_PARIS = "Europe/Paris";
+
+export const TZ_PARIS = "Europe/Paris";
+
+// Dates forbidden to some subtypes on next election
+export const datesRestricted = {
+  start: DateTime.fromISO("2022-04-09"),
+  end: DateTime.fromISO("2022-04-11"),
+};
+export const subtypesRestricted = ["G"];
 
 const formatErrors = (errors, fields = DEFAULT_FORM_DATA) => {
   if (typeof errors !== "object") {
@@ -94,13 +102,6 @@ const EventForm = () => {
   const { search } = useLocation();
   const options = useEventFormOptions();
 
-  // Dates forbidden to some subtypes on next election
-  const datesRestricted = {
-    start: DateTime.fromISO("2022-04-09"),
-    end: DateTime.fromISO("2022-04-11"),
-  };
-  const whiteList = { subtype: ["G"] };
-
   const [isBetweenDatesRestricted, setIsBetweenDatesRestricted] =
     useState(false);
 
@@ -123,6 +124,15 @@ const EventForm = () => {
         DateTime.fromISO(endTime) > startElection
     );
   };
+
+  useEffect(() => {
+    if (isBetweenDatesRestricted) {
+      // Unselect forbidden types
+      if (!subtypesRestricted.includes(formData.subtype?.type)) {
+        setFormData((state) => ({ ...state, subtype: null }));
+      }
+    }
+  }, [isBetweenDatesRestricted]);
 
   const updateValue = useCallback(
     (name, value) => {
@@ -372,7 +382,7 @@ const EventForm = () => {
         name="subtype"
         value={formData.subtype}
         options={options.subtype}
-        whiteList={isBetweenDatesRestricted ? whiteList?.subtype : undefined}
+        whiteList={isBetweenDatesRestricted ? subtypesRestricted : undefined}
         onChange={updateValue}
         error={errors && errors.subtype}
         disabled={isLoading}
