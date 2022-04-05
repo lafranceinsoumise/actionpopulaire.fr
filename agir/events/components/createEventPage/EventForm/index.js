@@ -1,4 +1,3 @@
-import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import { DateTime } from "luxon";
@@ -66,6 +65,15 @@ const StyledForm = styled.form`
   }
 `;
 
+export const TZ_PARIS = "Europe/Paris";
+
+// Dates forbidden to some subtypes on next election
+export const datesRestricted = {
+  start: DateTime.fromISO("2022-04-09"),
+  end: DateTime.fromISO("2022-04-11"),
+};
+export const subtypesRestricted = ["G"];
+
 const formatErrors = (errors, fields = DEFAULT_FORM_DATA) => {
   if (typeof errors !== "object") {
     return errors;
@@ -83,7 +91,7 @@ const formatErrors = (errors, fields = DEFAULT_FORM_DATA) => {
   );
 };
 
-const EventForm = ({ whiteList, datesRestricted }) => {
+const EventForm = () => {
   const [formData, setFormData] = useState(DEFAULT_FORM_DATA);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -97,16 +105,55 @@ const EventForm = ({ whiteList, datesRestricted }) => {
   const [isBetweenDatesRestricted, setIsBetweenDatesRestricted] =
     useState(false);
 
-  const updateValue = useCallback((name, value) => {
-    setErrors((state) => ({
-      ...state,
-      [name]: undefined,
-    }));
-    setFormData((state) => ({
-      ...state,
-      [name]: value,
-    }));
-  }, []);
+  const updateDatesRestricted = ({
+    startTime,
+    endTime,
+    outEuropeTimezone = false,
+  }) => {
+    if (!startTime || !endTime) {
+      setIsBetweenDatesRestricted(false);
+      return;
+    }
+    // Retrieve one day from start if outside europe timezone
+    const startElection = outEuropeTimezone
+      ? datesRestricted.start.plus({ days: -1 })
+      : datesRestricted.start;
+    const endElection = datesRestricted.end;
+    setIsBetweenDatesRestricted(
+      DateTime.fromISO(startTime) < endElection &&
+        DateTime.fromISO(endTime) > startElection
+    );
+  };
+
+  useEffect(() => {
+    if (isBetweenDatesRestricted) {
+      // Unselect forbidden types
+      if (!subtypesRestricted.includes(formData.subtype?.type)) {
+        setFormData((state) => ({ ...state, subtype: null }));
+      }
+    }
+  }, [isBetweenDatesRestricted]);
+
+  const updateValue = useCallback(
+    (name, value) => {
+      setErrors((state) => ({
+        ...state,
+        [name]: undefined,
+      }));
+      setFormData((state) => ({
+        ...state,
+        [name]: value,
+      }));
+      if (name === "timezone") {
+        updateDatesRestricted({
+          startTime: formData.startTime,
+          endTime: formData.endTime,
+          outEuropeTimezone: !(!value || value === TZ_PARIS),
+        });
+      }
+    },
+    [formData]
+  );
 
   const updateNestedValue = useCallback((parentName, name, value) => {
     setErrors((state) => {
@@ -143,14 +190,11 @@ const EventForm = ({ whiteList, datesRestricted }) => {
       startTime,
       endTime,
     }));
-    if (!startTime || !endTime) {
-      setIsBetweenDatesRestricted(false);
-      return;
-    }
-    setIsBetweenDatesRestricted(
-      DateTime.fromISO(startTime) < datesRestricted?.end &&
-        DateTime.fromISO(endTime) > datesRestricted?.start
-    );
+    updateDatesRestricted({
+      startTime,
+      endTime,
+      outEuropeTimezone: formData.timezone !== TZ_PARIS,
+    });
   }, []);
 
   const updateCampaignFunding = useCallback((value) => {
@@ -338,7 +382,7 @@ const EventForm = ({ whiteList, datesRestricted }) => {
         name="subtype"
         value={formData.subtype}
         options={options.subtype}
-        whiteList={isBetweenDatesRestricted ? whiteList?.subtype : undefined}
+        whiteList={isBetweenDatesRestricted ? subtypesRestricted : undefined}
         onChange={updateValue}
         error={errors && errors.subtype}
         disabled={isLoading}
@@ -438,9 +482,5 @@ const EventForm = ({ whiteList, datesRestricted }) => {
       <UnloadPrompt enabled={!newEventPk} allowedRoutes="createEvent" />
     </StyledForm>
   );
-};
-EventForm.propTypes = {
-  whiteList: PropTypes.array,
-  datesRestricted: PropTypes.array,
 };
 export default EventForm;

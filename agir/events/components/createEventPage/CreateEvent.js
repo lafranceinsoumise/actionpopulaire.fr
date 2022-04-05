@@ -141,6 +141,15 @@ const InfoBlock = (props) => (
   </StyledInfoBlock>
 );
 
+export const ToastElectionInfo = () => (
+  <StaticToast $color={style.primary500} style={{ marginTop: "1rem" }}>
+    La veille d'une élection, la loi vous interdit de faire campagne. Vous ne
+    pouvez pas organiser d'action en but de récolter des suffrages
+    (porte-à-porte, tractage, réunion publique...). Seuls les événements
+    internes à la campagne sont autorisés.
+  </StaticToast>
+);
+
 const CreateEvent = () => {
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const backLink = useSelector(getBackLink);
@@ -153,13 +162,6 @@ const CreateEvent = () => {
     }
     return projects.some((project) => project.isBlocking);
   }, [projects]);
-
-  // Dates forbidden to some subtypes on next election
-  const datesRestricted = {
-    start: DateTime.fromISO("2022-04-08"),
-    end: DateTime.fromISO("2022-04-11"),
-  };
-  const whiteList = { subtype: ["G"] };
 
   return (
     <PageFadeIn
@@ -184,21 +186,10 @@ const CreateEvent = () => {
             )}
             <Spacer size="1.5rem" />
             <h2>Nouvel événement</h2>
-            <StaticToast
-              $color={style.primary500}
-              style={{ marginTop: "1rem" }}
-            >
-              La veille d'une élection, la loi vous interdit de faire campagne.
-              Vous ne pouvez pas organiser d'action en but de récolter des
-              suffrages (porte-à-porte, tractage, réunion publique...). Seuls
-              les événements internes à la campagne sont autorisés.
-            </StaticToast>
+            <ToastElectionInfo />
             <InfoBlock over />
             <Spacer size="1.5rem" />
-            <EventForm
-              whiteList={whiteList}
-              datesRestricted={datesRestricted}
-            />
+            <EventForm />
           </div>
           <div>
             <InfoBlock under />
