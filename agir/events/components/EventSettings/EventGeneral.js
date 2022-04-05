@@ -117,13 +117,10 @@ const EventGeneral = (props) => {
     setFormData((formData) => ({ ...formData, [name]: value }));
   };
 
-  const handleChangeValue = useCallback(
-    (name, value) => {
-      setErrors((errors) => ({ ...errors, [name]: null }));
-      setFormData((formData) => ({ ...formData, [name]: value }));
-    },
-    [formData]
-  );
+  const handleChangeValue = useCallback((name, value) => {
+    setErrors((errors) => ({ ...errors, [name]: null }));
+    setFormData((formData) => ({ ...formData, [name]: value }));
+  }, []);
 
   const handleDescriptionChange = useCallback((value) => {
     setFormData((formData) => ({ ...formData, description: value }));
@@ -149,7 +146,7 @@ const EventGeneral = (props) => {
       handleChangeValue("startTime", startTime);
       handleChangeValue("endTime", endTime);
     },
-    [handleChangeValue, formData]
+    [handleChangeValue]
   );
 
   useEffect(() => {
