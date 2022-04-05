@@ -1,3 +1,4 @@
+import React from "react";
 import styled from "styled-components";
 
 import Link from "@agir/front/app/Link";
@@ -107,3 +108,25 @@ export const StyledPage = styled.div`
     }
   }
 `;
+
+export const MailTo = () => (
+  <div
+    css={`
+      padding: 0;
+      font-size: 0.875rem;
+      color: ${({ theme }) => theme.black700};
+
+      & > a {
+        font-weight: 600;
+      }
+    `}
+  >
+    Besoin d'aide&nbsp;? Une question&nbsp;?
+    <br />
+    Écrivez-nous à l'adresse{" "}
+    <Link href="mailto:procurations@actionpopulaire.fr">
+      procurations@actionpopulaire.fr
+    </Link>
+    &nbsp;!
+  </div>
+);

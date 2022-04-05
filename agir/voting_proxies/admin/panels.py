@@ -167,7 +167,11 @@ class VotingProxyAdmin(VoterModelAdmin):
     )
 
     inlines = [InlineVotingProxyRequestAdmin]
-    readonly_fields = (*VoterModelAdmin.readonly_fields, "last_matched")
+    readonly_fields = (
+        *VoterModelAdmin.readonly_fields,
+        "last_matched",
+        "request_page_button",
+    )
     autocomplete_fields = (
         *VoterModelAdmin.autocomplete_fields,
         "person",
@@ -181,23 +185,45 @@ class VotingProxyAdmin(VoterModelAdmin):
             .prefetch_related("voting_proxy_requests")
         )
 
-    def person_link(self, instance):
-        if instance.person is None:
+    def person_link(self, voting_proxy):
+        if voting_proxy.person is None:
             return "-"
-        href = reverse("admin:people_person_change", args=(instance.person_id,))
-        return mark_safe(format_html(f'<a href="{href}">{instance.person}</a>'))
+        href = reverse("admin:people_person_change", args=(voting_proxy.person_id,))
+        return mark_safe(format_html(f'<a href="{href}">{voting_proxy.person}</a>'))
 
     person_link.short_description = "personne"
 
-    def confirmed_dates(self, instance):
+    def confirmed_dates(self, voting_proxy):
         return [
             request.voting_date
-            for request in instance.voting_proxy_requests.exclude(
+            for request in voting_proxy.voting_proxy_requests.exclude(
                 status=VotingProxyRequest.STATUS_CANCELLED
             ).only("voting_date")
         ]
 
     confirmed_dates.short_description = "dates acceptées"
+
+    def request_page_button(self, voting_proxy):
+        accepted_requests = voting_proxy.voting_proxy_requests.filter(
+            status__in=(
+                VotingProxyRequest.STATUS_ACCEPTED,
+                VotingProxyRequest.STATUS_CONFIRMED,
+            )
+        )
+
+        if len(accepted_requests) == 0:
+            return "-"
+
+        link = front_url(
+            "accepted_voting_proxy_requests", kwargs={"pk": voting_proxy.pk}
+        )
+        link = shorten_url(link, secret=True, djan_url_type="M2022")
+
+        return format_html(
+            f'<a class="button" href="{link}" target="_blank">➡ Lien vers la page des demandes acceptées</a>'
+        )
+
+    request_page_button.short_description = "Demandes acceptées"
 
 
 @admin.register(VotingProxyRequest)

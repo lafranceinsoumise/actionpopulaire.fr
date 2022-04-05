@@ -168,7 +168,12 @@ const VotingProxyRequestDetails = () => {
                   rel="noopener noreferrer"
                 >
                   FAQ de MaProcuration.gouv.fr
+                </a>{" "}
+                ou écrivez-nous à l'adresse{" "}
+                <a href="mailto:procurations@actionpopulaire.fr">
+                  procurations@actionpopulaire.fr
                 </a>
+                .
               </p>
             </footer>
           </>
