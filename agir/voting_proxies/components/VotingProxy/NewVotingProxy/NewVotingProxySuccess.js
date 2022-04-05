@@ -21,6 +21,7 @@ const NewVotingProxySuccess = ({ votingProxy }) => (
     <Spacer size="1rem" />
     <Button
       link
+      wrap
       color="primary"
       route="replyToVotingProxyRequests"
       routeParams={{

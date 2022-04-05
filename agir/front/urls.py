@@ -180,7 +180,7 @@ voting_proxy_patterns = [
     ),
     path(
         "prendre-une-procuration/<uuid:pk>/demandes/",
-        views.AcceptedVotingProxyRequestsView.as_view(),
+        views.VotingProxyView.as_view(),
         name="accepted_voting_proxy_requests",
     ),
 ]
