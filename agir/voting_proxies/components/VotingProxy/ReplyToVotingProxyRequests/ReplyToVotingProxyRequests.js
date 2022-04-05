@@ -12,6 +12,7 @@ import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage";
 import ReplyingForm from "./ReplyingForm";
 import NoRequestFound from "./NoRequestFound";
 
+import { routeConfig } from "@agir/front/app/routes.config";
 import { getVotingProxyEndpoint } from "@agir/voting_proxies/Common/api";
 
 const getVotingProxyRequestsIdsFromURLSearchParams = (search) => {
@@ -29,15 +30,16 @@ const getVotingProxyRequestsIdsFromURLSearchParams = (search) => {
 const ReplyToVotingProxyRequests = (props) => {
   const { votingProxyPk } = props;
 
-  const { search } = useLocation();
+  const { pathname, search } = useLocation();
+  const isReadOnly = routeConfig.acceptedVotingProxyRequests.match(pathname);
   const votingProxyRequestsIds =
     getVotingProxyRequestsIdsFromURLSearchParams(search);
 
-  const { data, error } = useSWR(
+  const { data, error, mutate } = useSWR(
     getVotingProxyEndpoint(
       "replyToVotingProxyRequests",
       { votingProxyPk },
-      votingProxyRequestsIds && { vpr: votingProxyRequestsIds }
+      { vpr: votingProxyRequestsIds || undefined, ro: isReadOnly ? "1" : "0" }
     ),
     {
       revalidateIfStale: false,
@@ -59,6 +61,7 @@ const ReplyToVotingProxyRequests = (props) => {
             votingProxyPk={votingProxyPk}
             firstName={data.firstName}
             requests={data.requests}
+            refreshRequests={mutate}
             readOnly={data.readOnly}
           />
         ) : (

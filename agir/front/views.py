@@ -9,7 +9,6 @@ from django.http import (
     FileResponse,
     HttpResponseRedirect,
 )
-from django.shortcuts import get_object_or_404
 from django.templatetags.static import static
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
