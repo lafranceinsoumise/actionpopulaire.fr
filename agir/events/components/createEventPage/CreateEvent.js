@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { Redirect } from "react-router-dom";
+import { DateTime } from "luxon";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -19,6 +20,7 @@ import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 import TokTokCard from "@agir/events/TokTok/TokTokCard";
+import StaticToast from "@agir/front/genericComponents/StaticToast";
 
 import EventForm from "./EventForm";
 
@@ -72,6 +74,7 @@ const StyledInfoBlock = styled(Hide)`
 
 const StyledContainer = styled(Container)`
   margin: 4rem auto;
+  margin-top: 2rem;
   padding: 0;
   background-color: white;
   width: 100%;
@@ -151,6 +154,13 @@ const CreateEvent = () => {
     return projects.some((project) => project.isBlocking);
   }, [projects]);
 
+  // Dates forbidden to some subtypes on next election
+  const datesRestricted = {
+    start: DateTime.fromISO("2022-04-08"),
+    end: DateTime.fromISO("2022-04-11"),
+  };
+  const whiteList = { subtype: ["G"] };
+
   return (
     <PageFadeIn
       wait={<CreateEventSkeleton />}
@@ -174,9 +184,21 @@ const CreateEvent = () => {
             )}
             <Spacer size="1.5rem" />
             <h2>Nouvel événement</h2>
+            <StaticToast
+              $color={style.primary500}
+              style={{ marginTop: "1rem" }}
+            >
+              La veille d'une élection, la loi vous interdit de faire campagne.
+              Vous ne pouvez pas organiser d'action en but de récolter des
+              suffrages (porte-à-porte, tractage, réunion publique...). Seuls
+              les événements internes à la campagne sont autorisés.
+            </StaticToast>
             <InfoBlock over />
             <Spacer size="1.5rem" />
-            <EventForm />
+            <EventForm
+              whiteList={whiteList}
+              datesRestricted={datesRestricted}
+            />
           </div>
           <div>
             <InfoBlock under />

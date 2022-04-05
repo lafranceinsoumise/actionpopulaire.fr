@@ -1,5 +1,7 @@
+import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
+import { DateTime } from "luxon";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -81,7 +83,7 @@ const formatErrors = (errors, fields = DEFAULT_FORM_DATA) => {
   );
 };
 
-const EventForm = () => {
+const EventForm = ({ whiteList, datesRestricted }) => {
   const [formData, setFormData] = useState(DEFAULT_FORM_DATA);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -91,6 +93,9 @@ const EventForm = () => {
   const history = useHistory();
   const { search } = useLocation();
   const options = useEventFormOptions();
+
+  const [isBetweenDatesRestricted, setIsBetweenDatesRestricted] =
+    useState(false);
 
   const updateValue = useCallback((name, value) => {
     setErrors((state) => ({
@@ -138,6 +143,14 @@ const EventForm = () => {
       startTime,
       endTime,
     }));
+    if (!startTime || !endTime) {
+      setIsBetweenDatesRestricted(false);
+      return;
+    }
+    setIsBetweenDatesRestricted(
+      DateTime.fromISO(startTime) < datesRestricted?.end &&
+        DateTime.fromISO(endTime) > datesRestricted?.start
+    );
   }, []);
 
   const updateCampaignFunding = useCallback((value) => {
@@ -325,6 +338,7 @@ const EventForm = () => {
         name="subtype"
         value={formData.subtype}
         options={options.subtype}
+        whiteList={isBetweenDatesRestricted ? whiteList?.subtype : undefined}
         onChange={updateValue}
         error={errors && errors.subtype}
         disabled={isLoading}
@@ -424,5 +438,9 @@ const EventForm = () => {
       <UnloadPrompt enabled={!newEventPk} allowedRoutes="createEvent" />
     </StyledForm>
   );
+};
+EventForm.propTypes = {
+  whiteList: PropTypes.array,
+  datesRestricted: PropTypes.array,
 };
 export default EventForm;
