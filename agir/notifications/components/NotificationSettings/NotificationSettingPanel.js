@@ -197,6 +197,11 @@ const NotificationSettingPanel = (props) => {
         Vous recevez les e-mails sur votre adresse <u>{user.email}</u>&nbsp;
         <Link route="personalInformation">(modifier)</Link>
       </p>
+      <div style={{ marginLeft: "20px", marginBottom: "20px" }}>
+        <Button small link route="contactConfiguration">
+          Gérer mes paramètres de contact
+        </Button>
+      </div>
       <PageFadeIn ready={ready}>
         <PushNotificationControls />
         {Object.keys(byType).map((type) => (
