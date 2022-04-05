@@ -300,3 +300,28 @@ class CommuneField(forms.CharField):
             return self.commune(value)
         except ValidationError:
             return None
+
+
+class BetterIntegerInput(Input):
+    """Widget à utiliser pour les champs de valeur entière.
+
+    Ce widget doit être préféré au widget :class:`NumberInput` fourni par Django car celui-ci génère un
+    élément input de type numeric qui est réputé peu accessible, et qui rajoute des éléments d'UI qui ne
+    sont pas toujours appropriés (par exemple la modification du champ avec la molette de la souris, ou
+    l'ajout de petites flèches pour modifier la valeur actuelle).
+
+    Ce widget se contente de vérifier le format chiffre uniquement (potentiellement négatif), et indique
+    aux navigateurs mobiles qu'un clavier numérique doit être affiché.
+    """
+
+    input_type = "text"
+    template_name = "django/forms/widgets/input.html"
+
+    def __init__(self, attrs=None):
+        if attrs is None:
+            attrs = {}
+
+        attrs.setdefault("inputmode", "numeric")
+        attrs.setdefault("pattern", "-?[0-9]+")
+        attrs.setdefault("title", "Saisissez un nombre entier")
+        super().__init__(attrs=attrs)

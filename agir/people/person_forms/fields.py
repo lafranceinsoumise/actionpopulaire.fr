@@ -1,4 +1,5 @@
 import logging
+from functools import partial
 from uuid import UUID
 
 import iso8601
@@ -26,6 +27,7 @@ from agir.lib.form_fields import (
     CommuneField as GenericCommuneField,
     SelectizeMultipleWidget,
     DatePickerWidget,
+    BetterIntegerInput,
 )
 from ..models import Person
 from ...groups.models import SupportGroup, Membership
@@ -346,6 +348,7 @@ FIELDS = {
     "file": FileField,
     "boolean": BooleanField,
     "integer": forms.IntegerField,
+    "better_integer": partial(forms.IntegerField, widget=BetterIntegerInput),
     "decimal": forms.DecimalField,
     "datetime": DateTimeField,
     "date": DateField,
