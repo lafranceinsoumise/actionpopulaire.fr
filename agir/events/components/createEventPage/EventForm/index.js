@@ -1,4 +1,3 @@
-import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import { DateTime } from "luxon";
@@ -65,6 +64,7 @@ const StyledForm = styled.form`
     }
   }
 `;
+const TZ_PARIS = "Europe/Paris";
 
 const formatErrors = (errors, fields = DEFAULT_FORM_DATA) => {
   if (typeof errors !== "object") {
@@ -83,7 +83,7 @@ const formatErrors = (errors, fields = DEFAULT_FORM_DATA) => {
   );
 };
 
-const EventForm = ({ whiteList, datesRestricted }) => {
+const EventForm = () => {
   const [formData, setFormData] = useState(DEFAULT_FORM_DATA);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -94,19 +94,56 @@ const EventForm = ({ whiteList, datesRestricted }) => {
   const { search } = useLocation();
   const options = useEventFormOptions();
 
+  // Dates forbidden to some subtypes on next election
+  const datesRestricted = {
+    start: DateTime.fromISO("2022-04-09"),
+    end: DateTime.fromISO("2022-04-11"),
+  };
+  const whiteList = { subtype: ["G"] };
+
   const [isBetweenDatesRestricted, setIsBetweenDatesRestricted] =
     useState(false);
 
-  const updateValue = useCallback((name, value) => {
-    setErrors((state) => ({
-      ...state,
-      [name]: undefined,
-    }));
-    setFormData((state) => ({
-      ...state,
-      [name]: value,
-    }));
-  }, []);
+  const updateDatesRestricted = ({
+    startTime,
+    endTime,
+    outEuropeTimezone = false,
+  }) => {
+    if (!startTime || !endTime) {
+      setIsBetweenDatesRestricted(false);
+      return;
+    }
+    // Retrieve one day from start if outside europe timezone
+    const startElection = outEuropeTimezone
+      ? datesRestricted.start.plus({ days: -1 })
+      : datesRestricted.start;
+    const endElection = datesRestricted.end;
+    setIsBetweenDatesRestricted(
+      DateTime.fromISO(startTime) < endElection &&
+        DateTime.fromISO(endTime) > startElection
+    );
+  };
+
+  const updateValue = useCallback(
+    (name, value) => {
+      setErrors((state) => ({
+        ...state,
+        [name]: undefined,
+      }));
+      setFormData((state) => ({
+        ...state,
+        [name]: value,
+      }));
+      if (name === "timezone") {
+        updateDatesRestricted({
+          startTime: formData.startTime,
+          endTime: formData.endTime,
+          outEuropeTimezone: !(!value || value === TZ_PARIS),
+        });
+      }
+    },
+    [formData]
+  );
 
   const updateNestedValue = useCallback((parentName, name, value) => {
     setErrors((state) => {
@@ -143,14 +180,11 @@ const EventForm = ({ whiteList, datesRestricted }) => {
       startTime,
       endTime,
     }));
-    if (!startTime || !endTime) {
-      setIsBetweenDatesRestricted(false);
-      return;
-    }
-    setIsBetweenDatesRestricted(
-      DateTime.fromISO(startTime) < datesRestricted?.end &&
-        DateTime.fromISO(endTime) > datesRestricted?.start
-    );
+    updateDatesRestricted({
+      startTime,
+      endTime,
+      outEuropeTimezone: formData.timezone !== TZ_PARIS,
+    });
   }, []);
 
   const updateCampaignFunding = useCallback((value) => {
@@ -438,9 +472,5 @@ const EventForm = ({ whiteList, datesRestricted }) => {
       <UnloadPrompt enabled={!newEventPk} allowedRoutes="createEvent" />
     </StyledForm>
   );
-};
-EventForm.propTypes = {
-  whiteList: PropTypes.array,
-  datesRestricted: PropTypes.array,
 };
 export default EventForm;

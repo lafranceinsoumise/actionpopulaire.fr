@@ -154,13 +154,6 @@ const CreateEvent = () => {
     return projects.some((project) => project.isBlocking);
   }, [projects]);
 
-  // Dates forbidden to some subtypes on next election
-  const datesRestricted = {
-    start: DateTime.fromISO("2022-04-08"),
-    end: DateTime.fromISO("2022-04-11"),
-  };
-  const whiteList = { subtype: ["G"] };
-
   return (
     <PageFadeIn
       wait={<CreateEventSkeleton />}
@@ -195,10 +188,7 @@ const CreateEvent = () => {
             </StaticToast>
             <InfoBlock over />
             <Spacer size="1.5rem" />
-            <EventForm
-              whiteList={whiteList}
-              datesRestricted={datesRestricted}
-            />
+            <EventForm />
           </div>
           <div>
             <InfoBlock under />
