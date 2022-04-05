@@ -98,7 +98,10 @@ def create_or_update_voting_proxy(data):
         voting_proxy, created = VotingProxy.objects.update_or_create(
             email=email, defaults={**data, "person_id": person.pk}
         )
-        if voting_proxy.status == VotingProxy.STATUS_INVITED:
+        if voting_proxy.status in [
+            VotingProxy.STATUS_INVITED,
+            VotingProxy.STATUS_UNAVAILABLE,
+        ]:
             voting_proxy.status = VotingProxy.STATUS_CREATED
             voting_proxy.save()
     if is_new_person and "welcome" in SUBSCRIPTIONS_EMAILS[SUBSCRIPTION_TYPE_AP]:
