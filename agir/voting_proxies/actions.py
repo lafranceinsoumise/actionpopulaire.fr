@@ -24,6 +24,7 @@ from agir.voting_proxies.tasks import (
     send_voting_proxy_request_confirmation,
     send_voting_proxy_request_accepted_text_messages,
     send_voting_proxy_request_confirmed_text_messages,
+    send_cancelled_request_to_voting_proxy,
 )
 
 # TODO: Choose a proxy-to-request distance limit (in meters)
@@ -98,7 +99,10 @@ def create_or_update_voting_proxy(data):
         voting_proxy, created = VotingProxy.objects.update_or_create(
             email=email, defaults={**data, "person_id": person.pk}
         )
-        if voting_proxy.status == VotingProxy.STATUS_INVITED:
+        if voting_proxy.status in [
+            VotingProxy.STATUS_INVITED,
+            VotingProxy.STATUS_UNAVAILABLE,
+        ]:
             voting_proxy.status = VotingProxy.STATUS_CREATED
             voting_proxy.save()
     if is_new_person and "welcome" in SUBSCRIPTIONS_EMAILS[SUBSCRIPTION_TYPE_AP]:
@@ -229,6 +233,15 @@ def confirm_voting_proxy_requests(voting_proxy_requests):
     voting_proxy_request_pks = list(voting_proxy_requests.values_list("pk", flat=True))
     voting_proxy_requests.update(status=VotingProxyRequest.STATUS_CONFIRMED)
     send_voting_proxy_request_confirmed_text_messages.delay(voting_proxy_request_pks)
+
+
+def cancel_voting_proxy_requests(voting_proxy_requests):
+    for request in voting_proxy_requests:
+        if request.proxy is not None:
+            send_cancelled_request_to_voting_proxy.delay(
+                request.pk, request.proxy.email
+            )
+    voting_proxy_requests.update(status=VotingProxyRequest.STATUS_CANCELLED, proxy=None)
 
 
 def send_matching_requests_to_proxy(proxy, matching_request_ids):

@@ -184,18 +184,21 @@ class VotingProxy(AbstractVoter):
 
 
 class VotingProxyRequestQuerySet(models.QuerySet):
-    def pending(self):
+    def upcoming(self):
         return self.filter(
-            status=VotingProxyRequest.STATUS_CREATED,
-            proxy__isnull=True,
             voting_date__gte=(timezone.now() + timedelta(days=2)).date(),
         )
 
+    def pending(self):
+        return self.upcoming().filter(
+            status=VotingProxyRequest.STATUS_CREATED,
+            proxy__isnull=True,
+        )
+
     def waiting_confirmation(self):
-        return self.filter(
+        return self.upcoming().filter(
             status=VotingProxyRequest.STATUS_ACCEPTED,
             proxy__isnull=False,
-            voting_date__gte=(timezone.now() + timedelta(days=2)).date(),
         )
 
 
@@ -270,8 +273,12 @@ class VotingProxyRequest(AbstractVoter):
             f"Né·e le: <strong>{escape(self.proxy.date_of_birth.strftime('%d/%m/%Y'))}</strong><br>"
             f"Téléphone&nbsp;: <strong>{escape(self.proxy.contact_phone)}</strong>"
         )
+        if self.commune:
+            text += f"<br>Commune&nbsp;: <strong>{self.commune.nom_complet}</strong>"
+        else:
+            text += f"<br>Consulat&nbsp;: <strong>{self.consulate.nom}</strong>"
         if self.proxy.remarks:
-            text += f".<br>Disponibilités&nbsp;: <strong>{escape(self.proxy.remarks)}</strong>"
+            text += f"<br>Disponibilités&nbsp;: <strong>{escape(self.proxy.remarks)}</strong>"
 
         return mark_safe(text)
 

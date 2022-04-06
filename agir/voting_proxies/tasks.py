@@ -101,6 +101,19 @@ def send_matching_request_to_voting_proxy(voting_proxy_pk, voting_proxy_request_
     send_sms(message, voting_proxy.contact_phone, sender=SMS_SENDER)
 
 
+@emailing_task()
+def send_cancelled_request_to_voting_proxy(voting_proxy_request_pk, proxy_email):
+    voting_proxy_request = VotingProxyRequest.objects.get(pk=voting_proxy_request_pk)
+    voting_date = voting_proxy_request.voting_date.strftime("%d %B")
+    send_voting_proxy_request_email.delay(
+        [proxy_email],
+        subject=f"Annulation de la procuration de vote du {voting_date}",
+        intro=f"{voting_proxy_request.first_name}, pour qui vous aviez accepté de voter par procuration "
+        f"le {voting_date}, vient de nous demander d'annuler sa demande. Nous vous proposerons d'autres demandes "
+        f"près de chez vous dans les prochains jours, si besoin.",
+    )
+
+
 @emailing_task(post_save=True)
 def send_voting_proxy_candidate_invitation_email(voting_proxy_canditate_emails):
     bindings = {

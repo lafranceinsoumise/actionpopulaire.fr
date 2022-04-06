@@ -24,6 +24,7 @@ from agir.voting_proxies.actions import (
     accept_voting_proxy_requests,
     decline_voting_proxy_requests,
     confirm_voting_proxy_requests,
+    cancel_voting_proxy_requests,
 )
 from agir.voting_proxies.models import VotingProxyRequest, VotingProxy
 from agir.voting_proxies.serializers import (
@@ -136,25 +137,22 @@ class ReplyToVotingProxyRequestsAPIView(RetrieveUpdateAPIView):
             {
                 "firstName": voting_proxy.first_name,
                 "readOnly": is_read_only,
-                "requests": sorted(
-                    [
-                        {
-                            "id": request.id,
-                            "status": request.status,
-                            "firstName": request.first_name,
-                            "pollingStationNumber": request.polling_station_number,
-                            "votingDate": dict(VotingProxyRequest.VOTING_DATE_CHOICES)[
-                                request.voting_date
-                            ],
-                            "commune": request.commune.nom if request.commune else None,
-                            "consulate": request.consulate.nom
-                            if request.consulate
-                            else None,
-                        }
-                        for request in voting_proxy_requests
-                    ],
-                    key=lambda r: r["votingDate"],
-                ),
+                "requests": [
+                    {
+                        "id": request.id,
+                        "status": request.status,
+                        "firstName": request.first_name,
+                        "pollingStationNumber": request.polling_station_number,
+                        "votingDate": dict(VotingProxyRequest.VOTING_DATE_CHOICES)[
+                            request.voting_date
+                        ],
+                        "commune": request.commune.nom if request.commune else None,
+                        "consulate": request.consulate.nom
+                        if request.consulate
+                        else None,
+                    }
+                    for request in voting_proxy_requests.order_by("voting_date")
+                ],
             }
         )
 
@@ -272,14 +270,24 @@ class VotingProxyRequestConfirmAPIView(UpdateAPIView):
         return Response(status=status.HTTP_200_OK)
 
 
+class VotingProxyRequestCancelAPIView(VotingProxyRequestConfirmAPIView):
+    permission_classes = (IsActionPopulaireClientPermission,)
+    queryset = VotingProxyRequest.objects.filter(proxy__isnull=False)
+
+    def update(self, request, *args, **kwargs):
+        voting_proxy_requests = self.get_voting_proxy_requests(request.data)
+        cancel_voting_proxy_requests(voting_proxy_requests)
+        return Response(status=status.HTTP_200_OK)
+
+
 class AcceptedVotingProxyRequestListAPIView(ListAPIView):
     permission_classes = (permissions.AllowAny,)
-    queryset = VotingProxyRequest.objects.filter(
+    queryset = VotingProxyRequest.objects.upcoming().filter(
         status__in=(
             VotingProxyRequest.STATUS_ACCEPTED,
             VotingProxyRequest.STATUS_CONFIRMED,
+            VotingProxyRequest.STATUS_CANCELLED,
         ),
-        proxy__isnull=False,
     )
     serializer_class = AcceptedVotingProxyRequestSerializer
 
@@ -291,4 +299,5 @@ class AcceptedVotingProxyRequestListAPIView(ListAPIView):
         queryset = self.queryset.filter(pk__in=pks)
         if not queryset.exists():
             raise Http404
-        return queryset.order_by("voting_date")
+        email = queryset.first().email
+        return self.queryset.filter(email=email).order_by("voting_date")

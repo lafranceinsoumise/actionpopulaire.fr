@@ -2,12 +2,13 @@ import React from "react";
 
 import Link from "@agir/front/app/Link";
 import Spacer from "@agir/front/genericComponents/Spacer";
+import { MailTo } from "@agir/voting_proxies/Common/StyledComponents";
 
 const NewVotingProxyHowTo = () => (
   <div>
     <h2
       css={`
-        color: ${(props) => props.theme.primary500};
+        color: ${({ theme }) => theme.primary500};
       `}
     >
       Se porter volontaire pour prendre une procuration
@@ -66,6 +67,8 @@ const NewVotingProxyHowTo = () => (
       privilégierons votre adresse actuelle, si celle-ci est différente de votre
       commune d'inscription.
     </p>
+    <Spacer size="1rem" />
+    <MailTo />
   </div>
 );
 

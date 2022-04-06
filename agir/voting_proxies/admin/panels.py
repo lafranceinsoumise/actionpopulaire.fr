@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from django.contrib import admin
 from django.contrib.admin import TabularInline
+from django.http import HttpResponseRedirect
 from django.urls import reverse, path
 from django.utils import timezone
 from django.utils.html import format_html
@@ -9,6 +10,7 @@ from django.utils.safestring import mark_safe
 
 from agir.lib.admin.autocomplete_filter import AutocompleteRelatedModelFilter
 from agir.lib.utils import front_url, shorten_url
+from agir.voting_proxies.actions import cancel_voting_proxy_requests
 from agir.voting_proxies.admin.actions import fulfill_voting_proxy_requests
 from agir.voting_proxies.models import VotingProxy, VotingProxyRequest
 
@@ -167,7 +169,11 @@ class VotingProxyAdmin(VoterModelAdmin):
     )
 
     inlines = [InlineVotingProxyRequestAdmin]
-    readonly_fields = (*VoterModelAdmin.readonly_fields, "last_matched")
+    readonly_fields = (
+        *VoterModelAdmin.readonly_fields,
+        "last_matched",
+        "request_page_button",
+    )
     autocomplete_fields = (
         *VoterModelAdmin.autocomplete_fields,
         "person",
@@ -181,23 +187,45 @@ class VotingProxyAdmin(VoterModelAdmin):
             .prefetch_related("voting_proxy_requests")
         )
 
-    def person_link(self, instance):
-        if instance.person is None:
+    def person_link(self, voting_proxy):
+        if voting_proxy.person is None:
             return "-"
-        href = reverse("admin:people_person_change", args=(instance.person_id,))
-        return mark_safe(format_html(f'<a href="{href}">{instance.person}</a>'))
+        href = reverse("admin:people_person_change", args=(voting_proxy.person_id,))
+        return mark_safe(format_html(f'<a href="{href}">{voting_proxy.person}</a>'))
 
     person_link.short_description = "personne"
 
-    def confirmed_dates(self, instance):
+    def confirmed_dates(self, voting_proxy):
         return [
             request.voting_date
-            for request in instance.voting_proxy_requests.exclude(
+            for request in voting_proxy.voting_proxy_requests.exclude(
                 status=VotingProxyRequest.STATUS_CANCELLED
             ).only("voting_date")
         ]
 
     confirmed_dates.short_description = "dates acceptées"
+
+    def request_page_button(self, voting_proxy):
+        accepted_requests = voting_proxy.voting_proxy_requests.filter(
+            status__in=(
+                VotingProxyRequest.STATUS_ACCEPTED,
+                VotingProxyRequest.STATUS_CONFIRMED,
+            )
+        )
+
+        if len(accepted_requests) == 0:
+            return "-"
+
+        link = front_url(
+            "accepted_voting_proxy_requests", kwargs={"pk": voting_proxy.pk}
+        )
+        link = shorten_url(link, secret=True, djan_url_type="M2022")
+
+        return format_html(
+            f'<a class="button" href="{link}" target="_blank">➡ Lien vers la page des demandes acceptées</a>'
+        )
+
+    request_page_button.short_description = "Demandes acceptées"
 
 
 @admin.register(VotingProxyRequest)
@@ -212,7 +240,7 @@ class VotingProxyRequestAdmin(VoterModelAdmin):
         "voting_date",
         ("proxy", admin.EmptyFieldListFilter),
     )
-    readonly_fields = ("matching_buttons",)
+    readonly_fields = ("matching_buttons", "cancel_button")
     autocomplete_fields = (
         *VoterModelAdmin.autocomplete_fields,
         "proxy",
@@ -240,6 +268,16 @@ class VotingProxyRequestAdmin(VoterModelAdmin):
 
     proxy_link.short_description = "volontaire"
 
+    def cancel_voting_proxy_request_view(self, request, pk):
+        voting_proxy_request = VotingProxyRequest.objects.filter(pk=pk)
+        cancel_voting_proxy_requests(voting_proxy_request)
+        return HttpResponseRedirect(
+            reverse(
+                "admin:voting_proxies_votingproxyrequest_change",
+                args=(pk,),
+            ),
+        )
+
     def match_voting_proxy_request_view(self, request, pk):
         voting_proxy_request = VotingProxyRequest.objects.pending().filter(pk=pk)
 
@@ -255,6 +293,11 @@ class VotingProxyRequestAdmin(VoterModelAdmin):
 
     def get_urls(self):
         return [
+            path(
+                "<uuid:pk>/cancel/",
+                self.admin_site.admin_view(self.cancel_voting_proxy_request_view),
+                name="votingproxies_votingproxyrequest_cancel_voting_proxy_request",
+            ),
             path(
                 "<uuid:pk>/match/",
                 self.admin_site.admin_view(self.match_voting_proxy_request_view),
@@ -309,3 +352,22 @@ class VotingProxyRequestAdmin(VoterModelAdmin):
             )
 
     matching_buttons.short_description = "Recherche de volontaires"
+
+    def cancel_button(self, voting_proxy_request):
+        if voting_proxy_request.status == VotingProxyRequest.STATUS_CANCELLED:
+            return "-"
+
+        return format_html(
+            '<a href="{cancel_voting_proxy_request}" class="button">'
+            "  Annuller cette demande"
+            "</a>"
+            "<div style='margin: 0; padding-left: 0;' class='help'>"
+            "  Le·la volontaire sera prévenu·e par e-mail de l'annulation"
+            "</div>",
+            cancel_voting_proxy_request=reverse(
+                "admin:votingproxies_votingproxyrequest_cancel_voting_proxy_request",
+                args=(voting_proxy_request.pk,),
+            ),
+        )
+
+    cancel_button.short_description = "Annulation"

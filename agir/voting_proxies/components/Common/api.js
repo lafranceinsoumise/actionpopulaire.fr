@@ -12,6 +12,7 @@ export const ENDPOINT = {
   sendVotingProxyInformation:
     "/api/procurations/demande/:votingProxyRequestPk/volontaire/",
   confirmVotingProxyRequests: "/api/procurations/demande/confirmer/",
+  cancelVotingProxyRequests: "/api/procurations/demande/annuler/",
 };
 
 export const getVotingProxyEndpoint = (key, params, searchParams) => {
@@ -167,7 +168,7 @@ export const sendVotingProxyInformation = async (votingProxyRequests) => {
     error: null,
   };
   let votingProxyRequestPk = votingProxyRequests.find(
-    (request) => request.status === "accepted"
+    (request) => request.status === "accepted" && request.proxy
   );
   votingProxyRequestPk = votingProxyRequestPk?.id || votingProxyRequests[0].id;
   const url = getVotingProxyEndpoint("sendVotingProxyInformation", {
@@ -193,6 +194,29 @@ export const confirmVotingProxyRequests = async (votingProxyRequests) => {
     error: null,
   };
   const url = getVotingProxyEndpoint("confirmVotingProxyRequests");
+  const body = {
+    votingProxyRequests: votingProxyRequests.map((request) => request.id),
+  };
+  try {
+    const response = await axios.patch(url, body);
+    result.data = response.data;
+  } catch (e) {
+    if (e.response?.data && typeof e.response.data === "object") {
+      result.error = Object.values(e.response.data)[0];
+    } else {
+      result.error = { global: e.message || "Une erreur est survenue" };
+    }
+  }
+
+  return result;
+};
+
+export const cancelVotingProxyRequests = async (votingProxyRequests) => {
+  const result = {
+    data: null,
+    error: null,
+  };
+  const url = getVotingProxyEndpoint("cancelVotingProxyRequests");
   const body = {
     votingProxyRequests: votingProxyRequests.map((request) => request.id),
   };

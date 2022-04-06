@@ -1,6 +1,7 @@
 import React from "react";
 
 import Spacer from "@agir/front/genericComponents/Spacer";
+import { MailTo } from "@agir/voting_proxies/Common/StyledComponents";
 
 const NewVotingProxyRequestHowTo = () => (
   <div>
@@ -54,6 +55,8 @@ const NewVotingProxyRequestHowTo = () => (
       toujours se rendre dans votre bureau de vote le jour du scrutin pour voter
       à votre place.
     </p>
+    <Spacer size="1rem" />
+    <MailTo />
   </div>
 );
 
