@@ -72,12 +72,33 @@ export const BEFORE_ELECTION_ZIP_CODES = [
   "987", // "PF",
 ];
 
+export const SUBTYPES_ELECTION = ["G"];
+
 // Dates forbidden to some subtypes on next election
-export const datesRestricted = {
+const DATES_ELECTION = {
   start: DateTime.fromISO("2022-04-09"),
   end: DateTime.fromISO("2022-04-11"),
 };
-export const subtypesRestricted = ["G"];
+export const isBetweenDatesElection = ({ startTime, endTime, zipcode }) => {
+  if (!startTime || !endTime) {
+    return false;
+  }
+
+  const isElectionBeforeMetropole =
+    zipcode && BEFORE_ELECTION_ZIP_CODES.some((zip) => zipcode.startsWith(zip));
+
+  // Retrieve one day if outside europe timezone
+  const startElection = isElectionBeforeMetropole
+    ? DATES_ELECTION.start.plus({ days: -1 })
+    : DATES_ELECTION.start;
+  const endElection = isElectionBeforeMetropole
+    ? DATES_ELECTION.end.plus({ days: -1 })
+    : DATES_ELECTION.end;
+  return (
+    DateTime.fromISO(startTime) < endElection &&
+    DateTime.fromISO(endTime) > startElection
+  );
+};
 
 const formatErrors = (errors, fields = DEFAULT_FORM_DATA) => {
   if (typeof errors !== "object") {
@@ -107,40 +128,20 @@ const EventForm = () => {
   const { search } = useLocation();
   const options = useEventFormOptions();
 
-  const [isBetweenDatesRestricted, setIsBetweenDatesRestricted] =
-    useState(false);
+  const [isTypeElection, setIsTypeElection] = useState(false);
 
   const updateDatesRestricted = ({ startTime, endTime, zipcode }) => {
-    if (!startTime || !endTime) {
-      setIsBetweenDatesRestricted(false);
-      return;
-    }
-
-    const isElectionBeforeMetropole =
-      zipcode &&
-      BEFORE_ELECTION_ZIP_CODES.some((zip) => zipcode.startsWith(zip));
-
-    // Retrieve one day if outside europe timezone
-    const startElection = isElectionBeforeMetropole
-      ? datesRestricted.start.plus({ days: -1 })
-      : datesRestricted.start;
-    const endElection = isElectionBeforeMetropole
-      ? datesRestricted.end.plus({ days: -1 })
-      : datesRestricted.end;
-    setIsBetweenDatesRestricted(
-      DateTime.fromISO(startTime) < endElection &&
-        DateTime.fromISO(endTime) > startElection
-    );
+    setIsTypeElection(isBetweenDatesElection({ startTime, endTime, zipcode }));
   };
 
   useEffect(() => {
-    if (isBetweenDatesRestricted) {
+    if (isTypeElection) {
       // Unselect forbidden types
-      if (!subtypesRestricted.includes(formData.subtype?.type)) {
+      if (!SUBTYPES_ELECTION.includes(formData.subtype?.type)) {
         setFormData((state) => ({ ...state, subtype: null }));
       }
     }
-  }, [isBetweenDatesRestricted]);
+  }, [isTypeElection]);
 
   const updateValue = useCallback(
     (name, value) => {
@@ -386,7 +387,7 @@ const EventForm = () => {
         name="subtype"
         value={formData.subtype}
         options={options.subtype}
-        whiteList={isBetweenDatesRestricted ? subtypesRestricted : undefined}
+        whiteList={isTypeElection ? SUBTYPES_ELECTION : undefined}
         onChange={updateValue}
         error={errors && errors.subtype}
         disabled={isLoading}
