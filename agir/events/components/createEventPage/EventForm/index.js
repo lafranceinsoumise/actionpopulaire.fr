@@ -67,17 +67,11 @@ const StyledForm = styled.form`
 
 export const TZ_PARIS = "Europe/Paris";
 
-const OVERSEAS_ZIP_CODES = [
+const BEFORE_ELECTION_ZIP_CODES = [
   "971", // "GP",
   "972", // "MQ",
   "973", // "GF",
-  "974", // "RE",
-  "975", // "PM",
-  "976", // "YT",
-  "984", // "TF",
-  "986", // "WF",
   "987", // "PF",
-  "988", // "NC",
 ];
 
 // Dates forbidden to some subtypes on next election
@@ -125,7 +119,7 @@ const EventForm = () => {
     }
 
     const isZipCodeOutreMer =
-      zipcode && OVERSEAS_ZIP_CODES.some((zip) => zipcode.startsWith(zip));
+      zipcode && BEFORE_ELECTION_ZIP_CODES.some((zip) => zipcode.startsWith(zip));
     const isNotParisTimezone = timezone && timezone !== TZ_PARIS;
     const isElectionBeforeMetropole = isZipCodeOutreMer || isNotParisTimezone;
 

@@ -143,10 +143,10 @@ const InfoBlock = (props) => (
 
 export const ToastElectionInfo = () => (
   <StaticToast $color={style.primary500} style={{ marginTop: "1rem" }}>
-    La veille d'une élection, la loi vous interdit de faire campagne. Vous ne
-    pouvez pas organiser d'action en but de récolter des suffrages
-    (porte-à-porte, tractage, réunion publique...). Seuls les événements
-    internes à la campagne sont autorisés.
+    Trève électorale : la veille d'une élection, la loi vous interdit de faire
+    campagne. Vous ne pouvez pas organiser d'action en but de récolter des
+    suffrages (porte-à-porte, tractage, réunion publique...). Seuls les
+    événements internes à la campagne sont autorisés.
   </StaticToast>
 );
 
