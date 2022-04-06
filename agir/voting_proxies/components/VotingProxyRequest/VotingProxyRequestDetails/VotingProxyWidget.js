@@ -9,6 +9,7 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 import {
   sendVotingProxyInformation,
   confirmVotingProxyRequests,
+  cancelVotingProxyRequests,
 } from "@agir/voting_proxies/Common/api";
 
 const StyledWidget = styled.div`
@@ -30,12 +31,15 @@ const StyledWidget = styled.div`
 `;
 
 const VotingProxyWidget = (props) => {
-  const { firstName, votingDates, votingProxyRequests } = props;
+  const { request } = props;
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [isConfirmed, setIsConfirmed] = useState(
-    votingProxyRequests.every((request) => request.status === "confirmed")
+    request.status === "confirmed"
+  );
+  const [isCancelled, setIsCancelled] = useState(
+    request.status === "cancelled"
   );
   const [shouldConfirm, setShouldConfirm] = useState(false);
 
@@ -46,21 +50,21 @@ const VotingProxyWidget = (props) => {
   const sendInformation = useCallback(async () => {
     setError("");
     setIsLoading("info");
-    const result = await sendVotingProxyInformation(votingProxyRequests);
+    const result = await sendVotingProxyInformation([request]);
     setIsLoading(false);
     if (result.error) {
       setError(result.error);
     }
-  }, [votingProxyRequests]);
+  }, [request]);
 
   const confirm = useCallback(async () => {
     if (!shouldConfirm) {
-      setShouldConfirm(true);
+      setShouldConfirm("confirm");
       return;
     }
     setError("");
     setIsLoading("confirm");
-    const result = await confirmVotingProxyRequests(votingProxyRequests);
+    const result = await confirmVotingProxyRequests([request]);
     setIsLoading(false);
     setShouldConfirm(false);
     if (result.error) {
@@ -68,60 +72,93 @@ const VotingProxyWidget = (props) => {
     } else {
       setIsConfirmed(true);
     }
-  }, [shouldConfirm, votingProxyRequests]);
+  }, [shouldConfirm, request]);
 
+  const cancel = useCallback(async () => {
+    if (!shouldConfirm) {
+      setShouldConfirm("cancel");
+      return;
+    }
+    setError("");
+    setIsLoading("cancel");
+    const result = await cancelVotingProxyRequests([request]);
+    setIsLoading(false);
+    setShouldConfirm(false);
+    if (result.error) {
+      setError(result.error);
+    } else {
+      setIsCancelled(true);
+    }
+  }, [shouldConfirm, request]);
+  console.log(request);
   return (
     <StyledWidget>
+      {request?.votingProxy?.firstName && (
+        <p>
+          <strong>Prénom(s)&nbsp;:</strong>
+          <br />
+          {request.votingProxy.firstName}
+        </p>
+      )}
       <p>
-        <strong>Prénom(s)&nbsp;:</strong>
+        <strong>Scrutin&nbsp;:</strong>
         <br />
-        {firstName}
-      </p>
-      <p>
-        <strong>Scrutin{votingDates.length > 1 && "s"}&nbsp;:</strong>
-        <br />
-        {votingDates.map((date) => (
-          <span key={date}>
-            {date}
-            <br />
-          </span>
-        ))}
+        <span>{request.votingDate}</span>
       </p>
       <Spacer size="1rem" />
       <p>
-        {!isConfirmed && (
-          <Button
-            disabled={!!isLoading}
-            loading={isLoading === "info"}
-            small
-            wrap
-            color="primary"
-            onClick={sendInformation}
-            icon="message-square"
-          >
-            Recevoir les informations pour établir la procuration
-          </Button>
+        {!isCancelled && !isConfirmed && (
+          <>
+            <Button
+              disabled={!!isLoading}
+              loading={isLoading === "info"}
+              small
+              wrap
+              color="primary"
+              onClick={sendInformation}
+              icon="message-square"
+            >
+              Recevoir les informations pour établir la procuration
+            </Button>
+            <Spacer size=".5rem" />
+          </>
         )}
-        <Spacer size=".5rem" />
+        {!isCancelled && (
+          <>
+            <Button
+              disabled={!!isLoading || isConfirmed}
+              small
+              wrap
+              color="primary"
+              onClick={confirm}
+              icon="check-square"
+            >
+              {isConfirmed
+                ? "Procuration validée"
+                : "Prévenir la personne que la procuration a été établie"}
+            </Button>
+            <Spacer size=".5rem" />
+          </>
+        )}
         <Button
-          disabled={!!isLoading || isConfirmed}
+          disabled={!!isLoading || isCancelled}
           small
           wrap
-          color="primary"
-          onClick={confirm}
-          icon="check-square"
+          color="danger"
+          onClick={cancel}
+          icon="cross"
         >
-          {isConfirmed
-            ? "Procuration validée"
-            : "Prévenir la personne que la procuration a été établie"}
+          {isCancelled
+            ? "Procuration annulée"
+            : "Annuler la demande de procuration"}
         </Button>
       </p>
       {error && <footer>{error}</footer>}
       <ModalConfirmation
-        shouldShow={shouldConfirm}
+        shouldShow={shouldConfirm === "confirm"}
         onClose={dismissConfirm}
         onConfirm={confirm}
-        title={`Prévenir ${firstName} que vous avez établi la procuration`}
+        title={`Prévenir ${request?.votingProxy?.firstName} que vous avez établi la procuration`}
         confirmationLabel="Je confirme que la procuration a été établie"
         dismissLabel="Annuler"
         isConfirming={isLoading === "confirm"}
@@ -132,12 +169,25 @@ const VotingProxyWidget = (props) => {
           présenter à votre bureau de vote pour voter à votre place.
         </p>
       </ModalConfirmation>
+      <ModalConfirmation
+        shouldShow={shouldConfirm === "cancel"}
+        onClose={dismissConfirm}
+        onConfirm={cancel}
+        title={`Annuler la demande la procuration`}
+        confirmationLabel="Je confirme l'annulation de la procuration"
+        dismissLabel="Annuler"
+        isConfirming={isLoading === "cancel"}
+        shouldDismissOnClick={false}
+      >
+        <p>
+          Après validation, la personne sera prévenue et sera disponible pour
+          répondre à d'autres demande de procuration.
+        </p>
+      </ModalConfirmation>
     </StyledWidget>
   );
 };
 VotingProxyWidget.propTypes = {
-  firstName: PropTypes.string.isRequired,
-  votingDates: PropTypes.arrayOf(PropTypes.string).isRequired,
-  votingProxyRequests: PropTypes.arrayOf(PropTypes.string).isRequired,
+  request: PropTypes.object,
 };
 export default VotingProxyWidget;

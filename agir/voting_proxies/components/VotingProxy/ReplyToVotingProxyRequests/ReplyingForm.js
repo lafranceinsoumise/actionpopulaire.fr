@@ -8,6 +8,8 @@ import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
+import { MailTo } from "@agir/voting_proxies/Common/StyledComponents";
+
 import ReplySuccess from "./ReplySuccess";
 import AcceptedRequests from "./AcceptedRequests";
 
@@ -128,7 +130,14 @@ const ReplyingForm = (props) => {
 
   if (Array.isArray(requests) && requests.length > 0 && readOnly) {
     return (
-      <AcceptedRequests requests={requests} refreshRequests={refreshRequests} />
+      <>
+        <AcceptedRequests
+          requests={requests}
+          refreshRequests={refreshRequests}
+        />
+        <Spacer size="2rem" />
+        <MailTo />
+      </>
     );
   }
 
@@ -229,6 +238,8 @@ const ReplyingForm = (props) => {
           Je ne suis plus disponible
         </Button>
       </form>
+      <Spacer size="2rem" />
+      <MailTo />
       <ModalConfirmation
         shouldShow={shouldConfirm}
         onClose={dismissConfirm}
