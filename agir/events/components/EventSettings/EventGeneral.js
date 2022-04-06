@@ -24,7 +24,7 @@ import { useEventFormOptions } from "@agir/events/common/hooks";
 
 import { ToastElectionInfo } from "@agir/events/createEventPage/CreateEvent";
 import {
-  TZ_PARIS,
+  BEFORE_ELECTION_ZIP_CODES,
   datesRestricted,
   subtypesRestricted,
 } from "@agir/events/createEventPage/EventForm/index";
@@ -65,20 +65,23 @@ const EventGeneral = (props) => {
   const [isBetweenDatesRestricted, setIsBetweenDatesRestricted] =
     useState(false);
 
-  const updateDatesRestricted = ({
-    startTime,
-    endTime,
-    outEuropeTimezone = false,
-  }) => {
+  const updateDatesRestricted = ({ startTime, endTime, zipcode }) => {
     if (!startTime || !endTime) {
       setIsBetweenDatesRestricted(false);
       return;
     }
-    // Retrieve one day from start if outside europe timezone
-    const startElection = outEuropeTimezone
+
+    const isElectionBeforeMetropole =
+      zipcode &&
+      BEFORE_ELECTION_ZIP_CODES.some((zip) => zipcode.startsWith(zip));
+
+    // Retrieve one day if outside europe timezone
+    const startElection = isElectionBeforeMetropole
       ? datesRestricted.start.plus({ days: -1 })
       : datesRestricted.start;
-    const endElection = datesRestricted.end;
+    const endElection = isElectionBeforeMetropole
+      ? datesRestricted.end.plus({ days: -1 })
+      : datesRestricted.end;
     setIsBetweenDatesRestricted(
       DateTime.fromISO(startTime) < endElection &&
         DateTime.fromISO(endTime) > startElection
@@ -153,7 +156,7 @@ const EventGeneral = (props) => {
     updateDatesRestricted({
       startTime: formData.startTime,
       endTime: formData.endTime,
-      outEuropeTimezone: !(formData.timezone === TZ_PARIS),
+      zipcode: event?.location.zip,
     });
   }, [formData]);
 
