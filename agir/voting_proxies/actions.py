@@ -236,10 +236,10 @@ def confirm_voting_proxy_requests(voting_proxy_requests):
 
 
 def cancel_voting_proxy_requests(voting_proxy_requests):
-    for voting_proxy_request in voting_proxy_requests:
-        if voting_proxy_request.proxy is not None:
+    for request in voting_proxy_requests:
+        if request.proxy is not None:
             send_cancelled_request_to_voting_proxy.delay(
-                voting_proxy_request.pk, voting_proxy_request.proxy.email
+                request.pk, request.proxy.email
             )
     voting_proxy_requests.update(status=VotingProxyRequest.STATUS_CANCELLED, proxy=None)
 
