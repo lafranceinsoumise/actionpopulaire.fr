@@ -90,14 +90,14 @@ const VotingProxyWidget = (props) => {
       setIsCancelled(true);
     }
   }, [shouldConfirm, request]);
-
+  console.log(request);
   return (
     <StyledWidget>
-      {request?.proxy?.firstName && (
+      {request?.votingProxy?.firstName && (
         <p>
           <strong>Prénom(s)&nbsp;:</strong>
           <br />
-          {request.proxy.firstName}
+          {request.votingProxy.firstName}
         </p>
       )}
       <p>
@@ -158,7 +158,7 @@ const VotingProxyWidget = (props) => {
         shouldShow={shouldConfirm === "confirm"}
         onClose={dismissConfirm}
         onConfirm={confirm}
-        title={`Prévenir ${request?.proxy?.firstName} que vous avez établi la procuration`}
+        title={`Prévenir ${request?.votingProxy?.firstName} que vous avez établi la procuration`}
         confirmationLabel="Je confirme que la procuration a été établie"
         dismissLabel="Annuler"
         isConfirming={isLoading === "confirm"}
