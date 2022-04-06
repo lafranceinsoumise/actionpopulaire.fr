@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from django.contrib import admin
 from django.contrib.admin import TabularInline
+from django.http import HttpResponseRedirect
 from django.urls import reverse, path
 from django.utils import timezone
 from django.utils.html import format_html
@@ -9,6 +10,7 @@ from django.utils.safestring import mark_safe
 
 from agir.lib.admin.autocomplete_filter import AutocompleteRelatedModelFilter
 from agir.lib.utils import front_url, shorten_url
+from agir.voting_proxies.actions import cancel_voting_proxy_requests
 from agir.voting_proxies.admin.actions import fulfill_voting_proxy_requests
 from agir.voting_proxies.models import VotingProxy, VotingProxyRequest
 
@@ -238,7 +240,7 @@ class VotingProxyRequestAdmin(VoterModelAdmin):
         "voting_date",
         ("proxy", admin.EmptyFieldListFilter),
     )
-    readonly_fields = ("matching_buttons",)
+    readonly_fields = ("matching_buttons", "cancel_button")
     autocomplete_fields = (
         *VoterModelAdmin.autocomplete_fields,
         "proxy",
@@ -266,6 +268,16 @@ class VotingProxyRequestAdmin(VoterModelAdmin):
 
     proxy_link.short_description = "volontaire"
 
+    def cancel_voting_proxy_request_view(self, request, pk):
+        voting_proxy_request = VotingProxyRequest.objects.filter(pk=pk)
+        cancel_voting_proxy_requests(voting_proxy_request)
+        return HttpResponseRedirect(
+            reverse(
+                "admin:voting_proxies_votingproxyrequest_change",
+                args=(pk,),
+            ),
+        )
+
     def match_voting_proxy_request_view(self, request, pk):
         voting_proxy_request = VotingProxyRequest.objects.pending().filter(pk=pk)
 
@@ -281,6 +293,11 @@ class VotingProxyRequestAdmin(VoterModelAdmin):
 
     def get_urls(self):
         return [
+            path(
+                "<uuid:pk>/cancel/",
+                self.admin_site.admin_view(self.cancel_voting_proxy_request_view),
+                name="votingproxies_votingproxyrequest_cancel_voting_proxy_request",
+            ),
             path(
                 "<uuid:pk>/match/",
                 self.admin_site.admin_view(self.match_voting_proxy_request_view),
@@ -335,3 +352,22 @@ class VotingProxyRequestAdmin(VoterModelAdmin):
             )
 
     matching_buttons.short_description = "Recherche de volontaires"
+
+    def cancel_button(self, voting_proxy_request):
+        if voting_proxy_request.status == VotingProxyRequest.STATUS_CANCELLED:
+            return "-"
+
+        return format_html(
+            '<a href="{cancel_voting_proxy_request}" class="button">'
+            "  Annuller cette demande"
+            "</a>"
+            "<div style='margin: 0; padding-left: 0;' class='help'>"
+            "  Le·la volontaire sera prévenu·e par e-mail de l'annulation"
+            "</div>",
+            cancel_voting_proxy_request=reverse(
+                "admin:votingproxies_votingproxyrequest_cancel_voting_proxy_request",
+                args=(voting_proxy_request.pk,),
+            ),
+        )
+
+    cancel_button.short_description = "Annulation"

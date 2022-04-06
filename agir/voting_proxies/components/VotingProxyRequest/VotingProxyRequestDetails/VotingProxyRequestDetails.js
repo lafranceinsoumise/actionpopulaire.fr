@@ -14,23 +14,6 @@ import VotingProxyWidget from "./VotingProxyWidget";
 
 import { getVotingProxyEndpoint } from "@agir/voting_proxies/Common/api";
 
-const groupRequestByProxy = (requests) => {
-  const byProxy = {};
-
-  requests.forEach((request) => {
-    byProxy[request.votingProxy.id] = byProxy[request.votingProxy.id] || {
-      ...request.votingProxy,
-      status: request.status,
-      votingProxyRequests: [],
-      votingDates: [],
-    };
-    byProxy[request.votingProxy.id].votingProxyRequests.push(request);
-    byProxy[request.votingProxy.id].votingDates.push(request.votingDate);
-  });
-
-  return Object.values(byProxy);
-};
-
 const getVotingProxyRequestsIdsFromURLSearchParams = (search) => {
   if (!search) {
     return null;
@@ -103,8 +86,8 @@ const VotingProxyRequestDetails = () => {
                 gap: 1rem;
               `}
             >
-              {groupRequestByProxy(data).map((proxy) => (
-                <VotingProxyWidget key={proxy.id} {...proxy} />
+              {data.map((request) => (
+                <VotingProxyWidget key={request.id} request={request} />
               ))}
             </div>
             <Spacer size="1.5rem" />

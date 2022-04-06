@@ -24,6 +24,7 @@ from agir.voting_proxies.tasks import (
     send_voting_proxy_request_confirmation,
     send_voting_proxy_request_accepted_text_messages,
     send_voting_proxy_request_confirmed_text_messages,
+    send_cancelled_request_to_voting_proxy,
 )
 
 # TODO: Choose a proxy-to-request distance limit (in meters)
@@ -232,6 +233,15 @@ def confirm_voting_proxy_requests(voting_proxy_requests):
     voting_proxy_request_pks = list(voting_proxy_requests.values_list("pk", flat=True))
     voting_proxy_requests.update(status=VotingProxyRequest.STATUS_CONFIRMED)
     send_voting_proxy_request_confirmed_text_messages.delay(voting_proxy_request_pks)
+
+
+def cancel_voting_proxy_requests(voting_proxy_requests):
+    for request in voting_proxy_requests:
+        if request.proxy is not None:
+            send_cancelled_request_to_voting_proxy.delay(
+                request.pk, request.proxy.email
+            )
+    voting_proxy_requests.update(status=VotingProxyRequest.STATUS_CANCELLED, proxy=None)
 
 
 def send_matching_requests_to_proxy(proxy, matching_request_ids):
