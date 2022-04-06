@@ -67,6 +67,19 @@ const StyledForm = styled.form`
 
 export const TZ_PARIS = "Europe/Paris";
 
+const OVERSEAS_ZIP_CODES = [
+  "971", // "GP",
+  "972", // "MQ",
+  "973", // "GF",
+  "974", // "RE",
+  "975", // "PM",
+  "976", // "YT",
+  "984", // "TF",
+  "986", // "WF",
+  "987", // "PF",
+  "988", // "NC",
+];
+
 // Dates forbidden to some subtypes on next election
 export const datesRestricted = {
   start: DateTime.fromISO("2022-04-09"),
@@ -105,20 +118,24 @@ const EventForm = () => {
   const [isBetweenDatesRestricted, setIsBetweenDatesRestricted] =
     useState(false);
 
-  const updateDatesRestricted = ({
-    startTime,
-    endTime,
-    outEuropeTimezone = false,
-  }) => {
+  const updateDatesRestricted = ({ startTime, endTime, zipcode, timezone }) => {
     if (!startTime || !endTime) {
       setIsBetweenDatesRestricted(false);
       return;
     }
-    // Retrieve one day from start if outside europe timezone
-    const startElection = outEuropeTimezone
+
+    const isZipCodeOutreMer =
+      zipcode && OVERSEAS_ZIP_CODES.some((zip) => zipcode.startsWith(zip));
+    const isNotParisTimezone = timezone && timezone !== TZ_PARIS;
+    const isElectionBeforeMetropole = isZipCodeOutreMer || isNotParisTimezone;
+
+    // Retrieve one day if outside europe timezone
+    const startElection = isElectionBeforeMetropole
       ? datesRestricted.start.plus({ days: -1 })
       : datesRestricted.start;
-    const endElection = datesRestricted.end;
+    const endElection = isElectionBeforeMetropole
+      ? datesRestricted.end.plus({ days: -1 })
+      : datesRestricted.end;
     setIsBetweenDatesRestricted(
       DateTime.fromISO(startTime) < endElection &&
         DateTime.fromISO(endTime) > startElection
@@ -144,13 +161,6 @@ const EventForm = () => {
         ...state,
         [name]: value,
       }));
-      if (name === "timezone") {
-        updateDatesRestricted({
-          startTime: formData.startTime,
-          endTime: formData.endTime,
-          outEuropeTimezone: !(!value || value === TZ_PARIS),
-        });
-      }
     },
     [formData]
   );
@@ -190,11 +200,6 @@ const EventForm = () => {
       startTime,
       endTime,
     }));
-    updateDatesRestricted({
-      startTime,
-      endTime,
-      outEuropeTimezone: formData.timezone !== TZ_PARIS,
-    });
   }, []);
 
   const updateCampaignFunding = useCallback((value) => {
@@ -250,6 +255,20 @@ const EventForm = () => {
     formData.location.isDefault,
     formData.contact.isDefault,
     formData.organizerGroup,
+  ]);
+
+  useEffect(() => {
+    updateDatesRestricted({
+      startTime: formData.startTime,
+      endTime: formData.endTime,
+      timezone: formData.timezone,
+      zipcode: formData.location.zip,
+    });
+  }, [
+    formData.startTime,
+    formData.endTime,
+    formData.location?.zip,
+    formData.timezone,
   ]);
 
   const handleSubmit = useCallback(
