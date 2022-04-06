@@ -184,18 +184,21 @@ class VotingProxy(AbstractVoter):
 
 
 class VotingProxyRequestQuerySet(models.QuerySet):
-    def pending(self):
+    def upcoming(self):
         return self.filter(
-            status=VotingProxyRequest.STATUS_CREATED,
-            proxy__isnull=True,
             voting_date__gte=(timezone.now() + timedelta(days=2)).date(),
         )
 
+    def pending(self):
+        return self.upcoming().filter(
+            status=VotingProxyRequest.STATUS_CREATED,
+            proxy__isnull=True,
+        )
+
     def waiting_confirmation(self):
-        return self.filter(
+        return self.upcoming().filter(
             status=VotingProxyRequest.STATUS_ACCEPTED,
             proxy__isnull=False,
-            voting_date__gte=(timezone.now() + timedelta(days=2)).date(),
         )
 
 
