@@ -134,7 +134,10 @@ const DesktopEventPage = (props) => {
               <EventHeader {...props} />
               {isManager && <ReportFormCard eventPk={id} />}
               {logged && subtype.label === DOOR2DOOR_EVENT_SUBTYPE_LABEL && (
-                <TokTokCard flex />
+                <>
+                  <Spacer size="1rem" />
+                  <TokTokCard flex />
+                </>
               )}
               <OnlineUrlCard
                 youtubeVideoID={props.youtubeVideoID}
