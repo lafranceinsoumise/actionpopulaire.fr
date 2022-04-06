@@ -24,9 +24,8 @@ import { useEventFormOptions } from "@agir/events/common/hooks";
 
 import { ToastElectionInfo } from "@agir/events/createEventPage/CreateEvent";
 import {
-  BEFORE_ELECTION_ZIP_CODES,
-  datesRestricted,
-  subtypesRestricted,
+  SUBTYPES_ELECTION,
+  isBetweenDatesElection,
 } from "@agir/events/createEventPage/EventForm/index";
 
 const StyledDateField = styled(DateField)`
@@ -62,40 +61,20 @@ const EventGeneral = (props) => {
   const [imageHasChanged, setImageHasChanged] = useState(false);
   const [hasCheckedImageLicence, setHasCheckedImageLicence] = useState(false);
 
-  const [isBetweenDatesRestricted, setIsBetweenDatesRestricted] =
-    useState(false);
+  const [isTypeElection, setIsTypeElection] = useState(false);
 
   const updateDatesRestricted = ({ startTime, endTime, zipcode }) => {
-    if (!startTime || !endTime) {
-      setIsBetweenDatesRestricted(false);
-      return;
-    }
-
-    const isElectionBeforeMetropole =
-      zipcode &&
-      BEFORE_ELECTION_ZIP_CODES.some((zip) => zipcode.startsWith(zip));
-
-    // Retrieve one day if outside europe timezone
-    const startElection = isElectionBeforeMetropole
-      ? datesRestricted.start.plus({ days: -1 })
-      : datesRestricted.start;
-    const endElection = isElectionBeforeMetropole
-      ? datesRestricted.end.plus({ days: -1 })
-      : datesRestricted.end;
-    setIsBetweenDatesRestricted(
-      DateTime.fromISO(startTime) < endElection &&
-        DateTime.fromISO(endTime) > startElection
-    );
+    setIsTypeElection(isBetweenDatesElection({ startTime, endTime, zipcode }));
   };
 
   useEffect(() => {
-    if (isBetweenDatesRestricted) {
+    if (isTypeElection) {
       // Unselect forbidden types
-      if (!subtypesRestricted.includes(formData.subtype?.type)) {
+      if (!SUBTYPES_ELECTION.includes(formData.subtype?.type)) {
         setFormData((state) => ({ ...state, subtype: null }));
       }
     }
-  }, [isBetweenDatesRestricted]);
+  }, [isTypeElection]);
 
   useEffect(() => {
     setImageHasChanged(false);
@@ -297,9 +276,7 @@ const EventGeneral = (props) => {
               options={options?.subtype}
               onChange={handleChangeValue}
               disabled={isDisabled}
-              whiteList={
-                isBetweenDatesRestricted ? subtypesRestricted : undefined
-              }
+              whiteList={isTypeElection ? SUBTYPES_ELECTION : undefined}
             />
           </>
         )}
