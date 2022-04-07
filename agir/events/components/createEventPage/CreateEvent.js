@@ -163,8 +163,7 @@ const CreateEvent = () => {
 
   // Forbid event creation during election
   if (now > NO_CREATION_DATES.start && now < NO_CREATION_DATES.end) {
-    window.location.href = "/";
-    return <></>;
+    return <Redirect to={routeConfig.treveCreationPage.getLink()} />;
   }
 
   const { projects } = useMissingRequiredEventDocuments();

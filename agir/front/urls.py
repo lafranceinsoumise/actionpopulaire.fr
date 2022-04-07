@@ -201,6 +201,11 @@ urlpatterns = [
     path("404/", views.NotFoundView.as_view()),
     path("500/", views.BaseAppCachedView.as_view()),
     path("offline", views.BaseAppCachedView.as_view(), name="offline"),
+    path(
+        "treve/",
+        views.BaseAppSoftAuthView.as_view(),
+        name="treve",
+    ),
     path("sw.js", (views.ServiceWorker.as_view()), name="sw.js"),
     path("sitemap.xml", sitemap_index, {"sitemaps": sitemaps}),
     path(

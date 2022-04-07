@@ -516,6 +516,17 @@ export const routeConfig = {
     hideFeedbackButton: true,
     hideFooter: true,
   }),
+  treveCreationPage: new RouteConfig({
+    id: "treveCreation",
+    path: "/treve/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.SOFT,
+    label: "Treve",
+    Component: RouteComponents.TreveCreationPage,
+    hasLayout: false,
+    hideFeedbackButton: true,
+    hideFooter: true,
+  }),
 };
 
 export const getRouteByPathname = (pathname) => {
