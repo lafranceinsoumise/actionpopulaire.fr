@@ -165,6 +165,7 @@ const EventGeneral = (props) => {
       setErrors(res.error);
       sendToast(
         res.error.detail ||
+          (Array.isArray(res.error.subtype) && res.error.subtype[0]) ||
           "Une erreur est survenue, veuillez réessayer plus tard",
         "ERROR",
         { autoClose: true }

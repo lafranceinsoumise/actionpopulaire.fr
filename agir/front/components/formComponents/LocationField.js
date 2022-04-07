@@ -72,7 +72,12 @@ const LocationField = (props) => {
 
   const handleChange = useCallback(
     (e) => {
-      onChange && onChange(props.name, e.target.name, e.target.value);
+      onChange &&
+        onChange(
+          props.name,
+          e.target.name,
+          e.target.value.replace(/^\s+/g, "")
+        );
     },
     [props.name, onChange]
   );
