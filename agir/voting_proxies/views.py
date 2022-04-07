@@ -25,6 +25,7 @@ from agir.voting_proxies.actions import (
     decline_voting_proxy_requests,
     confirm_voting_proxy_requests,
     cancel_voting_proxy_requests,
+    cancel_voting_proxy_request_acceptation,
 )
 from agir.voting_proxies.models import VotingProxyRequest, VotingProxy
 from agir.voting_proxies.serializers import (
@@ -277,6 +278,16 @@ class VotingProxyRequestCancelAPIView(VotingProxyRequestConfirmAPIView):
     def update(self, request, *args, **kwargs):
         voting_proxy_requests = self.get_voting_proxy_requests(request.data)
         cancel_voting_proxy_requests(voting_proxy_requests)
+        return Response(status=status.HTTP_200_OK)
+
+
+class VotingProxyRequestAcceptationCancelAPIView(VotingProxyRequestConfirmAPIView):
+    permission_classes = (IsActionPopulaireClientPermission,)
+    queryset = VotingProxyRequest.objects.filter(proxy__isnull=False)
+
+    def update(self, request, *args, **kwargs):
+        voting_proxy_requests = self.get_voting_proxy_requests(request.data)
+        cancel_voting_proxy_request_acceptation(voting_proxy_requests)
         return Response(status=status.HTTP_200_OK)
 
 

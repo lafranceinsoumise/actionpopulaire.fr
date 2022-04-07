@@ -7,7 +7,11 @@ import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
-import { confirmVotingProxyRequests } from "@agir/voting_proxies/Common/api";
+import {
+  confirmVotingProxyRequests,
+  cancelVotingProxyRequests,
+  cancelVotingProxyRequestAcceptation,
+} from "@agir/voting_proxies/Common/api";
 
 const StyledRecap = styled.div`
   padding: 1rem 1.5rem;
@@ -66,8 +70,13 @@ const StyledWrapper = styled.div`
 
 const AcceptedRequest = (props) => {
   const { request, selectRequest, isLoading } = props;
-  const isSelectable = request.status === "accepted";
-  const handleSelect = isSelectable ? () => selectRequest(request) : undefined;
+  const isConfirmed = request.status === "confirmed";
+  const handleConfirm = !isConfirmed
+    ? () => selectRequest(request, "confirm")
+    : undefined;
+  const handleCancel = () => selectRequest(request, "cancel");
+  const handleCancelAcceptation = () =>
+    selectRequest(request, "cancelAcceptation");
 
   return (
     <>
@@ -87,18 +96,45 @@ const AcceptedRequest = (props) => {
         <Spacer size="1rem" />
         <p>
           <Button
+            block
             small
             wrap
-            icon={!isSelectable ? "check" : undefined}
+            icon={isConfirmed ? "check" : undefined}
             color="primary"
-            disabled={!isSelectable || isLoading}
+            disabled={isConfirmed || isLoading}
             loading={isLoading}
             type="button"
-            onClick={handleSelect}
+            onClick={handleConfirm}
           >
-            {isSelectable
-              ? "Confirmer l'établissement de la procuration"
-              : "Procuration confirmée"}
+            {isConfirmed
+              ? "Procuration confirmée"
+              : "Je confirme l'établissement de la procuration"}
+          </Button>
+        </p>
+        <p>
+          <Button
+            block
+            small
+            wrap
+            disabled={isLoading}
+            loading={isLoading}
+            type="button"
+            onClick={handleCancel}
+          >
+            La personne n'a plus besoin de procuration
+          </Button>
+        </p>
+        <p>
+          <Button
+            block
+            small
+            wrap
+            disabled={isLoading}
+            loading={isLoading}
+            type="button"
+            onClick={handleCancelAcceptation}
+          >
+            Je ne suis plus disponible
           </Button>
         </p>
       </StyledRecap>
@@ -121,25 +157,44 @@ AcceptedRequest.propTypes = {
 
 const AcceptedRequests = (props) => {
   const { requests, refreshRequests } = props;
+  const [selectedAction, setSelectedAction] = useState(null);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState(null);
 
-  const confirmRequest = async () => {
+  const actOnRequest = async () => {
+    if (!selectedAction || !selectRequest) {
+      setSelectedRequest(null);
+      setSelectedAction(null);
+      return;
+    }
     setErrors(null);
     setIsLoading(true);
-    const result = await confirmVotingProxyRequests([selectedRequest]);
+    const f =
+      selectedAction === "confirm"
+        ? confirmVotingProxyRequests
+        : selectedAction === "cancel"
+        ? cancelVotingProxyRequests
+        : cancelVotingProxyRequestAcceptation;
+    const result = await f([selectedRequest]);
     setIsLoading(false);
     if (result.error) {
       setErrors(result.error);
       return;
     }
     setSelectedRequest(null);
+    setSelectedAction(null);
     refreshRequests && refreshRequests();
   };
 
   const dismissConfirm = () => {
     setSelectedRequest(null);
+    setSelectedAction(null);
+  };
+
+  const selectRequest = (request, action) => {
+    setSelectedRequest(request);
+    setSelectedAction(action);
   };
 
   return (
@@ -155,14 +210,14 @@ const AcceptedRequests = (props) => {
         <AcceptedRequest
           key={request.id}
           request={request}
-          selectRequest={setSelectedRequest}
+          selectRequest={selectRequest}
           isLoading={isLoading}
         />
       ))}
       <ModalConfirmation
-        shouldShow={!!selectedRequest}
+        shouldShow={!!selectedRequest && !!selectedAction}
         onClose={dismissConfirm}
-        onConfirm={confirmRequest}
+        onConfirm={actOnRequest}
         title="Confirmer l'établissement de la procuration par le mandant"
         confirmationLabel="Je confirme"
         dismissLabel="Annuler"
@@ -177,6 +232,116 @@ const AcceptedRequests = (props) => {
         <p>
           Confirmez-vous que tout est prêt pour que vous puissiez voter à sa
           place le jour du scrutin&nbsp;?
+        </p>
+        {errors && (
+          <p
+            css={`
+              padding: 0;
+              margin: 0;
+              font-size: 1rem;
+              font-weight: 500;
+              color: ${({ theme }) => theme.redNSP};
+              text-align: center;
+            `}
+          >
+            {errors?.votingProxyRequests ||
+              errors?.global ||
+              "Une erreur est survenue"}
+          </p>
+        )}
+      </ModalConfirmation>
+      <ModalConfirmation
+        shouldShow={!!selectedRequest && selectedAction === "confirm"}
+        onClose={dismissConfirm}
+        onConfirm={actOnRequest}
+        title="Confirmer l'établissement de la procuration par le mandant"
+        confirmationLabel="Je confirme"
+        dismissLabel="Annuler"
+        isConfirming={isLoading}
+        shouldDismissOnClick={false}
+      >
+        <p>
+          Le mandant doit établir une procuration de vote à votre nom pour cette
+          date dans un commissariat de police, une brigade de gendarmerie ou un
+          consulat.
+        </p>
+        <p>
+          Confirmez-vous que tout est prêt pour que vous puissiez voter à sa
+          place le jour du scrutin&nbsp;?
+        </p>
+        {errors && (
+          <p
+            css={`
+              padding: 0;
+              margin: 0;
+              font-size: 1rem;
+              font-weight: 500;
+              color: ${({ theme }) => theme.redNSP};
+              text-align: center;
+            `}
+          >
+            {errors?.votingProxyRequests ||
+              errors?.global ||
+              "Une erreur est survenue"}
+          </p>
+        )}
+      </ModalConfirmation>
+      <ModalConfirmation
+        shouldShow={!!selectedRequest && selectedAction === "cancel"}
+        onClose={dismissConfirm}
+        onConfirm={actOnRequest}
+        title="Confirmer l'annulation de la procuration par le mandant"
+        confirmationLabel="Je confirme"
+        dismissLabel="Annuler"
+        isConfirming={isLoading}
+        shouldDismissOnClick={false}
+      >
+        <p>
+          En annulant la procuration, vous indiquez que la personne qui en a
+          fait la demande n'a plus besoin qu'on vote à sa place ou est dans
+          l'impossibilité de valider sa demande. Sa demande sera annulée et ne
+          sera plus reproposée à un·e volontaire.
+        </p>
+        <p>
+          Confirmez-vous que le mandant vous a communiqué ne plus avoir besoin
+          de vous donner procuration pour ce scrutin&nbsp;?
+        </p>
+        {errors && (
+          <p
+            css={`
+              padding: 0;
+              margin: 0;
+              font-size: 1rem;
+              font-weight: 500;
+              color: ${({ theme }) => theme.redNSP};
+              text-align: center;
+            `}
+          >
+            {errors?.votingProxyRequests ||
+              errors?.global ||
+              "Une erreur est survenue"}
+          </p>
+        )}
+      </ModalConfirmation>
+      <ModalConfirmation
+        shouldShow={!!selectedRequest && selectedAction === "cancelAcceptation"}
+        onClose={dismissConfirm}
+        onConfirm={actOnRequest}
+        title="Se désister de cette procuration de vote"
+        confirmationLabel="Je confirme"
+        dismissLabel="Annuler"
+        isConfirming={isLoading}
+        shouldDismissOnClick={false}
+      >
+        <p>
+          En vous désistant de cette procuration, vous indiquez que vous n'êtes
+          plus disponible pour voter à la place de cette personne le jour du
+          scrutin. Votre acceptation sera annulée et cette demande proposée à
+          d'autres personnes.
+        </p>
+        <p>
+          Confirmez-vous que ne pas pouvoir satisfaire cette demande de
+          procuration&nbsp;?
         </p>
         {errors && (
           <p

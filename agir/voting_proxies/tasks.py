@@ -109,8 +109,23 @@ def send_cancelled_request_to_voting_proxy(voting_proxy_request_pk, proxy_email)
         [proxy_email],
         subject=f"Annulation de la procuration de vote du {voting_date}",
         intro=f"{voting_proxy_request.first_name}, pour qui vous aviez accepté de voter par procuration "
-        f"le {voting_date}, vient de nous demander d'annuler sa demande. Nous vous proposerons d'autres demandes "
+        f"le {voting_date}, a annulé sa demande. Nous vous proposerons d'autres demandes "
         f"près de chez vous dans les prochains jours, si besoin.",
+    )
+
+
+@emailing_task()
+def send_cancelled_request_acceptation_to_request_owner(
+    voting_proxy_request_pk, proxy_name
+):
+    voting_proxy_request = VotingProxyRequest.objects.get(pk=voting_proxy_request_pk)
+    voting_date = voting_proxy_request.voting_date.strftime("%d %B")
+    send_voting_proxy_request_email.delay(
+        [voting_proxy_request.email],
+        subject=f"Annulation de la procuration de vote du {voting_date}",
+        intro=f"{proxy_name}, la personne qui avait accepté de voter pour vous par procuration le {voting_date}, "
+        "vient de nous signaler qu'elle ne sera plus disponible. Nous sommes désolé du désagrément "
+        "et essayerons de vous mettre en contact avec quelqu'un d'autre dans les plus brefs délais.",
     )
 
 
