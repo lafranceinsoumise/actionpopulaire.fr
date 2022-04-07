@@ -1,6 +1,3 @@
-import dataclasses
-from typing import Callable, Optional, List
-
 import reversion
 from data_france.typologies import CSP
 from django.contrib.auth.models import Group
@@ -41,6 +38,15 @@ class EtatCandidature(models.IntegerChoices):
     COMPLET = 10, "Complet"
     RETENU = 20, "Retenu pour examen"
     CHOISIE = 100, "Choisie et validée"
+
+
+class AutreLieu(models.TextChoices):
+    NON = ("non", "Non")
+    DEPARTEMENT = (
+        "département",
+        "Dans le même département",
+    )
+    REGION = "région", "Dans la même région"
 
 
 @reversion.register()
@@ -102,6 +108,13 @@ class Candidature(HistoryMixin, models.Model):
 
     circonscription = GenericForeignKey(
         ct_field="circonscription_content_type", fk_field="circonscription_object_id"
+    )
+
+    ailleurs = models.CharField(
+        verbose_name="Accepte de candidater ailleurs",
+        choices=AutreLieu.choices,
+        blank=True,
+        max_length=15,
     )
 
     date = models.DateTimeField(
