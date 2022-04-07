@@ -1091,8 +1091,15 @@ class ScrutinAdmin(admin.ModelAdmin):
 
 @admin.register(Candidature)
 class CandidatureAdmin(AddRelatedLinkMixin, admin.ModelAdmin):
-    list_display = ("candidat", "sexe", "code_circonscription", "date", "etat")
-    list_filter = (ScrutinFilter,)
+    list_display = (
+        "candidat",
+        "sexe",
+        "code_circonscription",
+        "date",
+        "etat",
+        "ailleurs",
+    )
+    list_filter = (ScrutinFilter, "etat", "ailleurs", "sexe")
     fieldsets = (
         (
             None,
