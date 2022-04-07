@@ -1,4 +1,6 @@
 from uuid import UUID
+from datetime import datetime
+import pytz
 
 import logging
 from django.contrib import messages
@@ -8,6 +10,7 @@ from django.http import HttpResponseRedirect, JsonResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import reverse, reverse_lazy
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.html import format_html
 from django.utils.translation import gettext as _
@@ -165,6 +168,20 @@ class CreateSupportGroupView(HardLoginRequiredMixin, TemplateView):
         return super().get_context_data(
             props={"initial": initial, "subtypes": subtypes, "types": types}, **kwargs
         )
+
+    # Redirect if current time between election dates
+    def get(self, request, *args, **kwargs):
+        now = timezone.now()
+        tz_paris = pytz.timezone("Europe/Paris")
+        start = datetime(2022, 4, 8, 12, 0, 0)
+        end = datetime(2022, 4, 10, 20, 0, 0)
+        start_tz = tz_paris.localize(start)
+        end_tz = tz_paris.localize(end)
+
+        if now > start_tz and now < end_tz:
+            return HttpResponseRedirect(reverse("treve"))
+
+        return super().get(request, args, kwargs)
 
 
 class PerformCreateSupportGroupView(HardLoginRequiredMixin, FormMixin, ProcessFormView):
