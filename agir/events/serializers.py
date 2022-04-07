@@ -650,6 +650,7 @@ class UpdateEventSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(read_only=True)
     subtype = serializers.PrimaryKeyRelatedField(
         queryset=EventSubtype.objects.filter(visibility=EventSubtype.VISIBILITY_ALL),
+        allow_null=True,
     )
     startTime = DateTimeWithTimezoneField(source="start_time")
     endTime = DateTimeWithTimezoneField(source="end_time")
@@ -712,6 +713,13 @@ class UpdateEventSerializer(serializers.ModelSerializer):
         if value and not value.get("contact_email") or value["contact_email"] == "":
             raise serializers.ValidationError(
                 detail={"email": "Ce champ ne peut être vide."}
+            )
+        return value
+
+    def validate_subtype(self, value):
+        if value is None or value == "":
+            raise serializers.ValidationError(
+                detail="Choisir un type d'événement est obligatoire",
             )
         return value
 
