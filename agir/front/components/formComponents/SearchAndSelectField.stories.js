@@ -17,6 +17,7 @@ const Template = (args) => {
   const [isLoading, setIsLoading] = useState(false);
   const handleChange = useCallback((value) => {
     setValue(value);
+    setOptions(defaultOptions);
   }, []);
 
   const handleSearch = useCallback(async (q) => {
@@ -29,7 +30,7 @@ const Template = (args) => {
         } else {
           setOptions(
             defaultOptions.filter((option) => {
-              return option.label.toLowerCase().includes(q.toLowerCase);
+              return option.label.toLowerCase().includes(q.toLowerCase());
             })
           );
         }

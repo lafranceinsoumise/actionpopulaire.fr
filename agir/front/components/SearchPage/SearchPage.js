@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 
 import { useLocation } from "react-router-dom";
 
@@ -10,23 +10,39 @@ import { useIsDesktop } from "@agir/front/genericComponents/grid";
 import { HeaderSearch, InputSearch, SearchTooShort } from "./searchComponents";
 import { StyledContainer } from "./styledComponents";
 import SearchPageTab from "./SearchPageTab";
+import SearchAndSelectField from "@agir/front/formComponents/SearchAndSelectField";
 
 import { TABS } from "./config.js";
 import { useSearchResults } from "./useSearch";
 import { useFilters } from "./useFilters";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-import CountryField from "@agir/front/formComponents/CountryField";
+import { COUNTRIES } from "@agir/front/formComponents/CountryField";
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 const StyledSelectCountry = styled.div`
   display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: end;
   flex-wrap: wrap;
 
   > label {
+    flex-direction: row;
     min-width: 300px;
+    width: 300px;
+
+    span:first-child {
+      margin-right: 0.5rem;
+    }
+
+    > div {
+      width: 100%;
+
+      > div > span {
+        display: none !important;
+      }
+    }
 
     @media (min-width: ${style.collapse}px) {
       display: flex;
@@ -66,6 +82,7 @@ export const SearchPage = () => {
   const location = useLocation();
   const urlParams = new URLSearchParams(location.search);
 
+  const [optionsCountry, setOptionsCountry] = useState(COUNTRIES);
   const [activeTabId, setActiveTabId] = useState("all");
   const [search, setSearch] = useState(urlParams.get("q") || "");
   const [_, __, filters, setFilters] = useFilters();
@@ -93,9 +110,26 @@ export const SearchPage = () => {
     resetFilters();
   };
 
-  const handleChangeCountry = (country) => {
+  const handleChangeCountry = useCallback((country) => {
     setFilters((filters) => ({ ...filters, country }));
-  };
+    setOptionsCountry(COUNTRIES);
+  }, []);
+
+  const handleSearchCountry = useCallback(async (q) => {
+    const countries = await new Promise((resolve) => {
+      if (!q) {
+        setOptionsCountry(COUNTRIES);
+        resolve(COUNTRIES);
+      } else {
+        const filteredContries = COUNTRIES.filter((option) => {
+          return option.label.toLowerCase().includes(q.toLowerCase());
+        });
+        setOptionsCountry(filteredContries);
+        resolve(filteredContries);
+      }
+    });
+    return countries;
+  }, []);
 
   return (
     <StyledContainer>
@@ -112,13 +146,16 @@ export const SearchPage = () => {
       <Spacer size="0.5rem" />
 
       <StyledSelectCountry>
-        <CountryField
+        <SearchAndSelectField
           label="Pays"
           name="country"
           autoComplete="country-name"
           placeholder="Pays"
+          minSearchTermLength={2}
           value={filters.country}
+          defaultOptions={optionsCountry}
           onChange={handleChangeCountry}
+          onSearch={handleSearchCountry}
         />
         {!!filters.country && (
           <CancelCountry
