@@ -273,10 +273,12 @@ class VotingProxyRequest(AbstractVoter):
             f"Né·e le: <strong>{escape(self.proxy.date_of_birth.strftime('%d/%m/%Y'))}</strong><br>"
             f"Téléphone&nbsp;: <strong>{escape(self.proxy.contact_phone)}</strong>"
         )
-        if self.commune:
-            text += f"<br>Commune&nbsp;: <strong>{self.commune.nom_complet}</strong>"
+        if self.proxy.commune:
+            text += (
+                f"<br>Commune&nbsp;: <strong>{self.proxy.commune.nom_complet}</strong>"
+            )
         else:
-            text += f"<br>Consulat&nbsp;: <strong>{self.consulate.nom}</strong>"
+            text += f"<br>Consulat&nbsp;: <strong>{self.proxy.consulate.nom}</strong>"
         if self.proxy.remarks:
             text += f"<br>Disponibilités&nbsp;: <strong>{escape(self.proxy.remarks)}</strong>"
 
@@ -295,10 +297,10 @@ class VotingProxyRequest(AbstractVoter):
             f" - né·e le {self.proxy.date_of_birth.strftime('%d/%m/%Y')}"
             f" - tél. {self.proxy.contact_phone}"
         )
-        if self.commune:
-            text += f" - commune: {self.commune.nom_complet}"
+        if self.proxy.commune:
+            text += f" - commune: {to_7bit_string(self.proxy.commune.nom_complet)}"
         else:
-            text += f" - consulat: {self.consulate.nom}"
+            text += f" - consulat: {to_7bit_string(self.proxy.consulate.nom)}"
         if self.proxy.remarks:
             text += f" - {to_7bit_string(self.proxy.remarks)}"
         text += "."
