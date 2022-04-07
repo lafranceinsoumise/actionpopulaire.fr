@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
+import { DateTime } from "luxon";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -64,6 +65,41 @@ const StyledForm = styled.form`
   }
 `;
 
+export const BEFORE_ELECTION_ZIP_CODES = [
+  "971", // "GP",
+  "972", // "MQ",
+  "973", // "GF",
+  "987", // "PF",
+];
+
+export const SUBTYPES_ELECTION = ["G"];
+
+// Dates forbidden to some subtypes on next election
+const DATES_ELECTION = {
+  start: DateTime.fromISO("2022-04-09"),
+  end: DateTime.fromISO("2022-04-11"),
+};
+export const isBetweenDatesElection = ({ startTime, endTime, zipcode }) => {
+  if (!startTime || !endTime) {
+    return false;
+  }
+
+  const isElectionBeforeMetropole =
+    zipcode && BEFORE_ELECTION_ZIP_CODES.some((zip) => zipcode.startsWith(zip));
+
+  // Retrieve one day if outside europe timezone
+  const startElection = isElectionBeforeMetropole
+    ? DATES_ELECTION.start.plus({ days: -1 })
+    : DATES_ELECTION.start;
+  const endElection = isElectionBeforeMetropole
+    ? DATES_ELECTION.end.plus({ days: -1 })
+    : DATES_ELECTION.end;
+  return (
+    DateTime.fromISO(startTime) < endElection &&
+    DateTime.fromISO(endTime) > startElection
+  );
+};
+
 const formatErrors = (errors, fields = DEFAULT_FORM_DATA) => {
   if (typeof errors !== "object") {
     return errors;
@@ -92,16 +128,34 @@ const EventForm = () => {
   const { search } = useLocation();
   const options = useEventFormOptions();
 
-  const updateValue = useCallback((name, value) => {
-    setErrors((state) => ({
-      ...state,
-      [name]: undefined,
-    }));
-    setFormData((state) => ({
-      ...state,
-      [name]: value,
-    }));
-  }, []);
+  const [isTypeElection, setIsTypeElection] = useState(false);
+
+  const updateDatesRestricted = ({ startTime, endTime, zipcode }) => {
+    setIsTypeElection(isBetweenDatesElection({ startTime, endTime, zipcode }));
+  };
+
+  useEffect(() => {
+    if (isTypeElection) {
+      // Unselect forbidden types
+      if (!SUBTYPES_ELECTION.includes(formData.subtype?.type)) {
+        setFormData((state) => ({ ...state, subtype: null }));
+      }
+    }
+  }, [isTypeElection]);
+
+  const updateValue = useCallback(
+    (name, value) => {
+      setErrors((state) => ({
+        ...state,
+        [name]: undefined,
+      }));
+      setFormData((state) => ({
+        ...state,
+        [name]: value,
+      }));
+    },
+    [formData]
+  );
 
   const updateNestedValue = useCallback((parentName, name, value) => {
     setErrors((state) => {
@@ -194,6 +248,14 @@ const EventForm = () => {
     formData.contact.isDefault,
     formData.organizerGroup,
   ]);
+
+  useEffect(() => {
+    updateDatesRestricted({
+      startTime: formData.startTime,
+      endTime: formData.endTime,
+      zipcode: formData.location.zip,
+    });
+  }, [formData.startTime, formData.endTime, formData.location?.zip]);
 
   const handleSubmit = useCallback(
     async (e) => {
@@ -325,6 +387,7 @@ const EventForm = () => {
         name="subtype"
         value={formData.subtype}
         options={options.subtype}
+        whiteList={isTypeElection ? SUBTYPES_ELECTION : undefined}
         onChange={updateValue}
         error={errors && errors.subtype}
         disabled={isLoading}

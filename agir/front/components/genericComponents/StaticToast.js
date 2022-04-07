@@ -1,10 +1,13 @@
 import PropTypes from "prop-types";
 import styled from "styled-components";
 
+import style from "@agir/front/genericComponents/_variables.scss";
+
 const StaticToast = styled.div`
   display: flex;
   padding: 1rem;
-  border: 1px solid #000a2c;
+  border: 1px solid ${style.black500};
+  border-radius: ${style.borderRadius};
   position: relative;
   margin-top: 2rem;
   background: linear-gradient(

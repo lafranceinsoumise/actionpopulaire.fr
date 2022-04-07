@@ -117,7 +117,7 @@ const BASE_ROUTE = routeConfig.createEvent.getLink();
 const PANEL_ROUTE = BASE_ROUTE + "type/";
 
 const SubtypeField = (props) => {
-  const { onChange, value, name, error, disabled } = props;
+  const { onChange, value, name, error, disabled, options, whiteList } = props;
 
   const isPanelOpen = useRouteMatch(PANEL_ROUTE);
   const history = useHistory();
@@ -138,10 +138,15 @@ const SubtypeField = (props) => {
     [onChange, name, closePanel]
   );
 
-  const subtypes = useMemo(
-    () => (Array.isArray(props.options) ? props.options : []),
-    [props.options]
-  );
+  const subtypes = useMemo(() => {
+    if (!Array.isArray(options)) {
+      return [];
+    }
+    if (!Array.isArray(whiteList)) {
+      return options;
+    }
+    return options.filter((option) => whiteList.includes(option.type));
+  }, [options, whiteList]);
 
   const defaultOptions = useMemo(() => subtypes.slice(0, 5), [subtypes]);
 
@@ -176,9 +181,11 @@ const SubtypeField = (props) => {
             />
           ))
         )}
-        <button onClick={openPanel} type="button" disabled={disabled}>
-          {value ? "Changer" : "+ d'options"}
-        </button>
+        {(!!value || (!value && subtypes.length > 4)) && (
+          <button onClick={openPanel} type="button" disabled={disabled}>
+            {value ? "Changer" : "+ d'options"}
+          </button>
+        )}
       </StyledDefaultOptions>
       <SubtypePanel
         onClose={closePanel}

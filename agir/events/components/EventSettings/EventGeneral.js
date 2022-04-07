@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import useSWR from "swr";
+import { DateTime } from "luxon";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
@@ -20,6 +21,12 @@ import { DEFAULT_FORM_DATA } from "@agir/events/common/eventForm.config";
 import * as api from "@agir/events/common/api";
 import { useToast } from "@agir/front/globalContext/hooks";
 import { useEventFormOptions } from "@agir/events/common/hooks";
+
+import { ToastElectionInfo } from "@agir/events/createEventPage/CreateEvent";
+import {
+  SUBTYPES_ELECTION,
+  isBetweenDatesElection,
+} from "@agir/events/createEventPage/EventForm/index";
 
 const StyledDateField = styled(DateField)`
   @media (min-width: ${style.collapse}px) {
@@ -53,6 +60,21 @@ const EventGeneral = (props) => {
   const originalImage = useMemo(() => event?.image, [event]);
   const [imageHasChanged, setImageHasChanged] = useState(false);
   const [hasCheckedImageLicence, setHasCheckedImageLicence] = useState(false);
+
+  const [isTypeElection, setIsTypeElection] = useState(false);
+
+  const updateDatesRestricted = ({ startTime, endTime, zipcode }) => {
+    setIsTypeElection(isBetweenDatesElection({ startTime, endTime, zipcode }));
+  };
+
+  useEffect(() => {
+    if (isTypeElection) {
+      // Unselect forbidden types
+      if (!SUBTYPES_ELECTION.includes(formData.subtype?.type)) {
+        setFormData((state) => ({ ...state, subtype: null }));
+      }
+    }
+  }, [isTypeElection]);
 
   useEffect(() => {
     setImageHasChanged(false);
@@ -109,6 +131,14 @@ const EventGeneral = (props) => {
     [handleChangeValue]
   );
 
+  useEffect(() => {
+    updateDatesRestricted({
+      startTime: formData.startTime,
+      endTime: formData.endTime,
+      zipcode: event?.location.zip,
+    });
+  }, [formData]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors({});
@@ -155,6 +185,7 @@ const EventGeneral = (props) => {
         <span style={{ color: style.black700 }}>
           Ces informations seront affichées en public.
         </span>
+        <ToastElectionInfo />
         <Spacer size="1rem" />
         <TextField
           id="name"
@@ -245,6 +276,7 @@ const EventGeneral = (props) => {
               options={options?.subtype}
               onChange={handleChangeValue}
               disabled={isDisabled}
+              whiteList={isTypeElection ? SUBTYPES_ELECTION : undefined}
             />
           </>
         )}

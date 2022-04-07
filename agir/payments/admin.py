@@ -266,6 +266,7 @@ class PaymentAdmin(PaymentManagementAdminMixin, AddRelatedLinkMixin, admin.Model
                     "person_link",
                     "status",
                     "price",
+                    "get_allocations_display",
                     "type",
                     "change_mode_buttons",
                     "status_buttons",
