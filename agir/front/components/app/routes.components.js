@@ -169,6 +169,11 @@ const Routes = {
       /* webpackChunkName: "r-toktokpreview" */ "@agir/events/TokTok/TokTokPreview"
     )
   ),
+  TreveCreationPage: lazy(() =>
+    import(
+      /* webpackChunkName: "r-trevecreationpage" */ "@agir/front/treveCreationPage/TreveCreationPage"
+    )
+  ),
 };
 
 export default Routes;
