@@ -82,7 +82,6 @@ export const SearchPage = () => {
   const location = useLocation();
   const urlParams = new URLSearchParams(location.search);
 
-  const [isLoadingCountry, setIsLoadingCountry] = useState(false);
   const [optionsCountry, setOptionsCountry] = useState(COUNTRIES);
   const [activeTabId, setActiveTabId] = useState("all");
   const [search, setSearch] = useState(urlParams.get("q") || "");
@@ -118,20 +117,16 @@ export const SearchPage = () => {
 
   const handleSearchCountry = useCallback(async (q) => {
     const countries = await new Promise((resolve) => {
-      setIsLoadingCountry(true);
-      setTimeout(() => {
-        setIsLoadingCountry(false);
-        if (!q) {
-          setOptionsCountry(COUNTRIES);
-          resolve(COUNTRIES);
-        } else {
-          const filteredContries = COUNTRIES.filter((option) => {
-            return option.label.toLowerCase().includes(q.toLowerCase());
-          });
-          setOptionsCountry(filteredContries);
-          resolve(filteredContries);
-        }
-      }, 200);
+      if (!q) {
+        setOptionsCountry(COUNTRIES);
+        resolve(COUNTRIES);
+      } else {
+        const filteredContries = COUNTRIES.filter((option) => {
+          return option.label.toLowerCase().includes(q.toLowerCase());
+        });
+        setOptionsCountry(filteredContries);
+        resolve(filteredContries);
+      }
     });
     return countries;
   }, []);
@@ -159,7 +154,6 @@ export const SearchPage = () => {
           minSearchTermLength={2}
           value={filters.country}
           defaultOptions={optionsCountry}
-          isLoading={isLoadingCountry}
           onChange={handleChangeCountry}
           onSearch={handleSearchCountry}
         />
