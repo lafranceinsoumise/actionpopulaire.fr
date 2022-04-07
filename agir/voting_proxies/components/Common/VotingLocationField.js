@@ -1,6 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useEffect, useState } from "react";
-import styled from "styled-components";
+import React, { useState } from "react";
 
 import SearchAndSelectField from "@agir/front/formComponents/SearchAndSelectField";
 
