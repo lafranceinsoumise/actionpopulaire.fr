@@ -154,6 +154,19 @@ const CreateEvent = () => {
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const backLink = useSelector(getBackLink);
 
+  const now = DateTime.local();
+
+  const NO_CREATION_DATES = {
+    start: DateTime.fromISO("2022-04-09").plus({ hours: 12 }),
+    end: DateTime.fromISO("2022-04-11").plus({ hours: 20 }),
+  };
+
+  // Forbid event creation during election
+  if (now > NO_CREATION_DATES.start && now < NO_CREATION_DATES.end) {
+    window.location.href = "/";
+    return <></>;
+  }
+
   const { projects } = useMissingRequiredEventDocuments();
 
   const isBlocked = useMemo(() => {
