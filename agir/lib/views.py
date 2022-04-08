@@ -4,6 +4,7 @@ import pytz
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.http import HttpResponseRedirect
+from django.urls import reverse
 from django.utils import timezone
 from django.views import View
 from django.views.generic.edit import FormMixin
@@ -100,6 +101,7 @@ class TreveMixin:
         end_tz = tz_paris.localize(end)
 
         if now > start_tz and now < end_tz:
+            return HttpResponseRedirect(reverse("treve"))
             return HttpResponseRedirect(reverse("treve"))
 
         return super().get(request, args, kwargs)
