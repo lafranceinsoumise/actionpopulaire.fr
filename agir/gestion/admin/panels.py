@@ -865,6 +865,7 @@ class InstanceCherchableAdmin(admin.ModelAdmin):
 @admin.register(Reglement)
 class ReglementAdmin(BaseGestionModelAdmin):
     list_display = (
+        "numero",
         "intitule",
         "date",
         "montant",
@@ -881,6 +882,7 @@ class ReglementAdmin(BaseGestionModelAdmin):
             None,
             {
                 "fields": (
+                    "numero",
                     "intitule",
                     "etat",
                     "date",
