@@ -102,6 +102,5 @@ class TreveMixin:
 
         if now > start_tz and now < end_tz:
             return HttpResponseRedirect(reverse("treve"))
-            return HttpResponseRedirect(reverse("treve"))
 
         return super().get(request, args, kwargs)

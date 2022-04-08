@@ -157,8 +157,8 @@ const CreateEvent = () => {
   const now = DateTime.local();
 
   const NO_CREATION_DATES = {
-    start: DateTime.fromISO("2022-04-9"),
-    end: DateTime.fromISO("2022-04-10").plus({ hours: 20 }),
+    start: DateTime.fromISO("2022-04-9+02:00"),
+    end: DateTime.fromISO("2022-04-10+02:00").plus({ hours: 20 }),
   };
 
   // Forbid event creation during election
