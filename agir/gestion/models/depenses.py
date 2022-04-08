@@ -409,6 +409,13 @@ class Reglement(TimeStampedModel):
         CARTE = "A", "Par carte bancaire"
         CASH = "S", "En espèces"
 
+    numero = models.PositiveIntegerField(
+        verbose_name="Numéro dans le relevé bancaire",
+        null=True,
+        blank=True,
+        help_text="le numéro de la ligne correspondante dans le relevé bancaire du compte de campagne.",
+    )
+
     depense = models.ForeignKey(
         to="Depense",
         verbose_name="Dépense concernée",
