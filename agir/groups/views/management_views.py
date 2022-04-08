@@ -173,7 +173,7 @@ class CreateSupportGroupView(HardLoginRequiredMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         now = timezone.now()
         tz_paris = pytz.timezone("Europe/Paris")
-        start = datetime(2022, 4, 8, 12, 0, 0)
+        start = datetime(2022, 4, 9, 0, 0, 0)
         end = datetime(2022, 4, 10, 20, 0, 0)
         start_tz = tz_paris.localize(start)
         end_tz = tz_paris.localize(end)

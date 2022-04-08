@@ -22,7 +22,7 @@ const Container = styled.div`
   padding: 28px 14px;
 
   > span {
-    max-width: 600px;
+    max-width: 680px;
   }
 `;
 
@@ -30,6 +30,10 @@ const PageStyle = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
+`;
+
+const InlineBlock = styled.span`
+  display: inline-block;
 `;
 
 export const TreveCreationPage = () => {
@@ -41,13 +45,14 @@ export const TreveCreationPage = () => {
         </h1>
         <span>
           Le week-end du 1er tour de l’élection présidentielle, la loi nous
-          oblige à ne pas mettre à jour les sites de la campagne présidentielle.
+          oblige à ne pas mettre à jour les sites de la
+          campagne&nbsp;présidentielle.
           <Spacer size="1rem" />
-          Jusqu’à dimanche à 20h, vous ne pouvez pas créer d’événement ou de
-          groupe.
+          Jusqu’à dimanche à 20h, vous ne pouvez pas créer d’événement
+          ou&nbsp;de&nbsp;groupe.
           <Spacer size="1rem" />
-          Ce dimanche, soyons nombreux et nombreuses à voter pour Jean-Luc
-          Mélenchon !
+          Ce dimanche, soyons nombreux et nombreuses à voter pour{" "}
+          <InlineBlock>Jean-Luc Mélenchon !</InlineBlock>
         </span>
         <Button
           style={{ maxWidth: 450, marginTop: "2rem" }}
@@ -56,7 +61,7 @@ export const TreveCreationPage = () => {
           link
           href="https://www.service-public.fr/particuliers/vosdroits/services-en-ligne-et-formulaires/ISE"
         >
-          Je trouve mon bureau de vote
+          Je trouve mon bureau de&nbsp;vote
         </Button>
       </Container>
     </PageStyle>
