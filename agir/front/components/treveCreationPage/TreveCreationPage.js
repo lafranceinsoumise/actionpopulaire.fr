@@ -63,6 +63,15 @@ export const TreveCreationPage = () => {
         >
           Je trouve mon bureau de&nbsp;vote
         </Button>
+        <Button
+          style={{ maxWidth: 450, marginTop: "1rem" }}
+          block
+          link
+          wrap
+          href="https://infos.actionpopulaire.fr/2022/04/08/treve-electorale/"
+        >
+          Agir durant le week-end des&nbsp;élections
+        </Button>
       </Container>
     </PageStyle>
   );
