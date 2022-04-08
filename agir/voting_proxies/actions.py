@@ -98,7 +98,7 @@ def create_or_update_voting_proxy(data):
         person.save()
 
         voting_proxy, created = VotingProxy.objects.update_or_create(
-            email=email, defaults={**data, "person_id": person.pk}
+            person_id=person.pk, defaults={**data, "email": email}
         )
         if voting_proxy.status in [
             VotingProxy.STATUS_INVITED,
