@@ -235,6 +235,7 @@ class DepenseReglementInline(admin.TabularInline):
 
     fields = (
         "etat_lien",
+        "numero",
         "intitule",
         "mode",
         "montant",

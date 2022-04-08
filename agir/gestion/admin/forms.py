@@ -544,6 +544,7 @@ class ReglementForm(forms.ModelForm):
         model = Reglement
         fields = (
             "intitule",
+            "numero",
             "montant",
             "facture",
             "date",
