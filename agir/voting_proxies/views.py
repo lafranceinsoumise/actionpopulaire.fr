@@ -15,7 +15,6 @@ from rest_framework.generics import (
 )
 from rest_framework.response import Response
 
-from agir.lib.export import dict_to_camelcase
 from agir.lib.rest_framework_permissions import IsActionPopulaireClientPermission
 from agir.lib.token_bucket import TokenBucket
 from agir.lib.utils import get_client_ip
