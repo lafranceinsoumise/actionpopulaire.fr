@@ -25,7 +25,7 @@ import { getInitialData, validateVotingProxy } from "./form.config";
 const FORM_STEPS = (isAbroad) =>
   [
     [], // How-to
-    ["votingLocation", "pollingStationNumber", "votingDates"],
+    ["votingLocation", "pollingStationNumber", "votingDates", "voterId"],
     !isAbroad && ["address", "zip", "city"],
     ["firstName", "lastName", "dateOfBirth"],
     ["phone", "email", "remarks"],
@@ -191,6 +191,29 @@ const VotingProxyForm = (props) => {
           value={data.pollingStationNumber}
           error={errors?.pollingStationNumber}
           label="Bureau de vote"
+        />
+        <Spacer size="1rem" />
+        <TextField
+          disabled={isLoading}
+          id="voterId"
+          name="voterId"
+          onChange={handleChange}
+          value={data.voterId}
+          error={errors?.voterId}
+          label="Numéro national d'électeur"
+          helpText={
+            <span>
+              Vous pouvez retrouver votre numéro national d'électeur sur votre
+              carte éléctorale ou sur{" "}
+              <a
+                href="https://www.service-public.fr/particuliers/vosdroits/services-en-ligne-et-formulaires/ISE"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                le site du service public
+              </a>
+            </span>
+          }
         />
         <Spacer size="1rem" />
         <VotingDateFields
