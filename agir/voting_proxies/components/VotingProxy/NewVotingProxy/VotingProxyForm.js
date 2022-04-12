@@ -8,6 +8,8 @@ import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import DateTimeField from "@agir/front/formComponents/DateTimeField";
 import PhoneField from "@agir/front/formComponents/PhoneField";
 import TextField from "@agir/front/formComponents/TextField";
+
+import PollingStationField from "@agir/voting_proxies/Common/PollingStationField";
 import VotingLocationField from "@agir/voting_proxies/Common/VotingLocationField";
 import VotingDateFields from "@agir/voting_proxies/Common/VotingDateFields";
 
@@ -180,26 +182,15 @@ const VotingProxyForm = (props) => {
           label="Commune ou ambassade d'inscription aux listes électorales"
         />
         <Spacer size="1rem" />
-        <TextField
+        <PollingStationField
+          isAbroad={isAbroad}
           disabled={isLoading}
           id="pollingStationNumber"
           name="pollingStationNumber"
-          value={data.pollingStationNumber}
           onChange={handleChange}
+          value={data.pollingStationNumber}
           error={errors?.pollingStationNumber}
-          label="Numéro du bureau de vote (facultatif)"
-          helpText={
-            <span>
-              Vous pouvez vérifier le numéro de votre bureau de vote sur{" "}
-              <a
-                href="https://www.service-public.fr/particuliers/vosdroits/services-en-ligne-et-formulaires/ISE"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                le site du service public
-              </a>
-            </span>
-          }
+          label="Bureau de vote"
         />
         <Spacer size="1rem" />
         <VotingDateFields
@@ -327,7 +318,7 @@ const VotingProxyForm = (props) => {
         <Spacer size="1rem" />
         <TextField
           textArea
-          hasCounter={data.remarks}
+          hasCounter={!!data.remarks}
           maxLength={255}
           disabled={isLoading}
           id="remarks"

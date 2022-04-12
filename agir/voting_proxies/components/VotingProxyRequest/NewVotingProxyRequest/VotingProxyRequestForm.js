@@ -7,6 +7,8 @@ import Steps, { useSteps } from "@agir/front/genericComponents/Steps";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import PhoneField from "@agir/front/formComponents/PhoneField";
 import TextField from "@agir/front/formComponents/TextField";
+
+import PollingStationField from "@agir/voting_proxies/Common/PollingStationField";
 import VotingLocationField from "@agir/voting_proxies/Common/VotingLocationField";
 import VotingDateFields from "@agir/voting_proxies/Common/VotingDateFields";
 
@@ -173,26 +175,15 @@ const VotingProxyRequestForm = (props) => {
           label="Commune ou ambassade d'inscription aux listes électorales"
         />
         <Spacer size="1rem" />
-        <TextField
+        <PollingStationField
+          isAbroad={data.votingLocation?.type === "consulate"}
           disabled={isLoading}
           id="pollingStationNumber"
           name="pollingStationNumber"
           value={data.pollingStationNumber}
           onChange={handleChange}
           error={errors?.pollingStationNumber}
-          label="Numéro du bureau de vote (facultatif)"
-          helpText={
-            <span>
-              Vous pouvez vérifier le numéro de votre bureau de vote sur{" "}
-              <a
-                href="https://www.service-public.fr/particuliers/vosdroits/services-en-ligne-et-formulaires/ISE"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                le site du service public
-              </a>
-            </span>
-          }
+          label="Bureau de vote"
         />
       </fieldset>
       <fieldset>

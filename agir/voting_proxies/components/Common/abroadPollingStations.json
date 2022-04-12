@@ -1,0 +1,2222 @@
+[
+  {
+    "country": "Afghanistan",
+    "list": "Kaboul",
+    "pollingStation": "Kaboul- Islamabad AMB"
+  },
+  {
+    "country": "Afrique Du Sud",
+    "list": "Johannesburg",
+    "pollingStation": "Durban AC"
+  },
+  {
+    "country": "Afrique Du Sud",
+    "list": "Johannesburg",
+    "pollingStation": "Gaborone AMB"
+  },
+  {
+    "country": "Afrique Du Sud",
+    "list": "Johannesburg",
+    "pollingStation": "Johannesburg LFJV"
+  },
+  {
+    "country": "Afrique Du Sud",
+    "list": "Johannesburg",
+    "pollingStation": "Lusaka AMB"
+  },
+  {
+    "country": "Afrique Du Sud",
+    "list": "Johannesburg",
+    "pollingStation": "Windhoek AMB"
+  },
+  {
+    "country": "Afrique Du Sud",
+    "list": "Le Cap",
+    "pollingStation": "Le Cap CG"
+  },
+  {
+    "country": "Albanie, Montenegro",
+    "list": "Tirana",
+    "pollingStation": "Podgorica AMB"
+  },
+  {
+    "country": "Albanie, Montenegro",
+    "list": "Tirana",
+    "pollingStation": "Tirana AMB"
+  },
+  {
+    "country": "Algerie",
+    "list": "Alger",
+    "pollingStation": "Alger CG"
+  },
+  {
+    "country": "Algerie",
+    "list": "Annaba",
+    "pollingStation": "Annaba CG"
+  },
+  {
+    "country": "Algerie",
+    "list": "Annaba",
+    "pollingStation": "Constantine IF"
+  },
+  {
+    "country": "Algerie",
+    "list": "Oran",
+    "pollingStation": "Oran CG"
+  },
+  {
+    "country": "Allemagne",
+    "list": "Berlin",
+    "pollingStation": "Berlin AMB"
+  },
+  {
+    "country": "Allemagne",
+    "list": "Berlin",
+    "pollingStation": "Berlin EF"
+  },
+  {
+    "country": "Allemagne",
+    "list": "Berlin",
+    "pollingStation": "Berlin LF"
+  },
+  {
+    "country": "Allemagne",
+    "list": "Berlin",
+    "pollingStation": "Brême AC"
+  },
+  {
+    "country": "Allemagne",
+    "list": "Berlin",
+    "pollingStation": "Hanovre Kita Les Petits Gaulois"
+  },
+  {
+    "country": "Allemagne",
+    "list": "Düsseldorf",
+    "pollingStation": "Cologne IF"
+  },
+  {
+    "country": "Allemagne",
+    "list": "Düsseldorf",
+    "pollingStation": "Düsseldorf CG"
+  },
+  {
+    "country": "Allemagne",
+    "list": "Düsseldorf",
+    "pollingStation": "Düsseldorf LF"
+  },
+  {
+    "country": "Allemagne",
+    "list": "Francfort",
+    "pollingStation": "Francfort LF"
+  },
+  {
+    "country": "Allemagne",
+    "list": "Francfort",
+    "pollingStation": "Mayence IF"
+  },
+  {
+    "country": "Allemagne",
+    "list": "Hambourg",
+    "pollingStation": "Hambourg LF"
+  },
+  {
+    "country": "Allemagne",
+    "list": "Munich",
+    "pollingStation": "Munich LF"
+  },
+  {
+    "country": "Allemagne",
+    "list": "Munich",
+    "pollingStation": "Nuremberg EIS"
+  },
+  {
+    "country": "Allemagne",
+    "list": "Sarrebruck",
+    "pollingStation": "Sarrebruck Villa"
+  },
+  {
+    "country": "Allemagne",
+    "list": "Stuttgart",
+    "pollingStation": "Fribourg en Brisgau LFA"
+  },
+  {
+    "country": "Allemagne",
+    "list": "Stuttgart",
+    "pollingStation": "Karlsruhe EE"
+  },
+  {
+    "country": "Allemagne",
+    "list": "Stuttgart",
+    "pollingStation": "Stuttgart CG"
+  },
+  {
+    "country": "Allemagne",
+    "list": "Stuttgart",
+    "pollingStation": "Tübingen ICFA"
+  },
+  {
+    "country": "Andorre",
+    "list": "Andorre",
+    "pollingStation": "Andorre-La-Vieille AMB"
+  },
+  {
+    "country": "Angola",
+    "list": "Luanda",
+    "pollingStation": "Luanda LFL"
+  },
+  {
+    "country": "Arabie Saoudite",
+    "list": "Djeddah",
+    "pollingStation": "Djeddah CG"
+  },
+  {
+    "country": "Arabie Saoudite",
+    "list": "Riyad",
+    "pollingStation": "Al Khobar CH"
+  },
+  {
+    "country": "Arabie Saoudite",
+    "list": "Riyad",
+    "pollingStation": "Riyad AMB"
+  },
+  {
+    "country": "Argentine, Paraguay",
+    "list": "Buenos Aires",
+    "pollingStation": "Assomption LF"
+  },
+  {
+    "country": "Argentine, Paraguay",
+    "list": "Buenos Aires",
+    "pollingStation": "Buenos Aires AMB"
+  },
+  {
+    "country": "Argentine, Paraguay",
+    "list": "Buenos Aires",
+    "pollingStation": "Buenos Aires LF"
+  },
+  {
+    "country": "Argentine, Paraguay",
+    "list": "Buenos Aires",
+    "pollingStation": "Mendoza AF"
+  },
+  {
+    "country": "Arménie",
+    "list": "Erevan",
+    "pollingStation": "Erevan AMB"
+  },
+  {
+    "country": "Australie, Papouasie-Nouvelle Guinée, Fidji",
+    "list": "Sydney",
+    "pollingStation": "Adélaïde MF"
+  },
+  {
+    "country": "Australie, Papouasie-Nouvelle Guinée, Fidji",
+    "list": "Sydney",
+    "pollingStation": "Brisbane AF"
+  },
+  {
+    "country": "Australie, Papouasie-Nouvelle Guinée, Fidji",
+    "list": "Sydney",
+    "pollingStation": "Brisbane EP"
+  },
+  {
+    "country": "Australie, Papouasie-Nouvelle Guinée, Fidji",
+    "list": "Sydney",
+    "pollingStation": "Canberra AMB"
+  },
+  {
+    "country": "Australie, Papouasie-Nouvelle Guinée, Fidji",
+    "list": "Sydney",
+    "pollingStation": "Melbourne EF"
+  },
+  {
+    "country": "Australie, Papouasie-Nouvelle Guinée, Fidji",
+    "list": "Sydney",
+    "pollingStation": "Perth AF"
+  },
+  {
+    "country": "Australie, Papouasie-Nouvelle Guinée, Fidji",
+    "list": "Sydney",
+    "pollingStation": "Port-Moresby AMB"
+  },
+  {
+    "country": "Australie, Papouasie-Nouvelle Guinée, Fidji",
+    "list": "Sydney",
+    "pollingStation": "Suva AMB"
+  },
+  {
+    "country": "Australie, Papouasie-Nouvelle Guinée, Fidji",
+    "list": "Sydney",
+    "pollingStation": "Sydney LF"
+  },
+  {
+    "country": "Autriche",
+    "list": "Vienne",
+    "pollingStation": "Innsbruck"
+  },
+  {
+    "country": "Autriche",
+    "list": "Vienne",
+    "pollingStation": "Vienne LF"
+  },
+  {
+    "country": "Azerbaïdjan",
+    "list": "Bakou",
+    "pollingStation": "Bakou LF"
+  },
+  {
+    "country": "Bahreïn",
+    "list": "Manama",
+    "pollingStation": "Manama AMB"
+  },
+  {
+    "country": "Bangladesh",
+    "list": "Dacca",
+    "pollingStation": "Dacca AMB"
+  },
+  {
+    "country": "Belgique",
+    "list": "Bruxelles",
+    "pollingStation": "Anvers"
+  },
+  {
+    "country": "Belgique",
+    "list": "Bruxelles",
+    "pollingStation": "Arlon"
+  },
+  {
+    "country": "Belgique",
+    "list": "Bruxelles",
+    "pollingStation": "Bruxelles - Expo"
+  },
+  {
+    "country": "Belgique",
+    "list": "Bruxelles",
+    "pollingStation": "Bruxelles CG"
+  },
+  {
+    "country": "Belgique",
+    "list": "Bruxelles",
+    "pollingStation": "Charleroi"
+  },
+  {
+    "country": "Belgique",
+    "list": "Bruxelles",
+    "pollingStation": "Gand"
+  },
+  {
+    "country": "Belgique",
+    "list": "Bruxelles",
+    "pollingStation": "Liège"
+  },
+  {
+    "country": "Belgique",
+    "list": "Bruxelles",
+    "pollingStation": "Mons"
+  },
+  {
+    "country": "Belgique",
+    "list": "Bruxelles",
+    "pollingStation": "Mouscron"
+  },
+  {
+    "country": "Belgique",
+    "list": "Bruxelles",
+    "pollingStation": "Namur"
+  },
+  {
+    "country": "Belgique",
+    "list": "Bruxelles",
+    "pollingStation": "Tournai"
+  },
+  {
+    "country": "Belgique",
+    "list": "Bruxelles",
+    "pollingStation": "Waterloo"
+  },
+  {
+    "country": "Birmanie(myanmar)",
+    "list": "Rangoun",
+    "pollingStation": "Rangoun AMB"
+  },
+  {
+    "country": "Biélorussie",
+    "list": "Minsk",
+    "pollingStation": "Minsk AMB"
+  },
+  {
+    "country": "Bolivie",
+    "list": "La Paz",
+    "pollingStation": "La Paz AMB"
+  },
+  {
+    "country": "Bolivie",
+    "list": "La Paz",
+    "pollingStation": "Santa Cruz LYC"
+  },
+  {
+    "country": "Bosnie-Herzégovine",
+    "list": "Sarajevo",
+    "pollingStation": "Sarajevo AMB"
+  },
+  {
+    "country": "Brésil",
+    "list": "Brasilia",
+    "pollingStation": "Brasilia AMB"
+  },
+  {
+    "country": "Brésil",
+    "list": "Recife",
+    "pollingStation": "Fortaleza AC"
+  },
+  {
+    "country": "Brésil",
+    "list": "Recife",
+    "pollingStation": "Recife CG"
+  },
+  {
+    "country": "Brésil",
+    "list": "Recife",
+    "pollingStation": "Salvador AF"
+  },
+  {
+    "country": "Brésil",
+    "list": "Rio De Janeiro",
+    "pollingStation": "Belo Horizonte"
+  },
+  {
+    "country": "Brésil",
+    "list": "Rio De Janeiro",
+    "pollingStation": "Rio de Janeiro CG"
+  },
+  {
+    "country": "Brésil",
+    "list": "Sao Paulo",
+    "pollingStation": "Curitiba AF"
+  },
+  {
+    "country": "Brésil",
+    "list": "Sao Paulo",
+    "pollingStation": "Sao Paulo CG"
+  },
+  {
+    "country": "Bulgarie",
+    "list": "Sofia",
+    "pollingStation": "Sofia AMB"
+  },
+  {
+    "country": "Burkina Faso",
+    "list": "Ouagadougou",
+    "pollingStation": "Bobo Dioulasso IF"
+  },
+  {
+    "country": "Burkina Faso",
+    "list": "Ouagadougou",
+    "pollingStation": "Ouagadougou IF"
+  },
+  {
+    "country": "Burundi",
+    "list": "Bujumbura",
+    "pollingStation": "Bujumbura AMB"
+  },
+  {
+    "country": "Bénin",
+    "list": "Cotonou",
+    "pollingStation": "Cotonou IFB"
+  },
+  {
+    "country": "Cambodge",
+    "list": "Phnom Penh",
+    "pollingStation": "Phnom Penh AMB"
+  },
+  {
+    "country": "Cameroun",
+    "list": "Douala",
+    "pollingStation": "Douala CG"
+  },
+  {
+    "country": "Cameroun",
+    "list": "Yaounde",
+    "pollingStation": "Garoua AF"
+  },
+  {
+    "country": "Cameroun",
+    "list": "Yaounde",
+    "pollingStation": "Yaoundé AMB"
+  },
+  {
+    "country": "Canada",
+    "list": "Moncton",
+    "pollingStation": "Moncton CG"
+  },
+  {
+    "country": "Canada",
+    "list": "Montreal",
+    "pollingStation": "Montréal - Palais des Congrès"
+  },
+  {
+    "country": "Canada",
+    "list": "Montreal",
+    "pollingStation": "Ottawa- Montréal Lycée Claudel"
+  },
+  {
+    "country": "Canada",
+    "list": "Québec",
+    "pollingStation": "Québec Collège Stanislas"
+  },
+  {
+    "country": "Canada",
+    "list": "Toronto",
+    "pollingStation": "Ottawa - Toronto Lycée Claudel"
+  },
+  {
+    "country": "Canada",
+    "list": "Toronto",
+    "pollingStation": "Toronto LF"
+  },
+  {
+    "country": "Canada",
+    "list": "Vancouver",
+    "pollingStation": "Calgary LF"
+  },
+  {
+    "country": "Canada",
+    "list": "Vancouver",
+    "pollingStation": "Edmonton AF"
+  },
+  {
+    "country": "Canada",
+    "list": "Vancouver",
+    "pollingStation": "Vancouver CC"
+  },
+  {
+    "country": "Canada",
+    "list": "Vancouver",
+    "pollingStation": "Victoria - Ecole Brodeur"
+  },
+  {
+    "country": "Chili",
+    "list": "Santiago",
+    "pollingStation": "Concepción EF"
+  },
+  {
+    "country": "Chili",
+    "list": "Santiago",
+    "pollingStation": "Osorno EF"
+  },
+  {
+    "country": "Chili",
+    "list": "Santiago",
+    "pollingStation": "Santiago AMB"
+  },
+  {
+    "country": "Chine",
+    "list": "Canton",
+    "pollingStation": "Canton CG"
+  },
+  {
+    "country": "Chine",
+    "list": "Chengdu",
+    "pollingStation": "Chengdu CG"
+  },
+  {
+    "country": "Chine",
+    "list": "Hong-Kong",
+    "pollingStation": "LFI Hong-Kong Campus de Tseung Kwan O"
+  },
+  {
+    "country": "Chine",
+    "list": "Pekin",
+    "pollingStation": "Pékin AMB"
+  },
+  {
+    "country": "Chine",
+    "list": "Shanghai",
+    "pollingStation": "Shanghai CG"
+  },
+  {
+    "country": "Chine",
+    "list": "Shenyang",
+    "pollingStation": "Shenyang CG"
+  },
+  {
+    "country": "Chine",
+    "list": "Wuhan",
+    "pollingStation": "Wuhan CG"
+  },
+  {
+    "country": "Chypre",
+    "list": "Nicosie",
+    "pollingStation": "Nicosie AMB"
+  },
+  {
+    "country": "Colombie",
+    "list": "Bogota",
+    "pollingStation": "Bogota AMB"
+  },
+  {
+    "country": "Comores",
+    "list": "Moroni",
+    "pollingStation": "Anjouan AC"
+  },
+  {
+    "country": "Comores",
+    "list": "Moroni",
+    "pollingStation": "Moroni AMB"
+  },
+  {
+    "country": "Congo",
+    "list": "Brazzaville",
+    "pollingStation": "Brazzaville AMB"
+  },
+  {
+    "country": "Congo",
+    "list": "Pointe-Noire",
+    "pollingStation": "Pointe-Noire CG"
+  },
+  {
+    "country": "Corée Du Sud",
+    "list": "Séoul",
+    "pollingStation": "Séoul LFS"
+  },
+  {
+    "country": "Costa Rica, Nicaragua",
+    "list": "San Jose",
+    "pollingStation": "Managua"
+  },
+  {
+    "country": "Costa Rica, Nicaragua",
+    "list": "San Jose",
+    "pollingStation": "San José"
+  },
+  {
+    "country": "Croatie",
+    "list": "Zagreb",
+    "pollingStation": "Split AF"
+  },
+  {
+    "country": "Croatie",
+    "list": "Zagreb",
+    "pollingStation": "Zagreb AMB"
+  },
+  {
+    "country": "Cuba",
+    "list": "La Havane",
+    "pollingStation": "La Havane AMB"
+  },
+  {
+    "country": "Côte-D'ivoire, Liberia",
+    "list": "Abidjan",
+    "pollingStation": "Abidjan CGF"
+  },
+  {
+    "country": "Côte-D'ivoire, Liberia",
+    "list": "Abidjan",
+    "pollingStation": "Monrovia AMB"
+  },
+  {
+    "country": "Danemark",
+    "list": "Copenhague",
+    "pollingStation": "Frederiksberg LF"
+  },
+  {
+    "country": "Djibouti, Yemen",
+    "list": "Djibouti",
+    "pollingStation": "Djibouti AMB"
+  },
+  {
+    "country": "Djibouti, Yemen",
+    "list": "Djibouti",
+    "pollingStation": "Sanaa - Djibouti AMB"
+  },
+  {
+    "country": "Emirats Arabes Unis",
+    "list": "Abou Dabi",
+    "pollingStation": "Abou Dabi - Novotel Al Bustan"
+  },
+  {
+    "country": "Emirats Arabes Unis",
+    "list": "Dubaï",
+    "pollingStation": "Dubaï - Movenpick Bur Dubai"
+  },
+  {
+    "country": "Emirats Arabes Unis",
+    "list": "Dubaï",
+    "pollingStation": "Dubaï - Novotel Al Barsha"
+  },
+  {
+    "country": "Emirats Arabes Unis",
+    "list": "Dubaï",
+    "pollingStation": "Dubaï - Sofitel Downtown"
+  },
+  {
+    "country": "Espagne",
+    "list": "Barcelone",
+    "pollingStation": "Barcelone"
+  },
+  {
+    "country": "Espagne",
+    "list": "Barcelone",
+    "pollingStation": "Figueres"
+  },
+  {
+    "country": "Espagne",
+    "list": "Barcelone",
+    "pollingStation": "Gérone"
+  },
+  {
+    "country": "Espagne",
+    "list": "Barcelone",
+    "pollingStation": "Ibiza LF"
+  },
+  {
+    "country": "Espagne",
+    "list": "Barcelone",
+    "pollingStation": "Palma de Majorque LF"
+  },
+  {
+    "country": "Espagne",
+    "list": "Barcelone",
+    "pollingStation": "Reus - Tarragone LF"
+  },
+  {
+    "country": "Espagne",
+    "list": "Barcelone",
+    "pollingStation": "Saragosse LF"
+  },
+  {
+    "country": "Espagne",
+    "list": "Bilbao",
+    "pollingStation": "Bilbao CG"
+  },
+  {
+    "country": "Espagne",
+    "list": "Bilbao",
+    "pollingStation": "Vigo AC"
+  },
+  {
+    "country": "Espagne",
+    "list": "Madrid",
+    "pollingStation": "Alicante LF"
+  },
+  {
+    "country": "Espagne",
+    "list": "Madrid",
+    "pollingStation": "Grenade AC"
+  },
+  {
+    "country": "Espagne",
+    "list": "Madrid",
+    "pollingStation": "Las Palmas LF"
+  },
+  {
+    "country": "Espagne",
+    "list": "Madrid",
+    "pollingStation": "Madrid LF"
+  },
+  {
+    "country": "Espagne",
+    "list": "Madrid",
+    "pollingStation": "Malaga LF"
+  },
+  {
+    "country": "Espagne",
+    "list": "Madrid",
+    "pollingStation": "Murcie LF"
+  },
+  {
+    "country": "Espagne",
+    "list": "Madrid",
+    "pollingStation": "Séville LF"
+  },
+  {
+    "country": "Espagne",
+    "list": "Madrid",
+    "pollingStation": "Tenerife LF"
+  },
+  {
+    "country": "Espagne",
+    "list": "Madrid",
+    "pollingStation": "Valence LF"
+  },
+  {
+    "country": "Estonie",
+    "list": "Tallinn",
+    "pollingStation": "Tallinn AMB"
+  },
+  {
+    "country": "Ethiopie",
+    "list": "Addis-Abeba",
+    "pollingStation": "Addis-Abeba AMB"
+  },
+  {
+    "country": "Finlande",
+    "list": "Helsinki",
+    "pollingStation": "Helsinki AMB"
+  },
+  {
+    "country": "Gabon",
+    "list": "Libreville",
+    "pollingStation": "Franceville"
+  },
+  {
+    "country": "Gabon",
+    "list": "Libreville",
+    "pollingStation": "Libreville CG"
+  },
+  {
+    "country": "Gabon",
+    "list": "Libreville",
+    "pollingStation": "Libreville LF"
+  },
+  {
+    "country": "Gabon",
+    "list": "Libreville",
+    "pollingStation": "Port-Gentil"
+  },
+  {
+    "country": "Ghana",
+    "list": "Accra",
+    "pollingStation": "Accra AMB"
+  },
+  {
+    "country": "Grèce",
+    "list": "Athènes",
+    "pollingStation": "Athènes IFG"
+  },
+  {
+    "country": "Grèce",
+    "list": "Athènes",
+    "pollingStation": "Athènes LFH"
+  },
+  {
+    "country": "Grèce",
+    "list": "Athènes",
+    "pollingStation": "Héraklion AC"
+  },
+  {
+    "country": "Grèce",
+    "list": "Athènes",
+    "pollingStation": "Rhodes AC"
+  },
+  {
+    "country": "Grèce",
+    "list": "Thessalonique",
+    "pollingStation": "Thessalonique IF"
+  },
+  {
+    "country": "Guatemala, Honduras, El Salvador",
+    "list": "Guatemala",
+    "pollingStation": "Guatemala AMB"
+  },
+  {
+    "country": "Guatemala, Honduras, El Salvador",
+    "list": "Guatemala",
+    "pollingStation": "San Salvador AMB"
+  },
+  {
+    "country": "Guatemala, Honduras, El Salvador",
+    "list": "Guatemala",
+    "pollingStation": "Tegucigalpa LF"
+  },
+  {
+    "country": "Guinée",
+    "list": "Conakry",
+    "pollingStation": "Conakry AMB"
+  },
+  {
+    "country": "Guinée",
+    "list": "Conakry",
+    "pollingStation": "Freetown"
+  },
+  {
+    "country": "Guinée équatoriale",
+    "list": "Malabo",
+    "pollingStation": "Bata EF"
+  },
+  {
+    "country": "Guinée équatoriale",
+    "list": "Malabo",
+    "pollingStation": "Malabo LF"
+  },
+  {
+    "country": "Géorgie",
+    "list": "Tbilissi",
+    "pollingStation": "Tbilissi AMB"
+  },
+  {
+    "country": "Haïti",
+    "list": "Port-Au-Prince",
+    "pollingStation": "Port-au-Prince AMB"
+  },
+  {
+    "country": "Hongrie",
+    "list": "Budapest",
+    "pollingStation": "Budapest AMB"
+  },
+  {
+    "country": "Inde, Nepal",
+    "list": "Bangalore",
+    "pollingStation": "Bangalore CG"
+  },
+  {
+    "country": "Inde, Nepal",
+    "list": "Bombay",
+    "pollingStation": "Bombay CG"
+  },
+  {
+    "country": "Inde, Nepal",
+    "list": "Calcutta",
+    "pollingStation": "Calcutta CG"
+  },
+  {
+    "country": "Inde, Nepal",
+    "list": "New Delhi",
+    "pollingStation": "Katmandou AMB"
+  },
+  {
+    "country": "Inde, Nepal",
+    "list": "New Delhi",
+    "pollingStation": "New Delhi AMB"
+  },
+  {
+    "country": "Inde, Nepal",
+    "list": "Pondichery",
+    "pollingStation": "Chennai AF"
+  },
+  {
+    "country": "Inde, Nepal",
+    "list": "Pondichery",
+    "pollingStation": "Karikal MF"
+  },
+  {
+    "country": "Inde, Nepal",
+    "list": "Pondichery",
+    "pollingStation": "Pondichéry CG"
+  },
+  {
+    "country": "Inde, Nepal",
+    "list": "Pondichery",
+    "pollingStation": "Pondichéry LF"
+  },
+  {
+    "country": "Indonesie",
+    "list": "Jakarta",
+    "pollingStation": "Bali LF"
+  },
+  {
+    "country": "Indonesie",
+    "list": "Jakarta",
+    "pollingStation": "Jakarta AMB"
+  },
+  {
+    "country": "Irak",
+    "list": "Bagdad",
+    "pollingStation": "Bagdad AMB"
+  },
+  {
+    "country": "Irak",
+    "list": "Erbil",
+    "pollingStation": "Erbil"
+  },
+  {
+    "country": "Iran",
+    "list": "Téhéran",
+    "pollingStation": "Téhéran AMB"
+  },
+  {
+    "country": "Irlande",
+    "list": "Dublin",
+    "pollingStation": "Cork"
+  },
+  {
+    "country": "Irlande",
+    "list": "Dublin",
+    "pollingStation": "Dublin AMB"
+  },
+  {
+    "country": "Islande",
+    "list": "Reykjavik",
+    "pollingStation": "Reykjavik AMB"
+  },
+  {
+    "country": "Israël",
+    "list": "Haïfa",
+    "pollingStation": "Haïfa"
+  },
+  {
+    "country": "Israël",
+    "list": "Tel Aviv",
+    "pollingStation": "Ashdod"
+  },
+  {
+    "country": "Israël",
+    "list": "Tel Aviv",
+    "pollingStation": "Beer Sheva"
+  },
+  {
+    "country": "Israël",
+    "list": "Tel Aviv",
+    "pollingStation": "Eilat"
+  },
+  {
+    "country": "Israël",
+    "list": "Tel Aviv",
+    "pollingStation": "Nathanya"
+  },
+  {
+    "country": "Israël",
+    "list": "Tel Aviv",
+    "pollingStation": "Tel Aviv"
+  },
+  {
+    "country": "Italie",
+    "list": "Milan",
+    "pollingStation": "Bologne"
+  },
+  {
+    "country": "Italie",
+    "list": "Milan",
+    "pollingStation": "Gênes"
+  },
+  {
+    "country": "Italie",
+    "list": "Milan",
+    "pollingStation": "Milan"
+  },
+  {
+    "country": "Italie",
+    "list": "Milan",
+    "pollingStation": "Turin"
+  },
+  {
+    "country": "Italie",
+    "list": "Milan",
+    "pollingStation": "Venise - Mestre"
+  },
+  {
+    "country": "Italie",
+    "list": "Naples",
+    "pollingStation": "Naples CG"
+  },
+  {
+    "country": "Italie",
+    "list": "Naples",
+    "pollingStation": "Palerme IF"
+  },
+  {
+    "country": "Italie",
+    "list": "Rome",
+    "pollingStation": "Cagliari AF"
+  },
+  {
+    "country": "Italie",
+    "list": "Rome",
+    "pollingStation": "Florence IF"
+  },
+  {
+    "country": "Italie",
+    "list": "Rome",
+    "pollingStation": "Pérouse AC"
+  },
+  {
+    "country": "Italie",
+    "list": "Rome",
+    "pollingStation": "Rome LF"
+  },
+  {
+    "country": "Japon",
+    "list": "Kyoto",
+    "pollingStation": "Kyoto CG"
+  },
+  {
+    "country": "Japon",
+    "list": "Tokyo",
+    "pollingStation": "Tokyo AMB"
+  },
+  {
+    "country": "Jordanie",
+    "list": "Amman",
+    "pollingStation": "Amman AMB"
+  },
+  {
+    "country": "Jérusalem",
+    "list": "Jerusalem",
+    "pollingStation": "Jérusalem CG"
+  },
+  {
+    "country": "Jérusalem",
+    "list": "Jerusalem",
+    "pollingStation": "Jérusalem LF"
+  },
+  {
+    "country": "Jérusalem",
+    "list": "Jerusalem",
+    "pollingStation": "Ramallah IF"
+  },
+  {
+    "country": "Kazakhstan",
+    "list": "Almaty",
+    "pollingStation": "Almaty CG"
+  },
+  {
+    "country": "Kazakhstan",
+    "list": "Nour-Soultan",
+    "pollingStation": "Nour-Soultan AMB"
+  },
+  {
+    "country": "Kenya",
+    "list": "Nairobi",
+    "pollingStation": "Nairobi LF"
+  },
+  {
+    "country": "Kosovo",
+    "list": "Pristina",
+    "pollingStation": "Pristina AMB"
+  },
+  {
+    "country": "Koweït",
+    "list": "Koweït",
+    "pollingStation": "Koweït AMB"
+  },
+  {
+    "country": "Laos",
+    "list": "Vientiane",
+    "pollingStation": "Vientiane AMB"
+  },
+  {
+    "country": "Lettonie",
+    "list": "Riga",
+    "pollingStation": "Riga AMB"
+  },
+  {
+    "country": "Liban, Syrie",
+    "list": "Beyrouth",
+    "pollingStation": "Beyrouth GLFL"
+  },
+  {
+    "country": "Liban, Syrie",
+    "list": "Beyrouth",
+    "pollingStation": "Beyrouth IF Espace des lettres"
+  },
+  {
+    "country": "Liban, Syrie",
+    "list": "Beyrouth",
+    "pollingStation": "Damas - Beyrouth IF Espace des lettres"
+  },
+  {
+    "country": "Liban, Syrie",
+    "list": "Beyrouth",
+    "pollingStation": "Jounieh - Collège des Apôtres"
+  },
+  {
+    "country": "Liban, Syrie",
+    "list": "Beyrouth",
+    "pollingStation": "Saida Khan El Franj"
+  },
+  {
+    "country": "Liban, Syrie",
+    "list": "Beyrouth",
+    "pollingStation": "Tripoli Lycée Lamartine"
+  },
+  {
+    "country": "Lituanie",
+    "list": "Vilnius",
+    "pollingStation": "Vilnius AMB"
+  },
+  {
+    "country": "Luxembourg",
+    "list": "Luxembourg",
+    "pollingStation": "Luxembourg AMB"
+  },
+  {
+    "country": "Macédoine Du Nord",
+    "list": "Skopje",
+    "pollingStation": "Skopje AMB"
+  },
+  {
+    "country": "Madagascar",
+    "list": "Tananarive",
+    "pollingStation": "Antsirabe CF"
+  },
+  {
+    "country": "Madagascar",
+    "list": "Tananarive",
+    "pollingStation": "Diego Suarez CF"
+  },
+  {
+    "country": "Madagascar",
+    "list": "Tananarive",
+    "pollingStation": "Fianarantsoa CF"
+  },
+  {
+    "country": "Madagascar",
+    "list": "Tananarive",
+    "pollingStation": "Majunga AC"
+  },
+  {
+    "country": "Madagascar",
+    "list": "Tananarive",
+    "pollingStation": "Nosy BE EF"
+  },
+  {
+    "country": "Madagascar",
+    "list": "Tananarive",
+    "pollingStation": "Tamatave LF"
+  },
+  {
+    "country": "Madagascar",
+    "list": "Tananarive",
+    "pollingStation": "Tananarive CG"
+  },
+  {
+    "country": "Madagascar",
+    "list": "Tananarive",
+    "pollingStation": "Tananarive LF"
+  },
+  {
+    "country": "Madagascar",
+    "list": "Tananarive",
+    "pollingStation": "Tuléar CF"
+  },
+  {
+    "country": "Malaisie",
+    "list": "Kuala Lumpur",
+    "pollingStation": "Kuala Lumpur AMB"
+  },
+  {
+    "country": "Mali",
+    "list": "Bamako",
+    "pollingStation": "Bamako CG"
+  },
+  {
+    "country": "Malte",
+    "list": "La Valette",
+    "pollingStation": "La Valette AMB"
+  },
+  {
+    "country": "Maroc",
+    "list": "Agadir",
+    "pollingStation": "Agadir CG"
+  },
+  {
+    "country": "Maroc",
+    "list": "Casablanca",
+    "pollingStation": "Casablanca LF"
+  },
+  {
+    "country": "Maroc",
+    "list": "Fes",
+    "pollingStation": "Fès CG"
+  },
+  {
+    "country": "Maroc",
+    "list": "Fes",
+    "pollingStation": "Oujda IF"
+  },
+  {
+    "country": "Maroc",
+    "list": "Marrakech",
+    "pollingStation": "Essaouira EF"
+  },
+  {
+    "country": "Maroc",
+    "list": "Marrakech",
+    "pollingStation": "Marrakech CG"
+  },
+  {
+    "country": "Maroc",
+    "list": "Marrakech",
+    "pollingStation": "Marrakech IF"
+  },
+  {
+    "country": "Maroc",
+    "list": "Rabat",
+    "pollingStation": "Rabat LF"
+  },
+  {
+    "country": "Maroc",
+    "list": "Tanger",
+    "pollingStation": "Tanger CG"
+  },
+  {
+    "country": "Maurice, Seychelles",
+    "list": "Port-Louis",
+    "pollingStation": "Moka"
+  },
+  {
+    "country": "Maurice, Seychelles",
+    "list": "Port-Louis",
+    "pollingStation": "Victoria AMB"
+  },
+  {
+    "country": "Mauritanie",
+    "list": "Nouakchott",
+    "pollingStation": "Nouakchott AMB"
+  },
+  {
+    "country": "Mexique",
+    "list": "Mexico",
+    "pollingStation": "Guadalajara AF"
+  },
+  {
+    "country": "Mexique",
+    "list": "Mexico",
+    "pollingStation": "Merida AF"
+  },
+  {
+    "country": "Mexique",
+    "list": "Mexico",
+    "pollingStation": "Mexico CF Coyoacan"
+  },
+  {
+    "country": "Mexique",
+    "list": "Mexico",
+    "pollingStation": "Mexico CG"
+  },
+  {
+    "country": "Mexique",
+    "list": "Mexico",
+    "pollingStation": "Puebla AF"
+  },
+  {
+    "country": "Mexique",
+    "list": "Mexico",
+    "pollingStation": "Querétaro LF"
+  },
+  {
+    "country": "Mexique",
+    "list": "Monterrey",
+    "pollingStation": "Monterrey CG"
+  },
+  {
+    "country": "Monaco",
+    "list": "Monaco",
+    "pollingStation": "Monaco AMB"
+  },
+  {
+    "country": "Mongolie",
+    "list": "Oulan Bator",
+    "pollingStation": "Oulan Bator AMB"
+  },
+  {
+    "country": "Mozambique",
+    "list": "Maputo",
+    "pollingStation": "Maputo AMB"
+  },
+  {
+    "country": "Niger",
+    "list": "Niamey",
+    "pollingStation": "Niamey AMB"
+  },
+  {
+    "country": "Nigeria",
+    "list": "Abuja",
+    "pollingStation": "Abuja AMB"
+  },
+  {
+    "country": "Nigeria",
+    "list": "Lagos",
+    "pollingStation": "Lagos CG"
+  },
+  {
+    "country": "Norvege",
+    "list": "Oslo",
+    "pollingStation": "Oslo LF"
+  },
+  {
+    "country": "Norvege",
+    "list": "Oslo",
+    "pollingStation": "Stavanger AC"
+  },
+  {
+    "country": "Nouvelle-Zelande",
+    "list": "Wellington",
+    "pollingStation": "Auckland AF"
+  },
+  {
+    "country": "Nouvelle-Zelande",
+    "list": "Wellington",
+    "pollingStation": "Christchurch AF"
+  },
+  {
+    "country": "Nouvelle-Zelande",
+    "list": "Wellington",
+    "pollingStation": "Wellington AMB"
+  },
+  {
+    "country": "Oman",
+    "list": "Mascate",
+    "pollingStation": "Mascate AMB"
+  },
+  {
+    "country": "Ouganda",
+    "list": "Kampala",
+    "pollingStation": "Kampala AMB"
+  },
+  {
+    "country": "Ouzbékistan, Tadjikistan",
+    "list": "Tachkent",
+    "pollingStation": "Tachkent AMB"
+  },
+  {
+    "country": "Pakistan",
+    "list": "Islamabad",
+    "pollingStation": "Islamabad AMB"
+  },
+  {
+    "country": "Pakistan",
+    "list": "Karachi",
+    "pollingStation": "Karachi CG"
+  },
+  {
+    "country": "Panama, Jamaïque",
+    "list": "Panama",
+    "pollingStation": "Kingston AMB"
+  },
+  {
+    "country": "Panama, Jamaïque",
+    "list": "Panama",
+    "pollingStation": "Panama AMB"
+  },
+  {
+    "country": "Pays-Bas",
+    "list": "Amsterdam",
+    "pollingStation": "Amsterdam"
+  },
+  {
+    "country": "Pays-Bas",
+    "list": "Amsterdam",
+    "pollingStation": "La Haye 1"
+  },
+  {
+    "country": "Pays-Bas",
+    "list": "Amsterdam",
+    "pollingStation": "La Haye 2"
+  },
+  {
+    "country": "Phillipines",
+    "list": "Manille",
+    "pollingStation": "Manille AMB"
+  },
+  {
+    "country": "Pologne, Ukraine",
+    "list": "Cracovie",
+    "pollingStation": "Cracovie CG"
+  },
+  {
+    "country": "Pologne, Ukraine",
+    "list": "Cracovie",
+    "pollingStation": "Wroclaw AF"
+  },
+  {
+    "country": "Pologne, Ukraine",
+    "list": "Varsovie",
+    "pollingStation": "Kiev - Varsovie AMB"
+  },
+  {
+    "country": "Pologne, Ukraine",
+    "list": "Varsovie",
+    "pollingStation": "Varsovie AMB"
+  },
+  {
+    "country": "Portugal",
+    "list": "Lisbonne",
+    "pollingStation": "Faro"
+  },
+  {
+    "country": "Portugal",
+    "list": "Lisbonne",
+    "pollingStation": "Lisbonne AMB"
+  },
+  {
+    "country": "Portugal",
+    "list": "Lisbonne",
+    "pollingStation": "Porto LF"
+  },
+  {
+    "country": "Pérou",
+    "list": "Lima",
+    "pollingStation": "Lima AMB"
+  },
+  {
+    "country": "Qatar",
+    "list": "Doha",
+    "pollingStation": "Doha AMB"
+  },
+  {
+    "country": "Roumanie, Moldavie",
+    "list": "Bucarest",
+    "pollingStation": "Bucarest AMB"
+  },
+  {
+    "country": "Roumanie, Moldavie",
+    "list": "Bucarest",
+    "pollingStation": "Chisinau AMB"
+  },
+  {
+    "country": "Roumanie, Moldavie",
+    "list": "Bucarest",
+    "pollingStation": "Cluj IF"
+  },
+  {
+    "country": "Roumanie, Moldavie",
+    "list": "Bucarest",
+    "pollingStation": "Iasi IF"
+  },
+  {
+    "country": "Royaume-Uni",
+    "list": "Edimbourg",
+    "pollingStation": "Aberdeen"
+  },
+  {
+    "country": "Royaume-Uni",
+    "list": "Edimbourg",
+    "pollingStation": "Edimbourg CG"
+  },
+  {
+    "country": "Royaume-Uni",
+    "list": "Edimbourg",
+    "pollingStation": "Glasgow"
+  },
+  {
+    "country": "Royaume-Uni",
+    "list": "Londres",
+    "pollingStation": "Ashford"
+  },
+  {
+    "country": "Royaume-Uni",
+    "list": "Londres",
+    "pollingStation": "Belfast"
+  },
+  {
+    "country": "Royaume-Uni",
+    "list": "Londres",
+    "pollingStation": "Birmingham"
+  },
+  {
+    "country": "Royaume-Uni",
+    "list": "Londres",
+    "pollingStation": "Brighton"
+  },
+  {
+    "country": "Royaume-Uni",
+    "list": "Londres",
+    "pollingStation": "Bristol"
+  },
+  {
+    "country": "Royaume-Uni",
+    "list": "Londres",
+    "pollingStation": "Leeds"
+  },
+  {
+    "country": "Royaume-Uni",
+    "list": "Londres",
+    "pollingStation": "Londres - Lycée international Churchill"
+  },
+  {
+    "country": "Royaume-Uni",
+    "list": "Londres",
+    "pollingStation": "Londres - Queens Gate House"
+  },
+  {
+    "country": "Royaume-Uni",
+    "list": "Londres",
+    "pollingStation": "Londres CFBL"
+  },
+  {
+    "country": "Royaume-Uni",
+    "list": "Londres",
+    "pollingStation": "Londres CG"
+  },
+  {
+    "country": "Royaume-Uni",
+    "list": "Londres",
+    "pollingStation": "Londres LF - Marie d'Orliac"
+  },
+  {
+    "country": "Royaume-Uni",
+    "list": "Londres",
+    "pollingStation": "Londres LF CDG"
+  },
+  {
+    "country": "Royaume-Uni",
+    "list": "Londres",
+    "pollingStation": "Manchester"
+  },
+  {
+    "country": "Russie",
+    "list": "Moscou",
+    "pollingStation": "Ekaterinbourg - Moscou AMB"
+  },
+  {
+    "country": "Russie",
+    "list": "Moscou",
+    "pollingStation": "Moscou AMB"
+  },
+  {
+    "country": "Russie",
+    "list": "Saint-Petersbourg",
+    "pollingStation": "Saint-Pétersbourg"
+  },
+  {
+    "country": "Rwanda",
+    "list": "Kigali",
+    "pollingStation": "Kigali AMB"
+  },
+  {
+    "country": "République Centrafricaine",
+    "list": "Bangui",
+    "pollingStation": "Bangui AMB"
+  },
+  {
+    "country": "République Dominicaine",
+    "list": "Saint-Domingue",
+    "pollingStation": "Las Terrenas EF"
+  },
+  {
+    "country": "République Dominicaine",
+    "list": "Saint-Domingue",
+    "pollingStation": "Saint-Domingue LF"
+  },
+  {
+    "country": "République Démocratique Du Congo",
+    "list": "Kinshasa",
+    "pollingStation": "Kinshasa AMB"
+  },
+  {
+    "country": "République Tcheque",
+    "list": "Prague",
+    "pollingStation": "Prague LF"
+  },
+  {
+    "country": "Sainte-Lucie, Trinite-Et-Tobago",
+    "list": "Castries",
+    "pollingStation": "Castries AMB"
+  },
+  {
+    "country": "Sainte-Lucie, Trinite-Et-Tobago",
+    "list": "Castries",
+    "pollingStation": "La Barbade"
+  },
+  {
+    "country": "Sainte-Lucie, Trinite-Et-Tobago",
+    "list": "Castries",
+    "pollingStation": "Port d'Espagne AMB"
+  },
+  {
+    "country": "Senegal,cap Vert, Guinee-Bissao",
+    "list": "Dakar",
+    "pollingStation": "Bissao AMB"
+  },
+  {
+    "country": "Senegal,cap Vert, Guinee-Bissao",
+    "list": "Dakar",
+    "pollingStation": "Dakar AMB"
+  },
+  {
+    "country": "Senegal,cap Vert, Guinee-Bissao",
+    "list": "Dakar",
+    "pollingStation": "Dakar LF"
+  },
+  {
+    "country": "Senegal,cap Vert, Guinee-Bissao",
+    "list": "Dakar",
+    "pollingStation": "Praia AMB"
+  },
+  {
+    "country": "Senegal,cap Vert, Guinee-Bissao",
+    "list": "Dakar",
+    "pollingStation": "Saint-Louis IF"
+  },
+  {
+    "country": "Senegal,cap Vert, Guinee-Bissao",
+    "list": "Dakar",
+    "pollingStation": "Saly LF"
+  },
+  {
+    "country": "Senegal,cap Vert, Guinee-Bissao",
+    "list": "Dakar",
+    "pollingStation": "Ziguinchor AF"
+  },
+  {
+    "country": "Serbie",
+    "list": "Belgrade",
+    "pollingStation": "Belgrade AMB"
+  },
+  {
+    "country": "Singapour, Brunei",
+    "list": "Singapour",
+    "pollingStation": "Bandar Seri Begawan AMB"
+  },
+  {
+    "country": "Singapour, Brunei",
+    "list": "Singapour",
+    "pollingStation": "Singapour AMB"
+  },
+  {
+    "country": "Slovaquie",
+    "list": "Bratislava",
+    "pollingStation": "Bratislava IF"
+  },
+  {
+    "country": "Slovènie",
+    "list": "Ljubljana",
+    "pollingStation": "Ljubljana AMB"
+  },
+  {
+    "country": "Soudan",
+    "list": "Khartoum",
+    "pollingStation": "Khartoum AMB"
+  },
+  {
+    "country": "Sri Lanka",
+    "list": "Colombo",
+    "pollingStation": "Colombo AMB"
+  },
+  {
+    "country": "Suisse",
+    "list": "Geneve",
+    "pollingStation": "Bulle"
+  },
+  {
+    "country": "Suisse",
+    "list": "Geneve",
+    "pollingStation": "Delémont"
+  },
+  {
+    "country": "Suisse",
+    "list": "Geneve",
+    "pollingStation": "Epalinges"
+  },
+  {
+    "country": "Suisse",
+    "list": "Geneve",
+    "pollingStation": "Fribourg"
+  },
+  {
+    "country": "Suisse",
+    "list": "Geneve",
+    "pollingStation": "Genève - Carrouge"
+  },
+  {
+    "country": "Suisse",
+    "list": "Geneve",
+    "pollingStation": "Genève - Champel"
+  },
+  {
+    "country": "Suisse",
+    "list": "Geneve",
+    "pollingStation": "Genève - Chêne-Thônex"
+  },
+  {
+    "country": "Suisse",
+    "list": "Geneve",
+    "pollingStation": "Genève CG"
+  },
+  {
+    "country": "Suisse",
+    "list": "Geneve",
+    "pollingStation": "Genève Palexpo"
+  },
+  {
+    "country": "Suisse",
+    "list": "Geneve",
+    "pollingStation": "La-Chaux-de-Fonds"
+  },
+  {
+    "country": "Suisse",
+    "list": "Geneve",
+    "pollingStation": "Lausanne"
+  },
+  {
+    "country": "Suisse",
+    "list": "Geneve",
+    "pollingStation": "Montreux"
+  },
+  {
+    "country": "Suisse",
+    "list": "Geneve",
+    "pollingStation": "Neuchâtel"
+  },
+  {
+    "country": "Suisse",
+    "list": "Geneve",
+    "pollingStation": "Nyon"
+  },
+  {
+    "country": "Suisse",
+    "list": "Geneve",
+    "pollingStation": "Porrentruy"
+  },
+  {
+    "country": "Suisse",
+    "list": "Geneve",
+    "pollingStation": "Sion"
+  },
+  {
+    "country": "Suisse",
+    "list": "Geneve",
+    "pollingStation": "Yverdon"
+  },
+  {
+    "country": "Suisse",
+    "list": "Zurich",
+    "pollingStation": "Berne AMB"
+  },
+  {
+    "country": "Suisse",
+    "list": "Zurich",
+    "pollingStation": "Bâle"
+  },
+  {
+    "country": "Suisse",
+    "list": "Zurich",
+    "pollingStation": "Lucerne"
+  },
+  {
+    "country": "Suisse",
+    "list": "Zurich",
+    "pollingStation": "Lugano AC"
+  },
+  {
+    "country": "Suisse",
+    "list": "Zurich",
+    "pollingStation": "Saint-Gall"
+  },
+  {
+    "country": "Suisse",
+    "list": "Zurich",
+    "pollingStation": "Zurich LF"
+  },
+  {
+    "country": "Suriname",
+    "list": "Paramaribo",
+    "pollingStation": "Paramaribo AMB"
+  },
+  {
+    "country": "Suède",
+    "list": "Stockholm",
+    "pollingStation": "Göteborg EF"
+  },
+  {
+    "country": "Suède",
+    "list": "Stockholm",
+    "pollingStation": "Stockholm AMB"
+  },
+  {
+    "country": "Suède",
+    "list": "Stockholm",
+    "pollingStation": "Stockholm LF"
+  },
+  {
+    "country": "Tanzanie",
+    "list": "Dar-Es-Salam",
+    "pollingStation": "Dar-es-Salam"
+  },
+  {
+    "country": "Taïwan",
+    "list": "Taipei",
+    "pollingStation": "Taipei BF"
+  },
+  {
+    "country": "Tchad",
+    "list": "N'djamena",
+    "pollingStation": "N'Djamena AMB"
+  },
+  {
+    "country": "Thaïlande",
+    "list": "Bangkok",
+    "pollingStation": "Bangkok AMB"
+  },
+  {
+    "country": "Thaïlande",
+    "list": "Bangkok",
+    "pollingStation": "Chiang Mai AF"
+  },
+  {
+    "country": "Thaïlande",
+    "list": "Bangkok",
+    "pollingStation": "Khon Kaen AC"
+  },
+  {
+    "country": "Thaïlande",
+    "list": "Bangkok",
+    "pollingStation": "Koh Samui AC"
+  },
+  {
+    "country": "Thaïlande",
+    "list": "Bangkok",
+    "pollingStation": "Pattaya EF"
+  },
+  {
+    "country": "Thaïlande",
+    "list": "Bangkok",
+    "pollingStation": "Phuket AC"
+  },
+  {
+    "country": "Togo",
+    "list": "Lome",
+    "pollingStation": "Lomé LFL"
+  },
+  {
+    "country": "Tunisie, Lybie",
+    "list": "Tunis",
+    "pollingStation": "Bizerte EF"
+  },
+  {
+    "country": "Tunisie, Lybie",
+    "list": "Tunis",
+    "pollingStation": "Djerba"
+  },
+  {
+    "country": "Tunisie, Lybie",
+    "list": "Tunis",
+    "pollingStation": "La Marsa LF"
+  },
+  {
+    "country": "Tunisie, Lybie",
+    "list": "Tunis",
+    "pollingStation": "Nabeul EF"
+  },
+  {
+    "country": "Tunisie, Lybie",
+    "list": "Tunis",
+    "pollingStation": "Sfax"
+  },
+  {
+    "country": "Tunisie, Lybie",
+    "list": "Tunis",
+    "pollingStation": "Sousse EF"
+  },
+  {
+    "country": "Tunisie, Lybie",
+    "list": "Tunis",
+    "pollingStation": "Tripoli - Tunis Consulat"
+  },
+  {
+    "country": "Tunisie, Lybie",
+    "list": "Tunis",
+    "pollingStation": "Tunis AMB"
+  },
+  {
+    "country": "Tunisie, Lybie",
+    "list": "Tunis",
+    "pollingStation": "Tunis EF"
+  },
+  {
+    "country": "Turquie",
+    "list": "Ankara",
+    "pollingStation": "Ankara AMB"
+  },
+  {
+    "country": "Turquie",
+    "list": "Istanbul",
+    "pollingStation": "Istanbul Anatolie"
+  },
+  {
+    "country": "Turquie",
+    "list": "Istanbul",
+    "pollingStation": "Istanbul CG"
+  },
+  {
+    "country": "Turquie",
+    "list": "Istanbul",
+    "pollingStation": "Istanbul Tarabya"
+  },
+  {
+    "country": "Turquie",
+    "list": "Istanbul",
+    "pollingStation": "Izmir"
+  },
+  {
+    "country": "Uruguay",
+    "list": "Montevideo",
+    "pollingStation": "Montevideo AMB"
+  },
+  {
+    "country": "Vanuatu",
+    "list": "Port-Vila",
+    "pollingStation": "Port-Vila AMB"
+  },
+  {
+    "country": "Venezuela",
+    "list": "Caracas",
+    "pollingStation": "Caracas AMB"
+  },
+  {
+    "country": "Vietnam",
+    "list": "Hanoï",
+    "pollingStation": "Hanoi AMB"
+  },
+  {
+    "country": "Vietnam",
+    "list": "Ho Chin Minh-Ville",
+    "pollingStation": "Hô Chin Minh-Ville CG"
+  },
+  {
+    "country": "Zimbabwe",
+    "list": "Harare",
+    "pollingStation": "Harare AMB"
+  },
+  {
+    "country": "Égypte",
+    "list": "Alexandrie",
+    "pollingStation": "Alexandrie CGF"
+  },
+  {
+    "country": "Égypte",
+    "list": "Le Caire",
+    "pollingStation": "Le Caire AMB"
+  },
+  {
+    "country": "Égypte",
+    "list": "Le Caire",
+    "pollingStation": "Le Caire LFC MEARAG"
+  },
+  {
+    "country": "Équateur",
+    "list": "Quito",
+    "pollingStation": "Guayaquil AF"
+  },
+  {
+    "country": "Équateur",
+    "list": "Quito",
+    "pollingStation": "Quito LF"
+  },
+  {
+    "country": "États-Unis",
+    "list": "Atlanta",
+    "pollingStation": "Atlanta CG"
+  },
+  {
+    "country": "États-Unis",
+    "list": "Atlanta",
+    "pollingStation": "Greenville EFB"
+  },
+  {
+    "country": "États-Unis",
+    "list": "Atlanta",
+    "pollingStation": "Raleigh EF"
+  },
+  {
+    "country": "États-Unis",
+    "list": "Boston",
+    "pollingStation": "Boston LI"
+  },
+  {
+    "country": "États-Unis",
+    "list": "Chicago",
+    "pollingStation": "Chicago LF"
+  },
+  {
+    "country": "États-Unis",
+    "list": "Chicago",
+    "pollingStation": "Cincinnati AF"
+  },
+  {
+    "country": "États-Unis",
+    "list": "Chicago",
+    "pollingStation": "Détroit EF"
+  },
+  {
+    "country": "États-Unis",
+    "list": "Chicago",
+    "pollingStation": "Kansas City AF"
+  },
+  {
+    "country": "États-Unis",
+    "list": "Chicago",
+    "pollingStation": "Minneapolis AF"
+  },
+  {
+    "country": "États-Unis",
+    "list": "Houston",
+    "pollingStation": "Austin EF"
+  },
+  {
+    "country": "États-Unis",
+    "list": "Houston",
+    "pollingStation": "Dallas EF"
+  },
+  {
+    "country": "États-Unis",
+    "list": "Houston",
+    "pollingStation": "Houston CG"
+  },
+  {
+    "country": "États-Unis",
+    "list": "Los Angeles",
+    "pollingStation": "Denver IS"
+  },
+  {
+    "country": "États-Unis",
+    "list": "Los Angeles",
+    "pollingStation": "Las Vegas ISOH"
+  },
+  {
+    "country": "États-Unis",
+    "list": "Los Angeles",
+    "pollingStation": "Los Angeles IS"
+  },
+  {
+    "country": "États-Unis",
+    "list": "Los Angeles",
+    "pollingStation": "San Diego LF"
+  },
+  {
+    "country": "États-Unis",
+    "list": "Los Angeles",
+    "pollingStation": "Scottsdale IF"
+  },
+  {
+    "country": "États-Unis",
+    "list": "Miami",
+    "pollingStation": "Miami CG"
+  },
+  {
+    "country": "États-Unis",
+    "list": "Miami",
+    "pollingStation": "Nassau"
+  },
+  {
+    "country": "États-Unis",
+    "list": "Miami",
+    "pollingStation": "Orlando"
+  },
+  {
+    "country": "États-Unis",
+    "list": "Miami",
+    "pollingStation": "Porto Rico"
+  },
+  {
+    "country": "États-Unis",
+    "list": "Miami",
+    "pollingStation": "Saint Petersburg"
+  },
+  {
+    "country": "États-Unis",
+    "list": "Miami",
+    "pollingStation": "West Palm Beach"
+  },
+  {
+    "country": "États-Unis",
+    "list": "New-York",
+    "pollingStation": "Bermudes"
+  },
+  {
+    "country": "États-Unis",
+    "list": "New-York",
+    "pollingStation": "Brooklyn IS"
+  },
+  {
+    "country": "États-Unis",
+    "list": "New-York",
+    "pollingStation": "Brooklyn Studios"
+  },
+  {
+    "country": "États-Unis",
+    "list": "New-York",
+    "pollingStation": "Jersey City French American Academy"
+  },
+  {
+    "country": "États-Unis",
+    "list": "New-York",
+    "pollingStation": "Mamaroneck French American School of New York"
+  },
+  {
+    "country": "États-Unis",
+    "list": "New-York",
+    "pollingStation": "New York CG"
+  },
+  {
+    "country": "États-Unis",
+    "list": "New-York",
+    "pollingStation": "New York Lyceum Kennedy School"
+  },
+  {
+    "country": "États-Unis",
+    "list": "New-York",
+    "pollingStation": "New York Lycée français"
+  },
+  {
+    "country": "États-Unis",
+    "list": "New-York",
+    "pollingStation": "New York The école"
+  },
+  {
+    "country": "États-Unis",
+    "list": "New-York",
+    "pollingStation": "Princeton French American School"
+  },
+  {
+    "country": "États-Unis",
+    "list": "Nouvelle-Orleans",
+    "pollingStation": "Nouvelle-Orléans EF"
+  },
+  {
+    "country": "États-Unis",
+    "list": "San Francisco",
+    "pollingStation": "Berkeley EB"
+  },
+  {
+    "country": "États-Unis",
+    "list": "San Francisco",
+    "pollingStation": "Honolulu"
+  },
+  {
+    "country": "États-Unis",
+    "list": "San Francisco",
+    "pollingStation": "Palo Alto - SVINTL"
+  },
+  {
+    "country": "États-Unis",
+    "list": "San Francisco",
+    "pollingStation": "Portland FAIS"
+  },
+  {
+    "country": "États-Unis",
+    "list": "San Francisco",
+    "pollingStation": "Sacramento AF"
+  },
+  {
+    "country": "États-Unis",
+    "list": "San Francisco",
+    "pollingStation": "Salt Lake City"
+  },
+  {
+    "country": "États-Unis",
+    "list": "San Francisco",
+    "pollingStation": "San Francisco CG"
+  },
+  {
+    "country": "États-Unis",
+    "list": "San Francisco",
+    "pollingStation": "San Francisco FAIS"
+  },
+  {
+    "country": "États-Unis",
+    "list": "San Francisco",
+    "pollingStation": "Sausalito LFSF"
+  },
+  {
+    "country": "États-Unis",
+    "list": "San Francisco",
+    "pollingStation": "Seattle FASPS"
+  },
+  {
+    "country": "États-Unis",
+    "list": "Washington",
+    "pollingStation": "Norfolk"
+  },
+  {
+    "country": "États-Unis",
+    "list": "Washington",
+    "pollingStation": "Philadelphie"
+  },
+  {
+    "country": "États-Unis",
+    "list": "Washington",
+    "pollingStation": "Washington AMB"
+  }
+]
