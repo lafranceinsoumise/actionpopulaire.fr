@@ -13,8 +13,8 @@ from agir.authentication.utils import (
 )
 from agir.donations.views.donations_views import DONATION_SESSION_NAMESPACE
 from agir.groups.models import SupportGroup, Membership
-from agir.lib.geo import get_commune
 from agir.lib.utils import front_url
+from agir.voting_proxies.models import VotingProxyRequest
 
 
 class UserContextSerializer(serializers.Serializer):
@@ -36,6 +36,7 @@ class UserContextSerializer(serializers.Serializer):
     city = serializers.CharField(source="location_city")
     zip = serializers.CharField(source="location_zip")
     country = CountryField(source="location_country")
+    votingProxyId = serializers.SerializerMethodField(method_name="get_voting_proxy_id")
 
     def get_full_name(self, obj):
         return obj.get_full_name()
@@ -66,6 +67,15 @@ class UserContextSerializer(serializers.Serializer):
             }
             for group in person_groups
         ]
+
+    def get_voting_proxy_id(self, obj):
+        accepted_voting_proxy_request = (
+            VotingProxyRequest.objects.filter(proxy__person_id=obj.id)
+            .upcoming()
+            .first()
+        )
+        if accepted_voting_proxy_request:
+            return accepted_voting_proxy_request.proxy_id
 
 
 class SessionSerializer(serializers.Serializer):
