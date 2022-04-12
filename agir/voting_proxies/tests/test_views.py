@@ -12,6 +12,16 @@ from agir.voting_proxies.models import VotingProxyRequest, VotingProxy
 
 class VotingProxyRequestCreateAPITestCase(APITestCase):
     def setUp(self):
+        def tearDown(self):
+            self.patcher.stop()
+
+        def setUp(self):
+            self.patcher = patch(
+                "agir.voting_proxies.models.VotingProxyRequestQuerySet.upcoming",
+                return_value=VotingProxyRequest.objects.all(),
+            )
+            self.patcher.start()
+
         ip_bucket_mock = patch(
             "agir.voting_proxies.views.create_voter_ip_bucket.has_tokens",
             return_value=True,
@@ -196,7 +206,15 @@ class VotingProxyRequestCreateAPITestCase(APITestCase):
 
 
 class VotingProxyCreateAPITestCase(APITestCase):
+    def tearDown(self):
+        self.patcher.stop()
+
     def setUp(self):
+        self.patcher = patch(
+            "agir.voting_proxies.models.VotingProxyRequestQuerySet.upcoming",
+            return_value=VotingProxyRequest.objects.all(),
+        )
+        self.patcher.start()
         ip_bucket_mock = patch(
             "agir.voting_proxies.views.create_voter_ip_bucket.has_tokens",
             return_value=True,
@@ -385,7 +403,15 @@ class VotingProxyCreateAPITestCase(APITestCase):
 
 
 class VotingProxyRetrieveUpdateAPITestCase(APITestCase):
+    def tearDown(self):
+        self.patcher.stop()
+
     def setUp(self):
+        self.patcher = patch(
+            "agir.voting_proxies.models.VotingProxyRequestQuerySet.upcoming",
+            return_value=VotingProxyRequest.objects.all(),
+        )
+        self.patcher.start()
         self.person = Person.objects.create_person(
             "person@email.com", create_role=True, display_name="Person"
         )
@@ -502,7 +528,15 @@ class VotingProxyRetrieveUpdateAPITestCase(APITestCase):
 
 
 class ReplyToVotingProxyRequestsAPITestCase(APITestCase):
+    def tearDown(self):
+        self.patcher.stop()
+
     def setUp(self):
+        self.patcher = patch(
+            "agir.voting_proxies.models.VotingProxyRequestQuerySet.upcoming",
+            return_value=VotingProxyRequest.objects.all(),
+        )
+        self.patcher.start()
         self.person = Person.objects.create_person(
             "person@email.com", create_role=True, display_name="Person"
         )
@@ -773,7 +807,15 @@ class ReplyToVotingProxyRequestsAPITestCase(APITestCase):
 
 
 class VotingProxyForRequestRetrieveAPITestCase(APITestCase):
+    def tearDown(self):
+        self.patcher.stop()
+
     def setUp(self):
+        self.patcher = patch(
+            "agir.voting_proxies.models.VotingProxyRequestQuerySet.upcoming",
+            return_value=VotingProxyRequest.objects.all(),
+        )
+        self.patcher.start()
         self.person = Person.objects.create_person(
             "person@email.com", create_role=True, display_name="Person"
         )
@@ -851,7 +893,15 @@ class VotingProxyForRequestRetrieveAPITestCase(APITestCase):
 
 
 class VotingProxyRequestConfirmAPITestCase(APITestCase):
+    def tearDown(self):
+        self.patcher.stop()
+
     def setUp(self):
+        self.patcher = patch(
+            "agir.voting_proxies.models.VotingProxyRequestQuerySet.upcoming",
+            return_value=VotingProxyRequest.objects.all(),
+        )
+        self.patcher.start()
         self.person = Person.objects.create_person(
             "person@email.com", create_role=True, display_name="Person"
         )

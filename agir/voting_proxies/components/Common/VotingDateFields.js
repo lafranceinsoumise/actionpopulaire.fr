@@ -1,11 +1,10 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
-import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 
 const StyledLabel = styled.p``;
 const StyledHelpText = styled.p``;
@@ -36,18 +35,7 @@ const StyledFieldset = styled.fieldset`
 `;
 
 const VotingDateFields = (props) => {
-  const {
-    name,
-    value,
-    onChange,
-    options,
-    id,
-    required,
-    disabled,
-    error,
-    label,
-    helpText,
-  } = props;
+  const { name, value, onChange, options, error, label, helpText } = props;
 
   const handleChange = useCallback(
     ({ target }) => {
@@ -60,12 +48,21 @@ const VotingDateFields = (props) => {
     [onChange, value]
   );
 
+  const activeOptions = useMemo(
+    () =>
+      options.filter(
+        (option) =>
+          new Date(option.value).toISOString() > new Date().toISOString()
+      ),
+    [options]
+  );
+
   return (
     <StyledFieldset>
       {label && <StyledLabel>{label}</StyledLabel>}
       {helpText && <StyledHelpText>{helpText}</StyledHelpText>}
       <StyledField>
-        {options.map((option) => (
+        {activeOptions.map((option) => (
           <CheckboxField
             key={option.value}
             name={name}

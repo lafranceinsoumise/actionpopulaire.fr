@@ -1,4 +1,3 @@
-from datetime import timedelta
 from unittest.mock import patch
 
 from data_france.models import (
@@ -11,7 +10,6 @@ from data_france.models import (
 from data_france.utils import TypeNom
 from django.contrib.gis.geos import Point
 from django.test import TestCase
-from django.utils import timezone
 
 from agir.people.models import Person
 from agir.voting_proxies.actions import (
@@ -20,11 +18,26 @@ from agir.voting_proxies.actions import (
     find_voting_proxy_candidates_for_requests,
     PER_VOTING_PROXY_REQUEST_INVITATION_LIMIT,
 )
-from agir.voting_proxies.models import VotingProxy, VotingProxyRequest
+from agir.voting_proxies.models import (
+    VotingProxy,
+    VotingProxyRequest,
+)
+
+
+def mock_upcoming_request_queryset(qs):
+    return qs
 
 
 class GetVotingProxyRequestsForProxyTestCase(TestCase):
+    def tearDown(self):
+        self.patcher.stop()
+
     def setUp(self):
+        self.patcher = patch(
+            "agir.voting_proxies.models.VotingProxyRequestQuerySet.upcoming",
+            return_value=VotingProxyRequest.objects.all(),
+        )
+        self.patcher.start()
         reg = Region.objects.create(
             code="01",
             nom="Région",
@@ -199,7 +212,15 @@ class GetVotingProxyRequestsForProxyTestCase(TestCase):
 
 
 class MatchAvailableProxiesWithRequestsTestCase(TestCase):
+    def tearDown(self):
+        self.patcher.stop()
+
     def setUp(self):
+        self.patcher = patch(
+            "agir.voting_proxies.models.VotingProxyRequestQuerySet.upcoming",
+            return_value=VotingProxyRequest.objects.all(),
+        )
+        self.patcher.start()
         reg = Region.objects.create(
             code="01",
             nom="Région",
@@ -329,7 +350,15 @@ class MatchAvailableProxiesWithRequestsTestCase(TestCase):
 
 
 class FindVotingProxyCandidatesForRequestsTestCase(TestCase):
+    def tearDown(self):
+        self.patcher.stop()
+
     def setUp(self):
+        self.patcher = patch(
+            "agir.voting_proxies.models.VotingProxyRequestQuerySet.upcoming",
+            return_value=VotingProxyRequest.objects.all(),
+        )
+        self.patcher.start()
         reg = Region.objects.create(
             code="01",
             nom="Région",

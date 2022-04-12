@@ -14,7 +14,15 @@ from agir.voting_proxies.tasks import (
 
 
 class SendVotingProxyRequestConfirmationTestCase(TestCase):
+    def tearDown(self):
+        self.patcher.stop()
+
     def setUp(self):
+        self.patcher = patch(
+            "agir.voting_proxies.models.VotingProxyRequestQuerySet.upcoming",
+            return_value=VotingProxyRequest.objects.all(),
+        )
+        self.patcher.start()
         self.consulate = CirconscriptionConsulaire.objects.create(
             nom="Circonscription Consulaire ABC",
             consulats=["Consulat"],
@@ -62,7 +70,15 @@ class SendVotingProxyRequestConfirmationTestCase(TestCase):
 
 
 class SendVotingProxyRequestAcceptedTextMessagesTestCase(TestCase):
+    def tearDown(self):
+        self.patcher.stop()
+
     def setUp(self):
+        self.patcher = patch(
+            "agir.voting_proxies.models.VotingProxyRequestQuerySet.upcoming",
+            return_value=VotingProxyRequest.objects.all(),
+        )
+        self.patcher.start()
         self.consulate = CirconscriptionConsulaire.objects.create(
             nom="Circonscription Consulaire ABC",
             consulats=["Consulat"],
@@ -124,7 +140,15 @@ class SendVotingProxyRequestAcceptedTextMessagesTestCase(TestCase):
 
 
 class SendVotingProxyInformationForRequestTestCase(TestCase):
+    def tearDown(self):
+        self.patcher.stop()
+
     def setUp(self):
+        self.patcher = patch(
+            "agir.voting_proxies.models.VotingProxyRequestQuerySet.upcoming",
+            return_value=VotingProxyRequest.objects.all(),
+        )
+        self.patcher.start()
         self.consulate = CirconscriptionConsulaire.objects.create(
             nom="Circonscription Consulaire ABC",
             consulats=["Consulat"],
@@ -184,7 +208,15 @@ class SendVotingProxyInformationForRequestTestCase(TestCase):
 
 
 class SendVotingProxyRequestConfirmedTextMessagesTestCase(TestCase):
+    def tearDown(self):
+        self.patcher.stop()
+
     def setUp(self):
+        self.patcher = patch(
+            "agir.voting_proxies.models.VotingProxyRequestQuerySet.upcoming",
+            return_value=VotingProxyRequest.objects.all(),
+        )
+        self.patcher.start()
         self.consulate = CirconscriptionConsulaire.objects.create(
             nom="Circonscription Consulaire ABC",
             consulats=["Consulat"],
