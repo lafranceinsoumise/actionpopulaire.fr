@@ -72,7 +72,15 @@ const StyledButton = styled(Link)`
 `;
 
 const ActionButton = (props) => {
-  const { route, label, icon, color, className, disabled = false } = props;
+  const {
+    route,
+    routeParams,
+    label,
+    icon,
+    color,
+    className,
+    disabled = false,
+  } = props;
   return (
     <StyledButton
       $color={color}
@@ -81,6 +89,7 @@ const ActionButton = (props) => {
       onMouseDown={(e) => e.preventDefault()}
       className={className}
       route={route}
+      routeParams={routeParams}
     >
       {typeof icon === "string" ? <RawFeatherIcon name={icon} /> : icon}
       {Array.isArray(label) ? (
@@ -100,6 +109,7 @@ const ActionButton = (props) => {
 };
 ActionButton.propTypes = {
   route: PropTypes.string,
+  routeParams: PropTypes.object,
   label: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node,
