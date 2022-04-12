@@ -77,10 +77,13 @@ class AbstractVoter(BaseAPIResource):
         on_delete=models.CASCADE,
     )
     polling_station_number = models.CharField(
-        "numéro du bureau de vote",
+        "bureau de vote",
         max_length=255,
         null=False,
         blank=True,
+    )
+    voter_id = models.CharField(
+        "numéro national d'électeur", max_length=255, blank=True, null=False, default=""
     )
 
     def clean(self):
@@ -273,12 +276,17 @@ class VotingProxyRequest(AbstractVoter):
             f"Né·e le: <strong>{escape(self.proxy.date_of_birth.strftime('%d/%m/%Y'))}</strong><br>"
             f"Téléphone&nbsp;: <strong>{escape(self.proxy.contact_phone)}</strong>"
         )
+
         if self.proxy.commune:
             text += (
                 f"<br>Commune&nbsp;: <strong>{self.proxy.commune.nom_complet}</strong>"
             )
         else:
             text += f"<br>Consulat&nbsp;: <strong>{self.proxy.consulate.nom}</strong>"
+
+        if self.proxy.voter_id:
+            text += f"<br>Numéro national d'électeur&nbsp;: <strong>{escape(self.proxy.voter_id)}</strong>"
+
         if self.proxy.remarks:
             text += f"<br>Disponibilités&nbsp;: <strong>{escape(self.proxy.remarks)}</strong>"
 
@@ -297,13 +305,17 @@ class VotingProxyRequest(AbstractVoter):
             f" - né·e le {self.proxy.date_of_birth.strftime('%d/%m/%Y')}"
             f" - tél. {self.proxy.contact_phone}"
         )
+
         if self.proxy.commune:
             text += f" - commune: {to_7bit_string(self.proxy.commune.nom_complet)}"
         else:
             text += f" - consulat: {to_7bit_string(self.proxy.consulate.nom)}"
+
+        if self.proxy.voter_id:
+            text += f" - NNE: {to_7bit_string(self.proxy.voter_id)}"
+
         if self.proxy.remarks:
             text += f" - {to_7bit_string(self.proxy.remarks)}"
-        text += "."
 
         return text
 

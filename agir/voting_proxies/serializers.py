@@ -57,9 +57,18 @@ class VoterSerializerMixin(serializers.ModelSerializer):
     pollingStationNumber = serializers.CharField(
         required=False,
         allow_blank=True,
+        allow_null=False,
         default="",
         source="polling_station_number",
-        label="Numéro du bureau de vote",
+        label="bureau de vote",
+    )
+    voterId = serializers.CharField(
+        required=False,
+        allow_blank=True,
+        allow_null=False,
+        default="",
+        source="voter_id",
+        label="Numéro national d'électeur",
     )
     updated = serializers.BooleanField(
         default=False,
@@ -209,6 +218,7 @@ class VotingProxySerializer(VoterSerializerMixin):
             "status",
             "dateOfBirth",
             "remarks",
+            "voterId",
         )
 
 
@@ -268,4 +278,5 @@ class CreateVotingProxySerializer(VotingProxySerializer):
             "zip",
             "city",
             "status",
+            "voterId",
         )
