@@ -169,20 +169,6 @@ class CreateSupportGroupView(HardLoginRequiredMixin, TemplateView):
             props={"initial": initial, "subtypes": subtypes, "types": types}, **kwargs
         )
 
-    # Redirect if current time between election dates
-    def get(self, request, *args, **kwargs):
-        now = timezone.now()
-        tz_paris = pytz.timezone("Europe/Paris")
-        start = datetime(2022, 4, 9, 0, 0, 0)
-        end = datetime(2022, 4, 10, 20, 0, 0)
-        start_tz = tz_paris.localize(start)
-        end_tz = tz_paris.localize(end)
-
-        if now > start_tz and now < end_tz:
-            return HttpResponseRedirect(reverse("treve"))
-
-        return super().get(request, args, kwargs)
-
 
 class PerformCreateSupportGroupView(HardLoginRequiredMixin, FormMixin, ProcessFormView):
     model = SupportGroup
