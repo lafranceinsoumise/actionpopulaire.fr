@@ -180,6 +180,10 @@ class Segment(BaseSegment, models.Model):
         "Limiter aux membres inscrit⋅e⋅s après cette date", blank=True, null=True
     )
 
+    registration_date_before = models.DateTimeField(
+        "Limiter aux membres inscrit⋅e⋅s avant cette date", blank=True, null=True
+    )
+
     registration_duration = models.IntegerField(
         "Limiter aux membres inscrit⋅e⋅s depuis au moins un certain nombre d'heures",
         help_text="Indiquer le nombre d'heures",
@@ -396,6 +400,9 @@ class Segment(BaseSegment, models.Model):
 
         if self.registration_date is not None:
             q = q & Q(created__gt=self.registration_date)
+
+        if self.registration_date_before is not None:
+            q = q & Q(created__lt=self.registration_date_before)
 
         if self.registration_duration:
             q = q & Q(created__lt=now() - timedelta(hours=self.registration_duration))
