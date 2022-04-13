@@ -7,8 +7,12 @@
 
 {% block main_column %}
   <h2 class="headline">{{ poll.title }}</h2>
-  <p>{{ poll.html_description }}</p>
-  {% if already_voted %}
+  {% if not is_authorized %}
+    <div class="col-xs-12 col-md-8 intro">
+      {{ poll.html_unauthorized_message }}
+    </div>
+  {% elif already_voted %}
+    <p>{{ poll.html_description }}</p>
     <div class="alert alert-info">
       Vous avez bien participé à cette consultation&nbsp;! Votre identifiant unique et anonyme est le
       <strong>{{ anonymous_id }}</strong>. Lors de la publication des résultats, vous pourrez vous
@@ -18,6 +22,7 @@
     {{ poll.html_confirmation_note }}
     </p>
   {% else %}
+    <p>{{ poll.html_description }}</p>
     {% crispy form %}
   {% endif %}
 {% endblock %}

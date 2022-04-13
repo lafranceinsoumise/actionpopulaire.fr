@@ -65,6 +65,16 @@ class Poll(BaseAPIResource):
         verbose_name="Limiter l'accès à la consultation à ce segment",
     )
 
+    unauthorized_message = DescriptionField(
+        _("Note pour les personnes non autorisées"),
+        allowed_tags=settings.ADMIN_ALLOWED_TAGS,
+        help_text=_(
+            "Note montrée à tout utilisateur qui n'aurait pas le tag nécessaire pour afficher le formulaire."
+        ),
+        blank=True,
+        default="",
+    )
+
     def make_choice(self, person, options):
         with transaction.atomic():
             if self.tags.all().count() > 0:

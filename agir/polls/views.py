@@ -44,26 +44,28 @@ class PollParticipationView(
         return {"poll": self.object, **super().get_form_kwargs()}
 
     def get_context_data(self, **kwargs):
+        is_authorized = (
+            self.object.authorized_segment is None
+            or self.object.authorized_segment.is_subscriber(self.request.user.person)
+        )
+
+        if not is_authorized and not self.object.unauthorized_message:
+            raise PermissionDenied(
+                "Vous n'êtes pas autorisé⋅e à participer à cette consultation."
+            )
+
         poll_choice = PollChoice.objects.filter(
             person=self.request.user.person, poll=self.object
         ).first()
         return super().get_context_data(
             already_voted=(poll_choice is not None),
             anonymous_id=(poll_choice is not None and poll_choice.anonymous_id),
+            is_authorized=is_authorized,
             **kwargs
         )
 
     def get(self, *args, **kwargs):
         self.object = self.get_object()
-        if (
-            self.object.authorized_segment is not None
-            and not self.object.authorized_segment.is_subscriber(
-                self.request.user.person
-            )
-        ):
-            raise PermissionDenied(
-                "Vous n'êtes pas autorisé⋅e à participer à cette consultation."
-            )
         if (
             self.object.end < timezone.now()
             and PollChoice.objects.filter(

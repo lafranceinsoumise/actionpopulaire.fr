@@ -30,6 +30,7 @@ class PollAdmin(admin.ModelAdmin):
         "link",
         "description",
         "confirmation_note",
+        "unauthorized_message",
         "start",
         "end",
         "rules",
