@@ -197,7 +197,7 @@ class PersonForm(TimeStampedModel):
             or (person.tags.all() & self.required_tags.all()).exists()
         ) and (
             self.segment is None
-            or self.segment.get_subscribers_queryset().filter(id=person.id).exists()
+            or (person is not None and self.segment.is_subscriber(person))
         )
 
     @property
