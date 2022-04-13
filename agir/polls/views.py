@@ -57,9 +57,9 @@ class PollParticipationView(
         self.object = self.get_object()
         if (
             self.object.authorized_segment is not None
-            and not self.object.authorized_segment.get_subscribers_queryset()
-            .filter(id=self.request.user.person.id)
-            .exists()
+            and not self.object.authorized_segment.is_subscriber(
+                self.request.user.person
+            )
         ):
             raise PermissionDenied(
                 "Vous n'êtes pas autorisé⋅e à participer à cette consultation."
@@ -88,9 +88,9 @@ class PollParticipationView(
         self.object = self.get_object()
         if (
             self.object.authorized_segment is not None
-            and not self.object.authorized_segment.get_subscribers_queryset()
-            .filter(id=self.request.user.person.id)
-            .exists()
+            and not self.object.authorized_segment.is_subscriber(
+                self.request.user.person
+            )
         ):
             raise PermissionDenied(
                 "Vous n'êtes pas autorisé⋅e à participer à cette consultation."
