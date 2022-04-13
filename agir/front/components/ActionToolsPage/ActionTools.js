@@ -1,12 +1,9 @@
 import React from "react";
 import styled from "styled-components";
-import useSWR from "swr";
 
 import Button from "@agir/front/genericComponents/Button";
 import Link from "@agir/front/app/Link";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-
-import { getActionsForUser } from "@agir/front/app/ActionButtons/actions.config";
 
 const StyledCardItem = styled(Link)`
   padding: 1.5rem;
@@ -126,11 +123,12 @@ export const ActionTools = () => {
           <strong>Se porter volontaire pour prendre une procuration</strong>
           <span>
             Inscrivez-vous comme volontaire et prenez une procuration de vote
-            d’un·e citoyen·ne pour le 10 et 24 avril
+            d’un·e citoyen·ne pour le 12 et 19 juin
           </span>
         </span>
         <RawFeatherIcon aria-hidden="true" name="chevron-right" />
       </StyledCardItem>
+      {/*
       <StyledCardItem route="pollingStationAssessorForm">
         <i
           aria-hidden="true"
@@ -179,6 +177,7 @@ export const ActionTools = () => {
         </span>
         <RawFeatherIcon aria-hidden="true" name="chevron-right" />
       </StyledCardItem>
+      */}
       <StyledCardItem route="createContact">
         <i
           aria-hidden="true"
