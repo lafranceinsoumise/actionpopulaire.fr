@@ -22,24 +22,15 @@ const slideInTransition = {
 };
 
 const EventSubtypeField = (props) => {
-  const { name, value, options, onChange, disabled, whiteList } = props;
+  const { name, value, options, onChange, disabled } = props;
 
   const subtypeOptions = useMemo(() => {
     if (!Array.isArray(options) || options.length === 0) {
       return [];
     }
 
-    let filteredOptions = [];
-    if (Array.isArray(whiteList) && whiteList.length > 0) {
-      filteredOptions = options.filter((option) =>
-        whiteList.includes(option.type)
-      );
-    } else {
-      filteredOptions = options;
-    }
-
     const categories = {};
-    filteredOptions.forEach((subtype) => {
+    options.forEach((subtype) => {
       const category =
         subtype.type && EVENT_TYPES[subtype.type] ? subtype.type : "O";
       categories[category] = categories[category] || {
@@ -52,7 +43,7 @@ const EventSubtypeField = (props) => {
     return Object.values(categories).filter((category) =>
       Array.isArray(category.subtypes)
     );
-  }, [options, whiteList]);
+  }, [options]);
 
   const selectedSubtype = useMemo(
     () =>

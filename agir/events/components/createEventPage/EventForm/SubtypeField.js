@@ -105,7 +105,7 @@ DefaultOption.propTypes = {
     id: PropTypes.number,
     label: PropTypes.string,
     iconName: PropTypes.string,
-    color: PropTypes.String,
+    color: PropTypes.string,
     description: PropTypes.string,
   }),
   onClick: PropTypes.func,
@@ -117,7 +117,7 @@ const BASE_ROUTE = routeConfig.createEvent.getLink();
 const PANEL_ROUTE = BASE_ROUTE + "type/";
 
 const SubtypeField = (props) => {
-  const { onChange, value, name, error, disabled, options, whiteList } = props;
+  const { onChange, value, name, error, disabled, options } = props;
 
   const isPanelOpen = useRouteMatch(PANEL_ROUTE);
   const history = useHistory();
@@ -142,11 +142,9 @@ const SubtypeField = (props) => {
     if (!Array.isArray(options)) {
       return [];
     }
-    if (!Array.isArray(whiteList)) {
-      return options;
-    }
-    return options.filter((option) => whiteList.includes(option.type));
-  }, [options, whiteList]);
+
+    return options;
+  }, [options]);
 
   const defaultOptions = useMemo(() => subtypes.slice(0, 5), [subtypes]);
 
@@ -192,7 +190,7 @@ const SubtypeField = (props) => {
         onChange={handleChange}
         value={value}
         options={subtypes}
-        shouldShow={isPanelOpen}
+        shouldShow={!!isPanelOpen}
       />
     </StyledField>
   );
