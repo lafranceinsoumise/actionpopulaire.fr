@@ -14,16 +14,6 @@ import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styl
 
 import { useGroup } from "@agir/groups/groupPage/hooks/group.js";
 
-const StyledDiscountWarning = styled.p`
-  background-color: ${style.primary100};
-  border-radius: ${style.borderRadius};
-  color: ${style.black1000};
-  font-size: 0.875rem;
-  padding: 0.875rem;
-  line-height: 1.5;
-  margin: 0;
-`;
-
 const StyledDiscountCodeList = styled.div`
   display: grid;
   grid-template-columns: 1fr;
@@ -73,13 +63,6 @@ const GroupMaterielPage = (props) => {
           </p>
         </>
       )}
-      <Spacer size="1rem" />
-      <StyledDiscountWarning>
-        <strong>Campagne présidentielle&nbsp;:</strong> exceptionnellement, vos
-        codes promo d'avril sont disponibles dès aujourd'hui.
-        <br />
-        Commandez votre matériel pour la dernière ligne droite maintenant&nbsp;!
-      </StyledDiscountWarning>
       <Spacer size="1rem" />
       <StyledDiscountCodeList>
         {discountCodes.map((discountCode) => (
