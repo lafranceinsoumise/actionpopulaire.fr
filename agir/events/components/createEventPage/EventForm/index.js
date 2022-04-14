@@ -26,7 +26,6 @@ import EventImageField from "./EventImageField";
 import SubtypeField from "./SubtypeField";
 import ContactField from "./ContactField";
 import OnlineUrlField from "./OnlineUrlField";
-import CampaignFundingField from "./CampaignFundingField";
 import { scrollToError } from "@agir/front/app/utils";
 
 const StyledGlobalError = styled.p`
@@ -122,7 +121,6 @@ const EventForm = () => {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [newEventPk, setNewEventPk] = useState(null);
-  const [campaignFunding, setCampaignFunding] = useState(false);
 
   const history = useHistory();
   const { search } = useLocation();
@@ -194,11 +192,6 @@ const EventForm = () => {
     }));
   }, []);
 
-  const updateCampaignFunding = useCallback((value) => {
-    setCampaignFunding(value);
-    !!value && setErrors((state) => ({ ...state, campaignFunding: undefined }));
-  }, []);
-
   useEffect(() => {
     if (formData.contact.isDefault && formData.organizerGroup) {
       const contact = formData.organizerGroup.contact
@@ -262,11 +255,6 @@ const EventForm = () => {
       e.preventDefault();
       setErrors({});
       let errors = validateData(formData);
-      if (!campaignFunding) {
-        errors = errors || {};
-        errors.campaignFunding =
-          "Confirmez ces informations pour créer l'événement";
-      }
       if (formData.image && !formData.image.hasLicense) {
         errors = errors || {};
         errors.image =
@@ -292,7 +280,7 @@ const EventForm = () => {
       }
       setNewEventPk(result.data.id);
     },
-    [campaignFunding, formData]
+    [formData]
   );
 
   useEffect(() => {
@@ -455,17 +443,6 @@ const EventForm = () => {
           required
         />
       </fieldset>
-      <Spacer size="2rem" data-scroll="campaignFunding" />
-      <CampaignFundingField
-        onChange={updateCampaignFunding}
-        disabled={isLoading}
-        groupPk={formData?.organizerGroup?.id}
-        isCertified={!!formData?.organizerGroup?.isCertified}
-        isPrivate={formData?.subtype?.type === "G"}
-        needsDocuments={!!formData?.subtype?.needsDocuments}
-        endTime={formData?.endTime}
-        error={errors?.campaignFunding}
-      />
       <Spacer size="1rem" data-scroll="global" />
       {errors && errors.global && (
         <StyledGlobalError>{errors.global}</StyledGlobalError>
