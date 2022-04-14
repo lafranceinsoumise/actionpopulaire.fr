@@ -77,9 +77,11 @@ export const useUnreadActivityCount = () => {
   return data?.unreadActivityCount || 0;
 };
 
-export const useCustomAnnouncement = (slug) => {
-  const [isPaused, setIsPaused] = useSessionStorage(`AP__${slug}__p`);
+export const useCustomAnnouncement = (slug, shouldPause = true) => {
+  const [wasPaused, setIsPaused] = useSessionStorage(`AP__${slug}__p`);
   const { data: session } = useSWR("/api/session/");
+
+  const isPaused = shouldPause && wasPaused;
   const { data, mutate, error } = useSWR(
     !isPaused && session?.user && slug
       ? getActivityEndpoint("customAnnouncement", { slug })
@@ -114,8 +116,8 @@ export const useCustomAnnouncement = (slug) => {
   }, [activityId, mutate]);
 
   useEffect(() => {
-    errorStatus === 404 && setIsPaused(true);
-  }, [setIsPaused, errorStatus]);
+    shouldPause && errorStatus === 404 && setIsPaused(true);
+  }, [shouldPause, setIsPaused, errorStatus]);
 
   const isLoading =
     !isPaused && errorStatus !== 404 && typeof data === "undefined";
