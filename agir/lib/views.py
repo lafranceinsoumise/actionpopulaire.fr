@@ -1,5 +1,11 @@
+from datetime import datetime
+
+import pytz
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from django.utils import timezone
 from django.views import View
 from django.views.generic.edit import FormMixin
 from rest_framework.generics import GenericAPIView, get_object_or_404
@@ -82,3 +88,19 @@ class AnonymousAPIView(APIView):
         # original implementation only access request.user to force authentication
         # we pass so it is done lazyly instead
         pass
+
+
+class TreveMixin:
+    # Redirect if current time between election dates
+    def get(self, request, *args, **kwargs):
+        now = timezone.now()
+        tz_paris = pytz.timezone("Europe/Paris")
+        start = datetime(2022, 4, 9, 0, 0, 0)
+        end = datetime(2022, 4, 10, 20, 0, 0)
+        start_tz = tz_paris.localize(start)
+        end_tz = tz_paris.localize(end)
+
+        if now > start_tz and now < end_tz:
+            return HttpResponseRedirect(reverse("treve"))
+
+        return super().get(request, args, kwargs)

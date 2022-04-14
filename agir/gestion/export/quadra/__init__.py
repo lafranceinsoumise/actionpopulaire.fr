@@ -3,15 +3,12 @@ from operator import neg
 from typing import Tuple
 
 import pandas as pd
-from agir.lib.admin.utils import get_admin_link
-from django.db.models import Subquery, OuterRef
-from django.urls import reverse
 from django.utils import timezone
 from glom import glom, Val, T, M, Coalesce
 
-from agir.events.models import Event
 from agir.gestion.models import Reglement, Compte
-from agir.gestion.typologies import TypeDepense
+from agir.gestion.typologies import TypeDepense, TypeDocument
+from agir.lib.admin.utils import get_admin_link
 
 LIBELLES_MODE = {
     Reglement.Mode.VIREMENT: "VIR",
@@ -20,6 +17,20 @@ LIBELLES_MODE = {
     Reglement.Mode.CARTE: "CB",
     Reglement.Mode.CASH: "ESP",
 }
+
+
+def lien_document(document):
+    if document:
+        if fichier := document.fichier:
+            return fichier.url
+
+        return get_admin_link(document)
+    return "-"
+
+
+def autres_pieces(reglement):
+    documents = reglement.depense.documents.exclude(type__in=[TypeDocument.FACTURE])
+    return " ".join(lien_document(d) for d in documents)
 
 
 spec_fec = {
@@ -52,6 +63,9 @@ spec_fec = {
     "DateFin": "depense.date_fin",
     "Quantité": "depense.quantite",
     "LienRèglement": (get_admin_link,),
+    "PreuvePaiement": ("preuve", lien_document),
+    "LienFacture": ("facture", lien_document),
+    "AutresPièces": autres_pieces,
 }
 
 

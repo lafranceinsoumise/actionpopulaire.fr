@@ -30,6 +30,7 @@ from .view_mixins import (
 from ..events.views.event_views import EventDetailMixin
 from ..groups.views.public_views import SupportGroupDetailMixin
 from ..lib.utils import generate_token_params
+from ..lib.views import TreveMixin
 from ..msgs.models import SupportGroupMessage
 
 cache_decorators = [cache.cache_page(30), cache.cache_control(public=True)]
@@ -209,7 +210,7 @@ class EventProjectView(HardLoginRequiredMixin, EventDetailView):
         ]
 
 
-class CreateEventView(BaseAppSoftAuthView):
+class CreateEventView(TreveMixin, BaseAppSoftAuthView):
     api_preloads = [reverse_lazy("api_event_create_options")]
 
 

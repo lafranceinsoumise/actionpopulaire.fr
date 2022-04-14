@@ -82,6 +82,7 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                     "last_open",
                     "last_click",
                     "registration_date",
+                    "registration_date_before",
                     "last_login",
                     "registration_duration",
                 )

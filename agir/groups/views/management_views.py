@@ -1,8 +1,6 @@
-from uuid import UUID
-from datetime import datetime
-import pytz
-
 import logging
+from uuid import UUID
+
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
@@ -10,7 +8,6 @@ from django.http import HttpResponseRedirect, JsonResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import reverse, reverse_lazy
-from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.html import format_html
 from django.utils.translation import gettext as _
@@ -51,8 +48,8 @@ from agir.groups.tasks import (
 )
 from agir.lib.export import dict_to_camelcase
 from agir.lib.http import add_query_params_to_url
+from agir.lib.views import TreveMixin
 from agir.people.models import Person
-
 
 __all__ = [
     "SupportGroupManagementView",
@@ -119,7 +116,7 @@ class SupportGroupManagementView(RedirectView):
         return reverse("view_group_settings", kwargs={"pk": supportgroup.pk})
 
 
-class CreateSupportGroupView(HardLoginRequiredMixin, TemplateView):
+class CreateSupportGroupView(HardLoginRequiredMixin, TreveMixin, TemplateView):
     template_name = "groups/create.html"
     manager_per_type_limit = 2
 
