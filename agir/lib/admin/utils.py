@@ -13,6 +13,7 @@ def get_admin_link(instance):
     return reverse(
         f"admin:{instance._meta.app_label}_{instance._meta.model_name}_change",
         args=(instance.pk,),
+        urlconf="agir.api.admin_urls",
     )
 
 
