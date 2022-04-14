@@ -157,7 +157,7 @@ const CreateEvent = () => {
   const now = DateTime.local();
 
   const NO_CREATION_DATES = {
-    start: DateTime.fromISO("2022-04-9"),
+    start: DateTime.fromISO("2022-04-09"),
     end: DateTime.fromISO("2022-04-10").plus({ hours: 20 }),
   };
 

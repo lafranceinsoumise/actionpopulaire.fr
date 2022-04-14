@@ -1155,6 +1155,10 @@ class CandidatureAdmin(AddRelatedLinkMixin, admin.ModelAdmin):
         "presence_en_ligne",
     )
 
+    def get_queryset(self, request):
+        """Rien de spécial implémenté ici, c'est dans le ScrutinView que se trouve la logique de filtrage"""
+        return super().get_queryset(request)
+
     def candidat(self, obj):
         return f"{obj.nom} {obj.prenom}"
 

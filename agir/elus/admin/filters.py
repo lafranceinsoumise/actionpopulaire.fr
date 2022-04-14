@@ -255,7 +255,7 @@ class ScrutinFilter(SimpleListFilter):
 
         # dans le cas où l'utilisateur n'a pas de permission générique pour voir les candidatures, on trie le queryset
         # pour n'inclure que celles dans des circonscriptions qui le concernent, désignées via des autorisations.
-        if not role.has_perm("elus.view_candidatures"):
+        if not role.has_perm("elus.view_candidature"):
             qs = qs.annotate(
                 autorisation=Exists(
                     Autorisation.objects.filter(
