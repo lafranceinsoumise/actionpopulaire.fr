@@ -156,7 +156,7 @@ class SupportGroupDetailMixin(GlobalOrObjectPermissionRequiredMixin):
             return HttpResponseRedirect(f'{reverse("join")}')
 
         if request.POST["action"] == "join":
-            if self.object.is_full:
+            if not self.object.open or self.object.is_full:
                 return HttpResponseRedirect(
                     reverse("full_group", kwargs={"pk": self.object.pk})
                 )
