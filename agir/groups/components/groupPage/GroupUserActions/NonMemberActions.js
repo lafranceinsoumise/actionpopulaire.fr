@@ -23,8 +23,7 @@ const StyledWrapper = styled.div`
 `;
 
 const NonMemberActions = (props) => {
-  const { onJoin, onFollow, isLoading } = props;
-
+  const { onJoin, onFollow, isOpen, isLoading } = props;
   return (
     <StyledWrapper>
       <Button
@@ -37,16 +36,18 @@ const NonMemberActions = (props) => {
         <Spacer size="10px" />
         Rejoindre
       </Button>
-      <Button
-        type="button"
-        loading={isLoading}
-        disabled={isLoading}
-        onClick={onFollow}
-      >
-        <RawFeatherIcon name="rss" width="1.5rem" height="1.5rem" />
-        <Spacer size="10px" />
-        Suivre
-      </Button>
+      {isOpen && (
+        <Button
+          type="button"
+          loading={isLoading}
+          disabled={isLoading}
+          onClick={onFollow}
+        >
+          <RawFeatherIcon name="rss" width="1.5rem" height="1.5rem" />
+          <Spacer size="10px" />
+          Suivre
+        </Button>
+      )}
     </StyledWrapper>
   );
 };
@@ -54,5 +55,6 @@ NonMemberActions.propTypes = {
   onJoin: PropTypes.func,
   onFollow: PropTypes.func,
   isLoading: PropTypes.bool,
+  isOpen: PropTypes.bool,
 };
 export default NonMemberActions;

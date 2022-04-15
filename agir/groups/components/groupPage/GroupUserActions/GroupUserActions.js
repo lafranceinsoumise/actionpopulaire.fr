@@ -11,7 +11,7 @@ const GroupUserActions = (props) => {
   const { isAuthenticated, isMember, isActiveMember, isManager } = props;
 
   if (!isAuthenticated) {
-    return <AnonymousActions />;
+    return <AnonymousActions {...props} />;
   }
 
   if (!isMember) {

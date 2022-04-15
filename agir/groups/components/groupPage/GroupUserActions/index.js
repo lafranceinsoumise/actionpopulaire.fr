@@ -166,7 +166,7 @@ const ConnectedUserActions = (props) => {
       setIsLoading(false);
       joiningStep > 0 ? setJoiningStep(3) : setOpenDialog(null);
     },
-    [joiningStep, history, id]
+    [joiningStep, id]
   );
 
   const openMessageModal = useCallback(() => {
@@ -182,7 +182,7 @@ const ConnectedUserActions = (props) => {
       const result = await api.createPrivateMessage(id, { subject, text });
       onSelectMessage(result.data.id);
     },
-    [onSelectMessage]
+    [id, onSelectMessage]
   );
 
   return (
@@ -259,6 +259,7 @@ ConnectedUserActions.propTypes = {
   isActiveMember: PropTypes.bool,
   referents: PropTypes.array,
   personalInfoConsent: PropTypes.bool,
+  isMessagingEnabled: PropTypes.bool,
 };
 
 export default ConnectedUserActions;
