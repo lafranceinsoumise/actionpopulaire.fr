@@ -39,7 +39,7 @@ const NewVotingProxyHowTo = () => (
     <Spacer size="1rem" />
     <p>
       <em>
-        Vous ne vous pouvez pas vous déplacer le 10 et/ou 24 avril&nbsp;?{" "}
+        Vous ne vous pouvez pas vous déplacer les jours de scrutin&nbsp;?{" "}
         <Link route="newVotingProxyRequest">
           Permettez à quelqu'un de voter à votre place
         </Link>

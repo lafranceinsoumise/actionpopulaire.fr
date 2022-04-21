@@ -1,6 +1,5 @@
 import React, { useMemo } from "react";
 import { Redirect } from "react-router-dom";
-import { DateTime } from "luxon";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -20,7 +19,6 @@ import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 import TokTokCard from "@agir/events/TokTok/TokTokCard";
-import StaticToast from "@agir/front/genericComponents/StaticToast";
 
 import EventForm from "./EventForm";
 
@@ -141,31 +139,9 @@ const InfoBlock = (props) => (
   </StyledInfoBlock>
 );
 
-export const ToastElectionInfo = () => (
-  <StaticToast $color={style.primary500} style={{ marginTop: "1rem" }}>
-    Trève électorale : la veille d'une élection, la loi vous interdit de faire
-    campagne. Vous ne pouvez pas organiser d'action en but de récolter des
-    suffrages (porte-à-porte, tractage, réunion publique...). Seuls les
-    événements internes à la campagne sont autorisés.
-  </StaticToast>
-);
-
 const CreateEvent = () => {
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const backLink = useSelector(getBackLink);
-
-  const now = DateTime.local();
-
-  const NO_CREATION_DATES = {
-    start: DateTime.fromISO("2022-04-09"),
-    end: DateTime.fromISO("2022-04-10").plus({ hours: 20 }),
-  };
-
-  // Forbid event creation during election
-  if (now > NO_CREATION_DATES.start && now < NO_CREATION_DATES.end) {
-    return <Redirect to={routeConfig.treveCreationPage.getLink()} />;
-  }
-
   const { projects } = useMissingRequiredEventDocuments();
 
   const isBlocked = useMemo(() => {
@@ -198,7 +174,6 @@ const CreateEvent = () => {
             )}
             <Spacer size="1.5rem" />
             <h2>Nouvel événement</h2>
-            <ToastElectionInfo />
             <InfoBlock over />
             <Spacer size="1.5rem" />
             <EventForm />

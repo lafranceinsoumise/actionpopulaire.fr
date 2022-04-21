@@ -102,7 +102,7 @@ SubtypeOption.propTypes = {
     id: PropTypes.number,
     label: PropTypes.string,
     iconName: PropTypes.string,
-    color: PropTypes.String,
+    color: PropTypes.string,
     description: PropTypes.string,
   }),
   onClick: PropTypes.func,
@@ -127,6 +127,12 @@ export const SubtypeOptions = ({ options, onClick, selected }) => {
       ))}
     </StyledOptions>
   );
+};
+
+SubtypeOptions.propTypes = {
+  onClick: PropTypes.func.isRequired,
+  options: PropTypes.arrayOf(PropTypes.object),
+  selected: PropTypes.object,
 };
 
 const SubtypeField = (props) => {

@@ -13,6 +13,7 @@ const INITIAL_DATA = {
   address: "",
   zip: "",
   city: "",
+  voterId: "",
 };
 
 export const getInitialData = (user) =>
@@ -37,7 +38,19 @@ export const VOTING_PROXY_CONSTRAINTS = {
   },
   pollingStationNumber: {
     presence: {
-      allowEmpty: true,
+      allowEmpty: false,
+      message: "Ce champ est obligatoire",
+    },
+    length: {
+      maximum: 255,
+      tooLong:
+        "La valeur de ce champ ne peut pas dépasser les %{count} caractères",
+    },
+  },
+  voterId: {
+    presence: {
+      allowEmpty: false,
+      message: "Ce champ est obligatoire",
     },
     length: {
       maximum: 255,

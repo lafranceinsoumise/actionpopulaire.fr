@@ -191,6 +191,12 @@ def send_voting_proxy_request_accepted_text_messages(voting_proxy_request_pks):
 
     try:
         # Send acceptance EMAIL to voting proxy
+        link = front_url(
+            "accepted_voting_proxy_requests",
+            kwargs={"pk": voting_proxy_request.proxy.pk},
+        )
+        link = shorten_url(link, secret=True, djan_url_type="M2022")
+
         voting_proxy_message = format_html(
             f"Vous avez accepté de voter pour {voting_proxy_request.first_name} {voting_dates}."
             "\n\n"
@@ -201,6 +207,8 @@ def send_voting_proxy_request_accepted_text_messages(voting_proxy_request_pks):
             [voting_proxy_request.proxy.email],
             subject="Procuration de vote acceptée",
             intro=voting_proxy_message,
+            link_label="Voir mes procurations acceptées",
+            link_href=link,
         )
 
         # Send acceptance SMS to voting proxy

@@ -97,13 +97,23 @@ const ACTIONS = {
     ),
     color: style.primary500,
   },
-  votingProxy: {
-    key: "votingProxy",
-    route: "votingProxyLandingPage",
-    label: ["Procuration", "Prendre une procuration"],
-    icon: "edit-3",
-    color: style.votingProxyOrange,
-  },
+  votingProxy: (user) =>
+    user.votingProxyId
+      ? {
+          key: "votingProxy",
+          route: "acceptedVotingProxyRequests",
+          routeParams: { votingProxyPk: user.votingProxyId },
+          label: ["Mes procurations", "Mes procurations de vote"],
+          icon: "edit-3",
+          color: style.votingProxyOrange,
+        }
+      : {
+          key: "votingProxy",
+          route: "votingProxyLandingPage",
+          label: ["Procuration", "Prendre une procuration"],
+          icon: "edit-3",
+          color: style.votingProxyOrange,
+        },
   actionTools: {
     key: "actionTools",
     route: "actionTools",
@@ -165,7 +175,7 @@ const DEFAULT_ACTION_ORDER = [
   "createEvent",
   "materiel",
   "votingProxy",
-  "pollingStationAssessorForm",
+  // "pollingStationAssessorForm",
   "createContact",
   "coupDeFil",
   "toktokPreview",
@@ -175,7 +185,7 @@ const GROUP_MANAGER_ACTION_ORDER = [
   "createEvent",
   "materiel",
   "votingProxy",
-  "pollingStationAssessorForm",
+  // "pollingStationAssessorForm",
   "createContact",
   "toktokPreview",
   "coupDeFil",
@@ -190,7 +200,11 @@ export const getActionsForUser = (user) => {
     actions = GROUP_MANAGER_ACTION_ORDER;
   }
 
-  return actions.map((key) => ACTIONS[key]).filter(Boolean);
+  return actions
+    .map((key) =>
+      typeof ACTIONS[key] === "function" ? ACTIONS[key](user) : ACTIONS[key]
+    )
+    .filter(Boolean);
 };
 
 export default ACTIONS;

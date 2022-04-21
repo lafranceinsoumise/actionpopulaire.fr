@@ -39,6 +39,15 @@ class GroupJoinAPITestCase(APITestCase):
         res = self.client.post(f"/api/groupes/{group_insoumise.pk}/rejoindre/")
         self.assertEqual(res.status_code, 201)
 
+    def test_person_cannot_join_closed_group(self):
+        self.client.force_login(self.person.role)
+        closed_group = SupportGroup.objects.create(
+            type=SupportGroup.TYPE_LOCAL_GROUP, open=False
+        )
+        res = self.client.post(f"/api/groupes/{closed_group.pk}/rejoindre/")
+        self.assertEqual(res.status_code, 403)
+        self.assertIn("error_code", res.data)
+
     # (Temporarily disabled)
     # def test_person_cannot_join_full_group(self):
     #     self.client.force_login(self.person.role)
@@ -123,6 +132,15 @@ class GroupFollowAPITestCase(APITestCase):
         group = SupportGroup.objects.create()
         res = self.client.post(f"/api/groupes/{group.pk}/suivre/")
         self.assertEqual(res.status_code, 401)
+
+    def test_person_cannot_follow_closed_group(self):
+        self.client.force_login(self.person.role)
+        closed_group = SupportGroup.objects.create(
+            type=SupportGroup.TYPE_LOCAL_GROUP, open=False
+        )
+        res = self.client.post(f"/api/groupes/{closed_group.pk}/suivre/")
+        self.assertEqual(res.status_code, 403)
+        self.assertIn("error_code", res.data)
 
     # (Temporarily disabled)
     # def test_person_can_follow_full_group(self):

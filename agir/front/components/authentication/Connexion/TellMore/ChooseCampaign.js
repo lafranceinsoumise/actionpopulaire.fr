@@ -123,15 +123,8 @@ const ChooseCampaign = ({ fromSignup, dismiss }) => {
         <Spacer size="2rem" />
         <h2>
           <span>Vous ne soutenez par encore</span>{" "}
-          <span>Jean-Luc Mélenchon pour 2022&nbsp;!</span>
+          <span>l'Union Populaire&nbsp;!</span>
         </h2>
-        {/*
-        <Spacer size="1rem" />
-        <p>
-          Si vous continuez sans soutenir, vous ne pourrez pas rejoindre les
-          événements de la campagne présidentielle.
-        </p>
-        */}
         <Spacer size="2rem" />
         <Button color="primary" type="submit" disabled={submitted}>
           Confirmer mon soutien et continuer

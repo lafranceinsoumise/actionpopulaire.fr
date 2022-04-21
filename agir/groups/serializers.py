@@ -85,7 +85,8 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
     labels = serializers.SerializerMethodField(read_only=True)
 
     discountCodes = serializers.SerializerMethodField(read_only=True)
-    isFull = serializers.SerializerMethodField(read_only=True)
+    isFull = serializers.BooleanField(source="is_full", read_only=True)
+    isOpen = serializers.BooleanField(source="open", read_only=True)
 
     routes = RoutesField(routes=GROUP_ROUTES, read_only=True)
     isCertified = serializers.SerializerMethodField(read_only=True)
@@ -148,9 +149,6 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
             for code, date in get_promo_codes(obj)
         ]
 
-    def get_isFull(self, obj):
-        return obj.is_full
-
     def get_eventCount(self, obj):
         return obj.events_count
 
@@ -188,9 +186,8 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
     subtypes = serializers.SerializerMethodField(read_only=True)
     description = serializers.CharField(read_only=True, source="html_description")
     textDescription = serializers.SerializerMethodField(read_only=True)
-    isFull = serializers.SerializerMethodField(
-        read_only=True,
-    )
+    isFull = serializers.BooleanField(source="is_full", read_only=True)
+    isOpen = serializers.BooleanField(source="open", read_only=True)
     isCertified = serializers.BooleanField(read_only=True, source="is_certified")
     is2022Certified = serializers.BooleanField(
         read_only=True, source="is_2022_certified"
@@ -293,9 +290,6 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             .exclude(label__in=settings.CERTIFIED_GROUP_SUBTYPES)
             .values_list("description", flat=True)
         )
-
-    def get_isFull(self, obj):
-        return obj.is_full
 
     def get_referents(self, obj):
         return PersonSerializer(

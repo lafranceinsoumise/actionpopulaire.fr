@@ -19,13 +19,13 @@ const TellMorePage = () => {
   const { available, isSubscribed, subscribe, ready, errorMessage } = usePush();
 
   const [hasCampaign, dismissCampaign, campaignIsLoading] =
-    useCustomAnnouncement("chooseCampaign");
+    useCustomAnnouncement("chooseCampaign", false);
 
   const [hasNewsletters, dismissNewsletters, newslettersAreLoading] =
-    useCustomAnnouncement("ChooseNewsletters");
+    useCustomAnnouncement("ChooseNewsletters", false);
 
   const [hasTellMore, dismissTellMore, tellMoreIsLoading] =
-    useCustomAnnouncement("tellMore");
+    useCustomAnnouncement("tellMore", false);
 
   const [
     hasDeviceNotificationSubscription,

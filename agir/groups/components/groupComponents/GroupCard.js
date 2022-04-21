@@ -175,13 +175,6 @@ const GroupCard = ({
       {parsedDiscountCodes && parsedDiscountCodes.length > 0 && (
         <DiscountCodesSection>
           <h5>Codes matériels</h5>
-          <p>
-            <strong>Campagne présidentielle&nbsp;:</strong> exceptionnellement,
-            vos codes promo d'avril sont disponibles dès aujourd'hui.
-            <br />
-            Commandez votre matériel pour la dernière ligne droite
-            maintenant&nbsp;!
-          </p>
           <ul>
             {parsedDiscountCodes.map(({ code, date }) => (
               <li key={code}>

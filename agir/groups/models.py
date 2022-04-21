@@ -205,6 +205,16 @@ class SupportGroup(
         help_text=_("La messagerie privée est activée ou non pour ce groupe."),
     )
 
+    open = models.BooleanField(
+        _("ouvert"),
+        default=True,
+        blank=False,
+        null=False,
+        help_text=_(
+            "Ce groupe peut-il ou pas accueilir des nouveaux membres ou abonné·es"
+        ),
+    )
+
     @property
     def managers(self):
         return [

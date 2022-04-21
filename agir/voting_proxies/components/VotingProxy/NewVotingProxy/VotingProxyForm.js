@@ -8,6 +8,8 @@ import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import DateTimeField from "@agir/front/formComponents/DateTimeField";
 import PhoneField from "@agir/front/formComponents/PhoneField";
 import TextField from "@agir/front/formComponents/TextField";
+
+import PollingStationField from "@agir/voting_proxies/Common/PollingStationField";
 import VotingLocationField from "@agir/voting_proxies/Common/VotingLocationField";
 import VotingDateFields from "@agir/voting_proxies/Common/VotingDateFields";
 
@@ -23,7 +25,7 @@ import { getInitialData, validateVotingProxy } from "./form.config";
 const FORM_STEPS = (isAbroad) =>
   [
     [], // How-to
-    ["votingLocation", "pollingStationNumber", "votingDates"],
+    ["votingLocation", "pollingStationNumber", "votingDates", "voterId"],
     !isAbroad && ["address", "zip", "city"],
     ["firstName", "lastName", "dateOfBirth"],
     ["phone", "email", "remarks"],
@@ -87,6 +89,20 @@ const VotingProxyForm = (props) => {
     },
     [user]
   );
+
+  const handleChangePollingStation = useCallback((e) => {
+    const { name, value } = e.target;
+    if (value) {
+      setErrors((state) => ({
+        ...state,
+        [name]: undefined,
+      }));
+    }
+    setData((state) => ({
+      ...state,
+      [name]: value,
+    }));
+  }, []);
 
   const handleChangeVotingDates = useCallback((votingDates) => {
     setErrors((state) => ({
@@ -180,17 +196,29 @@ const VotingProxyForm = (props) => {
           label="Commune ou ambassade d'inscription aux listes électorales"
         />
         <Spacer size="1rem" />
-        <TextField
+        <PollingStationField
+          isAbroad={isAbroad}
           disabled={isLoading}
           id="pollingStationNumber"
           name="pollingStationNumber"
+          onChange={handleChangePollingStation}
           value={data.pollingStationNumber}
-          onChange={handleChange}
           error={errors?.pollingStationNumber}
-          label="Numéro du bureau de vote (facultatif)"
+          label="Bureau de vote"
+        />
+        <Spacer size="1rem" />
+        <TextField
+          disabled={isLoading}
+          id="voterId"
+          name="voterId"
+          onChange={handleChange}
+          value={data.voterId}
+          error={errors?.voterId}
+          label="Numéro national d'électeur"
           helpText={
             <span>
-              Vous pouvez vérifier le numéro de votre bureau de vote sur{" "}
+              Vous pouvez retrouver votre numéro national d'électeur sur votre
+              carte éléctorale ou sur{" "}
               <a
                 href="https://www.service-public.fr/particuliers/vosdroits/services-en-ligne-et-formulaires/ISE"
                 target="_blank"
@@ -327,7 +355,7 @@ const VotingProxyForm = (props) => {
         <Spacer size="1rem" />
         <TextField
           textArea
-          hasCounter={data.remarks}
+          hasCounter={!!data.remarks}
           maxLength={255}
           disabled={isLoading}
           id="remarks"
