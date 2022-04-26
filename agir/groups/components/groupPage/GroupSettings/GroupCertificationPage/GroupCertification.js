@@ -1,8 +1,9 @@
 import PropTypes from "prop-types";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
+import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import Link from "@agir/front/app/Link";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
@@ -85,11 +86,17 @@ const MissingCriteriaWarning = () => (
 );
 
 const GroupCertification = (props) => {
-  const { certificationRequestURL, isCertified, criteria } = props;
+  const { routes, isCertified, certificationCriteria = {} } = props;
 
-  const certificationCriteria = useMemo(
+  const [hasConsent, setHasConsent] = useState(false);
+
+  const toggleConsent = (e) => {
+    setHasConsent(e.target.checked);
+  };
+
+  const criteria = useMemo(
     () =>
-      Object.keys(criteria)
+      Object.keys(certificationCriteria)
         .sort(
           (a, b) =>
             Object.keys(CERTIFICATION_CRITERIA).indexOf(b) -
@@ -98,15 +105,13 @@ const GroupCertification = (props) => {
         .map((key) => ({
           ...(CERTIFICATION_CRITERIA[key] || {}),
           key,
-          checked: criteria[key],
+          checked: certificationCriteria[key],
         })),
-    [criteria]
+    [certificationCriteria]
   );
 
-  const checkedCriteria = certificationCriteria.filter(
-    (criterion) => criterion.checked
-  );
-  const isCertifiable = checkedCriteria.length === certificationCriteria.length;
+  const checkedCriteria = criteria.filter((criterion) => criterion.checked);
+  const isCertifiable = checkedCriteria.length === criteria.length;
 
   return (
     <>
@@ -124,7 +129,7 @@ const GroupCertification = (props) => {
         {isCertified && !isCertifiable && <MissingCriteriaWarning />}
         <Spacer size="1rem" />
         <ul>
-          {certificationCriteria.map(({ key, checked, label, description }) => (
+          {criteria.map(({ key, checked, label, description }) => (
             <li key={key}>
               <RawFeatherIcon
                 name={checked ? "check" : "chevron-right"}
@@ -140,15 +145,57 @@ const GroupCertification = (props) => {
               </span>
             </li>
           ))}
+          {isCertified && (
+            <li key="certified">
+              <RawFeatherIcon
+                name="check"
+                css={`
+                  background-color: ${({ theme }) => theme.green500};
+                `}
+              />
+              <span>
+                <strong>Votre groupe est certifié&nbsp;!</strong>
+              </span>
+            </li>
+          )}
         </ul>
         <Spacer size="2rem" />
-        {!isCertified && certificationRequestURL && (
+        {!isCertified && routes?.certificationRequest && (
           <footer>
+            {isCertifiable && (
+              <>
+                <CheckboxField
+                  required
+                  value={hasConsent}
+                  onChange={toggleConsent}
+                  css={`
+                    text-align: left;
+                    padding: 0 0.5rem;
+
+                    && > span {
+                      color: ${({ theme }) => theme.black700};
+                    }
+                  `}
+                  label={
+                    <>
+                      Je confirme avoir pris connaissance de la{" "}
+                      <Link route="charteEquipes">
+                        charte des groupes d’action
+                      </Link>{" "}
+                      et m'engage à la respecter dans l'animation de mon groupe
+                    </>
+                  }
+                />
+                <Spacer size="1rem" />
+              </>
+            )}
             <Button
               link
               color="primary"
-              href={certificationRequestURL}
-              disabled={!isCertifiable}
+              href={
+                isCertifiable && hasConsent ? routes.certificationRequest : "#"
+              }
+              disabled={!hasConsent || !isCertifiable}
             >
               Demander la certification
             </Button>
@@ -156,7 +203,7 @@ const GroupCertification = (props) => {
             <span>
               {checkedCriteria.length === 0
                 ? "Aucune"
-                : `${checkedCriteria.length}/${certificationCriteria.length}`}{" "}
+                : `${checkedCriteria.length}/${criteria.length}`}{" "}
               {checkedCriteria.length <= 1
                 ? "condition remplie"
                 : "conditions remplies"}{" "}
@@ -169,13 +216,15 @@ const GroupCertification = (props) => {
   );
 };
 GroupCertification.propTypes = {
+  routes: PropTypes.shape({
+    certificationRequest: PropTypes.string,
+  }),
   isCertified: PropTypes.bool,
-  certificationRequestURL: PropTypes.string,
-  criteria: PropTypes.shape({
-    genderBalance: PropTypes.bool,
+  certificationCriteria: PropTypes.shape({
+    gender: PropTypes.bool,
     activity: PropTypes.bool,
     members: PropTypes.bool,
-    seasoned: PropTypes.bool,
+    creation: PropTypes.bool,
   }),
 };
 export default GroupCertification;

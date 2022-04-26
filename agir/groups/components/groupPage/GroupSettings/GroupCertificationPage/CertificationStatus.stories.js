@@ -1,38 +1,39 @@
 import React from "react";
 
-import GroupCertification from "./GroupCertification.js";
+import CertificationStatus from "./CertificationStatus.js";
 
 export default {
-  component: GroupCertification,
-  title: "GroupSettings/GroupCertification",
+  component: CertificationStatus,
+  title: "GroupSettings/CertificationStatus",
   parameters: {
     layout: "padded",
   },
 };
 
-const Template = (args) => <GroupCertification {...args} />;
+const Template = (args) => <CertificationStatus {...args} />;
 
 export const Certifiable = Template.bind({});
 Certifiable.args = {
-  certificationRequestURL:
-    "https://lafranceinsoumise.fr/groupes-appui/demande-de-certification/",
+  routes: {
+    certificationRequest: "/certificationPanelRoute",
+  },
   isCertified: false,
-  criteria: {
-    genderBalance: true,
+  certificationCriteria: {
+    gender: true,
     activity: true,
     members: true,
-    seasoned: true,
+    creation: true,
   },
 };
 
 export const Uncertifiable = Template.bind({});
 Uncertifiable.args = {
   ...Certifiable.args,
-  criteria: {
-    genderBalance: false,
+  certificationCriteria: {
+    gender: true,
     activity: false,
     members: false,
-    seasoned: false,
+    creation: false,
   },
 };
 
@@ -45,11 +46,11 @@ Certified.args = {
 export const CertifiedWithWarning = Template.bind({});
 CertifiedWithWarning.args = {
   ...Certified.args,
-  criteria: {
-    genderBalance: false,
+  certificationCriteria: {
+    gender: false,
     activity: true,
     members: true,
-    seasoned: true,
+    creation: true,
     Boom: false,
   },
 };

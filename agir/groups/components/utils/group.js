@@ -28,7 +28,7 @@ export const CERTIFICATION_CRITERIA = {
     description:
       "Votre groupe doit compter plus de trois membres actifs, animateur·ices et gestionnaires compris",
   },
-  seasoned: {
+  creation: {
     label: "Un mois d’existence",
     description: "Votre groupe existe depuis plus d’un mois",
   },
@@ -37,7 +37,7 @@ export const CERTIFICATION_CRITERIA = {
     description:
       "Votre groupe a organisé trois actions de terrain (diffusion de tracts, porte-à-porte, collage, etc.) dans les deux derniers mois",
   },
-  genderBalance: {
+  gender: {
     label: "Animation paritaire",
     description: "Votre groupe est animé par deux personnes de genre différent",
   },

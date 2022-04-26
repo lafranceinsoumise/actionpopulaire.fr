@@ -42,7 +42,8 @@ const StyledProgress = styled.div`
 `;
 
 const StyledCard = styled(Card)`
-  box-shadow: ${(props) => props.theme.cardShadow};
+  padding: 1rem;
+  background-color: transparent;
   border-radius: ${(props) => props.theme.borderRadius};
   color: ${(props) => props.theme.black700};
 
@@ -114,24 +115,31 @@ Progress.propTypes = {
 };
 
 const CertificationStatus = (props) => {
-  const { certificationPanelRoute, isCertified, criteria } = props;
+  const { isCertifiable, isCertified, certificationCriteria, routes } = props;
 
-  const certificationCriteria = Object.keys(criteria);
-  const checkedCriteria = certificationCriteria.filter((key) => criteria[key]);
-  const isCertifiable = checkedCriteria.length === certificationCriteria.length;
+  if (!isCertifiable) {
+    return null;
+  }
+
+  const certificationPanelRoute = routes
+    .find((route) => route.id === "certification")
+    .getLink();
+  const criteria = Object.keys(certificationCriteria);
+  const checkedCriteria = criteria.filter((key) => certificationCriteria[key]);
+  const hasUncheckedCriteria = checkedCriteria.length !== criteria.length;
 
   return (
     <StyledCard>
       <div>
         <Progress
-          hasAlert={isCertified && !isCertifiable}
-          progress={checkedCriteria.length / certificationCriteria.length}
+          hasAlert={isCertified && hasUncheckedCriteria}
+          progress={checkedCriteria.length / criteria.length}
         />
         <p>
           <strong>Certification du groupe</strong>
           <br />
           <span>
-            {checkedCriteria.length}/{certificationCriteria.length}{" "}
+            {checkedCriteria.length}/{criteria.length}{" "}
             {checkedCriteria.length <= 1
               ? "condition remplie"
               : "conditions remplies"}
@@ -146,13 +154,19 @@ const CertificationStatus = (props) => {
   );
 };
 CertificationStatus.propTypes = {
+  isCertifiable: PropTypes.bool,
   isCertified: PropTypes.bool,
-  certificationPanelRoute: PropTypes.string,
-  criteria: PropTypes.shape({
-    genderBalance: PropTypes.bool,
+  routes: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      getLink: PropTypes.func.isRequired,
+    }).isRequired
+  ).isRequired,
+  certificationCriteria: PropTypes.shape({
+    gender: PropTypes.bool,
     activity: PropTypes.bool,
     members: PropTypes.bool,
-    seasoned: PropTypes.bool,
+    creation: PropTypes.bool,
   }),
 };
 export default CertificationStatus;
