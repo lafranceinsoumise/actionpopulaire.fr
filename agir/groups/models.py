@@ -1,10 +1,12 @@
 import hashlib
+from datetime import timedelta
 from urllib.parse import urljoin
 
 from django.conf import settings
 from django.contrib.postgres.search import SearchVector, SearchRank
 from django.db import models
 from django.db.models import Subquery, OuterRef, Count, Q, Exists
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
 
@@ -255,6 +257,45 @@ class SupportGroup(
         #     and self.active_members_count >= self.MEMBERSHIP_LIMIT
         # )
         # (disabled until further notice)
+
+    @property
+    def is_certifiable(self):
+        return len(self.referents) >= 2 and (
+            self.type in settings.CERTIFIABLE_GROUP_TYPES
+            or self.subtypes.filter(
+                label__in=settings.CERTIFIABLE_GROUP_SUBTYPES
+            ).exists()
+        )
+
+    def check_certification_criteria(self):
+        n = timezone.now()
+        is_certifiable = self.is_certifiable
+        recent_events = (
+            self.organized_events.public()
+            .filter(
+                start_time__range=(
+                    n - timedelta(days=62),
+                    n + timedelta(days=31),
+                )
+            )
+            .count()
+        )
+        referent_genders = (
+            self.memberships.filter(
+                membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT
+            )
+            .exclude(person__gender__iexact="")
+            .values("person__gender")
+            .annotate(c=Count("person__gender"))
+            .order_by("person__gender")
+            .count()
+        )
+        return {
+            "gender": 2 <= referent_genders,
+            "activity": is_certifiable and 2 <= recent_events,
+            "members": is_certifiable and 3 <= self.active_members_count,
+            "creation": is_certifiable and n - timedelta(days=31) >= self.created,
+        }
 
     @property
     def is_certified(self):

@@ -9,6 +9,7 @@ import { useAuthentication } from "@agir/front/authentication/hooks";
 import { getGroupTypeWithLocation } from "@agir/groups/groupPage/utils";
 
 import ObjectManagement from "@agir/front/genericComponents/ObjectManagement/ObjectManagement";
+import CertificationStatus from "@agir/groups/groupPage/GroupSettings/GroupCertificationPage/CertificationStatus";
 
 export const GroupSettings = (props) => {
   const { group, basePath } = props;
@@ -41,11 +42,11 @@ export const GroupSettings = (props) => {
     [group]
   );
 
+  const routeMenuMatch = useRouteMatch(menuRoute.path);
+
   if (!group) {
     return null;
   }
-
-  const routeMenuMatch = useRouteMatch(menuRoute.path);
 
   // Open first panel on Desktop
   if (isDesktop && routeMenuMatch?.isExact) {
@@ -61,7 +62,9 @@ export const GroupSettings = (props) => {
       routes={routes}
       menuLink={menuRoute.getLink()}
       redirectTo={redirectTo}
-    />
+    >
+      <CertificationStatus {...group} routes={routes} />
+    </ObjectManagement>
   );
 };
 GroupSettings.propTypes = {
