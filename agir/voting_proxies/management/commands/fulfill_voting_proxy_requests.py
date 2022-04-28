@@ -154,6 +154,7 @@ class Command(BaseCommand):
         )
         self.report["matched_request_count"] = len(fulfilled_request_ids)
         if len(fulfilled_request_ids) > 0:
+            pending_requests = pending_requests.exclude(id__in=fulfilled_request_ids)
             self.log(
                 f" ☑ Available voting proxies found for {len(fulfilled_request_ids)} pending requests."
             )
@@ -161,7 +162,6 @@ class Command(BaseCommand):
             self.log(f" ☒ No available voting proxy found :-(")
 
         unfulfilled_request_count = len(pending_requests)
-        # Invite AP users to join the voting proxy pool for the requests
         if unfulfilled_request_count > 0:
             self.log(
                 f"\nLooking for voting proxy candidates for {unfulfilled_request_count} requests..."
