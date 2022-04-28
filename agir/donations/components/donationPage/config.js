@@ -4,6 +4,7 @@ import theme2022 from "@agir/front/genericComponents/themes/2022";
 import themeLFI from "@agir/front/genericComponents/themes/LFI";
 
 const melenchon2022 = {
+  hasGroupAllocations: false,
   maxAmount: 460000,
   maxAmountWarning: (
     <span>
@@ -15,9 +16,14 @@ const melenchon2022 = {
   externalLinkRoute: "melenchon2022",
   title: "Faire un don - Mélenchon 2022",
   theme: theme2022,
+  allowedPaymentModes: {
+    M: ["system_pay_afcp2022"],
+    S: ["system_pay_afcp2022", "check_jlm2022_dons"],
+  },
 };
 
 const LFI = {
+  hasGroupAllocations: true,
   maxAmount: 750000,
   maxAmountWarning: (
     <span>
@@ -29,6 +35,10 @@ const LFI = {
   externalLinkRoute: "lafranceinsoumise",
   title: "Faire un don - La France insoumise",
   theme: themeLFI,
+  allowedPaymentModes: {
+    M: ["system_pay"],
+    S: ["system_pay", "check_donations"],
+  },
 };
 
 const CONFIG = {

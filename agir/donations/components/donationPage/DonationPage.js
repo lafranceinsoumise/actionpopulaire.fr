@@ -1,21 +1,9 @@
-import React, {
-  useCallback,
-  useState,
-  useRef,
-  useEffect,
-  useMemo,
-} from "react";
-import {
-  useLocation,
-  useParams,
-  useHistory,
-  useRouteMatch,
-} from "react-router-dom";
-import useSWR from "swr";
-import axios from "@agir/lib/utils/axios";
-
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useLocation, useParams, useHistory } from "react-router-dom";
 import styled from "styled-components";
-import style from "@agir/front/genericComponents/_variables.scss";
+import useSWR from "swr";
+
+import { MANUAL_REVALIDATION_SWR_CONFIG } from "@agir/front/allPages/SWRContext";
 
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
@@ -27,17 +15,18 @@ import OpenGraphTags from "@agir/front/app/OpenGraphTags";
 
 import AmountStep from "./AmountStep";
 import InformationsStep from "./InformationsStep";
-
 import { Theme, Title } from "./StyledComponents";
+
 import { scrollToError } from "@agir/front/app/utils";
 import { displayPrice } from "@agir/lib/utils/display";
-import CONFIG from "./config";
-import * as api from "./api";
 import { routeConfig } from "@agir/front/app/routes.config";
 
+import CONFIG from "./config";
+import * as api from "./api";
+
 const StyledModal = styled(Modal)`
-  @media (min-width: ${style.collapse}px) {
-    > div:first-of-type {
+  @media (min-width: ${(props) => props.theme.collapse}px) {
+    & > div:first-of-type {
       margin-right: 14px;
       width: auto;
     }
@@ -52,11 +41,11 @@ const ModalContainer = styled.div`
   background-color: ${(props) => props.theme.white};
   padding: 40px;
 
-  @media (min-width: ${style.collapse}px) {
-    border-radius: ${style.borderRadius};
+  @media (min-width: ${(props) => props.theme.collapse}px) {
+    border-radius: ${(props) => props.theme.borderRadius};
   }
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     width: 100%;
     height: 100%;
     overflow-y: auto;
@@ -66,142 +55,60 @@ const ModalContainer = styled.div`
 `;
 
 const DonationPage = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState({});
-
-  const scrollerRef = useRef(null);
   const history = useHistory();
-
-  const { data: session } = useSWR("/api/session/");
-  const { data: sessionDonation } = useSWR("/api/session/donation/");
-
   const params = useParams();
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
 
   const type = params?.type || "LFI";
-  const groupPk = type !== "2022" && urlParams.get("group");
+  const config = CONFIG[type] || CONFIG.default;
+  const isModalOpen = !!params.info;
+  const groupPk = config.hasGroupAllocations && urlParams.get("group");
 
-  const MODAL_ROUTE = routeConfig.donationsInformationsModal.getLink({
-    type: type === "2022" ? type : undefined,
-  });
+  const { data: session } = useSWR(
+    "/api/session/",
+    MANUAL_REVALIDATION_SWR_CONFIG
+  );
 
-  const isModalOpen = useMemo(() => useRouteMatch(MODAL_ROUTE), []);
+  const {
+    data: sessionDonation,
+    mutate: mutateSessionDonation,
+    error: sessionDonationError,
+  } = useSWR("/api/session/donation/", MANUAL_REVALIDATION_SWR_CONFIG);
 
-  const { data: group } = useSWR(groupPk && `/api/groupes/${groupPk}/`, {
-    revalidateIfStale: false,
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-  });
+  const { data: group } = useSWR(
+    groupPk && `/api/groupes/${groupPk}/`,
+    MANUAL_REVALIDATION_SWR_CONFIG
+  );
 
   const { data: userGroups } = useSWR(
     session?.user && type !== "2022" && "/api/groupes/",
-    {
-      revalidateIfStale: false,
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-    }
+    MANUAL_REVALIDATION_SWR_CONFIG
   );
 
   const [formData, setFormData] = useState({
-    // amounts
     to: type,
-    amount: sessionDonation?.donations?.amount,
-    paymentTimes: sessionDonation?.donations?.paymentTimes,
-    allocations: JSON.parse(sessionDonation?.donations?.allocations || "[]"),
-    // mode
-    paymentMode: sessionDonation?.donations?.paymentMode || "system_pay",
-    allowedPaymentModes:
-      sessionDonation?.donations?.allowedPaymentModes || "[]",
-    // informations
-    email: session?.user?.email || "",
-    firstName: session?.user?.firstName || "",
-    lastName: session?.user?.lastName || "",
-    contactPhone: session?.user?.contactPhone || "",
     nationality: "FR",
-    locationAddress1: session?.user?.address1 || "",
-    locationAddress2: session?.user?.address2 || "",
-    locationZip: session?.user?.zip || "",
-    locationCity: session?.user?.city || "",
-    locationCountry: "FR",
-    // checkboxes
     is2022: false,
     subscribed2022: false,
     frenchResident: true,
     consentCertification: false,
   });
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+  const scrollerRef = useRef(null);
 
   const amount = formData.amount;
   const groupAmount =
     Array.isArray(formData?.allocations) && formData.allocations[0]?.amount;
-  const nationalAmount = amount - groupAmount;
-  const amountString = displayPrice(amount);
-  const groupAmountString = displayPrice(groupAmount);
-  const nationalAmountString = displayPrice(nationalAmount);
-
-  const closeModal = () => {
-    history.push(
-      routeConfig.donations.getLink({
-        type: type === "2022" ? type : undefined,
-      }) + (groupPk ? `?group=${groupPk}` : "")
-    );
-  };
-
-  // Redirect to first step if no amount is set in session donation
-  useEffect(async () => {
-    if (isModalOpen && !amount) {
-      const { data: result, error } = await axios.get("/api/session/donation/");
-      if (error || !result.donations?.amount) {
-        closeModal();
-      }
-
-      setFormData((formData) => ({
-        ...formData,
-        amount: result.donations?.amount,
-        paymentTimes: result.donations?.paymentTimes,
-        allocations: JSON.parse(result.donations?.allocations || "[]"),
-        paymentMode: result.donations?.paymentMode || "system_pay",
-        allowedPaymentModes: result.donations?.allowedPaymentModes || "[]",
-      }));
-    }
-  }, []);
-
-  useEffect(() => {
-    setFormData((formData) => ({
-      ...formData,
-      amount: sessionDonation?.donations?.amount,
-      paymentTimes: sessionDonation?.donations?.paymentTimes,
-      allocations: JSON.parse(sessionDonation?.donations?.allocations || "[]"),
-      paymentMode: sessionDonation?.donations?.paymentMode || "system_pay",
-      allowedPaymentModes:
-        sessionDonation?.donations?.allowedPaymentModes || "[]",
-    }));
-  }, [sessionDonation]);
-
-  useEffect(() => {
-    setFormData({
-      ...formData,
-      email: session?.user?.email || "",
-      firstName: session?.user?.firstName || "",
-      lastName: session?.user?.lastName || "",
-      contactPhone: session?.user?.contactPhone || "",
-      locationAddress1: session?.user?.address1 || "",
-      locationAddress2: session?.user?.address2 || "",
-      locationZip: session?.user?.zip || "",
-      locationCity: session?.user?.city || "",
-    });
-  }, [session]);
 
   const handleAmountSubmit = useCallback(
     async (data) => {
       setIsLoading(true);
       setErrors({});
-
       const { data: result, error } = await api.createDonation(data);
-
       setFormData((formData) => ({ ...formData, ...result }));
       setIsLoading(false);
-
       if (error) {
         setErrors({
           amount:
@@ -209,21 +116,22 @@ const DonationPage = () => {
         });
         return;
       }
-
-      history.push(MODAL_ROUTE + (groupPk ? `?group=${groupPk}` : ""));
-
-      // Redirect to informations step (keep group param in url)
-      // window.location.href = result.next + (!!groupPk ? `?group=${groupPk}` : "");
+      history.replace(
+        routeConfig.donations.getLink({
+          type: type === "2022" ? type : undefined,
+          info: "infos",
+        }) + search
+      );
     },
-    [type, history]
+    [history, search, type]
   );
 
-  const handleInformationsSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setErrors({});
+  const handleInformationsSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+      setIsLoading(true);
+      setErrors({});
 
-    if (!formData.consentCertification || !formData.frenchResident) {
       const frontErrors = {};
       if (!formData.consentCertification) {
         frontErrors.consentCertification =
@@ -231,51 +139,123 @@ const DonationPage = () => {
       }
       if (!formData.frenchResident) {
         frontErrors.frenchResident =
-          "Si vous n'êtes pas de nationalité française, vous devez légalement être résident fiscalement pour faire cette donation";
+          "Si vous n'avez pas la nationalité française, vous devez être résident fiscalement en France pour faire une donation";
       }
+      if (formData.nationality !== "FR" && formData.locationCountry !== "FR") {
+        frontErrors.locationCountry =
+          "Veuillez indiquer votre adresse fiscale en France.";
+      }
+      if (!formData.gender) {
+        frontErrors.gender = "Ce champs ne peut pas être vide";
+      }
+      if (Object.keys(frontErrors).length > 0) {
+        setIsLoading(false);
+        setErrors(frontErrors);
+        scrollToError(
+          frontErrors,
+          scrollerRef.current.parentElement.parentElement
+        );
+        return;
+      }
+
+      const { data, error } = await api.sendDonation({
+        ...formData,
+        allowedPaymentModes: undefined,
+      });
+
       setIsLoading(false);
-      setErrors(frontErrors);
-      scrollToError(
-        frontErrors,
-        scrollerRef.current.parentElement.parentElement
-      );
+
+      if (error) {
+        setErrors(error);
+        scrollToError(error, scrollerRef.current.parentElement.parentElement);
+        return;
+      }
+
+      window.location.href = data.next;
+    },
+    [formData]
+  );
+
+  const closeModal = useCallback(() => {
+    history.replace(
+      routeConfig.donations.getLink({
+        type: type === "2022" ? type : undefined,
+      }) + (groupPk ? `?group=${groupPk}` : "")
+    );
+  }, [history, groupPk, type]);
+
+  useEffect(() => {
+    isModalOpen && !amount && mutateSessionDonation();
+  }, [amount, isModalOpen, mutateSessionDonation]);
+
+  useEffect(() => {
+    if (sessionDonationError) {
+      closeModal();
       return;
     }
-
-    const { data, error } = await api.sendDonation({
-      ...formData,
-      allowedPaymentModes: undefined,
-    });
-
-    setIsLoading(false);
-
-    if (error) {
-      setErrors(error);
-      scrollToError(error, scrollerRef.current.parentElement.parentElement);
+    if (!sessionDonation) {
       return;
     }
+    if (!amount && !sessionDonation.donations?.amount) {
+      closeModal();
+      return;
+    }
+    setFormData((data) => ({
+      ...data,
+      amount: data.amount || sessionDonation.donations?.amount,
+      paymentTimes:
+        data.paymentTimes || sessionDonation.donations?.paymentTimes,
+      allocations:
+        data.allocations ||
+        JSON.parse(sessionDonation.donations?.allocations || "[]"),
+      paymentMode:
+        data.paymentMode ||
+        sessionDonation.donations?.paymentMode ||
+        "system_pay",
+      allowedPaymentModes:
+        data.allowedPaymentModes ||
+        sessionDonation.donations?.allowedPaymentModes ||
+        "[]",
+    }));
+  }, [amount, sessionDonation, sessionDonationError, closeModal]);
 
-    window.location.href = data.next;
-  };
+  useEffect(() => {
+    if (!session) {
+      return;
+    }
+    setFormData((data) => ({
+      ...data,
+      email: data.email || session.user?.email || "",
+      firstName: data.firstName || session.user?.firstName || "",
+      lastName: data.lastName || session.user?.lastName || "",
+      contactPhone: data.contactPhone || session.user?.contactPhone || "",
+      locationAddress1: data.locationAddress1 || session.user?.address1 || "",
+      locationAddress2: data.locationAddress2 || session.user?.address2 || "",
+      locationZip: data.locationZip || session.user?.zip || "",
+      locationCity: data.locationCity || session.user?.city || "",
+      locationCountry: data.locationCountry || session.user?.country || "FR",
+      gender:
+        data.gender || ["M", "F"].includes(session.user?.gender)
+          ? session.user.gender
+          : "",
+      is2022:
+        typeof data.is2022 !== "undefined"
+          ? data.is2022
+          : session.user?.is2022 || "",
+    }));
+  }, [session]);
 
   return (
-    <Theme
-      type={formData.to}
-      theme={CONFIG[type]?.theme || CONFIG.default.theme}
-    >
-      <OpenGraphTags title={CONFIG[type]?.title || CONFIG.default.title} />
+    <Theme type={formData.to} theme={config.theme}>
+      <OpenGraphTags title={config.title} />
       <PageFadeIn ready={typeof session !== "undefined"} wait={<Skeleton />}>
         <AmountStep
           key={formData.amount + formData.paymentTimes}
           type={type}
-          maxAmount={CONFIG[type]?.maxAmount || CONFIG.default.maxAmount}
-          maxAmountWarning={
-            CONFIG[type]?.maxAmountWarning || CONFIG.default.maxAmountWarning
-          }
-          externalLinkRoute={
-            CONFIG[type]?.externalLinkRoute || CONFIG.default.externalLinkRoute
-          }
-          group={group && group.isCertified ? group : null}
+          maxAmount={config.maxAmount}
+          maxAmountWarning={config.maxAmountWarning}
+          externalLinkRoute={config.externalLinkRoute}
+          group={group?.isCertified ? group : null}
           hasGroups={
             Array.isArray(userGroups) &&
             userGroups.some((group) => group.isCertified)
@@ -290,20 +270,17 @@ const DonationPage = () => {
         <StyledModal shouldShow={isModalOpen} onClose={closeModal}>
           <ModalContainer ref={scrollerRef}>
             <Title>
-              Je donne {amountString}{" "}
+              Je donne {displayPrice(amount)}{" "}
               {formData.paymentTimes === "M" && "par mois"}
             </Title>
-
             <Breadcrumb onClick={closeModal} />
             <Spacer size="1rem" />
-
             <AmountInformations
               group={group}
-              total={amountString}
-              amountGroup={groupAmountString}
-              amountNational={nationalAmountString}
+              total={displayPrice(amount)}
+              amountGroup={displayPrice(groupAmount)}
+              amountNational={displayPrice(amount - groupAmount)}
             />
-
             <InformationsStep
               formData={formData}
               setFormData={setFormData}

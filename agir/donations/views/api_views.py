@@ -2,7 +2,6 @@ import json
 
 from django.db import transaction
 from django.urls import reverse
-from rest_framework import permissions
 from rest_framework.generics import CreateAPIView, GenericAPIView
 from rest_framework.mixins import UpdateModelMixin
 from rest_framework.response import Response

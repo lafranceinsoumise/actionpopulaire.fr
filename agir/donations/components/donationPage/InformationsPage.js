@@ -26,138 +26,85 @@ import { displayPrice } from "@agir/lib/utils/display";
 import { scrollToError } from "@agir/front/app/utils";
 
 import { routeConfig } from "@agir/front/app/routes.config";
+import { MANUAL_REVALIDATION_SWR_CONFIG } from "@agir/front/allPages/SWRContext";
 
 const InformationsPage = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState({});
-
-  const scrollerRef = useRef(null);
-
-  const { data: session } = useSWR("/api/session/");
-  const { data: sessionDonation } = useSWR("/api/session/donation/");
-
   const history = useHistory();
   const params = useParams();
   const { search, pathname } = useLocation();
   const urlParams = new URLSearchParams(search);
 
   const type = params?.type || "LFI";
-  const groupPk = type !== "2022" && urlParams.get("group");
+  const config = CONFIG[type] || CONFIG.default;
+  const groupPk = config.hasGroupAllocations && urlParams.get("group");
   const amountParam = urlParams.get("amount") || 0;
   const paymentTimes = pathname.includes("mensuels") ? "M" : "S";
 
-  let ALLOWED_PAYMENT_MODES;
-  if (type === "2022") {
-    ALLOWED_PAYMENT_MODES = ["system_pay_afcp2022", "check_jlm2022_dons"];
-    if (paymentTimes === "M") {
-      ALLOWED_PAYMENT_MODES = ["system_pay_afcp2022"];
-    }
-  } else {
-    ALLOWED_PAYMENT_MODES = ["system_pay", "check_donations"];
-    if (paymentTimes === "M") {
-      ALLOWED_PAYMENT_MODES = ["system_pay"];
-    }
-  }
-
-  const { data: group } = useSWR(groupPk && `/api/groupes/${groupPk}/`, {
-    revalidateIfStale: false,
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-  });
-
-  let amountStepUrl = routeConfig.donations.getLink(params);
-  // Keep params in url
-  if (!!groupPk) {
-    amountStepUrl += `?group=${groupPk}`;
-  }
-
-  const externalLinkRoute =
-    CONFIG[type]?.externalLinkRoute || CONFIG.default.externalLinkRoute;
-
   const [formData, setFormData] = useState({
-    // amounts
     to: type,
-    amount: amountParam || sessionDonation?.donations?.amount,
+    amount: amountParam || undefined,
     paymentTimes: paymentTimes,
     allocations: JSON.parse(sessionDonation?.donations?.allocations || "[]"),
-    // mode
-    paymentMode: sessionDonation?.donations?.paymentMode || "system_pay",
-    allowedPaymentModes: ALLOWED_PAYMENT_MODES,
-    // informations
-    email: session?.user?.email || "",
-    firstName: session?.user?.firstName || "",
-    lastName: session?.user?.lastName || "",
-    contactPhone: session?.user?.contactPhone || "",
+    allowedPaymentModes: config.allowedPaymentModes[paymentTimes],
     nationality: "FR",
-    locationAddress1: session?.user?.address1 || "",
-    locationAddress2: session?.user?.address2 || "",
-    locationZip: session?.user?.zip || "",
-    locationCity: session?.user?.city || "",
-    locationCountry: "FR",
-    // checkboxes
     is2022: false,
     subscribed2022: false,
     frenchResident: true,
     consentCertification: false,
   });
 
-  useEffect(() => {
-    if (!sessionDonation) return;
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+  const scrollerRef = useRef(null);
 
-    // Redirect to Amount Step if session not filled with an amount
-    if (!sessionDonation?.donations?.amount && !amountParam) {
-      history.push(amountStepUrl);
-    }
+  const { data: session } = useSWR(
+    "/api/session/",
+    MANUAL_REVALIDATION_SWR_CONFIG
+  );
+  const { data: sessionDonation } = useSWR(
+    "/api/session/donation/",
+    MANUAL_REVALIDATION_SWR_CONFIG
+  );
+  const { data: group } = useSWR(
+    groupPk && `/api/groupes/${groupPk}/`,
+    MANUAL_REVALIDATION_SWR_CONFIG
+  );
 
-    setFormData({
-      ...formData,
-      amount: amountParam || sessionDonation?.donations?.amount,
-      paymentTimes: paymentTimes,
-      allocations: JSON.parse(sessionDonation?.donations?.allocations || "[]"),
-      allowedPaymentModes: ALLOWED_PAYMENT_MODES,
-    });
-  }, [sessionDonation]);
-
-  useEffect(() => {
-    setFormData({
-      ...formData,
-      email: session?.user?.email || "",
-      firstName: session?.user?.firstName || "",
-      lastName: session?.user?.lastName || "",
-      contactPhone: session?.user?.contactPhone || "",
-      locationAddress1: session?.user?.address1 || "",
-      locationAddress2: session?.user?.address2 || "",
-      locationZip: session?.user?.zip || "",
-      locationCity: session?.user?.city || "",
-    });
-  }, [session]);
-
+  const amountStepUrl = routeConfig.donations.getLink(params) + search;
+  const externalLinkRoute = config.externalLinkRoute;
   const amount = formData.amount;
   const groupAmount =
     Array.isArray(formData?.allocations) && formData.allocations[0]?.amount;
   const nationalAmount = amount - groupAmount;
-  const amountString = displayPrice(amount);
-  const groupAmountString = displayPrice(groupAmount);
-  const nationalAmountString = displayPrice(nationalAmount);
 
   const handleInformationsSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setErrors({});
 
-    if (!formData.consentCertification || !formData.frenchResident) {
-      const frontErrors = {};
-      if (!formData.consentCertification) {
-        frontErrors.consentCertification =
-          "Vous devez cocher la case précédente pour continuer";
-      }
-      if (!formData.frenchResident) {
-        frontErrors.frenchResident =
-          "Si vous n'êtes pas de nationalité française, vous devez légalement être résident fiscalement pour faire cette donation";
-      }
-      setErrors(frontErrors);
-      scrollToError(frontErrors, scrollerRef.current);
+    const frontErrors = {};
+    if (!formData.consentCertification) {
+      frontErrors.consentCertification =
+        "Vous devez cocher la case précédente pour continuer";
+    }
+    if (!formData.frenchResident) {
+      frontErrors.frenchResident =
+        "Si vous n'avez pas la nationalité française, vous devez être résident fiscalement en France pour faire une donation";
+    }
+    if (formData.nationality !== "FR" && formData.locationCountry !== "FR") {
+      frontErrors.locationCountry =
+        "Veuillez indiquer votre adresse fiscale en France.";
+    }
+    if (!formData.gender) {
+      frontErrors.gender = "Ce champs ne peut pas être vide";
+    }
+    if (Object.keys(frontErrors).length > 0) {
       setIsLoading(false);
+      setErrors(frontErrors);
+      scrollToError(
+        frontErrors,
+        scrollerRef.current.parentElement.parentElement
+      );
       return;
     }
 
@@ -165,7 +112,6 @@ const InformationsPage = () => {
       ...formData,
       allowedPaymentModes: undefined,
     });
-
     setIsLoading(false);
     if (error) {
       setErrors(error);
@@ -176,10 +122,51 @@ const InformationsPage = () => {
     window.location.href = data.next;
   };
 
+  useEffect(() => {
+    if (!sessionDonation) return;
+    // Redirect to Amount Step if session not filled with an amount
+    if (!sessionDonation?.donations?.amount && !amount) {
+      history.replace(amountStepUrl);
+      return;
+    }
+    setFormData((data) => ({
+      ...data,
+      amount: data.amount || sessionDonation.donations.amount,
+      allocations: JSON.parse(sessionDonation?.donations?.allocations || "[]"),
+      paymentMode: sessionDonation?.donations?.paymentMode || "system_pay",
+    }));
+  }, [history, amountStepUrl, amount, sessionDonation]);
+
+  useEffect(() => {
+    if (!session) {
+      return;
+    }
+    setFormData((data) => ({
+      ...data,
+      email: data.email || session.user?.email || "",
+      firstName: data.firstName || session.user?.firstName || "",
+      lastName: data.lastName || session.user?.lastName || "",
+      contactPhone: data.contactPhone || session.user?.contactPhone || "",
+      locationAddress1: data.locationAddress1 || session.user?.address1 || "",
+      locationAddress2: data.locationAddress2 || session.user?.address2 || "",
+      locationZip: data.locationZip || session.user?.zip || "",
+      locationCity: data.locationCity || session.user?.city || "",
+      locationCountry: data.locationCountry || session.user?.country || "FR",
+      gender:
+        data.gender || ["M", "F"].includes(session.user?.gender)
+          ? session.user.gender
+          : "",
+      is2022:
+        typeof data.is2022 !== "undefined"
+          ? data.is2022
+          : session.user?.is2022 || "",
+    }));
+  }, [session]);
+
   return (
     <Theme type={formData.to}>
       <Helmet>
-        <title>{CONFIG[type]?.title || CONFIG.default.title}</title>
+        <title>{config.title}</title>
       </Helmet>
 
       <PageFadeIn ready={typeof session !== "undefined"} wait={<Skeleton />}>
@@ -198,18 +185,18 @@ const InformationsPage = () => {
 
               <div>
                 <Title>
-                  Je donne {amountString}{" "}
+                  Je donne {displayPrice(amount)}{" "}
                   {formData.paymentTimes === "M" && "par mois"}
                 </Title>
 
-                <Breadcrumb onClick={() => history.push(amountStepUrl)} />
+                <Breadcrumb onClick={() => history.replace(amountStepUrl)} />
                 <Spacer size="1rem" />
 
                 <AmountInformations
                   group={group}
-                  total={amountString}
-                  amountGroup={groupAmountString}
-                  amountNational={nationalAmountString}
+                  total={displayPrice(amount)}
+                  amountGroup={displayPrice(groupAmount)}
+                  amountNational={displayPrice(nationalAmount)}
                 />
 
                 <InformationsStep
