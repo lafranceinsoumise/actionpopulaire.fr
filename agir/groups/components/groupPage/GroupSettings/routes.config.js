@@ -55,6 +55,11 @@ const GroupSettingsLinks = lazy(() =>
     /* webpackChunkName: "r-groupsettingslinks" */ "@agir/groups/groupPage/GroupSettings/GroupLinksPage"
   )
 );
+const GroupSettingsCertification = lazy(() =>
+  import(
+    /* webpackChunkName: "r-groupsettingscertification" */ "@agir/groups/groupPage/GroupSettings/GroupCertificationPage"
+  )
+);
 
 export const menuRoute = {
   id: "menu",
@@ -93,6 +98,17 @@ export const routeConfig = {
     Component: GroupSettingsManage,
     illustration: illustrationManage,
     isActive: (group) => group?.isReferent || group?.isManager,
+    menuGroup: 1,
+  },
+  certification: {
+    id: "certification",
+    path: "certification/",
+    exact: true,
+    label: "Certification",
+    icon: "check-circle",
+    Component: GroupSettingsCertification,
+    isActive: (group) =>
+      group?.isCertifiable && (group?.isReferent || group?.isManager),
     menuGroup: 1,
   },
   materiel: {
