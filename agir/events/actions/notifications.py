@@ -1,11 +1,9 @@
-from agir.lib.utils import front_url
-from django.db import transaction
+from django.db import transaction, IntegrityError
 
 from agir.activity.models import Activity
 from agir.events.models import Event
 
 
-@transaction.atomic()
 def new_event_suggestion_notification(event, recipient):
     activity_config = {
         "type": Activity.TYPE_EVENT_SUGGESTION,
@@ -16,10 +14,13 @@ def new_event_suggestion_notification(event, recipient):
     else:
         activity_config["individual"] = event.organizers.first()
 
-    Activity.objects.create(
-        **activity_config,
-        recipient=recipient,
-    )
+    try:
+        Activity.objects.create(
+            **activity_config,
+            recipient=recipient,
+        )
+    except IntegrityError:
+        pass
 
 
 @transaction.atomic()
