@@ -337,16 +337,16 @@ class TransferGroupMembersForm(forms.Form):
                 manager=self.manager,
             )
             transfer_operation.members.add(*(m.person for m in memberships))
-
-            for membership in memberships:
-                Membership.objects.update_or_create(
+            new_memberships = (
+                Membership(
                     person=membership.person,
                     supportgroup=target_group,
-                    defaults={
-                        "membership_type": membership.membership_type,
-                    },
+                    membership_type=membership.membership_type,
                 )
-                membership.delete()
+                for membership in memberships
+            )
+            Membership.objects.bulk_create(new_memberships, ignore_conflicts=True)
+            memberships.delete()
 
         send_membership_transfer_email_notifications(
             self.manager.pk,

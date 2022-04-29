@@ -3,16 +3,15 @@ from functools import partial
 from pathlib import PurePath
 
 from django.db import transaction
-from django.utils import timezone
-from pytz import utc, InvalidTimeError
-from rest_framework import serializers
-from rest_framework.fields import empty
-
 from django.db.models import (
     OuterRef,
     Exists,
     Value,
 )
+from django.utils import timezone
+from pytz import utc, InvalidTimeError
+from rest_framework import serializers
+from rest_framework.fields import empty
 
 from agir.activity.models import Activity
 from agir.events.tasks import NOTIFIED_CHANGES
@@ -621,13 +620,9 @@ class CreateEventSerializer(serializers.Serializer):
             send_new_group_event_email.delay(data["organizer_group"].pk, event.pk)
 
     def create(self, validated_data):
-        with transaction.atomic():
-            event = Event.objects.create(**validated_data)
-            # Create a gestion project if needed for the event's subtype
-            if event.subtype.related_project_type:
-                Projet.objects.from_event(event, event.organizers.first().role)
-            self.schedule_tasks(event, validated_data)
-            return event
+        event = Event.objects.create(**validated_data)
+        self.schedule_tasks(event, validated_data)
+        return event
 
 
 class UpdateEventSerializer(serializers.ModelSerializer):
@@ -844,9 +839,6 @@ class UpdateEventSerializer(serializers.ModelSerializer):
                 # Add group to changed data if one has been specified
                 if validated_data["organizerGroup"] is not None:
                     changed_supportgroup = str(validated_data["organizerGroup"].pk)
-
-            if Projet.objects.filter(event=event).exists():
-                Projet.objects.from_event(event, event.organizers.first().role)
 
             transaction.on_commit(
                 partial(
