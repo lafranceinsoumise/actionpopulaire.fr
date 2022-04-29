@@ -200,7 +200,7 @@ def get_voting_proxy_requests_for_proxy(voting_proxy, voting_proxy_request_pks):
         voting_proxy_requests.values("email")
         .annotate(ids=ArrayAgg("id"))
         .annotate(matching_date_count=Count("voting_date"))
-        .order_by("distance", "-matching_date_count", "-polling_station_match")
+        .order_by("distance", "-polling_station_match", "-matching_date_count")
     )
 
     return VotingProxyRequest.objects.filter(
@@ -270,10 +270,8 @@ def match_available_proxies_with_requests(
 
     # Retrieve all available proxy that has not been matched in the last two days
     available_proxies = (
-        VotingProxy.objects.select_related("person")
-        .filter(
-            status__in=(VotingProxy.STATUS_CREATED, VotingProxy.STATUS_AVAILABLE),
-        )
+        VotingProxy.objects.available()
+        .select_related("person")
         .order_by(
             "-voting_dates__len",
             Coalesce("last_matched", Value("2022-01-01 00:00:00")).asc(),
@@ -334,7 +332,8 @@ def invite_voting_proxy_candidates(candidates, request):
 
 def get_voting_proxy_candidates_queryset(request, blacklist_ids):
     candidates = (
-        Person.objects.exclude(emails__address=None)
+        Person.objects.exclude(role__is_active=False)
+        .exclude(emails__address=None)
         .exclude(voting_proxy__isnull=False)
         .filter(is_2022=True, newsletters__len__gt=0)
     )
