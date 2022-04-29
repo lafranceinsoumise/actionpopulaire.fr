@@ -31,7 +31,7 @@
     "@sentry/tracing": "^6.19.6",
     "@storybook/manager-webpack5": "^6.4.22",
     "@use-gesture/react": "^10.2.11",
-    "axios": "^0.27.1",
+    "axios": "^0.27.2",
     "body-scroll-lock": "^3.1.5",
     "bootstrap-sass": "^3.4.1",
     "classnames": "^2.3.1",
