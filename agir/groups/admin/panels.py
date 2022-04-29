@@ -159,6 +159,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                     "image",
                     "tags",
                     "published",
+                    "open",
                 )
             },
         ),
@@ -191,6 +192,15 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                 )
             },
         ),
+        (
+            _("Certification"),
+            {
+                "fields": (
+                    "certifiable",
+                    "certification_criteria",
+                )
+            },
+        ),
     )
     inlines = (MembershipInline, ExternalLinkInline)
     readonly_fields = (
@@ -202,6 +212,8 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         "coordinates_type",
         "promo_code",
         "allocation",
+        "certifiable",
+        "certification_criteria",
     )
     date_hierarchy = "created"
 
@@ -318,6 +330,37 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             )
 
     action_buttons.short_description = _("Actions")
+
+    def certifiable(self, object):
+        if object.is_certified:
+            return "Certifié"
+
+        if object.is_certifiable:
+            return "Éligible à la certification"
+
+        return "Non éligible à la certification"
+
+    certifiable.short_description = _("Statut")
+
+    def certification_criteria(self, object):
+        criteria = object.check_certification_criteria()
+        label = {
+            "gender": "Animation paritaire",
+            "activity": "Au moins trois événements dans les deux derniers mois",
+            "creation": "Au moins un mois d’existence",
+            "members": "Au moins trois membres actifs, animateur·ices et gestionnaires compris",
+        }
+        html = ""
+        for key in label.keys():
+            html += f"""
+              <div class="checkbox-row">
+                <input type="checkbox" disabled="" name="cc-{key}" id="id_cc-{key}" {'checked=''' if criteria[key] else ''}>
+                <label class="vCheckboxLabel" for="id_cc-{key}">{label[key]}</label>
+              </div>
+            """
+        return format_html(html)
+
+    certification_criteria.short_description = _("Critères")
 
     def get_queryset(self, request):
         qs: QuerySet = super().get_queryset(request)

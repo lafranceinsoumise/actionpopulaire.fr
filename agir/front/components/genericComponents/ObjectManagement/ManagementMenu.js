@@ -191,7 +191,7 @@ ManagementMenuItem.propTypes = {
 };
 
 const ManagementMenu = (props) => {
-  const { items, title, subtitle, warning, onBack } = props;
+  const { items, title, subtitle, warning, onBack, children } = props;
 
   const groupedItems = useMemo(
     () =>
@@ -247,6 +247,7 @@ const ManagementMenu = (props) => {
           </>
         )}
       </ul>
+      {children}
     </StyledMenu>
   );
 };
@@ -257,6 +258,7 @@ ManagementMenu.propTypes = {
   items: PropTypes.arrayOf(PropTypes.shape(ManagementMenuItem.propTypes))
     .isRequired,
   onBack: PropTypes.func.isRequired,
+  children: PropTypes.node,
 };
 
 export default ManagementMenu;

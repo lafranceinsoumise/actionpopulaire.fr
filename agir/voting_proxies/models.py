@@ -284,6 +284,9 @@ class VotingProxyRequest(AbstractVoter):
         else:
             text += f"<br>Consulat&nbsp;: <strong>{self.proxy.consulate.nom}</strong>"
 
+        if self.proxy.polling_station_number:
+            text += f"<br>Bureau de vote&nbsp;: <strong>{escape(self.proxy.polling_station_number)}</strong>"
+
         if self.proxy.voter_id:
             text += f"<br>Numéro national d'électeur&nbsp;: <strong>{escape(self.proxy.voter_id)}</strong>"
 
@@ -310,6 +313,9 @@ class VotingProxyRequest(AbstractVoter):
             text += f" - commune: {to_7bit_string(self.proxy.commune.nom_complet)}"
         else:
             text += f" - consulat: {to_7bit_string(self.proxy.consulate.nom)}"
+
+        if self.proxy.polling_station_number:
+            text += f" - bureau: {to_7bit_string(self.proxy.polling_station_number)}"
 
         if self.proxy.voter_id:
             text += f" - NNE: {to_7bit_string(self.proxy.voter_id)}"

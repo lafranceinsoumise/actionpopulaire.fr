@@ -85,7 +85,8 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
     labels = serializers.SerializerMethodField(read_only=True)
 
     discountCodes = serializers.SerializerMethodField(read_only=True)
-    isFull = serializers.SerializerMethodField(read_only=True)
+    isFull = serializers.BooleanField(source="is_full", read_only=True)
+    isOpen = serializers.BooleanField(source="open", read_only=True)
 
     routes = RoutesField(routes=GROUP_ROUTES, read_only=True)
     isCertified = serializers.SerializerMethodField(read_only=True)
@@ -148,9 +149,6 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
             for code, date in get_promo_codes(obj)
         ]
 
-    def get_isFull(self, obj):
-        return obj.is_full
-
     def get_eventCount(self, obj):
         return obj.events_count
 
@@ -188,9 +186,10 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
     subtypes = serializers.SerializerMethodField(read_only=True)
     description = serializers.CharField(read_only=True, source="html_description")
     textDescription = serializers.SerializerMethodField(read_only=True)
-    isFull = serializers.SerializerMethodField(
-        read_only=True,
-    )
+    isFull = serializers.BooleanField(source="is_full", read_only=True)
+    isOpen = serializers.BooleanField(source="open", read_only=True)
+    isCertifiable = serializers.BooleanField(read_only=True, source="is_certifiable")
+    certificationCriteria = serializers.SerializerMethodField(read_only=True)
     isCertified = serializers.BooleanField(read_only=True, source="is_certified")
     is2022Certified = serializers.BooleanField(
         read_only=True, source="is_2022_certified"
@@ -294,9 +293,6 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             .values_list("description", flat=True)
         )
 
-    def get_isFull(self, obj):
-        return obj.is_full
-
     def get_referents(self, obj):
         return PersonSerializer(
             obj.referents,
@@ -391,16 +387,7 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             routes[
                 "deleteGroup"
             ] = "https://actionpopulaire.fr/formulaires/demande-suppression-ga/"
-            if (
-                not obj.is_certified
-                and len(obj.referents) >= 2
-                and (
-                    obj.type in settings.CERTIFIABLE_GROUP_TYPES
-                    or obj.subtypes.filter(
-                        label__in=settings.CERTIFIABLE_GROUP_SUBTYPES
-                    ).exists()
-                )
-            ):
+            if not obj.is_certified and obj.is_certifiable:
                 certification_request_url = "https://lafranceinsoumise.fr/groupes-appui/demande-de-certification/"
                 certification_request_params = {
                     "group-id": obj.pk,
@@ -462,6 +449,9 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
         if isinstance(obj.description, str):
             return textify(obj.description)
         return ""
+
+    def get_certificationCriteria(self, obj):
+        return obj.check_certification_criteria()
 
 
 class SupportGroupSearchResultSerializer(serializers.ModelSerializer):

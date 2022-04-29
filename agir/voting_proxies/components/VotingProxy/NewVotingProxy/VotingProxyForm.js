@@ -90,6 +90,20 @@ const VotingProxyForm = (props) => {
     [user]
   );
 
+  const handleChangePollingStation = useCallback((e) => {
+    const { name, value } = e.target;
+    if (value) {
+      setErrors((state) => ({
+        ...state,
+        [name]: undefined,
+      }));
+    }
+    setData((state) => ({
+      ...state,
+      [name]: value,
+    }));
+  }, []);
+
   const handleChangeVotingDates = useCallback((votingDates) => {
     setErrors((state) => ({
       ...state,
@@ -187,7 +201,7 @@ const VotingProxyForm = (props) => {
           disabled={isLoading}
           id="pollingStationNumber"
           name="pollingStationNumber"
-          onChange={handleChange}
+          onChange={handleChangePollingStation}
           value={data.pollingStationNumber}
           error={errors?.pollingStationNumber}
           label="Bureau de vote"

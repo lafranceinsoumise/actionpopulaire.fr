@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React from "react";
 import { useLocation } from "react-router-dom";
 import styled from "styled-components";
@@ -29,7 +30,7 @@ const StyledWrapper = styled.div`
   }
 `;
 
-const AnonymousActions = () => {
+const AnonymousActions = ({ isOpen }) => {
   const location = useLocation();
   return (
     <StyledWrapper>
@@ -47,21 +48,25 @@ const AnonymousActions = () => {
         <Spacer size="10px" />
         Rejoindre
       </Button>
-      <Button
-        $block
-        link
-        route="login"
-        state={{
-          from: "group",
-          next: location.pathname,
-        }}
-      >
-        <RawFeatherIcon name="rss" width="1.5rem" height="1.5rem" />
-        <Spacer size="10px" />
-        Suivre
-      </Button>
+      {isOpen && (
+        <Button
+          $block
+          link
+          route="login"
+          state={{
+            from: "group",
+            next: location.pathname,
+          }}
+        >
+          <RawFeatherIcon name="rss" width="1.5rem" height="1.5rem" />
+          <Spacer size="10px" />
+          Suivre
+        </Button>
+      )}
     </StyledWrapper>
   );
 };
-
+AnonymousActions.propTypes = {
+  isOpen: PropTypes.bool,
+};
 export default AnonymousActions;

@@ -22,6 +22,27 @@ export const MEMBERSHIP_TYPE_LABEL = {
   [MEMBERSHIP_TYPES.REFERENT]: ["Animateur·ice", "Animatrice", "Animateur"],
 };
 
+export const CERTIFICATION_CRITERIA = {
+  members: {
+    label: "3 membres actifs",
+    description:
+      "Votre groupe doit compter plus de trois membres actifs, animateur·ices et gestionnaires compris",
+  },
+  creation: {
+    label: "Un mois d’existence",
+    description: "Votre groupe existe depuis plus d’un mois",
+  },
+  activity: {
+    label: "3 actions de terrain",
+    description:
+      "Votre groupe a organisé trois actions de terrain (diffusion de tracts, porte-à-porte, collage, etc.) dans les deux derniers mois",
+  },
+  gender: {
+    label: "Animation paritaire",
+    description: "Votre groupe est animé par deux personnes de genre différent",
+  },
+};
+
 const LFI_NSP_GROUP_WORD_LABELS = {
   "votre groupe doit être animé": "votre équipe doit être animée",
   "un autre groupe": "une autre équipe",

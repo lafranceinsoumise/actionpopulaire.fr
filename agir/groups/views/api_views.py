@@ -671,6 +671,9 @@ class JoinGroupAPIView(CreateAPIView, DestroyAPIView):
     target_membership_type = Membership.MEMBERSHIP_TYPE_MEMBER
 
     def check_object_permissions(self, request, obj):
+        if not obj.open:
+            raise PermissionDenied(detail={"error_code": "full_group"})
+
         if obj.is_full:
             raise PermissionDenied(detail={"error_code": "full_group"})
 
@@ -703,7 +706,8 @@ class FollowGroupAPIView(JoinGroupAPIView):
     target_membership_type = Membership.MEMBERSHIP_TYPE_FOLLOWER
 
     def check_object_permissions(self, request, obj):
-        pass
+        if not obj.open:
+            raise PermissionDenied(detail={"error_code": "full_group"})
 
 
 class QuitGroupAPIView(DestroyAPIView):
