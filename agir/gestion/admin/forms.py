@@ -179,6 +179,13 @@ class DepenseForm(forms.ModelForm):
                     ),
                 )
 
+    def clean_type(self):
+        if self.cleaned_data["type"].compte is None:
+            raise ValidationError(
+                "Sélectionnez un type de dépense associé à un numéro de compte"
+            )
+        return self.cleaned_data["type"]
+
     def clean(self):
         cleaned_data = super().clean()
 

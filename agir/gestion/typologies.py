@@ -132,6 +132,60 @@ class TypeDepense(TextChoices):
 
     SALAIRES = "SAL", "6240", "Salaires"
 
+    VERSEMENT_PERSONNELS = "VER", None, "Versements personnels du candidat"
+    VERSEMENT_PERSONNELS_PROPRES = (
+        "VER-PRO",
+        "7020",
+        "Versements personnels du candidat sur ses propres deniers",
+    )
+    VERSEMENT_PERSONNELS_EMPRUNT = (
+        "VER-EBQ",
+        "7030",
+        "Versements personnels suite à emprunt bancaire",
+    )
+    VERSEMENT_PERSONNELS_EMPRUNT_POL = (
+        "VER-EFP",
+        "7031",
+        "Versements personnels suite à emprunt à une formation politique",
+    )
+
+    DONS = "DON", "704", "Dons de personnes physiques"
+    VERSEMENT_FORMATION_POLITIQUE = (
+        "VFP",
+        "7050",
+        "Versement définitif d'une formation politique",
+    )
+    DEPENSE_FORMATION_POLITIQUE = (
+        "DFP",
+        "7060",
+        "Dépense payée par une formation politique",
+    )
+
+    CONCOURS_NATURE = "CCN", None, "Concours en nature"
+    CONCOURS_NATURE_CANDIDAT = (
+        "CCN-CND",
+        "7070",
+        "Concours en nature fourni par un candidat",
+    )
+    CONCOURS_NATURE_FP = (
+        "CCN-FP",
+        "7071",
+        "Concours en nature par une formation politique",
+    )
+    CONCOURS_NATURE_PP = (
+        "CCN-PP",
+        "7072",
+        "Concours en nature par une personne physique",
+    )
+
+    RECETTE_COMMERCIALE = "RCC", "7080", "Recettes d'opérations commerciales"
+
+    COLLECTE = ("COL", "709", "Collectes et participations aux manifestations")
+
+    PRODUIT_FINANCIER = ("FIN", "711", "Produit financier")
+
+    AUTRES_RECETTES = ("ARC", "712", "Autres recettes")
+
     REFACTURATION = "REF", None, "Refacturation"
 
 
