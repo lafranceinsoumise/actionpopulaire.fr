@@ -299,14 +299,6 @@ const EventRequiredDocuments = (props) => {
           >
             Formulaire de contact
           </Button>
-          <Button
-            link
-            rel="noopener noreferrer"
-            target="_blank"
-            route="campaignFundingHelp"
-          >
-            Centre d'aide
-          </Button>
         </div>
       </ContactFormLink>
       <RequiredDocumentModal
@@ -330,6 +322,7 @@ EventRequiredDocuments.propTypes = {
     subtype: PropTypes.shape({
       id: PropTypes.number.isRequired,
       description: PropTypes.string.isRequired,
+      isVisible: PropTypes.bool,
     }),
   }),
   status: PropTypes.string,
