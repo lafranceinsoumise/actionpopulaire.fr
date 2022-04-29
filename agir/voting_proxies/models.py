@@ -112,6 +112,16 @@ class AbstractVoter(BaseAPIResource):
         )
 
 
+class VotingProxyQuerySet(models.QuerySet):
+    def active(self):
+        return self.exclude(person__isnull=True).exclude(person__role__is_active=False)
+
+    def available(self):
+        return self.active().filter(
+            status__in=(VotingProxy.STATUS_CREATED, VotingProxy.STATUS_AVAILABLE),
+        )
+
+
 class VotingProxy(AbstractVoter):
     STATUS_CREATED = "created"
     STATUS_INVITED = "invited"
@@ -123,6 +133,8 @@ class VotingProxy(AbstractVoter):
         (STATUS_AVAILABLE, "disponible"),
         (STATUS_UNAVAILABLE, "indisponible"),
     )
+
+    objects = VotingProxyQuerySet.as_manager()
 
     date_of_birth = models.DateField("Date de naissance", null=True, blank=False)
     person = models.OneToOneField(

@@ -22,6 +22,9 @@ from agir.voting_proxies.models import (
     VotingProxy,
     VotingProxyRequest,
 )
+from faker import Faker
+
+fake = Faker("fr_FR")
 
 
 def mock_upcoming_request_queryset(qs):
@@ -251,11 +254,19 @@ class MatchAvailableProxiesWithRequestsTestCase(TestCase):
         self.another_available_date = VotingProxy.VOTING_DATE_CHOICES[3][0]
 
     def create_proxy(self, **kwargs):
+        email = fake.email()
+        person = kwargs.pop("person", None)
+        if not person:
+            person = Person.objects.create_person(
+                email=kwargs.get("email", email),
+                create_role=True,
+                is_active=True,
+            )
         return VotingProxy.objects.create(
             **{
                 "first_name": "Voting",
                 "last_name": "Proxy",
-                "email": "voting@proxy.com",
+                "email": email,
                 "contact_phone": "+33600000000",
                 "commune": None,
                 "consulate": self.consulate,
@@ -263,6 +274,7 @@ class MatchAvailableProxiesWithRequestsTestCase(TestCase):
                 "voting_dates": [self.available_date],
                 "remarks": "R.A.S.",
                 "date_of_birth": "1970-01-01",
+                "person": person,
                 **kwargs,
             }
         )
@@ -284,8 +296,24 @@ class MatchAvailableProxiesWithRequestsTestCase(TestCase):
 
     @patch("agir.voting_proxies.actions.send_matching_requests_to_proxy")
     def test_cannot_match_own_request(self, notify_proxy):
-        proxy = self.create_proxy(email="voting@proxy.com")
+        proxy = self.create_proxy()
         request = self.create_request(email=proxy.email)
+        qs = VotingProxyRequest.objects.filter(pk=request.pk)
+        notify_proxy.assert_not_called()
+        fulfilled = match_available_proxies_with_requests(qs, notify_proxy)
+        notify_proxy.assert_not_called()
+        self.assertEqual(len(fulfilled), 0)
+
+    @patch("agir.voting_proxies.actions.send_matching_requests_to_proxy")
+    def test_cannot_match_if_account_is_disabled(self, notify_proxy):
+        proxy_person = Person.objects.create_person(
+            "disabled_person@proxy.com", create_role=True, is_active=False
+        )
+        proxy = self.create_proxy(
+            email="disabled_person@proxy.com", person=proxy_person
+        )
+        self.assertFalse(proxy.person.role.is_active)
+        request = self.create_request()
         qs = VotingProxyRequest.objects.filter(pk=request.pk)
         notify_proxy.assert_not_called()
         fulfilled = match_available_proxies_with_requests(qs, notify_proxy)
@@ -452,6 +480,19 @@ class FindVotingProxyCandidatesForRequestsTestCase(TestCase):
     def test_cannot_invite_to_own_request(self, send_invitations):
         candidate = self.create_proxy_candidate()
         request = self.create_request(email=candidate.email)
+        qs = VotingProxyRequest.objects.filter(pk=request.pk)
+        send_invitations.assert_not_called()
+        (fulfilled, candidates) = find_voting_proxy_candidates_for_requests(
+            qs, send_invitations
+        )
+        send_invitations.assert_not_called()
+        self.assertEqual(len(fulfilled), 0)
+        self.assertEqual(len(candidates), 0)
+
+    @patch("agir.voting_proxies.actions.invite_voting_proxy_candidates")
+    def test_cannot_invite_if_account_is_disabled(self, send_invitations):
+        candidate = self.create_proxy_candidate(create_role=True, is_active=False)
+        request = self.create_request(email="vpr@agir.test")
         qs = VotingProxyRequest.objects.filter(pk=request.pk)
         send_invitations.assert_not_called()
         (fulfilled, candidates) = find_voting_proxy_candidates_for_requests(
