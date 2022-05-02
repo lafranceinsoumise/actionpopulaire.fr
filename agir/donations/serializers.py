@@ -3,17 +3,17 @@ import json
 from django.conf import settings
 from rest_framework import serializers
 
+from agir.checks import DonationCheckPaymentMode
 from agir.donations.views import DONATION_SESSION_NAMESPACE
 from agir.groups.models import SupportGroup
-from agir.lib.utils import front_url_lazy
 from agir.lib.serializers import PhoneField
+from agir.lib.utils import front_url_lazy
+from agir.payments import payment_modes
 from agir.people.models import Person
 from agir.presidentielle2022 import (
     AFCP2022SystemPayPaymentMode,
     AFCPJLMCheckDonationPaymentMode,
 )
-from agir.payments import payment_modes
-from agir.checks import DonationCheckPaymentMode
 
 TO_LFI = "LFI"
 TO_2022 = "2022"
@@ -131,6 +131,7 @@ class SendDonationSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(required=False)
     firstName = serializers.CharField(max_length=255, source="first_name")
     lastName = serializers.CharField(max_length=255, source="last_name")
+    gender = serializers.CharField()
     locationAddress1 = serializers.CharField(max_length=100, source="location_address1")
     locationAddress2 = serializers.CharField(
         max_length=100, source="location_address2", required=False, allow_blank=True
@@ -223,6 +224,7 @@ class SendDonationSerializer(serializers.ModelSerializer):
             "email",
             "firstName",
             "lastName",
+            "gender",
             "locationAddress1",
             "locationAddress2",
             "locationCity",

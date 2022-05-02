@@ -57,6 +57,7 @@ class DonationTestMixin:
             "amount": "20000",
             "paymentMode": payment_modes.DEFAULT_MODE,
             "paymentTimes": donations.serializers.TYPE_SINGLE_TIME,
+            "gender": "F",
         }
 
         certified_subtype = SupportGroupSubtype.objects.create(

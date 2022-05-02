@@ -69,10 +69,11 @@ const CustomField = ({
 
 CustomField.propTypes = {
   Component: PropTypes.elementType.isRequired,
-  id: PropTypes.oneOf(["number", "string"]),
+  id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   label: PropTypes.string,
   helpText: PropTypes.string,
   noSpacer: PropTypes.bool,
+  className: PropTypes.string,
 };
 
 export default CustomField;
