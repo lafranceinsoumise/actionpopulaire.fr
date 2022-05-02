@@ -374,9 +374,6 @@ class ReglementForm(forms.ModelForm):
         self.fields["location_city_fournisseur"].required = False
         self.fields["location_zip_fournisseur"].required = False
 
-        self.fields["montant"].max_value = montant_restant
-        self.fields["montant"].validators.append(MaxValueValidator(montant_restant))
-
     def clean(self):
         # deux cas possibles pour le choix du fournisseur :
         # - soit on a choisi un fournisseur existant sans remplir aucun champ de fournisseur dans la section en-dessous
