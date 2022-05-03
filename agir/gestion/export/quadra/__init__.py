@@ -1,8 +1,9 @@
 import datetime
 from operator import neg
-from typing import Tuple
+from typing import Iterable, Tuple
 
 import pandas as pd
+from django.db.models import QuerySet
 from django.utils import timezone
 from glom import glom, Val, T, M, Coalesce
 
@@ -12,7 +13,7 @@ from agir.lib.admin.utils import get_admin_link
 
 LIBELLES_MODE = {
     Reglement.Mode.VIREMENT: "VIR",
-    Reglement.Mode.PRELEV: "PRLV",
+    Reglement.Mode.PRELEV: "PRLVT",
     Reglement.Mode.CHEQUE: "CHQ",
     Reglement.Mode.CARTE: "CB",
     Reglement.Mode.CASH: "ESP",
@@ -34,9 +35,9 @@ def autres_pieces(reglement):
 
 
 spec_fec = {
-    "JournalCode": Val("BQ"),
+    "JournalCode": Val("CCO"),
     "JournalLib": Val("Journal principal"),
-    "EcritureNum": Val(""),
+    "EcritureNum": "numero",
     "EcritureDate": "date",
     "CompteNum": ("depense.type", TypeDepense, T.compte),
     "CompteLib": ("depense.type", TypeDepense, T.label),
@@ -72,20 +73,26 @@ spec_fec = {
 def exporter_compte(
     compte: Compte, date_range: Tuple[datetime.date, datetime.date] = None
 ):
+    qs = Reglement.objects.order_by("date").filter(
+        depense__compte=compte,
+        etat__in=[Reglement.Etat.RAPPROCHE, Reglement.Etat.EXPERTISE],
+    )
+    if date_range:
+        qs = qs.filter(date__range=date_range)
+
+    return exporter_reglements(qs)
+
+
+def exporter_reglements(
+    reglements: Iterable[Reglement] = None,
+):
+
     spec = spec_fec.copy()
     spec["ValidDate"] = Val(timezone.now().date())
 
-    qs = (
-        Reglement.objects.order_by("date")
-        .filter(
-            depense__compte=compte,
-            etat__in=[Reglement.Etat.RAPPROCHE, Reglement.Etat.EXPERTISE],
+    if isinstance(reglements, QuerySet):
+        reglements = reglements.select_related(
+            "depense__projet__event", "preuve", "facture"
         )
-        .select_related("depense__projet__event", "preuve", "facture")
-    )
 
-    if date_range is not None:
-        qs = qs.filter(date__range=date_range)
-
-    qs.update(etat=Reglement.Etat.EXPERTISE)
-    return pd.DataFrame(glom(qs, [spec]))
+    return pd.DataFrame(glom(reglements, [spec]))
