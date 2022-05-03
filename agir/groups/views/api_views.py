@@ -756,7 +756,8 @@ class GroupMembersAPIView(ListAPIView):
 
     def get_queryset(self):
         return (
-            Membership.objects.filter(supportgroup_id=self.kwargs.get("pk"))
+            Membership.objects.active()
+            .filter(supportgroup_id=self.kwargs.get("pk"))
             .prefetch_related("person")
             .prefetch_related("person__emails")
         )
@@ -836,7 +837,7 @@ class MemberPersonalInformationPermission(GlobalOrObjectPermissions):
 
 
 class MemberPersonalInformationAPIView(RetrieveAPIView):
-    queryset = Membership.objects.all()
+    queryset = Membership.objects.active().all()
     permission_classes = (
         IsPersonPermission,
         MemberPersonalInformationPermission,
@@ -854,7 +855,7 @@ class GroupMemberUpdatePermission(GlobalOrObjectPermissions):
 
 
 class GroupMemberUpdateAPIView(UpdateAPIView):
-    queryset = Membership.objects.all()
+    queryset = Membership.objects.active().all()
     permission_classes = (
         IsPersonPermission,
         GroupMemberUpdatePermission,
@@ -987,7 +988,7 @@ class GroupUpdateOwnMembershipPermission(GlobalOrObjectPermissions):
 
 
 class GroupUpdateOwnMembershipAPIView(UpdateAPIView):
-    queryset = Membership.objects.all()
+    queryset = Membership.objects.active().all()
     permission_classes = (
         IsPersonPermission,
         GroupUpdateOwnMembershipPermission,
@@ -998,5 +999,5 @@ class GroupUpdateOwnMembershipAPIView(UpdateAPIView):
 
     def get_queryset(self):
         if self.request.user.is_authenticated and self.request.user.person is not None:
-            return Membership.objects.filter(person=self.request.user.person)
+            return Membership.objects.active().filter(person=self.request.user.person)
         return Membership.objects.none()
