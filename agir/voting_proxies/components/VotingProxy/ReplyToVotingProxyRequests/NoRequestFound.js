@@ -1,8 +1,9 @@
+import PropTypes from "prop-types";
 import React from "react";
 
 import Spacer from "@agir/front/genericComponents/Spacer";
 
-const NoRequestFound = () => (
+const NoRequestFound = ({ hasMatchedRequests }) => (
   <div>
     <h2
       css={`
@@ -12,7 +13,14 @@ const NoRequestFound = () => (
       Se porter volontaire pour prendre une procuration
     </h2>
     <Spacer size="2rem" />
-    <p>Aucune demande de procuration n'a été trouvée près de chez vous.</p>
+    {hasMatchedRequests ? (
+      <p>
+        Cette demande de procuration a été déjà acceptée par quelqu'un d'autre
+        ou a été annulée.
+      </p>
+    ) : (
+      <p>Aucune demande de procuration n'a été trouvée près de chez vous.</p>
+    )}
     <Spacer size="1rem" />
     <p>
       Nous vous recontacterons dès qu'une nouvelle personne aura demandé une
@@ -20,5 +28,7 @@ const NoRequestFound = () => (
     </p>
   </div>
 );
-
+NoRequestFound.propTypes = {
+  hasMatchedRequests: PropTypes.bool,
+};
 export default NoRequestFound;
