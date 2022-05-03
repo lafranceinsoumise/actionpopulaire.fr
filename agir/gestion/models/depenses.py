@@ -228,7 +228,7 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
         null=False,
     )
 
-    quantite = models.IntegerField(
+    quantite = models.FloatField(
         verbose_name="Quantité",
         null=True,
         blank=True,
