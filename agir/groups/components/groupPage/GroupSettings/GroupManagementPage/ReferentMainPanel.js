@@ -109,20 +109,6 @@ export const ReferentMainPanel = (props) => {
         isLoading={isLoading}
         onClickMember={onClickMember}
       />
-      {routes?.certificationRequest && (
-        <>
-          <Spacer size="1.5rem" />
-          <StyledTitle>Certifier le groupe</StyledTitle>
-          <span style={{ color: style.black700 }}>
-            Votre groupe n'a pas encore de certification. Vous pouvez la
-            demander en cliquant sur le bouton
-          </span>
-          <Spacer size="1.5rem" />
-          <Button link href={routes.certificationRequest} color="primary">
-            Demander la certification
-          </Button>
-        </>
-      )}
       {routes?.deleteGroup && (
         <>
           <hr />
