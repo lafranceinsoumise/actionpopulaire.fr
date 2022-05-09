@@ -342,6 +342,11 @@ urlpatterns = [
         name="donation_amount",
     ),
     path(
+        "dons/infos/",
+        views.DonationView.as_view(),
+        name="donation_information_modal",
+    ),
+    path(
         "dons/informations/",
         views.DonationView.as_view(),
         name="donation_information",
@@ -352,29 +357,34 @@ urlpatterns = [
         name="monthly_donation_information",
     ),
     path(
-        "dons/infos/",
-        views.DonationView.as_view(),
-        name="donation_information_modal",
-    ),
-    path(
         "2022/dons/",
-        views.Donation2022View.as_view(),
+        RedirectView.as_view(
+            pattern_name="donation_amount", permanent=True, query_string=True
+        ),
         name="donations_2022_amount",
     ),
     path(
+        "2022/dons/infos/",
+        RedirectView.as_view(
+            pattern_name="donation_information_modal", permanent=True, query_string=True
+        ),
+        name="donation_2022_information_modal",
+    ),
+    path(
         "2022/dons/informations/",
-        views.Donation2022View.as_view(),
+        RedirectView.as_view(
+            pattern_name="donation_information", permanent=True, query_string=True
+        ),
         name="donation_2022_information",
     ),
     path(
         "2022/dons-mensuels/informations/",
-        views.Donation2022View.as_view(),
+        RedirectView.as_view(
+            pattern_name="monthly_donation_information",
+            permanent=True,
+            query_string=True,
+        ),
         name="monthly_donation_2022_information",
-    ),
-    path(
-        "2022/dons/infos/",
-        views.Donation2022View.as_view(),
-        name="donation_2022_information_modal",
     ),
     # VOTING PROXIES
     path("procuration/", include(voting_proxy_patterns)),
