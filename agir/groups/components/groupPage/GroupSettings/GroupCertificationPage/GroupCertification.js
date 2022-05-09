@@ -23,6 +23,10 @@ const StyledWarning = styled.div`
   strong {
     font-weight: 600;
   }
+
+  small {
+    font-size: 0.875rem;
+  }
 `;
 
 const StyledContent = styled.article`
@@ -78,10 +82,18 @@ const MissingCriteriaWarning = () => (
   <StyledWarning>
     <strong>
       Action requise&nbsp;: votre groupe ne respecte plus la charte des groupes
-      d'action.
-    </strong>{" "}
+      d'action&nbsp;!
+    </strong>
+    <br />
     Certains des critères requis pour la certification de votre groupe ne sont
-    plus respectés.
+    plus respectés. Attention, si cette situation devait perdurer, votre groupe
+    serait decertifié.
+    <br />
+    <small>
+      NB&nbsp;: dans le cas de l'animation paritaire il se peut que les
+      animateur-ices n'aient pas indiqué leur genre. Corrigez cela pour que
+      votre groupe redevienne paritaire.
+    </small>
   </StyledWarning>
 );
 
