@@ -64,6 +64,7 @@ class Document(ModeleGestionMixin, TimeStampedModel):
         validators=(RegexValidator(regex=NUMERO_PIECE_REF_RE),),
         unique=True,
         blank=True,
+        null=True,
         help_text="Le numéro de pièce justificative à utiliser pour l'export vers FinPol.",
     )
 

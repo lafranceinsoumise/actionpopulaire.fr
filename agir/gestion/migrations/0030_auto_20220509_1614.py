@@ -19,6 +19,7 @@ class Migration(migrations.Migration):
                 blank=True,
                 help_text="Le numéro de pièce justificative à utiliser pour l'export vers FinPol.",
                 max_length=12,
+                null=True,
                 unique=True,
                 validators=[
                     django.core.validators.RegexValidator(
