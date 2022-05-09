@@ -269,7 +269,6 @@ class SupportGroup(
 
     def check_certification_criteria(self):
         n = timezone.now()
-        is_certifiable = self.is_certifiable
         recent_events = (
             self.organized_events.public()
             .filter(
@@ -292,9 +291,9 @@ class SupportGroup(
         )
         return {
             "gender": 2 <= referent_genders,
-            "activity": is_certifiable and 2 <= recent_events,
-            "members": is_certifiable and 3 <= self.active_members_count,
-            "creation": is_certifiable and n - timedelta(days=31) >= self.created,
+            "activity": 2 <= recent_events,
+            "members": 3 <= self.active_members_count,
+            "creation": n - timedelta(days=31) >= self.created,
         }
 
     @property

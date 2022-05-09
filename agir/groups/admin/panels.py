@@ -338,7 +338,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         if object.is_certifiable:
             return "Éligible à la certification"
 
-        return "Non éligible à la certification"
+        return "Ce type de groupe n'est pas éligible à la certification"
 
     certifiable.short_description = _("Statut")
 
