@@ -1,5 +1,8 @@
+import re
+
 import dynamic_filenames
 import reversion
+from django.core.validators import RegexValidator
 from django.db import models, transaction
 
 from agir.gestion.models.common import ModeleGestionMixin, NumeroManager
@@ -8,6 +11,11 @@ from agir.lib.models import TimeStampedModel
 
 
 __all__ = ["Document", "VersionDocument"]
+
+
+NUMERO_PIECE_REF_RE = re.compile(
+    r"^(?P<compte>\d{5})(?P<departement>\d\d[\dAB])(?P<ordre>\d{4})$"
+)
 
 
 class DocumentManager(NumeroManager):
@@ -48,6 +56,15 @@ class Document(ModeleGestionMixin, TimeStampedModel):
         max_length=100,
         blank=True,
         help_text="Indiquez ici si ce document a un identifiant ou un numéro (numéro de facture ou de devis, identifiant de transaction, etc.)",
+    )
+
+    numero_piece = models.CharField(
+        verbose_name="Numéro de pièce justificative",
+        max_length=12,
+        validators=(RegexValidator(regex=NUMERO_PIECE_REF_RE),),
+        unique=True,
+        blank=True,
+        help_text="Le numéro de pièce justificative à utiliser pour l'export vers FinPol.",
     )
 
     date = models.DateField(

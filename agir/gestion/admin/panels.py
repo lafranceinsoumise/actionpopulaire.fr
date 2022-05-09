@@ -167,9 +167,10 @@ class DocumentAdmin(BaseGestionModelAdmin, VersionAdmin):
     form = DocumentForm
     list_display = (
         "numero",
+        "identifiant",
+        "numero_piece",
         "type",
         "date",
-        "identifiant",
         "precision",
         "requis",
     )
@@ -196,7 +197,7 @@ class DocumentAdmin(BaseGestionModelAdmin, VersionAdmin):
             {"fields": ("titre_version", "fichier")},
         ),
     )
-    readonly_fields = ("depenses", "projets")
+    readonly_fields = ("depenses", "projets", "numero_piece")
 
     def depenses(self, obj):
         if obj is not None:

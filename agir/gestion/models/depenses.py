@@ -485,6 +485,12 @@ class Reglement(TimeStampedModel):
         null=True,
     )
 
+    date_validation = models.DateField(
+        verbose_name="Date de validation de l'écriture",
+        blank=True,
+        null=True,
+    )
+
     preuve = models.ForeignKey(
         to="Document",
         verbose_name="Preuve de paiement",
