@@ -83,13 +83,7 @@ export const DonateCard = (props) => {
           fill="#FFFFFF"
         />
       </svg>
-      <Button
-        link
-        route="donations"
-        routeParams={{ type: "2022" }}
-        icon="heart"
-        color="whiteRed"
-      >
+      <Button link route="donations" icon="heart" color="whiteRed">
         Je fais un don
       </Button>
     </StyledCard>

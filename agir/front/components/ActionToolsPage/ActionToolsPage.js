@@ -8,7 +8,6 @@ import DesktopActionToolsPage from "./DesktopActionToolsPage";
 
 const ActionToolsPage = () => {
   const { data: session } = useSWR("/api/session/");
-  const { data: donations } = useSWR("/api/2022/dons/");
 
   return (
     <ResponsiveLayout
@@ -18,7 +17,6 @@ const ActionToolsPage = () => {
       hasGroups={session?.user?.groups?.length > 0}
       city={session?.user?.city}
       commune={session?.user?.commune}
-      donationAmount={donations?.totalAmount}
     />
   );
 };
