@@ -66,6 +66,7 @@ class Document(ModeleGestionMixin, TimeStampedModel):
         blank=True,
         null=True,
         help_text="Le numéro de pièce justificative à utiliser pour l'export vers FinPol.",
+        default=None,
     )
 
     date = models.DateField(
@@ -110,6 +111,35 @@ class Document(ModeleGestionMixin, TimeStampedModel):
     @property
     def fichier(self):
         return getattr(self.versions.last(), "fichier", None)
+
+    def attribuer_numero(self, compte, code_dep, changer=False):
+        if len(compte) != 5:
+            raise ValueError("Le numéro de compte doit être sur 5 chiffres")
+
+        code_dep = code_dep.zfill(3)
+
+        if self.numero_piece is not None and not changer:
+            raise ValueError("Cette pièce a déjà un numéro de pièce finpol !")
+
+        with transaction.atomic():
+            num_max = (
+                Document.objects.filter(numero_piece__startswith=f"{compte}{code_dep}")
+                .select_for_update()
+                .aggregate(m=models.Max("numero_piece"))["m"]
+            )
+
+            if num_max is None:
+                ordre = 0
+            else:
+                ordre = int(num_max[-4:])
+
+            numero_piece = f"{compte}{code_dep}{ordre+1:04d}"
+
+            if not NUMERO_PIECE_REF_RE.match(numero_piece):
+                raise ValueError(f"Numéro de pièce obtenu {numero_piece} incorrect !")
+
+            self.numero_piece = numero_piece
+            self.save(update_fields=["numero_piece"])
 
     class Meta:
         verbose_name = "Document justificatif"

@@ -168,7 +168,6 @@ class DocumentAdmin(BaseGestionModelAdmin, VersionAdmin):
     list_display = (
         "numero",
         "identifiant",
-        "numero_piece",
         "type",
         "date",
         "precision",
@@ -183,6 +182,7 @@ class DocumentAdmin(BaseGestionModelAdmin, VersionAdmin):
             {
                 "fields": (
                     "numero_",
+                    "numero_piece",
                     "type",
                     "date",
                     "identifiant",
