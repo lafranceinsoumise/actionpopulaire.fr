@@ -1,6 +1,3 @@
-from itertools import chain
-
-from data_france.models import CirconscriptionConsulaire, Commune
 from django.conf import settings
 from django.core import exceptions
 from django.http.response import Http404
@@ -29,35 +26,11 @@ from agir.voting_proxies.actions import (
 from agir.voting_proxies.models import VotingProxyRequest, VotingProxy
 from agir.voting_proxies.serializers import (
     VotingProxyRequestSerializer,
-    CommuneOrConsulateSerializer,
     VotingProxySerializer,
     CreateVotingProxySerializer,
     AcceptedVotingProxyRequestSerializer,
 )
 from agir.voting_proxies.tasks import send_voting_proxy_information_for_request
-
-
-class CommuneOrConsulateSearchAPIView(ListAPIView):
-    permission_classes = (permissions.AllowAny,)
-    serializer_class = CommuneOrConsulateSerializer
-    search_term_param = "q"
-
-    def list(self, request, *args, **kwargs):
-        search_term = request.GET.get(self.search_term_param)
-        consulates = CirconscriptionConsulaire.objects.search(search_term)[:20]
-        communes = self.filter_queryset(
-            Commune.objects.filter(
-                type__in=(Commune.TYPE_COMMUNE, Commune.TYPE_ARRONDISSEMENT_PLM),
-            )
-            .exclude(code__in=("75056", "69123", "13055"))
-            .search(search_term)[:20]
-        )
-        queryset = sorted(
-            list(chain(communes, consulates)), key=lambda result: result.rank
-        )
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-
 
 create_voter_ip_bucket = TokenBucket("CreateVoterIP", 2, 600)
 create_voter_email_bucket = TokenBucket("CreateVoterEMAIL", 2, 600)
