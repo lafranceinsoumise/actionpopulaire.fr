@@ -2,7 +2,7 @@ import axios from "@agir/lib/utils/axios";
 import { addQueryStringParams } from "@agir/lib/utils/url";
 
 export const ENDPOINT = {
-  searchVotingLocation: "/api/procurations/communes-consulats/",
+  searchVotingLocation: "/api/elections/communes-consulats/",
   createVotingProxyRequest: "/api/procurations/demande/",
   createVotingProxy: "/api/procurations/volontaire/",
   retrieveUpdateVotingProxy: "/api/procurations/volontaire/:votingProxyPk/",

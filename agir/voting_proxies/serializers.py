@@ -12,25 +12,6 @@ from agir.voting_proxies.actions import (
 from agir.voting_proxies.models import VotingProxyRequest, VotingProxy
 
 
-class CommuneOrConsulateSerializer(serializers.Serializer):
-    id = serializers.IntegerField(read_only=True)
-    type = serializers.SerializerMethodField()
-    value = serializers.IntegerField(read_only=True, source="id")
-    label = serializers.SerializerMethodField(read_only=True)
-
-    def get_label(self, instance):
-        if isinstance(instance, Commune):
-            return f"{instance.code_departement} - {instance.nom_complet}"
-        if isinstance(instance, CirconscriptionConsulaire):
-            return str(instance)
-
-    def get_type(self, instance):
-        if isinstance(instance, Commune):
-            return "commune"
-        if isinstance(instance, CirconscriptionConsulaire):
-            return "consulate"
-
-
 class VoterSerializerMixin(serializers.ModelSerializer):
     firstName = serializers.CharField(
         required=True, source="first_name", label="Prénom"
