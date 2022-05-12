@@ -34,7 +34,6 @@ const ReplyToVotingProxyRequests = (props) => {
   const isReadOnly = routeConfig.acceptedVotingProxyRequests.match(pathname);
   const votingProxyRequestsIds =
     getVotingProxyRequestsIdsFromURLSearchParams(search);
-
   const { data, error, mutate } = useSWR(
     getVotingProxyEndpoint(
       "replyToVotingProxyRequests",
@@ -63,9 +62,10 @@ const ReplyToVotingProxyRequests = (props) => {
             requests={data.requests}
             refreshRequests={mutate}
             readOnly={data.readOnly}
+            hasMatchedRequests={!!votingProxyRequestsIds}
           />
         ) : (
-          <NoRequestFound />
+          <NoRequestFound hasMatchedRequests={!!votingProxyRequestsIds} />
         )}
       </PageFadeIn>
     </StyledPageContainer>
