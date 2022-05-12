@@ -163,6 +163,12 @@ const InformationsPage = () => {
     }));
   }, [session]);
 
+  useEffect(() => {
+    if (!type || !CONFIG[type]) {
+      history.replace(routeConfig.donationsInformations.getLink() + search);
+    }
+  }, [history, search, type]);
+
   return (
     <Theme type={formData.to}>
       <Helmet>
@@ -175,9 +181,7 @@ const InformationsPage = () => {
           <StyledBody ref={scrollerRef}>
             <StyledMain>
               <StyledLogo
-                alt={`Logo ${
-                  type === "2022" ? "Mélenchon 2022" : "la France insoumise"
-                }`}
+                alt={`Logo ${config.beneficiary}`}
                 route={externalLinkRoute}
                 rel="noopener noreferrer"
                 target="_blank"
