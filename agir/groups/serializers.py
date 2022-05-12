@@ -96,7 +96,7 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
         self.membership = None
         if not user.is_anonymous and user.person:
-            for membership in instance.memberships.all():
+            for membership in instance.memberships.active():
                 if membership.person_id == user.person.id:
                     self.membership = membership
                     break
@@ -245,9 +245,11 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
         self.membership = None
         self.user = user
         if not user.is_anonymous and user.person:
-            self.membership = Membership.objects.filter(
-                person=user.person, supportgroup=instance
-            ).first()
+            self.membership = (
+                Membership.objects.active()
+                .filter(person=user.person, supportgroup=instance)
+                .first()
+            )
         return super().to_representation(instance)
 
     def get_isMember(self, obj):
