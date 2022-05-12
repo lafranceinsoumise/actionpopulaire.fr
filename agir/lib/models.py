@@ -62,55 +62,10 @@ class BaseAPIResource(UUIDIdentified, TimeStampedModel):
         abstract = True
 
 
-class LocationMixin(models.Model):
+class SimpleLocationMixin(models.Model):
     """
-    Mixin that adds location fields
+    Mixin that adds location fields (without geolocation)
     """
-
-    COORDINATES_MANUAL = 0
-    COORDINATES_EXACT = 10
-    COORDINATES_STREET = 20
-    COORDINATES_DISTRICT = 25
-    COORDINATES_CITY = 30
-    COORDINATES_UNKNOWN_PRECISION = 50
-    COORDINATES_NO_POSITION = 254
-    COORDINATES_NOT_FOUND = 255
-    COORDINATES_TYPE_CHOICES = (
-        (COORDINATES_MANUAL, _("Coordonnées manuelles")),
-        (COORDINATES_EXACT, _("Coordonnées automatiques précises")),
-        (COORDINATES_STREET, _("Coordonnées automatiques approximatives (niveau rue)")),
-        (
-            COORDINATES_DISTRICT,
-            "Coordonnées automatique approximatives (arrondissement)",
-        ),
-        (COORDINATES_CITY, _("Coordonnées automatiques approximatives (ville)")),
-        (
-            COORDINATES_UNKNOWN_PRECISION,
-            _("Coordonnées automatiques (qualité inconnue)"),
-        ),
-        (COORDINATES_NO_POSITION, _("Pas de position géographique")),
-        (COORDINATES_NOT_FOUND, _("Coordonnées introuvables")),
-    )
-
-    GEOCODING_FIELDS = {
-        "location_address1",
-        "location_address2",
-        "location_city",
-        "location_zip",
-        "location_state",
-        "location_country",
-    }
-
-    coordinates = models.PointField(
-        _("coordonnées"), geography=True, null=True, blank=True, spatial_index=True
-    )
-    coordinates_type = models.PositiveSmallIntegerField(
-        _("type de coordonnées"),
-        choices=COORDINATES_TYPE_CHOICES,
-        null=True,
-        editable=False,
-        help_text=_("Comment les coordonnées ci-dessus ont-elle été acquises"),
-    )
 
     location_name = models.CharField(_("nom du lieu"), max_length=255, blank=True)
     location_address1 = models.CharField(
@@ -162,23 +117,6 @@ class LocationMixin(models.Model):
             str(getattr(self, attr)) for attr in attrs if getattr(self, attr)
         )
 
-    def has_location(self):
-        return self.coordinates is not None and self.coordinates_type is not None
-
-    def has_manual_location(self):
-        return self.coordinates_type == self.COORDINATES_MANUAL
-
-    def has_automatic_location(self):
-        return (
-            self.coordinates_type is not None
-            and self.COORDINATES_MANUAL
-            < self.coordinates_type
-            < self.COORDINATES_NOT_FOUND
-        )
-
-    def should_relocate_when_address_changed(self):
-        return not self.has_location() or not self.has_manual_location()
-
     @property
     def departement(self):
         if self.location_country in FRANCE_COUNTRY_CODES and RE_FRENCH_ZIPCODE.match(
@@ -212,6 +150,77 @@ class LocationMixin(models.Model):
     @property
     def ancienne_region(self):
         return self.get_region(ancienne=True)
+
+    class Meta:
+        abstract = True
+
+
+class LocationMixin(SimpleLocationMixin):
+    """
+    Mixin that adds location fields with geolocation
+    """
+
+    COORDINATES_MANUAL = 0
+    COORDINATES_EXACT = 10
+    COORDINATES_STREET = 20
+    COORDINATES_DISTRICT = 25
+    COORDINATES_CITY = 30
+    COORDINATES_UNKNOWN_PRECISION = 50
+    COORDINATES_NO_POSITION = 254
+    COORDINATES_NOT_FOUND = 255
+    COORDINATES_TYPE_CHOICES = (
+        (COORDINATES_MANUAL, _("Coordonnées manuelles")),
+        (COORDINATES_EXACT, _("Coordonnées automatiques précises")),
+        (COORDINATES_STREET, _("Coordonnées automatiques approximatives (niveau rue)")),
+        (
+            COORDINATES_DISTRICT,
+            "Coordonnées automatique approximatives (arrondissement)",
+        ),
+        (COORDINATES_CITY, _("Coordonnées automatiques approximatives (ville)")),
+        (
+            COORDINATES_UNKNOWN_PRECISION,
+            _("Coordonnées automatiques (qualité inconnue)"),
+        ),
+        (COORDINATES_NO_POSITION, _("Pas de position géographique")),
+        (COORDINATES_NOT_FOUND, _("Coordonnées introuvables")),
+    )
+
+    GEOCODING_FIELDS = {
+        "location_address1",
+        "location_address2",
+        "location_city",
+        "location_zip",
+        "location_state",
+        "location_country",
+    }
+
+    coordinates = models.PointField(
+        _("coordonnées"), geography=True, null=True, blank=True, spatial_index=True
+    )
+    coordinates_type = models.PositiveSmallIntegerField(
+        _("type de coordonnées"),
+        choices=COORDINATES_TYPE_CHOICES,
+        null=True,
+        editable=False,
+        help_text=_("Comment les coordonnées ci-dessus ont-elle été acquises"),
+    )
+
+    def has_location(self):
+        return self.coordinates is not None and self.coordinates_type is not None
+
+    def has_manual_location(self):
+        return self.coordinates_type == self.COORDINATES_MANUAL
+
+    def has_automatic_location(self):
+        return (
+            self.coordinates_type is not None
+            and self.COORDINATES_MANUAL
+            < self.coordinates_type
+            < self.COORDINATES_NOT_FOUND
+        )
+
+    def should_relocate_when_address_changed(self):
+        return not self.has_location() or not self.has_manual_location()
 
     class Meta:
         abstract = True
