@@ -22,10 +22,8 @@ registerRoute(
   ({ request }) => request.mode === "navigate",
   new NetworkOnly()
 );
-registerRoute("/api/ping/", new NetworkOnly());
 
 // Use network first or stale cache for some API endpoints
-
 const apiStrategy = new NetworkFirst({
   cacheName: "session",
   plugins: [
