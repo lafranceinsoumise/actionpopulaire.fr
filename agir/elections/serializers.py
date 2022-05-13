@@ -17,6 +17,7 @@ class VotingCommuneOrConsulateSerializer(serializers.Serializer):
     type = serializers.SerializerMethodField()
     value = serializers.IntegerField(read_only=True, source="id")
     label = serializers.SerializerMethodField(read_only=True)
+    departement = serializers.SerializerMethodField(read_only=True)
 
     def get_label(self, instance):
         if isinstance(instance, Commune):
@@ -29,6 +30,10 @@ class VotingCommuneOrConsulateSerializer(serializers.Serializer):
             return "commune"
         if isinstance(instance, CirconscriptionConsulaire):
             return "consulate"
+
+    def get_departement(self, instance):
+        if isinstance(instance, Commune):
+            return instance.departement_id
 
 
 class CreateUpdatePollingStationOfficerSerializer(serializers.ModelSerializer):

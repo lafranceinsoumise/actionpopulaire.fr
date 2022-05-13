@@ -1,7 +1,13 @@
 from itertools import chain
 
-from data_france.models import CirconscriptionConsulaire, Commune
+from data_france.models import (
+    CirconscriptionConsulaire,
+    Commune,
+    CirconscriptionLegislative,
+)
 from django.conf import settings
+from django.utils.decorators import method_decorator
+from django.views.decorators import cache
 from rest_framework import permissions
 from rest_framework.exceptions import Throttled
 from rest_framework.generics import (
@@ -41,6 +47,27 @@ class VotingCommuneOrConsulateSearchAPIView(ListAPIView):
         )
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+
+@method_decorator(
+    [cache.cache_page(3600), cache.cache_control(public=True)], name="get"
+)
+class VotingCirconscriptionConsulaireAPIView(ListAPIView):
+    permission_classes = (permissions.AllowAny,)
+    serializer_class = None
+    queryset = CirconscriptionLegislative.objects.all().order_by("code")
+
+    def list(self, request, *args, **kwargs):
+        return Response(
+            [
+                {
+                    "code": circo.code,
+                    "label": str(circo),
+                    "departement": circo.departement_id,
+                }
+                for circo in self.get_queryset()
+            ]
+        )
 
 
 create_polling_station_officer_ip_bucket = TokenBucket(
