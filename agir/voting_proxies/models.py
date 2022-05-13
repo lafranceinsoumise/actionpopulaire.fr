@@ -222,12 +222,14 @@ class VotingProxyRequest(AbstractVoter):
     STATUS_ACCEPTED = "accepted"
     STATUS_CONFIRMED = "confirmed"
     STATUS_CANCELLED = "cancelled"
+    STATUS_FORWARDED = "forwarded"
 
     STATUS_CHOICES = (
         (STATUS_CREATED, "demande créée"),
         (STATUS_ACCEPTED, "demande acceptée"),
         (STATUS_CONFIRMED, "procuration confirmée"),
         (STATUS_CANCELLED, "demande annulée"),
+        (STATUS_FORWARDED, "demande transférée à l'équipe de campagne"),
     )
 
     objects = VotingProxyRequestQuerySet.as_manager()

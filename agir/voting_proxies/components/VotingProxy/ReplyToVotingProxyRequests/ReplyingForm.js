@@ -71,8 +71,14 @@ const StyledWrapper = styled.div`
 `;
 
 const ReplyingForm = (props) => {
-  const { votingProxyPk, firstName, requests, readOnly, refreshRequests } =
-    props;
+  const {
+    votingProxyPk,
+    firstName,
+    requests,
+    readOnly,
+    refreshRequests,
+    hasMatchedRequests,
+  } = props;
   const [isAccepting, setIsAccepting] = useState(false);
   const [shouldConfirm, setShouldConfirm] = useState(false);
   const [isDeclining, setIsDeclining] = useState(false);
@@ -134,6 +140,7 @@ const ReplyingForm = (props) => {
         <AcceptedRequests
           requests={requests}
           refreshRequests={refreshRequests}
+          hasMatchedRequests={hasMatchedRequests}
         />
         <Spacer size="2rem" />
         <MailTo />
@@ -274,5 +281,6 @@ ReplyingForm.propTypes = {
   ).isRequired,
   readOnly: PropTypes.bool,
   refreshRequests: PropTypes.func,
+  hasMatchedRequests: PropTypes.bool,
 };
 export default ReplyingForm;

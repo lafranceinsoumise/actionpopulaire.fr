@@ -118,7 +118,7 @@ class SupportGroupQuerySet(models.QuerySet):
 
 class MembershipQuerySet(models.QuerySet):
     def active(self):
-        return self.filter(supportgroup__published=True)
+        return self.filter(supportgroup__published=True, person__role__is_active=True)
 
 
 class SupportGroup(
@@ -241,13 +241,15 @@ class SupportGroup(
 
     @property
     def members_count(self):
-        return self.memberships.count()
+        return self.memberships.active().count()
 
     @property
     def active_members_count(self):
-        return self.memberships.filter(
-            membership_type__gte=Membership.MEMBERSHIP_TYPE_MEMBER
-        ).count()
+        return (
+            self.memberships.active()
+            .filter(membership_type__gte=Membership.MEMBERSHIP_TYPE_MEMBER)
+            .count()
+        )
 
     @property
     def is_full(self):

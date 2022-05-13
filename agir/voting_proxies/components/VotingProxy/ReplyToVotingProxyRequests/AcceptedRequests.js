@@ -6,6 +6,7 @@ import Button from "@agir/front/genericComponents/Button";
 import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
+import StaticToast from "@agir/front/genericComponents/StaticToast";
 
 import {
   confirmVotingProxyRequests,
@@ -156,7 +157,7 @@ AcceptedRequest.propTypes = {
 };
 
 const AcceptedRequests = (props) => {
-  const { requests, refreshRequests } = props;
+  const { requests, refreshRequests, hasMatchedRequests } = props;
   const [selectedAction, setSelectedAction] = useState(null);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -200,6 +201,15 @@ const AcceptedRequests = (props) => {
   return (
     <StyledWrapper>
       <h2>Mes procurations de vote</h2>
+      {hasMatchedRequests && (
+        <StaticToast style={{ marginTop: "1rem" }}>
+          Cette demande de procuration a été déjà acceptée par quelqu'un d'autre
+          ou a été annulée.
+          <br />
+          Nous vous recontacterons dès qu'une nouvelle personne aura demandé une
+          procuration.
+        </StaticToast>
+      )}
       <Spacer size="1rem" />
       <p>
         Vous avez déjà accepté les procurations suivantes. Vérifiez vos SMS
@@ -376,5 +386,6 @@ AcceptedRequests.propTypes = {
     })
   ).isRequired,
   refreshRequests: PropTypes.func,
+  hasMatchedRequests: PropTypes.bool,
 };
 export default AcceptedRequests;

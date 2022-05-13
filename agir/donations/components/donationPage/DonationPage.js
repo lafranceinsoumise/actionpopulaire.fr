@@ -60,7 +60,7 @@ const DonationPage = () => {
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
 
-  const type = params?.type || "LFI";
+  const type = params?.type || undefined;
   const config = CONFIG[type] || CONFIG.default;
   const isModalOpen = !!params.info;
   const groupPk = config.hasGroupAllocations && urlParams.get("group");
@@ -82,12 +82,12 @@ const DonationPage = () => {
   );
 
   const { data: userGroups } = useSWR(
-    session?.user && type !== "2022" && "/api/groupes/",
+    session?.user && config.hasGroupAllocations && "/api/groupes/",
     MANUAL_REVALIDATION_SWR_CONFIG
   );
 
   const [formData, setFormData] = useState({
-    to: type,
+    to: config.type,
     nationality: "FR",
     is2022: false,
     subscribed2022: false,
@@ -118,7 +118,7 @@ const DonationPage = () => {
       }
       history.replace(
         routeConfig.donations.getLink({
-          type: type === "2022" ? type : undefined,
+          type,
           info: "infos",
         }) + search
       );
@@ -179,7 +179,7 @@ const DonationPage = () => {
   const closeModal = useCallback(() => {
     history.replace(
       routeConfig.donations.getLink({
-        type: type === "2022" ? type : undefined,
+        type,
       }) + (groupPk ? `?group=${groupPk}` : "")
     );
   }, [history, groupPk, type]);
@@ -245,16 +245,20 @@ const DonationPage = () => {
     }));
   }, [session]);
 
+  useEffect(() => {
+    if (!type || !CONFIG[type]) {
+      history.replace(routeConfig.donations.getLink() + search);
+    }
+  }, [history, search, type]);
+
   return (
     <Theme type={formData.to} theme={config.theme}>
       <OpenGraphTags title={config.title} />
       <PageFadeIn ready={typeof session !== "undefined"} wait={<Skeleton />}>
         <AmountStep
           key={formData.amount + formData.paymentTimes}
+          {...config}
           type={type}
-          maxAmount={config.maxAmount}
-          maxAmountWarning={config.maxAmountWarning}
-          externalLinkRoute={config.externalLinkRoute}
           group={group?.isCertified ? group : null}
           hasGroups={
             Array.isArray(userGroups) &&

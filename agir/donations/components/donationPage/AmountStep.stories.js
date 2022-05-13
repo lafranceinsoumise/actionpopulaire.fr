@@ -29,6 +29,7 @@ Default.args = {
 export const JLM2022 = Template.bind({});
 JLM2022.args = {
   ...Default.args,
+  ...config["2022"],
   type: "2022",
 };
 

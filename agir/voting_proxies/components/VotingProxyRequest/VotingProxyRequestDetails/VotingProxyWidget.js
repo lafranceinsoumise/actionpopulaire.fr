@@ -107,7 +107,7 @@ const VotingProxyWidget = (props) => {
       </p>
       <Spacer size="1rem" />
       <p>
-        {!isCancelled && !isConfirmed && (
+        {!isCancelled && (
           <>
             <Button
               disabled={!!isLoading}

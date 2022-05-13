@@ -94,6 +94,8 @@ const AmountStep = (props) => {
   const {
     isLoading,
     type,
+    beneficiary,
+    legalParagraph,
     externalLinkRoute,
     hasGroups,
     group,
@@ -136,9 +138,7 @@ const AmountStep = (props) => {
       <StyledBody>
         <StyledMain>
           <StyledLogo
-            alt={`Logo ${
-              type === "2022" ? "Mélenchon 2022" : "la France insoumise"
-            }`}
+            alt={`Logo ${beneficiary}`}
             route={externalLinkRoute}
             rel="noopener noreferrer"
             target="_blank"
@@ -154,17 +154,7 @@ const AmountStep = (props) => {
             </StyledGroupLink>
           ) : null}
           <h2>Faire un don</h2>
-          {type !== "2022" ? (
-            <h4>
-              à la France insoumise (faire un don à{" "}
-              <Link route="donations" routeParams={{ type: "2022" }}>
-                Mélenchon 2022
-              </Link>
-              &nbsp;?)
-            </h4>
-          ) : (
-            <Spacer size="1rem" />
-          )}
+          <h4>à {beneficiary}</h4>
           {hasGroup ? (
             <>
               <StyledGroup>
@@ -224,11 +214,7 @@ const AmountStep = (props) => {
             </StepButton>
           </form>
           <hr />
-          <LegalParagraph>
-            {type === "2022"
-              ? "Les dons sont destinés à l'AFCP JLM 2022, déclarée à la préfecture de Paris le 15 juin 2021, seule habilitée à recevoir les dons en faveur du candidat Jean-Luc Mélenchon, dans le cadre de la campagne pour l'élection présidentielle de 2022."
-              : "Les dons seront versés à L'Association de financement de La France insoumise (AFLFI). Premier alinéa de l’article 11-4 de la loi 88-227 du 11 mars 1988 modifiée : une personne physique peut verser un don à un parti ou groupement politique si elle est de nationalité française ou si elle réside en France."}
-          </LegalParagraph>
+          <LegalParagraph>{legalParagraph}</LegalParagraph>
           <PaymentParagraph>
             <span>
               <RawFeatherIcon width="1rem" height="1rem" name="lock" />
@@ -251,6 +237,8 @@ AmountStep.propTypes = {
   hasGroups: PropTypes.bool,
   group: PropTypes.object,
   type: PropTypes.oneOf(Object.keys(CONFIG)),
+  beneficiary: PropTypes.string,
+  legalParagraph: PropTypes.string,
   externalLinkRoute: PropTypes.string,
   isLoading: PropTypes.bool,
   onSubmit: PropTypes.func.isRequired,
