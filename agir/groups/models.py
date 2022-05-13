@@ -11,6 +11,7 @@ from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
 
 from agir.carte.models import StaticMapImage
+from agir.lib.geo import FRENCH_COUNTRY_CODES
 from agir.lib.models import (
     BaseAPIResource,
     AbstractLabel,
@@ -271,32 +272,35 @@ class SupportGroup(
 
     def check_certification_criteria(self):
         n = timezone.now()
-        recent_events = (
-            self.organized_events.public()
-            .filter(
-                start_time__range=(
-                    n - timedelta(days=62),
-                    n + timedelta(days=31),
+        criteria = {
+            "members": 3 <= self.active_members_count,
+            "creation": n - timedelta(days=31) >= self.created,
+        }
+        if not self.location_country or self.location_country.code in FRENCH_COUNTRY_CODES:
+            recent_events = (
+                self.organized_events.public()
+                .filter(
+                    start_time__range=(
+                        n - timedelta(days=62),
+                        n + timedelta(days=31),
+                    )
                 )
+                .count()
             )
-            .count()
-        )
+            criteria["activity"] = 2 <= recent_events
+
+        referents = self.memberships.filter(membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT)
         referent_genders = (
-            self.memberships.filter(
-                membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT
-            )
-            .exclude(person__gender__iexact="")
+            referents
+            .exclude(person__gender__exact="")
             .values("person__gender")
             .annotate(c=Count("person__gender"))
             .order_by("person__gender")
             .count()
         )
-        return {
-            "gender": 2 <= referent_genders,
-            "activity": 2 <= recent_events,
-            "members": 3 <= self.active_members_count,
-            "creation": n - timedelta(days=31) >= self.created,
-        }
+        criteria["gender"] = 2 <= referent_genders
+
+        return criteria
 
     @property
     def is_certified(self):
