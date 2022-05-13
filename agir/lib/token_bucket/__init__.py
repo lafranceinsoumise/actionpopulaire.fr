@@ -1,7 +1,6 @@
-import os
+from importlib.resources import open_text
 
 from django.utils import timezone
-from redis.client import Script
 
 from agir.api.redis import get_auth_redis_client as get_redis_client
 
@@ -38,8 +37,11 @@ class TokenBucket:
         key_prefix = f"TokenBucket:{self.name}:{str(id)}:"
 
         res = token_bucket_script(
-            keys=[f"{key_prefix}v", f"{key_prefix}t"],
-            args=[self.max, self.interval, get_current_timestamp(), amount],
+            key=key_prefix,
+            max=self.max,
+            interval=self.interval,
+            now=get_current_timestamp(),
+            amount=amount,
             client=get_redis_client(),
         )
 
@@ -52,8 +54,16 @@ class TokenBucket:
         ).execute()
 
 
-with open(
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), "token_bucket.lua"),
-    mode="rb",
-) as f:
-    token_bucket_script = Script(None, f.read())
+_token_bucket_script = None
+
+
+def token_bucket_script(key, max, interval, now, amount, client):
+    global _token_bucket_script
+
+    if _token_bucket_script is None:
+        with open_text("agir.lib.token_bucket", "token_bucket.lua") as fd:
+            _token_bucket_script = client.register_script(fd.read())
+
+    return _token_bucket_script(
+        keys=[f"{key}v", f"{key}t"], args=[max, interval, now, amount], client=client
+    )
