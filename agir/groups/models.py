@@ -273,10 +273,15 @@ class SupportGroup(
     def check_certification_criteria(self):
         n = timezone.now()
         criteria = {
-            "members": 3 <= self.active_members_count,
             "creation": n - timedelta(days=31) >= self.created,
+            "members": 3 <= self.active_members_count,
         }
-        if not self.location_country or self.location_country.code in FRENCH_COUNTRY_CODES:
+
+        # At least 3 recent events, except for groups abroad
+        if (
+            not self.location_country
+            or self.location_country.code in FRENCH_COUNTRY_CODES
+        ):
             recent_events = (
                 self.organized_events.public()
                 .filter(
@@ -289,16 +294,35 @@ class SupportGroup(
             )
             criteria["activity"] = 2 <= recent_events
 
-        referents = self.memberships.filter(membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT)
+        referents = self.memberships.filter(
+            membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT
+        )
+
+        # At least two referents with different gender
         referent_genders = (
-            referents
-            .exclude(person__gender__exact="")
+            referents.exclude(person__gender__exact="")
             .values("person__gender")
             .annotate(c=Count("person__gender"))
             .order_by("person__gender")
             .count()
         )
         criteria["gender"] = 2 <= referent_genders
+
+        # Group referents cannot be referents of another certified local group
+        criteria["exclusivity"] = True
+        for referent in self.referents:
+            if not criteria["exclusivity"]:
+                break
+            criteria["exclusivity"] = (
+                False
+                == referent.memberships.exclude(supportgroup_id=self.id)
+                .filter(
+                    membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
+                    supportgroup__type=self.TYPE_LOCAL_GROUP,
+                    supportgroup__subtypes__label__in=settings.CERTIFIED_GROUP_SUBTYPES,
+                )
+                .exists()
+            )
 
         return criteria
 
