@@ -66,7 +66,7 @@ zeep = "*"
 social-auth-app-django = "==4.*"
 # data wrangling
 glom = "*"
-pyrogram = "==0.*"
+pyrogram = "==2.*"
 tgcrypto = "*"
 tenacity = "*"
 pandas = "==1.*"
