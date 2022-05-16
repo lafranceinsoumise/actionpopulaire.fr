@@ -197,12 +197,10 @@ class EventDetailView(
 
 
 class EventSettingsView(HardLoginRequiredMixin, EventDetailView):
-    permission_required = "event.change_event"
+    pass
 
 
 class EventProjectView(HardLoginRequiredMixin, EventDetailView):
-    permission_required = "event.change_event"
-
     def get_api_preloads(self):
         return [
             reverse_lazy("api_event_details", kwargs=self.kwargs),

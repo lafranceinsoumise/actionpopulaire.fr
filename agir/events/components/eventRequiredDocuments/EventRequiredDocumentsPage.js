@@ -86,25 +86,22 @@ const EventRequiredDocumentsUploadPage = (props) => {
   return (
     <PageFadeIn ready={!!data}>
       {data && (
-        <>
-          {!embedded && <OpenGraphTags title={event.name} />}
-          <EventRequiredDocuments
-            projectId={projectId}
-            event={event}
-            status={status}
-            dismissedDocumentTypes={dismissedDocumentTypes}
-            requiredDocumentTypes={requiredDocumentTypes}
-            documents={documents}
-            limitDate={limitDate}
-            subtypes={subtype}
-            isLoading={isLoading}
-            errors={errors}
-            onSaveDocument={saveDocument}
-            onDismissDocument={dismissDocumentType}
-            onChangeSubtype={changeSubtype}
-            embedded={embedded}
-          />
-        </>
+        <EventRequiredDocuments
+          projectId={projectId}
+          event={event}
+          status={status}
+          dismissedDocumentTypes={dismissedDocumentTypes}
+          requiredDocumentTypes={requiredDocumentTypes}
+          documents={documents}
+          limitDate={limitDate}
+          subtypes={subtype}
+          isLoading={isLoading}
+          errors={errors}
+          onSaveDocument={saveDocument}
+          onDismissDocument={dismissDocumentType}
+          onChangeSubtype={changeSubtype}
+          embedded={embedded}
+        />
       )}
     </PageFadeIn>
   );
@@ -127,22 +124,7 @@ const EventRequiredDocumentsPage = (props) => {
     <PageFadeIn ready={!!event}>
       {event && !embedded ? <OpenGraphTags title={event.name} /> : null}
       {event?.hasProject ? (
-        <EventRequiredDocumentsUploadPage
-          projectId={projectId}
-          event={event}
-          status={status}
-          dismissedDocumentTypes={dismissedDocumentTypes}
-          requiredDocumentTypes={requiredDocumentTypes}
-          documents={documents}
-          limitDate={limitDate}
-          subtypes={subtype}
-          isLoading={isLoading}
-          errors={errors}
-          onSaveDocument={saveDocument}
-          onDismissDocument={dismissDocumentType}
-          onChangeSubtype={changeSubtype}
-          embedded={embedded}
-        />
+        <EventRequiredDocumentsUploadPage {...props} />
       ) : (
         <EventRequiredDocuments
           downloadOnly
