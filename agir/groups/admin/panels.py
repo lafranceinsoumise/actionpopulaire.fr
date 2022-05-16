@@ -349,16 +349,19 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             "activity": "Au moins trois événements dans les deux derniers mois",
             "creation": "Au moins un mois d’existence",
             "members": "Au moins trois membres actifs, animateur·ices et gestionnaires compris",
+            "exclusivity": "Les animateur·ices n'animent pas d'autres groupes locaux certifiés",
         }
-        html = ""
-        for key in label.keys():
-            html += f"""
+        html = [
+            f"""
               <div class="checkbox-row">
                 <input type="checkbox" disabled="" name="cc-{key}" id="id_cc-{key}" {'checked=''' if criteria[key] else ''}>
-                <label class="vCheckboxLabel" for="id_cc-{key}">{label[key]}</label>
+                <label class="vCheckboxLabel" for="id_cc-{key}">{value}</label>
               </div>
             """
-        return format_html(html)
+            for key, value in label.items()
+            if key in criteria.keys()
+        ]
+        return format_html("".join(html))
 
     certification_criteria.short_description = _("Critères")
 
