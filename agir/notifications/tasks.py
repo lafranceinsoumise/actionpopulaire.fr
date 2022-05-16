@@ -2,7 +2,7 @@ from push_notifications.apns import APNSServerError
 from push_notifications.models import APNSDevice, GCMDevice
 
 from agir.activity.models import Activity
-from agir.lib.celery import http_task
+from agir.lib.celery import http_task, gcm_push_task
 from agir.notifications.serializers import ACTIVITY_NOTIFICATION_SERIALIZERS
 
 
@@ -37,7 +37,7 @@ def send_apns_activity(activity_pk, apns_device_pk):
     return result
 
 
-@http_task(post_save=True)
+@gcm_push_task(post_save=True)
 def send_fcm_activity(activity_pk, fcm_device_pk):
     activity = Activity.objects.get(pk=activity_pk)
     fcm_device = GCMDevice.objects.get(pk=fcm_device_pk)
