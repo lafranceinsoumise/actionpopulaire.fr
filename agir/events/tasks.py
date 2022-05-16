@@ -668,7 +668,7 @@ def send_group_coorganization_invitation_notification(invitation_pk):
         "EVENT_NAME": event.name,
         "GROUP_NAME": group.name,
         "MEMBER": member.display_name,
-        "DATE": now(),
+        "DATE": f"{_date(event.local_start_time, 'l j F').capitalize()} à {_date(event.local_start_time, 'G:i')}",
         "ACCEPT_LINK": front_url(
             "accept_event_group_coorganization",
             kwargs={"pk": invitation_pk},
@@ -769,7 +769,7 @@ def send_accepted_group_coorganization_invitation_notification(
         "TITLE": subject,
         "EVENT_NAME": event.name,
         "GROUP_NAME": group.name,
-        "DATE": now(),
+        "DATE": f"{_date(event.local_start_time, 'l j F').capitalize()} à {_date(event.local_start_time, 'G:i')}",
     }
 
     send_mosaico_email(
@@ -798,7 +798,7 @@ def send_refused_group_coorganization_invitation_notification(
         "TITLE": subject,
         "EVENT_NAME": event.name,
         "GROUP_NAME": group.name,
-        "DATE": now(),
+        "DATE": f"{_date(event.local_start_time, 'l j F').capitalize()} à {_date(event.local_start_time, 'G:i')}",
     }
 
     send_mosaico_email(
