@@ -154,14 +154,19 @@ const EventRequiredDocuments = (props) => {
     isLoading,
     errors,
     embedded,
+    downloadOnly,
   } = props;
 
-  const [isCollapsed, setIsCollapsed] = useState(!embedded);
+  const [isCollapsed, setIsCollapsed] = useState(!embedded && !downloadOnly);
   const [selectedType, setSelectedType] = useState(null);
 
   const [required, unrequired] = useMemo(() => {
     const documentTypes = Object.keys(EVENT_DOCUMENT_TYPES);
     const sentDocumentTypes = documents.map((doc) => doc.type);
+
+    if (downloadOnly) {
+      return [[], documentTypes];
+    }
 
     const required = Array.isArray(requiredDocumentTypes)
       ? requiredDocumentTypes.filter(
@@ -180,7 +185,7 @@ const EventRequiredDocuments = (props) => {
     }
 
     return [required, documentTypes.filter((type) => !required.includes(type))];
-  }, [requiredDocumentTypes, dismissedDocumentTypes, documents]);
+  }, [downloadOnly, requiredDocumentTypes, dismissedDocumentTypes, documents]);
 
   const expand = () => setIsCollapsed(false);
 
@@ -216,16 +221,20 @@ const EventRequiredDocuments = (props) => {
         </>
       )}
       <section>
-        <ProjectStatusCard
-          status={status}
-          hasRequiredDocuments={requiredDocumentTypes.length > 0}
-          hasMissingDocuments={required.length > 0}
-          hasDismissedAllDocuments={
-            requiredDocumentTypes.length <= dismissedDocumentTypes.length
-          }
-        />
-        <SentDocumentsCard documents={documents} />
-        {!embedded && event.subtype.isVisible && (
+        {typeof status !== "undefined" && (
+          <ProjectStatusCard
+            status={status}
+            hasRequiredDocuments={requiredDocumentTypes.length > 0}
+            hasMissingDocuments={required.length > 0}
+            hasDismissedAllDocuments={
+              requiredDocumentTypes.length <= dismissedDocumentTypes.length
+            }
+          />
+        )}
+        {Array.isArray(documents) && (
+          <SentDocumentsCard documents={documents} />
+        )}
+        {!embedded && onChangeSubtype && event.subtype.isVisible && (
           <EventSubtypePicker
             value={event.subtype}
             options={subtypes}
@@ -263,11 +272,15 @@ const EventRequiredDocuments = (props) => {
       )}
       {unrequired.length > 0 && (
         <StyledDocumentList>
-          <h4>
-            Ajouter d’autres documents
-            <small>Ajoutez-en autant que nécessaire</small>
-          </h4>
-          <Spacer size="1.5rem" />
+          {required.length > 0 && (
+            <>
+              <h4>
+                Ajouter d’autres documents
+                <small>Ajoutez-en autant que nécessaire</small>
+              </h4>
+              <Spacer size="1.5rem" />
+            </>
+          )}
           {isCollapsed ? (
             <Button style={{ width: "100%" }} onClick={expand}>
               Voir tout&ensp;
@@ -281,6 +294,7 @@ const EventRequiredDocuments = (props) => {
                 onUpload={selectType}
                 style={{ marginTop: i && "1rem" }}
                 embedded={embedded}
+                downloadOnly={downloadOnly}
               />
             ))
           )}
@@ -339,6 +353,7 @@ EventRequiredDocuments.propTypes = {
   isLoading: PropTypes.bool,
   errors: PropTypes.object,
   embedded: PropTypes.bool,
+  downloadOnly: PropTypes.bool,
 };
 
 export default EventRequiredDocuments;

@@ -43,10 +43,22 @@ Default.args = {
   limitDate: "2022-01-01 00:00:00",
   isLoading: false,
   embedded: false,
+  downloadOnly: false,
 };
 
 export const Embedded = Template.bind({});
 Embedded.args = {
   ...Default.args,
   embedded: true,
+};
+
+export const NoProject = Template.bind({});
+NoProject.args = {
+  ...Default.args,
+  projectId: undefined,
+  status: undefined,
+  requiredDocumentTypes: undefined,
+  documents: undefined,
+  limitDate: undefined,
+  downloadOnly: true,
 };
