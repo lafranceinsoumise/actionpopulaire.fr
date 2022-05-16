@@ -82,7 +82,7 @@ const StyledCard = styled.div`
 `;
 
 const RequiredDocumentCard = (props) => {
-  const { type, onUpload, onDismiss, embedded, ...rest } = props;
+  const { type, onUpload, onDismiss, embedded, downloadOnly, ...rest } = props;
 
   if (!type || !EVENT_DOCUMENT_TYPES[type]) {
     return null;
@@ -96,31 +96,50 @@ const RequiredDocumentCard = (props) => {
         <h4>{name}</h4>
         <Spacer size="0.5rem" />
         <p>{description}</p>
-        <Spacer size="1rem" />
-        <Button
-          onClick={() => onUpload(type)}
-          color={onDismiss ? "primary" : "default"}
-        >
-          <RawFeatherIcon name="upload" style={{ marginRight: "0.5rem" }} />
-          Ajouter un justificatif
-        </Button>
-        {onDismiss && (
+        {!downloadOnly || templateLink ? <Spacer size="1rem" /> : null}
+        {!downloadOnly ? (
           <>
-            <InlineSpacer size="1rem" />
-            <Button color="secondary" onClick={() => onDismiss(type)}>
-              <RawFeatherIcon name="x" style={{ marginRight: "0.5rem" }} />
-              Non applicable
+            <Button
+              onClick={() => onUpload(type)}
+              color={onDismiss ? "primary" : "default"}
+            >
+              <RawFeatherIcon name="upload" style={{ marginRight: "0.5rem" }} />
+              Ajouter un justificatif
             </Button>
+            {onDismiss && (
+              <>
+                <InlineSpacer size="1rem" />
+                <Button color="secondary" onClick={() => onDismiss(type)}>
+                  <RawFeatherIcon name="x" style={{ marginRight: "0.5rem" }} />
+                  Non applicable
+                </Button>
+              </>
+            )}
+            <br />
+            {templateLink && (
+              <>
+                <Spacer size="1rem" />
+                <a
+                  href={templateLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Télécharger le modèle vierge
+                </a>
+              </>
+            )}
           </>
-        )}
-        <br />
-        {templateLink && (
-          <>
-            <Spacer size="1rem" />
-            <a href={templateLink} target="_blank" rel="noopener noreferrer">
-              Télécharger le modèle vierge
-            </a>
-          </>
+        ) : (
+          <Button
+            link
+            color="primary"
+            href={templateLink}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <RawFeatherIcon name="download" style={{ marginRight: "0.5rem" }} />
+            Télécharger le modèle vierge
+          </Button>
         )}
       </div>
     </StyledCard>
@@ -132,6 +151,7 @@ RequiredDocumentCard.propTypes = {
   onUpload: PropTypes.func.isRequired,
   onDismiss: PropTypes.func,
   embedded: PropTypes.bool,
+  downloadOnly: PropTypes.bool,
 };
 
 export default RequiredDocumentCard;
