@@ -57,15 +57,15 @@ class SendVotingProxyRequestConfirmationTestCase(TestCase):
         with self.assertRaises(VotingProxyRequest.DoesNotExist):
             send_voting_proxy_request_confirmation([unexisting_request_id])
 
-    @patch("agir.voting_proxies.tasks.send_sms", autospec=True)
-    def test_should_send_a_text_message(self, send_sms):
-        send_sms.assert_not_called()
+    @patch("agir.voting_proxies.tasks.send_sms_message", autospec=True)
+    def test_should_send_a_text_message(self, send_sms_message):
+        send_sms_message.assert_not_called()
         send_voting_proxy_request_confirmation(
             [self.voting_proxy_request.pk, self.another_voting_proxy_request.pk]
         )
-        send_sms.assert_called_once()
+        send_sms_message.assert_called_once()
         self.assertEqual(
-            send_sms.call_args[0][1], self.voting_proxy_request.contact_phone
+            send_sms_message.call_args[0][1], self.voting_proxy_request.contact_phone
         )
 
 
@@ -118,24 +118,28 @@ class SendVotingProxyRequestAcceptedTextMessagesTestCase(TestCase):
         with self.assertRaises(VotingProxyRequest.DoesNotExist):
             send_voting_proxy_request_accepted_text_messages([unexisting_request_id])
 
-    @patch("agir.voting_proxies.tasks.send_sms")
-    def test_should_send_a_text_message(self, send_sms):
-        send_sms.assert_not_called()
+    @patch("agir.voting_proxies.tasks.send_sms_message")
+    def test_should_send_a_text_message(self, send_sms_message):
+        send_sms_message.assert_not_called()
 
         send_voting_proxy_request_accepted_text_messages([self.voting_proxy_request.pk])
 
-        send_sms.assert_called()
+        send_sms_message.assert_called()
 
-        self.assertIn(self.voting_proxy.first_name, send_sms.call_args_list[0].args[0])
+        self.assertIn(
+            self.voting_proxy.first_name, send_sms_message.call_args_list[0].args[0]
+        )
         self.assertEqual(
-            send_sms.call_args_list[0].args[1], self.voting_proxy_request.contact_phone
+            send_sms_message.call_args_list[0].args[1],
+            self.voting_proxy_request.contact_phone,
         )
 
         self.assertIn(
-            self.voting_proxy_request.first_name, send_sms.call_args_list[1].args[0]
+            self.voting_proxy_request.first_name,
+            send_sms_message.call_args_list[1].args[0],
         )
         self.assertEqual(
-            send_sms.call_args_list[1].args[1], self.voting_proxy.contact_phone
+            send_sms_message.call_args_list[1].args[1], self.voting_proxy.contact_phone
         )
 
 
@@ -189,21 +193,23 @@ class SendVotingProxyInformationForRequestTestCase(TestCase):
         with self.assertRaises(VotingProxyRequest.DoesNotExist):
             send_voting_proxy_information_for_request(unexisting_request_id)
 
-    @patch("agir.voting_proxies.tasks.send_sms")
-    def test_should_send_a_text_message(self, send_sms):
-        send_sms.assert_not_called()
+    @patch("agir.voting_proxies.tasks.send_sms_message")
+    def test_should_send_a_text_message(self, send_sms_message):
+        send_sms_message.assert_not_called()
         send_voting_proxy_information_for_request(self.voting_proxy_request.pk)
-        send_sms.assert_called_once()
-        self.assertIn(self.voting_proxy.first_name, send_sms.call_args[0][0])
-        self.assertIn(self.voting_proxy.last_name.upper(), send_sms.call_args[0][0])
+        send_sms_message.assert_called_once()
+        self.assertIn(self.voting_proxy.first_name, send_sms_message.call_args[0][0])
+        self.assertIn(
+            self.voting_proxy.last_name.upper(), send_sms_message.call_args[0][0]
+        )
         self.assertIn(
             self.voting_proxy.date_of_birth.strftime("%d/%m/%Y"),
-            send_sms.call_args[0][0],
+            send_sms_message.call_args[0][0],
         )
-        self.assertIn(self.voting_proxy.contact_phone, send_sms.call_args[0][0])
-        self.assertIn(self.voting_proxy.remarks, send_sms.call_args[0][0])
+        self.assertIn(self.voting_proxy.contact_phone, send_sms_message.call_args[0][0])
+        self.assertIn(self.voting_proxy.remarks, send_sms_message.call_args[0][0])
         self.assertEqual(
-            send_sms.call_args[0][1], self.voting_proxy_request.contact_phone
+            send_sms_message.call_args[0][1], self.voting_proxy_request.contact_phone
         )
 
 
@@ -257,20 +263,27 @@ class SendVotingProxyRequestConfirmedTextMessagesTestCase(TestCase):
         with self.assertRaises(VotingProxyRequest.DoesNotExist):
             send_voting_proxy_request_confirmed_text_messages([unexisting_request_id])
 
-    @patch("agir.voting_proxies.tasks.send_sms")
-    def test_should_send_a_text_message(self, send_sms):
-        send_sms.assert_not_called()
+    @patch("agir.voting_proxies.tasks.send_sms_message")
+    def test_should_send_a_text_message(self, send_sms_message):
+        send_sms_message.assert_not_called()
         send_voting_proxy_request_confirmed_text_messages(
             [self.voting_proxy_request.pk]
         )
-        send_sms.assert_called_once()
-        self.assertIn(self.voting_proxy_request.first_name, send_sms.call_args[0][0])
+        send_sms_message.assert_called_once()
         self.assertIn(
-            self.voting_proxy_request.last_name.upper(), send_sms.call_args[0][0]
+            self.voting_proxy_request.first_name, send_sms_message.call_args[0][0]
+        )
+        self.assertIn(
+            self.voting_proxy_request.last_name.upper(),
+            send_sms_message.call_args[0][0],
         )
         self.assertIn(
             self.voting_proxy_request.polling_station_number,
-            send_sms.call_args[0][0],
+            send_sms_message.call_args[0][0],
         )
-        self.assertIn(self.voting_proxy_request.contact_phone, send_sms.call_args[0][0])
-        self.assertEqual(send_sms.call_args[0][1], self.voting_proxy.contact_phone)
+        self.assertIn(
+            self.voting_proxy_request.contact_phone, send_sms_message.call_args[0][0]
+        )
+        self.assertEqual(
+            send_sms_message.call_args[0][1], self.voting_proxy.contact_phone
+        )

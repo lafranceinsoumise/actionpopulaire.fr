@@ -96,6 +96,7 @@ def emailing_task(post_save=False):
 
     return retriable_task(strategy=retry_strategy(start=10, retry_on=retry_on))
 
+
 def gcm_push_task(post_save=False):
     retry_on = (
         GCMError,
@@ -107,6 +108,7 @@ def gcm_push_task(post_save=False):
         retry_on = (*retry_on, ObjectDoesNotExist)
 
     return retriable_task(strategy=retry_strategy(start=10, retry_on=retry_on))
+
 
 def post_save_task():
     return retriable_task(
