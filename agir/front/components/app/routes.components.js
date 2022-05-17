@@ -169,6 +169,11 @@ const Routes = {
       /* webpackChunkName: "r-toktokpreview" */ "@agir/events/TokTok/TokTokPreview"
     )
   ),
+  NewPollingStationOfficer: lazy(() =>
+    import(
+      /* webpackChunkName: "r-newpollingstationofficer" */ "@agir/elections/PollingStationOfficer/NewPollingStationOfficer"
+    )
+  ),
 };
 
 export default Routes;

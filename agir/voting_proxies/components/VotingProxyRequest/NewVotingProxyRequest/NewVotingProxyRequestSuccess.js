@@ -1,6 +1,6 @@
 import React from "react";
 
-import FormSuccess from "@agir/voting_proxies/Common/FormSuccess";
+import FormSuccess from "@agir/elections/Common/FormSuccess";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 const NewVotingProxyRequestSuccess = () => (

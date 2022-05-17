@@ -3,7 +3,7 @@ import React, { useState } from "react";
 
 import SearchAndSelectField from "@agir/front/formComponents/SearchAndSelectField";
 
-import { searchVotingLocation } from "@agir/voting_proxies/Common/api";
+import { searchVotingLocation } from "@agir/elections/Common/api";
 import { debounce } from "@agir/lib/utils/promises";
 
 const VotingLocationField = (props) => {
@@ -39,7 +39,7 @@ const VotingLocationField = (props) => {
 };
 
 VotingLocationField.propTypes = {
-  value: PropTypes.any.isRequired,
+  value: PropTypes.any,
   onChange: PropTypes.func.isRequired,
   id: PropTypes.string,
   name: PropTypes.string,

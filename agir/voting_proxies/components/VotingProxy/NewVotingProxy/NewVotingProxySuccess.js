@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import React from "react";
 
 import Button from "@agir/front/genericComponents/Button";
-import FormSuccess from "@agir/voting_proxies/Common/FormSuccess";
+import FormSuccess from "@agir/elections/Common/FormSuccess";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 const NewVotingProxySuccess = ({ votingProxy }) => (
