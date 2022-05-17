@@ -2,7 +2,7 @@ import React from "react";
 
 import Link from "@agir/front/app/Link";
 import Spacer from "@agir/front/genericComponents/Spacer";
-import { MailTo } from "@agir/voting_proxies/Common/StyledComponents";
+import { MailTo } from "@agir/elections/Common/StyledComponents";
 
 const NewVotingProxyHowTo = () => (
   <div>

@@ -291,9 +291,9 @@ SelectField.propTypes = {
   onChange: PropTypes.func.isRequired,
   options: PropTypes.arrayOf(PropTypes.object),
   id: PropTypes.string,
-  label: PropTypes.string,
-  helpText: PropTypes.string,
-  error: PropTypes.string,
+  label: PropTypes.node,
+  helpText: PropTypes.node,
+  error: PropTypes.node,
 };
 
 export default SelectField;

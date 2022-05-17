@@ -63,7 +63,9 @@ class VotingCirconscriptionConsulaireAPIView(ListAPIView):
                 {
                     "code": circo.code,
                     "label": str(circo),
-                    "departement": circo.departement_id,
+                    "departement": circo.departement.code
+                    if circo.departement_id
+                    else None,
                 }
                 for circo in self.get_queryset()
             ]
@@ -109,7 +111,7 @@ class RetrieveCreatePollingStationOfficerAPIView(RetrieveAPIView, CreateAPIView)
         if request.user.is_authenticated and request.user.person is not None:
             try:
                 data = request.user.person.polling_station_officer
-                data = self.get_serializer(data)
+                data = self.get_serializer(data).data
             except PollingStationOfficer.DoesNotExist:
                 pass
         return Response(data)

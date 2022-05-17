@@ -6,7 +6,7 @@ import useSWR from "swr";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 
-import StyledPageContainer from "@agir/voting_proxies/Common/StyledPageContainer";
+import StyledPageContainer from "@agir/elections/Common/StyledPageContainer";
 import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage";
 
 import ReplyingForm from "./ReplyingForm";

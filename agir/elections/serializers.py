@@ -32,8 +32,10 @@ class VotingCommuneOrConsulateSerializer(serializers.Serializer):
             return "consulate"
 
     def get_departement(self, instance):
-        if isinstance(instance, Commune):
-            return instance.departement_id
+        if not isinstance(instance, Commune):
+            return None
+
+        return instance.code_departement
 
 
 class CreateUpdatePollingStationOfficerSerializer(serializers.ModelSerializer):
@@ -80,6 +82,9 @@ class CreateUpdatePollingStationOfficerSerializer(serializers.ModelSerializer):
         label="Circonscription législative",
         queryset=CirconscriptionLegislative.objects.all(),
         slug_field="code",
+    )
+    votingLocation = serializers.SerializerMethodField(
+        read_only=True, method_name="get_voting_location"
     )
     votingCommune = serializers.PrimaryKeyRelatedField(
         required=False,
@@ -134,6 +139,24 @@ class CreateUpdatePollingStationOfficerSerializer(serializers.ModelSerializer):
         read_only=True,
     )
 
+    def get_voting_location(self, instance):
+        location = None
+        if isinstance(instance, dict):
+            location = (
+                instance.get("voting_comune")
+                if instance.get("voting_comune", None) is not None
+                else instance.get("voting_consulate", None)
+            )
+        if isinstance(instance, PollingStationOfficer):
+            location = (
+                instance.voting_commune
+                if instance.voting_commune is not None
+                else instance.voting_consulate
+            )
+        if location is not None:
+            location = VotingCommuneOrConsulateSerializer(location).data
+        return location
+
     def validate_required_commune_or_consulate(self, attrs):
         commune = attrs.get("voting_commune", None)
         consulate = attrs.get("voting_consulate", None)
@@ -159,18 +182,9 @@ class CreateUpdatePollingStationOfficerSerializer(serializers.ModelSerializer):
             )
 
     def validate_circonscription_legislative(self, attrs):
-        commune = attrs.get("voting_commune", None)
-        consulate = attrs.get("voting_consulate", None)
         circo = attrs.get("voting_circonscription_legislative", None)
 
-        if commune is not None and commune.departement_id != circo.departement_id:
-            raise ValidationError(
-                {
-                    "votingCommune": "La commune ne fait pas partie de la circonscription législative indiquée",
-                },
-                code="commune_and_circonscription_legislative_mismatch",
-            )
-
+        consulate = attrs.get("voting_consulate", None)
         if consulate is not None and circo.departement_id is not None:
             raise ValidationError(
                 {
@@ -178,6 +192,21 @@ class CreateUpdatePollingStationOfficerSerializer(serializers.ModelSerializer):
                 },
                 code="consulate_and_circonscription_legislative_mismatch",
             )
+
+        commune = attrs.get("voting_commune", None)
+        if commune is not None:
+            commune_departement_id = (
+                commune.commune_parent.departement_id
+                if commune.commune_parent_id
+                else commune.departement_id
+            )
+            if commune_departement_id != circo.departement_id:
+                raise ValidationError(
+                    {
+                        "votingCommune": "La commune ne fait pas partie de la circonscription législative indiquée",
+                    },
+                    code="commune_and_circonscription_legislative_mismatch",
+                )
 
     def validate(self, attrs):
         super().validate(attrs)
@@ -207,6 +236,7 @@ class CreateUpdatePollingStationOfficerSerializer(serializers.ModelSerializer):
             "city",
             "country",
             "votingCirconscriptionLegislative",
+            "votingLocation",
             "votingCommune",
             "votingConsulate",
             "pollingStation",

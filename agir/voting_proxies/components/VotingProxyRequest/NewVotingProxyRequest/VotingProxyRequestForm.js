@@ -8,9 +8,9 @@ import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import PhoneField from "@agir/front/formComponents/PhoneField";
 import TextField from "@agir/front/formComponents/TextField";
 
-import PollingStationField from "@agir/voting_proxies/Common/PollingStationField";
-import VotingLocationField from "@agir/voting_proxies/Common/VotingLocationField";
-import VotingDateFields from "@agir/voting_proxies/Common/VotingDateFields";
+import PollingStationField from "@agir/elections/Common/PollingStationField";
+import VotingLocationField from "@agir/elections/Common/VotingLocationField";
+import VotingDateFields from "@agir/elections/Common/VotingDateFields";
 
 import NewVotingProxyRequestIntro from "./NewVotingProxyRequestIntro";
 import NewVotingProxyRequestHowTo from "./NewVotingProxyRequestHowTo";

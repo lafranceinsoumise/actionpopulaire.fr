@@ -20,9 +20,23 @@ export const StyledMain = styled.main`
     margin: 0;
     line-height: 1.5;
   }
+
+  h5 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0;
+    line-height: 1.5;
+    color: ${(props) => props.theme.primary500};
+  }
+
   p {
     margin-bottom: 0;
+
+    strong {
+      font-weight: 600;
+    }
   }
+
   ol {
     margin: 0;
     padding: 0;
@@ -43,6 +57,11 @@ export const StyledMain = styled.main`
       }
     }
   }
+
+  ul {
+    max-width: 500px;
+  }
+
   form {
     fieldset {
       margin: 0;
