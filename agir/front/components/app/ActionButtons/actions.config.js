@@ -109,7 +109,7 @@ const ACTIONS = {
         }
       : {
           key: "votingProxy",
-          route: "votingProxyLandingPage",
+          route: "newVotingProxy",
           label: ["Procuration", "Prendre une procuration"],
           icon: "edit-3",
           color: style.votingProxyOrange,
@@ -129,9 +129,9 @@ const ACTIONS = {
       />
     ),
   },
-  pollingStationAssessorForm: {
-    key: "pollingStationAssessorForm",
-    route: "pollingStationAssessorForm",
+  newPollingStationOfficer: {
+    key: "newPollingStationOfficer",
+    route: "newPollingStationOfficer",
     label: ["Assesseurs/délégués", "Devenir assesseur·e ou délégué·e"],
     icon: (
       <span style={{ backgroundColor: style.referralPink }}>
@@ -175,7 +175,7 @@ const DEFAULT_ACTION_ORDER = [
   "createEvent",
   "materiel",
   "votingProxy",
-  // "pollingStationAssessorForm",
+  "newPollingStationOfficer",
   "createContact",
   "coupDeFil",
   "toktokPreview",
@@ -185,7 +185,7 @@ const GROUP_MANAGER_ACTION_ORDER = [
   "createEvent",
   "materiel",
   "votingProxy",
-  // "pollingStationAssessorForm",
+  "newPollingStationOfficer",
   "createContact",
   "toktokPreview",
   "coupDeFil",
