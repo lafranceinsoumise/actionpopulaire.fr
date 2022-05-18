@@ -114,7 +114,9 @@ class AbstractVoter(BaseAPIResource):
 
 class VotingProxyQuerySet(models.QuerySet):
     def active(self):
-        return self.exclude(person__isnull=True).exclude(person__role__is_active=False)
+        return self.exclude(person__isnull=True).exclude(
+            person__role__isnull=False, person__role__is_active=False
+        )
 
     def available(self):
         return self.active().filter(
