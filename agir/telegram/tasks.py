@@ -2,7 +2,7 @@ from time import sleep
 
 from celery import shared_task
 from django.db import transaction
-from pyrogram import ChatPermissions, InputPhoneContact
+from pyrogram.types import ChatPermissions, InputPhoneContact
 from pyrogram.errors import PeerIdInvalid
 
 from agir.lib.phone_numbers import is_mobile_number

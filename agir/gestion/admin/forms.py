@@ -179,6 +179,13 @@ class DepenseForm(forms.ModelForm):
                     ),
                 )
 
+    def clean_type(self):
+        if TypeDepense(self.cleaned_data["type"]).compte is None:
+            raise ValidationError(
+                "Sélectionnez un type de dépense associé à un numéro de compte"
+            )
+        return self.cleaned_data["type"]
+
     def clean(self):
         cleaned_data = super().clean()
 
@@ -366,9 +373,6 @@ class ReglementForm(forms.ModelForm):
         self.fields["nom_fournisseur"].required = False
         self.fields["location_city_fournisseur"].required = False
         self.fields["location_zip_fournisseur"].required = False
-
-        self.fields["montant"].max_value = montant_restant
-        self.fields["montant"].validators.append(MaxValueValidator(montant_restant))
 
     def clean(self):
         # deux cas possibles pour le choix du fournisseur :

@@ -228,7 +228,7 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
         null=False,
     )
 
-    quantite = models.IntegerField(
+    quantite = models.FloatField(
         verbose_name="Quantité",
         null=True,
         blank=True,
@@ -310,6 +310,14 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
             raise ValidationError(errors)
 
     @property
+    def montant_qualifie(self):
+        t = TypeDepense(self.type)
+
+        if t.compte is not None and t.compte.startswith("7"):
+            return -self.montant
+        return self.montant
+
+    @property
     def devis_present(self):
         return self.documents.filter(type=TypeDocument.DEVIS).exists()
 
@@ -331,7 +339,7 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
 
     @property
     def montant_restant(self):
-        return self.montant - (
+        return self.montant_qualifie - (
             self.reglements.aggregate(paye=models.Sum("montant"))["paye"] or 0
         )
 
@@ -341,7 +349,7 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
             self.reglements.exclude(etat=Reglement.Etat.ATTENTE).aggregate(
                 paye=models.Sum("montant")
             )["paye"]
-            == self.montant
+            == self.montant_qualifie
         )
 
     @property
@@ -473,6 +481,12 @@ class Reglement(TimeStampedModel):
 
     date_releve = models.DateField(
         verbose_name="Date dans le relevé bancaire",
+        blank=True,
+        null=True,
+    )
+
+    date_validation = models.DateField(
+        verbose_name="Date de validation de l'écriture",
         blank=True,
         null=True,
     )
