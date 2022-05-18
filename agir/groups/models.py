@@ -119,7 +119,9 @@ class SupportGroupQuerySet(models.QuerySet):
 
 class MembershipQuerySet(models.QuerySet):
     def active(self):
-        return self.filter(supportgroup__published=True, person__role__is_active=True)
+        return self.filter(supportgroup__published=True).exclude(
+            person__role__isnull=False, person__role__is_active=False
+        )
 
 
 class SupportGroup(

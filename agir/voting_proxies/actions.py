@@ -332,7 +332,7 @@ def invite_voting_proxy_candidates(candidates, request):
 
 def get_voting_proxy_candidates_queryset(request, blacklist_ids):
     candidates = (
-        Person.objects.exclude(role__is_active=False)
+        Person.objects.exclude(role__isnull=False, role__is_active=False)
         .exclude(emails__address=None)
         .exclude(voting_proxy__isnull=False)
         .filter(is_2022=True, newsletters__len__gt=0)
