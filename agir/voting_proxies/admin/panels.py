@@ -13,6 +13,7 @@ from agir.lib.utils import front_url, shorten_url
 from agir.voting_proxies.actions import cancel_voting_proxy_requests
 from agir.voting_proxies.admin.actions import fulfill_voting_proxy_requests
 from agir.voting_proxies.models import VotingProxy, VotingProxyRequest
+from agir.voting_proxies.utils import get_ise_link_for_voting_proxy
 
 
 class CommuneListFilter(AutocompleteRelatedModelFilter):
@@ -172,7 +173,8 @@ class VotingProxyAdmin(VoterModelAdmin):
     readonly_fields = (
         *VoterModelAdmin.readonly_fields,
         "last_matched",
-        "request_page_button",
+        "ise_page_link",
+        "accepted_request_page_link",
     )
     autocomplete_fields = (
         *VoterModelAdmin.autocomplete_fields,
@@ -205,7 +207,17 @@ class VotingProxyAdmin(VoterModelAdmin):
 
     confirmed_dates.short_description = "dates acceptées"
 
-    def request_page_button(self, voting_proxy):
+    def ise_page_link(self, voting_proxy):
+        link = get_ise_link_for_voting_proxy(voting_proxy)
+        return format_html(
+            f'<a class="button" href="{link}" target="_blank">'
+            f"  ➡ Situation électorale (service-public.fr)"
+            f"</a>"
+        )
+
+    ise_page_link.short_description = "ISE"
+
+    def accepted_request_page_link(self, voting_proxy):
         accepted_requests = voting_proxy.voting_proxy_requests.filter(
             status__in=(
                 VotingProxyRequest.STATUS_ACCEPTED,
@@ -222,10 +234,12 @@ class VotingProxyAdmin(VoterModelAdmin):
         link = shorten_url(link, secret=True, djan_url_type="M2022")
 
         return format_html(
-            f'<a class="button" href="{link}" target="_blank">➡ Lien vers la page des demandes acceptées</a>'
+            f'<a class="button" href="{link}" target="_blank">'
+            f"  ➡ Lien vers la page des demandes acceptées"
+            f"</a>"
         )
 
-    request_page_button.short_description = "Demandes acceptées"
+    accepted_request_page_link.short_description = "Demandes acceptées"
 
 
 @admin.register(VotingProxyRequest)
