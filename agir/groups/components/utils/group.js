@@ -24,7 +24,7 @@ export const MEMBERSHIP_TYPE_LABEL = {
 
 export const CERTIFICATION_CRITERIA = {
   members: {
-    label: "3 membres actifs",
+    label: "Trois membres actifs",
     description:
       "Votre groupe doit compter plus de trois membres actifs, animateur·ices et gestionnaires compris",
   },
@@ -33,9 +33,14 @@ export const CERTIFICATION_CRITERIA = {
     description: "Votre groupe existe depuis plus d’un mois",
   },
   activity: {
-    label: "3 actions de terrain",
+    label: "Trois actions de terrain",
     description:
       "Votre groupe a organisé trois actions de terrain (diffusion de tracts, porte-à-porte, collage, etc.) dans les deux derniers mois",
+  },
+  exclusivity: {
+    label: "Un seul groupe certifié par animateur·ice",
+    description:
+      "Les animateur·ices de votre groupe ne doivent pas animer d'autres groupes locaux certifiés",
   },
   gender: {
     label: "Animation paritaire",

@@ -1,17 +1,17 @@
 import React from "react";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
-import attConImg from "./images/ATT-CON.jpg";
-import attRegImg from "./images/ATT-REG.jpg";
-import attGraImg from "./images/ATT-GRA.jpg";
-import attEspImg from "./images/ATT-ESP.jpg";
+import attConImg from "@agir/events/eventRequiredDocuments/images/ATT-CON.jpg";
+import attRegImg from "@agir/events/eventRequiredDocuments/images/ATT-REG.jpg";
+import attGraImg from "@agir/events/eventRequiredDocuments/images/ATT-GRA.jpg";
+import attEspImg from "@agir/events/eventRequiredDocuments/images/ATT-ESP.jpg";
 
 const attConTemplate =
-  "https://melenchon2022.fr/wp-content/uploads/2021/11/Attestation_concours_en_nature.pdf";
+  "https://media.actionpopulaire.fr/legislatives/2022/document/attestation_concours_en_nature.pdf";
 const attRegTemplate =
-  "https://melenchon2022.fr/wp-content/uploads/2021/11/Attestation_mise_a_disposition_etablissement.pdf";
+  "https://media.actionpopulaire.fr/legislatives/2022/document/attestation_mise_a_disposition_etablissement.pdf";
 const attGraTemplate =
-  "https://melenchon2022.fr/wp-content/uploads/2021/11/Attestation_salle_municipale.pdf";
+  "https://media.actionpopulaire.fr/legislatives/2022/document/attestation_salle_municipale.pdf";
 
 export const EVENT_DOCUMENT_TYPES = {
   "ATT-CON": {
@@ -43,15 +43,7 @@ export const EVENT_DOCUMENT_TYPES = {
         délivrée par la mairie.
         <Spacer size=".5rem" />
         <strong>À noter&nbsp;:</strong> pour réserver une salle, il vous sera
-        demandé de l’assurer ! Durant la campagne présidentielle, vous pourrez
-        utiliser notre{" "}
-        <a
-          href="https://infos.actionpopulaire.fr/wp-content/uploads/2021/12/Attestation-assurance-RC-2022.pdf"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          attestation d’assurance convergence responsabilité civile.
-        </a>
+        demandé de l’assurer.
       </>
     ),
   },
@@ -65,13 +57,4 @@ export const EVENT_DOCUMENT_TYPES = {
   },
 };
 
-export const EVENT_PROJECT_STATUS = {
-  DFI: "pending",
-  ECO: "pending",
-  REN: "pending",
-
-  CLO: "archived",
-  FIN: "archived",
-
-  REF: "refused",
-};
+export const EVENT_PROJECT_STATUS = {};

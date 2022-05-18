@@ -38,3 +38,9 @@ Embedded.args = {
   ...Default.args,
   embedded: true,
 };
+
+export const DownloadOnly = Template.bind({});
+DownloadOnly.args = {
+  ...Default.args,
+  downloadOnly: true,
+};

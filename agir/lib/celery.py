@@ -5,6 +5,7 @@ from functools import wraps
 import requests
 from celery import shared_task
 from django.core.exceptions import ObjectDoesNotExist
+from push_notifications.gcm import GCMError
 
 
 def retry_strategy(
@@ -89,6 +90,19 @@ def emailing_task(post_save=False):
     retry_on = (
         smtplib.SMTPException,
         socket.error,
+    )
+    if post_save:
+        retry_on = (*retry_on, ObjectDoesNotExist)
+
+    return retriable_task(strategy=retry_strategy(start=10, retry_on=retry_on))
+
+
+def gcm_push_task(post_save=False):
+    retry_on = (
+        GCMError,
+        requests.HTTPError,
+        requests.RequestException,
+        requests.exceptions.Timeout,
     )
     if post_save:
         retry_on = (*retry_on, ObjectDoesNotExist)

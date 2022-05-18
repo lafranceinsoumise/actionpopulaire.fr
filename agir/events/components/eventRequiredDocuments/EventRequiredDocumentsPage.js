@@ -17,7 +17,7 @@ import {
 import { useEventFormOptions } from "@agir/events/common/hooks";
 import { routeConfig } from "@agir/front/app/routes.config";
 
-const EventRequiredDocumentsPage = (props) => {
+const EventRequiredDocumentsUploadPage = (props) => {
   const { eventPk, onBack, embedded } = props;
   const { data, mutate, error } = useSWR(
     getEventEndpoint("eventProject", { eventPk })
@@ -86,33 +86,60 @@ const EventRequiredDocumentsPage = (props) => {
   return (
     <PageFadeIn ready={!!data}>
       {data && (
-        <>
-          {!embedded && <OpenGraphTags title={event.name} />}
-          <EventRequiredDocuments
-            projectId={projectId}
-            event={event}
-            status={status}
-            dismissedDocumentTypes={dismissedDocumentTypes}
-            requiredDocumentTypes={requiredDocumentTypes}
-            documents={documents}
-            limitDate={limitDate}
-            subtypes={subtype}
-            isLoading={isLoading}
-            errors={errors}
-            onSaveDocument={saveDocument}
-            onDismissDocument={dismissDocumentType}
-            onChangeSubtype={changeSubtype}
-            embedded={embedded}
-          />
-        </>
+        <EventRequiredDocuments
+          projectId={projectId}
+          event={event}
+          status={status}
+          dismissedDocumentTypes={dismissedDocumentTypes}
+          requiredDocumentTypes={requiredDocumentTypes}
+          documents={documents}
+          limitDate={limitDate}
+          subtypes={subtype}
+          isLoading={isLoading}
+          errors={errors}
+          onSaveDocument={saveDocument}
+          onDismissDocument={dismissDocumentType}
+          onChangeSubtype={changeSubtype}
+          embedded={embedded}
+        />
       )}
     </PageFadeIn>
   );
 };
 
-EventRequiredDocumentsPage.propTypes = {
+EventRequiredDocumentsUploadPage.propTypes = {
   eventPk: PropTypes.string.isRequired,
   onBack: PropTypes.string,
   embedded: PropTypes.bool,
 };
+
+const EventRequiredDocumentsPage = (props) => {
+  const { eventPk, embedded } = props;
+
+  const {
+    data: event,
+    mutate,
+    error,
+  } = useSWR(getEventEndpoint("getDetailAdvanced", { eventPk }));
+
+  if (error?.response?.status === 403 || error?.response?.status === 404) {
+    return <Redirect to={routeConfig.eventDetails.getLink({ eventPk })} />;
+  }
+
+  return (
+    <PageFadeIn ready={!!event}>
+      {event && !embedded ? <OpenGraphTags title={event.name} /> : null}
+      {event?.hasProject ? (
+        <EventRequiredDocumentsUploadPage {...props} />
+      ) : (
+        <EventRequiredDocuments
+          downloadOnly
+          event={event}
+          embedded={embedded}
+        />
+      )}
+    </PageFadeIn>
+  );
+};
+
 export default EventRequiredDocumentsPage;
