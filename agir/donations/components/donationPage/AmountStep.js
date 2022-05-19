@@ -16,6 +16,7 @@ import {
   StyledPage,
   StyledLogo,
   StyledMain,
+  StyledWarning,
 } from "./StyledComponents";
 
 import acceptedPaymentMethods from "./images/accepted-payment-methods.svg";
@@ -75,6 +76,7 @@ const StyledGroup = styled.div`
   border-radius: ${(props) => props.theme.borderRadius};
   background-color: ${(props) => props.theme.default.primary50};
   color: ${(props) => props.theme.default.primary500};
+
   & > span {
     flex: 1 1 auto;
     font-size: 0.875rem;
@@ -85,6 +87,7 @@ const StyledGroup = styled.div`
       color: ${(props) => props.theme.black1000};
     }
   }
+
   ${RawFeatherIcon} {
     flex: 0 0 auto;
   }
@@ -182,6 +185,7 @@ const AmountStep = (props) => {
               </p>
             </>
           )}
+          <StyledWarning style={{ marginBottom: 0 }} />
           <form onSubmit={handleSubmit}>
             <AmountWidget
               disabled={isLoading}
