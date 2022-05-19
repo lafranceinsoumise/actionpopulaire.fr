@@ -127,10 +127,16 @@ const StyledField = styled.label`
       width: 100%;
       margin: 0;
       border-radius: ${style.borderRadius} ${style.borderRadius} 0 0;
-      max-height: 388px;
       overflow-x: hidden;
       overflow-y: auto;
       animation: ${slideIn} 200ms ease-out;
+      max-height: ${(props) => (props.$searchable ? "194px" : "388px")};
+    }
+
+    ${BackgroundOpacity} {
+      @media (max-width: ${style.collapse}px) {
+        display: ${(props) => (props.$searchable ? "none" : "block")};
+      }
     }
   }
 
@@ -242,6 +248,7 @@ const SelectField = (props) => {
     label,
     helpText,
     options,
+    isSearchable,
     ...rest
   } = props;
 
@@ -251,6 +258,7 @@ const SelectField = (props) => {
       $valid={!error}
       $invalid={!!error}
       $empty={!!value}
+      $searchable={!!isSearchable}
     >
       {label && <StyledLabel>{label}</StyledLabel>}
       {helpText && <StyledHelpText>{helpText}</StyledHelpText>}
@@ -258,7 +266,7 @@ const SelectField = (props) => {
         {...rest}
         classNamePrefix="select"
         isDisabled={!!rest.disabled}
-        isSearchable={!!rest.isSearchable}
+        isSearchable={!!isSearchable}
         inputId={id}
         options={options}
         onChange={onChange}

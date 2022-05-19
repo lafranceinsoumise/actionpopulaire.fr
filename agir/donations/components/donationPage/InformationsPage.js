@@ -21,6 +21,7 @@ import {
   StyledLogo,
   StyledMain,
   Title,
+  StyledWarning,
 } from "./StyledComponents";
 import { displayPrice } from "@agir/lib/utils/display";
 import { scrollToError } from "@agir/front/app/utils";
@@ -194,6 +195,8 @@ const InformationsPage = () => {
                 </Title>
 
                 <Breadcrumb onClick={() => history.replace(amountStepUrl)} />
+
+                <StyledWarning />
                 <Spacer size="1rem" />
 
                 <AmountInformations
