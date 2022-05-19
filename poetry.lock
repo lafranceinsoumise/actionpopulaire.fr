@@ -2091,11 +2091,11 @@ test = ["pre-commit", "pytest"]
 
 [[package]]
 name = "trio"
-version = "0.19.0"
+version = "0.20.0"
 description = "A friendly Python library for async concurrency and I/O"
 category = "main"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 
 [package.dependencies]
 async-generator = ">=1.9"
@@ -2279,7 +2279,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "200a5b8e1c69ff93e61e9e0e04cd0c1b649cc7ae6796453c70902ccb6c3cbc89"
+content-hash = "ee8d5a5aca890d3c24e4fb33dbbec4aa5539c7b13993a2f21f5d6f27e0f3cdea"
 
 [metadata.files]
 amqp = [
@@ -3710,8 +3710,8 @@ traitlets = [
     {file = "traitlets-5.2.1.post0.tar.gz", hash = "sha256:70815ecb20ec619d1af28910ade523383be13754283aef90528eb3d47b77c5db"},
 ]
 trio = [
-    {file = "trio-0.19.0-py3-none-any.whl", hash = "sha256:c27c231e66336183c484fbfe080fa6cc954149366c15dc21db8b7290081ec7b8"},
-    {file = "trio-0.19.0.tar.gz", hash = "sha256:895e318e5ec5e8cea9f60b473b6edb95b215e82d99556a03eb2d20c5e027efe1"},
+    {file = "trio-0.20.0-py3-none-any.whl", hash = "sha256:fb2d48e4eab0dfb786a472cd514aaadc71e3445b203bc300bad93daa75d77c1a"},
+    {file = "trio-0.20.0.tar.gz", hash = "sha256:670a52d3115d0e879e1ac838a4eb999af32f858163e3a704fe4839de2a676070"},
 ]
 typing-extensions = [
     {file = "typing_extensions-4.2.0-py3-none-any.whl", hash = "sha256:6657594ee297170d19f67d55c05852a874e7eb634f4f753dbd667855e07c1708"},
