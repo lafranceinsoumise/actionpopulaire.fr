@@ -44,6 +44,7 @@ const CountryField = (props) => {
   return (
     <SelectField
       {...rest}
+      isSearchable
       autoComplete="country-name"
       value={selectedCountry}
       options={COUNTRIES}
