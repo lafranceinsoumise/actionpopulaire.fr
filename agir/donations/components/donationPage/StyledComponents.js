@@ -273,6 +273,43 @@ export const Title = styled.h1`
   margin: 0;
 `;
 
+const Warning = (props) => (
+  <div {...props}>
+    <RawFeatherIcon name="alert-circle" />
+    <span style={{ color: "black" }}>
+      <strong>Élections législatives du 12 et 19 juin</strong> Cette page ne
+      permet pas d'effectuer de dons aux candidat·es aux élections législatives.
+      Pour cela, veuillez vous adresser directement aux mandataires financiers
+      de votre circonscription électorale.
+    </span>
+  </div>
+);
+
+export const StyledWarning = styled(Warning)`
+  margin: 1rem 0;
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: ${(props) => props.theme.borderRadius};
+  background-color: ${(props) => props.theme.default.primary50};
+  color: ${(props) => props.theme.default.primary500};
+
+  & > span {
+    flex: 1 1 auto;
+    font-size: 0.875rem;
+    strong {
+      display: block;
+      font-weight: 500;
+      font-size: 1rem;
+      color: ${(props) => props.theme.black1000};
+    }
+  }
+
+  ${RawFeatherIcon} {
+    flex: 0 0 auto;
+  }
+`;
+
 export const Theme = ({ type, ...rest }) => (
   <ThemeProvider
     theme={CONFIG[type]?.theme || CONFIG.default.theme}
