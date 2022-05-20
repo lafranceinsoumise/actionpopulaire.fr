@@ -3,6 +3,7 @@ from typing import List
 
 import reversion
 from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
@@ -524,6 +525,20 @@ class Reglement(TimeStampedModel):
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
+    )
+
+    numero_compte = models.CharField(
+        verbose_name="Compte affecté",
+        max_length=5,
+        blank=True,
+        validators=[RegexValidator(regex=r"^\d{5}$")],
+    )
+
+    code_insee = models.CharField(
+        verbose_name="Code INSEE du lieu de dépense",
+        max_length=5,
+        blank=True,
+        validators=[RegexValidator(regex=r"^\d{5}$")],
     )
 
     # informations fournisseurs
