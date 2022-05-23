@@ -1,22 +1,19 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { usePrevious } from "react-use";
 
-import SearchAndSelectField from "@agir/front/formComponents/SearchAndSelectField";
+import SelectField from "@agir/front/formComponents/SelectField";
 import TextField from "@agir/front/formComponents/TextField";
 
 import ABROAD_POLLING_STATIONS from "./abroadPollingStations";
 
 const ABROAD_POLLING_STATION_OPTIONS = ABROAD_POLLING_STATIONS.map(
-  ({ country, list, pollingStation }) => {
+  ({ country, list, pollingStation, countryCodes }) => {
     const value = `${pollingStation} / ${list} (${country})`;
     return {
       label: value,
       value: value,
-      normalizedValue: value
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase(),
+      countryCodes,
     };
   }
 );
@@ -34,38 +31,34 @@ const HelpText = (
   </span>
 );
 
-const AbroadPollingStationField = (props) => {
-  const { value, name, onChange } = props;
+const sortOptionsByCountries = (countries) => {
+  if (Array.isArray(countries) && countries.length > 0) {
+    return ABROAD_POLLING_STATION_OPTIONS.reduce((arr, option) => {
+      if (
+        Array.isArray(option.countryCodes) &&
+        option.countryCodes.length > 0 &&
+        option.countryCodes.some((country) => countries.includes(country))
+      ) {
+        arr.unshift(option);
+      } else {
+        arr.push(option);
+      }
+      return arr;
+    }, []);
+  }
+  return ABROAD_POLLING_STATION_OPTIONS;
+};
 
+const AbroadPollingStationField = (props) => {
+  const { value, name, onChange, countries } = props;
   const [selected, setSelected] = useState(
     ABROAD_POLLING_STATION_OPTIONS.find((option) => option.value === value)
   );
-  const [options, setOptions] = useState(ABROAD_POLLING_STATION_OPTIONS);
+  const options = useMemo(() => sortOptionsByCountries(countries), [countries]);
 
   const handleChange = useCallback((pollingStation) => {
     setSelected(pollingStation);
   }, []);
-
-  const handleSearch = useCallback(
-    async (searchTerm) =>
-      await new Promise((resolve) => {
-        if (!searchTerm) {
-          setOptions(ABROAD_POLLING_STATION_OPTIONS);
-          resolve(ABROAD_POLLING_STATION_OPTIONS);
-          return;
-        }
-        searchTerm = searchTerm
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .toLowerCase();
-        const filteredContries = ABROAD_POLLING_STATION_OPTIONS.filter(
-          (option) => option.normalizedValue.includes(searchTerm)
-        );
-        setOptions(filteredContries);
-        resolve(filteredContries);
-      }),
-    []
-  );
 
   useEffect(() => {
     onChange({
@@ -77,14 +70,13 @@ const AbroadPollingStationField = (props) => {
   }, [name, onChange, selected]);
 
   return (
-    <SearchAndSelectField
+    <SelectField
       {...props}
       placeholder="Chercher un bureau de vote"
       value={selected}
-      minSearchTermLength={0}
-      defaultOptions={options}
+      options={options}
       onChange={handleChange}
-      onSearch={handleSearch}
+      isSearchable
     />
   );
 };
@@ -93,6 +85,7 @@ AbroadPollingStationField.propTypes = {
   name: PropTypes.string.isRequired,
   value: PropTypes.string,
   onChange: PropTypes.func,
+  countries: PropTypes.arrayOf(PropTypes.string),
 };
 
 const PollingStationField = ({ isAbroad, ...rest }) => {
