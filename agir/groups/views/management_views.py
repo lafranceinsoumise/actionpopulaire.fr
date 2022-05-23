@@ -118,7 +118,7 @@ class SupportGroupManagementView(RedirectView):
 
 class CreateSupportGroupView(HardLoginRequiredMixin, TreveMixin, TemplateView):
     template_name = "groups/create.html"
-    manager_per_type_limit = 2
+    per_type_animation_limit = 2
 
     def get_context_data(self, **kwargs):
         person = self.request.user.person
@@ -137,22 +137,24 @@ class CreateSupportGroupView(HardLoginRequiredMixin, TreveMixin, TemplateView):
 
         types = []
 
-        for id, label in SupportGroup.TYPE_CHOICES:
-            disabled = self.manager_per_type_limit <= (
+        for type_id, label in SupportGroup.TYPE_CHOICES:
+            disabled = self.per_type_animation_limit <= (
                 SupportGroup.objects.active()
                 .filter(
-                    type=id,
+                    type=type_id,
                     memberships__person=person,
-                    memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+                    memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
                 )
                 .count()
             )
             types.append(
                 {
-                    "id": id,
+                    "id": type_id,
                     "label": label,
-                    "description": SupportGroup.TYPE_DESCRIPTION[id],
-                    "disabledDescription": SupportGroup.TYPE_DISABLED_DESCRIPTION[id],
+                    "description": SupportGroup.TYPE_DESCRIPTION[type_id],
+                    "disabledDescription": SupportGroup.TYPE_DISABLED_DESCRIPTION[
+                        type_id
+                    ],
                     "disabled": disabled,
                 }
             )
