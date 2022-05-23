@@ -191,7 +191,7 @@ export const ActionTools = () => {
         <span>
           <strong>Ajouter un contact</strong>
           <span>
-            Ajoutez un nouveau soutien à Mélenchon 2022 et à votre groupe
+            Ajoutez un nouveau soutien à Action Populaire et à votre groupe
             d’action en quelques clics.
           </span>
         </span>

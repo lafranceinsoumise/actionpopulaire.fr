@@ -9,12 +9,13 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 import lfiLogo from "@agir/front/genericComponents/logos/lfi.svg";
 import linsoumissionLogo from "@agir/front/genericComponents/logos/linsoumission.svg";
 import melenchon2022Logo from "@agir/front/genericComponents/logos/melenchon2022.svg";
+import nupesLogo from "@agir/front/genericComponents/logos/nupes.svg";
 
 const StyledArticle = styled.article`
   padding: 0 1.5rem;
 
   @media (min-width: ${(props) => props.theme.collapse}px) {
-    max-width: 850px;
+    max-width: 1000px;
     margin: 0 auto;
     text-align: center;
   }
@@ -66,6 +67,7 @@ const StyledArticle = styled.article`
       height: 5rem;
       border-radius: ${(props) => props.theme.borderRadius};
       border: 1px solid ${(props) => props.theme.black200};
+      padding: 0 12px;
 
       @media (min-width: ${(props) => props.theme.collapse}px) {
         flex: 1 1 270px;
@@ -99,10 +101,10 @@ const HomeExternalLinks = () => {
           />
         </a>
         <Spacer size="1rem" />
-        <a href="https://melenchon2022.fr">
+        <a href="https://nupes-2022.fr">
           <img
-            src={melenchon2022Logo}
-            alt="logo de la campagne Jean-Luc Mélenchon 2022"
+            src={nupesLogo}
+            alt="logo de la Nouvelle Union Populaire Écologique et Sociale"
             width="220"
             height="30"
           />
@@ -114,6 +116,15 @@ const HomeExternalLinks = () => {
             alt="logo de l'insoumission"
             width="176"
             height="48"
+          />
+        </a>
+        <Spacer size="1rem" />
+        <a href="https://melenchon2022.fr">
+          <img
+            src={melenchon2022Logo}
+            alt="logo de la campagne Jean-Luc Mélenchon 2022"
+            width="220"
+            height="30"
           />
         </a>
       </nav>

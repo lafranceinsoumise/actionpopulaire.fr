@@ -148,16 +148,25 @@ export const Footer = (props) => {
           </div>
 
           <div>
-            <h3>La campagne présidentielle</h3>
+            <h3>La campagne législative</h3>
             <p>
-              <Link route="melenchon2022" target="_blank">
-                Mélenchon2022.fr
+              <Link route="nupes" target="_blank">
+                La{" "}
+                <abbr title="Nouvelle Union Populaire Écologique et sociale">
+                  NUPES
+                </abbr>
               </Link>
-              <Link route="programme" target="_blank">
-                Le programme l'Avenir en commun
+              <Link route="nupesPlatform" target="_blank">
+                Le programme de la{" "}
+                <abbr title="Nouvelle Union Populaire Écologique et sociale">
+                  NUPES
+                </abbr>
               </Link>
               <Link route="agenda" target="_blank">
                 Agenda de la campagne
+              </Link>
+              <Link route="programme" target="_blank">
+                Le programme l'Avenir en commun
               </Link>
             </p>
           </div>
@@ -168,6 +177,9 @@ export const Footer = (props) => {
               <Link route="lafranceinsoumise">La France insoumise</Link>
               <Link route="linsoumission">L'insoumission</Link>
               <Link route="jlmBlog">Le blog de Jean-Luc Mélenchon</Link>
+              <Link route="melenchon2022" target="_blank">
+                Mélenchon2022.fr
+              </Link>
             </p>
           </div>
 
