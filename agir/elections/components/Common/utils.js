@@ -24,10 +24,10 @@ export const getISELink = (data) => {
     params.birthDay = date[2];
   }
   if (data?.votingLocation?.type === "commune") {
-    data.where = "france";
+    params.where = "france";
   }
   if (data?.votingLocation?.type === "consulate") {
-    data.where = "world";
+    params.where = "world";
   }
   return addQueryStringParams(ISE_URL, params);
 };

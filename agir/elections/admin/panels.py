@@ -31,7 +31,7 @@ class IsAvailableForVotingDateListFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         if self.value() is not None:
-            return queryset.filter(voting_dates__contains=[self.value()])
+            return queryset.filter(available_voting_dates__contains=[self.value()])
         return queryset
 
 

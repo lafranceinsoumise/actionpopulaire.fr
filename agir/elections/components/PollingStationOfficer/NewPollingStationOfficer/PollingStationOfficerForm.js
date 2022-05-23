@@ -398,7 +398,6 @@ const PollingStationOfficerForm = (props) => {
         />
         <Spacer size="1rem" />
         <TextField
-          autoFocus
           required
           disabled={isLoading}
           id="address2"
@@ -447,6 +446,7 @@ const PollingStationOfficerForm = (props) => {
       </fieldset>
       <fieldset>
         <VotingLocationField
+          autoFocus
           required
           disabled={isLoading}
           id="votingLocation"
@@ -522,6 +522,7 @@ const PollingStationOfficerForm = (props) => {
       </fieldset>
       <fieldset>
         <RadioField
+          autoFocus
           required
           disabled={isLoading}
           id="role"
