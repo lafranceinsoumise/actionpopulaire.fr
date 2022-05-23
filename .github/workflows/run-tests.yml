@@ -1,11 +1,61 @@
 name: Tests
 on: [push]
 jobs:
+  js-tests:
+    name: Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "14"
+          cache: "npm"
+      - name: Install node dependencies
+        run: npm ci
+      - name: Run tests
+        run: npm run test:ci
+
+  python-linting:
+    name: Black
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+        with:
+          python-version: "3.9.12"
+      - name: Install build dependencies
+        run: python -m pip install black==22.3.0
+      - name: Run black
+        run: python -m black --check .
+
+  docker-build:
+    name: Build Docker image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          file: .github/Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: ghcr.io/lafranceinsoumise/actionpopulaire.fr/agir-test-image:latest
+
   python-tests:
     name: Django
+    needs: docker-build
     runs-on: ubuntu-latest
     container:
-      image: docker.pkg.github.com/lafranceinsoumise/actionpopulaire.fr/agir-test-image:latest
+      image: ghcr.io/lafranceinsoumise/actionpopulaire.fr/agir-test-image:latest
       credentials:
         username: ${{ github.repository_owner }}
         password: ${{ secrets.GITHUB_TOKEN }}
@@ -20,43 +70,12 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
     steps:
-      - uses: actions/checkout@v2
-
-      - uses: actions/setup-node@v2-beta
-        with:
-          node-version: "14"
-
-      - uses: actions/cache@v2
-        with:
-          path: ~/.npm
-          key: npm-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            npm-${{ hashFiles('package-lock.json') }}
-            npm-
-
-      - uses: actions/cache@v2
-        with:
-          path: ~/.babel-cache
-          key: babel-${{ hashFiles('agir/**/*.js') }}
-          restore-keys: |
-            babel-${{ hashFiles('agir/**/*.js') }}
-            babel-
-
-      - name: Install node dependencies
-        run: npm ci
-      - name: Build bundles
-        run: npm run build:dev
-        env:
-          BABEL_CACHE_DIRECTORY: ~/.babel-cache
-          WEBPUSH_PUBLIC_KEY: "dummy"
-
+      - uses: actions/checkout@v3
       - uses: actions/setup-python@v3
         with:
-          python-version: "3.9"
-
-      - uses: actions/cache@v2
+          python-version: "3.9.12"
+      - uses: actions/cache@v3
         id: restore-cache
         with:
           path: |
@@ -66,41 +85,35 @@ jobs:
           restore-keys: |
             pip-${{ hashFiles('poetry.lock') }}
             pip-
-
       - name: Install build dependencies
-        run: python -m pip install -U poetry
-      - name: Install poetry dependencies
-        run: python -m poetry install
-
-      - name: Run tests
-        run: python -m poetry run ./manage.py test -v 2
-        env:
-          DATABASE_URL: "postgis://postgres:postgres@postgres:5432/postgres"
-          LOG_DISABLE_JOURNALD: true
-
-  python-linting:
-    name: Black
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v3
-        with:
-          python-version: "3.9.5"
-      - name: Install build dependencies
-        run: python -m pip install black==22.3.0
-      - name: Run black
-        run: python -m black --check .
-
-  js-tests:
-    name: Frontend
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+        run: |
+          python -m pip install -U poetry
+          python -m poetry install
+      - uses: actions/setup-node@v3
         with:
           node-version: "14"
           cache: "npm"
       - name: Install node dependencies
         run: npm ci
+      - uses: actions/cache@v3
+        with:
+          path: ~/.babel-cache
+          key: babel-${{ hashFiles('agir/**/*.js') }}
+          restore-keys: |
+            babel-${{ hashFiles('agir/**/*.js') }}
+            babel-
+      - name: Build bundles
+        run: npm run build:dev
+        env:
+          BABEL_CACHE_DIRECTORY: ~/.babel-cache
+          WEBPUSH_PUBLIC_KEY: "dummy"
       - name: Run tests
-        run: npm run test:ci
+        run: python -m poetry run coverage run ./manage.py test -v 2
+        env:
+          DATABASE_URL: "postgis://postgres:postgres@postgres:5432/postgres"
+          LOG_DISABLE_JOURNALD: true
+      - name: Report coverage
+        run: |
+          python -m poetry run coverage report
+          python -m poetry run coverage json
+          echo "::notice title=Coverage::Coverage $(jq .totals.percent_covered < coverage.json) %"
