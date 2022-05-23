@@ -10,7 +10,7 @@ const StyledSteps = styled.div`
 
   header {
     text-transform: uppercase;
-    color: #0c0de8;
+    color: ${(props) => props.theme.progressColor || "#0c0de8"};
     padding: 0 0 1rem;
 
     h5 {

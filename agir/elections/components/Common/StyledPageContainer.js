@@ -10,7 +10,7 @@ import {
   StyledLogo,
 } from "./StyledComponents";
 
-import theme from "@agir/front/genericComponents/themes/2022";
+import theme from "@agir/front/genericComponents/themes/nupes";
 
 const StyledPageContainer = ({ children }) => (
   <ThemeProvider theme={theme}>
@@ -19,8 +19,8 @@ const StyledPageContainer = ({ children }) => (
       <StyledBody>
         <StyledMain>
           <StyledLogo
-            alt="Logo Mélenchon 2022"
-            route="melenchon2022"
+            alt="Logo NUPES"
+            route="nupes"
             rel="noopener noreferrer"
             target="_blank"
           />

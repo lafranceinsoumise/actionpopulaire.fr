@@ -85,11 +85,15 @@ export const StyledLogo = styled(Link)`
   &::after {
     content: "";
     display: block;
-    height: 25px;
+    height: ${(props) => props.theme.logoHeight};
     background-image: url(${(props) => props.theme.logo});
     background-repeat: no-repeat;
-    background-position: center center;
+    background-position: center left;
     background-size: contain;
+
+    @media (max-width: ${(props) => props.theme.collapse}px) {
+      background-position: center center;
+    }
   }
 `;
 
