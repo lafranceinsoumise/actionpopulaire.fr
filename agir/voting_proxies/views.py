@@ -209,9 +209,7 @@ class ReplyToVotingProxyRequestsAPIView(RetrieveUpdateAPIView):
 
 class VotingProxyForRequestRetrieveAPIView(RetrieveAPIView):
     permission_classes = (IsActionPopulaireClientPermission,)
-    queryset = VotingProxyRequest.objects.filter(
-        status=VotingProxyRequest.STATUS_ACCEPTED, proxy__isnull=False
-    )
+    queryset = VotingProxyRequest.objects.filter(proxy__isnull=False)
     sms_id_bucket = TokenBucket("SendSMSID", 2, 600)
     sms_ip_bucket = TokenBucket("SendSMSIP", 2, 120)
 
