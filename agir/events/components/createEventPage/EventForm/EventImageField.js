@@ -52,6 +52,7 @@ const EventImageField = (props) => {
         accept=".jpg,.jpeg,.gif,.png"
         disabled={disabled}
         required={required}
+        error={error}
       />
       {!!value?.file && (
         <>
