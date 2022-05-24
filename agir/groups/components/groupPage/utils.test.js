@@ -1,4 +1,5 @@
-import { getGroupTypeWithLocation } from "./utils";
+import { DateTime } from "luxon";
+import { getGroupTypeWithLocation, parseDiscountCodes } from "./utils";
 
 describe("agir.groups.groupPage.utils", function () {
   describe("getGroupTypeWithLocation", function () {
@@ -81,6 +82,37 @@ describe("agir.groups.groupPage.utils", function () {
         { nameOf: "de los Angeles" }
       );
       expect(result).toEqual(expected);
+    });
+  });
+  describe("parseDiscountCodes", function () {
+    it("should return isEarly=true if expirationDate is more than a month in the future", function () {
+      const codes = [
+        {
+          code: "early",
+          expirationDate: DateTime.fromJSDate(new Date())
+            .startOf("month")
+            .plus({ month: 2 })
+            .toISO(),
+        },
+        {
+          code: "not-early",
+          expirationDate: DateTime.fromJSDate(new Date())
+            .startOf("month")
+            .plus({ month: 1 })
+            .toISO(),
+        },
+        {
+          code: "expired",
+          expirationDate: DateTime.fromJSDate(new Date())
+            .startOf("month")
+            .plus({ month: -1 })
+            .toISO(),
+        },
+      ];
+      const result = parseDiscountCodes(codes);
+      expect(result[0].isEarly).toEqual(true);
+      expect(result[1].isEarly).toEqual(false);
+      expect(result[2].isEarly).toEqual(false);
     });
   });
 });
