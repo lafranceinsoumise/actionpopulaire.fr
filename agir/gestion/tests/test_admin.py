@@ -1,5 +1,5 @@
 from django.urls import reverse
-from hypothesis import given, strategies as st, settings
+from hypothesis import given, strategies as st, settings, HealthCheck
 from hypothesis.extra.django import from_model, TestCase
 
 from agir.gestion.tests.strategies import depense, projet, compte
@@ -18,7 +18,7 @@ class BaseAdminTestCase(TestCase):
 
 
 class DepenseAdminTestCase(BaseAdminTestCase):
-    @settings(deadline=1000)
+    @settings(deadline=1000, suppress_health_check=[HealthCheck.too_slow])
     @given(admin_user, liste_depense_meme_compte)
     def test_peut_voir_la_liste(self, p, depenses):
         self.admin_login(p)
@@ -28,7 +28,7 @@ class DepenseAdminTestCase(BaseAdminTestCase):
 
         self.assertEqual(res.status_code, 200)
 
-    @settings(deadline=1000)
+    @settings(deadline=1000, suppress_health_check=[HealthCheck.too_slow])
     @given(admin_user, depense())
     def test_peut_voir_page_changement(self, p, depense):
         self.admin_login(p)
