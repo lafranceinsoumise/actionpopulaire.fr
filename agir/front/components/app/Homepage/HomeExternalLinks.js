@@ -97,7 +97,7 @@ const HomeExternalLinks = () => {
             src={lfiLogo}
             alt="logo de la France insoumise"
             width="136"
-            height="50"
+            height="51"
           />
         </a>
         <Spacer size="1rem" />
@@ -105,8 +105,8 @@ const HomeExternalLinks = () => {
           <img
             src={nupesLogo}
             alt="logo de la Nouvelle Union Populaire Écologique et Sociale"
-            width="220"
-            height="30"
+            width="200"
+            height="67"
           />
         </a>
         <Spacer size="1rem" />
@@ -123,8 +123,8 @@ const HomeExternalLinks = () => {
           <img
             src={melenchon2022Logo}
             alt="logo de la campagne Jean-Luc Mélenchon 2022"
-            width="220"
-            height="30"
+            width="200"
+            height="26"
           />
         </a>
       </nav>
