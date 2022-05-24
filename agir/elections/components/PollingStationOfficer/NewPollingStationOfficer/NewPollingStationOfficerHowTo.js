@@ -122,7 +122,7 @@ const NewPollingStationOfficerHowTo = () => (
           small
           color="primary"
           icon="file-text"
-          href="https://lafranceinsoumise.fr/wp-content/uploads/2020/03/Guide-des-assesseurs-et-de%CC%81le%CC%81gue%CC%81s.pdf"
+          route="pollingStationOfficerGuide"
           target="_blank"
           rel="noopener noreferrer"
         >
