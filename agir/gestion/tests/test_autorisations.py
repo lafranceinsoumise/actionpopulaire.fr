@@ -1,5 +1,5 @@
 from django.contrib.auth.models import Group
-from hypothesis import given, assume, strategies as st
+from hypothesis import given, assume, strategies as st, settings, HealthCheck
 from hypothesis.extra.django import from_model, TestCase
 
 from agir.gestion.models import Compte
@@ -45,6 +45,7 @@ class RuleTestCase(TestCase):
 
 
 class PermissionsTestCase(TestCase):
+    @settings(deadline=1000, suppress_health_check=[HealthCheck.too_slow])
     @given(person_with_role(), compte())
     def test_pas_de_permissions_par_defaut(self, person, compte):
         for perm, _ in Compte._meta.permissions:
