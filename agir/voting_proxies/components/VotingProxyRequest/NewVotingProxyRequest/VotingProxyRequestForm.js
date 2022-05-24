@@ -262,7 +262,7 @@ const VotingProxyRequestForm = (props) => {
           name="dataAgreement"
           value={hasDataAgreement}
           onChange={handleChangeDataAgreement}
-          label="J'autorise Mélenchon 2022 à partager mes coordonnées pour être mis·e en contact dans le cadre d'une procuration"
+          label="J'autorise Action Populaire à partager mes coordonnées pour être mis·e en contact dans le cadre d'une procuration"
         />
         {globalError && (
           <p

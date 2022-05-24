@@ -47,7 +47,7 @@ const FormSuccess = ({ children }) => {
       {children}
       <Spacer size="2.5rem" />
       <footer>
-        <Button link route="melenchon2022">
+        <Button link route="nupes">
           Fermer
         </Button>
       </footer>
