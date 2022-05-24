@@ -176,14 +176,14 @@ Control.propTypes = {
   children: PropTypes.node,
 };
 
-const Option = ({ innerRef, ...innerProps }) => {
-  const { data } = innerProps;
-  const label = (data && data.label) || innerProps.label;
+const Option = (props) => {
+  const { data } = props;
+  const label = (data && data.label) || props.label;
   const sublabel = (data && data.sublabel) || null;
   const icon = data.icon || null;
   const buttonLabel = data.buttonLabel || null;
   return (
-    <StyledOption ref={innerRef} {...innerProps}>
+    <StyledOption {...props}>
       {icon && <RawFeatherIcon name={icon} widht="1rem" height="1rem" />}
       <p>
         <strong>{label}</strong>

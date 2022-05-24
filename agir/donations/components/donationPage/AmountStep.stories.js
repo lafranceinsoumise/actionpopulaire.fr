@@ -26,12 +26,12 @@ Default.args = {
   hasGroups: false,
 };
 
-export const JLM2022 = Template.bind({});
-JLM2022.args = {
-  ...Default.args,
-  ...config["2022"],
-  type: "2022",
-};
+// export const JLM2022 = Template.bind({});
+// JLM2022.args = {
+//   ...Default.args,
+//   ...config["2022"],
+//   type: "2022",
+// };
 
 export const WithGroupLink = Template.bind({});
 WithGroupLink.args = {

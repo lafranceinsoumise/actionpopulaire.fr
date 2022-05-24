@@ -2,7 +2,7 @@ import React from "react";
 import { TreveCreationPage } from "./TreveCreationPage";
 
 export default {
-  component: NotFoundPage,
+  component: TreveCreationPage,
   title: "Layout/TreveCreationPage",
 };
 

@@ -5,6 +5,8 @@ import styled, { keyframes } from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
+import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
+
 const slideIn = keyframes`
   from {
     opacity: 0;
@@ -130,7 +132,6 @@ const StyledField = styled.label`
       overflow-x: hidden;
       overflow-y: auto;
       animation: ${slideIn} 200ms ease-out;
-      max-height: ${(props) => (props.$searchable ? "194px" : "388px")};
     }
 
     ${BackgroundOpacity} {
@@ -252,6 +253,8 @@ const SelectField = (props) => {
     ...rest
   } = props;
 
+  const maxMenuHeight = useResponsiveMemo(isSearchable ? 124 : 238, "auto");
+
   return (
     <StyledField
       htmlFor={id}
@@ -264,6 +267,7 @@ const SelectField = (props) => {
       {helpText && <StyledHelpText>{helpText}</StyledHelpText>}
       <Select
         {...rest}
+        maxMenuHeight={maxMenuHeight}
         classNamePrefix="select"
         isDisabled={!!rest.disabled}
         isSearchable={!!isSearchable}
