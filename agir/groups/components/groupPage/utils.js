@@ -21,19 +21,22 @@ export const parseDiscountCodes = (discountCodes) => {
   if (!Array.isArray(discountCodes)) {
     return null;
   }
-
   return discountCodes.map((code) => {
     const expirationDateTime = DateTime.fromJSDate(
       new Date(code.expirationDate)
-    );
+    ).startOf("month");
+
     let expiration = expirationDateTime.diffNow("days").days;
     expiration =
       typeof expiration === "number" ? `${Math.ceil(expiration)} jours` : "";
+
+    const isEarly = expirationDateTime.diffNow("months").months > 1;
 
     return {
       ...code,
       expiration,
       date: expirationDateTime.setLocale("fr-FR").toFormat("dd MMMM yyyy"),
+      isEarly,
     };
   });
 };

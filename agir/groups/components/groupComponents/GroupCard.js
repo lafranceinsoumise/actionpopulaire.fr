@@ -5,7 +5,6 @@ import styled from "styled-components";
 
 import { routeConfig } from "@agir/front/app/routes.config";
 import style from "@agir/front/genericComponents/_variables.scss";
-import { parseDiscountCodes } from "@agir/groups/groupPage/utils";
 
 import Button from "@agir/front/genericComponents/Button";
 import Card from "@agir/front/genericComponents/Card";
@@ -13,7 +12,8 @@ import Collapsible from "@agir/front/genericComponents/Collapsible.js";
 import { Column, Hide, Row } from "@agir/front/genericComponents/grid";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import Link from "@agir/front/app/Link";
-import ShareLink from "@agir/front/genericComponents/ShareLink";
+
+import DiscountCodes from "@agir/groups/groupComponents/DiscountCodes";
 
 const GroupIcon = styled.div`
   display: flex;
@@ -44,36 +44,6 @@ const Label = styled.span`
     border: 0;
     `
       : ""}
-`;
-
-const DiscountCodesSection = styled.section`
-  margin: 1.5rem 0 0;
-
-  & > * {
-    color: ${style.black1000};
-    margin: 0.5rem 0;
-  }
-
-  & > p {
-    background-color: ${style.primary100};
-    border-radius: ${style.borderRadius};
-    font-size: 0.875rem;
-    padding: 0.875rem;
-    line-height: 1.5;
-    margin: 0 0 1rem;
-  }
-
-  ul {
-    padding: 0;
-  }
-
-  li {
-    list-style: none;
-  }
-
-  li span {
-    font-weight: 400;
-  }
 `;
 
 const StyledRow = styled(Row)`
@@ -113,10 +83,6 @@ const GroupCard = ({
         history.push(routeConfig.groupDetails.getLink({ groupPk: id }));
     },
     [history, id]
-  );
-  const parsedDiscountCodes = useMemo(
-    () => parseDiscountCodes(discountCodes),
-    [discountCodes]
   );
 
   return (
@@ -172,26 +138,7 @@ const GroupCard = ({
         </div>
       )}
 
-      {parsedDiscountCodes && parsedDiscountCodes.length > 0 && (
-        <DiscountCodesSection>
-          <h5>Codes matériels</h5>
-          <ul>
-            {parsedDiscountCodes.map(({ code, date }) => (
-              <li key={code}>
-                <ShareLink
-                  color="secondary"
-                  url={code}
-                  label="Copier"
-                  $wrap={400}
-                />
-                <p style={{ fontSize: "0.875rem", paddingTop: ".25rem" }}>
-                  Expiration&nbsp;: {date}
-                </p>
-              </li>
-            ))}
-          </ul>
-        </DiscountCodesSection>
-      )}
+      <DiscountCodes discountCodes={discountCodes} />
 
       <StyledRow gutter={6} style={{ paddingTop: ".5rem" }}>
         {!isEmbedded && !isMember && (
@@ -261,7 +208,6 @@ GroupCard.propTypes = {
   displayType: PropTypes.bool,
   displayDescription: PropTypes.bool,
   displayMembership: PropTypes.bool,
-  ...DiscountCodesSection.propTypes,
   isEmbedded: PropTypes.bool,
 };
 
