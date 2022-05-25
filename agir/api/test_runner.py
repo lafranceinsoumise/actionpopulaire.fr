@@ -1,7 +1,10 @@
+import os
 import shutil
 import tempfile
+
 from django.test import override_settings
 from django.test.runner import DiscoverRunner
+from hypothesis import settings, Verbosity, HealthCheck
 
 from .celery import app
 from .redis import using_separate_redis_server
@@ -18,6 +21,7 @@ class TestRunner(DiscoverRunner):
         - Met en place un serveur Redis standalone pour les tests
         - Met Celery en mode "eager", c'est-à-dire que les tâches sont exécutées immédiatement
           plutôt que d'être schedulées
+        - Select hypothesis profile from env var
         :return:
         """
         super(TestRunner, self).setup_test_environment()
@@ -36,6 +40,13 @@ class TestRunner(DiscoverRunner):
         self._redislite.__enter__()
 
         app.conf.task_always_eager = True
+
+        settings.register_profile(
+            "ci", max_examples=10, suppress_health_check=[HealthCheck.too_slow]
+        )
+        settings.register_profile("dev", deadline=1000)
+        settings.register_profile("debug", deadline=1000, verbosity=Verbosity.verbose)
+        settings.load_profile(os.getenv("HYPOTHESIS_PROFILE", "ci"))
 
     def teardown_test_environment(self):
         "On défait tout ce qui a été fait au setup dans l'ordre inverse"
