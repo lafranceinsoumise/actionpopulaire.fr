@@ -319,6 +319,7 @@ class SupportGroup(
                 False
                 == referent.memberships.exclude(supportgroup_id=self.id)
                 .filter(
+                    supportgroup__published=True,
                     membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
                     supportgroup__type=self.TYPE_LOCAL_GROUP,
                     supportgroup__subtypes__label__in=settings.CERTIFIED_GROUP_SUBTYPES,
