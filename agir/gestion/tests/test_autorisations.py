@@ -45,7 +45,6 @@ class RuleTestCase(TestCase):
 
 
 class PermissionsTestCase(TestCase):
-    @settings(deadline=1000, suppress_health_check=[HealthCheck.too_slow])
     @given(person_with_role(), compte())
     def test_pas_de_permissions_par_defaut(self, person, compte):
         for perm, _ in Compte._meta.permissions:
