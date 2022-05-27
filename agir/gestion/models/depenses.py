@@ -429,6 +429,12 @@ class Reglement(SearchableModel, TimeStampedModel):
         help_text="le numéro de la ligne correspondante dans le relevé bancaire du compte de campagne.",
     )
 
+    numero_complement = models.CharField(
+        max_length=5,
+        verbose_name="Complément pour différencier plusieurs transactions avec le même numéro",
+        blank=True,
+    )
+
     depense = models.ForeignKey(
         to="Depense",
         verbose_name="Dépense concernée",
