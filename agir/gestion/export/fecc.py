@@ -5,10 +5,13 @@ import pandas as pd
 from django.db.models import QuerySet
 from glom import glom, Val, T, M, Coalesce
 
-from agir.gestion.export import LIBELLES_MODE, lien_document, autres_pieces
+from agir.gestion.export import (
+    LIBELLES_MODE,
+    lien_document,
+    autres_pieces,
+    gestion_admin_link,
+)
 from agir.gestion.models import Reglement
-from agir.gestion.typologies import TypeDepense
-from agir.lib.admin.utils import get_admin_link
 
 
 def numero(reglement):
@@ -21,7 +24,6 @@ spec_fec = {
     "EcritureNum": numero,
     "EcritureDate": ("created", T.date()),
     "CompteNum": ("numero_compte"),
-    "CompteLib": ("depense.type", TypeDepense, T.label),
     "PieceRef": Coalesce("facture.numero", default=""),
     "PieceDate": Coalesce("facture.date", default=""),
     "EcritureLib": "intitule",
@@ -32,7 +34,7 @@ spec_fec = {
     "ValidDate": "date_validation",
     "Montantdevise": Val(""),
     "Idevise": Val(""),
-    "DateRglt": "date_releve",
+    "DateRglt": "date",
     "ModeRglt": ("mode", LIBELLES_MODE.get),
     "NatOp": Val(""),
     "DateEvenement": Coalesce(
@@ -44,7 +46,7 @@ spec_fec = {
     "DateDébut": "depense.date_debut",
     "DateFin": "depense.date_fin",
     "Quantité": "depense.quantite",
-    "LienRèglement": (get_admin_link,),
+    "LienRèglement": gestion_admin_link,
     "PreuvePaiement": ("preuve", lien_document),
     "LienFacture": ("facture", lien_document),
     "AutresPièces": autres_pieces,
