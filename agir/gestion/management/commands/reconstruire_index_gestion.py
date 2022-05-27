@@ -2,14 +2,14 @@ from django.contrib.admin.options import get_content_type_for_model
 from django.core.management import BaseCommand
 
 from agir.gestion.models import InstanceCherchable
-from agir.gestion.models.common import ModeleGestionMixin
+from agir.gestion.models.common import SearchableModel
 
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
         InstanceCherchable.objects.all().delete()
 
-        for model in ModeleGestionMixin.__subclasses__():
+        for model in SearchableModel.__subclasses__():
             ct = get_content_type_for_model(model)
             search_vector = model.search_vector()
             base_sv_qs = model.objects.values(v=search_vector)

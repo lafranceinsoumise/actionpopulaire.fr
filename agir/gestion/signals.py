@@ -1,7 +1,7 @@
 from django.contrib.admin.options import get_content_type_for_model
 from django.db.models.signals import pre_delete, post_save
 
-from agir.gestion.models.common import InstanceCherchable, ModeleGestionMixin
+from agir.gestion.models.common import InstanceCherchable, SearchableModel
 
 
 def creer_ou_mettre_a_jour_recherche(sender, instance, raw, **kwargs):
@@ -22,5 +22,5 @@ def creer_ou_mettre_a_jour_recherche(sender, instance, raw, **kwargs):
     )
 
 
-for klass in ModeleGestionMixin.__subclasses__():
+for klass in SearchableModel.__subclasses__():
     post_save.connect(creer_ou_mettre_a_jour_recherche, sender=klass)
