@@ -590,7 +590,6 @@ class Reglement(SearchableModel, TimeStampedModel):
         ("numero", "B"),
         ("intitule", "A"),
         ("montant", "B"),
-        ("description", "B"),
     )
 
     def __repr__(self):
