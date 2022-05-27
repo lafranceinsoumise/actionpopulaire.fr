@@ -588,7 +588,8 @@ class Reglement(SearchableModel, TimeStampedModel):
 
     search_config = (
         ("numero", "B"),
-        ("titre", "A"),
+        ("intitule", "A"),
+        ("montant", "B"),
         ("description", "B"),
     )
 
