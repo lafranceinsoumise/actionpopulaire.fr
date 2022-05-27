@@ -18,7 +18,7 @@ def lien_document(document):
         if fichier := document.fichier:
             return fichier.url
 
-        return get_admin_link(document)
+        return gestion_admin_link(document)
     return "-"
 
 
