@@ -580,6 +580,8 @@ class Reglement(SearchableModel, TimeStampedModel):
         "pays", blank_label="(sélectionner un pays)", default="FR", blank=False
     )
 
+    libre = models.TextField(verbose_name="Commentaire libre", blank=True)
+
     commentaires = models.ManyToManyField(
         to="Commentaire",
         verbose_name="Commentaires",
