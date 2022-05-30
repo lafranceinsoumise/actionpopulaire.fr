@@ -97,17 +97,7 @@ const Link = (() => {
 
     return null;
   };
-
   LinkComponent.displayName = "Link";
-  LinkComponent.propTypes = {
-    route: PropTypes.string,
-    href: PropTypes.string,
-    to: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.func,
-      PropTypes.object,
-    ]),
-  };
 
   return React.forwardRef(LinkComponent);
 })();

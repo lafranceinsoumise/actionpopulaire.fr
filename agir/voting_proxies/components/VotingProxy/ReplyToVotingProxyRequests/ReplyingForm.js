@@ -8,7 +8,7 @@ import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
-import { MailTo } from "@agir/voting_proxies/Common/StyledComponents";
+import { MailTo } from "@agir/elections/Common/StyledComponents";
 
 import ReplySuccess from "./ReplySuccess";
 import AcceptedRequests from "./AcceptedRequests";

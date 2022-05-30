@@ -3,9 +3,7 @@ from django.core.management import BaseCommand
 from tqdm import tqdm
 
 from agir.voting_proxies.models import VotingProxyRequest
-from agir.voting_proxies.tasks import (
-    send_voting_proxy_request_confirmation_reminder,
-)
+from agir.voting_proxies.tasks import send_voting_proxy_request_confirmation_reminder
 
 
 class Command(BaseCommand):

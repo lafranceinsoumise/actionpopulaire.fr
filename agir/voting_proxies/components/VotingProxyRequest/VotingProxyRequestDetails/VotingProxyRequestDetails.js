@@ -8,7 +8,7 @@ import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
-import StyledPageContainer from "@agir/voting_proxies/Common/StyledPageContainer";
+import StyledPageContainer from "@agir/elections/Common/StyledPageContainer";
 import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage";
 import VotingProxyWidget from "./VotingProxyWidget";
 

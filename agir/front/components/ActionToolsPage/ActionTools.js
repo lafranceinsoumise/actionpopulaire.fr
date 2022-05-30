@@ -109,7 +109,7 @@ export const ActionTools = () => {
           </span>
         </span>
       </StyledCardItem>
-      <StyledCardItem route="votingProxyLandingPage">
+      <StyledCardItem route="newVotingProxy">
         <i
           aria-hidden="true"
           css={`
@@ -128,8 +128,7 @@ export const ActionTools = () => {
         </span>
         <RawFeatherIcon aria-hidden="true" name="chevron-right" />
       </StyledCardItem>
-      {/*
-      <StyledCardItem route="pollingStationAssessorForm">
+      <StyledCardItem route="newPollingStationOfficer">
         <i
           aria-hidden="true"
           css={`
@@ -177,7 +176,6 @@ export const ActionTools = () => {
         </span>
         <RawFeatherIcon aria-hidden="true" name="chevron-right" />
       </StyledCardItem>
-      */}
       <StyledCardItem route="createContact">
         <i
           aria-hidden="true"

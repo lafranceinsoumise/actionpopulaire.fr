@@ -10,7 +10,7 @@ const StyledSteps = styled.div`
 
   header {
     text-transform: uppercase;
-    color: #0c0de8;
+    color: ${(props) => props.theme.progressColor || "#0c0de8"};
     padding: 0 0 1rem;
 
     h5 {
@@ -67,6 +67,7 @@ const ControlledSteps = (props) => {
   } = props;
 
   const topRef = useRef();
+  const shouldScrollToTop = useRef(false);
   const steps = children.filter(Boolean);
   const lastStep = React.Children.count(steps) - 1;
   const currentStep = Math.min(Math.max(step, 0), lastStep);
@@ -80,7 +81,11 @@ const ControlledSteps = (props) => {
   const stepsArray = React.Children.toArray(steps);
 
   useEffect(() => {
-    topRef.current && topRef.current.scrollIntoView(true);
+    if (shouldScrollToTop.current) {
+      topRef.current && topRef.current.scrollIntoView(true);
+    } else {
+      shouldScrollToTop.current = true;
+    }
   }, [currentStep]);
 
   return (
