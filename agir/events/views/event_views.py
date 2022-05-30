@@ -381,6 +381,7 @@ class UploadEventImageView(
         return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
+        self.object = None
         form = self.get_form()
         author_form = self.get_author_form()
 

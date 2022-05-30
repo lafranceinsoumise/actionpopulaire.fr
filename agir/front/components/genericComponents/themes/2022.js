@@ -6,7 +6,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 const theme = {
   default: style,
   logo,
-  logoHeight: "35px",
+  logoHeight: "25px",
   secondary600: "#E50B2D",
   secondary500: "#F53B3B",
   secondary150: "#F2C2C8",

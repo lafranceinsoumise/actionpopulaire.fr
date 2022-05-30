@@ -388,6 +388,8 @@ urlpatterns = [
     ),
     # VOTING PROXIES
     path("procuration/", include(voting_proxy_patterns)),
+    # POLLING STATION OFFICERS
+    path("elections/assesseures-deleguees/", views.PollingStationOfficerView.as_view()),
     path("404/", views.NotFoundView.as_view()),
     ## REDIRECT / EXTERNAL VIEWS
     path("nsp/", views.NSPView.as_view(), name="nsp"),

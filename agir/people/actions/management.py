@@ -260,6 +260,7 @@ MERGE_STRATEGIES = {
     "candidature": merge_reassign_related,
     "_email": None,
     "voting_proxy": None,
+    "polling_station_officer": None,
 }
 
 

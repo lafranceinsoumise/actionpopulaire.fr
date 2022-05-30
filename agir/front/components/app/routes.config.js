@@ -503,6 +503,18 @@ export const routeConfig = {
     hideFeedbackButton: true,
     hideFooter: true,
   }),
+  newPollingStationOfficer: new RouteConfig({
+    id: "newPollingStationOfficer",
+    path: "/elections/assesseures-deleguees/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Devenir assesseur·e ou délégué·e",
+    Component: RouteComponents.NewPollingStationOfficer,
+    hasLayout: false,
+    hideFeedbackButton: true,
+    hideFooter: true,
+    appOnlyTopBar: true,
+  }),
 };
 
 export const getRouteByPathname = (pathname) => {

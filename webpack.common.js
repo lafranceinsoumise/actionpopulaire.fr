@@ -174,7 +174,7 @@ const configureBabelLoader = (type) => ({
                 loose: true,
                 modules: "auto",
                 useBuiltIns: "usage",
-                corejs: { version: "3.21" },
+                corejs: { version: "3.22" },
                 targets: {
                   browsers: [
                     "> 0.5% in FR",
@@ -331,7 +331,18 @@ module.exports = (type = CONFIG_TYPES.ES5) => ({
       configureBabelLoader(type),
       {
         test: /theme\.scss$/,
-        use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
+        use: [
+          MiniCssExtractPlugin.loader,
+          "css-loader",
+          {
+            loader: "sass-loader",
+            options: {
+              sassOptions: {
+                quietDeps: true,
+              },
+            },
+          },
+        ],
       },
       {
         test: /\.scss$/,

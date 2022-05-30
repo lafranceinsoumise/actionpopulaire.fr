@@ -2,6 +2,8 @@ import React, { useState, useCallback } from "react";
 
 import SearchAndSelectField from "./SearchAndSelectField";
 
+import TIMEZONES from "./timezones";
+
 export default {
   component: SearchAndSelectField,
   title: "Form/SearchAndSelectField",
@@ -20,24 +22,26 @@ const Template = (args) => {
     setOptions(defaultOptions);
   }, []);
 
-  const handleSearch = useCallback(async (q) => {
-    await new Promise((resolve) => {
-      setIsLoading(true);
-      setTimeout(() => {
-        setIsLoading(false);
-        if (!q) {
-          setOptions(defaultOptions);
-        } else {
-          setOptions(
-            defaultOptions.filter((option) => {
+  const handleSearch = useCallback(
+    async (q) =>
+      await new Promise((resolve) => {
+        setIsLoading(true);
+        setTimeout(() => {
+          setIsLoading(false);
+          let options = [];
+          if (!q) {
+            options = defaultOptions;
+          } else {
+            options = defaultOptions.filter((option) => {
               return option.label.toLowerCase().includes(q.toLowerCase());
-            })
-          );
-        }
-        resolve();
-      }, 3000);
-    });
-  }, []);
+            });
+          }
+          setOptions(options);
+          resolve(options);
+        }, 500);
+      }),
+    []
+  );
 
   return (
     <div
@@ -68,30 +72,20 @@ const Template = (args) => {
   );
 };
 
-const defaultOptions = [
-  { label: "Ocean", value: "#00B8D9" },
-  { label: "Blue", value: "#0052CC" },
-  { label: "Purple", value: "#5243AA" },
-  { label: "Red", value: "#FF5630" },
-  { label: "Orange", value: "#FF8B00" },
-  { label: "Yellow", value: "#FFC400" },
-  { label: "Green", value: "#36B37E" },
-  { label: "Forest", value: "#00875A" },
-  { label: "Slate", value: "#253858" },
-  { label: "Silver", value: "#666666" },
-];
+const defaultOptions = TIMEZONES.map((tz) => ({ label: tz, value: tz }));
 
 export const Default = Template.bind({});
 Default.args = {
   value: "",
-  placeholder: "Choisir une couleur",
+  placeholder: "Choisir un fuseau horaire",
   type: "text",
-  id: "color",
-  label: "Couleur",
+  id: "timezone",
+  label: "Fuseau horaire",
   error: "",
   disabled: false,
   defaultOptions,
   isLoading: false,
+  minSearchTermLength: 1,
 };
 
 export const Empty = Default;

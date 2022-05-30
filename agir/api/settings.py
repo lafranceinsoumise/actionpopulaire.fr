@@ -147,6 +147,7 @@ INSTALLED_APPS = [
     "agir.gestion.apps.GestionConfig",
     "agir.presidentielle2022",
     "agir.voting_proxies",
+    "agir.elections",
     "agir.legislatives2022.apps.Legislatives2022Config",
     # default contrib apps
     "agir.api.apps.AdminAppConfig",

@@ -8,6 +8,8 @@ const config = [
   "/api/user/messages/recipients/",
   "/api/notifications/subscriptions/",
 
+  "/api/elections/circonscription-legislatives/",
+
   "/api/evenements/rsvped/",
   "/api/evenements/rsvped/passes/",
   "/api/evenements/rsvped/en-cours/",
