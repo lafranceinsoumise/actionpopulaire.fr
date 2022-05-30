@@ -188,10 +188,15 @@ class TypeDepense(TextChoices):
 
     REFACTURATION = "REF", None, "Refacturation"
 
+    @classmethod
+    def pour_compte(cls, compte):
+        return cls._comptes.get(compte[:4], cls._compte.get(compte[3:]))
+
 
 TypeDepense.choices_avec_compte = [
     (m.value, f"{m.label} ({m.compte})" if m.compte else m.label) for m in TypeDepense
 ]
+TypeDepense._comptes = {m.compte: m for m in TypeDepense}
 
 
 class TypeProjet(TextChoices):

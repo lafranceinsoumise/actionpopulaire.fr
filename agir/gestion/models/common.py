@@ -21,7 +21,7 @@ __all__ = ("Compte", "InstanceCherchable", "Autorisation")
 from agir.lib.utils import NUMERO_RE, numero_unique
 
 
-class NumeroQueryset(models.QuerySet):
+class SearchableQueryset(models.QuerySet):
     def search(self, query):
 
         if NUMERO_RE.match(query):
@@ -41,12 +41,34 @@ class NumeroQueryset(models.QuerySet):
         )
 
 
-class NumeroManager(models.Manager.from_queryset(NumeroQueryset)):
+class NumeroManager(models.Manager.from_queryset(SearchableQueryset)):
     def get_by_natural_key(self, numero):
         return self.get(numero=numero)
 
 
-class ModeleGestionMixin(models.Model):
+class SearchableModel(models.Model):
+    objects = SearchableQueryset.as_manager()
+
+    @classmethod
+    def search_vector(cls):
+        search_config = cls.search_config
+        return reduce(
+            add,
+            (
+                SearchVector(
+                    models.F(field),
+                    config="french_unaccented",
+                    weight=weight,
+                )
+                for field, weight in search_config
+            ),
+        )
+
+    class Meta:
+        abstract = True
+
+
+class ModeleGestionMixin(SearchableModel):
     """Mixin à intégrer pour les modèles utilisés dans l'application de gestion
 
     Ce mixin ajoute trois fonctionnalités principales :
@@ -80,21 +102,6 @@ class ModeleGestionMixin(models.Model):
     def __str__(self):
         titre = f"{self.titre[:70]}..." if len(self.titre) > 70 else self.titre
         return f"« {titre} » ({self.numero})"
-
-    @classmethod
-    def search_vector(cls):
-        search_config = cls.search_config
-        return reduce(
-            add,
-            (
-                SearchVector(
-                    models.F(field),
-                    config="french_unaccented",
-                    weight=weight,
-                )
-                for field, weight in search_config
-            ),
-        )
 
     class Meta:
         abstract = True

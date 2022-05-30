@@ -12,7 +12,11 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 from agir.authentication.models import Role
 from agir.gestion.actions import Todo, NiveauTodo, Transition, no_todos
-from agir.gestion.models.common import ModeleGestionMixin, NumeroQueryset
+from agir.gestion.models.common import (
+    ModeleGestionMixin,
+    SearchableQueryset,
+    SearchableModel,
+)
 from agir.gestion.typologies import TypeDepense, NiveauAcces, TypeDocument
 from agir.gestion.virements import Partie, Virement
 from agir.lib.model_fields import IBANField, BICField
@@ -61,7 +65,7 @@ def engager_depense(depense: "Depense"):
         depense.date_depense = timezone.now()
 
 
-class DepenseQuerySet(NumeroQueryset):
+class DepenseQuerySet(SearchableQueryset):
     def annoter_reglement(self):
         return self.annotate(
             prevu=models.Sum("reglement__montant"),
@@ -378,7 +382,7 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
 
 
 @reversion.register(follow=["depense"])
-class Reglement(TimeStampedModel):
+class Reglement(SearchableModel, TimeStampedModel):
     class Etat(models.TextChoices):
         ATTENTE = "C", "En cours"
         REGLE = "R", "Réglé"
@@ -423,6 +427,12 @@ class Reglement(TimeStampedModel):
         null=True,
         blank=True,
         help_text="le numéro de la ligne correspondante dans le relevé bancaire du compte de campagne.",
+    )
+
+    numero_complement = models.CharField(
+        max_length=5,
+        verbose_name="Complément pour différencier plusieurs transactions avec le même numéro",
+        blank=True,
     )
 
     depense = models.ForeignKey(
@@ -578,8 +588,8 @@ class Reglement(TimeStampedModel):
 
     search_config = (
         ("numero", "B"),
-        ("titre", "A"),
-        ("description", "B"),
+        ("intitule", "A"),
+        ("montant", "B"),
     )
 
     def __repr__(self):
