@@ -1,7 +1,7 @@
 import illustration2022BGD from "./images/illustration_2022_BG_D.jpg";
 import illustration2022BGM from "./images/illustration_2022_BG_M.jpg";
 
-import logo from "@agir/front/genericComponents/logos/nupes.png";
+import logo from "@agir/front/genericComponents/logos/nupes-2l.png";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 

@@ -78,7 +78,7 @@ export const StyledLogo = styled(Link)`
 
   @media (max-width: ${(props) => props.theme.collapse}px) {
     margin: 0 -1.5rem 1rem;
-    padding: 1rem;
+    padding: 0.5rem 1.5rem;
     border-bottom: 1px solid ${(props) => props.theme.black100};
   }
 

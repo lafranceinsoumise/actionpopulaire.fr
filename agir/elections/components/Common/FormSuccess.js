@@ -18,6 +18,10 @@ const StyledWrapper = styled.div`
       font-size: 1.25rem;
     }
   }
+
+  strong {
+    font-weight: 600;
+  }
 `;
 
 const FormSuccess = ({ children }) => {

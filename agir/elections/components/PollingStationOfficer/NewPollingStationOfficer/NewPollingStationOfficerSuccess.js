@@ -24,8 +24,9 @@ const NewPollingStationOfficerSuccess = ({ PollingStationOfficer }) => (
     <Spacer size="1rem" />
     <p>
       <strong>
-        Soyons dans tous les bureaux de vote&nbsp;: n'hésitez pas à partager ce
-        formulaire​&nbsp;!
+        Soyons dans tous les bureaux de vote&nbsp;:
+        <br />
+        n'hésitez pas à partager ce formulaire​&nbsp;!
       </strong>
     </p>
     <Spacer size="1.5rem" />
