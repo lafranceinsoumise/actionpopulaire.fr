@@ -42,7 +42,10 @@ class TestRunner(DiscoverRunner):
         app.conf.task_always_eager = True
 
         settings.register_profile(
-            "ci", deadline=400, max_examples=10, suppress_health_check=[HealthCheck.too_slow]
+            "ci",
+            deadline=400,
+            max_examples=10,
+            suppress_health_check=[HealthCheck.too_slow],
         )
         settings.register_profile("dev", deadline=1000)
         settings.register_profile("debug", deadline=1000, verbosity=Verbosity.verbose)
