@@ -45,13 +45,17 @@ spec_fec = {
     "ModeRglt": ("mode", LIBELLES_MODE.get),
     "NatOp": Val(""),
     "DateEvenement": Coalesce(
-        ("depense.projet.event.start_time", T.date()), default=None
+        "date_evenement",
+        "depense.projet.date_evenement",
+        ("depense.projet.event.start_time", T.date()),
+        default=None,
+        skip=(None,),
     ),
     "InseeCode": Coalesce(
         "code_insee",
         "depense.projet.event.location_citycode",
         skip=("", None),
-        default="0000",
+        default="00000",
     ),
     "Libre": "libre",
     "Type": "depense.nature",
