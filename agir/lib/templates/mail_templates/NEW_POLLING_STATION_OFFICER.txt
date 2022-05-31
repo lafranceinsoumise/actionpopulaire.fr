@@ -1,0 +1,37 @@
+{{ SALUTATIONS }},
+
+Une personne s'est portée volontaire pour tenir un bureau de vote dans votre circonscription lors des élections législatives de juin 2022 sur la plateforme [Action Populaire]({{ POLLING_STATION_OFFICER_PAGE_URL }} "Action Populaire").
+Merci de prendre contact avec elle et de vous rapprocher des mairies pour déclarer les assesseur·es et délégué·es dans votre circonscription.
+Veuillez trouver ci-dessous ses coordonnées :  
+
+    {{ FIRST_NAME }}  
+    {{ LAST_NAME }}  
+    {{ BIRTH_NAME }}  
+    {{ GENDER }}  
+    {{ BIRTH_DATE }}  
+    {{ BIRTH_CITY }}  
+    {{ BIRTH_COUNTRY }}  
+      
+    {{ LOCATION_ADDRESS1 }}  
+    {{ LOCATION_ADDRESS2 }}  
+    {{ LOCATION_CITY }}  
+    {{ LOCATION_ZIP }}  
+    {{ LOCATION_COUNTRY }}  
+      
+    {{ VOTING_LOCATION }}  
+    {{ VOTING_CIRCONSCRIPTION_LEGISLATIVE }}  
+    {{ POLLING_STATION }}  
+    {{ VOTER_ID }}  
+      
+    {{ ROLE }}  
+    {{ HAS_MOBILITY }}  
+    {{ AVAILABLE_VOTING_DATES }}  
+      
+    {{ CONTACT_EMAIL }}  
+    {{ CONTACT_PHONE }}
+
+    {{ REMARKS }}
+      
+  
+Vous recevez ce message car vous avez été indiqué·e comme directeur·rice de campagne pour les législatives 2022 par les candidats de la circonscription **{{ CODE_CIRCONSCRIPTION }}**.
+Pour toute question, vous pouvez contacter l'équipe d'organisation des campagnes législatives à l'adresse [legislatives@melenchon2022.fr](mailto:legislatives@melenchon2022.fr "Écrire au comité électoral").

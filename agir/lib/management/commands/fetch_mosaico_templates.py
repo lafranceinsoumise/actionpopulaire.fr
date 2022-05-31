@@ -28,6 +28,8 @@ class Command(BaseCommand):
                 file.unlink()
 
         for name, url in tqdm(settings.EMAIL_TEMPLATES.items()):
+            if not url:
+                continue
             try:
                 content = fetch_mosaico_template(url)
             except requests.RequestException:
