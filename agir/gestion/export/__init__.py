@@ -18,12 +18,20 @@ def lien_document(document):
         if fichier := document.fichier:
             return fichier.url
 
+        if document.source_url:
+            return document.source_url
+
         return gestion_admin_link(document)
     return "-"
 
 
 def autres_pieces(reglement):
     documents = reglement.depense.documents.exclude(type__in=[TypeDocument.FACTURE])
+    if reglement.depense.projet:
+        documents = documents.union(reglement.depense.projet.documents.all()).distinct(
+            "id"
+        )
+
     return [lien_document(d) for d in documents]
 
 
