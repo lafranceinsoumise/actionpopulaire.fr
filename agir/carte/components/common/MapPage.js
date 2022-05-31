@@ -138,15 +138,15 @@ const ActionButtons = ({ searchUrl, createLinkProps, type }) => (
   </StyledActionButtons>
 );
 
-const SwitchTypeButtons = ({ type }) => {
+const SwitchTypeButtons = ({ type, params = "" }) => {
   const isGroupMap = type === "groups";
 
   return (
     <StyledBlockLinks>
-      <CustomLink to={routeConfig.eventMap.getLink()}>
+      <CustomLink to={`${routeConfig.eventMap.getLink()}?${params}`}>
         <StyledContent active={!isGroupMap}>Événements</StyledContent>
       </CustomLink>
-      <CustomLink to={routeConfig.groupMap.getLink()}>
+      <CustomLink to={`${routeConfig.groupMap.getLink()}?${params}`}>
         <StyledContent active={isGroupMap}>Groupes d'action</StyledContent>
       </CustomLink>
     </StyledBlockLinks>
@@ -154,13 +154,12 @@ const SwitchTypeButtons = ({ type }) => {
 };
 
 const MapPage = (props) => {
-  const { user, type, mapURL, createLinkProps, searchUrl } = props;
+  const { user, type, mapURL, mapParams, createLinkProps, searchUrl } = props;
   const { backRoute, backLabel } = CONFIG[type];
-
   return (
     <main>
       <Hide over>
-        <SwitchTypeButtons type={type} />
+        <SwitchTypeButtons type={type} params={mapParams} />
       </Hide>
       <Hide under as={Header}>
         {user && (
@@ -168,14 +167,14 @@ const MapPage = (props) => {
             <span>{backLabel}</span>
           </Button>
         )}
-        <SwitchTypeButtons type={type} />
+        <SwitchTypeButtons type={type} params={mapParams} />
         <ActionButtons
           searchUrl={searchUrl}
           createLinkProps={createLinkProps}
           type={type}
         />
       </Hide>
-      <Map src={mapURL}></Map>
+      <Map src={`${mapURL}?${mapParams}`}></Map>
       <Hide over as={MapFooter}>
         <ActionButtons
           searchUrl={searchUrl}
@@ -192,6 +191,7 @@ MapPage.propTypes = {
   type: PropTypes.oneOf(["events", "groups"]),
   backRoute: PropTypes.string,
   mapURL: PropTypes.string,
+  mapParams: PropTypes.string,
   createLinkProps: PropTypes.shape({
     as: PropTypes.oneOf(["Link", "a"]),
     href: PropTypes.string,

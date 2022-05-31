@@ -1,13 +1,21 @@
 import json
-from datetime import timedelta
+from collections import OrderedDict
 
 import django_filters
+from data_france.models import (
+    Departement,
+    Region,
+    Commune,
+    CirconscriptionLegislative,
+    Canton,
+)
+from django.contrib.gis.db.models import Extent, MultiPolygonField, Union
 from django.contrib.gis.geos import Polygon
-from django.db.models import Q, Count
+from django.db.models import Count, Q
+from django.db.models.functions import Cast
 from django.http import QueryDict, Http404
 from django.utils.decorators import method_decorator
 from django.utils.html import mark_safe
-from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.views.decorators import cache
 from django.views.decorators.clickjacking import xframe_options_exempt
@@ -26,6 +34,45 @@ from ..groups.utils import is_active_group_filter
 from ..lib.filters import FixedModelMultipleChoiceFilter
 from ..lib.views import AnonymousAPIView
 
+DATA_FRANCE_OBJECT_MODEL = OrderedDict(
+    {
+        "commune": Commune,
+        "circo": CirconscriptionLegislative,
+        "departement": Departement,
+        "canton": Canton,
+        "region": Region,
+    }
+)
+
+
+def get_data_france_object_bounds(code_postal=None, **kwargs):
+    if code_postal:
+        zips = code_postal if isinstance(code_postal, list) else [code_postal]
+        kwargs["commune"] = list(
+            Commune.objects.exclude(geometry__isnull=True)
+            .filter(
+                Q(codes_postaux__code__in=zips)
+                | Q(commune_parent__codes_postaux__code__in=zips)
+            )
+            .values_list("code", flat=True)
+        )
+
+    for key, model in DATA_FRANCE_OBJECT_MODEL.items():
+        codes = kwargs.get(key, None)
+        if codes:
+            codes = codes if isinstance(codes, list) else [codes]
+            qs = model.objects.exclude(geometry__isnull=True).filter(code__in=codes)
+            if qs.exists():
+                return qs.annotate(
+                    poly=Union(
+                        Cast(
+                            "geometry", output_field=MultiPolygonField(geography=False)
+                        )
+                    )
+                ).aggregate(bbox=Extent("poly"))["bbox"]
+
+    return None
+
 
 def parse_bounds(bounds):
     if not bounds:
@@ -33,10 +80,14 @@ def parse_bounds(bounds):
 
     try:
         bbox = json.loads(bounds)
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        print(e)
         return None
 
-    if not len(bbox) == 4:
+    if isinstance(bbox, dict):
+        bbox = get_data_france_object_bounds(**bbox)
+
+    if not bbox or not len(bbox) == 4:
         return None
 
     try:
