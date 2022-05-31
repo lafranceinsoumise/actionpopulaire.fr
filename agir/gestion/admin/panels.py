@@ -171,7 +171,6 @@ class DocumentAdmin(BaseGestionModelAdmin, VersionAdmin):
         "type",
         "date",
         "precision",
-        "requis",
     )
 
     inlines = (VersionDocumentInline,)
@@ -187,7 +186,7 @@ class DocumentAdmin(BaseGestionModelAdmin, VersionAdmin):
                     "date",
                     "identifiant",
                     "precision",
-                    "requis",
+                    "source_url",
                 )
             },
         ),
@@ -890,6 +889,16 @@ class ReglementAdmin(BaseGestionModelAdmin):
                     "date_releve",
                     "montant",
                     "mode",
+                )
+            },
+        ),
+        (
+            "Infos complémentaires pour le FECC",
+            {
+                "fields": (
+                    "numero_compte",
+                    "code_insee",
+                    "libre",
                 )
             },
         ),

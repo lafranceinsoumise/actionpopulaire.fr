@@ -80,16 +80,15 @@ class Document(ModeleGestionMixin, TimeStampedModel):
         verbose_name="Type de document", max_length=10, choices=TypeDocument.choices
     )
 
-    requis = models.CharField(
-        verbose_name="Obligatoire ?",
-        max_length=3,
-        choices=Besoin.choices,
-        default=Besoin.NECESSAIRE,
-    )
-
     description = models.TextField(
         "Description du document",
         help_text="Toute description complémentaire nécessaire pour identifier clairement le document (et le rechercher)",
+        blank=True,
+    )
+
+    source_url = models.URLField(
+        verbose_name="URL d'origine",
+        help_text="Si ce document provient d'internet, l'URL de la source d'origine.",
         blank=True,
     )
 
