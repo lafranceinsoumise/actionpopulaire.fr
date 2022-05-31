@@ -429,8 +429,8 @@ class DepenseAdmin(DepenseListMixin, BaseGestionModelAdmin, VersionAdmin):
 
         if obj.etat == Depense.Etat.EXPERTISE:
             return autorise and (
-                request.user.has_perm("gestion.valider_depense")
-                or request.user.has_perm("gestion.valider_depense", obj=obj.compte)
+                request.user.has_perm("gestion.validation_depense")
+                or request.user.has_perm("gestion.validation_depense", obj=obj.compte)
             )
 
         return autorise
