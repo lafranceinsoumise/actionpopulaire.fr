@@ -898,6 +898,7 @@ class ReglementAdmin(BaseGestionModelAdmin):
                 "fields": (
                     "numero_compte",
                     "code_insee",
+                    "date_evenement",
                     "libre",
                 )
             },

@@ -551,6 +551,10 @@ class Reglement(SearchableModel, TimeStampedModel):
         validators=[RegexValidator(regex=r"^\d{5}$")],
     )
 
+    date_evenement = models.DateField(
+        verbose_name="Date de l'événement", null=True, blank=True
+    )
+
     # informations fournisseurs
     nom_fournisseur = models.CharField(
         verbose_name="Nom du fournisseur", blank=False, max_length=100
