@@ -21,6 +21,9 @@ db.sqlite3
 /*.log
 
 .env
-*.csv
 *.xls
 *.xlsx
+
+# All CSV files are ignored by default
+*.csv
+!agir/elections/data/campaign_managers.csv
