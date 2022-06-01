@@ -1,6 +1,7 @@
 from django.conf import settings
+from django.db.models import Q
 
-from agir.gestion.models import Reglement
+from agir.gestion.models import Reglement, Document
 from agir.gestion.typologies import TypeDocument
 from agir.lib.admin.utils import get_admin_link
 
@@ -26,11 +27,10 @@ def lien_document(document):
 
 
 def autres_pieces(reglement):
-    documents = reglement.depense.documents.exclude(type__in=[TypeDocument.FACTURE])
+    q = Q(depense=reglement.depense) & ~Q(type=TypeDocument.FACTURE)
     if reglement.depense.projet:
-        documents = documents.union(reglement.depense.projet.documents.all()).distinct(
-            "id"
-        )
+        q = q | Q(projet=reglement.depense.projet)
+    documents = Document.objects.filter(q).distinct()
 
     return [lien_document(d) for d in documents]
 
