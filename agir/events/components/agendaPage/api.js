@@ -32,17 +32,15 @@ export const getAgendaEndpoint = (key, params) => {
 };
 
 export const useEventSuggestions = (isPaused = false) => {
-  const [activeType, setActiveType] = useState(0);
-  const activeKey = Object.keys(EVENT_TYPES)[activeType];
+  const [activeIndex, setActiveIndex] = useState(0);
+  const activeKey = Object.keys(EVENT_TYPES)[activeIndex];
   const { data: session } = useSWR(
     "/api/session/",
     MANUAL_REVALIDATION_SWR_CONFIG
   );
   const { data: events, mutate } = useSWR(
     activeKey && getAgendaEndpoint(activeKey),
-    {
-      isPaused,
-    }
+    { isPaused }
   );
 
   const userID = session?.user && session.user.id;
@@ -52,5 +50,11 @@ export const useEventSuggestions = (isPaused = false) => {
     userID && userZip && mutate();
   }, [userID, userZip, mutate]);
 
-  return [Object.values(EVENT_TYPES), activeType, setActiveType, events];
+  return [
+    Object.values(EVENT_TYPES),
+    activeIndex,
+    setActiveIndex,
+    events,
+    activeKey,
+  ];
 };

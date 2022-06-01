@@ -33,14 +33,31 @@ const Bone = styled.div`
   }
 `;
 
-const Day = styled.h3`
+const EventSectionTitle = styled.h3`
   font-size: 1rem;
   line-height: 1.5;
   font-weight: 600;
-  margin-top: 24px;
+  margin-top: 1.5rem;
 
   &::first-letter {
     text-transform: uppercase;
+  }
+`;
+
+const EventGroupSectionTitle = styled(Link)`
+  display: block;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: -1rem;
+  text-transform: uppercase;
+  color: ${(props) => props.theme.black500};
+
+  &:hover,
+  &:focus {
+    text-decoration: none;
+    color: ${(props) => props.theme.black500};
   }
 `;
 
@@ -67,15 +84,7 @@ const Skeleton = () => (
   </>
 );
 
-const EventSuggestions = ({ isPaused }) => {
-  const { data: grandEvents } = useSWR(getAgendaEndpoint("grandEvents"), {
-    revalidateIfStale: false,
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-  });
-
-  const [tabs, activeTab, setActiveTab, events] = useEventSuggestions(isPaused);
-
+const useEventsByDay = (events) => {
   const byDay = useMemo(
     () =>
       Array.isArray(events)
@@ -94,6 +103,167 @@ const EventSuggestions = ({ isPaused }) => {
     [events]
   );
 
+  return byDay;
+};
+
+const EventList = (props) => {
+  const { events } = props;
+  const byDay = useEventsByDay(events);
+
+  return Array.isArray(events)
+    ? Object.entries(byDay).map(([date, events]) => (
+        <div key={date}>
+          <EventSectionTitle>{date}</EventSectionTitle>
+          {events.map((event, i) => (
+            <RenderIfVisible key={event.id} style={{ marginTop: i && "1rem" }}>
+              <EventCard {...event} />
+            </RenderIfVisible>
+          ))}
+        </div>
+      ))
+    : null;
+};
+
+const GenericTab = (props) => {
+  const { tabKey, tabEvents, activeTab } = props;
+
+  const byDay = useEventsByDay(tabEvents);
+
+  return (
+    <PageFadeIn ready={Array.isArray(tabEvents)} wait={<Skeleton />}>
+      {Array.isArray(tabEvents) && tabEvents.length === 0 ? (
+        <EmptyAgenda>
+          <p>
+            Pas d'événement {activeTab} ?{" "}
+            <Link route="createEvent">Commencez par en créer un</Link>.
+          </p>
+        </EmptyAgenda>
+      ) : (
+        <EventList events={tabEvents} />
+      )}
+    </PageFadeIn>
+  );
+};
+
+const NearEventTab = (props) => {
+  const { tabEvents, grandEvents } = props;
+
+  return (
+    <>
+      {/* GRAND EVENTS */}
+      <PageFadeIn ready={Array.isArray(grandEvents)} wait={<Skeleton />}>
+        {Array.isArray(grandEvents) && grandEvents.length > 0 && (
+          <div key={`near-events__grand`}>
+            <EventSectionTitle>Grands événements</EventSectionTitle>
+            {grandEvents.map((event, i) => (
+              <RenderIfVisible
+                key={`near-events__${event.id}`}
+                style={{ marginTop: i && "1rem" }}
+              >
+                <EventCard
+                  {...event}
+                  schedule={Interval.fromDateTimes(
+                    dateFromISOString(event.startTime),
+                    dateFromISOString(event.endTime)
+                  )}
+                />
+              </RenderIfVisible>
+            ))}
+          </div>
+        )}
+      </PageFadeIn>
+      {/* NEAR EVENTS */}
+      <PageFadeIn ready={Array.isArray(tabEvents)} wait={<Skeleton />}>
+        {Array.isArray(tabEvents) && tabEvents.length === 0 ? (
+          <EmptyAgenda>
+            <p>
+              Zut ! Il n'y a pas d'événement prévu à proximité ?{" "}
+              <Link route="personalInformation">
+                Vérifiez votre adresse et code postal
+              </Link>
+              .
+            </p>
+          </EmptyAgenda>
+        ) : (
+          <EventList events={tabEvents} />
+        )}
+      </PageFadeIn>
+    </>
+  );
+};
+
+const GroupEventTab = (props) => {
+  const { tabKey, tabEvents } = props;
+
+  const [byGroup, groupNames] = useMemo(() => {
+    if (!Array.isArray(tabEvents)) {
+      return [];
+    }
+    const result = {};
+    const groupNames = {};
+    tabEvents.forEach((event) => {
+      if (!Array.isArray(event.groups) || event.groups.length === 0) {
+        return;
+      }
+      event.groups.forEach((group) => {
+        groupNames[group.id] = group.name;
+        result[group.id] = result[group.id] || [];
+        result[group.id].push({
+          ...event,
+          schedule: Interval.fromDateTimes(
+            dateFromISOString(event.startTime),
+            dateFromISOString(event.endTime)
+          ),
+        });
+      });
+    });
+    return [result, groupNames];
+  }, [tabEvents]);
+
+  return (
+    <PageFadeIn ready={Array.isArray(tabEvents)} wait={<Skeleton />}>
+      {Array.isArray(tabEvents) && tabEvents.length === 0 ? (
+        <EmptyAgenda>
+          <p>
+            Pas d'événement {tabs[activeTab]} ?{" "}
+            <Link route="createEvent">Commencez par en créer un</Link>.
+          </p>
+        </EmptyAgenda>
+      ) : Array.isArray(tabEvents) ? (
+        Object.entries(byGroup).map(([groupPk, events]) => (
+          <div key={`${tabKey}__${groupPk}`}>
+            <EventGroupSectionTitle
+              route="groupDetails"
+              routeParams={{ groupPk, activeTab: "agenda" }}
+            >
+              {groupNames[groupPk]}
+            </EventGroupSectionTitle>
+            <EventList events={events} />
+          </div>
+        ))
+      ) : null}
+    </PageFadeIn>
+  );
+};
+
+const TABS = {
+  default: GenericTab,
+  nearEvents: NearEventTab,
+  groupEvents: GroupEventTab,
+};
+
+const EventSuggestions = ({ isPaused }) => {
+  const { data: grandEvents } = useSWR(getAgendaEndpoint("grandEvents"), {
+    revalidateIfStale: false,
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+  });
+
+  const [tabs, activeTab, setActiveTab, events, activeKey] =
+    useEventSuggestions(isPaused);
+
+  const ActiveTab = TABS[activeKey] || TABS.default;
+
   return (
     <>
       <FilterTabs
@@ -101,66 +271,12 @@ const EventSuggestions = ({ isPaused }) => {
         activeTab={activeTab}
         onTabChange={setActiveTab}
       />
-      {/* GRAND EVENTS */}
-      {activeTab === 0 && (
-        <PageFadeIn ready={Array.isArray(grandEvents)} wait={<Skeleton />}>
-          {Array.isArray(grandEvents) && grandEvents.length > 0 && (
-            <div key={`${activeTab}__grand`}>
-              <Day>Grands événements</Day>
-              {grandEvents.map((event, i) => (
-                <RenderIfVisible
-                  key={`${activeTab}__${event.id}`}
-                  style={{ marginTop: i && "1rem" }}
-                >
-                  <EventCard
-                    {...event}
-                    schedule={Interval.fromDateTimes(
-                      dateFromISOString(event.startTime),
-                      dateFromISOString(event.endTime)
-                    )}
-                  />
-                </RenderIfVisible>
-              ))}
-            </div>
-          )}
-        </PageFadeIn>
-      )}
-
-      {/* ACTIVE TAB EVENTS */}
-      <PageFadeIn ready={Array.isArray(events)} wait={<Skeleton />}>
-        {Array.isArray(events) && events.length === 0 ? (
-          <EmptyAgenda>
-            {activeTab === 0 ? (
-              <p>
-                Zut ! Il n'y a pas d'événement prévu à proximité ?{" "}
-                <Link route="personalInformation">
-                  Vérifiez votre adresse et code postal
-                </Link>
-                .
-              </p>
-            ) : (
-              <p>
-                Pas d'événement {tabs[activeTab]} ?{" "}
-                <Link route="createEvent">Commencez par en créer un</Link>.
-              </p>
-            )}
-          </EmptyAgenda>
-        ) : Array.isArray(events) ? (
-          Object.entries(byDay).map(([date, events]) => (
-            <div key={`${activeTab}__${date}`}>
-              <Day>{date}</Day>
-              {events.map((event, i) => (
-                <RenderIfVisible
-                  key={`${activeTab}__${event.id}`}
-                  style={{ marginTop: i && "1rem" }}
-                >
-                  <EventCard {...event} />
-                </RenderIfVisible>
-              ))}
-            </div>
-          ))
-        ) : null}
-      </PageFadeIn>
+      <ActiveTab
+        activeTab={tabs[activeTab]}
+        tabKey={activeKey}
+        tabEvents={events}
+        grandEvents={grandEvents}
+      />
     </>
   );
 };
