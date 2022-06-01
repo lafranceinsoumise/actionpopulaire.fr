@@ -1,6 +1,9 @@
+from functools import partial
+
 from django.db import transaction
 
 from agir.elections.models import PollingStationOfficer
+from agir.elections.tasks import send_new_polling_station_officer_to_campaign_manager
 from agir.lib.tasks import geocode_person
 from agir.people.actions.subscription import (
     SUBSCRIPTIONS_EMAILS,
@@ -55,12 +58,20 @@ def create_or_update_polling_station_officer(data):
             person_id=person.pk, defaults={**data, "contact_email": email}
         )
 
+        transaction.on_commit(partial(geocode_person.delay, person.pk))
+        transaction.on_commit(
+            partial(
+                send_new_polling_station_officer_to_campaign_manager.delay,
+                polling_station_officer.id,
+            )
+        )
+
         if is_new_person and "welcome" in SUBSCRIPTIONS_EMAILS[SUBSCRIPTION_TYPE_AP]:
             from agir.people.tasks import send_welcome_mail
 
-            send_welcome_mail.delay(person.pk, type=SUBSCRIPTION_TYPE_AP)
-
-        geocode_person.delay(person.pk)
+            transaction.on_commit(
+                partial(send_welcome_mail.delay, person.pk, SUBSCRIPTION_TYPE_AP)
+            )
 
         data.update(
             {

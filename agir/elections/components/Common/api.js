@@ -87,8 +87,8 @@ export const createPollingStationOfficer = async (data) => {
   const url = getElectionEndpoint("pollingStationOfficer");
   const body = {
     ...data,
-    votingCommune: undefined,
-    votingConsulate: undefined,
+    votingCommune: null,
+    votingConsulate: null,
     votingLocation: undefined,
     votingCirconscriptionLegislative:
       data?.votingCirconscriptionLegislative?.code || undefined,
