@@ -12,6 +12,7 @@ from agir.gestion.export import (
     gestion_admin_link,
 )
 from agir.gestion.models import Reglement
+from agir.gestion.typologies import TypeDepense
 
 
 def numero(reglement):
@@ -23,8 +24,14 @@ spec_fec = {
     "JournalLib": Val("Journal principal"),
     "EcritureNum": numero,
     "EcritureDate": ("created", T.date()),
-    "CompteNum": ("numero_compte"),
-    "PieceRef": Coalesce("facture.numero", default=""),
+    "CompteNum": Coalesce(
+        "numero_compte",
+        ("depense.type", TypeDepense, T.compte),
+        skip=("", None),
+        skip_exc=(ValueError,),
+        default="",
+    ),
+    "PieceRef": Coalesce("facture.numero_piece", default=""),
     "PieceDate": Coalesce("facture.date", default=""),
     "EcritureLib": "intitule",
     "Debit": ("montant", (M > 0.0) | Val(0.0)),
@@ -38,10 +45,19 @@ spec_fec = {
     "ModeRglt": ("mode", LIBELLES_MODE.get),
     "NatOp": Val(""),
     "DateEvenement": Coalesce(
-        ("depense.projet.event.start_time", T.date()), default=None
+        "date_evenement",
+        "depense.projet.date_evenement",
+        ("depense.projet.event.start_time", T.date()),
+        default=None,
+        skip=(None,),
     ),
-    "InseeCode": "code_insee",
-    "Libre": Val(""),
+    "InseeCode": Coalesce(
+        "code_insee",
+        "depense.projet.event.location_citycode",
+        skip=("", None),
+        default="00000",
+    ),
+    "Libre": "libre",
     "Type": "depense.nature",
     "DateDébut": "depense.date_debut",
     "DateFin": "depense.date_fin",

@@ -507,7 +507,6 @@ class ReglementForm(forms.ModelForm):
         if self.cleaned_data.get("preuve"):
             self.preuve = Document.objects.create(
                 type=TypeDocument.PAIEMENT,
-                requis=Document.Besoin.NECESSAIRE,
                 fichier=self.cleaned_data["preuve"],
                 description=f"Document créé automatiquement lors de l'ajout d'un règlement à la dépense "
                 f"{self.instance.depense.numero}.",

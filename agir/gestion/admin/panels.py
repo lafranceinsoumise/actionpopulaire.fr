@@ -171,7 +171,6 @@ class DocumentAdmin(BaseGestionModelAdmin, VersionAdmin):
         "type",
         "date",
         "precision",
-        "requis",
     )
 
     inlines = (VersionDocumentInline,)
@@ -187,7 +186,7 @@ class DocumentAdmin(BaseGestionModelAdmin, VersionAdmin):
                     "date",
                     "identifiant",
                     "precision",
-                    "requis",
+                    "source_url",
                 )
             },
         ),
@@ -430,8 +429,8 @@ class DepenseAdmin(DepenseListMixin, BaseGestionModelAdmin, VersionAdmin):
 
         if obj.etat == Depense.Etat.EXPERTISE:
             return autorise and (
-                request.user.has_perm("gestion.valider_depense")
-                or request.user.has_perm("gestion.valider_depense", obj=obj.compte)
+                request.user.has_perm("gestion.validation_depense")
+                or request.user.has_perm("gestion.validation_depense", obj=obj.compte)
             )
 
         return autorise
@@ -890,6 +889,17 @@ class ReglementAdmin(BaseGestionModelAdmin):
                     "date_releve",
                     "montant",
                     "mode",
+                )
+            },
+        ),
+        (
+            "Infos complémentaires pour le FECC",
+            {
+                "fields": (
+                    "numero_compte",
+                    "code_insee",
+                    "date_evenement",
+                    "libre",
                 )
             },
         ),

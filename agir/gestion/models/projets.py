@@ -147,6 +147,14 @@ class Projet(ModeleGestionMixin, TimeStampedModel):
         on_delete=models.SET_NULL,
     )
 
+    date_evenement = models.DateField(
+        "date de l'événement",
+        help_text="À utiliser s'il n'y a pas d'événement associé, ou si il faut utiliser une autre date que celle de "
+        "l'événement",
+        null=True,
+        blank=True,
+    )
+
     niveau_acces = models.CharField(
         verbose_name="Niveau d'accès",
         max_length=1,

@@ -190,7 +190,7 @@ class TypeDepense(TextChoices):
 
     @classmethod
     def pour_compte(cls, compte):
-        return cls._comptes.get(compte[:4], cls._compte.get(compte[3:]))
+        return cls._comptes.get(compte[:4], cls._comptes.get(compte[3:]))
 
 
 TypeDepense.choices_avec_compte = [

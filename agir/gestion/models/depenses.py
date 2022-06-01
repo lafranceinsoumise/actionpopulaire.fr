@@ -551,6 +551,10 @@ class Reglement(SearchableModel, TimeStampedModel):
         validators=[RegexValidator(regex=r"^\d{5}$")],
     )
 
+    date_evenement = models.DateField(
+        verbose_name="Date de l'événement", null=True, blank=True
+    )
+
     # informations fournisseurs
     nom_fournisseur = models.CharField(
         verbose_name="Nom du fournisseur", blank=False, max_length=100
@@ -579,6 +583,8 @@ class Reglement(SearchableModel, TimeStampedModel):
     location_country_fournisseur = CountryField(
         "pays", blank_label="(sélectionner un pays)", default="FR", blank=False
     )
+
+    libre = models.TextField(verbose_name="Commentaire libre", blank=True)
 
     commentaires = models.ManyToManyField(
         to="Commentaire",
