@@ -102,8 +102,7 @@ class RetrieveCreatePollingStationOfficerAPIView(RetrieveAPIView, CreateAPIView)
             raise Throttled(detail=self.messages["throttled"], code="throttled")
 
     def perform_create(self, serializer):
-        # TODO: Restore throttling !
-        # self.throttle_requests(serializer.validated_data)
+        self.throttle_requests(serializer.validated_data)
         super().perform_create(serializer)
 
     def retrieve(self, request, *args, **kwargs):
