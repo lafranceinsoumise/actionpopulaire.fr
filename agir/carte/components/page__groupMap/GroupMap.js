@@ -42,7 +42,8 @@ const GroupMap = () => {
         children: "Créer un groupe dans mon quartier",
       }}
       searchUrl={routeConfig.searchGroup.path}
-      mapURL={`${routes.groupsMap}?${newParams.toString()}`}
+      mapURL={routes.groupsMap}
+      mapParams={newParams.toString()}
       user={user}
     />
   );
