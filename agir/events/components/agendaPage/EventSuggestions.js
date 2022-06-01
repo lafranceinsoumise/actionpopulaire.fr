@@ -225,7 +225,7 @@ const GroupEventTab = (props) => {
       {Array.isArray(tabEvents) && tabEvents.length === 0 ? (
         <EmptyAgenda>
           <p>
-            Pas d'événement {tabs[activeTab]} ?{" "}
+            Pas d'événement dans vos groupes&nbsp;?{" "}
             <Link route="createEvent">Commencez par en créer un</Link>.
           </p>
         </EmptyAgenda>
