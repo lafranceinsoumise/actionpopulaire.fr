@@ -39,7 +39,7 @@ class OrdreVirement(ModeleGestionMixin, TimeStampedModel):
             f"Ordre de virement {date_format(self.date)} — {self.get_statut_display()}"
         )
 
-    def generer_fichier_virement(self, force=False):
+    def generer_fichier_virement(self, force=False, paiement_unique=True, batch=False):
         if self.fichier and not force:
             raise ValueError("Le fichier a déjà été généré pour cet ordre.")
 
@@ -81,7 +81,8 @@ class OrdreVirement(ModeleGestionMixin, TimeStampedModel):
         content = generer_fichier_virement(
             emetteur=emetteur,
             virements=virements,
-            batch=False,
+            paiement_unique=paiement_unique,
+            batch=batch,
             check=True,
         )
 

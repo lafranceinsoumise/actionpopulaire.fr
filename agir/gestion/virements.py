@@ -4,6 +4,8 @@ from datetime import date
 from typing import Optional, List
 
 import base64
+
+from lxml import etree
 from sepaxml import SepaTransfer
 
 from agir.lib.iban import IBAN
@@ -34,6 +36,7 @@ def generer_fichier_virement(
     virements: List[Virement],
     *,
     currency: str = "EUR",
+    paiement_unique: bool = True,
     batch: bool = False,
     check: bool = True,
 ) -> bytes:
@@ -55,7 +58,7 @@ def generer_fichier_virement(
             "name": emetteur.nom,
             "IBAN": emetteur.iban.as_stored_value,
             "BIC": emetteur.bic or emetteur.iban.bic,
-            "batch": batch,
+            "batch": paiement_unique,
             "currency": currency,
         },
         # de façon bizarre, SepaTransfer utilise parfois la norme allemande à la place de l'européenne
@@ -77,4 +80,16 @@ def generer_fichier_virement(
             }
         )
 
-    return fichier_sepa.export(validate=check)
+    xml_content = fichier_sepa.export(validate=check)
+
+    if paiement_unique and not batch:
+        prolog = b'<?xml version="1.0" encoding="UTF-8"?>'
+        NS = "{urn:iso:std:iso:20022:tech:xsd:pain.001.001.03}"
+        root_elem = etree.fromstring(xml_content)
+        root_tree = root_elem.getroottree()
+        batch_elem = root_tree.find(f"//{NS}BtchBookg")
+        batch_elem.text = "false"
+
+        xml_content = prolog + etree.tostring(root_elem, encoding="utf-8")
+
+    return xml_content
