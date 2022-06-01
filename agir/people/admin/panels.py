@@ -38,6 +38,7 @@ from agir.mailing.models import Segment
 from agir.people.actions.stats import get_statistics_for_queryset
 from agir.people.admin.actions import (
     export_people_to_csv,
+    export_liaisons_to_csv,
     unsubscribe_from_all_newsletters,
 )
 from agir.people.admin.forms import PersonAdminForm, PersonFormForm
@@ -888,10 +889,6 @@ class ContactAdmin(admin.ModelAdmin):
         "is_2022",
         ("created", DateRangeFilter),
     )
-
-    # doit être non vide pour afficher le formulaire de recherche,
-    # mais n'est en réalité pas utilisé pour déterminer les champs
-    # de recherche
     search_fields = ["search", "contact_phone"]
 
     def has_add_permission(self, request, obj=None):
@@ -937,10 +934,70 @@ class ContactAdmin(admin.ModelAdmin):
 
     def get_queryset(self, *args, **kwargs):
         return (
-            super(ContactAdmin, self)
+            super()
             .get_queryset(*args, **kwargs)
             .filter(meta__subscriptions__AP__subscriber__isnull=False)
         )
+
+    class Media:
+        pass
+
+
+class Liaison(Person):
+    class Meta:
+        proxy = True
+        verbose_name = "correspondant·e d'immeuble et de quartier"
+        verbose_name_plural = "correspondant·es d'immeuble et de quartier"
+
+
+@admin.register(Liaison)
+class LiaisonAdmin(admin.ModelAdmin):
+    list_display = ("name", "short_address", "liaison_date", "created")
+    list_filter = (
+        CirconscriptionLegislativeFilter,
+        DepartementListFilter,
+        RegionListFilter,
+    )
+    search_fields = ["search", "contact_phone"]
+    actions = (export_liaisons_to_csv,)
+
+    def has_view_permission(self, request, obj=None):
+        return request.user.has_perm("people.export_people")
+
+    def has_export_permission(self, request):
+        return request.user.has_perm("people.export_people")
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def name(self, obj):
+        return format_html(
+            '<a href="{link}">{person}</a>',
+            person=str(obj),
+            link=reverse("admin:people_person_change", args=[obj.id]),
+        )
+
+    name.short_description = "Personne"
+
+    def short_address(self, obj):
+        return obj.short_address
+
+    short_address.short_description = "Adresse"
+
+    def liaison_date(self, obj):
+        return obj.liaison_date
+
+    liaison_date.short_description = "Correspondant·e depuis"
+    liaison_date.admin_order_field = "liaison_date"
+
+    def get_queryset(self, *args, **kwargs):
+        return super().get_queryset(*args, **kwargs).liaisons()
 
     class Media:
         pass
