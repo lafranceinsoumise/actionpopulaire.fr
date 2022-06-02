@@ -159,15 +159,10 @@ const RightLinks = (props) => {
             <FeatherIcon name="flag" />
             <span>Agir</span>
           </IconLink>
-          {hasLayout && (
-            <TabletIconLink
-              route="groups"
-              $active={routeConfig.groups.match(path)}
-            >
-              <FeatherIcon name="users" />
-              <span>Groupes</span>
-            </TabletIconLink>
-          )}
+          <IconLink route="groups" $active={routeConfig.groups.match(path)}>
+            <FeatherIcon name="users" />
+            <span>Groupes</span>
+          </IconLink>
           <CounterIconLink
             route="activities"
             $active={routeConfig.activities.match(path)}
