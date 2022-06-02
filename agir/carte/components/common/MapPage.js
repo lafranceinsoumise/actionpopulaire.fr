@@ -82,11 +82,11 @@ const Header = styled.header`
   flex-flow: row nowrap;
   align-items: center;
   justify-content: space-between;
-  box-shadow: ${(props) => props.theme.elaborateShadow};
 
   @media (max-width: ${(props) => props.theme.collapse}px) {
     height: 54px;
     padding: 0 1rem;
+    box-shadow: ${(props) => props.theme.elaborateShadow};
   }
 `;
 
