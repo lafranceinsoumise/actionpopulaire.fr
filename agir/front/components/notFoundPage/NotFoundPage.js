@@ -85,7 +85,7 @@ export const NotFoundPage = ({
     Sentry.addBreadcrumb({
       category: "logging",
       message: `React shows a 'Not found page' : ${window.location.pathname}`,
-      level: Sentry.Severity.Debug,
+      level: "debug",
     });
   }
 
