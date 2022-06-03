@@ -110,8 +110,14 @@ class Command(LoggingCommand):
 
     def agent(self, s):
         numero = int.from_bytes(s["person_id"].bytes[:4], "big")
+
+        username = f"{slugify(s['email'].split('@')[0])}{numero}"
+
+        if s["first_name"] and s["last_name"]:
+            username = f"{s['first_name'][0].lower()}{slugify(s['last_name'])}{numero}"
+
         return {
-            "username": f"{s['first_name'][0].lower()}{slugify(s['last_name'])}{numero}",
+            "username": username,
             "email": s["email"],
             "team": self.equipe_agent(s["data"]["departement"]),
         }
