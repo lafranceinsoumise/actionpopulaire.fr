@@ -228,6 +228,9 @@ class TypeProjet(TextChoices):
     EVENEMENT_AMFIS = "EVE-AMF", "AMFiS d'été"
     CONVENTION = "EVE-CON", "Convention"
 
+    EVENEMENT_INTERNE = "INT"
+    FORMATION = "INT-for"
+
     DEPENSES_RH = "RH", "Dépenses RH mensuelles"
 
 
