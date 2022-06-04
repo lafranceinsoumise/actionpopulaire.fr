@@ -99,6 +99,7 @@ class DocumentAjoutRapideForm(forms.ModelForm):
         self.document = Document.objects.create(
             identifiant=self.cleaned_data.get("identifiant", ""),
             precision=self.cleaned_data.get("precision", ""),
+            date=self.cleaned_data.get("date", ""),
             type=self.cleaned_data["type"],
         )
 
