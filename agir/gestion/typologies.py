@@ -224,6 +224,8 @@ class TypeProjet(TextChoices):
 
     ACTIONS = "ACT", "Autres actions publiques"
 
+    TELEVISION = "TEL", "Émission ou débat télévisé"
+
     EVENEMENT = "EVE", "Événements spécifiques"
     EVENEMENT_AMFIS = "EVE-AMF", "AMFiS d'été"
     CONVENTION = "EVE-CON", "Convention"

@@ -34,6 +34,7 @@ class Migration(migrations.Migration):
                     ("MAN-fet", "Fête (auberge espagnole)"),
                     ("MAN-car", "Caravane"),
                     ("ACT", "Autres actions publiques"),
+                    ("TEL", "Émission ou débat télévisé"),
                     ("EVE", "Événements spécifiques"),
                     ("EVE-AMF", "AMFiS d'été"),
                     ("EVE-CON", "Convention"),
