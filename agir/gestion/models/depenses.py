@@ -616,10 +616,13 @@ class Reglement(SearchableModel, TimeStampedModel):
 
     def generer_virement(self, date):
         if self.mode != Reglement.Mode.VIREMENT or self.etat != Reglement.Etat.ATTENTE:
-            raise ValueError("Impossible de générer ")
+            raise ValueError(f"Mode ou état incorrect pour le règlement d'id {self.id}")
+
+        if not self.endtoend_id:
+            raise ValueError(f"Pas d'endtoend_id pour le règlement d'id {self.id}")
 
         if not self.iban_fournisseur:
-            raise ValueError("IBAN manquant pour la dépense ")
+            raise ValueError(f"IBAN manquant pour le règlement d'id {self.id}")
 
         # noinspection PyTypeChecker
         beneficiaire = Partie(
@@ -633,6 +636,7 @@ class Reglement(SearchableModel, TimeStampedModel):
             montant=round(self.montant * 100),
             date_execution=date,
             description=self.numero_facture or self.intitule,
+            id=self.endtoend_id,
         )
 
     @property
