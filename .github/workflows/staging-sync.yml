@@ -13,7 +13,7 @@ jobs:
           fetch-depth: 0
 
       - name: Open pull request
-        id: open-pr
+        id: pr
         uses: repo-sync/pull-request@v2
         with:
           destination_branch: "staging"
@@ -30,7 +30,7 @@ jobs:
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           message: |
             ✔️ Successfully created pull request to staging after production branch update!
-            #${{ steps.open-pr.outputs.pr_number }}: ${{ steps.open-pr.outputs.pr_url }}
+            #${{ steps.pr.outputs.pr_number }}: ${{ steps.pr.outputs.pr_url }}
 
       - name: Tell the team the workflow has failed
         if: ${{ failure() }}
@@ -40,3 +40,9 @@ jobs:
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           message: |
             ❌ Creating pull request to staging after production branch update failed!
+
+      - name: Enable Pull Request Automerge
+        uses: peter-evans/enable-pull-request-automerge@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          pull-request-number: ${{ steps.pr.outputs.pr_number }}
