@@ -1,0 +1,38 @@
+name: Sync staging with production branch after update
+on:
+  push:
+    branches:
+      - production
+jobs:
+  staging-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Sync staging with production
+        uses: robotology/gh-action-nightly-merge@v1.3.3
+        with:
+          stable_branch: "production"
+          development_branch: "staging"
+          allow_ff: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tell the team the workflow has succeeded
+        if: ${{ !failure() }}
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          message: |
+            ✔️ Successfully auto-updated staging branch after production branch update!
+
+      - name: Tell the team the workflow has failed
+        if: ${{ failure() }}
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          message: |
+            ❌ Auto-updating staging branch after production branch update failed!
