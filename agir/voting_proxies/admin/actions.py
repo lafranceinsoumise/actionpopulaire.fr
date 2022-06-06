@@ -6,6 +6,10 @@ from agir.voting_proxies.actions import (
     match_available_proxies_with_requests,
     find_voting_proxy_candidates_for_requests,
 )
+from agir.voting_proxies.export import (
+    voting_proxy_requests_to_csv_response,
+    voting_proxies_to_csv_response,
+)
 
 
 def fulfill_voting_proxy_requests(request, pk, pending_requests):
@@ -57,3 +61,30 @@ def fulfill_voting_proxy_requests(request, pk, pending_requests):
             args=(pk,),
         ),
     )
+
+
+EXPORT_LIMIT = 500
+
+
+def export_voting_proxy_requests(modeladmin, request, queryset):
+    return voting_proxy_requests_to_csv_response(queryset[:EXPORT_LIMIT])
+
+
+export_voting_proxy_requests.short_description = (
+    f"Exporter les demandes de procuration en CSV (max. {EXPORT_LIMIT} par export)"
+)
+export_voting_proxy_requests.allowed_permissions = ["export"]
+export_voting_proxy_requests.select_across = True
+export_voting_proxy_requests.max_items = EXPORT_LIMIT
+
+
+def export_voting_proxies(modeladmin, request, queryset):
+    return voting_proxies_to_csv_response(queryset[:EXPORT_LIMIT])
+
+
+export_voting_proxies.short_description = (
+    f"Exporter les volontaires en CSV (max. {EXPORT_LIMIT} par export)"
+)
+export_voting_proxies.allowed_permissions = ["export"]
+export_voting_proxies.select_across = True
+export_voting_proxies.max_items = EXPORT_LIMIT
