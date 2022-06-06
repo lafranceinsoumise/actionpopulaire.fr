@@ -12,14 +12,15 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Sync staging with production
-        uses: robotology/gh-action-nightly-merge@v1.3.3
+      - name: Open pull request
+        id: open-pr
+        uses: repo-sync/pull-request@v2
         with:
-          stable_branch: "production"
-          development_branch: "staging"
-          allow_ff: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          destination_branch: "staging"
+          pr_title: "Syncing staging with latest production update"
+          pr_draft: false
+          pr_allow_empty: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Tell the team the workflow has succeeded
         if: ${{ !failure() }}
@@ -28,7 +29,8 @@ jobs:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           message: |
-            ✔️ Successfully auto-updated staging branch after production branch update!
+            ✔️ Successfully created pull request to staging after production branch update!
+            #${{ steps.open-pr.outputs.pr_number }}: ${{ steps.open-pr.outputs.pr_url }}
 
       - name: Tell the team the workflow has failed
         if: ${{ failure() }}
@@ -37,4 +39,4 @@ jobs:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           message: |
-            ❌ Auto-updating staging branch after production branch update failed!
+            ❌ Creating pull request to staging after production branch update failed!
