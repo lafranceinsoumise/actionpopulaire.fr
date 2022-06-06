@@ -1,17 +1,18 @@
-from datetime import timedelta
-
 from django.contrib import admin
 from django.contrib.admin import TabularInline
 from django.http import HttpResponseRedirect
 from django.urls import reverse, path
-from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
 from agir.lib.admin.autocomplete_filter import AutocompleteRelatedModelFilter
 from agir.lib.utils import front_url, shorten_url
 from agir.voting_proxies.actions import cancel_voting_proxy_requests
-from agir.voting_proxies.admin.actions import fulfill_voting_proxy_requests
+from agir.voting_proxies.admin.actions import (
+    fulfill_voting_proxy_requests,
+    export_voting_proxies,
+    export_voting_proxy_requests,
+)
 from agir.voting_proxies.models import VotingProxy, VotingProxyRequest
 from agir.voting_proxies.utils import get_ise_link_for_voting_proxy
 
@@ -118,6 +119,9 @@ class VoterModelAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         return super().get_queryset(request).select_related("commune", "consulate")
 
+    def has_export_permission(self, request):
+        return request.user.has_perm("people.export_people")
+
     class Media:
         pass
 
@@ -180,6 +184,8 @@ class VotingProxyAdmin(VoterModelAdmin):
         *VoterModelAdmin.autocomplete_fields,
         "person",
     )
+
+    actions = (export_voting_proxies,)
 
     def get_queryset(self, request):
         return (
@@ -259,6 +265,7 @@ class VotingProxyRequestAdmin(VoterModelAdmin):
         *VoterModelAdmin.autocomplete_fields,
         "proxy",
     )
+    actions = (export_voting_proxy_requests,)
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related("proxy")
