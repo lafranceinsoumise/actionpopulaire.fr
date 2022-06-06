@@ -23,7 +23,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Tell the team the workflow has succeeded
-        if: ${{ !failure() }}
+        if: ${{ !failure() && steps.pr.outputs.pr_number != '' }}
         uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -42,6 +42,7 @@ jobs:
             ❌ Creating pull request to staging after production branch update failed!
 
       - name: Enable Pull Request Automerge
+        if: ${{ steps.pr.outputs.pr_number != '' }}
         uses: peter-evans/enable-pull-request-automerge@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
