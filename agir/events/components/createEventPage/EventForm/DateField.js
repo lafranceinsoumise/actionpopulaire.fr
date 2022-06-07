@@ -6,6 +6,7 @@ import { DateTime } from "luxon";
 import "moment/locale/fr";
 
 import DateTimeField from "@agir/front/formComponents/DateTimeField";
+import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
 import SelectField from "@agir/front/formComponents/SelectField";
 import TimezoneField from "@agir/front/formComponents/TimezoneField";
 
@@ -50,11 +51,16 @@ const TimezoneToggle = styled.p`
   }
 `;
 
+const ErrorMessage = styled.p`
+  color: ${(props) => props.theme.redNSP};
+`;
+
 const Field = styled.div`
   display: inline-grid;
   grid-template-columns: auto 160px 270px;
   grid-auto-rows: auto auto;
   grid-gap: 0.5rem;
+  align-items: start;
 
   @media (max-width: ${(props) => props.theme.collapse}px) {
     display: grid;
@@ -96,6 +102,7 @@ const DateField = (props) => {
 
   const [hasTimezone, setHasTimezone] = useState(showTimezone);
   const [duration, setDuration] = useState(undefined);
+  const inlineError = useResponsiveMemo(error, "");
 
   const updateStartTime = useCallback(
     (startTime) => {
@@ -151,54 +158,57 @@ const DateField = (props) => {
   }, [duration, startTime, endTime]);
 
   return (
-    <Field className={className}>
-      <div>
-        <DateTimeField
-          label={`Date et heure ${!duration?.value ? "de début" : ""}`.trim()}
-          value={startTime}
-          onChange={updateStartTime}
-          error={error}
-          required={required}
-          disabled={disabled}
-        />
-      </div>
-      <div>
-        <SelectField
-          label="Durée"
-          value={duration?.value ? duration : EVENT_DEFAULT_DURATIONS[4]}
-          onChange={updateDuration}
-          options={EVENT_DEFAULT_DURATIONS}
-          disabled={disabled}
-        />
-      </div>
-      {hasTimezone ? (
-        <TimezoneField
-          label="Fuseau horaire"
-          value={timezone}
-          onChange={onChangeTimezone}
-          disabled={disabled}
-          required={required}
-        />
-      ) : (
-        <TimezoneToggle>
-          <span>Fuseau horaire local</span>
-          <button type="button" onClick={() => setHasTimezone(true)}>
-            Personnaliser
-          </button>
-        </TimezoneToggle>
-      )}
-      {!duration?.value && (
+    <>
+      <Field className={className}>
         <div>
           <DateTimeField
-            label="Date et heure de fin"
-            value={endTime}
-            onChange={updateEndTime}
+            label={`Date et heure ${!duration?.value ? "de début" : ""}`.trim()}
+            value={startTime}
+            onChange={updateStartTime}
+            error={inlineError ? inlineError : error ? " " : error}
+            required={required}
+            disabled={disabled}
+          />
+        </div>
+        <div>
+          <SelectField
+            label="Durée"
+            value={duration?.value ? duration : EVENT_DEFAULT_DURATIONS[4]}
+            onChange={updateDuration}
+            options={EVENT_DEFAULT_DURATIONS}
+            disabled={disabled}
+          />
+        </div>
+        {hasTimezone ? (
+          <TimezoneField
+            label="Fuseau horaire"
+            value={timezone}
+            onChange={onChangeTimezone}
             disabled={disabled}
             required={required}
           />
-        </div>
-      )}
-    </Field>
+        ) : (
+          <TimezoneToggle>
+            <span>Fuseau horaire local</span>
+            <button type="button" onClick={() => setHasTimezone(true)}>
+              Personnaliser
+            </button>
+          </TimezoneToggle>
+        )}
+        {!duration?.value && (
+          <div>
+            <DateTimeField
+              label="Date et heure de fin"
+              value={endTime}
+              onChange={updateEndTime}
+              disabled={disabled}
+              required={required}
+            />
+          </div>
+        )}
+      </Field>
+      <ErrorMessage under>{error}</ErrorMessage>
+    </>
   );
 };
 DateField.propTypes = {
