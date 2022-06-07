@@ -56,6 +56,7 @@ from .tasks import (
     send_event_changed_notification,
     notify_on_event_report,
 )
+from ..elections.utils import is_forbidden_during_treve_event
 from ..gestion.models import Projet, Document, VersionDocument
 from ..groups.models import Membership, SupportGroup
 from ..groups.serializers import SupportGroupSerializer, SupportGroupDetailSerializer
@@ -601,6 +602,13 @@ class CreateEventSerializer(serializers.Serializer):
         data["organizer_person"] = data.pop("organizerPerson", None)
         data["organizer_group"] = data.pop("organizerGroup", None)
 
+        if is_forbidden_during_treve_event(data):
+            raise serializers.ValidationError(
+                {
+                    "endTime": "Ce type d'événement n'est pas autorisé pendant la trêve électorale"
+                }
+            )
+
         return data
 
     def schedule_tasks(self, event, data):
@@ -737,6 +745,13 @@ class UpdateEventSerializer(serializers.ModelSerializer):
                         "organizerGroup": "Veuillez choisir un groupe dont vous êtes animateur·ice"
                     }
                 )
+
+        if is_forbidden_during_treve_event(data):
+            raise serializers.ValidationError(
+                {
+                    "endTime": "Ce type d'événement n'est pas autorisé pendant la trêve électorale"
+                }
+            )
 
         return data
 
