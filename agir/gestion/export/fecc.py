@@ -81,7 +81,7 @@ def exporter_reglements(
 
     df = pd.DataFrame(glom(reglements, [spec_fec]))
 
-    max_autres_pieces = df.AutresPièces.str.len().max()
+    max_autres_pieces = df["_AutresPièces"].str.len().max()
 
     for i in range(max_autres_pieces):
         df[f"_AutrePièce{i+1}"] = df["_AutresPièces"].str.get(i)
