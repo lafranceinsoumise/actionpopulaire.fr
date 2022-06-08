@@ -1,5 +1,6 @@
 CIB,Raison légale,BIC
 10011,LA BANQUE POSTALE,PSSTFRPP
+10071,Trésor Public,TRPUFRP1
 10057,Société bordelaise de crédit industriel et commercial - Société bordelaise de C.I.C.,CMCIFRPP
 10096,"Lyonnaise de banque ""L.B.""",CMCIFRPP
 10107,BRED - Banque populaire,BREDFRPP
@@ -83,6 +84,7 @@ CIB,Raison légale,BIC
 17469,Banque Socrédo,SOCBPFTX
 17515,Caisse d'épargne et de prévoyance Ile-de-France,CEPAFRPP
 17620,Caisse de crédit municipal de Nîmes,CCMNFR21
+17679,Société de Banque et d'Expansion (2EME),SBEXFRP1
 17806,Caisse régionale de crédit agricole mutuel Centre-Est,AGRIFRPP
 17807,Banque populaire Occitane,CCBPFRPP
 17906,Caisse régionale de crédit agricole mutuel de l'Anjou et du Maine,AGRIFRPP
