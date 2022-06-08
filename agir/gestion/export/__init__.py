@@ -39,7 +39,7 @@ def references_pieces(reglement):
     if reglement.depense.projet:
         pieces.update(reglement.depense.projet.documents.all())
 
-    return ",".join(sorted(d.numero_piece for d in pieces))
+    return ",".join(sorted(d.numero_piece for d in pieces if d.numero_piece))
 
 
 def autres_pieces(reglement):
