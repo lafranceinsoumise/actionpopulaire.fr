@@ -18,6 +18,13 @@ from agir.people.models import Person, PersonForm, PersonFormSubmission
 
 class CreateEventAPITestCase(APITestCase):
     def setUp(self):
+        self.is_forbidden_during_treve_event = patch(
+            "agir.events.serializers.is_forbidden_during_treve_event",
+            return_value=False,
+        )
+        self.is_forbidden_during_treve_event.start()
+        self.addCleanup(self.is_forbidden_during_treve_event.stop)
+
         self.managed_group = SupportGroup.objects.create()
         self.unmanaged_group = SupportGroup.objects.create()
         self.person = Person.objects.create_person(
@@ -329,11 +336,10 @@ class CreateEventAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 422)
         self.assertIn("onlineUrl", res.data)
 
-    @patch("agir.events.serializers.is_forbidden_during_treve_event")
+    @patch("agir.events.serializers.is_forbidden_during_treve_event", return_value=True)
     def test_event_with_forbidden_during_treve_data(
         self, is_forbidden_during_treve_event
     ):
-        is_forbidden_during_treve_event.return_value = True
         self.client.force_login(self.person.role)
         res = self.client.post(
             "/api/evenements/creer/",
@@ -648,6 +654,13 @@ class QuitEventAPITestCase(APITestCase):
 
 class UpdateEventAPITestCase(APITestCase):
     def setUp(self):
+        self.is_forbidden_during_treve_event = patch(
+            "agir.events.serializers.is_forbidden_during_treve_event",
+            return_value=False,
+        )
+        self.is_forbidden_during_treve_event.start()
+        self.addCleanup(self.is_forbidden_during_treve_event.stop)
+
         self.unrelated_person = Person.objects.create_person(
             email="unrelated_person@example.com",
             create_role=True,
@@ -705,9 +718,7 @@ class UpdateEventAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 422)
         self.assertIn("subtype", res.data)
 
-    @patch("agir.events.serializers.is_forbidden_during_treve_event")
-    def test_organizer_can_post_valid_subtype(self, is_forbidden_during_treve_event):
-        is_forbidden_during_treve_event.return_value = False
+    def test_organizer_can_post_valid_subtype(self):
         self.client.force_login(self.organizer.role)
         data = {"subtype": self.another_subtype.pk}
         res = self.client.patch(f"/api/evenements/{self.event.pk}/modifier/", data=data)
@@ -730,11 +741,10 @@ class UpdateEventAPITestCase(APITestCase):
         self.assertIn("name", res.data)
         self.assertEqual(res.data["name"], data["name"])
 
-    @patch("agir.events.serializers.is_forbidden_during_treve_event")
+    @patch("agir.events.serializers.is_forbidden_during_treve_event", return_value=True)
     def test_event_with_forbidden_during_treve_data(
         self, is_forbidden_during_treve_event
     ):
-        is_forbidden_during_treve_event.return_value = True
         self.client.force_login(self.organizer.role)
         data = {"subtype": self.another_subtype.pk}
         res = self.client.patch(f"/api/evenements/{self.event.pk}/modifier/", data=data)
