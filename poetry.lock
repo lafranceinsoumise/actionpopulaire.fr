@@ -11,7 +11,7 @@ vine = ">=1.1.3,<5.0.0a1"
 
 [[package]]
 name = "anyio"
-version = "2.2.0"
+version = "3.6.1"
 description = "High level compatibility layer for multiple asynchronous event loop implementations"
 category = "main"
 optional = false
@@ -22,9 +22,8 @@ idna = ">=2.8"
 sniffio = ">=1.1"
 
 [package.extras]
-curio = ["curio (>=1.4)"]
-doc = ["sphinx-rtd-theme", "sphinx-autodoc-typehints (>=1.2.0)"]
-test = ["coverage[toml] (>=4.5)", "hypothesis (>=4.0)", "pytest (>=6.0)", "trustme", "uvloop (<0.15)", "uvloop (>=0.15)"]
+doc = ["packaging", "sphinx-rtd-theme", "sphinx-autodoc-typehints (>=1.2.0)"]
+test = ["coverage[toml] (>=4.5)", "hypothesis (>=4.0)", "pytest (>=7.0)", "pytest-mock (>=3.6.1)", "trustme", "contextlib2", "uvloop (<0.15)", "mock (>=4)", "uvloop (>=0.15)"]
 trio = ["trio (>=0.16)"]
 
 [[package]]
@@ -75,14 +74,14 @@ tests = ["pytest", "pytest-asyncio", "mypy (>=0.800)"]
 
 [[package]]
 name = "asks"
-version = "2.4.12"
+version = "3.0.0"
 description = "asks - async http"
 category = "main"
 optional = false
 python-versions = ">= 3.6.2"
 
 [package.dependencies]
-anyio = ">=2.0,<3.0"
+anyio = ">=3.0,<4.0"
 async_generator = "*"
 h11 = "*"
 
@@ -2284,7 +2283,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "e518e09fcafb148de24ec76947a0a1565cd05ede3ba2e87ee0f9c3ce7b070017"
+content-hash = "ff8bf46443659ae8df9eb35036d6656ebe2a256b02c488d7c793edd59b9627c2"
 
 [metadata.files]
 amqp = [
@@ -2292,8 +2291,8 @@ amqp = [
     {file = "amqp-2.6.1.tar.gz", hash = "sha256:70cdb10628468ff14e57ec2f751c7aa9e48e7e3651cfd62d431213c0c4e58f21"},
 ]
 anyio = [
-    {file = "anyio-2.2.0-py3-none-any.whl", hash = "sha256:aa3da546ed17f097ca876c78024dea380a3b7fa80759abfdda59f12176a3dac8"},
-    {file = "anyio-2.2.0.tar.gz", hash = "sha256:4a41c5b3a65ed92e469d51b6fba3779301850ea2e352afcf9e36c46f21ee14a9"},
+    {file = "anyio-3.6.1-py3-none-any.whl", hash = "sha256:cb29b9c70620506a9a8f87a309591713446953302d7d995344d0d7c6c0c9a7be"},
+    {file = "anyio-3.6.1.tar.gz", hash = "sha256:413adf95f93886e442aea925f3ee43baa5a765a64a0f52c6081894f9992fdd0b"},
 ]
 apns2 = [
     {file = "apns2-0.7.2-py2.py3-none-any.whl", hash = "sha256:f64a50181d0206a02943c835814a34fc1b1e12914931b74269a0f0fb4f39fd45"},
@@ -2312,7 +2311,7 @@ asgiref = [
     {file = "asgiref-3.5.2.tar.gz", hash = "sha256:4a29362a6acebe09bf1d6640db38c1dc3d9217c68e6f9f6204d72667fc19a424"},
 ]
 asks = [
-    {file = "asks-2.4.12.tar.gz", hash = "sha256:38de944eb350e7e4e3a918055fa8ff033da5f7b5ff385c1160a2d6b9d84783b0"},
+    {file = "asks-3.0.0.tar.gz", hash = "sha256:e4d61dc8362594c81cfe0198eee9f3a208eef1c0023355d711566a6dcf65e986"},
 ]
 asttokens = [
     {file = "asttokens-2.0.5-py2.py3-none-any.whl", hash = "sha256:0844691e88552595a6f4a4281a9f7f79b8dd45ca4ccea82e5e05b4bbdb76705c"},

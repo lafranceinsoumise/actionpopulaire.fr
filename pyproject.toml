@@ -85,7 +85,7 @@ django-storages = "^1.11.1"
 qrcode = {extras = ["pil"], version = "^7.2"}
 xlsxwriter = "*"
 trio = "^0.20.0"
-asks = "^2.4.12"
+asks = "^3.0.0"
 Django = "^3.2"
 
 [tool.poetry.dev-dependencies]
