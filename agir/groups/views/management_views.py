@@ -48,7 +48,6 @@ from agir.groups.tasks import (
 )
 from agir.lib.export import dict_to_camelcase
 from agir.lib.http import add_query_params_to_url
-from agir.lib.views import TreveMixin
 from agir.people.models import Person
 
 __all__ = [
@@ -116,7 +115,7 @@ class SupportGroupManagementView(RedirectView):
         return reverse("view_group_settings", kwargs={"pk": supportgroup.pk})
 
 
-class CreateSupportGroupView(HardLoginRequiredMixin, TreveMixin, TemplateView):
+class CreateSupportGroupView(HardLoginRequiredMixin, TemplateView):
     template_name = "groups/create.html"
     per_type_animation_limit = 2
 

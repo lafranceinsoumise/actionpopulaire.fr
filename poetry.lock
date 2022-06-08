@@ -11,7 +11,7 @@ vine = ">=1.1.3,<5.0.0a1"
 
 [[package]]
 name = "anyio"
-version = "2.2.0"
+version = "3.6.1"
 description = "High level compatibility layer for multiple asynchronous event loop implementations"
 category = "main"
 optional = false
@@ -22,9 +22,8 @@ idna = ">=2.8"
 sniffio = ">=1.1"
 
 [package.extras]
-curio = ["curio (>=1.4)"]
-doc = ["sphinx-rtd-theme", "sphinx-autodoc-typehints (>=1.2.0)"]
-test = ["coverage[toml] (>=4.5)", "hypothesis (>=4.0)", "pytest (>=6.0)", "trustme", "uvloop (<0.15)", "uvloop (>=0.15)"]
+doc = ["packaging", "sphinx-rtd-theme", "sphinx-autodoc-typehints (>=1.2.0)"]
+test = ["coverage[toml] (>=4.5)", "hypothesis (>=4.0)", "pytest (>=7.0)", "pytest-mock (>=3.6.1)", "trustme", "contextlib2", "uvloop (<0.15)", "mock (>=4)", "uvloop (>=0.15)"]
 trio = ["trio (>=0.16)"]
 
 [[package]]
@@ -75,14 +74,14 @@ tests = ["pytest", "pytest-asyncio", "mypy (>=0.800)"]
 
 [[package]]
 name = "asks"
-version = "2.4.12"
+version = "3.0.0"
 description = "asks - async http"
 category = "main"
 optional = false
 python-versions = ">= 3.6.2"
 
 [package.dependencies]
-anyio = ">=2.0,<3.0"
+anyio = ">=3.0,<4.0"
 async_generator = "*"
 h11 = "*"
 
@@ -152,7 +151,7 @@ python-versions = "*"
 
 [[package]]
 name = "beautifultable"
-version = "1.0.1"
+version = "1.1.0"
 description = "Print text tables for terminals"
 category = "main"
 optional = false
@@ -160,6 +159,10 @@ python-versions = "*"
 
 [package.dependencies]
 wcwidth = "*"
+
+[package.extras]
+all = ["pandas"]
+dev = ["pandas"]
 
 [[package]]
 name = "billiard"
@@ -1218,11 +1221,11 @@ zookeeper = ["kazoo (>=1.3.1)"]
 
 [[package]]
 name = "locust"
-version = "2.8.6"
+version = "2.9.0"
 description = "Developer friendly load testing framework"
 category = "dev"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 
 [package.dependencies]
 ConfigArgParse = ">=1.0"
@@ -1231,11 +1234,10 @@ Flask-BasicAuth = ">=0.2.0"
 Flask-Cors = ">=3.0.10"
 gevent = ">=20.12.1"
 geventhttpclient = ">=1.5.1"
-Jinja2 = "<3.1.0"
 msgpack = ">=0.6.2"
 psutil = ">=5.6.7"
-pywin32 = {version = "*", markers = "sys_platform == \"win32\""}
-pyzmq = ">=22.2.1"
+pywin32 = {version = "*", markers = "platform_system == \"Windows\""}
+pyzmq = ">=22.2.1,<23.0.0"
 requests = ">=2.23.0"
 roundrobin = ">=0.0.2"
 typing-extensions = ">=3.7.4.3"
@@ -2280,7 +2282,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "ee8d5a5aca890d3c24e4fb33dbbec4aa5539c7b13993a2f21f5d6f27e0f3cdea"
+content-hash = "ff8bf46443659ae8df9eb35036d6656ebe2a256b02c488d7c793edd59b9627c2"
 
 [metadata.files]
 amqp = [
@@ -2288,8 +2290,8 @@ amqp = [
     {file = "amqp-2.6.1.tar.gz", hash = "sha256:70cdb10628468ff14e57ec2f751c7aa9e48e7e3651cfd62d431213c0c4e58f21"},
 ]
 anyio = [
-    {file = "anyio-2.2.0-py3-none-any.whl", hash = "sha256:aa3da546ed17f097ca876c78024dea380a3b7fa80759abfdda59f12176a3dac8"},
-    {file = "anyio-2.2.0.tar.gz", hash = "sha256:4a41c5b3a65ed92e469d51b6fba3779301850ea2e352afcf9e36c46f21ee14a9"},
+    {file = "anyio-3.6.1-py3-none-any.whl", hash = "sha256:cb29b9c70620506a9a8f87a309591713446953302d7d995344d0d7c6c0c9a7be"},
+    {file = "anyio-3.6.1.tar.gz", hash = "sha256:413adf95f93886e442aea925f3ee43baa5a765a64a0f52c6081894f9992fdd0b"},
 ]
 apns2 = [
     {file = "apns2-0.7.2-py2.py3-none-any.whl", hash = "sha256:f64a50181d0206a02943c835814a34fc1b1e12914931b74269a0f0fb4f39fd45"},
@@ -2308,7 +2310,7 @@ asgiref = [
     {file = "asgiref-3.5.2.tar.gz", hash = "sha256:4a29362a6acebe09bf1d6640db38c1dc3d9217c68e6f9f6204d72667fc19a424"},
 ]
 asks = [
-    {file = "asks-2.4.12.tar.gz", hash = "sha256:38de944eb350e7e4e3a918055fa8ff033da5f7b5ff385c1160a2d6b9d84783b0"},
+    {file = "asks-3.0.0.tar.gz", hash = "sha256:e4d61dc8362594c81cfe0198eee9f3a208eef1c0023355d711566a6dcf65e986"},
 ]
 asttokens = [
     {file = "asttokens-2.0.5-py2.py3-none-any.whl", hash = "sha256:0844691e88552595a6f4a4281a9f7f79b8dd45ca4ccea82e5e05b4bbdb76705c"},
@@ -2335,8 +2337,8 @@ backcall = [
     {file = "backcall-0.2.0.tar.gz", hash = "sha256:5cbdbf27be5e7cfadb448baf0aa95508f91f2bbc6c6437cd9cd06e2a4c215e1e"},
 ]
 beautifultable = [
-    {file = "beautifultable-1.0.1-py2.py3-none-any.whl", hash = "sha256:8079a7b4179fbb5c0f61d8b3ddd036a1e2b9246d1725b2d2fcde214f9c69f61b"},
-    {file = "beautifultable-1.0.1.tar.gz", hash = "sha256:d2c9ce84f93794d8f158b0c76effba968d08fd2b4acce306911fe78210654dd1"},
+    {file = "beautifultable-1.1.0-py2.py3-none-any.whl", hash = "sha256:b34053a581976c4c23064bb0e918a7f6f22273cf196c787946db323a6a2b7d84"},
+    {file = "beautifultable-1.1.0.tar.gz", hash = "sha256:040bc987444965678f4ffdfa2f17ac357f1a13e5875b161c9a1899b375319d17"},
 ]
 billiard = [
     {file = "billiard-3.6.4.0-py3-none-any.whl", hash = "sha256:87103ea78fa6ab4d5c751c4909bcff74617d985de7fa8b672cf8618afd5a875b"},
@@ -3009,8 +3011,8 @@ kombu = [
     {file = "kombu-4.6.11.tar.gz", hash = "sha256:ca1b45faac8c0b18493d02a8571792f3c40291cf2bcf1f55afed3d8f3aa7ba74"},
 ]
 locust = [
-    {file = "locust-2.8.6-py3-none-any.whl", hash = "sha256:30dd8be2b9518ec06f4f18e061b2b625851faccadc70ffbc146b38f9b377b3d3"},
-    {file = "locust-2.8.6.tar.gz", hash = "sha256:011b16b5cf8b8cafe51c74cf86234afc6660ec7bdefbc6a89d6648548e1cc1be"},
+    {file = "locust-2.9.0-py3-none-any.whl", hash = "sha256:c2355852b9bccef4d1cc4e587e3448a8b81c9622626248a5809a77c672f59757"},
+    {file = "locust-2.9.0.tar.gz", hash = "sha256:62b69109337c3e6542e35c40ad08ba57d3690b0d1468121ba613b3cc01a6340a"},
 ]
 lxml = [
     {file = "lxml-4.8.0-cp27-cp27m-macosx_10_14_x86_64.whl", hash = "sha256:e1ab2fac607842ac36864e358c42feb0960ae62c34aa4caaf12ada0a1fb5d99b"},

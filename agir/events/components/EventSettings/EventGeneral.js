@@ -6,15 +6,16 @@ import useSWR from "swr";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
-import TextField from "@agir/front/formComponents/TextField";
-import RichTextField from "@agir/front/formComponents/RichText/RichTextField";
-import ImageField from "@agir/front/formComponents/ImageField";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
-import Spacer from "@agir/front/genericComponents/Spacer";
 import DateField from "@agir/events/createEventPage/EventForm/DateField";
-import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
-import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
+import ElectoralTruceWarning from "@agir/events/common/ElectoralTruceWarning";
 import EventSubtypeField from "@agir/events/EventSettings/EventSubtypeField";
+import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
+import ImageField from "@agir/front/formComponents/ImageField";
+import RichTextField from "@agir/front/formComponents/RichText/RichTextField";
+import Spacer from "@agir/front/genericComponents/Spacer";
+import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
+import TextField from "@agir/front/formComponents/TextField";
 
 import { DEFAULT_FORM_DATA } from "@agir/events/common/eventForm.config";
 import * as api from "@agir/events/common/api";
@@ -156,6 +157,7 @@ const EventGeneral = (props) => {
         <span style={{ color: style.black700 }}>
           Ces informations seront affichées en public.
         </span>
+        <ElectoralTruceWarning />
         <Spacer size="1rem" />
         <TextField
           id="name"

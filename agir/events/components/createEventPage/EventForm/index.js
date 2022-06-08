@@ -13,8 +13,8 @@ import { useEventFormOptions } from "@agir/events/common/hooks";
 import { createEvent } from "@agir/events/common/api";
 
 import Button from "@agir/front/genericComponents/Button";
-import Spacer from "@agir/front/genericComponents/Spacer";
 import LocationField from "@agir/front/formComponents/LocationField";
+import Spacer from "@agir/front/genericComponents/Spacer";
 import UnloadPrompt from "@agir/front/app/UnloadPrompt";
 
 import NameField from "./NameField";

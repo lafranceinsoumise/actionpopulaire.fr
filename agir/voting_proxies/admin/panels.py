@@ -27,6 +27,11 @@ class ConsulateListFilter(AutocompleteRelatedModelFilter):
     title = "consulat"
 
 
+class DepartementListFilter(AutocompleteRelatedModelFilter):
+    field_name = "commune__departement"
+    title = "département"
+
+
 class HasVotingProxyRequestsListFilter(admin.SimpleListFilter):
     title = "cette personne a au moins une procuration"
     parameter_name = "voting_proxy_requests"
@@ -96,6 +101,7 @@ class VoterModelAdmin(admin.ModelAdmin):
     list_filter = (
         "status",
         CommuneListFilter,
+        DepartementListFilter,
         ConsulateListFilter,
     )
     autocomplete_fields = ("commune", "consulate")
