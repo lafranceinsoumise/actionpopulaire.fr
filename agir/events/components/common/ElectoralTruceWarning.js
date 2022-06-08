@@ -60,7 +60,7 @@ export const ElectoralTruceWarning = (props) => {
       <div>
         <h5>Trêve électorale</h5>
         <Spacer size="0.5rem" />
-        Les weekend du 12 et 19 juin 2022, entre{" "}
+        Les weekends du 12 et 19 juin 2022, entre{" "}
         <strong>vendredi minuit</strong> (nuit entre vendredi et samedi) et{" "}
         <strong>dimanche 20h</strong>, seul les événements du type{" "}
         <strong>&laquo;&nbsp;Soirée&nbsp;électorale&nbsp;&raquo;</strong> seront
