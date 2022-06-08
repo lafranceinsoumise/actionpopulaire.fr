@@ -10,6 +10,7 @@ from agir.gestion.export import (
     lien_document,
     autres_pieces,
     gestion_admin_link,
+    references_pieces,
 )
 from agir.gestion.models import Reglement
 from agir.gestion.typologies import TypeDepense
@@ -31,7 +32,8 @@ spec_fec = {
         skip_exc=(ValueError,),
         default="",
     ),
-    "PieceRef": Coalesce("facture.numero_piece", default=""),
+    "CompteLib": Val(""),
+    "PieceRef": references_pieces,
     "PieceDate": Coalesce("facture.date", default=""),
     "EcritureLib": "intitule",
     "Debit": ("montant", (M > 0.0) | Val(0.0)),
@@ -43,7 +45,7 @@ spec_fec = {
     "Idevise": Val(""),
     "DateRglt": "date",
     "ModeRglt": ("mode", LIBELLES_MODE.get),
-    "NatOp": Val(""),
+    "NatOp": "depense.nature",
     "DateEvenement": Coalesce(
         "date_evenement",
         "depense.projet.date_evenement",
@@ -58,14 +60,13 @@ spec_fec = {
         default="00000",
     ),
     "Libre": "libre",
-    "Type": "depense.nature",
-    "DateDébut": "depense.date_debut",
-    "DateFin": "depense.date_fin",
-    "Quantité": "depense.quantite",
-    "LienRèglement": gestion_admin_link,
-    "PreuvePaiement": ("preuve", lien_document),
-    "LienFacture": ("facture", lien_document),
-    "AutresPièces": autres_pieces,
+    "_DateDébut": "depense.date_debut",
+    "_DateFin": "depense.date_fin",
+    "_Quantité": "depense.quantite",
+    "_LienRèglement": gestion_admin_link,
+    "_PreuvePaiement": ("preuve", lien_document),
+    "_LienFacture": ("facture", lien_document),
+    "_AutresPièces": autres_pieces,
 }
 
 
@@ -83,7 +84,7 @@ def exporter_reglements(
     max_autres_pieces = df.AutresPièces.str.len().max()
 
     for i in range(max_autres_pieces):
-        df[f"AutrePièce{i+1}"] = df["AutresPièces"].str.get(i)
-    del df["AutresPièces"]
+        df[f"_AutrePièce{i+1}"] = df["_AutresPièces"].str.get(i)
+    del df["_AutresPièces"]
 
     return df

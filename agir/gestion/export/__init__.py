@@ -26,6 +26,22 @@ def lien_document(document):
     return "-"
 
 
+def references_pieces(reglement):
+    pieces = set()
+
+    if reglement.facture:
+        pieces.add(reglement.facture)
+    if reglement.preuve:
+        pieces.add(reglement.preuve)
+
+    pieces.update(reglement.depense.documents.all())
+
+    if reglement.depense.projet:
+        pieces.update(reglement.depense.projet.documents.all())
+
+    return ",".join(sorted(d.numero_piece for d in pieces))
+
+
 def autres_pieces(reglement):
     q = Q(depense=reglement.depense) & ~Q(type=TypeDocument.FACTURE)
     if reglement.depense.projet:
