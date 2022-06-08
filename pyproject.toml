@@ -11,7 +11,7 @@ python = "^3.9"
 django = ">=3.0,<4.0"
 ## config helpers
 dj-database-url = "==0.5.*"  # for easing up database settings
-dj-email-url = "==0.2.*"  # for easing up SMTP settings
+dj-email-url = "==1.0.*"  # for easing up SMTP settings
 django-cors-headers = "==3.*"  # configuring CORS Headers
 ## model and form fields
 django-countries = "==7.*"  # country fields

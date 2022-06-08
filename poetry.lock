@@ -482,7 +482,7 @@ python-versions = "*"
 
 [[package]]
 name = "dj-email-url"
-version = "0.2.0"
+version = "1.0.5"
 description = "Use an URL to configure email backend settings in your Django Application."
 category = "main"
 optional = false
@@ -2282,7 +2282,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "ff8bf46443659ae8df9eb35036d6656ebe2a256b02c488d7c793edd59b9627c2"
+content-hash = "434a2539e1accbda030788286fd6740a9c9db91a4e47c3647e106c07e8666612"
 
 [metadata.files]
 amqp = [
@@ -2628,8 +2628,8 @@ dj-database-url = [
     {file = "dj_database_url-0.5.0-py2.py3-none-any.whl", hash = "sha256:851785365761ebe4994a921b433062309eb882fedd318e1b0fcecc607ed02da9"},
 ]
 dj-email-url = [
-    {file = "dj-email-url-0.2.0.tar.gz", hash = "sha256:0362e390c17cc377f03bcbf6daf3f671797c929c1bf78a9f439d78f215ebe3fd"},
-    {file = "dj_email_url-0.2.0-py2.py3-none-any.whl", hash = "sha256:136ac43c7f29022130fc4769b4ca8b01cd1c39fedf1659c641c143808182a084"},
+    {file = "dj-email-url-1.0.5.tar.gz", hash = "sha256:ef36f8a324ec57cf3be5c7a7ef44ed6900ca0208624a918ab33adc1cf6427b39"},
+    {file = "dj_email_url-1.0.5-py2.py3-none-any.whl", hash = "sha256:64257c4f9d8139a4af8e5267229d32260e433fbf257b0cf8fc855bb0cc39ca7d"},
 ]
 django = [
     {file = "Django-3.2.13-py3-none-any.whl", hash = "sha256:b896ca61edc079eb6bbaa15cf6071eb69d6aac08cce5211583cfb41515644fdf"},
