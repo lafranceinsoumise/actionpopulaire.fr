@@ -227,6 +227,7 @@ class PersonForm(TimeStampedModel):
 
     class Meta:
         verbose_name = _("Formulaire")
+        ordering = ("-created",)
 
 
 class PersonFormSubmission(
