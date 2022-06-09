@@ -29,7 +29,7 @@ rules = "==3.*"  # add useful authorization rules
 django-reversion = "==3.*"  # versioning of models
 ## Django Rest Framework
 djangorestframework = "==3.*,>=3.10"
-djangorestframework-gis = "==0.17"
+djangorestframework-gis = "==1.0"
 ## adapters for third-party systems
 django-redis = "==5.*"
 psycopg2 = "*"
@@ -98,7 +98,7 @@ click = "*"
 pympler = "*"
 locust = "*"
 pyquery = "*"
-jedi = "==0.17.*"  # version 0.18.* fait crasher IPython (08/01/2021)
+jedi = "==0.18.*"  # version 0.18.* fait crasher IPython (08/01/2021)
 hypothesis = {extras = ["django"], version = "^6.13.14"}
 
 [build-system]
