@@ -1,6 +1,7 @@
-import twitterEmojis from "emoji-mart/data/twitter";
-import NimblePicker from "emoji-mart/dist-es/components/picker/nimble-picker";
-import NimbleEmoji from "emoji-mart/dist-es/components/emoji/nimble-emoji";
+import { Picker } from "emoji-mart";
+import EMOJI_SET_DATA from "@emoji-mart/data/sets/14/twitter";
+import FRENCH_I18N from "@emoji-mart/data/i18n/fr";
+
 import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { animated, useTransition } from "@react-spring/web";
@@ -9,38 +10,6 @@ import styled from "styled-components";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 import style from "@agir/front/genericComponents/_variables.scss";
-
-import "emoji-mart/css/emoji-mart.css";
-
-const i18n = {
-  search: "Recherche",
-  clear: "Réinitialiser la recherche", // Accessible label on "clear" button
-  notfound: "Aucun emoji ne correspond à la recherche",
-  skintext: "Choisissez une couleur de peau par défaut",
-  categories: {
-    search: "Résultats",
-    recent: " ",
-    smileys: "Émoticones",
-    people: "Personnes",
-    nature: "Nature",
-    foods: "Nourriture",
-    activity: "Activités",
-    places: "Voyage",
-    objects: "Objets",
-    symbols: "Symboles",
-    flags: "Drapeaux",
-    custom: "Personnalisés",
-  },
-  categorieslabel: "Catégories d'emojis", // Accessible title for the list of categories
-  skintones: {
-    1: "Couleur de peau par défaut",
-    2: "Couleur de peau très claire",
-    3: "Couleur de peau claire",
-    4: "Couleur de peau moyenne",
-    5: "Couleur de peau sombre",
-    6: "Couleur de peau très sombre",
-  },
-};
 
 const StyledOverlay = styled.div`
   display: ${({ $isOpen }) => ($isOpen ? "block" : "none")};
@@ -55,6 +24,7 @@ const StyledOverlay = styled.div`
   cursor: pointer;
   z-index: 0;
 `;
+
 const StyledTriggerIcon = styled(animated.span)`
   display: inline-flex;
   align-items: center;
@@ -86,6 +56,7 @@ const StyledTriggerIcon = styled(animated.span)`
     transform: ${({ $isOpen }) => ($isOpen ? "scale(1,1)" : "scale(0.5,0.5)")};
   }
 `;
+
 const StyledTrigger = styled.button`
   display: inline-block;
   border: none;
@@ -148,6 +119,38 @@ const slideInTransition = {
   leave: { opacity: 0, transform: "translateY(1rem)" },
 };
 
+const NimblePicker = (props) => {
+  const { onEmojiSelect, onKeyDown, ...rest } = props;
+  const ref = useRef();
+
+  // Avoid rerenders but still use the latest event handler functions
+  const eventHandlers = useRef(null);
+  eventHandlers.current = { onEmojiSelect, onKeyDown };
+  const handleEmojiSelect = useCallback((emoji) => {
+    eventHandlers.current?.onEmojiSelect(emoji);
+  }, []);
+  const handleKeyDown = useCallback((emoji) => {
+    eventHandlers.current?.onKeyDown(emoji);
+  }, []);
+
+  useEffect(() => {
+    new Picker({
+      ref,
+      i18n: FRENCH_I18N,
+      data: EMOJI_SET_DATA,
+      title: "",
+      previewPosition: "none",
+      skinTonePosition: "none",
+      color: style.primary500,
+      autoFocus: true,
+      onEmojiSelect: handleEmojiSelect,
+      onKeyDown: handleKeyDown,
+    });
+  }, []);
+
+  return <div {...rest} ref={ref} />;
+};
+
 const EmojiPicker = (props) => {
   const { onOpen, onClose, onSelect, format, small } = props;
 
@@ -173,7 +176,7 @@ const EmojiPicker = (props) => {
     [handleClose]
   );
 
-  const handleSelect = useCallback(
+  const handleEmojiSelect = useCallback(
     (emoji) => {
       onSelect(emoji[format] || emoji.native);
     },
@@ -212,12 +215,7 @@ const EmojiPicker = (props) => {
               width={small ? "1rem" : "1.5rem"}
               color={style.black1000}
             />
-            <NimbleEmoji
-              data={twitterEmojis}
-              emoji="smile"
-              size={small ? 16 : 24}
-              set="twitter"
-            />
+            <em-emoji id="smile" set="twitter" size={small ? 16 : 24} />
           </StyledTriggerIcon>
         </StyledTrigger>
         {transition(
@@ -225,22 +223,14 @@ const EmojiPicker = (props) => {
             item && (
               <StyledPickerWrapper style={style} $position={position}>
                 <NimblePicker
-                  data={twitterEmojis}
-                  autoFocus
-                  showPreview={false}
-                  showSkinTones={false}
-                  onSelect={handleSelect}
-                  onKeyDown={handleKeyClose}
-                  title=""
                   style={{
                     width: "100%",
                     fontFamily: "inherit",
-                    fontSize: "14px",
+                    fontSize: "0.875rem",
                     lineHeight: "1.5",
                   }}
-                  i18n={i18n}
-                  color={style.primary500}
-                  set="twitter"
+                  onEmojiSelect={handleEmojiSelect}
+                  onKeyDown={handleKeyClose}
                 />
               </StyledPickerWrapper>
             )
@@ -256,8 +246,10 @@ EmojiPicker.propTypes = {
   format: PropTypes.oneOf(["native", "id", "colons", "unified"]),
   small: PropTypes.bool,
 };
+
 EmojiPicker.defaultProps = {
   format: "native",
   small: false,
 };
+
 export default EmojiPicker;
