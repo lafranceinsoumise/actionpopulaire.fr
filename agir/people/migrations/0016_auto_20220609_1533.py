@@ -6,25 +6,24 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('people', '0015_add_person_created_id_index'),
+        ("people", "0015_add_person_created_id_index"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Liaison',
-            fields=[
-            ],
+            name="Liaison",
+            fields=[],
             options={
-                'verbose_name': "correspondant·e d'immeuble et de quartier",
-                'verbose_name_plural': "correspondant·es d'immeuble et de quartier",
-                'proxy': True,
-                'indexes': [],
-                'constraints': [],
+                "verbose_name": "correspondant·e d'immeuble et de quartier",
+                "verbose_name_plural": "correspondant·es d'immeuble et de quartier",
+                "proxy": True,
+                "indexes": [],
+                "constraints": [],
             },
-            bases=('people.person',),
+            bases=("people.person",),
         ),
         migrations.AlterModelOptions(
-            name='personform',
-            options={'ordering': ('-created',), 'verbose_name': 'Formulaire'},
+            name="personform",
+            options={"ordering": ("-created",), "verbose_name": "Formulaire"},
         ),
     ]
