@@ -375,7 +375,7 @@ module.exports = (type = CONFIG_TYPES.ES5) => ({
       chunks: "all",
       cacheGroups: {
         emojiMart: {
-          test: /[\\/]node_modules[\\/]emoji-mart[\\/]/,
+          test: /[\\/]node_modules[\\/]@emoji-mart[\\/]/,
           name: "em",
           chunks: "all",
         },
