@@ -720,6 +720,7 @@ class Person(
             "short_address": self.short_address,
             "short_location": self.short_location(),
             "full_address": self.html_full_address(),
+            "meta": self.meta,
         }
 
     def get_subscriber_push_devices(self):
