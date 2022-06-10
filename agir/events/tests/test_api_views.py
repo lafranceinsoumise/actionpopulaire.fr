@@ -749,7 +749,7 @@ class UpdateEventAPITestCase(APITestCase):
         data = {"subtype": self.another_subtype.pk}
         res = self.client.patch(f"/api/evenements/{self.event.pk}/modifier/", data=data)
         self.assertEqual(res.status_code, 422)
-        self.assertIn("endTime", res.data)
+        self.assertIn("global", res.data)
 
 
 class EventProjectAPITestCase(APITestCase):

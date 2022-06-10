@@ -11,7 +11,7 @@ python = "^3.9"
 django = ">=3.0,<4.0"
 ## config helpers
 dj-database-url = "==0.5.*"  # for easing up database settings
-dj-email-url = "==0.2.*"  # for easing up SMTP settings
+dj-email-url = "==1.0.*"  # for easing up SMTP settings
 django-cors-headers = "==3.*"  # configuring CORS Headers
 ## model and form fields
 django-countries = "==7.*"  # country fields
@@ -41,7 +41,7 @@ celery-prometheus-exporter = "==1.*"
 redis = ">=3.2.0"
 hiredis = "==2.*"
 # HTTP
-requests = ">=2.20.0, ==2.*"
+requests = "==2.*"
 # HTML
 bleach = "==4.*"  # sanitize HTML
 "html2text" = "==2020.*"  # transforms HTML to text (used for plain text versions of HTML emails)
@@ -98,7 +98,7 @@ click = "*"
 pympler = "*"
 locust = "*"
 pyquery = "*"
-jedi = "==0.17.*"  # version 0.18.* fait crasher IPython (08/01/2021)
+jedi = "==0.18.*"  # version 0.18.* fait crasher IPython (08/01/2021)
 hypothesis = {extras = ["django"], version = "^6.13.14"}
 
 [build-system]

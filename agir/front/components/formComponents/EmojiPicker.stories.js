@@ -24,8 +24,8 @@ const Template = (args) => {
     <div
       style={{
         boxSizing: "border-box",
-        padding: "32px 16px",
-        maxWidth: "480px",
+        padding: "2rem 1rem",
+        maxWidth: "30rem",
         margin: "0 auto",
       }}
     >

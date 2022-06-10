@@ -3,18 +3,19 @@ import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import useSWR from "swr";
 
-import { useToast } from "@agir/front/globalContext/hooks.js";
+import { useToast } from "@agir/front/globalContext/hooks";
 import * as api from "@agir/events/common/api";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
-import Spacer from "@agir/front/genericComponents/Spacer.js";
+import ElectoralTruceWarning from "@agir/events/common/ElectoralTruceWarning";
+import Spacer from "@agir/front/genericComponents/Spacer";
 import Map from "@agir/carte/common/Map";
-import LocationField from "@agir/front/formComponents/LocationField.js";
+import LocationField from "@agir/front/formComponents/LocationField";
 
-import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents.js";
-import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel.js";
+import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
+import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
 
 const StyledMap = styled(Map)`
   && {
@@ -84,6 +85,7 @@ const EventLocation = (props) => {
     <form onSubmit={handleSubmit}>
       <HeaderPanel onBack={onBack} illustration={illustration} />
       <StyledTitle>Localisation</StyledTitle>
+      <ElectoralTruceWarning style={{ marginBottom: 0 }} />
       <Spacer size="1rem" />
       <StyledMap
         center={event?.location?.coordinates?.coordinates || []}
@@ -116,8 +118,18 @@ const EventLocation = (props) => {
         required
         disabled={isDisabled}
       />
-
-      <Spacer size="2rem" />
+      <Spacer size="1rem" />
+      {errors.global && (
+        <p
+          css={`
+            color: ${(props) => props.theme.redNSP};
+            margin: 0;
+          `}
+        >
+          ⚠&ensp;{errors.global}
+        </p>
+      )}
+      <Spacer size="1rem" />
       <Button color="secondary" $wrap disabled={isDisabled}>
         Enregistrer
       </Button>

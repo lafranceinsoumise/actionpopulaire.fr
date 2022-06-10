@@ -251,7 +251,18 @@ const EventGeneral = (props) => {
             />
           </>
         )}
-        <Spacer size="2rem" />
+        <Spacer size="1rem" />
+        {errors.global && (
+          <p
+            css={`
+              color: ${(props) => props.theme.redNSP};
+              margin: 0;
+            `}
+          >
+            ⚠&ensp;{errors.global}
+          </p>
+        )}
+        <Spacer size="1rem" />
         <Button color="secondary" wrap disabled={isDisabled} type="submit">
           Enregistrer
         </Button>
