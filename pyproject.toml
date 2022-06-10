@@ -41,7 +41,7 @@ celery-prometheus-exporter = "==1.*"
 redis = ">=3.2.0"
 hiredis = "==2.*"
 # HTTP
-requests = ">=2.20.0, ==2.*"
+requests = "==2.*"
 # HTML
 bleach = "==4.*"  # sanitize HTML
 "html2text" = "==2020.*"  # transforms HTML to text (used for plain text versions of HTML emails)
