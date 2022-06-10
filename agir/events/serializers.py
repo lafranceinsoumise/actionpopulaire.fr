@@ -61,6 +61,7 @@ from ..gestion.models import Projet, Document, VersionDocument
 from ..groups.models import Membership, SupportGroup
 from ..groups.serializers import SupportGroupSerializer, SupportGroupDetailSerializer
 from ..groups.tasks import notify_new_group_event, send_new_group_event_email
+from ..lib.data import french_zipcode_to_country_code, FRANCE_COUNTRY_CODES
 
 EVENT_ROUTES = {
     "details": "view_event",
@@ -602,6 +603,14 @@ class CreateEventSerializer(serializers.Serializer):
         data["organizer_person"] = data.pop("organizerPerson", None)
         data["organizer_group"] = data.pop("organizerGroup", None)
 
+        if (
+            data.get("location_zip")
+            and data.get("location_country") in FRANCE_COUNTRY_CODES
+        ):
+            data["location_country"] = french_zipcode_to_country_code(
+                data["location_zip"]
+            )
+
         if is_forbidden_during_treve_event(data):
             raise serializers.ValidationError(
                 {
@@ -734,6 +743,7 @@ class UpdateEventSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, data):
+        data["id"] = self.instance.pk
         data["organizerPerson"] = self.context["request"].user.person
         if data.get("organizerGroup", None):
             if (
@@ -746,10 +756,18 @@ class UpdateEventSerializer(serializers.ModelSerializer):
                     }
                 )
 
+        if (
+            data.get("location_zip")
+            and data.get("location_country") in FRANCE_COUNTRY_CODES
+        ):
+            data["location_country"] = french_zipcode_to_country_code(
+                data["location_zip"]
+            )
+
         if is_forbidden_during_treve_event(data):
             raise serializers.ValidationError(
                 {
-                    "endTime": "Ce type d'événement n'est pas autorisé pendant la trêve électorale"
+                    "global": "Ce type d'événement n'est pas autorisé pendant la trêve électorale"
                 }
             )
 
