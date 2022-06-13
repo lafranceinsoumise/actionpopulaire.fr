@@ -723,7 +723,7 @@ sqlparse = "*"
 
 [[package]]
 name = "django-stdimage"
-version = "5.3.0"
+version = "6.0.1"
 description = "Django Standarized Image Field"
 category = "main"
 optional = false
@@ -735,6 +735,7 @@ pillow = ">=2.5"
 
 [package.extras]
 progressbar = ["progressbar2 (>=3.0.0)"]
+test = ["pytest", "pytest-cov", "pytest-django"]
 
 [[package]]
 name = "django-storages"
@@ -2286,7 +2287,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "cbb6114cc0e4921aaecbd8215435c315d8c41c3b9d4a7659b2afdda8f331930a"
+content-hash = "014b5a078dcc26dc1d61f72769b6138b3ab68c8887e99adcbbb3d370e82ceb54"
 
 [metadata.files]
 amqp = [
@@ -2704,8 +2705,8 @@ django-silk = [
     {file = "django_silk-4.3.0-py3-none-any.whl", hash = "sha256:b010e51d9a2408ca0471bc943941676950f1d2906af3d09f9ffcd56f232688fc"},
 ]
 django-stdimage = [
-    {file = "django-stdimage-5.3.0.tar.gz", hash = "sha256:95f2897f5a520f18e0d0097cc8cb1380db9127ead1abe66a5e048cd7bd4a2295"},
-    {file = "django_stdimage-5.3.0-py2.py3-none-any.whl", hash = "sha256:fb9d6bf86664873194fcc378193d81405aa4989eceadb4bcce6bb52588801934"},
+    {file = "django-stdimage-6.0.1.tar.gz", hash = "sha256:887fa1da6e53c38a4c0f717d7b1dcd9ce0bf04d1a9e77591c32b94c611e56769"},
+    {file = "django_stdimage-6.0.1-py2.py3-none-any.whl", hash = "sha256:67984acde2a8077e49a43998856b7571ffe0a90e23cb578267c1b0ed454e3e5f"},
 ]
 django-storages = [
     {file = "django-storages-1.12.3.tar.gz", hash = "sha256:a475edb2f0f04c4f7e548919a751ecd50117270833956ed5bd585c0575d2a5e7"},
