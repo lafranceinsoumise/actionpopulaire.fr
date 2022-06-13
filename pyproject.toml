@@ -16,8 +16,8 @@ django-cors-headers = "==3.*"  # configuring CORS Headers
 ## model and form fields
 django-countries = "==7.*"  # country fields
 django-phonenumber-field = "==6.*"  # phone number field
-phonenumbers = "==8.12.48"  # optional requirement of django-phonenumber-field
-django-stdimage = "==5.*"  # better image field with handling of variations
+phonenumbers = "==8.12.50"  # optional requirement of django-phonenumber-field
+django-stdimage = "==6.*"  # better image field with handling of variations
 django-dynamic-filenames = "==1.*"  # better handling of upload path for file fields
 unicode-slugify = "==0.1.*"  # optional requirement of django-dynamic-filenames
 ## additional features
@@ -43,7 +43,7 @@ hiredis = "==2.*"
 # HTTP
 requests = "==2.*"
 # HTML
-bleach = "==4.*"  # sanitize HTML
+bleach = "==5.*"  # sanitize HTML
 "html2text" = "==2020.*"  # transforms HTML to text (used for plain text versions of HTML emails)
 markdown = "==3.*"  # convert markdown text to HTML (should be deprecated)
 # image handling
@@ -99,7 +99,7 @@ pympler = "*"
 locust = "*"
 pyquery = "*"
 jedi = "==0.18.*"  # version 0.18.* fait crasher IPython (08/01/2021)
-hypothesis = {extras = ["django"], version = "^6.13.14"}
+hypothesis = {extras = ["django"], version = "^6.47.2"}
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
