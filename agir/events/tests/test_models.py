@@ -33,16 +33,13 @@ class BasicEventTestCase(TestCase):
 
 
 class RSVPTestCase(TestCase):
-    @classmethod
-    def setUpTestData(cls):
+    def setUp(self):
         start_time = timezone.now()
         end_time = start_time + timezone.timedelta(hours=3)
-
-        cls.event = Event.objects.create(
+        self.event = Event.objects.create(
             name="Test", start_time=start_time, end_time=end_time
         )
-
-        cls.person = Person.objects.create_insoumise(email="marc.machin@truc.com")
+        self.person = Person.objects.create_insoumise(email="marc.machin@truc.com")
 
     def test_create_rsvps(self):
         rsvp = RSVP.objects.create(person=self.person, event=self.event)
