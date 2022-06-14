@@ -20,19 +20,21 @@ def numero(reglement):
     return f"{reglement.numero:05d}{reglement.numero_complement}"
 
 
+compte_num = Coalesce(
+    "numero_compte",
+    ("depense.type", TypeDepense, T.compte),
+    skip=("", None),
+    skip_exc=(ValueError,),
+    default="",
+)
+
 spec_fec = {
     "JournalCode": Val("CCO"),
     "JournalLib": Val("Journal principal"),
     "EcritureNum": numero,
     "EcritureDate": ("created", T.date()),
-    "CompteNum": Coalesce(
-        "numero_compte",
-        ("depense.type", TypeDepense, T.compte),
-        skip=("", None),
-        skip_exc=(ValueError,),
-        default="",
-    ),
-    "CompteLib": Val(""),
+    "CompteNum": compte_num,
+    "CompteLib": (compte_num, TypeDepense.pour_compte, lambda t: t.label if t else ""),
     "PieceRef": references_pieces,
     "PieceDate": Coalesce("facture.date", default=""),
     "EcritureLib": "intitule",
