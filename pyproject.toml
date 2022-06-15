@@ -63,7 +63,7 @@ boto3 = "*"
 num2words = "*"
 sepaxml = "==2.*"
 zeep = "*"
-social-auth-app-django = "==4.*"
+social-auth-app-django = "==5.*"
 # data wrangling
 glom = "*"
 pyrogram = "==2.*"
