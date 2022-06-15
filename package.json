@@ -131,7 +131,7 @@
     "html-webpack-plugin": "^5.5.0",
     "jest": "^28.1.1",
     "jest-environment-jsdom": "^28.1.1",
-    "mini-css-extract-plugin": "^2.6.0",
+    "mini-css-extract-plugin": "^2.6.1",
     "prettier": "^2.7.0",
     "react-is": "^17.0.2",
     "react-refresh": "^0.12.0",
