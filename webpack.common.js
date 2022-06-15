@@ -182,6 +182,7 @@ const configureBabelLoader = (type) => ({
                     "Firefox ESR",
                     "not dead",
                     "not IE 11",
+                    "safari > 12",
                   ],
                 },
               },
