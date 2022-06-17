@@ -8,7 +8,6 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import Button from "@agir/front/genericComponents/Button";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import DateField from "@agir/events/createEventPage/EventForm/DateField";
-import ElectoralTruceWarning from "@agir/events/common/ElectoralTruceWarning";
 import EventSubtypeField from "@agir/events/EventSettings/EventSubtypeField";
 import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
 import ImageField from "@agir/front/formComponents/ImageField";
@@ -157,7 +156,6 @@ const EventGeneral = (props) => {
         <span style={{ color: style.black700 }}>
           Ces informations seront affichées en public.
         </span>
-        <ElectoralTruceWarning />
         <Spacer size="1rem" />
         <TextField
           id="name"
