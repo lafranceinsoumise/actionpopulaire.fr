@@ -1,6 +1,7 @@
 from typing import List, Tuple
 
 import reversion
+from django.core.validators import RegexValidator
 from django.db import models
 from django.urls import reverse
 from django.utils.html import format_html
@@ -153,6 +154,14 @@ class Projet(ModeleGestionMixin, TimeStampedModel):
         "l'événement",
         null=True,
         blank=True,
+    )
+
+    code_insee = models.CharField(
+        "code INSEE commune",
+        max_length=5,
+        help_text="À utiliser s'il n'y a pas d'événement associé, ou si il faut utiliser un autre lieu que celui de l'événement",
+        blank=True,
+        validators=[RegexValidator(regex=r"^\d{5}$")],
     )
 
     niveau_acces = models.CharField(
