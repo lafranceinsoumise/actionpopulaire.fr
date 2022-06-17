@@ -636,7 +636,7 @@ qrcode = ["qrcode"]
 
 [[package]]
 name = "django-phonenumber-field"
-version = "6.2.0"
+version = "6.3.0"
 description = "An international phone number field for django models."
 category = "main"
 optional = false
@@ -2693,8 +2693,8 @@ django-otp = [
     {file = "django_otp-1.1.3-py3-none-any.whl", hash = "sha256:8637be826c0465d0fd1710e4472efe9fc83883853a2141fefdbace9358d20003"},
 ]
 django-phonenumber-field = [
-    {file = "django-phonenumber-field-6.2.0.tar.gz", hash = "sha256:1d89612eed2d6889938577743705119637f8185585dd540f080c5f2d5c218dd3"},
-    {file = "django_phonenumber_field-6.2.0-py3-none-any.whl", hash = "sha256:70a4c3e5a6d916ed91fbc5fabf18a6c29395fb6912e2d1173ae389cda8966ab6"},
+    {file = "django-phonenumber-field-6.3.0.tar.gz", hash = "sha256:668db2e61559908ce8dcd660ac716262c7922cc29ec76ede3f9b88772992dc28"},
+    {file = "django_phonenumber_field-6.3.0-py3-none-any.whl", hash = "sha256:188ca55b27ef1ac4d9b279d90ee3f1377ece6cd9ed8c63f0a66efd565bf9ad6f"},
 ]
 django-prometheus = [
     {file = "django-prometheus-2.2.0.tar.gz", hash = "sha256:240378a1307c408bd5fc85614a3a57f1ce633d4a222c9e291e2bbf325173b801"},
