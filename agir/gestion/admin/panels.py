@@ -590,6 +590,8 @@ class ProjetAdmin(BaseProjetAdmin):
                     "origine",
                     "event",
                     "description",
+                    "date_evenement",
+                    "code_insee",
                 )
             },
         ),

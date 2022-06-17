@@ -1,108 +1,35 @@
-import dataclasses
-from enum import Enum
-from typing import (
-    Callable,
-    ClassVar,
-    Generic,
-    List,
-    Protocol,
-    Tuple,
-    Type,
-    TypeVar,
-    Union,
-)
+import reversion
 
-from django.db import models
-from django.db.models import Manager
-
-from agir.authentication.models import Role
+from agir.gestion.models import Document, Reglement, VersionDocument
 
 
-class NiveauTodo(Enum):
-    IMPERATIF = "imperatif"
-    AVERTISSEMENT = "avertissement"
-    SUGGESTION = "suggestion"
+def merge_document(d1: Document, d2: Document):
+    assert d1.id != d2.id
+    with reversion.create_revision():
+        reversion.set_comment("Fusion de deux documents")
+        # champs du document
+        d1.precision = d1.precision or d2.precision
+        d1.identifiant = d1.identifiant or d2.identifiant
 
-    def __str__(self):
-        return self.value
+        d1.numero_piece = d1.numero_piece or d2.numero_piece
+        d1.date = d1.date or d2.date
 
+        d1.type = d1.type or d2.type
+        d1.source_url = d1.source_url or d2.source_url
 
-class GestionModel(Protocol):
-    Etat: ClassVar[Type[Enum]]
+        # projets
+        d1.projets.add(*d2.projets.values_list("id", flat=True))
 
-    commentaires: Manager
+        # dépenses
+        d1.depenses.add(d2.depenses.values_list("id", flat=True))
 
-    def todos(self) -> List[Tuple[str, List[Tuple[str, NiveauTodo]]]]:
-        return []
+        # règlements comme preuve
+        Reglement.objects.filter(preuve=d2).update(preuve=d1)
 
+        # règlements comme facture
+        Reglement.objects.filter(facture=d2).update(preuve=d1)
 
-T = TypeVar("T", bound=GestionModel)
-E = TypeVar("E", bound=Enum)
+        # On transfère les versions
+        VersionDocument.objects.filter(document=d2).update(document=d1)
 
-
-@dataclasses.dataclass
-class Todo(Generic[T]):
-    condition: Union[Callable[[T], bool], models.Q]
-    message_erreur: str
-    niveau_erreur: NiveauTodo
-
-    def check(self, instance):
-        if isinstance(self.condition, models.Q):
-            return type(instance).objects.filter(self.condition, pk=instance.pk)
-        return self.condition(instance)
-
-
-def toujours(_: T) -> bool:
-    return True
-
-
-# pas besoin d'explication puisque renvoie toujours True
-toujours.explication = ""
-
-
-def no_todos(instance: T) -> bool:
-    return (
-        not instance.todos() and not instance.commentaires.filter(cache=False).exists()
-    )
-
-
-no_todos.explication = "Vous devez d'abord terminer la liste de tâches"
-
-
-@dataclasses.dataclass
-class Transition(Generic[T, E]):
-    nom: str
-    vers: E
-    condition: Union[Callable[[T, Role], bool], Callable[[T], bool]] = toujours
-    class_name: str = ""
-    permissions: List[str] = dataclasses.field(default_factory=list)
-    effect: Callable[[T], None] = None
-
-    def refus(self, instance: T, role: Role):
-        compte = getattr(instance, "compte", None)
-        if self.permissions:
-            if not any(
-                role.has_perm(p)
-                or (compte is not None and role.has_perm(p, obj=compte))
-                for p in self.permissions
-            ):
-                return "Vous n'avez pas les permissions requises pour cette action."
-
-        try:
-            cond = self.condition(instance, role)
-        except TypeError:
-            cond = self.condition(instance)
-
-        if not cond:
-            # noinspection PyUnresolvedReferences
-            return self.condition.explication
-
-        return None
-
-    def appliquer(self, instance: T):
-        if self.effect:
-            self.effect(instance)
-
-        instance.etat = self.vers
-
-        return instance
+        d2.delete()

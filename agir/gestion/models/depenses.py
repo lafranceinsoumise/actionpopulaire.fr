@@ -11,7 +11,6 @@ from django_countries.fields import CountryField
 from phonenumber_field.modelfields import PhoneNumberField
 
 from agir.authentication.models import Role
-from agir.gestion.actions import Todo, NiveauTodo, Transition, no_todos
 from agir.gestion.models.common import (
     ModeleGestionMixin,
     SearchableQueryset,
@@ -21,6 +20,7 @@ from agir.gestion.typologies import TypeDepense, NiveauAcces, TypeDocument
 from agir.gestion.virements import Partie, Virement
 from agir.lib.model_fields import IBANField, BICField
 from agir.lib.models import TimeStampedModel, LocationMixin
+from .utils import NiveauTodo, Todo, no_todos, Transition
 
 __all__ = ("Depense", "Reglement", "Fournisseur")
 
@@ -593,21 +593,24 @@ class Reglement(SearchableModel, TimeStampedModel):
     )
 
     search_config = (
-        ("numero", "B"),
+        ("numero", "A"),
         ("intitule", "A"),
         ("montant", "B"),
     )
 
     def __repr__(self):
-        try:
-            return f"<Reglement: {self.id}, dépense {self.depense.numero}>"
-        except Depense.DoesNotExist:
-            return f"<Reglement: {self.id}, pas de dépense!>"
+        return f"<Reglement(id={self.id}, numero_complet={self.numero_complet!r}, intitule={self.intitule!r}>"
 
     def __str__(self):
         if self.fournisseur:
             return f"{self.intitule} — {self.fournisseur.nom}"
         return self.intitule
+
+    @property
+    def numero_complet(self):
+        if self.numero is None:
+            return None
+        return f"{self.numero:05d}{self.numero_complement}"
 
     @property
     def numero_facture(self):

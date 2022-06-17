@@ -1,6 +1,7 @@
 from typing import List, Tuple
 
 import reversion
+from django.core.validators import RegexValidator
 from django.db import models
 from django.urls import reverse
 from django.utils.html import format_html
@@ -9,7 +10,7 @@ from agir.lib.models import TimeStampedModel
 from agir.people.models import Person
 from .commentaires import Commentaire
 from .common import ModeleGestionMixin, NumeroManager
-from ..actions import Todo, NiveauTodo, Transition, no_todos
+from .utils import NiveauTodo, Todo, no_todos, Transition
 from ..typologies import TypeProjet, NiveauAcces, TypeDepense, TypeDocument
 
 __all__ = ("Projet", "Participation", "ProjetMilitant")
@@ -153,6 +154,14 @@ class Projet(ModeleGestionMixin, TimeStampedModel):
         "l'événement",
         null=True,
         blank=True,
+    )
+
+    code_insee = models.CharField(
+        "code INSEE commune",
+        max_length=5,
+        help_text="À utiliser s'il n'y a pas d'événement associé, ou si il faut utiliser un autre lieu que celui de l'événement",
+        blank=True,
+        validators=[RegexValidator(regex=r"^\d{5}$")],
     )
 
     niveau_acces = models.CharField(
