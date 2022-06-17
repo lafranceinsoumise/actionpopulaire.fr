@@ -2,6 +2,7 @@ import os
 from urllib.parse import urljoin
 
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import logout
 from django.http import (
     HttpResponsePermanentRedirect,
@@ -336,7 +337,20 @@ class NSPReferralView(SoftLoginRequiredMixin, RedirectView):
         return url
 
 
-class VotingProxyView(BaseAppCachedView):
+class PostElectionRedirectView(RedirectView):
+    query_string = False
+    url = reverse_lazy("dashboard")
+
+    def get(self, request, *args, **kwargs):
+        messages.add_message(
+            request=request,
+            level=messages.WARNING,
+            message="La page du lien que vous avez ouvert n'existe plus. Merci de votre soutien !",
+        )
+        return super().get(request, *args, **kwargs)
+
+
+class VotingProxyView(PostElectionRedirectView):
     meta_title = "Se porter volontaire pour voter par procuration - Action Populaire"
     meta_description = (
         "Prenez une procuration près de chez vous, pour voter pour les candidats-es de l'Union Populaire "
@@ -346,7 +360,7 @@ class VotingProxyView(BaseAppCachedView):
     meta_image = urljoin(settings.FRONT_DOMAIN, static("front/assets/og_image_vp.jpg"))
 
 
-class VotingProxyRequestView(BaseAppCachedView):
+class VotingProxyRequestView(PostElectionRedirectView):
     meta_title = "Voter par procuration — Action Populaire"
     meta_description = (
         "Faites la demande qu'un·e volontaire de votre ville vote à votre place pour les candidats-es de "
@@ -356,7 +370,7 @@ class VotingProxyRequestView(BaseAppCachedView):
     meta_image = urljoin(settings.FRONT_DOMAIN, static("front/assets/og_image_vpr.jpg"))
 
 
-class PollingStationOfficerView(BaseAppCachedView):
+class PollingStationOfficerView(PostElectionRedirectView):
     meta_title = "Devenir assesseur·e ou délégué·e — Action Populaire"
     meta_description = (
         "Pour la réussite de ce scrutin, il est nécessaire que nous ayons un maximum d'assesseur⋅es "
