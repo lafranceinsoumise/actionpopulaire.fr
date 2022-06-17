@@ -9,7 +9,7 @@ from agir.lib.models import TimeStampedModel
 from agir.people.models import Person
 from .commentaires import Commentaire
 from .common import ModeleGestionMixin, NumeroManager
-from ..actions import Todo, NiveauTodo, Transition, no_todos
+from .utils import NiveauTodo, Todo, no_todos, Transition
 from ..typologies import TypeProjet, NiveauAcces, TypeDepense, TypeDocument
 
 __all__ = ("Projet", "Participation", "ProjetMilitant")
