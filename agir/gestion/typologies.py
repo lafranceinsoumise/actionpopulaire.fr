@@ -12,6 +12,7 @@ class TypeDocument(TextChoices):
     CONTRAT = "CON", "Contrat"
 
     FACTURE = "FAC", "Facture"
+    FACTURE_BULLETIN = "FAC-BUL", "Bulletin de paie"
 
     BDL = "BDL", "Bon de livraison"
 
@@ -23,6 +24,8 @@ class TypeDocument(TextChoices):
     PAIEMENT = "PAY", "Preuve de paiement"
     PAIEMENT_CHEQUE = "PAY-CHK", "Scan du chèque"
     PAIEMENT_TICKET = "PAY-TKT", "Ticket de caisse"
+    PAIEMENT_VIREMENT = "PAY-VIR", "Ordre de virement"
+    PAIEMENT_RELEVE = "PAY-REL", "Extrait du relevé"
 
     EXEMPLAIRE = "EXA", "Exemplaire fourni"
     BAT = "EXA-BAT", "BAT"
