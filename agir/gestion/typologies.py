@@ -10,6 +10,7 @@ class Etat(TextChoices):
 class TypeDocument(TextChoices):
     DEVIS = "DEV", "Devis"
     CONTRAT = "CON", "Contrat"
+    AVOIR = "AVO", "Avoir"
 
     FACTURE = "FAC", "Facture"
     FACTURE_BULLETIN = "FAC-BUL", "Bulletin de paie"

@@ -17,6 +17,7 @@ class Migration(migrations.Migration):
                 choices=[
                     ("DEV", "Devis"),
                     ("CON", "Contrat"),
+                    ("AVO", "Avoir"),
                     ("FAC", "Facture"),
                     ("FAC-BUL", "Bulletin de paie"),
                     ("FAC-ND", "Note de débit"),
