@@ -1,3 +1,4 @@
+import hashlib
 import re
 
 import dynamic_filenames
@@ -176,6 +177,12 @@ class VersionDocument(models.Model):
         upload_to=dynamic_filenames.FilePattern(
             filename_pattern="gestion/documents/{uuid:.2base32}/{uuid}{ext}"
         ),
+    )
+
+    hash = models.CharField(
+        verbose_name="Hash MD5",
+        editable=False,
+        max_length=32,
     )
 
     class Meta:
