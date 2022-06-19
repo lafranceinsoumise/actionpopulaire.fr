@@ -13,6 +13,7 @@ class TypeDocument(TextChoices):
 
     FACTURE = "FAC", "Facture"
     FACTURE_BULLETIN = "FAC-BUL", "Bulletin de paie"
+    FACTURE_ND = "FAC-ND", "Note de débit"
 
     BDL = "BDL", "Bon de livraison"
 

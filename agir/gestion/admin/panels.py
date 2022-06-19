@@ -867,7 +867,7 @@ class InstanceCherchableAdmin(admin.ModelAdmin):
 @admin.register(Reglement)
 class ReglementAdmin(BaseGestionModelAdmin):
     list_display = (
-        "numero",
+        "numero_complet",
         "intitule",
         "date",
         "montant",
@@ -928,7 +928,7 @@ class ReglementAdmin(BaseGestionModelAdmin):
         ),
     )
 
-    readonly_fields = ("etat", "endtoend_id", "compte_link")
+    readonly_fields = ("numero_complet", "etat", "endtoend_id", "compte_link")
 
     def has_change_permission(self, request, obj=None):
         autorise = super().has_change_permission(request, obj=obj)
@@ -960,3 +960,9 @@ class ReglementAdmin(BaseGestionModelAdmin):
             )
         except (Depense.DoesNotExist, Compte.DoesNotExist):
             return "-"
+
+    @admin.display(
+        description="Numéro dans le FECC", ordering=("numero", "numero_complement")
+    )
+    def numero_complet(self, obj):
+        return obj.numero_complet
