@@ -92,6 +92,12 @@ class Document(ModeleGestionMixin, TimeStampedModel):
         blank=True,
     )
 
+    meta = models.JSONField(
+        verbose_name="métadonnées",
+        null=False,
+        default=dict,
+    )
+
     search_config = (
         ("numero", "B"),
         ("precision", "A"),
