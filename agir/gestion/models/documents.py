@@ -1,3 +1,4 @@
+import hashlib
 import re
 
 import dynamic_filenames
@@ -177,6 +178,32 @@ class VersionDocument(models.Model):
             filename_pattern="gestion/documents/{uuid:.2base32}/{uuid}{ext}"
         ),
     )
+
+    hash = models.CharField(
+        verbose_name="Hash MD5",
+        editable=False,
+        max_length=32,
+    )
+
+    def save(
+        self, force_insert=False, force_update=False, using=None, update_fields=None
+    ):
+        if update_fields is None or "fichier" in update_fields:
+            f = self.fichier
+            if (
+                hasattr(f, "file")
+                and hasattr(f.file, "obj")
+                and hasattr(f.file.obj, "e_tag")
+                and len(f.file.obj.e_tag) == 34
+            ):
+                self.hash = f.file.obj.e_tag[1:-1]
+            else:
+                with f.open("rb") as fd:
+                    h = hashlib.md5()
+                    h.update(fd.read())
+                    self.hash = h.hexdigest()
+
+        return super().save(force_insert, force_update, using, update_fields)
 
     class Meta:
         verbose_name = "Version"
