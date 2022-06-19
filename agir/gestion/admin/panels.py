@@ -3,7 +3,8 @@ from functools import partial
 
 from django.contrib import admin
 from django.contrib.postgres.search import SearchQuery
-from django.db.models import Count, Sum, Subquery, OuterRef
+from django.db.models import Count, Sum, Subquery, OuterRef, CharField, Value
+from django.db.models.functions import Concat, LPad, Cast
 from django.http import QueryDict, HttpResponseRedirect
 from django.urls import reverse, path
 from django.utils.html import format_html_join, format_html
@@ -962,7 +963,11 @@ class ReglementAdmin(BaseGestionModelAdmin):
             return "-"
 
     @admin.display(
-        description="Numéro dans le FECC", ordering=("numero", "numero_complement")
+        description="Numéro dans le FECC",
+        ordering=Concat(
+            LPad(Cast("numero", output_field=CharField()), 5, Value("0")),
+            "numero_complement",
+        ),
     )
     def numero_complet(self, obj):
         return obj.numero_complet
