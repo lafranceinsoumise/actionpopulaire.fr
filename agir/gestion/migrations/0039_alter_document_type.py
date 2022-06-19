@@ -19,6 +19,7 @@ class Migration(migrations.Migration):
                     ("CON", "Contrat"),
                     ("FAC", "Facture"),
                     ("FAC-BUL", "Bulletin de paie"),
+                    ("FAC-ND", "Note de débit"),
                     ("BDL", "Bon de livraison"),
                     ("JUS", "Justificatif de dépense"),
                     ("JUS-BIL", "Billet de train"),
