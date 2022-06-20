@@ -102,8 +102,9 @@ class Document(ModeleGestionMixin, TimeStampedModel):
     search_config = (
         ("numero", "B"),
         ("precision", "A"),
-        ("identifiant", "B"),
+        ("identifiant", "A"),
         ("description", "C"),
+        ("numero_piece", "A"),
     )
 
     def __str__(self):

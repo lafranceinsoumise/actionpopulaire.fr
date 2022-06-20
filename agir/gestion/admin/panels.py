@@ -856,6 +856,7 @@ class OrdreVirementAdmin(BaseGestionModelAdmin, VersionAdmin):
 @admin.register(InstanceCherchable)
 class InstanceCherchableAdmin(admin.ModelAdmin):
     NUMERO_RE = re.compile(r"^[A-Z0-9]{3}-[A-Z0-9]{3}$")
+    NUMERO_PIECE_RE = re.compile(r"^\d{12}$")
     list_display = ("type_instance", "lien_instance")
     list_display_links = None
 
@@ -876,6 +877,15 @@ class InstanceCherchableAdmin(admin.ModelAdmin):
                         f"admin:{r.content_type.app_label}_{r.content_type.model}_change",
                         args=(r.object_id,),
                     )
+                )
+        elif self.NUMERO_PIECE_RE.match(q):
+            try:
+                d = Document.objects.get(numero_piece=q)
+            except Document.DoesNotExist:
+                pass
+            else:
+                return HttpResponseRedirect(
+                    reverse(f"admin:gestion_document_change", args=(d.object_id,))
                 )
 
         return super().changelist_view(request, extra_context=extra_context)
