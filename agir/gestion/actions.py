@@ -27,7 +27,7 @@ def merge_document(d1: Document, d2: Document):
         Reglement.objects.filter(preuve=d2).update(preuve=d1)
 
         # règlements comme facture
-        Reglement.objects.filter(facture=d2).update(preuve=d1)
+        Reglement.objects.filter(facture=d2).update(facture=d1)
 
         # On transfère les versions
         VersionDocument.objects.filter(document=d2).update(document=d1)
