@@ -191,13 +191,69 @@ class DocumentAdmin(BaseGestionModelAdmin, VersionAdmin):
                 )
             },
         ),
-        ("Lié à", {"fields": ["depenses", "projets"]}),
+        (
+            "Lié à",
+            {
+                "fields": [
+                    "comme_preuve_paiement",
+                    "comme_facture",
+                    "depenses",
+                    "projets",
+                ]
+            },
+        ),
         (
             "Ajouter une version de ce document",
             {"fields": ("titre_version", "fichier")},
         ),
     )
-    readonly_fields = ("depenses", "projets", "numero_piece")
+    readonly_fields = (
+        "comme_preuve_paiement",
+        "comme_facture",
+        "depenses",
+        "projets",
+        "numero_piece",
+    )
+
+    def comme_facture(self, obj):
+        if obj is not None:
+            rs = obj.comme_facture.all()
+            if rs:
+                return format_html_join(
+                    mark_safe("<br>"),
+                    '<a href="{}">{}</a>',
+                    (
+                        (
+                            reverse(
+                                "admin:gestion_reglement_change",
+                                args=(r.id,),
+                            ),
+                            f"{r.intitule}",
+                        )
+                        for r in rs
+                    ),
+                )
+        return "-"
+
+    def comme_preuve_paiement(self, obj):
+        if obj is not None:
+            rs = obj.comme_preuve_paiement.all()
+            if rs:
+                return format_html_join(
+                    mark_safe("<br>"),
+                    '<a href="{}">{}</a>',
+                    (
+                        (
+                            reverse(
+                                "admin:gestion_reglement_change",
+                                args=(r.id,),
+                            ),
+                            f"{r.intitule}",
+                        )
+                        for r in rs
+                    ),
+                )
+        return "-"
 
     def depenses(self, obj):
         if obj is not None:
@@ -222,12 +278,12 @@ class DocumentAdmin(BaseGestionModelAdmin, VersionAdmin):
         ps = obj.projets.all()
         if ps:
             return format_html_join(
-                "<br>",
+                mark_safe("<br>"),
                 '<a href="{}">{}</a>',
                 (
                     (
                         reverse("admin:gestion_projet_change", args=(p.id,)),
-                        f"{p.numero} — {p.nom}",
+                        f"{p.numero} — {p.titre}",
                     )
                     for p in ps
                 ),
