@@ -57,6 +57,7 @@ spec_fec = {
     ),
     "InseeCode": Coalesce(
         "code_insee",
+        "depense.projet.code_insee",
         "depense.projet.event.location_citycode",
         skip=("", None),
         default="00000",
