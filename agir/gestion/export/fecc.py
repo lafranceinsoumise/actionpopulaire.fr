@@ -75,6 +75,7 @@ spec_fec = {
 
 def exporter_reglements(
     reglements: Iterable[Reglement] = None,
+    colonnes_supplementaires: bool = True,
 ):
 
     if isinstance(reglements, QuerySet):
@@ -82,12 +83,20 @@ def exporter_reglements(
             "depense__projet__event", "preuve", "facture"
         )
 
-    df = pd.DataFrame(glom(reglements, [spec_fec]))
+    if colonnes_supplementaires:
+        spec = spec_fec
+    else:
+        spec = {k: v for k, v in spec_fec.items() if not k[0] == "_"}
 
-    max_autres_pieces = df["_AutresPièces"].str.len().max()
+    df = pd.DataFrame(glom(reglements, [spec]))
 
-    for i in range(max_autres_pieces):
-        df[f"_AutrePièce{i+1}"] = df["_AutresPièces"].str.get(i)
-    del df["_AutresPièces"]
+    if colonnes_supplementaires:
+        max_autres_pieces = df["_AutresPièces"].str.len().max()
+
+        autres_colonnes = []
+
+        for i in range(max_autres_pieces):
+            df[f"_AutrePièce{i+1}"] = df["_AutresPièces"].str.get(i)
+        del df["_AutresPièces"]
 
     return df
