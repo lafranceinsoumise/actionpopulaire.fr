@@ -186,7 +186,7 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
         verbose_name="Titre de la dépense",
         help_text="Une description sommaire de la nature de la dépense",
         blank=False,
-        max_length=100,
+        max_length=250,
     )
 
     description = models.TextField(
