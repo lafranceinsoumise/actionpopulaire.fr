@@ -422,6 +422,14 @@ class Reglement(SearchableModel, TimeStampedModel):
         CARTE = "A", "Par carte bancaire"
         CASH = "S", "En espèces"
 
+    journal = models.CharField(
+        verbose_name="Code du journal",
+        null=False,
+        blank=False,
+        default="CCO",
+        max_length=5,
+    )
+
     numero = models.PositiveIntegerField(
         verbose_name="Numéro dans le relevé bancaire",
         null=True,
