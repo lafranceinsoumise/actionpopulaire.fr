@@ -9,7 +9,6 @@ import * as api from "@agir/events/common/api";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
-import ElectoralTruceWarning from "@agir/events/common/ElectoralTruceWarning";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import Map from "@agir/carte/common/Map";
 import LocationField from "@agir/front/formComponents/LocationField";
@@ -85,7 +84,6 @@ const EventLocation = (props) => {
     <form onSubmit={handleSubmit}>
       <HeaderPanel onBack={onBack} illustration={illustration} />
       <StyledTitle>Localisation</StyledTitle>
-      <ElectoralTruceWarning style={{ marginBottom: 0 }} />
       <Spacer size="1rem" />
       <StyledMap
         center={event?.location?.coordinates?.coordinates || []}

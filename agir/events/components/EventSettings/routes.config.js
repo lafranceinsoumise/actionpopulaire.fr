@@ -101,8 +101,7 @@ export const routeConfig = {
     label: "Documents",
     icon: "file-text",
     Component: EventSettingsDocuments,
-    isActive: true,
-    // isActive: (event) => event.hasProject,
+    isActive: (event) => event.hasProject,
     menuGroup: 1,
   },
   videoConference: {
