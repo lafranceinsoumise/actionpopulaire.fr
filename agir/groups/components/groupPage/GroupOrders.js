@@ -8,7 +8,6 @@ import { parseDiscountCodes } from "@agir/groups/groupPage/utils";
 
 import Button from "@agir/front/genericComponents/Button";
 import Card from "./GroupPageCard";
-import { DiscountCodeWarning } from "@agir/groups/groupComponents/DiscountCodes";
 
 const StyledList = styled.ul`
   list-style: none;
@@ -42,10 +41,6 @@ const GroupOrders = (props) => {
 
   return isManager ? (
     <StyledCard title="Commander du matériel" outlined>
-      <DiscountCodeWarning
-        discountCodes={codes}
-        style={{ marginBottom: "0.5rem" }}
-      />
       {Array.isArray(codes) && codes.length > 0 ? (
         <StyledList>
           <li>Codes de réduction&nbsp;</li>

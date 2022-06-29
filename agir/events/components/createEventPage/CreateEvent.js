@@ -12,7 +12,6 @@ import {
 import { useMissingRequiredEventDocuments } from "@agir/events/common/hooks";
 import { routeConfig } from "@agir/front/app/routes.config";
 
-import ElectoralTruceWarning from "@agir/events/common/ElectoralTruceWarning";
 import Link from "@agir/front/app/Link";
 import { Container, Hide } from "@agir/front/genericComponents/grid";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
@@ -176,7 +175,6 @@ const CreateEvent = () => {
             <Spacer size="1.5rem" />
             <h2>Nouvel événement</h2>
             <InfoBlock over />
-            <ElectoralTruceWarning style={{ marginBottom: 0 }} />
             <Spacer size="1.5rem" />
             <EventForm />
           </div>

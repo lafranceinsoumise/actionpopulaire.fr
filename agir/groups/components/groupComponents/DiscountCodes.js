@@ -42,31 +42,6 @@ const StyledSection = styled.section`
   }
 `;
 
-export const DiscountCodeWarning = ({ discountCodes, ...rest }) => {
-  const isEarly = useMemo(() => {
-    if (!Array.isArray(discountCodes) || discountCodes.length === 0) {
-      return false;
-    }
-    let codes = [...discountCodes];
-    if (codes.some((code) => typeof code.isEarly === "undefined")) {
-      codes = parseDiscountCodes(codes);
-    }
-    return codes.every((code) => code.isEarly);
-  }, [discountCodes]);
-
-  return isEarly ? (
-    <StyledDiscountWarning {...rest}>
-      <strong>Élections législatives&nbsp;:</strong> exceptionnellement, vos
-      codes promo de juin sont disponibles dès aujourd'hui. Commandez votre
-      matériel pour la dernière ligne droite maintenant&nbsp;!
-    </StyledDiscountWarning>
-  ) : null;
-};
-
-DiscountCodeWarning.propTypes = {
-  discountCodes: PropTypes.array,
-};
-
 const DiscountCodes = ({ discountCodes, ...rest }) => {
   const codes = useMemo(
     () => parseDiscountCodes(discountCodes),
@@ -80,7 +55,6 @@ const DiscountCodes = ({ discountCodes, ...rest }) => {
   return (
     <StyledSection {...rest}>
       <h5>Codes matériels</h5>
-      <DiscountCodeWarning discountCodes={codes} />
       <ul>
         {codes.map(({ code, date }) => (
           <li key={code}>

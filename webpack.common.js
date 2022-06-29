@@ -185,6 +185,7 @@ const configureBabelLoader = (type) => ({
                     "safari > 12",
                   ],
                 },
+                include: ["@babel/plugin-proposal-class-properties"],
               },
             ]
           : [
@@ -192,6 +193,7 @@ const configureBabelLoader = (type) => ({
               {
                 development: type === CONFIG_TYPES.DEV,
                 modules: false,
+                include: ["@babel/plugin-proposal-class-properties"],
               },
             ],
       ],

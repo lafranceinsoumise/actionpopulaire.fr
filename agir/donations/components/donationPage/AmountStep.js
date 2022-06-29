@@ -16,7 +16,6 @@ import {
   StyledPage,
   StyledLogo,
   StyledMain,
-  StyledWarning,
 } from "./StyledComponents";
 
 import acceptedPaymentMethods from "./images/accepted-payment-methods.svg";
@@ -185,7 +184,6 @@ const AmountStep = (props) => {
               </p>
             </>
           )}
-          <StyledWarning style={{ marginBottom: 0 }} />
           <form onSubmit={handleSubmit}>
             <AmountWidget
               disabled={isLoading}

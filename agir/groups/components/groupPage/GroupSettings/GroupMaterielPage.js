@@ -10,7 +10,6 @@ import Spacer from "@agir/front/genericComponents/Spacer.js";
 import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
 
 import DiscountCode from "./DiscountCode";
-import { DiscountCodeWarning } from "@agir/groups/groupComponents/DiscountCodes";
 
 import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
 
@@ -65,12 +64,7 @@ const GroupMaterielPage = (props) => {
           </p>
         </>
       )}
-      <Spacer size="1rem" />
-      <DiscountCodeWarning
-        discountCodes={discountCodes}
-        style={{ marginBottom: 0 }}
-      />
-      <Spacer size="1rem" />
+      <Spacer size="2rem" />
       <StyledDiscountCodeList>
         {discountCodes.map((discountCode) => (
           <DiscountCode key={discountCode.code} {...discountCode} />
