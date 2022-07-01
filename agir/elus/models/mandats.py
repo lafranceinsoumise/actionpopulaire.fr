@@ -669,7 +669,7 @@ class MandatConsulaire(MandatAbstrait):
 
 @reversion.register()
 class MandatDepute(MandatAbstrait):
-    DEFAULT_DATE_RANGE = DateRange(date(2017, 7, 1), date(2022, 6, 30))
+    DEFAULT_DATE_RANGE = DateRange(date(2022, 6, 22), date(2027, 6, 21))
 
     person = models.ForeignKey(
         "people.Person",
