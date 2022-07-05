@@ -711,6 +711,9 @@ class MandatDepute(MandatAbstrait):
 
         return f"{titre} de la {circo}"
 
+    def __str__(self):
+        return f"{self.person}, {self.titre_complet()}"
+
     class Meta:
         verbose_name = "Mandat de député⋅e"
         verbose_name_plural = "Mandats de député⋅e"
