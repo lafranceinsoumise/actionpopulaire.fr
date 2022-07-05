@@ -84,9 +84,9 @@ def is_editable_event(role, event=None):
 @rules.predicate
 def has_event_with_missing_documents(role):
     organized_event_projects = Projet.objects.filter(
-        event__in=role.person.organized_events.select_related("subtype")
-        .exclude(subtype__related_project_type="")
-        .exclude(visibility=Event.VISIBILITY_ADMIN)
+        event__in=role.person.organized_events.exclude(
+            subtype__related_project_type=""
+        ).exclude(visibility=Event.VISIBILITY_ADMIN)
     )
     return any(get_is_blocking_project(project) for project in organized_event_projects)
 
@@ -100,9 +100,7 @@ def can_respond_to_coorganization_invitation(role, invitation):
     return False
 
 
-rules.add_perm(
-    "events.add_event", is_authenticated_person & ~has_event_with_missing_documents
-)
+rules.add_perm("events.add_event", is_authenticated_person)
 rules.add_perm(
     "events.view_event",
     is_public_event
