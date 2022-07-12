@@ -257,6 +257,10 @@ class Segment(BaseSegment, models.Model):
     )
     elu_regional = models.BooleanField("Avec un mandat régional", default=True)
     elu_consulaire = models.BooleanField("Avec un mandat consulaire", default=True)
+    elu_depute = models.BooleanField("Avec un mandat de député", default=True)
+    elu_depute_europeen = models.BooleanField(
+        "avec un mandat de député européen", default=True
+    )
 
     exclude_segments = models.ManyToManyField(
         "self",
@@ -470,6 +474,8 @@ class Segment(BaseSegment, models.Model):
                 "elu_departemental",
                 "elu_regional",
                 "elu_consulaire",
+                "elu_depute",
+                "elu_depute_europeen",
             ]:
                 if getattr(self, t):
                     q_mandats |= Q(**{t: True})

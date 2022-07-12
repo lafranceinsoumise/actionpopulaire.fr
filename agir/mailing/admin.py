@@ -114,6 +114,8 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                     "elu_departemental",
                     "elu_regional",
                     "elu_consulaire",
+                    "elu_depute",
+                    "elu_depute_europeen",
                 )
             },
         ),
