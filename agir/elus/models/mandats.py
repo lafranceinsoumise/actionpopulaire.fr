@@ -728,7 +728,7 @@ class MandatDeputeEuropeen(MandatAbstrait):
         "people.Person",
         verbose_name="Élu",
         on_delete=models.CASCADE,
-        related_name="mandats_depute_europeen",
+        related_name="mandats_deputes_europeens",
         related_query_name="mandat_depute_depute_europeen",
     )
 

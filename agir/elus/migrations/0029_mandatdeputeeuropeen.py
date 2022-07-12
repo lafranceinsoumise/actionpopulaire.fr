@@ -71,7 +71,7 @@ class Migration(migrations.Migration):
                     "person",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="mandats_depute_europeen",
+                        related_name="mandats_deputes_europeens",
                         related_query_name="mandat_depute_depute_europeen",
                         to="people.person",
                         verbose_name="Élu",
