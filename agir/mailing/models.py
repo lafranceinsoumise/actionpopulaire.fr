@@ -240,12 +240,14 @@ class Segment(BaseSegment, models.Model):
     ELUS_NON = "N"
     ELUS_MEMBRE_RESEAU = "M"
     ELUS_REFERENCE = "R"
+    ELUS_SAUF_EXCLUS = "E"
     ELUS_CHOICES = (
         ("", "Peu importe"),
         (ELUS_MEMBRE_RESEAU, "Uniquement les membres du réseau des élus"),
+        (ELUS_SAUF_EXCLUS, "Tous les élus, sauf les exclus du réseau"),
         (
             ELUS_REFERENCE,
-            "Tous les élus, membres ou non du réseau, sauf les exclus du réseau",
+            "Les membres du réseau plus tout ceux à qui on a pas encore demandé",
         ),
     )
 
@@ -465,8 +467,15 @@ class Segment(BaseSegment, models.Model):
         if self.elu:
             if self.elu == Segment.ELUS_MEMBRE_RESEAU:
                 q &= Q(membre_reseau_elus=Person.MEMBRE_RESEAU_OUI)
-            elif self.elu == Segment.ELUS_REFERENCE:
+            elif self.elu == Segment.ELUS_SAUF_EXCLUS:
                 q &= ~Q(membre_reseau_elus=Person.MEMBRE_RESEAU_EXCLUS)
+            elif self.elu == Segment.ELUS_REFERENCE:
+                q &= ~Q(
+                    membre_reseau_elus__in=[
+                        Person.MEMBRE_RESEAU_EXCLUS,
+                        Person.MEMBRE_RESEAU_NON,
+                    ]
+                )
 
             q_mandats = Q()
             for t in [
