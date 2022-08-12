@@ -81,15 +81,16 @@ class PaymentManagementAdminMixin:
 
         if not PAYMENT_MODES[payment.mode].can_admin:
             return format_html(
-                '{}<br/><a href="{}" target="_blank" class="button">Effectuer le paiement en ligne</a>',
+                '<p>{}</p><p><a href="{}" target="_blank" class="button">Effectuer le paiement en ligne</a>'
+                ' <button type="submit" class="button" name="_changestatus" value="{}">Annuler le paiement</button></p>',
                 payment.get_status_display(),
                 front_url("payment_retry", args=[payment.pk]),
+                Payment.STATUS_CANCELED,
             )
 
         statuses = [
             (Payment.STATUS_COMPLETED, "Valider"),
             (Payment.STATUS_CANCELED, "Annuler"),
-            (Payment.STATUS_REFUSED, "Refuser"),
         ]
 
         return format_html(
