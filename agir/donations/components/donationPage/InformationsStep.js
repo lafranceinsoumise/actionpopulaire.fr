@@ -323,20 +323,8 @@ const InformationsStep = ({
         <>
           <CheckboxField
             name="subscribed2022"
-            label="Recevoir les lettres d'information de la campagne Mélenchon 2022"
+            label="Recevoir les lettres d'information de la france insoumise"
             value={formData?.subscribed2022}
-            onChange={handleCheckboxChange}
-            style={{ fontSize: "14px" }}
-          />
-          <Spacer size="0.5rem" />
-        </>
-      )}
-      {!profile?.is2022 && (
-        <>
-          <CheckboxField
-            name="is2022"
-            label="Je soutiens Jean-Luc Mélenchon pour 2022"
-            value={formData?.is2022}
             onChange={handleCheckboxChange}
             style={{ fontSize: "14px" }}
           />
