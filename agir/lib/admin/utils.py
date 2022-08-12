@@ -9,14 +9,6 @@ from django.utils.safestring import mark_safe
 from agir.lib.http import add_query_params_to_url
 
 
-def get_admin_link(instance):
-    return reverse(
-        f"admin:{instance._meta.app_label}_{instance._meta.model_name}_change",
-        args=(instance.pk,),
-        urlconf="agir.api.admin_urls",
-    )
-
-
 def display_list_of_links(links):
     """Retourne une liste de liens à afficher dans l'admin Django
 
@@ -36,6 +28,19 @@ def display_list_of_links(links):
 
 
 def admin_url(viewname, args=None, kwargs=None, query=None, absolute=True):
+    """Obtenir l'URL correspondant à une vue d'administration.
+
+    Cette fonction renvoie un résultat même si les URLs de l'admin ne sont pas configurées
+    dans ce processus django.
+
+    :param viewname: le nom de la vue, avec ou sans le préfixe 'admin:'
+    :param args: les éventuels arguments positionnels de la vue
+    :param kwargs: les éventuels arguments par mot-clé de la vue
+    :param query: le dictionnaire des arguments à ajouter en query string
+    :param absolute: s'il faut ajouter le nom de domaine pour renvoyer une URL absolue
+    :return: URL vers la vue
+    """
+
     if not viewname.startswith("admin:"):
         viewname = f"admin:{viewname}"
 
@@ -45,3 +50,17 @@ def admin_url(viewname, args=None, kwargs=None, query=None, absolute=True):
     if query:
         url = add_query_params_to_url(url, query)
     return url
+
+
+def get_admin_link(instance, absolute=False):
+    """Raccourci pour obtenir le lien admin d'édition d'une instance de modèle quelconque
+
+    :param instance: l'instance de modèle pour laquelle récupérer le lien
+    :param absolute: s'il faut renvoyer une URL absolue (avec le nom de domaine)
+    :return: URL vers la vue d'édition de l'instance
+    """
+    return admin_url(
+        f"admin:{instance._meta.app_label}_{instance._meta.model_name}_change",
+        args=(instance.pk,),
+        absolute=absolute,
+    )
