@@ -281,7 +281,11 @@ class AddParticipantView(SingleObjectMixin, FormView):
 
     def form_valid(self, form):
         form.save()
-        if self.event.is_free:
+
+        if (
+            self.event.is_free
+            or self.event.get_price(form.submission and form.submission.data) == 0
+        ):
             form.free_rsvp()
             self.model_admin.message_user(
                 self.request,
