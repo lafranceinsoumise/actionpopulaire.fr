@@ -25,7 +25,7 @@ class Command(BaseCommand):
                 "canceled",
                 "full_name",
                 "uuid",
-                "contact_email",
+                "_contact_emails",
                 "gender",
                 "category",
                 "price",
