@@ -177,9 +177,6 @@ export const Footer = (props) => {
               <Link route="lafranceinsoumise">La France insoumise</Link>
               <Link route="linsoumission">L'insoumission</Link>
               <Link route="jlmBlog">Le blog de Jean-Luc Mélenchon</Link>
-              <Link route="melenchon2022" target="_blank">
-                Mélenchon2022.fr
-              </Link>
             </p>
           </div>
 

@@ -149,8 +149,7 @@ export const FooterBanner = () => {
         <article>
           <p>
             <strong>Action Populaire</strong> est le réseau social d’action de
-            la campagne de Jean-Luc Mélenchon pour 2022 et de la France
-            insoumise.
+            la France insoumise et de la <em>NUPES</em>.
           </p>
         </article>
         <div>

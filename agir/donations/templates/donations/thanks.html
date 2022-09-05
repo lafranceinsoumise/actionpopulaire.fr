@@ -10,13 +10,7 @@
     <h1>Merci !</h1>
 
     <p>Chère donatrice, cher donateur,</p>
-    {% if payment.mode == "check_jlm2022_evenements" or payment.mode == "system_pay_afcp2022" %}
-      <p><strong>Vous venez d’apporter votre appui financier à la campagne Mélenchon 2022.</strong></p>
-    {% elif subscription.mode == "check_jlm2022_evenements" or subscription.mode == "system_pay_afcp2022" %}
-      <p><strong>Vous venez d’apporter votre appui financier à la campagne Mélenchon 2022.</strong></p>
-    {% else %}
-      <p><strong>Vous venez d’apporter votre appui financier à la France insoumise.</strong></p>
-    {% endif %}
+    <p><strong>Vous venez d’apporter votre appui financier à la France insoumise.</strong></p>
 
     <p>Je vous remercie très chaleureusement. Cet appui est crucial pour nous. En effet, nous ne pouvons pas
       compter comme nos adversaires sur le soutien des oligarques ni de la finance. Notre force, c’est notre

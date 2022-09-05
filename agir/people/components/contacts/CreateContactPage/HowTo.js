@@ -117,17 +117,14 @@ export const HowTo = (props) => {
           <li>
             <RawFeatherIcon strokeWidth={2} name="check-square" />
             <span>
-              <strong>Faites signer de nouveaux soutiens</strong> à la
-              candidature de Jean-Luc Mélenchon pour 2022
+              <strong>Faites rejoindre Action populaire</strong> à de nouvelles
+              personnes&nbsp;!
             </span>
           </li>
           <li>
             <RawFeatherIcon strokeWidth={2} name="rss" />
             <span>
-              <strong>
-                Obtenez des contacts pour la campagne et pour votre groupe
-                d’action
-              </strong>
+              <strong>Obtenez des contacts pour votre groupe d’action</strong>
               <br />
               Les contacts sont enregistrés et visibles dans la partie gestion
               du groupe pour les gestionnaires et animateur·ices

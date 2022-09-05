@@ -88,8 +88,8 @@ const HomeExternalLinks = () => {
       </h4>
       <p>
         Action Populaire est le réseau social d’action de la France Insoumise et
-        de Jean-Luc Mélenchon pour l'élection présidentielle de 2022. Pour
-        retrouver l’actualité, rendez-vous sur nos sites&nbsp;:
+        de la <em>NUPES</em>. Pour retrouver l’actualité, rendez-vous sur nos
+        sites&nbsp;:
       </p>
       <nav>
         <a href="https://lafranceinsoumise.fr/">
@@ -116,15 +116,6 @@ const HomeExternalLinks = () => {
             alt="logo de l'insoumission"
             width="176"
             height="48"
-          />
-        </a>
-        <Spacer size="1rem" />
-        <a href="https://melenchon2022.fr">
-          <img
-            src={melenchon2022Logo}
-            alt="logo de la campagne Jean-Luc Mélenchon 2022"
-            width="200"
-            height="26"
           />
         </a>
       </nav>

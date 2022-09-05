@@ -52,11 +52,11 @@ const ONBOARDING_TYPE = {
     body: (
       <>
         <p>
-          Commencez dès aujourd’hui à organiser des actions pour soutenir la
-          candidature de Jean-Luc Mélenchon.{" "}
+          Commencez dès aujourd’hui à organiser des actions pour soutenir les
+          propositions de la France insoumise et de la <em>NUPES</em>.
         </p>
         <p>
-          Besoin d’inspiration pour animer votre groupe&nbsp;? &nbsp;
+          Besoin d’inspiration pour animer votre groupe&nbsp;?{" "}
           <a
             href="https://infos.actionpopulaire.fr/"
             target="_blank"
@@ -78,8 +78,9 @@ const ONBOARDING_TYPE = {
     body: ({ routes }) => [
       <span key="text">
         Créez votre groupe en quelques clics, et commencez dès aujourd’hui à
-        organiser des actions pour soutenir la candidature de Jean-Luc
-        Mélenchon. Besoin d’inspiration pour animer votre groupe&nbsp;?{" "}
+        organiser des actions pour soutenir les propositions de la France
+        insoumise et de la <em>NUPES</em>. Besoin d’inspiration pour animer
+        votre groupe&nbsp;?{" "}
       </span>,
       routes.newGroupHelp && (
         <a key="link" href={routes.newGroupHelp}>

@@ -320,7 +320,7 @@ class CancelledEventActivityNotificationSerializer(ActivityNotificationSerialize
 
 class ReferralActivityNotificationSerializer(ActivityNotificationSerializer):
     def get_body(self, activity):
-        return f"Grâce à vous, {activity.individual.display_name} a parrainé la candidature de Jean-Luc Mélenchon"
+        return f"Grâce à vous, {activity.individual.display_name} a rejoint Action populaire"
 
 
 class GroupCoorganizationAcceptedActivityNotificationSerializer(
