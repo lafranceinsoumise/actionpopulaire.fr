@@ -122,7 +122,7 @@ const ChooseCampaign = ({ fromSignup, dismiss }) => {
         />
         <Spacer size="2rem" />
         <h2>
-          <span>Vous ne soutenez par encore</span>{" "}
+          <span>Vous ne soutenez pas encore</span>{" "}
           <span>l'Union Populaire&nbsp;!</span>
         </h2>
         <Spacer size="2rem" />
