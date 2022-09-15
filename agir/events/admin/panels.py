@@ -644,6 +644,10 @@ class RSVPAdmin(admin.ModelAdmin):
     list_filter = (RelatedEventFilter, "status")
     list_display_links = None
 
+    def __init__(self, model, admin_site):
+        super().__init__(model, admin_site)
+        self.list_display_with_event_set = None
+
     def has_add_permission(self, request, obj=None):
         return False
 
@@ -662,13 +666,14 @@ class RSVPAdmin(admin.ModelAdmin):
 
         if request.GET.get("event") is not None:
             try:
-                self.list_display.remove("event_link")
+                self.list_display_with_event_set = self.list_display
+                self.list_display_with_event_set.remove("event_link")
             except ValueError:
                 pass
 
-            if "person_contact_phone" not in self.list_display:
-                self.list_display.insert(2, "person_contact_phone")
-            return self.list_display
+            if "person_contact_phone" not in self.list_display_with_event_set:
+                self.list_display_with_event_set.insert(2, "person_contact_phone")
+            return self.list_display_with_event_set
 
         return self.list_display + [
             "filter_by_event_button",
