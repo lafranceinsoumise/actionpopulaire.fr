@@ -93,3 +93,45 @@ def generer_fichier_virement(
         xml_content = prolog + etree.tostring(root_elem, encoding="utf-8")
 
     return xml_content
+
+
+def virements_depuis_dataframe(
+    df, *, iban, nom, description, montant, date_execution=None
+):
+    if date_execution is None:
+        date_execution = date.today()
+
+    recipients = [
+        Partie(
+            nom=r[nom],
+            iban=IBAN(r[iban]),
+        )
+        for _, r in df.iterrows()
+    ]
+
+    iban_invalide = [i for i, p in enumerate(recipients) if not p.iban.is_valid()]
+
+    if iban_invalide:
+        base_message = "Certains IBAN ne sont pas valides :"
+        message = "\n".join(f"{i+2}: {recipients[i].nom}" for i in iban_invalide)
+
+        raise ValueError(f"{base_message}\n{message}")
+
+    bic_inconnu = [i for i, p in enumerate(recipients) if not hasattr(p.iban, "bic")]
+
+    if bic_inconnu:
+        base_message = "Les BIC ne sont pas connus pour les IBAN suivants :"
+        message = "\n".join(f"{i+2}: {recipients[i].iban}" for i in bic_inconnu)
+        raise ValueError(f"{base_message}\n{message}")
+
+    virements = [
+        Virement(
+            beneficiaire=p,
+            montant=round(r[montant] * 100),
+            date_execution=date_execution,
+            description=r[description],
+        )
+        for p, (_, r) in zip(recipients, df.iterrows())
+    ]
+
+    return virements
