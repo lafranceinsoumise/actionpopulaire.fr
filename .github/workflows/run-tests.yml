@@ -78,7 +78,7 @@ jobs:
       - name: Run image
         uses: abatilo/actions-poetry@v2
         with:
-          poetry-version: "1.0.0"
+          poetry-version: "1.1.14"
       - uses: actions/cache@v3
         id: restore-cache
         with:
