@@ -89,6 +89,9 @@ jobs:
           restore-keys: |
             pip-${{ hashFiles('poetry.lock') }}
             pip-
+      - name: Install build dependencies
+        run: |
+          python -m poetry install
       - uses: actions/setup-node@v3
         with:
           node-version: "14"
