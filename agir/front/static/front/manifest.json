@@ -4,7 +4,7 @@
   "start_url": "/?utm_source=web_app_manifest",
   "display": "standalone",
   "background_color": "#FFF",
-  "description": "Action Populaire, le réseau social d'action de la campagne de Jean-Luc Mélenchon",
+  "description": "Action Populaire, le réseau social d'action de la France insoumise et la NUPES",
   "dir": "ltr",
   "lang": "fr-FR",
   "orientation": "portrait-primary",

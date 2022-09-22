@@ -52,8 +52,10 @@ const LeftBlockDesktop = () => {
           />
         </Link>
         <Title>
-          Le réseau social d’action pour la candidature{" "}
-          <InlineBlock>de Jean-Luc Mélenchon pour 2022</InlineBlock>
+          Le réseau social d’action{" "}
+          <InlineBlock>
+            de la France insoumise et de la <em>NUPES</em>
+          </InlineBlock>
         </Title>
       </div>
       <BackgroundDesktop />

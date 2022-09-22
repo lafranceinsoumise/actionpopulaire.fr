@@ -59,8 +59,6 @@ def groups_to_csv_lines(queryset):
 
 
 def groups_to_dicts(queryset):
-    from agir.api import front_urls
-
     for g in queryset.iterator():
         d = {k: v for k, v in zip(COMMON_FIELDS, common_extractor(g))}
         d["address"] = "\n".join(
@@ -82,10 +80,12 @@ def groups_to_dicts(queryset):
         d["referents"] = " / ".join(referents)
 
         d["link"] = settings.FRONT_DOMAIN + reverse(
-            "manage_group", urlconf=front_urls, args=[g.id]
+            "manage_group", urlconf="agir.api.front_urls", args=[g.id]
         )
         d["admin_link"] = settings.API_DOMAIN + reverse(
-            "admin:groups_supportgroup_change", args=[g.id]
+            "admin:groups_supportgroup_change",
+            urlconf="agir.api.admin_urls",
+            args=[g.id],
         )
 
         yield d

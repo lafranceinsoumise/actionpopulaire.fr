@@ -287,41 +287,7 @@
         <div class="oldwebkit" style="max-width: 570px;">
         <table class="vb-container fullpad" style="border-collapse: separate; border-spacing: 18px; padding-left: 0; padding-right: 0; width: 100%; max-width: 570px; background-color: #ffffff;" width="570" cellspacing="18" cellpadding="0" border="0" bgcolor="#ffffff">
           <tbody><tr>
-            {% if NEEDS_DOCUMENTS %}
-            <td class="long-text links-color" style="text-align: left; font-size: 16px; font-family: Arial, Helvetica, sans-serif; color: #000a2c;" align="left">
-              <div style="padding: 2px 24px 24px 24px; background: #eee; border-radius: 8px;">
-                <h4>
-                  À lire : justificatifs à envoyer après vos événements publics
-                </h4>
-                <div style="font-size: 0.9em; line-height: 1.4em;">
-                  <p style="Margin: 1em 0px; Margin-top: 0px;">
-                    À l’exception des réunions internes, la loi vous interdit d'engager des frais personnels dans le cadre de la campagne présidentielle
-                  </p>
-                  <p style="Margin: 1em 0px;">Vous devrez envoyer a minima les justificatifs suivants ou indiquer qu'ils ne sont pas nécessaire.</p>
-                  <ul style="margin: 0px; padding: 0px 16px;">
-                    {% if "ATT-CON" in REQUIRED_DOCUMENT_TYPES %}
-                    <li><a href="{{ DOCUMENTS_LINK }}" style="color: #571AFF; color: #571AFF; text-decoration: none;">Attestation de concours en nature</a><br data-mce-bogus="1"></li>
-                    {% endif %}
-                    {% if "ATT-REG" in REQUIRED_DOCUMENT_TYPES %}
-                    <li><a href="{{ DOCUMENTS_LINK }}" style="color: #571AFF; color: #571AFF; text-decoration: none;">Attestation de règlement des consommations</a><br data-mce-bogus="1"></li>
-                    {% endif %}
-                    {% if "ATT-GRA" in REQUIRED_DOCUMENT_TYPES %}
-                    <li><a href="{{ DOCUMENTS_LINK }}" style="color: #571AFF; color: #571AFF; text-decoration: none;">Attestation pour les salles municipales</a><br data-mce-bogus="1"></li>
-                    {% endif %}
-                    {% if "ATT-ESP" in REQUIRED_DOCUMENT_TYPES %}
-                    <li><a href="{{ DOCUMENTS_LINK }}" style="color: #571AFF; color: #571AFF; text-decoration: none;">Copie de la demande d'autorisation d'occupation de l'espace public</a><br data-mce-bogus="1"></li>
-                    {% endif %}
-                  </ul>
-                  <p style="Margin: 1em 0px;">
-                    <strong> Téléchargez dès maintenant les modèles vierges qui vous seront nécessaires sur <a href="{{ DOCUMENTS_LINK }}" style="color: #571AFF; color: #571AFF; text-decoration: underline;">la page des documents de l'événement</a>.</strong>
-                  </p>
-                  <p style="Margin: 1em 0px; Margin-bottom: 0px;">
-                    <strong>Attention :</strong> vous ne pourrez plus créer d’événement public après le <span style="color: #ff0000;"><strong>{{ DOCUMENT_DEADLINE }}</strong></span> sans action de votre part.
-                  </p>
-                </div>
-              </div>
-            </td>
-            {% endif %}
+            <td class="long-text links-color" style="text-align: left; font-size: 16px; font-family: Arial, Helvetica, sans-serif; color: #000a2c;" align="left"><div style="padding: 2px 24px 24px 24px; background: #eee; border-radius: 8px;"><h4>À lire : justificatifs à envoyer après vos événements publics</h4><div style="font-size: 0.9em; line-height: 1.4em;"><p style="Margin: 1em 0px; Margin-top: 0px;">À l’exception des réunions internes, la loi vous interdit d'engager des frais personnels dans le cadre de la campagne présidentielle</p><p style="Margin: 1em 0px;">Vous devrez envoyer a minima les justificatifs suivants ou indiquer qu'ils ne sont pas nécessaire.</p><ul style="margin: 0px; padding: 0px 16px;"><li><a href="{{ DOCUMENTS_LINK }}" style="color: #571AFF; color: #571AFF; text-decoration: none;">Attestation de concours en nature</a><br data-mce-bogus="1"></li><li><a href="{{ DOCUMENTS_LINK }}" style="color: #571AFF; color: #571AFF; text-decoration: none;">Attestation de règlement des consommations</a><br data-mce-bogus="1"></li><li><a href="{{ DOCUMENTS_LINK }}" style="color: #571AFF; color: #571AFF; text-decoration: none;">Attestation pour les salles municipales</a><br data-mce-bogus="1"></li><li><a href="{{ DOCUMENTS_LINK }}" style="color: #571AFF; color: #571AFF; text-decoration: none;">Copie de la demande d'autorisation d'occupation de l'espace public</a><br data-mce-bogus="1"></li></ul><p style="Margin: 1em 0px;"><strong>📄 Téléchargez dès maintenant les modèles vierges qui vous seront nécessaires sur <a href="{{ DOCUMENTS_LINK }}" style="color: #571AFF; color: #571AFF; text-decoration: underline;">la page des documents de l'événement</a>.</strong></p><p style="Margin: 1em 0px; Margin-bottom: 0px;"><strong>Attention :</strong> vous ne pourrez plus créer d’événement public après le <span style="color: #ff0000;"><strong>17/04</strong></span> sans action de votre part.</p></div></div></td>
           </tr>
         </tbody></table>
         </div>
@@ -362,7 +328,7 @@
                       <tbody><tr>
                         <td class="links-color" width="100%" valign="top" align="left">
                           <a target="_new" href="{{ MANAGE_EVENT_LINK }}" style="color: #571AFF; color: #571AFF; text-decoration: underline;">
-                            <img alt="" style="margin: 0 auto;border: 0px; display: block; vertical-align: top; width: 100%; height: auto; max-width: 120px;" src="http://mosaico.lafranceinsoumise.fr/uploads/Frame%20173%20(1).png?method=resize&amp;width=120" width="120" vspace="0" hspace="0" border="0">
+                            <img class="mobile-full" alt="" style="border: 0px; display: block; vertical-align: top; width: 100%; height: auto; max-width: 120px;" src="http://mosaico.lafranceinsoumise.fr/uploads/Frame%20173%20(1).png?method=resize&amp;width=120" width="120" vspace="0" hspace="0" border="0">
                           </a>
                         </td>
                       </tr>
@@ -387,7 +353,7 @@
                           <table class="mobile-full" style="padding-top: 4px;" cellspacing="0" cellpadding="0" border="0" align="left">
                             <tbody><tr>
                               <td style="font-size: 13px; font-family: Arial, Helvetica, sans-serif; text-align: center; color: #ffffff; font-weight: normal; padding-left: 18px; padding-right: 18px; background-color: #571AFF; border-radius: 5px;" width="auto" valign="middle" height="26" bgcolor="#571AFF" align="center">
-                                <a style="text-decoration: none; color: #ffffff; font-weight: normal;" target="_new" href="{{ MANAGE_EVENT_LINK }}"><strong>Je complète les informations</strong></a>
+                                <a style="text-decoration: none; color: #ffffff; font-weight: normal;" target="_new" href=""><strong>Je complète les informations</strong></a>
                               </td>
                             </tr>
                           </tbody></table>
@@ -424,7 +390,7 @@
                       <tbody><tr>
                         <td class="links-color" width="100%" valign="top" align="left">
 
-                            <img alt="" style="margin: 0 auto;border: 0px; display: block; vertical-align: top; width: 100%; height: auto; max-width: 120px;" src="http://mosaico.lafranceinsoumise.fr/uploads/fds.png?method=resize&amp;width=120" width="120" vspace="0" hspace="0" border="0">
+                            <img class="mobile-full" alt="" style="border: 0px; display: block; vertical-align: top; width: 100%; height: auto; max-width: 120px;" src="http://mosaico.lafranceinsoumise.fr/uploads/fds.png?method=resize&amp;width=120" width="120" vspace="0" hspace="0" border="0">
 
                         </td>
                       </tr>
@@ -475,8 +441,8 @@
                     <table class="vb-content" style="border-collapse: separate; width: 100%;" width="138" cellspacing="9" cellpadding="0" border="0" align="left">
                       <tbody><tr>
                         <td class="links-color" width="100%" valign="top" align="left">
-                          <a target="_new" href="https://infos.actionpopulaire.fr/" style="color: #571AFF; color: #571AFF; text-decoration: underline;">
-                            <img alt="" style="margin: 0 auto;border: 0px; display: block; vertical-align: top; width: 100%; height: auto; max-width: 120px;" src="http://mosaico.lafranceinsoumise.fr/uploads/Frarezsme%20173.png?method=resize&amp;width=120" width="120" vspace="0" hspace="0" border="0">
+                          <a target="_new" href="infos.actionpopulaire.fr/" style="color: #571AFF; color: #571AFF; text-decoration: underline;">
+                            <img class="mobile-full" alt="" style="border: 0px; display: block; vertical-align: top; width: 100%; height: auto; max-width: 120px;" src="http://mosaico.lafranceinsoumise.fr/uploads/Frarezsme%20173.png?method=resize&amp;width=120" width="120" vspace="0" hspace="0" border="0">
                           </a>
                         </td>
                       </tr>
@@ -501,7 +467,7 @@
                           <table class="mobile-full" style="padding-top: 4px;" cellspacing="0" cellpadding="0" border="0" align="left">
                             <tbody><tr>
                               <td style="font-size: 13px; font-family: Arial, Helvetica, sans-serif; text-align: center; color: #ffffff; font-weight: normal; padding-left: 18px; padding-right: 18px; background-color: #571AFF; border-radius: 5px;" width="auto" valign="middle" height="26" bgcolor="#571AFF" align="center">
-                                <a style="text-decoration: none; color: #ffffff; font-weight: normal;" target="_new" href="https://infos.actionpopulaire.fr/">Aller au centre d'aide</a>
+                                <a style="text-decoration: none; color: #ffffff; font-weight: normal;" target="_new" href="">Aller au centre d'aide</a>
                               </td>
                             </tr>
                           </tbody></table>
