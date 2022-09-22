@@ -1,4 +1,4 @@
-from agir.pos.payment_mode import AbstractMoneyPaymentMode
+from agir.pos.payment_mode import AbstractMoneyPaymentMode, AbstractTPEPaymentMode
 
 
 class MoneyPaymentMode(AbstractMoneyPaymentMode):
@@ -7,7 +7,7 @@ class MoneyPaymentMode(AbstractMoneyPaymentMode):
     label = "Paiement sur place en liquide"
 
 
-class TPEPaymentMode(AbstractMoneyPaymentMode):
+class TPEPaymentMode(AbstractTPEPaymentMode):
     id = "tpe"
     url_fragment = "tpe"
     label = "Paiement sur place par carte bleue"

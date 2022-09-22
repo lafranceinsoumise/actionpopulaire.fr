@@ -633,13 +633,14 @@ class JitsiMeetingAdmin(admin.ModelAdmin):
 
 @admin.register(RSVP)
 class RSVPAdmin(admin.ModelAdmin):
-    list_display = [
+    list_display = (
         "id",
         "person_link",
         "event_link",
         "status",
         "guest_count",
-    ]
+    )
+
     search_fields = ("person__search", "event__name")
     list_filter = (RelatedEventFilter, "status")
     list_display_links = None
@@ -661,18 +662,9 @@ class RSVPAdmin(admin.ModelAdmin):
             return self.list_display
 
         if request.GET.get("event") is not None:
-            try:
-                self.list_display.remove("event_link")
-            except ValueError:
-                pass
+            return tuple(f for f in self.list_display if f != "event_link")
 
-            if "person_contact_phone" not in self.list_display:
-                self.list_display.insert(2, "person_contact_phone")
-            return self.list_display
-
-        return self.list_display + [
-            "filter_by_event_button",
-        ]
+        return (*self.list_display, "filter_by_event_button")
 
     def get_queryset(self, request):
         return (
