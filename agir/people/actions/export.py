@@ -1,11 +1,12 @@
 from collections import OrderedDict
 from operator import attrgetter
 
+from glom import glom, Iter
+
 from django.http import StreamingHttpResponse
-from django.urls import reverse
 from django.utils import timezone
 
-from agir.api import settings
+from agir.lib.admin.utils import admin_url
 from agir.lib.export import dicts_to_csv_lines
 
 COMMON_FIELDS = (
@@ -32,8 +33,16 @@ ADDRESS_FIELDS = (
 )
 PERSON_FIELDS = COMMON_FIELDS + ("address", "admin_link")
 
-common_extractor = attrgetter(*COMMON_FIELDS)
-address_parts_extractor = attrgetter(*ADDRESS_FIELDS)
+
+def address(p):
+    return "\n".join(str(getattr(p, c)) for c in ADDRESS_FIELDS if getattr(p, c))
+
+
+def lien_admin(p):
+    return admin_url("people_person_change", args=(p.id,), absolute=True)
+
+
+spec = {**{f: f for f in COMMON_FIELDS}, "address": address, "admin_link": lien_admin}
 
 
 def people_to_csv_lines(queryset):
@@ -41,18 +50,10 @@ def people_to_csv_lines(queryset):
 
 
 def people_to_dicts(queryset):
-    for person in queryset.iterator():
-        person_dict = {
-            k: str(v) for k, v in zip(COMMON_FIELDS, common_extractor(person))
-        }
-        person_dict["address"] = "\n".join(
-            str(component) for component in address_parts_extractor(person) if component
-        )
-        person_dict["admin_link"] = settings.API_DOMAIN + reverse(
-            "admin:people_person_change", args=[person.id]
-        )
-
-        yield person_dict
+    return glom(
+        queryset,
+        Iter(spec),
+    )
 
 
 def stream_csv_response(streaming_content):
