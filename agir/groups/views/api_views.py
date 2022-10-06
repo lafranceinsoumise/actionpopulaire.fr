@@ -331,7 +331,7 @@ class GroupUpcomingEventsAPIView(ListAPIView):
     # Cela conduisait à affecter à GroupUpcomingEventsAPIView.queryset
     # le queryset des évenements à venir *au moment de la création* de la classe
     # (et non pas de l'exécution d'une requête)
-    queryset = Event.objects.listed()
+    queryset = Event.objects.distinct().listed()
 
     def initial(self, request, *args, **kwargs):
         self.supportgroup = get_object_or_404(
