@@ -324,7 +324,14 @@ class GroupUpcomingEventsAPIView(ListAPIView):
         GroupDetailPermissions,
     )
     serializer_class = EventListSerializer
-    queryset = Event.objects.listed().upcoming()
+
+    # ATTENTION
+    # cette ligne était auparavant
+    #   queryset = Event.objects.listed().upcoming()
+    # Cela conduisait à affecter à GroupUpcomingEventsAPIView.queryset
+    # le queryset des évenements à venir *au moment de la création* de la classe
+    # (et non pas de l'exécution d'une requête)
+    queryset = Event.objects.listed()
 
     def initial(self, request, *args, **kwargs):
         self.supportgroup = get_object_or_404(
@@ -334,9 +341,9 @@ class GroupUpcomingEventsAPIView(ListAPIView):
         super().initial(request, *args, **kwargs)
 
     def get_queryset(self):
-        events = get_events_with_group(self.queryset, self.supportgroup).order_by(
-            "start_time"
-        )
+        events = get_events_with_group(
+            self.queryset.upcoming(), self.supportgroup
+        ).order_by("start_time")
         return events
 
     def get_serializer(self, *args, **kwargs):
@@ -354,7 +361,14 @@ class GroupPastEventsAPIView(ListAPIView):
         GroupDetailPermissions,
     )
     serializer_class = EventListSerializer
-    queryset = Event.objects.listed().past()
+
+    # ATTENTION
+    # cette ligne était auparavant
+    #   queryset = Event.objects.listed().past()
+    # Cela conduisait à affecter à GroupPastEventsAPIView.queryset
+    # le queryset des évenements passés au moment de la création de la classe
+    # (et non pas de l'exécution d'une requête)
+    queryset = Event.objects.listed()
     pagination_class = APIPaginator
 
     def initial(self, request, *args, **kwargs):
@@ -372,9 +386,10 @@ class GroupPastEventsAPIView(ListAPIView):
         )
 
     def get_queryset(self):
-        events = get_events_with_group(self.queryset, self.supportgroup).order_by(
-            "-start_time"
-        )
+        #
+        events = get_events_with_group(
+            self.queryset.past(), self.supportgroup
+        ).order_by("-start_time")
         return events
 
 
