@@ -171,7 +171,7 @@
         <div class="oldwebkit" style="max-width: 570px;">
         <table class="vb-container fullpad" style="border-collapse: separate; border-spacing: 18px; padding-left: 0; padding-right: 0; width: 100%; max-width: 570px; background-color: #ffffff;" width="570" cellspacing="18" cellpadding="0" border="0" bgcolor="#ffffff">
           <tbody><tr>
-            <td class="long-text links-color" style="text-align: left; font-size: 16px; font-family: Arial, Helvetica, sans-serif; color: #000a2c;" align="left"><div style="line-height: 1.5em;"><p style="Margin: 1em 0px; Margin-top: 0px;">{MEMBER} a invité votre groupe<strong> {GROUP_NAME}</strong> à co-organiser <a href="{EVENT_LINK}" style="color: #571AFF; color: #571AFF; text-decoration: underline;"><strong>{EVENT_NAME}</strong></a> ({{ DATE }}).</p><p style="Margin: 1em 0px; Margin-bottom: 0px;">Acceptez l’invitation pour faire apparaître votre groupe sur la page publique de l’événement.</p></div></td>
+            <td class="long-text links-color" style="text-align: left; font-size: 16px; font-family: Arial, Helvetica, sans-serif; color: #000a2c;" align="left"><div style="line-height: 1.5em;"><p style="Margin: 1em 0px; Margin-top: 0px;">{{ MEMBER }} a invité votre groupe<strong> {{ GROUP_NAME }}</strong> à co-organiser <a href="{{ EVENT_LINK }}" style="color: #571AFF; color: #571AFF; text-decoration: underline;"><strong>{{ EVENT_NAME }}</strong></a> ({{ DATE }}).</p><p style="Margin: 1em 0px; Margin-bottom: 0px;">Acceptez l’invitation pour faire apparaître votre groupe sur la page publique de l’événement.</p></div></td>
           </tr>
         </tbody></table>
         </div>
@@ -189,12 +189,16 @@
             <td style="background-color: #ffffff;" valign="top" bgcolor="#ffffff" align="center">
 
               <table class="mobile-full" cellspacing="0" cellpadding="0" border="0" align="center">
-                <tbody><tr>
-                  <td style="font-size: 18px; font-family: Arial, Helvetica, sans-serif; color: #000A2C; font-weight: bold; padding-left: 14px; padding-right: 14px; background-color: F4ED0F; border-radius: 5px;" width="auto" valign="middle" height="50" bgcolor="F4ED0F" align="center">
-                    Accepter de co-organiser
-                  </td>
+
+                  <tbody><tr>
+                    <td style="font-size: 18px; font-family: Arial, Helvetica, sans-serif; color: #000A2C; font-weight: bold; padding-left: 14px; padding-right: 14px; background-color: F4ED0F; border-radius: 5px;" width="auto" valign="middle" height="50" bgcolor="F4ED0F" align="center">
+                        <a target="_new" style="text-decoration: none; color: #000A2C; font-weight: bold;" href="{{ ACCEPT_LINK }}">
+                          Accepter de co-organiser
+                        </a>
+                    </td>
                 </tr>
-              </tbody></table>
+              </tbody>
+              </table>
 
             </td>
           </tr>
@@ -211,7 +215,7 @@
         <div class="oldwebkit" style="max-width: 570px;">
         <table class="vb-container fullpad" style="border-collapse: separate; border-spacing: 18px; padding-left: 0; padding-right: 0; width: 100%; max-width: 570px; background-color: #ffffff;" width="570" cellspacing="18" cellpadding="0" border="0" bgcolor="#ffffff">
           <tbody><tr>
-            <td class="long-text links-color" style="text-align: left; font-size: 16px; font-family: Arial, Helvetica, sans-serif; color: #000a2c;" align="left"><p style="Margin: 1em 0px; Margin-top: 0px; line-height: 1.5em;">Votre groupe ne souhaite pas co-organiser cet événement ? Indiquez-le à {MEMBER} : <a href="{{ REFUSAL_URL }}" style="color: #571AFF; color: #571AFF; text-decoration: underline;">refuser de co-organiser</a><br data-mce-bogus="1"></p><p style="Margin: 1em 0px; Margin-bottom: 0px; line-height: 1.5em;">Action Populaire<br data-mce-bogus="1"></p></td>
+            <td class="long-text links-color" style="text-align: left; font-size: 16px; font-family: Arial, Helvetica, sans-serif; color: #000a2c;" align="left"><p style="Margin: 1em 0px; Margin-top: 0px; line-height: 1.5em;">Votre groupe ne souhaite pas co-organiser cet événement ? Indiquez-le à {{ MEMBER }} : <a href="{{ REFUSE_LINK }}" style="color: #571AFF; color: #571AFF; text-decoration: underline;">refuser de co-organiser</a><br data-mce-bogus="1"></p><p style="Margin: 1em 0px; Margin-bottom: 0px; line-height: 1.5em;">Action Populaire<br data-mce-bogus="1"></p></td>
           </tr>
         </tbody></table>
         </div>
