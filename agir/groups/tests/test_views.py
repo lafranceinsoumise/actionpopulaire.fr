@@ -342,7 +342,9 @@ class GroupAPIUpcomingEventViewTestCase(SupportGroupMixin, TestCase):
             location_country="DE",
         )
         response = self.client.get(
-            reverse("api_group_upcoming_events_view", kwargs={"pk": self.inactive_group.pk})
+            reverse(
+                "api_group_upcoming_events_view", kwargs={"pk": self.inactive_group.pk}
+            )
         )
 
         self.assertFalse(self.manager_group.organized_events.upcoming().exists())
@@ -363,7 +365,9 @@ class GroupAPIUpcomingEventViewTestCase(SupportGroupMixin, TestCase):
         )
 
         response = self.client.get(
-            reverse("api_group_upcoming_events_view", kwargs={"pk": self.manager_group.pk})
+            reverse(
+                "api_group_upcoming_events_view", kwargs={"pk": self.manager_group.pk}
+            )
         )
 
         self.assertFalse(self.manager_group.organized_events.upcoming().exists())
@@ -394,7 +398,9 @@ class GroupAPIUpcomingEventViewTestCase(SupportGroupMixin, TestCase):
         )
 
         response = self.client.get(
-            reverse("api_group_upcoming_events_view", kwargs={"pk": self.manager_group.pk})
+            reverse(
+                "api_group_upcoming_events_view", kwargs={"pk": self.manager_group.pk}
+            )
         )
 
         # upcoming events size must be 1
