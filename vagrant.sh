@@ -55,7 +55,7 @@ if [ ! -x MailHog ]; then
 fi
 
 echo "## Install python dependencies..."
-(cd /vagrant && /usr/local/bin/poetry install) &> /dev/null
+(cd /vagrant && PYTHON_KEYRING_BACKEND="keyring.backends.null.Keyring" /usr/local/bin/poetry install) &> /dev/null
 
 echo "## Migrate and populate test database..."
 (cd /vagrant && /usr/local/bin/poetry run ./manage.py migrate && (/usr/local/bin/poetry run ./manage.py load_fake_data || true)) &> /dev/null

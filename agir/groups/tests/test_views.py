@@ -330,3 +330,79 @@ class GroupDetailAPIViewTestCase(TestCase):
             reverse("api_group_view", kwargs={"pk": inactive_group.pk})
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class GroupAPIUpcomingEventViewTestCase(SupportGroupMixin, TestCase):
+    def test_upcoming_is_empty_when_no_events(self):
+        self.inactive_group = SupportGroup.objects.create(
+            name="Manager",
+            location_name="location",
+            location_address1="somewhere",
+            location_city="Over",
+            location_country="DE",
+        )
+        response = self.client.get(
+            reverse(
+                "api_group_upcoming_events_view", kwargs={"pk": self.inactive_group.pk}
+            )
+        )
+
+        self.assertFalse(self.manager_group.organized_events.upcoming().exists())
+        self.assertEqual(response.data, [])
+
+    def test_upcoming_is_empty_when_only_past_events_exists(self):
+        now = timezone.now()
+        day = timezone.timedelta(days=1)
+        hour = timezone.timedelta(hours=1)
+        self.event = Event.objects.create(
+            name="événement terminé pour test",
+            start_time=now - 3 * day,
+            end_time=now - 3 * day + 4 * hour,
+        )
+
+        OrganizerConfig.objects.create(
+            event=self.event, person=self.person, as_group=self.manager_group
+        )
+
+        response = self.client.get(
+            reverse(
+                "api_group_upcoming_events_view", kwargs={"pk": self.manager_group.pk}
+            )
+        )
+
+        self.assertFalse(self.manager_group.organized_events.upcoming().exists())
+        self.assertEqual(len(response.data), 0)
+
+    def test_upcoming_contains_only_upcoming_events(self):
+        now = timezone.now()
+        day = timezone.timedelta(days=1)
+        hour = timezone.timedelta(hours=1)
+        self.event = Event.objects.create(
+            name="événement dans le futur pour test",
+            start_time=now + 3 * day,
+            end_time=now + 3 * day + 4 * hour,
+        )
+
+        self.past_event = Event.objects.create(
+            name="événement dans le passé pour test",
+            start_time=now - 3 * day,
+            end_time=now - 3 * day + 4 * hour,
+        )
+
+        OrganizerConfig.objects.create(
+            event=self.event, person=self.person, as_group=self.manager_group
+        )
+
+        OrganizerConfig.objects.create(
+            event=self.past_event, person=self.person, as_group=self.manager_group
+        )
+
+        response = self.client.get(
+            reverse(
+                "api_group_upcoming_events_view", kwargs={"pk": self.manager_group.pk}
+            )
+        )
+
+        # upcoming events size must be 1
+        self.assertEqual(self.manager_group.organized_events.upcoming().count(), 1)
+        self.assertEqual(len(response.data), 1)

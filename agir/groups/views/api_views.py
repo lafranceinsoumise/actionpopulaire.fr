@@ -368,7 +368,7 @@ class GroupPastEventsAPIView(ListAPIView):
     # Cela conduisait à affecter à GroupPastEventsAPIView.queryset
     # le queryset des évenements passés au moment de la création de la classe
     # (et non pas de l'exécution d'une requête)
-    queryset = Event.objects.listed()
+    queryset = Event.objects.distinct().listed()
     pagination_class = APIPaginator
 
     def initial(self, request, *args, **kwargs):
