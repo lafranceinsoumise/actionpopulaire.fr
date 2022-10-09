@@ -31,6 +31,14 @@ from psycopg2._range import DateRange
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
 
+
+def env_separated_value(env_var, sep=","):
+    raw_value = os.environ.get(env_var)
+    if not raw_value:
+        return []
+    return raw_value.split(sep)
+
+
 ADMIN_RE = re.compile("^([\w -]+) <([^>]+)>$")
 YES_VALUES = ["y", "yes", "true", "t"]
 
@@ -891,6 +899,10 @@ NUNTIUS_DISABLE_DEFAULT_ADMIN = True
 NUNTIUS_ENABLED_CAMPAIGN_TYPES = os.environ.get(
     "NUNTIUS_ENABLED_CAMPAIGN_TYPES", "email,push"
 ).split(",")
+
+BLOCKED_EMAIL_DOMAINS = set(
+    d.upper() for d in env_separated_value("BLOCKED_EMAIL_DOMAINS", sep=",")
+)
 
 
 ANYMAIL = {

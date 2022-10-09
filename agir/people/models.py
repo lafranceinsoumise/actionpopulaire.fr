@@ -5,6 +5,7 @@ from functools import reduce
 from operator import or_
 
 import phonenumbers
+from django.conf import settings
 from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import SearchVectorField
 from django.core.exceptions import ValidationError
@@ -699,8 +700,10 @@ class Person(
     def get_subscriber_status(self):
         if self.bounced:
             return AbstractSubscriber.STATUS_BOUNCED
-        if self.primary_email is not None:
-            return AbstractSubscriber.STATUS_SUBSCRIBED
+        if self.email:
+            domain = self.email.rsplit("@", maxsplit=1)[-1].upper()
+            if domain not in settings.BLOCKED_EMAIL_DOMAINS:
+                return AbstractSubscriber.STATUS_SUBSCRIBED
         return AbstractSubscriber.STATUS_UNSUBSCRIBED
 
     def get_subscriber_email(self):
