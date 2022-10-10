@@ -23,6 +23,7 @@ def with_json_response(file_name):
         def wrapper(*args, **kwargs):
             with patch("agir.lib.geo.requests") as requests:
                 res = requests.get.return_value = Mock()
+                res.status_code = 200
                 with open(JSON_DIR / file_name) as file:
                     res.json.return_value = json.load(file)
                 func(*args, **kwargs)
@@ -70,7 +71,7 @@ class FranceGeocodingTestCase(TestCase):
             self.person.coordinates_type, LocationMixin.COORDINATES_UNKNOWN_PRECISION
         )
 
-    @with_json_response("92160_adresse_complette.json")
+    @with_json_response("92160_adresse_complete.json")
     def test_geocode_ban_complete_address(self):
         """
             Test le fonctionnement avec une adresse complète
