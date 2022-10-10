@@ -59,13 +59,22 @@ def geocode_element(item):
 def get_results_from_ban(query):
     try:
         res = requests.get(BAN_ENDPOINT, params=query, timeout=(5, 10))
-        res.raise_for_status()
-        results = res.json()
     except requests.RequestException:
         logger.warning(
             f"Network error while geocoding '{query!r}' with BAN", exc_info=True
         )
         raise
+
+    if 400 <= res.status_code < 500:
+        # Erreur dans les données fournies, probablement un code postal incorrect
+        # on ne peut pas localiser et ça ne sert à rien de réessayer.
+        return None
+    elif 500 <= res.status_code < 600:
+        # erreur côté serveur, il y a des chances que ça remarche en réessayant
+        raise requests.HTTPError("Erreur côté serveur", response=res)
+
+    try:
+        results = res.json()
     except ValueError:
         logger.warning(
             f"Invalid JSON while geocoding '{query!r}' with BAN", exc_info=True
