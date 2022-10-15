@@ -18,7 +18,7 @@ urlpatterns = [
     path("", include("agir.presidentielle2022.urls")),
     path("", include("agir.voting_proxies.urls")),
     path("", include("agir.elections.urls")),
-    path("cagnottes/", include("agir.cagnottes.urls")),
+    path("caisse/", include("agir.cagnottes.urls")),
     path("carte/", include("agir.carte.urls")),
     path("data-france/", include("data_france.urls")),
 ]
