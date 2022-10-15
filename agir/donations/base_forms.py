@@ -14,6 +14,7 @@ from agir.donations.form_fields import AskAmountField
 from agir.lib.data import FRANCE_COUNTRY_CODES
 from agir.lib.display import display_price
 from agir.lib.form_mixins import MetaFieldsMixin
+from agir.payments.payment_modes import PaymentModeField
 from agir.people.forms import LegacySubscribedMixin
 from agir.people.models import Person
 
@@ -59,9 +60,6 @@ class BaseDonorForm(MetaFieldsMixin, LegacySubscribedMixin, forms.ModelForm):
     email = forms.EmailField(
         label=_("Votre adresse email"),
         required=True,
-        help_text=_(
-            "Si vous êtes déjà inscrit⋅e sur lafranceinsoumise.fr ou melenchon2022.fr, utilisez l'adresse avec laquelle vous êtes inscrit⋅e"
-        ),
     )
 
     amount = forms.IntegerField(
@@ -100,8 +98,17 @@ class BaseDonorForm(MetaFieldsMixin, LegacySubscribedMixin, forms.ModelForm):
         label=_("Je certifie être domicilié⋅e fiscalement en France"),
     )
 
-    def __init__(self, *args, **kwargs):
+    payment_mode = PaymentModeField(
+        payment_modes=[],
+    )
+
+    def __init__(self, payment_modes=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        if payment_modes is None:
+            del self.fields["payment_mode"]
+        else:
+            self.fields["payment_mode"].payment_modes = payment_modes
 
         self.connected = not self.instance._state.adding
 

@@ -157,6 +157,7 @@ INSTALLED_APPS = [
     "agir.voting_proxies",
     "agir.elections",
     "agir.legislatives2022.apps.Legislatives2022Config",
+    "agir.cagnottes.apps.CagnotteConfig",
     # default contrib apps
     "agir.api.apps.AdminAppConfig",
     "django.contrib.auth",
