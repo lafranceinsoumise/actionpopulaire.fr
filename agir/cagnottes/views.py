@@ -26,10 +26,10 @@ class PersonalInformationView(base_views.BasePersonalInformationView):
     payment_type = CagnottesConfig.PAYMENT_TYPE
     payment_modes = ["system_pay", "check_donations"]
     session_namespace = "_cagnotte_"
-    first_step_url = "https://lafranceinsoumise.fr"
+    first_step_url = "https://caissedegreveinsoumise.fr"
     template_name = "cagnottes/personal_information.html"
     form_class = PersonalInformationForm
 
 
 class RemerciementView(RedirectView):
-    url = "https://lafranceinsoumise.fr"
+    url = "https://lafranceinsoumise.fr/caisse-de-greve-insoumise-remerciements"

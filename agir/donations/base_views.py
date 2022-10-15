@@ -104,7 +104,7 @@ class BasePersonalInformationView(FormView):
             person = None
             email = form.cleaned_data["email"]
 
-        payment_mode = form.cleaned_data["payment_mode"].idp
+        payment_mode = form.cleaned_data["payment_mode"].id
         amount = form.cleaned_data["amount"]
         meta = self.get_metas(form)
 
