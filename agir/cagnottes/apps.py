@@ -6,7 +6,7 @@ from agir.payments.types import (
 )
 
 
-class CagnotteConfig(AppConfig):
+class CagnottesConfig(AppConfig):
     name = "agir.cagnottes"
     verbose_name = "Cagnottes"
     PAYMENT_TYPE = "don_cagnotte"

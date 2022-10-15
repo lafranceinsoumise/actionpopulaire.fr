@@ -157,7 +157,7 @@ INSTALLED_APPS = [
     "agir.voting_proxies",
     "agir.elections",
     "agir.legislatives2022.apps.Legislatives2022Config",
-    "agir.cagnottes.apps.CagnotteConfig",
+    "agir.cagnottes.apps.CagnottesConfig",
     # default contrib apps
     "agir.api.apps.AdminAppConfig",
     "django.contrib.auth",
@@ -436,6 +436,7 @@ EMAIL_TEMPLATES = {
     # VOTING_CIRCONSCRIPTION_LEGISLATIVE, POLLING_STATION, VOTER_ID, ROLE, HAS_MOBILITY, AVAILABLE_VOTING_DATES,
     # CONTACT_EMAIL, CONTACT_PHONE, REMARKS
     "NEW_POLLING_STATION_OFFICER": "https://mosaico.lafranceinsoumise.fr/emails/9a53281d-1643-41be-b215-330b3ac433a3.html",
+    "DONATION_CAGNOTTE": "https://mosaico.lafranceinsoumise.fr/emails/373c404b-902d-4cc4-8edc-845c4c889b85.html",
 }
 
 EMAIL_FROM = os.environ.get(

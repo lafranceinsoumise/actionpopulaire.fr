@@ -97,17 +97,20 @@ class BasePersonalInformationView(FormView):
         }
 
     def form_valid(self, form):
-        if form.connected():
+        if form.connected:
             person = form.save()
+            email = person.email
         else:
             person = None
+            email = form.cleaned_data["email"]
 
-        payment_mode = form.validated_data["payment_mode"]
-        amount = form.validated_data["amount"]
+        payment_mode = form.cleaned_data["payment_mode"].idp
+        amount = form.cleaned_data["amount"]
         meta = self.get_metas(form)
 
         payment = create_payment(
             person=person,
+            email=email,
             type=self.payment_type,
             mode=payment_mode,
             price=amount,

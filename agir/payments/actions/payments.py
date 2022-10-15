@@ -44,7 +44,7 @@ def create_payment(*, person=None, type, price, mode=DEFAULT_MODE, meta=None, **
         kwargs.setdefault("phone_number", person.contact_phone)
     else:
         for field in person_fields:
-            kwargs.setdefault(field, meta.get(field))
+            kwargs.setdefault(field, meta.get(field, ""))
         kwargs.setdefault("phone_number", meta.get("contact_phone"))
 
     return Payment.objects.create(

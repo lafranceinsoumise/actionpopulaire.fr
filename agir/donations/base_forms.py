@@ -161,6 +161,9 @@ class BaseDonorForm(MetaFieldsMixin, LegacySubscribedMixin, forms.ModelForm):
 
         fields.append("contact_phone")
 
+        if "payment_mode" in self.fields:
+            fields.append("payment_mode")
+
         fields.append("declaration")
 
         if "subscribed_lfi" in self.fields:

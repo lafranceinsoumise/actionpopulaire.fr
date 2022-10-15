@@ -1,0 +1,15 @@
+[Voir dans le navigateur]({{ LINK_BROWSER }})  
+  
+Merci beaucoup pour votre don à la caisse de grève insoumise  
+  
+  
+
+
+-------------------------
+Cet email a été envoyé à {{ EMAIL }}. Il est personnel, ne le transférez pas.
+
+>> Choisir les emails que vous recevez
+{{ preferences_link }}
+
+>> Arrêter complètement de recevoir des emails
+{{ unsubscribe_link }}
