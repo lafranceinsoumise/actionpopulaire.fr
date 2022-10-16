@@ -1,11 +1,18 @@
-[Voir dans le navigateur]({{ LINK_BROWSER }})  
-  
-Merci beaucoup pour votre don à la caisse de grève insoumise  
-  
-  
+Ton don à la caisse de grève insoumise a bien été pris en compte.
+Nous te remercions pour ta générosité et ton soutien aux grévistes mobilisés pour obtenir des augmentations de salaire.
 
+Comme indiqué sur le site, **les dons collectés seront intégralement reversés** par La France insoumise aux différentes
+organisations mobilisées.
 
--------------------------
+Nous te contacterons ultérieurement pour te tenir informé du montant collecté et de la distribution. D’ici là, tu peux
+proposer à d’autres militants de participer à la caisse de grève insoumise** en partageant le lien sur Twitter
+>>> https://bit.ly/3yIX4iv
+
+Merci !
+
+L’équipe de la France insoumise
+
+------------------------------------------------------------------
 Cet email a été envoyé à {{ EMAIL }}. Il est personnel, ne le transférez pas.
 
 >> Choisir les emails que vous recevez
