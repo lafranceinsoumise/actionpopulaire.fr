@@ -1,6 +1,8 @@
 from django.db.models import Sum
 from django.views.decorators import cache
 from django.views.generic import RedirectView
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from agir.donations import base_views
@@ -10,12 +12,14 @@ from .forms import PersonalInformationForm
 
 
 class CompteurView(APIView):
+    permission_classes = (AllowAny,)
+
     @cache.cache_page(60)
     @cache.cache_control(public=True)
     def get(req):
         from .apps import CagnottesConfig
 
-        return (
+        return Response(
             Payment.objects.completed()
             .filter(type=CagnottesConfig.PAYMENT_TYPE)
             .aggregate(totalAmount=Sum("price"))

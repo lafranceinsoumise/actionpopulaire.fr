@@ -10,4 +10,5 @@ urlpatterns = [
         views.PersonalInformationView.as_view(),
         name="personal_information",
     ),
+    path("compteur/", views.CompteurView.as_view(), name="compteur"),
 ]
