@@ -84,13 +84,8 @@ class LenderForm(BaseDonorForm):
         help_text="Le numéro IBAN du compte sur lequel le remboursement du prêt sera effectué.",
     )
 
-    def __init__(self, *args, payment_modes=None, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        if payment_modes is not None:
-            self.payment_modes = payment_modes
-
-        self.fields["payment_mode"].payment_modes = self.payment_modes
 
         self.fields["gender"].required = True
         self.fields["date_of_birth"].required = True
