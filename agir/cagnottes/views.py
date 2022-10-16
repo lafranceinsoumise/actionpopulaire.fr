@@ -1,4 +1,5 @@
 from django.db.models import Sum
+from django.utils.decorators import method_decorator
 from django.views.decorators import cache
 from django.views.generic import RedirectView
 from rest_framework.permissions import AllowAny
@@ -14,9 +15,9 @@ from .forms import PersonalInformationForm
 class CompteurView(APIView):
     permission_classes = (AllowAny,)
 
-    @cache.cache_page(60)
-    @cache.cache_control(public=True)
-    def get(req):
+    @method_decorator(cache.cache_page(60))
+    @method_decorator(cache.cache_control(public=True))
+    def get(self, request, *args, **kwargs):
         from .apps import CagnottesConfig
 
         return Response(

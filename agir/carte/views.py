@@ -134,7 +134,7 @@ class EventsView(AnonymousAPIView, ListAPIView):
     )
 
     @method_decorator(cache.cache_page(300))
-    @cache.cache_control(public=True)
+    @method_decorator(cache.cache_control(public=True))
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
@@ -158,7 +158,7 @@ class GroupsView(AnonymousAPIView, ListAPIView):
     filterset_class = GroupFilterSet
 
     @method_decorator(cache.cache_page(300))
-    @cache.cache_control(public=True)
+    @method_decorator(cache.cache_control(public=True))
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 

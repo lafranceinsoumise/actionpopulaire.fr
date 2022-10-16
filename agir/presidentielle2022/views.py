@@ -28,7 +28,7 @@ class PublicDonation2022AggregatesAPIView(APIView):
     permission_classes = (AllowAny,)
 
     @method_decorator(cache_page(60))
-    @cache.cache_control(public=True)
+    @method_decorator(cache.cache_control(public=True))
     def get(self, request, *args, **kwargs):
         return Response(get_aggregates())
 
