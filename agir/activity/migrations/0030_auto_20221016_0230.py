@@ -32,8 +32,4 @@ class Migration(migrations.Migration):
                 verbose_name="Bannière",
             ),
         ),
-        migrations.AlterUniqueTogether(
-            name="activity",
-            unique_together=set(),
-        ),
     ]
