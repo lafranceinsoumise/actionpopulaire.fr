@@ -1,8 +1,9 @@
 import tinymce from "tinymce/tinymce";
 
-// Thème et icônes
-import "tinymce/themes/silver";
+// Required modules
+import "tinymce/models/dom";
 import "tinymce/icons/default";
+import "tinymce/themes/silver";
 
 // Localisation française
 import "tinymce-i18n/langs/fr_FR";
@@ -16,8 +17,6 @@ import onDOMReady from "@agir/lib/utils/onDOMReady";
 
 /**
  * Indique à webpack comment copier les fichiers de skins de tinymce dans
- *
- * Par défaut tinymce inclue les fichiers de skin
  */
 require.context(
   "file-loader?name=[path][name].[ext]&context=node_modules/tinymce!tinymce/skins",
@@ -28,7 +27,7 @@ require.context(
 const config = {
   selector: "textarea.richeditorwidget",
   plugins: "link autolink image lists",
-  toolbar: "bold italic | formatselect | link image | bullist numlist",
+  toolbar: "bold italic | blocks | link image | bullist numlist",
   menubar: false,
   statusbar: false,
   language: "fr_FR",
