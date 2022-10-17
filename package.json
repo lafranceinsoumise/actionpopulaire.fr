@@ -54,7 +54,7 @@
     "libphonenumber-js": "^1.10.14",
     "localized-countries": "^2.0.0",
     "lodash": "^4.17.21",
-    "luxon": "^2.4.0",
+    "luxon": "^3.0.4",
     "moment": "^2.29.4",
     "normalize.css": "^8.0.1",
     "object-hash": "^3.0.0",
