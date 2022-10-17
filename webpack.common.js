@@ -54,15 +54,10 @@ const components = applications
   }, {});
 
 // create import aliases with the django app names leading to their `components` folders
-const aliases = applications.reduce(
-  (obj, app) => {
-    obj["@agir/" + path.basename(app)] = path.resolve(app, "components/");
-    return obj;
-  },
-  {
-    luxon: "luxon/src/luxon",
-  }
-);
+const aliases = applications.reduce((obj, app) => {
+  obj["@agir/" + path.basename(app)] = path.resolve(app, "components/");
+  return obj;
+}, {});
 
 // Generate an HTML fragment with all chunks tag for each entry
 const htmlPlugins = (type) => [
