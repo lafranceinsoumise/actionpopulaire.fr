@@ -174,7 +174,7 @@ const configureBabelLoader = (type) => ({
                 loose: true,
                 modules: "auto",
                 useBuiltIns: "usage",
-                corejs: { version: "3.23" },
+                corejs: { version: "3.25" },
                 targets: {
                   browsers: [
                     "> 0.5% in FR",
