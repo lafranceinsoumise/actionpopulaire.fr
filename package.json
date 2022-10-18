@@ -69,7 +69,7 @@
     "react-helmet": "^6.1.0",
     "react-on-screen": "^2.1.1",
     "react-quill": "^2.0.0",
-    "react-router-dom": "^5.3.3",
+    "react-router-dom": "^5.3.4",
     "react-router-scroll-memory": "^2.0.7",
     "react-select": "^5.5.1",
     "react-spring-bottom-sheet": "^3.4.1",
