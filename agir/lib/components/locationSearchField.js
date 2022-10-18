@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "@agir/lib/utils/axios";
 
 const nominatim_url = "https://nominatim.openstreetmap.org/search";
 

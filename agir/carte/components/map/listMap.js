@@ -1,7 +1,6 @@
 import Feature from "ol/Feature";
 import { fromLonLat } from "ol/proj";
 import VectorSource from "ol/source/Vector";
-import axios from "axios/index";
 import Point from "ol/geom/Point";
 import GeoJSON from "ol/format/GeoJSON";
 import { Style, Stroke, Fill } from "ol/style";
