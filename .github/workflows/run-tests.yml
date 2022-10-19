@@ -70,34 +70,30 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+    env:
+      DATABASE_URL: "postgis://postgres:postgres@postgres:5432/postgres"
+      LOG_DISABLE_JOURNALD: true
     steps:
       - uses: actions/checkout@v3
-      - name: Install dependencies
+      - name: Setup backend dependency cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pypoetry
+          key: poetry-${{ hashFiles('**/poetry.lock') }}-${{ hashFiles('.github/workflows/*.yml') }}
+      - name: Install backend dependencies
         run: poetry install --no-interaction
-      - uses: actions/setup-node@v3
+      - name: Setup node
+        uses: actions/setup-node@v3
         with:
           node-version: "14"
           cache: "npm"
-      - name: Install node dependencies
+      - name: Install frontend dependencies
         run: npm ci
-      - uses: actions/cache@v3
-        with:
-          path: ~/.babel-cache
-          key: babel-${{ hashFiles('agir/**/*.js') }}
-          restore-keys: |
-            babel-${{ hashFiles('agir/**/*.js') }}
-            babel-
-      - name: Build bundles
+      - name: Build frontend bundle
         run: npm run build:dev
-        env:
-          BABEL_CACHE_DIRECTORY: ~/.babel-cache
-          WEBPUSH_PUBLIC_KEY: "dummy"
-      - name: Run tests
+      - name: Run backend tests
         run: poetry run coverage run ./manage.py test -v 2
-        env:
-          DATABASE_URL: "postgis://postgres:postgres@postgres:5432/postgres"
-          LOG_DISABLE_JOURNALD: true
-      - name: Report coverage
+      - name: Report backend coverage
         run: |
           poetry run coverage report
           poetry run coverage json
