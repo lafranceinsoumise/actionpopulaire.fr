@@ -23,7 +23,7 @@ unicode-slugify = "==0.1.*"  # optional requirement of django-dynamic-filenames
 ## additional features
 django-crispy-forms = "==1.*" # better forms
 django-otp = "==1.*"  # 2FA in admin
-django-filter = "==21.*"  # add useful filters
+django-filter = "==22.*"  # add useful filters
 django-oauth-toolkit = "==1.*"  # add OAuth server
 rules = "==3.*"  # add useful authorization rules
 django-reversion = "==5.*"  # versioning of models
