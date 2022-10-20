@@ -2,6 +2,24 @@
 
 set -e
 
+echo "## Setting environment variables"
+declare -A env
+##########################################################################
+# Environment variables key-value pairs
+# These variables will be available in the provision shell script and in
+# all vagrant shell sessions
+env[PYTHON_KEYRING_BACKEND]="\"keyring.backends.null.Keyring\""
+##########################################################################
+source ~/.profile
+for key in ${!env[@]}; do
+  value=${env[${key}]}
+  if [ -z "${!key}" ]; then
+    echo "export ${key}=${value}" >> ~/.profile
+  fi
+done
+source ~/.profile
+
+
 echo "## Make journald persistent..."
 # journald uses persistent logging by default *as long as /var/log/journal exists*
 sudo mkdir -p /var/log/journal
@@ -19,6 +37,9 @@ sudo apt-get update -qq > /dev/null
 echo "## Install Python..."
 if ! (dpkg -s python3.9 && dpkg -s python3.9-dev) &> /dev/null; then
     sudo apt-get -yqq install python3.9 python3.9-dev python3.9-venv python3.9-distutils python3-pip libsystemd-dev > /dev/null
+    # avoid defaulting to python3.8
+    sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.9 2
+    sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 2
     sudo -H pip3 install poetry
 fi
 
@@ -35,7 +56,6 @@ if ! dpkg -s nodejs &> /dev/null; then
 fi
 
 echo "## Install postgresql..."
-
 if ! dpkg -s postgresql-12 &> /dev/null; then
     sudo apt-get -yqq install postgresql-12 postgresql-12-postgis-3 postgresql-12-postgis-3-scripts libpq-dev > /dev/null
 fi
@@ -55,7 +75,7 @@ if [ ! -x MailHog ]; then
 fi
 
 echo "## Install python dependencies..."
-(cd /vagrant && PYTHON_KEYRING_BACKEND="keyring.backends.null.Keyring" /usr/local/bin/poetry install) &> /dev/null
+(cd /vagrant && /usr/local/bin/poetry install) &> /dev/null
 
 echo "## Migrate and populate test database..."
 (cd /vagrant && /usr/local/bin/poetry run ./manage.py migrate && (/usr/local/bin/poetry run ./manage.py load_fake_data || true)) &> /dev/null
