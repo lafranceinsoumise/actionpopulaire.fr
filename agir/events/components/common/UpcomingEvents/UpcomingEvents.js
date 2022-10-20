@@ -2,13 +2,11 @@ import PropTypes from "prop-types";
 import React from "react";
 import { animated, useSpring } from "@react-spring/web";
 import styled from "styled-components";
-import { A11y } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import MiniEventCard from "./MiniEventCard";
 
 import "swiper/scss";
-import "swiper/scss/a11y";
 
 export const SingleSlide = styled(animated.div)`
   margin: 0;
@@ -47,7 +45,7 @@ export const HorizontalLayout = (props) => {
 
   return events.length > 0 ? (
     <Carousel style={style}>
-      <Swiper spaceBetween={16} slidesPerView="auto" modules={[A11y]}>
+      <Swiper spaceBetween={16} slidesPerView="auto">
         {events.map((event) => (
           <SwiperSlide key={event.id}>
             <MiniEventCard {...event} />

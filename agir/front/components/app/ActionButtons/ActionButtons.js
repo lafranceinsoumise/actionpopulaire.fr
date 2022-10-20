@@ -3,11 +3,9 @@ import React, { useMemo } from "react";
 import { animated, useSpring } from "@react-spring/web";
 import styled from "styled-components";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { A11y } from "swiper";
 import useSWR from "swr";
 
 import "swiper/scss";
-import "swiper/scss/a11y";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
@@ -108,7 +106,6 @@ export const ActionButtonCarousel = (props) => {
   return (
     <Carousel style={style}>
       <Swiper
-        modules={[A11y]}
         slidesPerView={3}
         breakpoints={breakpoints}
         centerInsufficientSlides
