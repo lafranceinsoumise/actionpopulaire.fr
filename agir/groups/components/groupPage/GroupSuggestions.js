@@ -3,10 +3,8 @@ import React from "react";
 import { animated, useSpring } from "@react-spring/web";
 import styled from "styled-components";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { A11y } from "swiper";
 
 import "swiper/scss";
-import "swiper/scss/a11y";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
@@ -114,7 +112,7 @@ export const GroupSuggestionCarousel = (props) => {
 
   return (
     <Carousel style={style}>
-      <Swiper spaceBetween={16} slidesPerView="auto" modules={[A11y]}>
+      <Swiper spaceBetween={16} slidesPerView="auto">
         {groups.map((group) => (
           <SwiperSlide key={group.id}>
             <GroupSuggestionCard {...group} />
