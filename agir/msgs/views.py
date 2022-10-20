@@ -5,7 +5,7 @@ from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
 
 from agir.groups.models import Membership, SupportGroup
-from agir.lib.pagination import APIPaginator
+from agir.lib.pagination import APIPageNumberPagination
 from agir.msgs.actions import get_unread_message_count, get_viewable_messages_ids
 from agir.msgs.models import (
     SupportGroupMessage,
@@ -82,7 +82,7 @@ class UserMessagesAPIView(ListAPIView):
     serializer_class = UserMessagesSerializer
     queryset = SupportGroupMessage.objects.active()
     permission_classes = (IsPersonPermission,)
-    pagination_class = APIPaginator
+    pagination_class = APIPageNumberPagination
 
     def get_queryset(self):
         person = self.request.user.person

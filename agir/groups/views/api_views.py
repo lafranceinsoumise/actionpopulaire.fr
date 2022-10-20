@@ -1,4 +1,3 @@
-from django.utils import timezone
 import reversion
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
@@ -52,13 +51,13 @@ from agir.groups.serializers import (
     MemberPersonalInformationSerializer,
 )
 from agir.groups.utils import is_active_group_filter
-from agir.lib.pagination import APIPaginator
+from agir.lib.pagination import (
+    APIPageNumberPagination,
+)
 from agir.lib.utils import front_url
 from agir.msgs.actions import update_recipient_message
 from agir.msgs.serializers import SupportGroupMessageParticipantSerializer
 from agir.people.models import Person
-
-from ..utils import get_events_with_group
 
 __all__ = [
     "LegacyGroupSearchAPIView",
@@ -117,7 +116,7 @@ class LegacyGroupSearchAPIView(ListAPIView):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = GroupAPIFilterSet
     serializer_class = SupportGroupLegacySerializer
-    pagination_class = APIPaginator
+    pagination_class = APIPageNumberPagination
     permission_classes = (IsPersonPermission,)
 
 
@@ -126,7 +125,7 @@ class GroupSearchAPIView(ListAPIView):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = GroupAPIFilterSet
     serializer_class = SupportGroupDetailSerializer
-    pagination_class = APIPaginator
+    pagination_class = APIPageNumberPagination
     permission_classes = (IsPersonPermission,)
 
     def get_serializer(self, *args, **kwargs):
@@ -317,21 +316,14 @@ class GroupEventsJoinedAPIView(ListAPIView):
         )
 
 
-# Return upcoming events from the group or group is attendee
-class GroupUpcomingEventsAPIView(ListAPIView):
+class GroupEventListAPIView(ListAPIView):
     permission_classes = (
         IsActionPopulaireClientPermission,
         GroupDetailPermissions,
     )
     serializer_class = EventListSerializer
-
-    # ATTENTION
-    # cette ligne était auparavant
-    #   queryset = Event.objects.listed().upcoming()
-    # Cela conduisait à affecter à GroupUpcomingEventsAPIView.queryset
-    # le queryset des évenements à venir *au moment de la création* de la classe
-    # (et non pas de l'exécution d'une requête)
-    queryset = Event.objects.distinct().listed()
+    queryset = Event.objects.listed()
+    order_by = "start_time"
 
     def initial(self, request, *args, **kwargs):
         self.supportgroup = get_object_or_404(
@@ -340,11 +332,19 @@ class GroupUpcomingEventsAPIView(ListAPIView):
         self.check_object_permissions(request, self.supportgroup)
         super().initial(request, *args, **kwargs)
 
+    def get_event_queryset(self):
+        return self.queryset
+
     def get_queryset(self):
-        events = get_events_with_group(
-            self.queryset.upcoming(), self.supportgroup
-        ).order_by("start_time")
-        return events
+        return (
+            self.get_event_queryset()
+            .filter(
+                Q(organizers_groups__in=(self.supportgroup,))
+                | Q(groups_attendees__in=(self.supportgroup,))
+            )
+            .distinct("pk")
+            .order_by("pk", self.order_by)
+        )
 
     def get_serializer(self, *args, **kwargs):
         return super().get_serializer(
@@ -354,79 +354,34 @@ class GroupUpcomingEventsAPIView(ListAPIView):
         )
 
 
-# Return past events from the group or group is attendee
-class GroupPastEventsAPIView(ListAPIView):
-    permission_classes = (
-        IsActionPopulaireClientPermission,
-        GroupDetailPermissions,
-    )
-    serializer_class = EventListSerializer
+class GroupUpcomingEventsAPIView(GroupEventListAPIView):
+    order_by = "start_time"
 
-    # ATTENTION
-    # cette ligne était auparavant
-    #   queryset = Event.objects.listed().past()
-    # Cela conduisait à affecter à GroupPastEventsAPIView.queryset
-    # le queryset des évenements passés au moment de la création de la classe
-    # (et non pas de l'exécution d'une requête)
-    queryset = Event.objects.distinct().listed()
-    pagination_class = APIPaginator
-
-    def initial(self, request, *args, **kwargs):
-        self.supportgroup = get_object_or_404(
-            SupportGroup.objects.active(), pk=kwargs.get("pk")
-        )
-        self.check_object_permissions(request, self.supportgroup)
-        super().initial(request, *args, **kwargs)
-
-    def get_serializer(self, *args, **kwargs):
-        return super().get_serializer(
-            *args,
-            fields=EventListSerializer.EVENT_CARD_FIELDS,
-            **kwargs,
-        )
-
-    def get_queryset(self):
-        #
-        events = get_events_with_group(
-            self.queryset.past(), self.supportgroup
-        ).order_by("-start_time")
-        return events
+    def get_event_queryset(self):
+        return super().get_event_queryset().upcoming()
 
 
-class GroupPastEventReportsAPIView(ListAPIView):
-    permission_classes = (
-        IsActionPopulaireClientPermission,
-        GroupDetailPermissions,
-    )
-    serializer_class = EventListSerializer
-    queryset = Event.objects.listed().past()
+class GroupPastEventsAPIView(GroupEventListAPIView):
+    pagination_class = APIPageNumberPagination
+    order_by = "-start_time"
 
-    def initial(self, request, *args, **kwargs):
-        self.supportgroup = get_object_or_404(
-            SupportGroup.objects.active(), pk=kwargs.get("pk")
-        )
-        self.check_object_permissions(request, self.supportgroup)
-        super().initial(request, *args, **kwargs)
+    def get_event_queryset(self):
+        return super().get_event_queryset().past()
 
-    def get_queryset(self):
-        person = None
-        if self.request.user.is_authenticated and self.request.user.person is not None:
-            person = self.request.user.person
+
+class GroupPastEventReportsAPIView(GroupEventListAPIView):
+    order_by = "-start_time"
+
+    def get_event_queryset(self):
         events = (
-            self.supportgroup.organized_events.with_serializer_prefetch(person)
-            .listed()
+            self.supportgroup.organized_events.listed()
             .past()
             .exclude(report_content="")
-            .order_by("-start_time")
         )
-        return events
+        if self.request.user.is_authenticated and self.request.user.person is not None:
+            events = events.with_serializer_prefetch(self.request.user.person)
 
-    def get_serializer(self, *args, **kwargs):
-        return super().get_serializer(
-            *args,
-            fields=EventListSerializer.EVENT_CARD_FIELDS,
-            **kwargs,
-        )
+        return events
 
 
 class GroupMessagesPermissions(GlobalOrObjectPermissions):
@@ -470,7 +425,7 @@ class GroupMessagesAPIView(ListCreateAPIView):
         IsPersonPermission,
         GroupMessagesPermissions,
     )
-    pagination_class = APIPaginator
+    pagination_class = APIPageNumberPagination
     membershipType = Membership.MEMBERSHIP_TYPE_FOLLOWER
 
     def initial(self, request, *args, **kwargs):
@@ -644,7 +599,7 @@ class GroupMessageCommentsAPIView(ListCreateAPIView):
         IsPersonPermission,
         GroupMessageCommentsPermissions,
     )
-    pagination_class = APIPaginator
+    pagination_class = APIPageNumberPagination
 
     def initial(self, request, *args, **kwargs):
         self.message = get_object_or_404(SupportGroupMessage.objects.active(), **kwargs)

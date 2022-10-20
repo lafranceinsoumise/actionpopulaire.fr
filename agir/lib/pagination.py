@@ -1,14 +1,24 @@
 from collections import OrderedDict
 
+from django.core.paginator import Paginator
+from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
 
-class APIPaginator(PageNumberPagination):
+class CachedCountPaginator(Paginator):
+    @cached_property
+    def count(self):
+        # only select 'id' for counting, much cheaper
+        return self.object_list.values("pk").count()
+
+
+class APIPageNumberPagination(PageNumberPagination):
     page_size = 20
     page_size_query_param = "page_size"
     max_page_size = 100
+    django_paginator_class = CachedCountPaginator
 
 
 class LegacyPaginator(PageNumberPagination):
