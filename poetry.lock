@@ -1468,7 +1468,7 @@ ptyprocess = ">=0.5"
 
 [[package]]
 name = "phonenumbers"
-version = "8.12.50"
+version = "8.12.57"
 description = "Python version of Google's common library for parsing, formatting, storing and validating international phone numbers."
 category = "main"
 optional = false
@@ -2336,7 +2336,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "cec9d5fea29e589c5d0881f9416cdbe263c9cb0e307df6fbb3d2fd405612fe28"
+content-hash = "65fac1fe247bc4a49fdd2f305d068df6a74ff7b6ec5e70acf049aaf5d22f04dd"
 
 [metadata.files]
 amqp = [
@@ -3424,8 +3424,8 @@ pexpect = [
     {file = "pexpect-4.8.0.tar.gz", hash = "sha256:fc65a43959d153d0114afe13997d439c22823a27cefceb5ff35c2178c6784c0c"},
 ]
 phonenumbers = [
-    {file = "phonenumbers-8.12.50-py2.py3-none-any.whl", hash = "sha256:56713403b4160b59ea1fef4e842ddeb70931055146d794d371b60cd4b5f05fb8"},
-    {file = "phonenumbers-8.12.50.tar.gz", hash = "sha256:f00d67f20875804f4fade4803a9438294029982ac929c6ba303e1f0290cf5d45"},
+    {file = "phonenumbers-8.12.57-py2.py3-none-any.whl", hash = "sha256:0b234c4a9519fac18d00b3c542f5b429513ea69372d4f95fbd0f716f5e2a89b5"},
+    {file = "phonenumbers-8.12.57.tar.gz", hash = "sha256:057d1966962fb86b3dc447bfac2c8e25ceed774509e49b180926a13a99910318"},
 ]
 pickleshare = [
     {file = "pickleshare-0.7.5-py2.py3-none-any.whl", hash = "sha256:9649af414d74d4df115d5d718f82acb59c9d418196b7b4290ed47a12ce62df56"},
