@@ -23,7 +23,7 @@
     "url": "https://github.com/lafranceinsoumise/agir.lafranceinsoumise.fr.git/issues"
   },
   "dependencies": {
-    "@babel/runtime-corejs3": "^7.19.4",
+    "@babel/runtime-corejs3": "^7.19.6",
     "@emoji-mart/data": "^1.0.6",
     "@react-spring/core": "^9.5.5",
     "@react-spring/shared": "^9.5.5",
@@ -71,7 +71,7 @@
     "react-quill": "^2.0.0",
     "react-router-dom": "^5.3.4",
     "react-router-scroll-memory": "^2.0.7",
-    "react-select": "^5.5.2",
+    "react-select": "^5.5.4",
     "react-spring-bottom-sheet": "^3.4.1",
     "react-stepzilla": "^7.0.0",
     "react-toastify": "^9.0.8",
@@ -98,11 +98,11 @@
     "workbox-strategies": "^6.5.4"
   },
   "devDependencies": {
-    "@babel/core": "^7.19.3",
+    "@babel/core": "^7.19.6",
     "@babel/eslint-parser": "^7.19.1",
     "@babel/plugin-proposal-class-properties": "^7.18.6",
     "@babel/plugin-proposal-object-rest-spread": "^7.19.4",
-    "@babel/plugin-transform-runtime": "^7.19.1",
+    "@babel/plugin-transform-runtime": "^7.19.6",
     "@babel/preset-env": "^7.19.4",
     "@babel/preset-react": "^7.18.6",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.8",
