@@ -9,6 +9,8 @@ declare -A env
 # These variables will be available in the provision shell script and in
 # all vagrant shell sessions
 env[PYTHON_KEYRING_BACKEND]="\"keyring.backends.null.Keyring\""
+env[POETRY_HOME]="$HOME/poetry"
+env[POETRY_VERSION]="1.2.2"
 ##########################################################################
 source ~/.profile
 for key in ${!env[@]}; do
@@ -18,7 +20,6 @@ for key in ${!env[@]}; do
   fi
 done
 source ~/.profile
-
 
 echo "## Make journald persistent..."
 # journald uses persistent logging by default *as long as /var/log/journal exists*
@@ -31,33 +32,38 @@ sudo bash -c 'printf "fr_FR.UTF8 UTF-8\nen_US.UTF-8 UTF-8\n" > /etc/locale.gen'
 sudo locale-gen
 sudo localectl set-locale LANG=fr_FR.UTF-8
 
-echo "## update packages"
-sudo apt-get update -qq > /dev/null
+echo "## Update packages"
+sudo apt-get update -qq &> /dev/null
 
 echo "## Install Python..."
 if ! (dpkg -s python3.9 && dpkg -s python3.9-dev) &> /dev/null; then
-    sudo apt-get -yqq install python3.9 python3.9-dev python3.9-venv python3.9-distutils python3-pip libsystemd-dev > /dev/null
+    sudo apt-get -yqq install python3.9 python3.9-dev python3.9-venv python3.9-distutils python3-pip libsystemd-dev &> /dev/null
     # avoid defaulting to python3.8
-    sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.9 2
-    sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 2
-    sudo -H pip3 install poetry
+    sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.9 2 &> /dev/null
+    sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 2 &> /dev/null
+    (cd /usr/lib/python3/dist-packages && sudo cp apt_pkg.cpython-38-x86_64-linux-gnu.so apt_pkg.so) &> /dev/null
+    # Install Poetry
+    sudo mkdir -p $POETRY_HOME
+    sudo python3 -m venv $POETRY_HOME
+    sudo $POETRY_HOME/bin/pip3 install poetry==$POETRY_VERSION &> /dev/null;
+    sudo ln -s $POETRY_HOME/bin/poetry /usr/local/bin/poetry
 fi
 
 echo "## Install wkhtmltopdf"
 if ! dpkg -s wkhtmltox &> /dev/null; then
-     sudo apt-get -yqq install wkhtmltopdf > /dev/null
+     sudo apt-get -yqq install wkhtmltopdf &> /dev/null
 fi
 
 echo "## Install node..."
 if ! dpkg -s nodejs &> /dev/null; then
-    curl -sL https://deb.nodesource.com/setup_14.x -o /tmp/nodesource_setup.sh &> /dev/null
+    curl -sL https://deb.nodesource.com/setup_14.x -o /tmp/nodesource_setup.sh
     sudo bash /tmp/nodesource_setup.sh &> /dev/null
-    sudo apt-get -yqq install nodejs > /dev/null
+    sudo apt-get -yqq install nodejs &> /dev/null
 fi
 
 echo "## Install postgresql..."
 if ! dpkg -s postgresql-12 &> /dev/null; then
-    sudo apt-get -yqq install postgresql-12 postgresql-12-postgis-3 postgresql-12-postgis-3-scripts libpq-dev > /dev/null
+    sudo apt-get -yqq install postgresql-12 postgresql-12-postgis-3 postgresql-12-postgis-3-scripts libpq-dev &> /dev/null
 fi
 sudo -u postgres psql -c "CREATE ROLE api WITH PASSWORD 'password';" || echo "PostgreSQL role already exists"
 sudo -u postgres psql -c "CREATE DATABASE api WITH owner api;" || echo "PostgreSQL database already exists"
@@ -66,7 +72,7 @@ sudo -u postgres psql -c "ALTER ROLE api WITH login;"
 sudo -u postgres psql -c "CREATE EXTENSION postgis;" || echo "Postgis extension already installed"
 
 echo "## Install redis..."
-sudo apt-get install -yqq redis-server > /dev/null
+sudo apt-get install -yqq redis-server &> /dev/null
 
 echo "## Install MailHog..."
 if [ ! -x MailHog ]; then
@@ -75,13 +81,13 @@ if [ ! -x MailHog ]; then
 fi
 
 echo "## Install python dependencies..."
-(cd /vagrant && /usr/local/bin/poetry install) &> /dev/null
+(cd /vagrant && $POETRY_HOME/bin/poetry install) &> /dev/null
 
 echo "## Migrate and populate test database..."
-(cd /vagrant && /usr/local/bin/poetry run ./manage.py migrate && (/usr/local/bin/poetry run ./manage.py load_fake_data || true)) &> /dev/null
+(cd /vagrant && $POETRY_HOME/bin/poetry run ./manage.py migrate && ($POETRY_HOME/bin/poetry run ./manage.py load_fake_data || true)) &> /dev/null
 
 echo "## Create super user (address: admin@agir.local, password: password)"
-(cd /vagrant && (SUPERPERSON_PASSWORD="password" /usr/local/bin/poetry run ./manage.py createsuperperson --noinput --email admin@agir.local || true)) &> /dev/null
+(cd /vagrant && (SUPERPERSON_PASSWORD="password" $POETRY_HOME/bin/poetry run ./manage.py createsuperperson --noinput --email admin@agir.local || true)) &> /dev/null
 
 
 echo "## Create unit files..."
@@ -108,7 +114,7 @@ Description=fi-api celery worker
 
 [Service]
 WorkingDirectory=/vagrant
-ExecStart=/usr/local/bin/poetry run celery worker --app agir.api --concurrency 2 -Q celery
+ExecStart=$POETRY_HOME/bin/poetry run celery worker --app agir.api --concurrency 2 -Q celery
 User=vagrant
 Group=vagrant
 Restart=on-failure
@@ -125,7 +131,7 @@ Description=fi-api celery worker
 
 [Service]
 WorkingDirectory=/vagrant
-ExecStart=/usr/local/bin/poetry run celery worker --app nuntius.celery --concurrency 2 -Q nuntius -n nuntius@%%h
+ExecStart=$POETRY_HOME/bin/poetry run celery worker --app nuntius.celery --concurrency 2 -Q nuntius -n nuntius@%%h
 User=vagrant
 Group=vagrant
 Restart=on-failure
@@ -145,7 +151,7 @@ After=webpack.service
 User=vagrant
 Type=simple
 WorkingDirectory=/vagrant
-ExecStart=/usr/local/bin/poetry run ./manage.py runserver 0.0.0.0:8000
+ExecStart=$POETRY_HOME/bin/poetry run ./manage.py runserver 0.0.0.0:8000
 StandardOutput=journal
 Restart=on-failure
 
@@ -188,7 +194,7 @@ sudo systemctl start webpack
 
 echo "## Installing manage script"
 sudo bash -c "cat > /usr/local/bin/manage" <<'EOT'
-PYTHON=$(cd /vagrant && poetry env list --full-path)/bin/python
+PYTHON=$(cd /vagrant && $POETRY_HOME/bin/poetry env list --full-path)/bin/python
 
 $PYTHON /vagrant/manage.py "$@"
 EOT
