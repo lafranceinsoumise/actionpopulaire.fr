@@ -38,16 +38,15 @@ sudo apt-get update -qq &> /dev/null
 echo "## Install Python..."
 if ! (dpkg -s python3.9 && dpkg -s python3.9-dev) &> /dev/null; then
     sudo apt-get -yqq install python3.9 python3.9-dev python3.9-venv python3.9-distutils python3-pip libsystemd-dev &> /dev/null
-    # avoid defaulting to python3.8
-    sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.9 2 &> /dev/null
-    sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 2 &> /dev/null
-    (cd /usr/lib/python3/dist-packages && sudo cp apt_pkg.cpython-38-x86_64-linux-gnu.so apt_pkg.so) &> /dev/null
     # Install Poetry
     sudo mkdir -p $POETRY_HOME
-    sudo python3 -m venv $POETRY_HOME
-    sudo $POETRY_HOME/bin/pip3 install poetry==$POETRY_VERSION &> /dev/null;
+    sudo python3.9 -m venv $POETRY_HOME --clear --upgrade-deps &> /dev/null
+    sudo $POETRY_HOME/bin/pip3 install poetry==$POETRY_VERSION &> /dev/null
     sudo ln -s $POETRY_HOME/bin/poetry /usr/local/bin/poetry
 fi
+
+echo "## Install python dependencies..."
+(cd /vagrant && $POETRY_HOME/bin/poetry install) &> /dev/null
 
 echo "## Install wkhtmltopdf"
 if ! dpkg -s wkhtmltox &> /dev/null; then
@@ -61,16 +60,6 @@ if ! dpkg -s nodejs &> /dev/null; then
     sudo apt-get -yqq install nodejs &> /dev/null
 fi
 
-echo "## Install postgresql..."
-if ! dpkg -s postgresql-12 &> /dev/null; then
-    sudo apt-get -yqq install postgresql-12 postgresql-12-postgis-3 postgresql-12-postgis-3-scripts libpq-dev &> /dev/null
-fi
-sudo -u postgres psql -c "CREATE ROLE api WITH PASSWORD 'password';" || echo "PostgreSQL role already exists"
-sudo -u postgres psql -c "CREATE DATABASE api WITH owner api;" || echo "PostgreSQL database already exists"
-sudo -u postgres psql -c "ALTER ROLE api WITH superuser;"
-sudo -u postgres psql -c "ALTER ROLE api WITH login;"
-sudo -u postgres psql -c "CREATE EXTENSION postgis;" || echo "Postgis extension already installed"
-
 echo "## Install redis..."
 sudo apt-get install -yqq redis-server &> /dev/null
 
@@ -80,8 +69,15 @@ if [ ! -x MailHog ]; then
     chmod +x MailHog
 fi
 
-echo "## Install python dependencies..."
-(cd /vagrant && $POETRY_HOME/bin/poetry install) &> /dev/null
+echo "## Install postgresql..."
+if ! dpkg -s postgresql-12 &> /dev/null; then
+    sudo apt-get -yqq install postgresql-12 postgresql-12-postgis-3 postgresql-12-postgis-3-scripts libpq-dev &> /dev/null
+fi
+sudo -u postgres psql -c "CREATE ROLE api WITH PASSWORD 'password';" || echo "PostgreSQL role already exists"
+sudo -u postgres psql -c "CREATE DATABASE api WITH owner api;" || echo "PostgreSQL database already exists"
+sudo -u postgres psql -c "ALTER ROLE api WITH superuser;"
+sudo -u postgres psql -c "ALTER ROLE api WITH login;"
+sudo -u postgres psql -c "CREATE EXTENSION postgis;" || echo "Postgis extension already installed"
 
 echo "## Migrate and populate test database..."
 (cd /vagrant && $POETRY_HOME/bin/poetry run ./manage.py migrate && ($POETRY_HOME/bin/poetry run ./manage.py load_fake_data || true)) &> /dev/null
