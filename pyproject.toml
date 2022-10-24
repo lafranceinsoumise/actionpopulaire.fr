@@ -84,7 +84,7 @@ social-auth-core = "==4.0.2"
 django-storages = "^1.11.1"
 qrcode = {extras = ["pil"], version = "^7.2"}
 xlsxwriter = "*"
-trio = "^0.21.0"
+trio = "^0.22.0"
 asks = "^3.0.0"
 Django = "^3.2"
 
