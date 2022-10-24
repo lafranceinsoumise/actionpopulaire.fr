@@ -24,7 +24,7 @@ from agir.activity.serializers import (
     CustomAnnouncementSerializer,
 )
 from agir.api import settings
-from agir.lib.pagination import APIPaginator
+from agir.lib.pagination import APIPageNumberPagination
 from agir.lib.rest_framework_permissions import (
     GlobalOrObjectPermissions,
     IsPersonPermission,
@@ -45,7 +45,7 @@ class ActivityAPIView(RetrieveUpdateAPIView):
 class UserActivitiesAPIView(ListAPIView):
     permission_classes = (IsPersonPermission,)
     serializer_class = ActivitySerializer
-    pagination_class = APIPaginator
+    pagination_class = APIPageNumberPagination
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
