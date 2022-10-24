@@ -768,6 +768,7 @@ def send_accepted_group_coorganization_invitation_notification(
     bindings = {
         "TITLE": subject,
         "EVENT_NAME": event.name,
+        "EVENT_LINK": event.get_absolute_url(),
         "GROUP_NAME": group.name,
         "DATE": f"{_date(event.local_start_time, 'l j F').capitalize()} à {_date(event.local_start_time, 'G:i')}",
     }
