@@ -669,6 +669,7 @@ def send_group_coorganization_invitation_notification(invitation_pk):
         "GROUP_NAME": group.name,
         "MEMBER": member.display_name,
         "DATE": f"{_date(event.local_start_time, 'l j F').capitalize()} à {_date(event.local_start_time, 'G:i')}",
+        "EVENT_LINK": event.get_absolute_url(),
         "ACCEPT_LINK": front_url(
             "accept_event_group_coorganization",
             kwargs={"pk": invitation_pk},
