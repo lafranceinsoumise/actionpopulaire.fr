@@ -12,6 +12,7 @@ from agir.elections.data import (
     get_circonscription_legislative_for_commune,
     get_campaign_manager_for_circonscription_legislative,
 )
+from agir.lib.mailing import send_message
 from agir.voting_proxies.models import VotingProxyRequest
 
 CSV_FIELDS = OrderedDict(
@@ -105,26 +106,24 @@ class Command(BaseCommand):
         body = EMAIL_TEMPLATE.format(
             campaign_manager["prenom"], campaign_manager["circo"]
         )
-        connection = get_connection()
-        with connection:
-            email = EmailMultiAlternatives(
-                connection=connection,
-                from_email="robot@actionpopulaire.fr",
-                reply_to=("legislatives@melenchon2022.fr",),
-                subject=subject,
-                to=(campaign_manager["email"],),
-                body=body,
-            )
-            csv_string = self.get_pending_requests_csv_string(pending_requests)
-            attachment = MIMEText(csv_string)
-            attachment.add_header("Content-Type", "text/csv")
-            attachment.add_header(
-                "Content-Disposition",
-                "attachment",
-                filename=f"demandes_de_procuration-{today}.csv",
-            )
-            email.attach(attachment)
-            email.send()
+
+        csv_string = self.get_pending_requests_csv_string(pending_requests)
+        attachment = MIMEText(csv_string)
+        attachment.add_header("Content-Type", "text/csv")
+        attachment.add_header(
+            "Content-Disposition",
+            "attachment",
+            filename=f"demandes_de_procuration-{today}.csv",
+        )
+
+        send_message(
+            from_email="robot@actionpopulaire.fr",
+            reply_to=("legislatives@melenchon2022.fr",),
+            subject=subject,
+            to=(campaign_manager["email"],),
+            text=body,
+            attachments=(attachment,),
+        )
 
     def send_requests_to_campaign_manager(self, pending_requests, campaign_manager):
         self.log(
