@@ -358,6 +358,7 @@ class ContactForm(LegacySubscribedMixin, ContactPhoneNumberMixin, forms.ModelFor
             css_class="btn-danger btn-block marginbottom",
         )
 
+        # TODO: ne pas ajouter subscribed_sms si le champ n'existe pas pour éliminer les warnings de crispy_forms
         fields.extend(
             [
                 Fieldset(

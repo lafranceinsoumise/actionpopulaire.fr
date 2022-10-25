@@ -1,0 +1,9 @@
+{% load htmltotext %}{% autoescape off %}{% block text_content %}{% filter html_to_text %}{% block html_content %}{% endblock %}{% endfilter %}{% endblock %}
+------------------------------------------------------------------
+{% block text_footer %}Cet email a été envoyé à {{ EMAIL }}. Il est personnel, ne le transférez pas.
+
+>> Choisir les emails que vous recevez
+{{ preferences_link }}
+
+>> Arrêter complètement de recevoir des emails
+{{ unsubscribe_link }}{% endblock %}{% endautoescape %}

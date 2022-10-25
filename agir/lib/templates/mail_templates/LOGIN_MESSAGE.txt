@@ -8,7 +8,7 @@ C'est très simple ! Entrez le code suivant dans la page de connexion où vous �
   
 Remarque : ce code est valable jusqu'à {{ expiry_time }} et ne peut être utilisé qu'une seule fois.
 
-Amitiés  
+Amitiés insoumises,
 L'équipe d'Action Populaire  
 
 ------------------------------------------------------------------

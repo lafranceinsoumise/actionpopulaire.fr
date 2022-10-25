@@ -254,6 +254,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "agir.authentication.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "agir.api.context_processors.basic_information",
             ]
         },
     }
@@ -265,13 +266,6 @@ FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 DATA_UPLOAD_MAX_NUMBER_FIELDS = int(
     os.environ.get("DATA_UPLOAD_MAX_NUMBER_FIELDS", 1789)
 )
-
-if ENABLE_FRONT:
-    TEMPLATES[0]["OPTIONS"]["context_processors"].extend(
-        [
-            "agir.api.context_processors.basic_information",
-        ]
-    )
 
 MESSAGE_TAGS = {ERROR: "danger"}
 MESSAGE_LEVEL = messages.DEFAULT_LEVELS[
@@ -372,8 +366,6 @@ EMAIL_TEMPLATES = {
     "FORM_CONFIRMATION": "https://mosaico.lafranceinsoumise.fr/emails/28866993-acf3-45a7-aefd-e75c58e8b52a.html",
     # FORM_NOTIFICATION variables : PERSON_EMAIL, INFORMATIONS
     "FORM_NOTIFICATION": "https://mosaico.lafranceinsoumise.fr/emails/8ac7b301-07dd-457f-8de7-7414f171858e.html",
-    # LOGIN_MESSAGE variables: code, expiry_time, name
-    "LOGIN_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/b3958815-c3c2-4f93-8b24-47a6c1dd36e2.html",
     # LOGIN_NO_ACCOUNT variables:
     "LOGIN_SIGN_UP_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/83367020-bfd1-409f-84f2-30df33790db5.html",
     # EVENT_REPORT variables: EVENT_NAME,EVENT_REPORT_SUMMARY, EVENT_REPORT_LINK, PREFERENCES_LINK, EMAIL
