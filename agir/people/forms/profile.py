@@ -375,6 +375,7 @@ class ContactForm(LegacySubscribedMixin, ContactPhoneNumberMixin, forms.ModelFor
         if len(newsletter_fieldset) > 0:
             fields.append(Fieldset("Lettres d'informations", *newsletter_fieldset))
 
+        # TODO: ne pas ajouter subscribed_sms si le champ n'existe pas pour éliminer les warnings de crispy_forms
         fields.extend(
             [
                 Fieldset(

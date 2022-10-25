@@ -57,10 +57,6 @@ def front_url(
 front_url_lazy = lazy(front_url, str)
 
 
-def is_front_url(param):
-    return isinstance(param, str) and param.startswith(settings.FRONT_DOMAIN)
-
-
 def generate_token_params(person):
     return {"p": person.pk, "code": connection_token_generator.make_token(user=person)}
 
