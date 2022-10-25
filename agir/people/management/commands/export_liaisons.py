@@ -3,13 +3,13 @@ import io
 from datetime import timedelta
 from email.mime.text import MIMEText
 
-from django.core.mail import get_connection, EmailMultiAlternatives
 from django.core.management import BaseCommand
 from django.utils import timezone
 from django.utils.datetime_safe import datetime
 from django.utils.timezone import make_aware
 from slugify import slugify
 
+from agir.lib.mailing import send_message
 from agir.people.models import Person
 
 EXPORT_EMAIL_SUBJECT_ALL = "Export de tout·es les correspondant·es d'immeuble"
@@ -120,27 +120,21 @@ class Command(BaseCommand):
         return output.getvalue()
 
     def send_email(self, email, subject, csv_string):
-        connection = get_connection()
+        attachment = MIMEText(csv_string)
+        attachment.add_header("Content-Type", "text/csv")
+        attachment.add_header(
+            "Content-Disposition",
+            "attachment",
+            filename=f"{slugify(subject.lower())}.csv",
+        )
 
-        with connection:
-            email = EmailMultiAlternatives(
-                connection=connection,
-                from_email="robot@actionpopulaire.fr",
-                subject=subject,
-                to=email,
-                body=EXPORT_EMAIL_BODY % (subject.lower(), csv_string),
-            )
-
-            attachment = MIMEText(csv_string)
-            attachment.add_header("Content-Type", "text/csv")
-            attachment.add_header(
-                "Content-Disposition",
-                "attachment",
-                filename=f"{slugify(subject.lower())}.csv",
-            )
-
-            email.attach(attachment)
-            email.send()
+        send_message(
+            from_email="robot@actionpopulaire.fr",
+            subject=subject,
+            to=email,
+            text=EXPORT_EMAIL_BODY % (subject.lower(), csv_string),
+            attachments=(attachment,),
+        )
 
     def handle(self, all=False, from_date=None, to_date=None, emails=None, **kwargs):
         (queryset, subject) = self.get_liaisons(
