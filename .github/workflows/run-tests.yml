@@ -80,6 +80,10 @@ jobs:
         with:
           path: ~/.cache/pypoetry
           key: poetry-${{ hashFiles('**/poetry.lock') }}-${{ hashFiles('.github/workflows/*.yml') }}
+          restore-keys: |
+            poetry-${{ hashFiles('**/poetry.lock') }}-${{ hashFiles('.github/workflows/*.yml') }}
+            poetry-${{ hashFiles('**/poetry.lock') }}
+            poetry-
       - name: Install backend dependencies
         run: poetry install --no-interaction
       - name: Setup node
