@@ -52,6 +52,7 @@
       hrStyle { label: Separator Style;properties:color hrWidth hrHeight; }
       hrStyle:preview { height: 200%; width: 200%; bottom: 20px; -ko-border-bottom: @[hrHeight]px solid @color; }
       preheaderVisible { label: Show Preheader; extend: visible; help: Preheader block is the first one on the top of the page. It contains web version link and optionally unsubscribe link or a preheader text that will be shown as a preview on some email clients; }
+      logoFIVisible { label: Afficher le logo LFI; extend: visible; help: Afficher ou cacher le logo La France insoumise en tête de message; }
 
       /* content types */
       blocks { label: Blocks; properties: blocks[]; }
@@ -108,7 +109,7 @@
       frameTheme:preview { -ko-background-color: @[backgroundColor] }
       template preheaderText { label: Preheader; }
 
-      template { label: Page; theme: frameTheme ;properties:  preheaderVisible=true; version: 1.0.5; }
+      template { label: Page; theme: frameTheme ;properties:  preheaderVisible=true logoFIVisible=true; version: 1.0.5; }
 
       footerBlock unsubscribeLinkStyle { label: Unsubscribe;  }
       footerBlock { label: Unsubscribe Block; theme: frameTheme }
@@ -466,29 +467,49 @@
   </div>
   <!-- /preheaderBlock -->
 
-  <table class="vb-outer" width="100%" cellpadding="0" border="0" cellspacing="0" bgcolor="#bfbfbf" style="background-color: #bfbfbf;">
+  <!-- logoFI -->
+  <div data-ko-display="logoFIVisible" data-ko-wrap="false">
+  <table class="vb-outer" width="100%" cellpadding="0" border="0" cellspacing="0" style="background-color: #bfbfbf;">
     <tr>
-      <td class="vb-outer" valign="top" align="center">
-
-<!--[if (gte mso 9)|(lte ie 8)]><table align="center" border="0" cellspacing="0" cellpadding="0" width="570"><tr><td align="center" valign="top"><![endif]-->
+      <td class=" vb-outer" align="center" valign="top" bgcolor="#ffffff" style="background-color: #bfbfbf;">
+        <!--[if (gte mso 9)|(lte ie 8)]>
+        <table align=" center" border="0" cellspacing="0" cellpadding="0" width="570">
+    <tr>
+      <td align="center" valign="top">
+        <![endif]-->
         <div class="oldwebkit">
-        <table width="570" class="vb-container fullwidth" cellpadding="0" border="0" bgcolor="#ffffff" align="center"
-          cellspacing="0" style="width: 100%; max-width: 570px; background-color: #ffffff;">
+          <table width="570" style="width: 100%; max-width: 570px" border="0" cellpadding="0" cellspacing="18" class="vb-container fullpad" style="background-color: #ffffff;">
+            <tr>
+              <td valign="top" align="center">
+                <!--[if (gte mso 9)|(lte ie 8)]>
+        <table align="center" border="0" cellspacing="0" cellpadding="0">
           <tr>
-            <td valign="top" align="center" style="padding-top: 20px;">
-              <img 
-                  hspace="0" border="0" vspace="0" width="570"
-                  src="img/logo-FI.png" class="mobile-full"
-                  alt="Logo FI" style="max-width: 570px; display: block; border-radius: 0px; width: 100%; height: auto; font-size: 13px;
-                  font-family: Arial, Helvetica, sans-serif; color: #3f3f3f;" /></a>
+            <td align="center" valign="top">
+              <![endif]-->
+                <div style="display:inline-block; max-width: 570px; vertical-align:top; width:100%;" class="mobile-full">
+                  <a href="https://lafranceinsoumise.fr">
+                    <img style="width: 100%;" src="img/logo-FI.png" vspace="0" hspace="0" border="0" alt="Logo de la France insoumise" />
+                  </a>
+                </div>
+                <!--[if (gte mso 9)|(lte ie 8)]>
             </td>
           </tr>
         </table>
+        <![endif]-->
+              </td>
+            </tr>
+          </table>
         </div>
-<!--[if (gte mso 9)|(lte ie 8)]></td></tr></table><![endif]-->
+        <!--[if (gte mso 9)|(lte ie 8)]>
       </td>
     </tr>
   </table>
+  <![endif]-->
+      </td>
+    </tr>
+  </table>
+  </div>
+  <!-- /logoFI -->
 
   <div data-ko-container="main" data-ko-wrap="false">
 
