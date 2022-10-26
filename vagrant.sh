@@ -55,7 +55,7 @@ fi
 
 echo "## Install node..."
 if ! dpkg -s nodejs &> /dev/null; then
-    curl -sL https://deb.nodesource.com/setup_14.x -o /tmp/nodesource_setup.sh
+    curl -sL https://deb.nodesource.com/setup_18.x -o /tmp/nodesource_setup.sh
     sudo bash /tmp/nodesource_setup.sh &> /dev/null
     sudo apt-get -yqq install nodejs &> /dev/null
 fi
