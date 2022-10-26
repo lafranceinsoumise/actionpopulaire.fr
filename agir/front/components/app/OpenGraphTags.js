@@ -35,7 +35,6 @@ const OpenGraphTags = (props) => {
       <meta property="og:description" content={description} />
       <meta name="twitter:description" content={description} />
 
-      <link rel="canonical" href={url} />
       <meta property="og:url" content={url} />
 
       <meta property="og:type" content={type} />

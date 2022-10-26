@@ -4,6 +4,7 @@
   "start_url": "/?utm_source=web_app_manifest",
   "display": "standalone",
   "background_color": "#FFF",
+  "theme_color": "#F4ED0F",
   "description": "Action Populaire, le réseau social d'action de la France insoumise et la NUPES",
   "dir": "ltr",
   "lang": "fr-FR",
