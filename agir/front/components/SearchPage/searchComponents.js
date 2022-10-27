@@ -178,9 +178,9 @@ export const EventFilters = ({ filters, setFilter }) => {
       <SelectField
         label="Catégorie d'événement"
         placeholder="Categories"
-        name="eventCategory"
-        value={filters?.eventCategory}
-        onChange={(value) => setFilter("eventCategory", value)}
+        name="eventSchedule"
+        value={filters?.eventSchedule}
+        onChange={(value) => setFilter("eventSchedule", value)}
         options={OPTIONS.EventCategory}
       />
       <SelectField
