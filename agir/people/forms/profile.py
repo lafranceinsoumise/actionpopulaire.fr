@@ -358,23 +358,6 @@ class ContactForm(LegacySubscribedMixin, ContactPhoneNumberMixin, forms.ModelFor
             css_class="btn-danger btn-block marginbottom",
         )
 
-        newsletter_fieldset = []
-
-        if self.instance.is_insoumise:
-            newsletter_fieldset.append("subscribed_lfi")
-        if self.instance.is_2022:
-            newsletter_fieldset.append(
-                HTML(
-                    format_html(
-                        '<a href="{url}" class="btn btn-primary">{label}</a>',
-                        url=f"https://melenchon2022.fr/preferences/?_{urlencode(generate_token_params(self.instance))}",
-                        label="Paramétrer les emails de « melenchon2022.fr »",
-                    )
-                )
-            )
-        if len(newsletter_fieldset) > 0:
-            fields.append(Fieldset("Lettres d'informations", *newsletter_fieldset))
-
         fields.extend(
             [
                 Fieldset(
