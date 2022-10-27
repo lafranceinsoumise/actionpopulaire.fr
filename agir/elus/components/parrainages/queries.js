@@ -87,7 +87,6 @@ export const modifierParrainage = async (id, data) => {
       url,
       data: formData,
       headers: {
-        "Content-Type": "multipart/form-data",
         Accept: "application/json",
       },
     });

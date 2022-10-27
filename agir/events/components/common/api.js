@@ -121,9 +121,6 @@ export const createEvent = async (data) => {
 
     if (body.image) {
       body = objectToFormData(body);
-      headers = {
-        "content-type": "multipart/form-data",
-      };
     }
 
     const response = await axios.post(url, body, { headers });
@@ -156,9 +153,6 @@ export const updateEvent = async (eventPk, data) => {
       }
     });
     body = formData;
-    headers = {
-      "content-type": "multipart/form-data",
-    };
   }
 
   try {
@@ -199,10 +193,6 @@ export const addEventProjectDocument = async (eventPk, data) => {
   const result = {
     data: null,
     errors: null,
-  };
-
-  const headers = {
-    "content-type": "multipart/form-data",
   };
   const url = getEventEndpoint("addEventProjectDocument", { eventPk });
   const body = new FormData();
