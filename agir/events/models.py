@@ -575,25 +575,26 @@ class Event(
         return f"{self.__class__.__name__}(id={str(self.pk)!r}, name={self.name!r})"
 
     def to_ics(self, text_only_description=False):
-        event_url = front_url("view_event", args=[self.pk], auto_login=False)
-        organizer = Organizer(email=self.contact_email, common_name=self.contact_name)
-        if text_only_description:
-            description = textify(self.description) + " " + event_url
-        else:
-            description = self.description + f"<p>{event_url}</p>"
-
-        return ics.Event(
+        ics_event = ics.Event(
             name=self.name,
             begin=self.start_time,
             end=self.end_time,
             uid=str(self.pk),
-            description=description,
             location=self.short_address,
-            url=event_url,
             categories=[self.subtype.get_type_display()],
             geo=self.coordinates,
-            organizer=organizer,
         )
+        ics_event.url = front_url("view_event", args=[self.pk], auto_login=False)
+        ics_event.organizer = Organizer(
+            email=self.contact_email, common_name=self.contact_name
+        )
+
+        if text_only_description:
+            ics_event.description = textify(self.description) + " " + ics_event.url
+        else:
+            ics_event.description = self.description + f"<p>{ics_event.url}</p>"
+
+        return ics_event
 
     def _get_participants_counts(self):
         self.all_attendee_count, self.confirmed_attendee_count = (
