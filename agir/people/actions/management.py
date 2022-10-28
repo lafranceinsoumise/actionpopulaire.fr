@@ -261,6 +261,7 @@ MERGE_STRATEGIES = {
     "_email": None,
     "voting_proxy": None,
     "polling_station_officer": None,
+    "crp": merge_comments,
 }
 
 

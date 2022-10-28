@@ -62,14 +62,12 @@ class AddEmailTestCase(TestCase):
 
 
 class PeopleAdminTestCase(TestCase):
-    def setUp(self) -> None:
+    def setUp(self):
         self.admin = Person.objects.create_superperson(
             "admin@agir.local", password="truc"
         )
         self.user1 = Person.objects.create_insoumise("user1@agir.local")
-
         self.tag = PersonTag.objects.create(label="tag")
-
         self.person_form = PersonForm.objects.create(
             title="Formulaire simple",
             slug="formulaire-simple",
@@ -85,11 +83,6 @@ class PeopleAdminTestCase(TestCase):
                 }
             ],
         )
-
-        self.client.force_login(
-            self.admin.role, backend="agir.people.backend.PersonBackend"
-        )
-
         person_content_type = ContentType.objects.get_for_model(Person)
         self.view_permission = Permission.objects.get(
             content_type=person_content_type, codename="view_person"
@@ -106,6 +99,10 @@ class PeopleAdminTestCase(TestCase):
         self.export_people_permission = Permission.objects.get(
             content_type=person_content_type, codename="export_people"
         )
+        self.crp_permission = Permission.objects.get(
+            content_type=person_content_type, codename="crp"
+        )
+        self.client.logout()
 
     def test_can_display_pages(self):
         views = [
@@ -116,7 +113,9 @@ class PeopleAdminTestCase(TestCase):
             ("admin:people_personform_changelist", ()),
             ("admin:people_personform_change", (self.person_form.pk,)),
         ]
-
+        self.client.force_login(
+            self.admin.role, backend="agir.people.backend.PersonBackend"
+        )
         for view, args in views:
             res = self.client.get(reverse(view, args=args))
             self.assertEqual(
@@ -220,6 +219,46 @@ class PeopleAdminTestCase(TestCase):
             ),
             list(items.values_list("id", flat=True)),
         )
+
+    def test_cannot_access_crp_field_without_specific_permission(self):
+        unauthorized = Person.objects.create_insoumise(
+            "crp_unauthorized@agir.local",
+            password="secret",
+            is_staff=True,
+            create_role=True,
+        )
+        unauthorized.role.user_permissions.add(
+            self.view_permission, self.add_permission, self.change_permission
+        )
+        self.client.force_login(
+            unauthorized.role, backend="agir.people.backend.PersonBackend"
+        )
+        res = self.client.get(
+            reverse("admin:people_person_change", args=(self.user1.pk,))
+        )
+        self.assertEqual(res.status_code, 200)
+        self.assertNotContains(res, text='name="crp"')
+
+        authorized = Person.objects.create_insoumise(
+            "crp_authorized@agir.local",
+            password="secret",
+            is_staff=True,
+            create_role=True,
+        )
+        authorized.role.user_permissions.add(
+            self.view_permission,
+            self.add_permission,
+            self.change_permission,
+            self.crp_permission,
+        )
+        self.client.force_login(
+            authorized.role, backend="agir.people.backend.PersonBackend"
+        )
+        res = self.client.get(
+            reverse("admin:people_person_change", args=(self.user1.pk,))
+        )
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, text='name="crp"')
 
 
 class PersonFormAdminTestCase(TestCase):

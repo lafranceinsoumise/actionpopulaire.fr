@@ -1,5 +1,6 @@
 import json
 import secrets
+from copy import deepcopy
 from functools import partial
 from urllib.parse import urlencode
 
@@ -206,6 +207,10 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
             },
         ),
         (_("Meta"), {"fields": ("meta", "form_submissions_link")}),
+        (
+            _("Comité de Respect des Principes"),
+            {"permission": "people.crp", "fields": ("crp",)},
+        ),
     )
 
     readonly_fields = (
@@ -252,6 +257,15 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
     search_fields = ["search", "contact_phone"]
 
     actions = (export_people_to_csv,)
+
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = deepcopy(super().get_fieldsets(request, obj))
+        authorized_fieldsets = []
+        for key, props in fieldsets:
+            permission = props.pop("permission", False)
+            if not permission or request.user.has_perm(permission):
+                authorized_fieldsets.append((key, props))
+        return tuple(authorized_fieldsets)
 
     def get_search_results(self, request, queryset, search_term):
         if search_term:
