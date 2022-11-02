@@ -150,6 +150,14 @@ class HasSpecificPermissions(BasePermission):
         return request.user.has_perms(self.permissions)
 
 
+def request_has_person(request):
+    if not request.user.is_authenticated:
+        return False
+    if not hasattr(request.user, "person") or request.user.person is None:
+        return False
+    return True
+
+
 class IsActionPopulaireClientPermission(BasePermission):
     """
     Allow access only to requests that are not authenticated through an OAuth2 token
@@ -168,10 +176,7 @@ class IsPersonPermission(IsActionPopulaireClientPermission):
     """
 
     def has_permission(self, request, view):
-        if not request.user.is_authenticated or request.user.person is None:
-            return False
-
-        return super().has_permission(request, view)
+        return request_has_person(request) and super().has_permission(request, view)
 
 
 class IsPersonOrTokenHasScopePermission(IsAuthenticatedOrTokenHasScope):
@@ -181,7 +186,4 @@ class IsPersonOrTokenHasScopePermission(IsAuthenticatedOrTokenHasScope):
     """
 
     def has_permission(self, request, view):
-        if not request.user.is_authenticated or request.user.person is None:
-            return False
-
-        return super().has_permission(request, view)
+        return request_has_person(request) and super().has_permission(request, view)
