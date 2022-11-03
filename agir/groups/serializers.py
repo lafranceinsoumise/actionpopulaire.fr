@@ -244,7 +244,11 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
         user = self.context["request"].user
         self.membership = None
         self.user = user
-        if not user.is_anonymous and user.person:
+        if (
+            not user.is_anonymous
+            and hasattr(user, "person")
+            and user.person is not None
+        ):
             self.membership = (
                 Membership.objects.active()
                 .filter(person=user.person, supportgroup=instance)
