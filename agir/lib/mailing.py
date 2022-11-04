@@ -1,17 +1,19 @@
+import re
 from email.mime.base import MIMEBase
 from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 
 import html2text
-import re
 import requests
 from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
 from django.core.mail import EmailMultiAlternatives, get_connection
 from django.http import QueryDict
 from django.template import loader, TemplateDoesNotExist
+from django.template.base import Template
+from django.template.loader import get_template
 from django.utils.safestring import mark_safe
 
-from agir.lib.utils import generate_token_params, front_url, is_front_url, AutoLoginUrl
+from agir.api.context_processors import basic_information
+from agir.lib.utils import generate_token_params, front_url, AutoLoginUrl
 from agir.people.models import Person
 
 __all__ = ["send_mosaico_email", "generate_plain_text", "fetch_mosaico_template"]
@@ -54,35 +56,128 @@ def add_params_to_urls(url, params):
     )
 
 
+def send_message(
+    from_email,
+    recipient,
+    subject,
+    text,
+    html,
+    reply_to,
+    attachments,
+    connection=None,
+):
+    email = EmailMultiAlternatives(
+        subject=subject,
+        body=text,
+        from_email=from_email,
+        reply_to=reply_to,
+        connection=connection,
+        to=[recipient.email if isinstance(recipient, Person) else recipient],
+    )
+    email.attach_alternative(html, "text/html")
+    if attachments is not None:
+        for attachment in attachments:
+            if isinstance(attachment, MIMEBase):
+                email.attach(attachment)
+            elif isinstance(attachment, dict):
+                email.attach(**attachment)
+            else:
+                email.attach(*attachment)
+    email.send()
+
+
 def get_context_from_bindings(code, recipient, bindings):
     """Finalizes the bindings and create a Context for templating"""
-    if code not in settings.EMAIL_TEMPLATES:
-        raise ImproperlyConfigured("Mail '%s' cannot be found")
-
-    url = settings.EMAIL_TEMPLATES[code]
-
-    res = dict(bindings)
+    bindings = dict(bindings)
 
     if isinstance(recipient, Person):
-        res["email"] = res["EMAIL"] = recipient.email
-        res["greetings"] = res["formule_adresse"] = res[
+        if recipient.role is not None and recipient.role.is_active:
+            connection_params = generate_token_params(recipient)
+            for key, value in bindings.items():
+                if isinstance(value, AutoLoginUrl):
+                    bindings[key] = add_params_to_urls(value, connection_params)
+            bindings["MERGE_LOGIN"] = urlencode(connection_params)
+
+        bindings["email"] = bindings["EMAIL"] = recipient.email
+        bindings["greetings"] = bindings["formule_adresse"] = bindings[
             "GREETINGS"
         ] = recipient.formule_adresse
-        res["greetings_insoumise"] = res[
+        bindings["greetings_insoumise"] = bindings[
             "formule_adresse_insoumise"
         ] = recipient.formule_adresse_insoumise
     else:
-        res["email"] = res["EMAIL"] = recipient
+        bindings["email"] = bindings["EMAIL"] = recipient
+
+    bindings["preferences_link"] = bindings["PREFERENCES_LINK"] = front_url("contact")
+    bindings["unsubscribe_link"] = bindings["UNSUBSCRIBE_LINK"] = front_url(
+        "unsubscribe"
+    )
 
     qs = QueryDict(mutable=True)
-    qs.update(res)
+    qs.update(bindings)
 
     # We first initialize the LINK_BROWSER variable as "#" (same page)
     qs["LINK_BROWSER"] = "#"
     # we generate the final browser link and add it to result dictionary
-    res["LINK_BROWSER"] = f"{url}?{qs.urlencode()}"
+    if code in settings.EMAIL_TEMPLATES:
+        url = settings.EMAIL_TEMPLATES[code]
+        bindings["LINK_BROWSER"] = f"{url}?{qs.urlencode()}"
 
-    return res
+    return bindings
+
+
+def render_email_template(template, context):
+    context = {
+        **context,
+        **basic_information(None),
+    }
+    subject = template.render(
+        {**context, "email_template": Template("{% block subject %}{% endblock %}")}
+    ).strip()
+    text_content = template.render(
+        {**context, "email_template": "mail_templates/layout.txt"}
+    ).strip()
+    html_content = template.render(
+        {**context, "email_template": "mail_templates/layout.html"}
+    )
+
+    return subject, text_content, html_content
+
+
+def send_template_email(
+    code,
+    from_email,
+    recipients,
+    bindings=None,
+    connection=None,
+    backend=None,
+    reply_to=None,
+    attachments=None,
+):
+
+    template = get_template(f"mail_templates/{code}.html")
+
+    if connection is None:
+        connection = get_connection(backend)
+
+    with connection:
+        for recipient in recipients:
+            if getattr(recipient, "role", None) and not recipient.role.is_active:
+                continue
+
+            context = get_context_from_bindings(code, recipient, bindings)
+            subject, text, html = render_email_template(template, context)
+
+            send_message(
+                from_email=from_email,
+                recipient=recipient,
+                subject=subject,
+                text=text,
+                html=html,
+                reply_to=reply_to,
+                attachments=attachments,
+                connection=connection,
+            )
 
 
 def send_mosaico_email(
@@ -90,12 +185,9 @@ def send_mosaico_email(
     subject,
     from_email,
     recipients,
-    recipient_type="to",
     bindings=None,
     connection=None,
     backend=None,
-    fail_silently=False,
-    preferences_link=True,
     reply_to=None,
     attachments=None,
 ):
@@ -116,26 +208,11 @@ def send_mosaico_email(
     except TypeError:
         recipients = [recipients]
 
-    if recipient_type not in ["to", "cc", "bcc"]:
-        raise ValueError("`recipient_type` must be to, cc or bcc")
-
     if bindings is None:
         bindings = {}
 
     if connection is None:
-        connection = get_connection(backend, fail_silently)
-
-    if preferences_link:
-        bindings["preferences_link"] = bindings["PREFERENCES_LINK"] = front_url(
-            "contact"
-        )
-        bindings["unsubscribe_link"] = bindings["UNSUBSCRIBE_LINK"] = front_url(
-            "unsubscribe"
-        )
-
-    link_bindings = {
-        key: value for key, value in bindings.items() if is_front_url(value)
-    }
+        connection = get_connection(backend)
 
     html_template = loader.get_template(f"mail_templates/{code}.html")
     try:
@@ -146,14 +223,8 @@ def send_mosaico_email(
     with connection:
         for recipient in recipients:
             # recipient can be either a Person or an email address
-            if isinstance(recipient, Person):
-                if recipient.role is not None and not recipient.role.is_active:
-                    continue
-                connection_params = generate_token_params(recipient)
-                for key, value in link_bindings.items():
-                    if isinstance(value, AutoLoginUrl):
-                        bindings[key] = add_params_to_urls(value, connection_params)
-                bindings["MERGE_LOGIN"] = urlencode(connection_params)
+            if getattr(recipient, "role", None) and not recipient.role.is_active:
+                continue
 
             context = get_context_from_bindings(code, recipient, bindings)
             html_message = html_template.render(context=context)
@@ -165,28 +236,18 @@ def send_mosaico_email(
                 else generate_plain_text(html_message)
             )
 
-            email = EmailMultiAlternatives(
-                subject=subject,
-                body=text_message,
+            send_message(
                 from_email=from_email,
+                recipient=recipient.email
+                if isinstance(recipient, Person)
+                else recipient,
+                subject=subject,
+                text=text_message,
+                html=html_message,
                 reply_to=reply_to,
                 connection=connection,
-                **{
-                    recipient_type: [
-                        recipient.email if isinstance(recipient, Person) else recipient
-                    ]
-                },
+                attachments=attachments,
             )
-            email.attach_alternative(html_message, "text/html")
-            if attachments is not None:
-                for attachment in attachments:
-                    if isinstance(attachment, MIMEBase):
-                        email.attach(attachment)
-                    elif isinstance(attachment, dict):
-                        email.attach(**attachment)
-                    else:
-                        email.attach(*attachment)
-            email.send(fail_silently=fail_silently)
 
 
 def fetch_mosaico_template(url):

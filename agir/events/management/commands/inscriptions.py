@@ -1,16 +1,15 @@
+import locale
 from collections import Counter
 from functools import partial
 from pathlib import Path
-
-import locale
 from urllib.parse import urlencode
 
 import beautifultable
-import pandas as pd
 import numpy as np
+import pandas as pd
 import requests
 import yaml
-from django.core.mail import get_connection, EmailMultiAlternatives
+from django.core.mail import get_connection
 from django.core.management import BaseCommand
 from django.db import transaction
 from django.template import Template, Context
@@ -18,9 +17,9 @@ from django.utils import timezone
 from tqdm import tqdm
 
 from agir.events.models import Event, RSVP
+from agir.lib.mailing import send_message
 from agir.lib.utils import generate_token_params, grouper
 from agir.people.models import Person, PersonTag
-
 
 RED = "91"
 GREEN = "92"
@@ -394,18 +393,17 @@ class Command(BaseCommand):
                         html_message = html_template.render(context)
                         text_message = text_template.render(context)
 
-                        msg = EmailMultiAlternatives(
+                        send_message(
                             subject=config["email_subject"],
-                            body=text_message,
                             from_email=config.get(
                                 "email_from",
                                 "La France insoumise <nepasrepondre@lafranceinsoumise.fr>",
                             ),
+                            text=text_message,
+                            html=html_message,
                             to=[person.email],
                             connection=connection,
                         )
-                        msg.attach_alternative(html_message, "text/html")
 
-                        msg.send(fail_silently=False)
                         f.write(f"{row.id}\n")
                         f.flush()

@@ -4,7 +4,7 @@ from django.utils.http import urlencode
 
 from agir.authentication.tokens import subscription_confirmation_token_generator
 from agir.lib.celery import emailing_task
-from agir.lib.mailing import send_mosaico_email
+from agir.lib.mailing import send_mosaico_email, send_template_email
 from agir.lib.utils import front_url
 from agir.people.actions.subscription import SUBSCRIPTION_TYPE_AP
 
@@ -21,9 +21,8 @@ def send_login_email(email, short_code, expiry_time):
     local_expiry_time = timezone.localtime(utc_expiry_time)
 
     code = interleave_spaces(short_code)
-    send_mosaico_email(
+    send_template_email(
         code="LOGIN_MESSAGE",
-        subject=f"Votre code de connexion : {code}",
         from_email=settings.EMAIL_FROM,
         bindings={
             "code": code,
