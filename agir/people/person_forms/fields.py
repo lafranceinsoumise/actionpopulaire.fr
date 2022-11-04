@@ -156,13 +156,21 @@ class FileSizeValidator:
 
 class FileField(forms.FileField):
     def __init__(
-        self, *, max_size=None, allowed_extensions=None, validators=None, **kwargs
+        self,
+        *,
+        max_size=None,
+        allowed_extensions=None,
+        validators=None,
+        multiple=False,
+        **kwargs,
     ):
         validators = validators or []
         if allowed_extensions:
             validators.append(FileExtensionValidator(allowed_extensions))
         if max_size:
             validators.append(FileSizeValidator(max_size))
+        if multiple:
+            kwargs["widget"] = forms.ClearableFileInput(attrs={"multiple": True})
 
         super().__init__(validators=validators, **kwargs)
 

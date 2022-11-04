@@ -130,10 +130,16 @@ class PersonFormDisplay:
             except NumberParseException:
                 return value
         elif field_type == "file":
-            if html:
-                return format_html('<a href="{}">Accéder au fichier</a>', value)
-            else:
-                return value
+            values = value
+            if not isinstance(values, list):
+                values = [value]
+            if not html:
+                return ",".join(values)
+            values = [
+                format_html('<a href="{}">Fichier {}</a>', v, i + 1)
+                for i, v in enumerate(values)
+            ]
+            return mark_safe("<br />".join(values))
 
         return value
 

@@ -9,6 +9,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.core.files import File
 from django.core.files.storage import default_storage
+from django.utils.text import slugify
 from django.utils.translation import gettext as _
 
 from agir.lib.form_components import *
@@ -206,8 +207,10 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
 
         # making sure files are saved
         for key, value in data.items():
-            if isinstance(value, File):
-                data[key] = self._save_file(value)
+            if isinstance(value, File) and key in self.files:
+                data[key] = [self._save_file(f, key) for f in self.files.getlist(key)]
+            elif isinstance(value, File):
+                data[key] = [self._save_file(value, key)]
 
         if self.submission is not None:
             self.submission.data = data
@@ -227,10 +230,15 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
 
         self.save_submission(self.instance)
 
-    def _save_file(self, file):
+    def _save_file(self, file, field_name):
         form_slug = self.person_form_instance.slug
         extension = os.path.splitext(file.name)[1].lower()
-        path = str(PurePath("person_forms") / form_slug / (str(uuid4()) + extension))
+        path = str(
+            PurePath("person_forms")
+            / form_slug
+            / slugify(field_name)
+            / (str(uuid4()) + extension)
+        )
         stored_file = default_storage.save(path, file)
         return default_storage.url(stored_file)
 
