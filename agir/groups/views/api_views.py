@@ -126,7 +126,7 @@ class GroupSearchAPIView(ListAPIView):
     filterset_class = GroupAPIFilterSet
     serializer_class = SupportGroupDetailSerializer
     pagination_class = APIPageNumberPagination
-    permission_classes = (IsPersonPermission,)
+    permission_classes = (IsActionPopulaireClientPermission,)
 
     def get_serializer(self, *args, **kwargs):
         return super().get_serializer(
