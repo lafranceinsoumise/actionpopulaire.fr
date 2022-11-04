@@ -1242,7 +1242,7 @@ zookeeper = ["kazoo (>=1.3.1)"]
 
 [[package]]
 name = "locust"
-version = "2.12.2"
+version = "2.13.0"
 description = "Developer friendly load testing framework"
 category = "dev"
 optional = false
@@ -3147,8 +3147,8 @@ kombu = [
     {file = "kombu-4.6.11.tar.gz", hash = "sha256:ca1b45faac8c0b18493d02a8571792f3c40291cf2bcf1f55afed3d8f3aa7ba74"},
 ]
 locust = [
-    {file = "locust-2.12.2-py3-none-any.whl", hash = "sha256:fc5262e41e085cd7bc56e48a460f117d9e366123ad43e67d95cb32a08d6dc867"},
-    {file = "locust-2.12.2.tar.gz", hash = "sha256:22cc509b4c03032a30e58a7267d5b051771ddb747e85e06c0fbda374b2837bfa"},
+    {file = "locust-2.13.0-py3-none-any.whl", hash = "sha256:d747fb1be59d9e3f19e11fb90b8a50ad92b9615243ead67fc14e1e7421e5794e"},
+    {file = "locust-2.13.0.tar.gz", hash = "sha256:f603752ab9d4f7d6034c5896c71e6069be49060a5868d6eb4d6c7d32b1c031ae"},
 ]
 lxml = [
     {file = "lxml-4.9.1-cp27-cp27m-macosx_10_15_x86_64.whl", hash = "sha256:98cafc618614d72b02185ac583c6f7796202062c41d2eeecdf07820bad3295ed"},
