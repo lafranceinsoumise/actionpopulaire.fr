@@ -800,7 +800,7 @@ dev = ["Sphinx", "coverage", "flake8", "lxml", "lxml-stubs", "memory-profiler", 
 
 [[package]]
 name = "exceptiongroup"
-version = "1.0.0rc9"
+version = "1.0.0"
 description = "Backport of PEP 654 (exception groups)"
 category = "main"
 optional = false
@@ -1035,7 +1035,7 @@ python-versions = "*"
 
 [[package]]
 name = "hypothesis"
-version = "6.56.3"
+version = "6.56.4"
 description = "A library for property-based testing"
 category = "dev"
 optional = false
@@ -1044,7 +1044,7 @@ python-versions = ">=3.7"
 [package.dependencies]
 attrs = ">=19.2.0"
 django = {version = ">=3.2", optional = true, markers = "extra == \"django\""}
-exceptiongroup = {version = ">=1.0.0rc8", markers = "python_version < \"3.11\""}
+exceptiongroup = {version = ">=1.0.0", markers = "python_version < \"3.11\""}
 sortedcontainers = ">=2.1.0,<3.0.0"
 
 [package.extras]
@@ -2337,7 +2337,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "5b147f9eeb8a50230550077f64002e79c1fb45f4a4c3778a734d34ee3cea1279"
+content-hash = "7c4995b9baa4b2f4d69820c17b7d73fed4953d61c6cdc65381560f781b899989"
 
 [metadata.files]
 amqp = [
@@ -2803,8 +2803,8 @@ elementpath = [
     {file = "elementpath-3.0.2.tar.gz", hash = "sha256:cca18742dc0f354f79874c41a906e6ce4cc15230b7858d22a861e1ec5946940f"},
 ]
 exceptiongroup = [
-    {file = "exceptiongroup-1.0.0rc9-py3-none-any.whl", hash = "sha256:2e3c3fc1538a094aab74fad52d6c33fc94de3dfee3ee01f187c0e0c72aec5337"},
-    {file = "exceptiongroup-1.0.0rc9.tar.gz", hash = "sha256:9086a4a21ef9b31c72181c77c040a074ba0889ee56a7b289ff0afb0d97655f96"},
+    {file = "exceptiongroup-1.0.0-py3-none-any.whl", hash = "sha256:2ac84b496be68464a2da60da518af3785fff8b7ec0d090a581604bc870bdee41"},
+    {file = "exceptiongroup-1.0.0.tar.gz", hash = "sha256:affbabf13fb6e98988c38d9c5650e701569fe3c1de3233cfb61c5f33774690ad"},
 ]
 executing = [
     {file = "executing-1.1.1-py2.py3-none-any.whl", hash = "sha256:236ea5f059a38781714a8bfba46a70fad3479c2f552abee3bbafadc57ed111b8"},
@@ -3096,8 +3096,8 @@ hyperframe = [
     {file = "hyperframe-3.2.0.tar.gz", hash = "sha256:05f0e063e117c16fcdd13c12c93a4424a2c40668abfac3bb419a10f57698204e"},
 ]
 hypothesis = [
-    {file = "hypothesis-6.56.3-py3-none-any.whl", hash = "sha256:802d236d03dbd54e0e1c55c0daa2ec41aeaadc87a4dcbb41421b78bf3f7a7789"},
-    {file = "hypothesis-6.56.3.tar.gz", hash = "sha256:15dae5d993339aefa57e00f5cb5a5817ff300eeb661d96d1c9d094eb62b04c9a"},
+    {file = "hypothesis-6.56.4-py3-none-any.whl", hash = "sha256:67950103ee930c66673494b3671474a083ea71f1ebe8f0ff849ba8ad5317772d"},
+    {file = "hypothesis-6.56.4.tar.gz", hash = "sha256:313bc1c0f377ec6c98815d3237a69add7558eadee4effe4ed613d0ba36513a52"},
 ]
 ics = [
     {file = "ics-0.7.2-py2.py3-none-any.whl", hash = "sha256:5fcf4d29ec6e7dfcb84120abd617bbba632eb77b097722b7df70e48dbcf26103"},
