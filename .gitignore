@@ -1,6 +1,7 @@
 # local configuration files
 .python-version
 /.idea/
+jsconfig.json
 
 # bytecode compiled pyc files
 __pycache__/
