@@ -434,12 +434,16 @@ EMAIL_TEMPLATES = {
 EMAIL_FROM = os.environ.get(
     "EMAIL_FROM", "Action populaire <noreply@actionpopulaire.fr>"
 )
+EMAIL_FROM_LFI = os.environ.get(
+    "EMAIL_FROM_LFI",
+    "La France insoumise <nepasrepondre@lafranceinsoumise.fr>",
+)
+EMAIL_FROM_MELENCHON_2022 = os.environ.get(
+    "EMAIL_FROM_MELENCHON_2022", "Mélenchon 2022 <nepasrepondre@melenchon2022.fr>"
+)
 EMAIL_SECRETARIAT = os.environ.get("EMAIL_SECRETARIAT", "nospam@lafranceinsoumise.fr")
 EMAIL_EQUIPE_FINANCE = os.environ.get(
     "EMAIL_EQUIPE_FINANCE", "nospam@lafranceinsoumise.fr"
-)
-EMAIL_FROM_MELENCHON_2022 = os.environ.get(
-    "EMAIL_FROM_MELENCHON_2022", "Mélenchon 2022 <nepasrepondre@noussommespour.fr>"
 )
 
 # Password validation

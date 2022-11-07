@@ -275,7 +275,7 @@ def notify_contact(person_pk, is_new=False):
     send_mosaico_email(
         code=template_code,
         subject=_("Merci pour votre soutien !"),
-        from_email=settings.EMAIL_FROM_MELENCHON_2022,
+        from_email=settings.EMAIL_FROM,
         recipients=[person],
         bindings=bindings,
     )

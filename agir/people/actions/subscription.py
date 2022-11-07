@@ -51,7 +51,7 @@ SUBSCRIPTIONS_EMAILS = {
         "confirmation": SubscriptionMessageInfo(
             code="SUBSCRIPTION_CONFIRMATION_LFI_MESSAGE",
             subject="Plus qu'un clic pour vous inscrire",
-            from_email="La France insoumise <nepasrepondre@lafranceinsoumise.fr>",
+            from_email=settings.EMAIL_FROM_LFI,
         ),
         "already_subscribed": SubscriptionMessageInfo(
             "ALREADY_SUBSCRIBED_LFI_MESSAGE",
@@ -65,7 +65,7 @@ SUBSCRIPTIONS_EMAILS = {
         "confirmation": SubscriptionMessageInfo(
             code="SUBSCRIPTION_CONFIRMATION_NSP_MESSAGE",
             subject="Confirmez votre e-mail pour valider votre signature !",
-            from_email="Mélenchon 2022 <nepasrepondre@melenchon2022.fr>",
+            from_email=settings.EMAIL_FROM_MELENCHON_2022,
         )
     },
     SUBSCRIPTION_TYPE_EXTERNAL: {},
