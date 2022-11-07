@@ -2,7 +2,7 @@ import React from "react";
 
 import events from "@agir/front/mockData/events";
 
-import AddToCalendarWidget from "./AddToCalendarWidget";
+import AddToCalendarWidget from "@agir/front/genericComponents/AddToCalendarWidget";
 
 export default {
   component: AddToCalendarWidget,

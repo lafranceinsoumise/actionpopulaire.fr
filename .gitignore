@@ -2,6 +2,7 @@
 .python-version
 /.idea/
 jsconfig.json
+.vscode
 
 # bytecode compiled pyc files
 __pycache__/

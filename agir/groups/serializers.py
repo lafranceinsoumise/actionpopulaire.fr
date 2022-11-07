@@ -339,6 +339,7 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             routes["donations"] = front_url("donation_amount", query={"group": obj.pk})
         if self.membership is not None:
             routes["quit"] = front_url("quit_group", kwargs={"pk": obj.pk})
+            routes["calendarExport"] = front_url("ics_group", kwargs={"pk": obj.pk})
         if (
             self.membership is not None
             and self.membership.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER

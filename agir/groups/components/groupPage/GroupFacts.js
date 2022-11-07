@@ -2,10 +2,11 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
 import { timeAgo } from "@agir/lib/utils/time";
 
 import Card from "./GroupPageCard";
+
+import AddToCalendarWidget from "@agir/front/genericComponents/AddToCalendarWidget";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 
 const StyledList = styled.ul`
@@ -17,7 +18,7 @@ const StyledList = styled.ul`
   font-size: 14px;
   font-weight: 400;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     display: block;
   }
 
@@ -34,7 +35,7 @@ const StyledList = styled.ul`
 `;
 
 const GroupFacts = (props) => {
-  const { subtypes, facts } = props;
+  const { facts, name, routes, subtypes } = props;
 
   if (
     (!Array.isArray(subtypes) || subtypes.length === 0) &&
@@ -95,12 +96,20 @@ const GroupFacts = (props) => {
             <span>{subtypes.join(", ")}</span>
           </li>
         )}
+        {routes && (
+          <li style={{ marginTop: "1rem" }}>
+            <AddToCalendarWidget routes={routes} name={name}>
+              <span>Télécharger l'agenda du groupe</span>
+            </AddToCalendarWidget>
+          </li>
+        )}
       </StyledList>
     </Card>
   );
 };
 
 GroupFacts.propTypes = {
+  name: PropTypes.string.isRequired,
   facts: PropTypes.shape({
     eventCount: PropTypes.number,
     activeMemberCount: PropTypes.number,
@@ -109,5 +118,6 @@ GroupFacts.propTypes = {
     lastActivityDate: PropTypes.string,
   }),
   subtypes: PropTypes.arrayOf(PropTypes.string),
+  routes: PropTypes.object,
 };
 export default GroupFacts;
