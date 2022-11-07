@@ -226,18 +226,6 @@ class ProfileTestCase(TestCase):
             res = self.client.get(ulr_wrong)
             self.assertContains(res, "Il semble que celui-ci est invalide.")
 
-    def test_can_see_subscribed_field_if_insoumise(self):
-        self.person.is_insoumise = True
-        self.person.subscribed = False
-        self.person.save()
-
-        res = self.client.get(reverse("contact"))
-        self.assertContains(res, "subscribed_lfi")
-
-        res = self.client.post(reverse("contact"), data={"subscribed_lfi": "on"})
-        self.person.refresh_from_db()
-        self.assertEqual(self.person.subscribed, True)
-
     def test_can_stop_messages(self):
         self.person.is_insoumise = True
         self.person.subscribed = True

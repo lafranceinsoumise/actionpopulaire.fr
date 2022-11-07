@@ -78,6 +78,6 @@ class CalendarIcsView(DetailView):
                     visibility=Event.VISIBILITY_PUBLIC
                 )
             ]
-        )
+        ).serialize()
 
         return HttpResponse(calendar, content_type="text/calendar")

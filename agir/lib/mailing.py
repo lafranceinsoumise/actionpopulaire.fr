@@ -162,6 +162,9 @@ def send_template_email(
 
     with connection:
         for recipient in recipients:
+            if getattr(recipient, "role", None) and not recipient.role.is_active:
+                continue
+
             context = get_context_from_bindings(code, recipient, bindings)
             subject, text, html = render_email_template(template, context)
 
@@ -220,6 +223,8 @@ def send_mosaico_email(
     with connection:
         for recipient in recipients:
             # recipient can be either a Person or an email address
+            if getattr(recipient, "role", None) and not recipient.role.is_active:
+                continue
 
             context = get_context_from_bindings(code, recipient, bindings)
             html_message = html_template.render(context=context)
@@ -233,7 +238,9 @@ def send_mosaico_email(
 
             send_message(
                 from_email=from_email,
-                to=recipient.email if isinstance(recipient, Person) else recipient,
+                recipient=recipient.email
+                if isinstance(recipient, Person)
+                else recipient,
                 subject=subject,
                 text=text_message,
                 html=html_message,

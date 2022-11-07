@@ -352,9 +352,6 @@ export const updateGroup = async (groupPk, data) => {
     Object.keys(data).forEach((e) => {
       body.append(e, data[e]);
     });
-    headers = {
-      "content-type": "multipart/form-data",
-    };
   }
 
   try {

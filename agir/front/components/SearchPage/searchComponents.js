@@ -151,9 +151,10 @@ export const InputSearch = ({ inputSearch, updateSearch, placeholder }) => (
         placeholder={placeholder}
         type="text"
         name="q"
-        value={inputSearch}
         onChange={updateSearch}
         autoComplete="off"
+        maxlength="512"
+        value={inputSearch.slice(0, 512)}
       />
     </SearchBarWrapper>
   </div>
@@ -178,9 +179,9 @@ export const EventFilters = ({ filters, setFilter }) => {
       <SelectField
         label="Catégorie d'événement"
         placeholder="Categories"
-        name="eventCategory"
-        value={filters?.eventCategory}
-        onChange={(value) => setFilter("eventCategory", value)}
+        name="eventSchedule"
+        value={filters?.eventSchedule}
+        onChange={(value) => setFilter("eventSchedule", value)}
         options={OPTIONS.EventCategory}
       />
       <SelectField

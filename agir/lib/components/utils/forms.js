@@ -1,20 +1,20 @@
 export const objectToFormData = (obj, rootName, ignoreList) => {
   var formData = new FormData();
-  const appendFormData = (data, root) => {
-    if (Array.isArray(ignoreList) && ignoreList.includes(root)) {
+  const appendFormData = (data, rootProp) => {
+    if (Array.isArray(ignoreList) && ignoreList.includes(rootProp)) {
       return;
     }
 
-    root = root || "";
+    rootProp = rootProp || "";
 
     if (data instanceof File) {
-      formData.append(root, data);
+      formData.append(rootProp, data);
       return;
     }
 
     if (Array.isArray(data)) {
       for (var i = 0; i < data.length; i++) {
-        appendFormData(data[i], root + "[" + i + "]");
+        appendFormData(data[i], rootProp + "[" + i + "]");
       }
       return;
     }
@@ -22,10 +22,10 @@ export const objectToFormData = (obj, rootName, ignoreList) => {
     if (typeof data === "object" && data) {
       for (var key in data) {
         if (data.hasOwnProperty(key)) {
-          if (root === "") {
+          if (rootProp === "") {
             appendFormData(data[key], key);
           } else {
-            appendFormData(data[key], root + "." + key);
+            appendFormData(data[key], rootProp + "." + key);
           }
         }
       }
@@ -33,7 +33,7 @@ export const objectToFormData = (obj, rootName, ignoreList) => {
     }
 
     if (data !== null && typeof data !== "undefined") {
-      formData.append(root, data);
+      formData.append(rootProp, data);
     }
   };
 

@@ -392,9 +392,9 @@ def send_new_group_event_email(group_pk, event_pk):
         attachments=(
             {
                 "filename": "event.ics",
-                "content": str(
-                    ics.Calendar(events=[event.to_ics(text_only_description=True)])
-                ),
+                "content": ics.Calendar(
+                    events=[event.to_ics(text_only_description=True)]
+                ).serialize(),
                 "mimetype": "text/calendar",
             },
         ),

@@ -116,7 +116,8 @@ const SearchBar = () => {
         onFocus={handleFocus}
         onBlur={handleBlur}
         onChange={handleChange}
-        value={value}
+        value={value.slice(0, 512)}
+        maxlength="512"
       />
       <SearchBarButton type="submit" color="primary">
         <RawFeatherIcon
