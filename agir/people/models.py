@@ -506,6 +506,14 @@ class Person(
         " contenu de ce champ lui sera communiqué. N'indiquez ici que des éléments factuels.",
     )
 
+    crp = models.TextField(
+        "Notes CRP",
+        blank=True,
+        null=False,
+        default="",
+        help_text="Champ reservé aux notes du Comité de Respect des Principes concernant cette personne",
+    )
+
     search = SearchVectorField("Données de recherche", editable=False, null=True)
 
     referrer_id = models.CharField(
@@ -540,6 +548,10 @@ class Person(
             (
                 "export_people",
                 "Peut faire un export des informations des personnes",
+            ),
+            (
+                "crp",
+                "Peut voir et modifier les notes du Comité de Respect des Principes",
             ),
         ]
         indexes = (
