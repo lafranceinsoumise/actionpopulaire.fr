@@ -2,8 +2,8 @@ import PropTypes from "prop-types";
 import React, { useState } from "react";
 import styled from "styled-components";
 
-import googleLogo from "@agir/events/eventPage/assets/Google.svg";
-import outlookLogo from "@agir/events/eventPage/assets/Outlook.svg";
+import googleLogo from "@agir/front/genericComponents/images/Google.svg";
+import outlookLogo from "@agir/front/genericComponents/images/Outlook.svg";
 
 import BottomSheet from "@agir/front/genericComponents/BottomSheet";
 import Popin from "@agir/front/genericComponents/Popin";
@@ -70,6 +70,7 @@ const StyledWrapper = styled.div`
   position: relative;
 
   & > button {
+    padding: 0;
     cursor: pointer;
     background-color: transparent;
     border: none;
@@ -86,16 +87,21 @@ const StyledWrapper = styled.div`
   }
 `;
 
-const AddToCalendarWidget = ({ name, routes }) => {
+const AddToCalendarWidget = (props) => {
+  const { children = "Ajouter à mon agenda", name, routes } = props;
   const { isIOS } = useMobileApp();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const openMenu = () => setIsMenuOpen(true);
   const closeMenu = () => setIsMenuOpen(false);
 
+  if (!routes?.googleExport && !routes?.calendarExport) {
+    return null;
+  }
+
   return (
     <StyledWrapper>
       <button onClick={openMenu} color="link">
-        Ajouter à mon agenda&ensp;
+        {children}&ensp;
         <RawFeatherIcon name="chevron-down" width="1rem" height="1rem" />
       </button>
       <ResponsiveLayout
@@ -107,41 +113,47 @@ const AddToCalendarWidget = ({ name, routes }) => {
         shouldDismissOnClick
       >
         <StyledMenuList>
-          <CalendarLink href={routes.googleExport}>
-            <LogoIcon aria-hidden="true" $icon={googleLogo} />
-            Sur Google Agenda
-          </CalendarLink>
-          <CalendarLink href={routes.calendarExport}>
-            <LogoIcon aria-hidden="true" $icon={outlookLogo} />
-            Sur Outlook
-          </CalendarLink>
-          {isIOS ? (
-            <CalendarLink
-              href={routes.calendarExport}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <RawFeatherIcon
-                aria-hidden="true"
-                name="download"
-                width="1rem"
-                height="1rem"
-              />
-              Télécharger le .ics
+          {routes.googleExport && (
+            <CalendarLink href={routes.googleExport}>
+              <LogoIcon aria-hidden="true" $icon={googleLogo} />
+              Sur Google Agenda
             </CalendarLink>
-          ) : (
-            <CalendarLink
-              href={routes.calendarExport}
-              download={slugify(name) + ".ics"}
-            >
-              <RawFeatherIcon
-                aria-hidden="true"
-                name="download"
-                width="1rem"
-                height="1rem"
-              />
-              Télécharger le .ics
-            </CalendarLink>
+          )}
+          {routes.calendarExport && (
+            <>
+              <CalendarLink href={routes.calendarExport}>
+                <LogoIcon aria-hidden="true" $icon={outlookLogo} />
+                Sur Outlook
+              </CalendarLink>
+              {isIOS ? (
+                <CalendarLink
+                  href={routes.calendarExport}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <RawFeatherIcon
+                    aria-hidden="true"
+                    name="download"
+                    width="1rem"
+                    height="1rem"
+                  />
+                  Télécharger le .ics
+                </CalendarLink>
+              ) : (
+                <CalendarLink
+                  href={routes.calendarExport}
+                  download={slugify(name) + ".ics"}
+                >
+                  <RawFeatherIcon
+                    aria-hidden="true"
+                    name="download"
+                    width="1rem"
+                    height="1rem"
+                  />
+                  Télécharger le .ics
+                </CalendarLink>
+              )}
+            </>
           )}
         </StyledMenuList>
       </ResponsiveLayout>
@@ -150,6 +162,7 @@ const AddToCalendarWidget = ({ name, routes }) => {
 };
 
 AddToCalendarWidget.propTypes = {
+  children: PropTypes.node,
   name: PropTypes.string,
   routes: PropTypes.shape({
     googleExport: PropTypes.string,

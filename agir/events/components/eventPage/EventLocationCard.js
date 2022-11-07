@@ -16,7 +16,7 @@ import Map from "@agir/carte/common/Map";
 import { dateFromISOString, displayInterval } from "@agir/lib/utils/time";
 
 import ClickableMap from "@agir/carte/common/Map/ClickableMap";
-import AddToCalendarWidget from "./AddToCalendarWidget";
+import AddToCalendarWidget from "@agir/front/genericComponents/AddToCalendarWidget";
 
 const LocationName = styled.span`
   color: ${style.black1000};
