@@ -3,6 +3,7 @@ from argparse import FileType, ArgumentTypeError
 from decimal import Decimal
 from io import BytesIO
 
+from django.conf import settings
 from django.core.mail import get_connection, EmailMessage
 from django.db.models import Q
 from django.utils import timezone
@@ -218,7 +219,7 @@ class Command(LoggingCommand):
                 message = EmailMessage(
                     subject=f"Export des paiements",
                     body=MESSAGE_BODY,
-                    from_email="nepasrepondre@lafranceinsoumise.fr",
+                    from_email=settings.EMAIL_FROM_LFI,
                     to=[e],
                     connection=connection,
                 )

@@ -2,6 +2,7 @@ from argparse import FileType
 from io import BytesIO
 
 import pandas as pd
+from django.conf import settings
 from django.core.mail import EmailMessage, get_connection
 from django.core.management.base import BaseCommand
 from django.utils import timezone
@@ -147,7 +148,7 @@ class Command(BaseCommand):
                     message = EmailMessage(
                         subject=f"Export des abonnements — {month[0].strftime('%m/%Y')}",
                         body=MESSAGE_BODY,
-                        from_email="nepasrepondre@lafranceinsoumise.fr",
+                        from_email=settings.EMAIL_FROM_LFI,
                         to=[e],
                         connection=connection,
                     )
