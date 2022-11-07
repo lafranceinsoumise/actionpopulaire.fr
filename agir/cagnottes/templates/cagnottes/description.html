@@ -1,0 +1,13 @@
+{% load display_lib %}
+<div>
+  <h4>Don à la caisse de grève insoumise</h4>
+  <div>
+    Vous avez donné <strong>{{ payment.price | display_price_in_cent }}</strong> à l'association de financement de
+    la France insoumise le {{ payment.created | date }}.
+    </div>
+    <div>
+      <small>Dans le cadre de la caisse de grève insoumise, vous effectuez un don à l'association de financement de la
+    France insoumise. <em>La France insoumise</em>, bénéficiaire de votre don, <em>s'engage à reverser l'intégralité des sommes
+          collectées au titre de la caisse de grève insoumise à des syndicats</em>.</small>
+  </div>
+</div>
