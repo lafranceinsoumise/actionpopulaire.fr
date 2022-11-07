@@ -202,6 +202,11 @@ urlpatterns = [
     path(
         "groupes/<uuid:pk>/icalendar/",
         views.SupportGroupIcsView.as_view(),
+        name="legacy_ics_group",
+    ),
+    path(
+        "groupes/<uuid:pk>/icalendar.ics",
+        views.SupportGroupIcsView.as_view(),
         name="ics_group",
     ),
     path(

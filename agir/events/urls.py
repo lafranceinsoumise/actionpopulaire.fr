@@ -17,6 +17,11 @@ urlpatterns = [
     path(
         "evenements/<uuid:pk>/icalendar/",
         views.EventIcsView.as_view(),
+        name="legacy_ics_event",
+    ),
+    path(
+        "evenements/<uuid:pk>/icalendar.ics",
+        views.EventIcsView.as_view(),
         name="ics_event",
     ),
     path(
@@ -83,6 +88,11 @@ urlpatterns = [
     path("agenda/<slug:slug>/", views.CalendarView.as_view(), name="view_calendar"),
     path(
         "agenda/<slug:slug>/icalendar/",
+        views.CalendarIcsView.as_view(),
+        name="legacy_ics_calendar",
+    ),
+    path(
+        "agenda/<slug:slug>/icalendar.ics",
         views.CalendarIcsView.as_view(),
         name="ics_calendar",
     ),
