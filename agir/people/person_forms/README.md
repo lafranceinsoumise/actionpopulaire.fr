@@ -483,8 +483,11 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
 - `"max_size": 1024 [number]`  
   La taille maximale autorisée du fichier (en octets)
 
-- `"allowed_extensions": [".jpg", ".png"] [string[]]`  
+- `"allowed_extensions": ["jpg", "png"] [string[]]`  
   Les extensions de fichier autorisées
+
+- `"multiple": false [boolean]`
+   Autoriser ou non l'envoi de plusieurs fichiers
 
 ##### Examples
 
@@ -494,7 +497,8 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
   "label": "Photo de profil",
   "type": "file",
   "max_size": 1000000,
-  "allowed_extensions": [".jpg", ".png"]
+  "allowed_extensions": ["jpg", "png"],
+  "multiple": false
 }
 ```
 
@@ -1102,7 +1106,8 @@ Un champs qui permet de sélectionner une ou plusieurs newsletters parmi une lis
         "label": "Photo de profil",
         "type": "file",
         "max_size": 1000000,
-        "allowed_extensions": [".jpg", ".png"]
+        "allowed_extensions": ["jpg", "png"],
+        "multiple": false
       }
     ]
   },
