@@ -33,16 +33,3 @@ export const useEventFormOptions = () => {
       }
     : {};
 };
-
-export const useMissingRequiredEventDocuments = () => {
-  const { data: projects, ...rest } = useSWR(getEventEndpoint("eventProjects"));
-
-  if (Array.isArray(projects)) {
-    return {
-      projects: projects.filter((project) => project.missingDocumentCount > 0),
-      ...rest,
-    };
-  }
-
-  return { projects, ...rest };
-};

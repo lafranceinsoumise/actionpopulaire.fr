@@ -301,16 +301,6 @@ urlpatterns = [
     ),
     path("evenements/<uuid:pk>/", include(event_settings_patterns)),
     path(
-        "evenements/documents-justificatifs/",
-        views.BaseAppSoftAuthView.as_view(),
-        name="event_required_documents",
-    ),
-    path(
-        "documents-justificatifs/",
-        views.BaseAppSoftAuthView.as_view(),
-        name="event_required_documents_modal",
-    ),
-    path(
         "toktok/",
         views.BaseAppSoftAuthView.as_view(),
         name="toktok_preview",

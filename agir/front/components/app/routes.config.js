@@ -66,7 +66,7 @@ const notificationSettingRoute = new RouteConfig({
 export const routeConfig = {
   events: new RouteConfig({
     id: "events",
-    path: ["/", "/documents-justificatifs/"],
+    path: "/",
     exact: true,
     neededAuthentication: AUTHENTICATION.SOFT,
     label: "Événements",
@@ -81,30 +81,6 @@ export const routeConfig = {
     AnonymousComponent: RouteComponents.HomePage,
     anonymousConfig: {
       hasLayout: false,
-    },
-  }),
-  missingEventDocumentsModal: new RouteConfig({
-    id: "missingEventDocuments",
-    path: "/documents-justificatifs/",
-    exact: true,
-    neededAuthentication: AUTHENTICATION.SOFT,
-    label: "Documents justificatifs",
-    hideFeedbackButton: true,
-    isPartial: true,
-  }),
-  missingEventDocuments: new RouteConfig({
-    id: "missingEventDocuments",
-    path: "/evenements/documents-justificatifs/",
-    exact: true,
-    neededAuthentication: AUTHENTICATION.HARD,
-    label: "Documents justificatifs",
-    Component: RouteComponents.MissingDocumentsPage,
-    hideFeedbackButton: true,
-    hasLayout: false,
-    backLink: {
-      route: "events",
-      label: "Liste des événements",
-      isProtected: true,
     },
   }),
   eventMap: new RouteConfig({
@@ -153,19 +129,6 @@ export const routeConfig = {
     neededAuthentication: AUTHENTICATION.HARD,
     Component: RouteComponents.EventPage,
     hideFeedbackButton: true,
-  }),
-  eventRequiredDocuments: new RouteConfig({
-    id: "eventRequiredDocuments",
-    path: "/evenements/:eventPk/documents/",
-    exact: true,
-    neededAuthentication: AUTHENTICATION.HARD,
-    label: "Documents de l'événement",
-    Component: RouteComponents.EventRequiredDocuments,
-    backLink: {
-      route: "events",
-      label: "Liste des événements",
-      isProtected: true,
-    },
   }),
   groups: new RouteConfig({
     id: "groups",
