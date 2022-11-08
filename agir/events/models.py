@@ -575,16 +575,19 @@ class Event(
         return f"{self.__class__.__name__}(id={str(self.pk)!r}, name={self.name!r})"
 
     def to_ics(self, text_only_description=False):
+        url = front_url("view_event", args=[self.pk], auto_login=False)
         ics_event = ics.Event(
+            uid=url,
             name=self.name,
             begin=self.start_time,
             end=self.end_time,
-            uid=str(self.pk),
+            created=self.created,
+            last_modified=self.modified,
             location=self.short_address,
             categories=[self.subtype.get_type_display()],
             geo=self.coordinates,
+            url=url,
         )
-        ics_event.url = front_url("view_event", args=[self.pk], auto_login=False)
         ics_event.organizer = Organizer(
             email=self.contact_email, common_name=self.contact_name
         )
