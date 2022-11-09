@@ -9,6 +9,7 @@ from django.test import TestCase
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.reverse import reverse
+from rest_framework.test import APITestCase
 
 from agir.clients.models import Client
 from agir.lib.http import add_query_params_to_url
@@ -41,7 +42,7 @@ class WordpressClientMixin:
         self.client.force_login(self.wordpress_client.role)
 
 
-class APISubscriptionTestCase(WordpressClientMixin, TestCase):
+class APISubscriptionTestCase(WordpressClientMixin, APITestCase):
     @mock.patch("agir.people.serializers.send_confirmation_email")
     def test_can_subscribe_with_new_api(self, send_confirmation_email):
         data = {
@@ -50,10 +51,13 @@ class APISubscriptionTestCase(WordpressClientMixin, TestCase):
             "last_name": "Ballade",
             "location_zip": "75001",
             "contact_phone": "06 98 45 78 45",
-            "type": "NSP",
+            "metadata": {"universite": "Université Paris"},
+            "type": "LJI",
             "referrer": generate_referrer_id(),
         }
-        response = self.client.post(reverse("api_people_subscription"), data=data)
+        response = self.client.post(
+            reverse("api_people_subscription"), data=data, format="json"
+        )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         send_confirmation_email.delay.assert_called_once()
@@ -71,9 +75,12 @@ class APISubscriptionTestCase(WordpressClientMixin, TestCase):
             "location_zip": "75001",
             "contact_phone": "06 98 45 78 45",
             "type": "NSP",
+            "metadata": {"universite": "Université Paris"},
             "referrer": generate_referrer_id(),
         }
-        response = self.client.post(reverse("api_people_subscription"), data=data)
+        response = self.client.post(
+            reverse("api_people_subscription"), data=data, format="json"
+        )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     @mock.patch("agir.people.serializers.send_confirmation_email")
@@ -91,8 +98,11 @@ class APISubscriptionTestCase(WordpressClientMixin, TestCase):
             "location_zip": "75004",
             "contact_phone": "",
             "type": "NSP",
+            "metadata": {"universite": "Université Paris"},
         }
-        response = self.client.post(reverse("api_people_subscription"), data=data)
+        response = self.client.post(
+            reverse("api_people_subscription"), data=data, format="json"
+        )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         send_confirmation_email.assert_not_called()
@@ -106,7 +116,11 @@ class APISubscriptionTestCase(WordpressClientMixin, TestCase):
 
 class SubscriptionConfirmationTestCase(TestCase):
     def test_can_receive_mail_and_confirm_subscription(self):
-        data = {"email": "guillaume@email.com", "location_zip": "75001"}
+        data = {
+            "email": "guillaume@email.com",
+            "location_zip": "75001",
+            "metadata": {"universite": "Université Paris"},
+        }
 
         send_confirmation_email(**data)
 
@@ -133,7 +147,11 @@ class SubscriptionConfirmationTestCase(TestCase):
         p = Person.objects.create_insoumise("person@server.fr")
         p.ensure_role_exists()
 
-        data = {"email": "person@server.fr", "location_zip": "75001"}
+        data = {
+            "email": "person@server.fr",
+            "location_zip": "75001",
+            "metadata": {"universite": "Université Paris"},
+        }
 
         send_confirmation_email(**data)
 
@@ -178,6 +196,43 @@ class SubscriptionConfirmationTestCase(TestCase):
         )
 
         self.assertTrue(avant <= subscription_time <= apres)
+
+    def test_can_subscribe_with_metadata(self):
+
+        data = {
+            "email": "personne@organisation.pays",
+            "location_zip": "20322",
+            "type": "LJI",
+            "metadata": {"universite": "Montaigne", "niveau": "licence"},
+        }
+
+        send_confirmation_email(**data)
+
+        self.assertEqual(len(mail.outbox), 1)
+
+        confirmation_url = reverse("subscription_confirm")
+        match = re.search(confirmation_url + r'\?[^" \n)]+', mail.outbox[0].body)
+
+        self.assertIsNotNone(match)
+        url_with_params = match.group(0)
+
+        avant = timezone.now()
+        response = self.client.get(
+            url_with_params + "&android=1"
+        )  # we add &android=1 cause it should work also in app
+        apres = timezone.now()
+
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+
+        # check that the person has been created
+        p = Person.objects.get_by_natural_key("personne@organisation.pays")
+        p.ensure_role_exists()
+
+        self.assertTrue(p.is_2022)
+        self.assertEqual(
+            p.meta["subscriptions"]["LJI"]["metadata"],
+            {"universite": "Montaigne", "niveau": "licence"},
+        )
 
 
 class ManageNewslettersAPIViewTestCase(WordpressClientMixin, TestCase):

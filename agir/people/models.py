@@ -375,6 +375,7 @@ class Person(
     )
 
     NEWSLETTER_LFI = "LFI"
+    NEWSLETTER_LJI = "LJI"
     NEWSLETTER_2022 = "2022"
     NEWSLETTER_2022_EXCEPTIONNEL = "2022_exceptionnel"
     NEWSLETTER_2022_EN_LIGNE = "2022_en_ligne"
@@ -383,6 +384,7 @@ class Person(
     NEWSLETTER_2022_LIAISON = "2022_liaison"
     NEWSLETTERS_CHOICES = (
         (NEWSLETTER_LFI, "Lettre d'information de la France insoumise"),
+        (NEWSLETTER_LJI, "Informations jeunes insoumis"),
         (NEWSLETTER_2022, "Lettre d'information NSP"),
         (NEWSLETTER_2022_EXCEPTIONNEL, "NSP : informations exceptionnelles"),
         (NEWSLETTER_2022_EN_LIGNE, "NSP actions en ligne"),

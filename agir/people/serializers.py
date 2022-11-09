@@ -91,6 +91,11 @@ class SubscriptionRequestSerializer(serializers.Serializer):
         choices=("municipal", "maire", "departemental", "regional", "consulaire"),
         required=False,
     )
+
+    metadata = serializers.DictField(
+        required=False, allow_empty=True, child=serializers.CharField(allow_blank=False)
+    )
+
     next = serializers.CharField(required=False, allow_blank=True, write_only=True)
 
     referrer = serializers.CharField(required=False)

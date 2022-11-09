@@ -41,7 +41,7 @@ def send_welcome_mail(person_pk, type):
 
 
 @emailing_task()
-def send_confirmation_email(email, type=SUBSCRIPTION_TYPE_LFI, **kwargs):
+def send_confirmation_email(email, type=SUBSCRIPTION_TYPE_LFI, metadata=None, **kwargs):
     if PersonEmail.objects.filter(address__iexact=email).exists():
         p = Person.objects.get_by_natural_key(email)
 
@@ -61,13 +61,22 @@ def send_confirmation_email(email, type=SUBSCRIPTION_TYPE_LFI, **kwargs):
 
         return
 
-    subscription_token = subscription_confirmation_token_generator.make_token(
-        email=email, type=type, **kwargs
-    )
+    fields = {
+        "email": email,
+        "type": type,
+        **kwargs,
+    }
+    if metadata:
+        fields.update({f"meta_{k}": v for k, v in metadata.items()})
+
+    subscription_token = subscription_confirmation_token_generator.make_token(**fields)
     confirm_subscription_url = front_url(
         "subscription_confirm", auto_login=False, nsp=type == SUBSCRIPTION_TYPE_NSP
     )
-    query_args = {"email": email, "type": type, **kwargs, "token": subscription_token}
+    query_args = {
+        **fields,
+        "token": subscription_token,
+    }
     confirm_subscription_url += "?" + urlencode(query_args)
 
     message_info = SUBSCRIPTIONS_EMAILS[type]["confirmation"]

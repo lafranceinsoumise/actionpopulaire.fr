@@ -28,6 +28,7 @@ SUBSCRIPTION_TYPE_NSP = "NSP"
 SUBSCRIPTION_TYPE_EXTERNAL = "EXT"
 SUBSCRIPTION_TYPE_ADMIN = "ADM"
 SUBSCRIPTION_TYPE_AP = "AP"
+SUBSCRIPTION_TYPE_LJI = "LJI"
 
 SUBSCRIPTION_TYPE_CHOICES = (
     (
@@ -40,10 +41,12 @@ SUBSCRIPTION_TYPE_CHOICES = (
     ),
     (SUBSCRIPTION_TYPE_EXTERNAL, "Externe"),
     (SUBSCRIPTION_TYPE_AP, "Action Populaire"),
+    (SUBSCRIPTION_TYPE_LJI, "Les jeunes insoumis"),
 )
 SUBSCRIPTION_FIELD = {
     SUBSCRIPTION_TYPE_LFI: "is_2022",
     SUBSCRIPTION_TYPE_NSP: "is_2022",
+    SUBSCRIPTION_TYPE_LJI: "is_2022",
 }
 
 SUBSCRIPTIONS_EMAILS = {
@@ -68,6 +71,21 @@ SUBSCRIPTIONS_EMAILS = {
             from_email=settings.EMAIL_FROM_MELENCHON_2022,
         )
     },
+    SUBSCRIPTION_TYPE_LJI: {
+        "confirmation": SubscriptionMessageInfo(
+            code="SUBSCRIPTION_CONFIRMATION_LFI_MESSAGE",
+            subject="Plus qu'un clic pour vous inscrire",
+            from_email="Les Jeunes Insoumis·es <nepasrepondre@lafranceinsoumise.fr>",
+        ),
+        "already_subscribed": SubscriptionMessageInfo(
+            "ALREADY_SUBSCRIBED_LFI_MESSAGE",
+            "Vous êtes déjà inscrit·e !",
+        ),
+        "welcome": SubscriptionMessageInfo(
+            "WELCOME_LFI_MESSAGE",
+            "Bienvenue sur la plateforme de la France insoumise et des Jeunes Insoumis·es !",
+        ),
+    },
     SUBSCRIPTION_TYPE_EXTERNAL: {},
     SUBSCRIPTION_TYPE_AP: {
         "already_subscribed": SubscriptionMessageInfo(
@@ -80,8 +98,10 @@ SUBSCRIPTIONS_EMAILS = {
         ),
     },
 }
+
 SUBSCRIPTION_NEWSLETTERS = {
-    SUBSCRIPTION_TYPE_LFI: {Person.NEWSLETTER_LFI},
+    SUBSCRIPTION_TYPE_LFI: {Person.NEWSLETTER_2022},
+    SUBSCRIPTION_TYPE_LJI: {Person.NEWSLETTER_2022, Person.NEWSLETTER_LJI},
     SUBSCRIPTION_TYPE_NSP: set(),
     SUBSCRIPTION_TYPE_EXTERNAL: set(),
     SUBSCRIPTION_TYPE_AP: set(),
@@ -89,12 +109,14 @@ SUBSCRIPTION_NEWSLETTERS = {
 
 SUBSCRIPTION_EMAIL_SENT_REDIRECT = {
     SUBSCRIPTION_TYPE_LFI: f"{settings.MAIN_DOMAIN}/consulter-vos-emails/",
+    SUBSCRIPTION_TYPE_LJI: f"{settings.MAIN_DOMAIN}/consulter-vos-emails/",
     SUBSCRIPTION_TYPE_NSP: f"{settings.NSP_DOMAIN}/validez-votre-e-mail/",
-    SUBSCRIPTION_TYPE_AP: f"{settings.MAIN_DOMAIN}/inscription/code/",
+    SUBSCRIPTION_TYPE_AP: f"{settings.FRONT_DOMAIN}/inscription/code/",
 }
 
 SUBSCRIPTION_SUCCESS_REDIRECT = {
     SUBSCRIPTION_TYPE_LFI: f"{settings.MAIN_DOMAIN}/bienvenue/",
+    SUBSCRIPTION_TYPE_LJI: f"{settings.MAIN_DOMAIN}/bienvenue/",
     SUBSCRIPTION_TYPE_NSP: f"{settings.NSP_DOMAIN}/signature-confirmee/",
     SUBSCRIPTION_TYPE_AP: f"{settings.FRONT_DOMAIN}/bienvenue/",
 }
@@ -134,6 +156,10 @@ def save_subscription_information(person, type, data, new=False):
                         referral_type=type,
                     )
                 )
+
+    # on fusionne les éventuelles metadata
+    if data.get("metadata"):
+        subscriptions[type].setdefault("metadata", {}).update(data["metadata"])
 
     if data.get("mandat"):
         subscriptions[type]["mandat"] = data["mandat"]
