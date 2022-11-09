@@ -18,12 +18,13 @@ from agir.lib.celery import (
 )
 from agir.lib.geo import geocode_element
 from agir.lib.html import sanitize_html
-from agir.lib.mailing import send_mosaico_email
+from agir.lib.mailing import send_mosaico_email, send_template_email
 from agir.lib.utils import front_url, clean_subject_email, is_absolute_url
 from agir.people.actions.subscription import make_subscription_token
 from agir.people.models import Person
 from .actions.invitation import make_abusive_invitation_report_link
 from .models import SupportGroup, Membership
+from .utils import DAYS_SINCE_LAST_EVENT_WARNING
 from ..activity.models import Activity
 from ..msgs.models import SupportGroupMessage, SupportGroupMessageComment
 from ..notifications.models import Subscription
@@ -628,4 +629,20 @@ def send_comment_notification_email(comment_pk):
         from_email=settings.EMAIL_FROM,
         recipients=recipients,
         bindings=bindings,
+    )
+
+
+@emailing_task()
+def send_soon_to_be_inactive_group_warning(supportgroup_pk):
+    supportgroup = SupportGroup.objects.get(pk=supportgroup_pk)
+    recipients = supportgroup.referents
+    send_template_email(
+        code="SOON_TO_BE_INACTIVE_GROUP_WARNING",
+        from_email=settings.EMAIL_FROM,
+        bindings={
+            "GROUP_NAME": supportgroup.name,
+            "GROUP_PAGE_URL": front_url("view_group", kwargs={"pk": supportgroup_pk}),
+            "DAYS_SINCE_LAST_EVENT_WARNING": DAYS_SINCE_LAST_EVENT_WARNING,
+        },
+        recipients=recipients,
     )
