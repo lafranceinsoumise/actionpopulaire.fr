@@ -705,7 +705,7 @@ django = ">=3.2"
 
 [[package]]
 name = "django-silk"
-version = "5.0.1"
+version = "5.0.2"
 description = "Silky smooth profiling for the Django Framework"
 category = "main"
 optional = false
@@ -717,7 +717,6 @@ Django = ">=3.2"
 gprof2dot = ">=2017.09.19"
 Jinja2 = "*"
 python-dateutil = "*"
-pytz = "*"
 requests = "*"
 sqlparse = "*"
 
@@ -2776,8 +2775,8 @@ django-reversion = [
     {file = "django_reversion-5.0.3-py3-none-any.whl", hash = "sha256:c5955e09c4f290a8a3c5048b3f77d5ba75eae325c0fb1e571b0cd98df6a0017b"},
 ]
 django-silk = [
-    {file = "django-silk-5.0.1.tar.gz", hash = "sha256:3bdf188256fff00d1ce741f9ffa7cfa1f37f6941f07c23bc85ff26466170eb30"},
-    {file = "django_silk-5.0.1-py3-none-any.whl", hash = "sha256:9dad85e783fcaaa1c97bebfa7ea01899428ded55b517d363f25ba87e43b5ce50"},
+    {file = "django-silk-5.0.2.tar.gz", hash = "sha256:2520d583ef475a5d2f70a1cc5b4c911493709d654ab065a69434e3e050a44014"},
+    {file = "django_silk-5.0.2-py3-none-any.whl", hash = "sha256:1cd58272a9fb7cb43ebe84084a9a21964c564871719db3d263b9ae021908309c"},
 ]
 django-stdimage = [
     {file = "django-stdimage-6.0.1.tar.gz", hash = "sha256:887fa1da6e53c38a4c0f717d7b1dcd9ce0bf04d1a9e77591c32b94c611e56769"},
