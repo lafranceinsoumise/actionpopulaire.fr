@@ -2,6 +2,7 @@ import datetime
 import logging
 import re
 from unittest import mock
+from unittest.mock import patch
 
 from django.core import mail
 from django.test import TestCase, override_settings
@@ -473,14 +474,14 @@ class InformationContactFormTestCases(TestCase):
 
 class SMSValidationTestCase(TestCase):
     def setUp(self):
-        logging.disable(logging.WARNING)
+        logger = patch("agir.people.forms.account.logger", autospec=True)
+        logger.start()
+        self.addCleanup(logger.stop)
+
         self.person = Person.objects.create_insoumise(
             "test@example.com", contact_phone="0612345678", create_role=True
         )
         self.client.force_login(self.person.role)
-
-    def tearDown(self):
-        logging.disable(logging.NOTSET)
 
     def test_can_see_sms_page_when_not_validated(self):
         res = self.client.get(reverse("send_validation_sms"))
@@ -574,7 +575,6 @@ class SMSValidationTestCase(TestCase):
         self.assertEqual(mock_send_new_code.call_args[0][0], self.person)
 
     def test_can_validate_phone_number(self):
-        logging.disable(logging.WARNING)
         validate_code_page = reverse("sms_code_validation")
 
         validation_code = PersonValidationSMS.objects.create(
