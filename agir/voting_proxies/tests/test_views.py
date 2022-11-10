@@ -12,16 +12,6 @@ from agir.voting_proxies.models import VotingProxyRequest, VotingProxy
 
 class VotingProxyRequestCreateAPITestCase(APITestCase):
     def setUp(self):
-        def tearDown(self):
-            self.patcher.stop()
-
-        def setUp(self):
-            self.patcher = patch(
-                "agir.voting_proxies.models.VotingProxyRequestQuerySet.upcoming",
-                return_value=VotingProxyRequest.objects.all(),
-            )
-            self.patcher.start()
-
         ip_bucket_mock = patch(
             "agir.voting_proxies.views.create_voter_ip_bucket.has_tokens",
             return_value=True,
@@ -156,7 +146,8 @@ class VotingProxyRequestCreateAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 422)
         self.assertIn("global", res.data)
 
-    def test_can_create_a_request_with_valid_data(self):
+    @patch("agir.voting_proxies.tasks.send_sms_message", autospec=True)
+    def test_can_create_a_request_with_valid_data(self, send_sms_message):
         data = {**self.valid_data, "email": "email@agir.local"}
         self.assertFalse(
             VotingProxyRequest.objects.filter(
@@ -172,8 +163,9 @@ class VotingProxyRequestCreateAPITestCase(APITestCase):
             ).exists()
         )
 
+    @patch("agir.voting_proxies.tasks.send_sms_message", autospec=True)
     def test_can_update_a_request_with_valid_data_if_one_exists_for_the_email_and_date(
-        self,
+        self, send_sms_message
     ):
         data = {**self.valid_data}
         self.assertEqual(
