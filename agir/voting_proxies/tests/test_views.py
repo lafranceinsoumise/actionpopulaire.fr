@@ -198,27 +198,31 @@ class VotingProxyRequestCreateAPITestCase(APITestCase):
 
 
 class VotingProxyCreateAPITestCase(APITestCase):
-    def tearDown(self):
-        self.patcher.stop()
-
     def setUp(self):
-        self.patcher = patch(
+        VotingProxyRequestQuerySet_upcoming = patch(
             "agir.voting_proxies.models.VotingProxyRequestQuerySet.upcoming",
             return_value=VotingProxyRequest.objects.all(),
         )
-        self.patcher.start()
+        VotingProxyRequestQuerySet_upcoming.start()
+        self.addCleanup(VotingProxyRequestQuerySet_upcoming.stop)
+
         ip_bucket_mock = patch(
             "agir.voting_proxies.views.create_voter_ip_bucket.has_tokens",
             return_value=True,
         )
         ip_bucket_mock.start()
         self.addCleanup(ip_bucket_mock.stop)
+
         email_bucket_mock = patch(
             "agir.voting_proxies.views.create_voter_email_bucket.has_tokens",
             return_value=True,
         )
         email_bucket_mock.start()
         self.addCleanup(email_bucket_mock.stop)
+
+        geocode_element = patch("agir.lib.tasks.geocode_element", autospec=True)
+        geocode_element.start()
+        self.addCleanup(geocode_element.stop)
 
         self.create_endpoint = reverse("api_create_voting_proxy")
         self.existing_person = Person.objects.create_person(
@@ -342,7 +346,7 @@ class VotingProxyCreateAPITestCase(APITestCase):
         self.assertIn("zip", res.data)
         self.assertIn("city", res.data)
 
-    @patch("agir.lib.geo.geocode_france")
+    @patch("agir.lib.geo.geocode_element", autospec=True)
     def test_can_create_with_valid_data(self, geocode_france):
         data = {**self.valid_data}
         self.assertEqual(
@@ -365,7 +369,7 @@ class VotingProxyCreateAPITestCase(APITestCase):
             1,
         )
 
-    @patch("agir.lib.geo.geocode_france")
+    @patch("agir.lib.geo.geocode_element", autospec=True)
     def test_can_update_with_valid_data(self, geocode_france):
         VotingProxy.objects.create(
             **{

@@ -1,6 +1,7 @@
 import re
 from datetime import datetime, timedelta
 from unittest import mock
+from unittest.mock import patch
 
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
@@ -115,6 +116,11 @@ class APISubscriptionTestCase(WordpressClientMixin, APITestCase):
 
 
 class SubscriptionConfirmationTestCase(TestCase):
+    def setUp(self):
+        self.geocode_element = patch("agir.lib.tasks.geocode_element", autospec=True)
+        self.geocode_element.start()
+        self.addCleanup(self.geocode_element.stop)
+
     def test_can_receive_mail_and_confirm_subscription(self):
         data = {
             "email": "guillaume@email.com",

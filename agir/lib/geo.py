@@ -204,7 +204,6 @@ def geocode_france(item):
     # address / coordinates asynchronisation
     item.coordinates = None
     item.coordinates_type = LocationMixin.COORDINATES_NOT_FOUND
-
     # Try to geolocate with BAN if the full address is given
     if item.location_address1 or item.location_address2:
         item.location_citycode = ""
