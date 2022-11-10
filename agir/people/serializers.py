@@ -75,6 +75,9 @@ class SubscriptionRequestSerializer(serializers.Serializer):
     location_zip = serializers.CharField(
         required=True,
     )
+    location_city = serializers.CharField(required=False, allow_blank=True)
+    location_country = CountryField(required=False, allow_blank=True)
+
     first_name = serializers.CharField(
         max_length=person_fields["first_name"].max_length,
         required=False,
@@ -86,11 +89,15 @@ class SubscriptionRequestSerializer(serializers.Serializer):
         allow_blank=True,
     )
     contact_phone = PhoneNumberField(required=False, allow_blank=True)
-    location_country = CountryField(required=False, allow_blank=True)
     mandat = serializers.ChoiceField(
         choices=("municipal", "maire", "departemental", "regional", "consulaire"),
         required=False,
     )
+
+    metadata = serializers.DictField(
+        required=False, allow_empty=True, child=serializers.CharField(allow_blank=False)
+    )
+
     next = serializers.CharField(required=False, allow_blank=True, write_only=True)
 
     referrer = serializers.CharField(required=False)

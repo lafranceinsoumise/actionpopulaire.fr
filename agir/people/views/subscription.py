@@ -57,6 +57,11 @@ class UnsubscribeView(SimpleOpengraphMixin, FormView):
 
 
 class ConfirmSubscriptionView(View):
+    """Vue prenant en charge l'URL de confirmation d'inscription
+
+    Cette URL est envoyée par email grâce à la tâche :py:class:`agir.people.tasks.send_confirmation_email`
+    """
+
     response_class = TemplateResponse
     error_template = "people/confirmation_mail_error.html"
     error_messages = {
@@ -97,7 +102,7 @@ class ConfirmSubscriptionView(View):
 
         token = params.pop("token")
 
-        if not set(params).issubset(self.allowed_fields):
+        if not all(p in self.allowed_fields or p.startswith("meta_") for p in params):
             return self.error_page(self.error_messages["invalid"])
 
         if not subscription_confirmation_token_generator.check_token(token, **params):
@@ -127,6 +132,14 @@ class ConfirmSubscriptionView(View):
             except IntegrityError:
                 self.person = Person.objects.get_by_natural_key(params["email"])
                 already_created = True
+
+            metadata = {}
+            for p in list(params):
+                if p.startswith("meta_"):
+                    metadata[p[len("meta_") :]] = params.pop(p)
+
+            if metadata:
+                params["metadata"] = metadata
 
             save_subscription_information(self.person, self.type, params, new=True)
 
