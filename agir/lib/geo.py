@@ -38,6 +38,21 @@ def normaliser_nom_ville(s):
     return MULTIPLE_SPACES.sub(" ", NON_WORD.sub(" ", unidecode(s.strip()))).lower()
 
 
+def is_geocodable(item):
+    # geocoding only if got at least: country AND (city OR zip)
+    return item.location_country and (item.location_city or item.location_zip)
+
+
+def is_in_france(item):
+    if item.location_country in FRENCH_COUNTRY_CODES:
+        return True
+
+    if item.location_zip and CodePostal.objects.filter(code=item.location_zip).exists():
+        return True
+
+    return False
+
+
 def geocode_element(item):
     """Geocode an item in the background
 
@@ -45,15 +60,16 @@ def geocode_element(item):
     :return:
     """
 
-    # geocoding only if got at least: country AND (city OR zip)
-    if item.location_country and (item.location_city or item.location_zip):
-        if item.location_country in FRENCH_COUNTRY_CODES:
-            geocode_france(item)
-        else:
-            geocode_internationally(item)
-    else:
+    if not is_geocodable(item):
         item.coordinates = None
         item.coordinates_type = LocationMixin.COORDINATES_NO_POSITION
+        return
+
+    if is_in_france(item):
+        geocode_france(item)
+        return
+
+    geocode_internationally(item)
 
 
 def get_results_from_ban(query):
