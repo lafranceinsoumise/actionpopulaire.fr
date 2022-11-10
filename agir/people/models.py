@@ -111,7 +111,6 @@ class PersonQueryset(models.QuerySet):
             return self.exclude(Q(role__apnsdevice=None) & Q(role__gcmdevice=None))
         return self.filter(Q(role__apnsdevice=None) & Q(role__gcmdevice=None))
 
-    # TODO: erreur sur l'usage de timezone.now() comme argument par défaut
     def liaisons(self, from_date=None, to_date=None):
         from agir.people.actions.subscription import DATE_2022_LIAISON_META_PROPERTY
 
@@ -135,10 +134,9 @@ class PersonQueryset(models.QuerySet):
             )
         )
         if from_date:
-            liaisons = liaisons.filter(
-                liaison_date__date__gte=from_date,
-                liaison_date__date__lte=to_date or timezone.now(),
-            )
+            liaisons = liaisons.filter(liaison_date__date__gte=from_date)
+        if to_date:
+            liaisons = liaisons.filter(liaison_date__date__lte=to_date)
 
         return liaisons.order_by("liaison_date")
 
