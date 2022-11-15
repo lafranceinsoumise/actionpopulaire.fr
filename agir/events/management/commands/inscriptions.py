@@ -308,7 +308,7 @@ class Command(BaseCommand):
         new_draws = status.id.isin(
             [
                 id
-                for name, g in status[status._available].groupby(["college"])
+                for name, g in status[status._available].groupby("college")
                 for id in g["id"].iloc[: stats.loc[name, "to_draw"]]
             ]
         )
