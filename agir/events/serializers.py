@@ -339,16 +339,15 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def get_groupsAttendees(self, obj):
         user = self.context["request"].user
-        self.person = None
-        if not user.is_anonymous and user.person:
-            self.person = user.person
-
-        if user.is_anonymous or user.person is None:
+        if user.is_anonymous or not hasattr(user, "person") or user.person is None:
+            self.person = None
             return (
                 obj.groups_attendees.all()
                 .annotate(isManager=Value(False))
                 .values("id", "name", "isManager")
             )
+
+        self.person = user.person
         return (
             obj.groups_attendees.all()
             .annotate(

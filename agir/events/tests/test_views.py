@@ -1,6 +1,7 @@
 from datetime import timedelta
 from functools import partial
 from unittest import mock
+from unittest.mock import patch
 
 from django.contrib import messages
 from django.contrib.gis.geos import Point
@@ -1084,6 +1085,10 @@ class CalendarPageTestCase(TestCase):
 
 class ExternalRSVPTestCase(TestCase):
     def setUp(self):
+        self.geocode_element = patch("agir.lib.tasks.geocode_element", autospec=True)
+        self.geocode_element.start()
+        self.addCleanup(self.geocode_element.stop)
+
         self.now = now = timezone.now().astimezone(timezone.get_default_timezone())
         day = timezone.timedelta(days=1)
         hour = timezone.timedelta(hours=1)

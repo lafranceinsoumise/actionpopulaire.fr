@@ -1,6 +1,8 @@
 import datetime
+import logging
 import re
 from unittest import mock
+from unittest.mock import patch
 
 from django.core import mail
 from django.test import TestCase, override_settings
@@ -472,6 +474,10 @@ class InformationContactFormTestCases(TestCase):
 
 class SMSValidationTestCase(TestCase):
     def setUp(self):
+        logger = patch("agir.people.forms.account.logger", autospec=True)
+        logger.start()
+        self.addCleanup(logger.stop)
+
         self.person = Person.objects.create_insoumise(
             "test@example.com", contact_phone="0612345678", create_role=True
         )

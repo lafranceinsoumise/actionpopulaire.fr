@@ -204,7 +204,7 @@ class PollingStationOfficerCreateAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 422)
         self.assertIn("votingConsulate", res.data)
 
-    @patch("agir.lib.geo.geocode_france")
+    @patch("agir.lib.geo.geocode_element", autospec=True)
     def test_can_create_with_valid_data(self, geocode_france):
         data = {**self.valid_data}
         self.assertEqual(
@@ -227,7 +227,7 @@ class PollingStationOfficerCreateAPITestCase(APITestCase):
             1,
         )
 
-    @patch("agir.lib.geo.geocode_france")
+    @patch("agir.lib.geo.geocode_element", autospec=True)
     def test_can_update_with_valid_data(self, geocode_france):
         PollingStationOfficer.objects.create(
             **{

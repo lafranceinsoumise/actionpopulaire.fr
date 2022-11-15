@@ -12,16 +12,6 @@ from agir.voting_proxies.models import VotingProxyRequest, VotingProxy
 
 class VotingProxyRequestCreateAPITestCase(APITestCase):
     def setUp(self):
-        def tearDown(self):
-            self.patcher.stop()
-
-        def setUp(self):
-            self.patcher = patch(
-                "agir.voting_proxies.models.VotingProxyRequestQuerySet.upcoming",
-                return_value=VotingProxyRequest.objects.all(),
-            )
-            self.patcher.start()
-
         ip_bucket_mock = patch(
             "agir.voting_proxies.views.create_voter_ip_bucket.has_tokens",
             return_value=True,
@@ -156,7 +146,8 @@ class VotingProxyRequestCreateAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 422)
         self.assertIn("global", res.data)
 
-    def test_can_create_a_request_with_valid_data(self):
+    @patch("agir.voting_proxies.tasks.send_sms_message", autospec=True)
+    def test_can_create_a_request_with_valid_data(self, send_sms_message):
         data = {**self.valid_data, "email": "email@agir.local"}
         self.assertFalse(
             VotingProxyRequest.objects.filter(
@@ -172,8 +163,9 @@ class VotingProxyRequestCreateAPITestCase(APITestCase):
             ).exists()
         )
 
+    @patch("agir.voting_proxies.tasks.send_sms_message", autospec=True)
     def test_can_update_a_request_with_valid_data_if_one_exists_for_the_email_and_date(
-        self,
+        self, send_sms_message
     ):
         data = {**self.valid_data}
         self.assertEqual(
@@ -206,27 +198,31 @@ class VotingProxyRequestCreateAPITestCase(APITestCase):
 
 
 class VotingProxyCreateAPITestCase(APITestCase):
-    def tearDown(self):
-        self.patcher.stop()
-
     def setUp(self):
-        self.patcher = patch(
+        VotingProxyRequestQuerySet_upcoming = patch(
             "agir.voting_proxies.models.VotingProxyRequestQuerySet.upcoming",
             return_value=VotingProxyRequest.objects.all(),
         )
-        self.patcher.start()
+        VotingProxyRequestQuerySet_upcoming.start()
+        self.addCleanup(VotingProxyRequestQuerySet_upcoming.stop)
+
         ip_bucket_mock = patch(
             "agir.voting_proxies.views.create_voter_ip_bucket.has_tokens",
             return_value=True,
         )
         ip_bucket_mock.start()
         self.addCleanup(ip_bucket_mock.stop)
+
         email_bucket_mock = patch(
             "agir.voting_proxies.views.create_voter_email_bucket.has_tokens",
             return_value=True,
         )
         email_bucket_mock.start()
         self.addCleanup(email_bucket_mock.stop)
+
+        geocode_element = patch("agir.lib.tasks.geocode_element", autospec=True)
+        geocode_element.start()
+        self.addCleanup(geocode_element.stop)
 
         self.create_endpoint = reverse("api_create_voting_proxy")
         self.existing_person = Person.objects.create_person(
@@ -350,7 +346,7 @@ class VotingProxyCreateAPITestCase(APITestCase):
         self.assertIn("zip", res.data)
         self.assertIn("city", res.data)
 
-    @patch("agir.lib.geo.geocode_france")
+    @patch("agir.lib.geo.geocode_element", autospec=True)
     def test_can_create_with_valid_data(self, geocode_france):
         data = {**self.valid_data}
         self.assertEqual(
@@ -373,7 +369,7 @@ class VotingProxyCreateAPITestCase(APITestCase):
             1,
         )
 
-    @patch("agir.lib.geo.geocode_france")
+    @patch("agir.lib.geo.geocode_element", autospec=True)
     def test_can_update_with_valid_data(self, geocode_france):
         VotingProxy.objects.create(
             **{
