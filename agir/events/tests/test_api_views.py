@@ -18,6 +18,10 @@ from agir.people.models import Person, PersonForm, PersonFormSubmission
 
 class CreateEventAPITestCase(APITestCase):
     def setUp(self):
+        self.geocode_element = patch("agir.events.tasks.geocode_element", autospec=True)
+        self.geocode_element.start()
+        self.addCleanup(self.geocode_element.stop)
+
         self.is_forbidden_during_treve_event = patch(
             "agir.events.serializers.is_forbidden_during_treve_event",
             return_value=False,
@@ -71,14 +75,12 @@ class CreateEventAPITestCase(APITestCase):
         res = self.client.post("/api/evenements/creer/", data=self.valid_data)
         self.assertEqual(res.status_code, 401)
 
-    @patch("agir.lib.geo.geocode_france")
-    def test_authenticated_user_can_post(self, geocode_france):
+    def test_authenticated_user_can_post(self):
         self.client.force_login(self.person.role)
         res = self.client.post("/api/evenements/creer/", data=self.valid_data)
         self.assertEqual(res.status_code, 201)
 
-    @patch("agir.lib.geo.geocode_france")
-    def test_event_is_created_upon_posting_valid_data(self, geocode_france):
+    def test_event_is_created_upon_posting_valid_data(self):
         self.client.force_login(self.person.role)
         initial_event_length = Event.objects.all().count()
         res = self.client.post("/api/evenements/creer/", data=self.valid_data)
@@ -86,9 +88,8 @@ class CreateEventAPITestCase(APITestCase):
         self.assertIn("id", res.data)
         self.assertEqual(Event.objects.all().count(), initial_event_length + 1)
 
-    @patch("agir.lib.geo.geocode_france")
     def test_organizer_config_is_created_upon_posting_valid_data_with_managed_group(
-        self, geocode_france
+        self,
     ):
         self.client.force_login(self.person.role)
         res = self.client.post("/api/evenements/creer/", data=self.valid_data)
@@ -101,10 +102,7 @@ class CreateEventAPITestCase(APITestCase):
         )
         self.assertEqual(organizer_config.count(), 1)
 
-    @patch("agir.lib.geo.geocode_france")
-    def test_organizer_config_is_created_upon_posting_valid_data_without_group(
-        self, geocode_france
-    ):
+    def test_organizer_config_is_created_upon_posting_valid_data_without_group(self):
         self.client.force_login(self.person.role)
         res = self.client.post(
             "/api/evenements/creer/", data={**self.valid_data, "organizerGroup": None}
@@ -129,10 +127,9 @@ class CreateEventAPITestCase(APITestCase):
         )
         self.assertEqual(rsvp.count(), 1)
 
-    @patch("agir.lib.geo.geocode_france")
     @patch("agir.events.tasks.send_event_creation_notification.delay")
     def test_event_creation_notification_task_is_created_upon_posting_valid_data(
-        self, send_event_creation_notification, geocode_france
+        self, send_event_creation_notification
     ):
         send_event_creation_notification.assert_not_called()
         self.client.force_login(self.person.role)
@@ -150,10 +147,9 @@ class CreateEventAPITestCase(APITestCase):
         self.assertIn("id", res.data)
         geocode_event.assert_called_once()
 
-    @patch("agir.lib.geo.geocode_france")
     @patch("agir.groups.tasks.notify_new_group_event.delay")
     def test_notify_new_group_event_task_is_created_upon_posting_valid_data_with_organizer_group(
-        self, notify_new_group_event, geocode_france
+        self, notify_new_group_event
     ):
         notify_new_group_event.assert_not_called()
         self.client.force_login(self.person.role)
@@ -162,10 +158,9 @@ class CreateEventAPITestCase(APITestCase):
         self.assertIn("id", res.data)
         notify_new_group_event.assert_called_once()
 
-    @patch("agir.lib.geo.geocode_france")
     @patch("agir.groups.tasks.send_new_group_event_email.delay")
     def test_send_new_group_event_email_task_is_created_upon_posting_valid_data_with_organizer_group(
-        self, send_new_group_event_email, geocode_france
+        self, send_new_group_event_email
     ):
         send_new_group_event_email.assert_not_called()
         self.client.force_login(self.person.role)
@@ -174,10 +169,9 @@ class CreateEventAPITestCase(APITestCase):
         self.assertIn("id", res.data)
         send_new_group_event_email.assert_called_once()
 
-    @patch("agir.lib.geo.geocode_france")
     @patch("agir.groups.tasks.notify_new_group_event.delay")
     def test_notify_new_group_event_task_is_not_created_upon_posting_valid_data_without_organizer_group(
-        self, notify_new_group_event, geocode_france
+        self, notify_new_group_event
     ):
         notify_new_group_event.assert_not_called()
         self.client.force_login(self.person.role)
