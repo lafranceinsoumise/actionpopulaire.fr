@@ -686,7 +686,7 @@ hiredis = ["redis[hiredis] (>=3,!=4.0.0,!=4.0.1)"]
 
 [[package]]
 name = "django-reversion"
-version = "5.0.3"
+version = "5.0.4"
 description = "An extension to the Django web framework that provides version control for model instances."
 category = "main"
 optional = false
@@ -2758,8 +2758,8 @@ django-redis = [
     {file = "django_redis-5.2.0-py3-none-any.whl", hash = "sha256:1d037dc02b11ad7aa11f655d26dac3fb1af32630f61ef4428860a2e29ff92026"},
 ]
 django-reversion = [
-    {file = "django-reversion-5.0.3.tar.gz", hash = "sha256:acb600f8482147312a27bd58e63766aa0383310181e485e6eaa2f42d26502c9b"},
-    {file = "django_reversion-5.0.3-py3-none-any.whl", hash = "sha256:c5955e09c4f290a8a3c5048b3f77d5ba75eae325c0fb1e571b0cd98df6a0017b"},
+    {file = "django-reversion-5.0.4.tar.gz", hash = "sha256:c12bab452d31dd3c244456cf1df383acf14ba147cf99404c5e44412596de42fc"},
+    {file = "django_reversion-5.0.4-py3-none-any.whl", hash = "sha256:a591cbce8621b5d036a37617554668b5ef2eb9777682e3af20b6401ee87cfbc5"},
 ]
 django-silk = [
     {file = "django-silk-5.0.2.tar.gz", hash = "sha256:2520d583ef475a5d2f70a1cc5b4c911493709d654ab065a69434e3e050a44014"},
