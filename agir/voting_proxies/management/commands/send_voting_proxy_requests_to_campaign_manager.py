@@ -120,7 +120,7 @@ class Command(BaseCommand):
             from_email="robot@actionpopulaire.fr",
             reply_to=("legislatives@melenchon2022.fr",),
             subject=subject,
-            to=(campaign_manager["email"],),
+            recipient=campaign_manager["email"],
             text=body,
             attachments=(attachment,),
         )

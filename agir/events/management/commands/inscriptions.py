@@ -401,7 +401,7 @@ class Command(BaseCommand):
                             ),
                             text=text_message,
                             html=html_message,
-                            to=[person.email],
+                            recipient=person,
                             connection=connection,
                         )
 
