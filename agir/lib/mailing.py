@@ -61,11 +61,12 @@ def send_message(
     recipient,
     subject,
     text,
-    html,
-    reply_to,
-    attachments,
+    html=None,
+    reply_to=None,
+    attachments=None,
     connection=None,
 ):
+
     email = EmailMultiAlternatives(
         subject=subject,
         body=text,
@@ -74,7 +75,8 @@ def send_message(
         connection=connection,
         to=[recipient.email if isinstance(recipient, Person) else recipient],
     )
-    email.attach_alternative(html, "text/html")
+    if html is not None:
+        email.attach_alternative(html, "text/html")
     if attachments is not None:
         for attachment in attachments:
             if isinstance(attachment, MIMEBase):

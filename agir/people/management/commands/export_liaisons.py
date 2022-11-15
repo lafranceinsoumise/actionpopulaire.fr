@@ -131,7 +131,7 @@ class Command(BaseCommand):
         send_message(
             from_email="robot@actionpopulaire.fr",
             subject=subject,
-            to=email,
+            recipient=email,
             text=EXPORT_EMAIL_BODY % (subject.lower(), csv_string),
             attachments=(attachment,),
         )
