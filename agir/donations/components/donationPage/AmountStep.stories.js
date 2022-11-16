@@ -2,7 +2,7 @@ import React from "react";
 
 import group from "@agir/front/mockData/group.json";
 
-import CONFIG from "./config";
+import CONFIG from "@agir/donations/common/config";
 
 import AmountStep from "./AmountStep";
 
@@ -25,13 +25,6 @@ Default.args = {
   error: "",
   hasGroups: false,
 };
-
-// export const JLM2022 = Template.bind({});
-// JLM2022.args = {
-//   ...Default.args,
-//   ...config["2022"],
-//   type: "2022",
-// };
 
 export const WithGroupLink = Template.bind({});
 WithGroupLink.args = {

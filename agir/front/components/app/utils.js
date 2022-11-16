@@ -1,6 +1,7 @@
 import React, { lazy as reactLazy, useEffect, useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useIsOffline } from "@agir/front/offline/hooks";
+import { getScrollableParent } from "@agir/lib/utils/dom";
 
 export const lazy = (lazyImport, fallback) => {
   const LazyComponent = (props) => {
@@ -68,19 +69,22 @@ export const lazy = (lazyImport, fallback) => {
   return LazyComponent;
 };
 
-// Scrolls to the first key in errors into the scrollerElement
 export const scrollToError = (errors, scrollerElement, marginTop = 30) => {
   if (!errors) {
     return;
   }
 
-  if (!scrollerElement || !Object.entries(errors).length) {
+  if (!scrollerElement || !Object.values(errors).some(Boolean)) {
     return;
   }
 
-  // Get first error in Html position
-  const keys = Object.keys(errors);
-  let minOffsetTop = Infinity;
+  const keys = Object.entries(errors)
+    .filter(([_, v]) => !!v)
+    .map(([k]) => k);
+
+  const scrollableElement = getScrollableParent(scrollerElement);
+
+  let errorElement = null;
   for (let i = 0; i < keys.length; i += 1) {
     let elt = document.querySelector(
       `[data-scroll="${keys[i]}"], [name="${keys[i]}"]`
@@ -88,12 +92,18 @@ export const scrollToError = (errors, scrollerElement, marginTop = 30) => {
     if (!elt) {
       continue;
     }
-    if (elt.offsetTop < minOffsetTop) {
-      minOffsetTop = elt.offsetTop;
+    if (!errorElement) {
+      errorElement = elt;
+      continue;
+    }
+    if (elt.offsetTop < errorElement.offsetTop) {
+      errorElement = elt;
     }
   }
-
-  scrollerElement.scrollTo({ top: minOffsetTop - marginTop });
+  errorElement &&
+    scrollableElement.scrollTo({
+      top: errorElement.offsetTop - marginTop,
+    });
 };
 
 export const useCurrentLocation = () => {

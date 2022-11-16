@@ -48,15 +48,9 @@ urlpatterns = [
         views.DeleteDocumentView.as_view(),
         name="delete_document",
     ),
-    # API views
     path(
-        "api/creer-session-dons/",
-        views.CreateSessionDonationAPIView.as_view(),
-        name="api_create_donation_session",
-    ),
-    path(
-        "api/envoyer-dons/",
-        views.SendDonationAPIView.as_view(),
-        name="api_send_donation",
+        "api/dons/",
+        views.CreteDonationAPIView.as_view(),
+        name="api_donation_create",
     ),
 ]

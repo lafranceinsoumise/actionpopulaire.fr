@@ -2,16 +2,14 @@ import json
 
 from django.db import transaction
 from django.urls import reverse
-from rest_framework.generics import CreateAPIView, GenericAPIView
+from rest_framework.generics import GenericAPIView
 from rest_framework.mixins import UpdateModelMixin
 from rest_framework.response import Response
 
 from agir.donations.allocations import create_monthly_donation
 from agir.donations.apps import DonsConfig
 from agir.donations.serializers import (
-    CreateDonationSessionSerializer,
-    SendDonationSerializer,
-    TO_2022,
+    DonationSerializer,
     TYPE_MONTHLY,
 )
 from agir.donations.tasks import send_monthly_donation_confirmation_email
@@ -19,21 +17,11 @@ from agir.donations.views import DONATION_SESSION_NAMESPACE
 from agir.lib.rest_framework_permissions import IsActionPopulaireClientPermission
 from agir.payments.actions.payments import create_payment
 from agir.payments.models import Subscription
-from agir.people.models import Person
-from agir.presidentielle2022.apps import Presidentielle2022Config
 
 
-# 1st step : Fill session with donation infos
-class CreateSessionDonationAPIView(CreateAPIView):
+class CreteDonationAPIView(UpdateModelMixin, GenericAPIView):
     permission_classes = (IsActionPopulaireClientPermission,)
-    serializer_class = CreateDonationSessionSerializer
-    queryset = Person.objects.none()
-
-
-# 2nd step : Create and send donation with personal infos
-class SendDonationAPIView(UpdateModelMixin, GenericAPIView):
-    permission_classes = (IsActionPopulaireClientPermission,)
-    serializer_class = SendDonationSerializer
+    serializer_class = DonationSerializer
 
     def get_object(self):
         if self.request.user.is_authenticated:
@@ -47,11 +35,7 @@ class SendDonationAPIView(UpdateModelMixin, GenericAPIView):
         validated_data = self.validated_data
         payment_mode = validated_data["payment_mode"]
         amount = validated_data["amount"]
-
-        if validated_data["to"] == TO_2022:
-            payment_type = Presidentielle2022Config.DONATION_SUBSCRIPTION_TYPE
-        else:
-            payment_type = DonsConfig.SUBSCRIPTION_TYPE
+        payment_type = DonsConfig.SUBSCRIPTION_TYPE
 
         # Confirm email if the user is unknown
         if self.person is None:
@@ -61,8 +45,6 @@ class SendDonationAPIView(UpdateModelMixin, GenericAPIView):
                 validated_data["allocations"] = "[]"
 
             confirmation_view_name = "monthly_donation_confirm"
-            if validated_data["to"] == TO_2022:
-                confirmation_view_name = "monthly_donation_2022_confirm"
 
             send_monthly_donation_confirmation_email.delay(
                 confirmation_view_name=confirmation_view_name,
@@ -138,8 +120,6 @@ class SendDonationAPIView(UpdateModelMixin, GenericAPIView):
 
         # Direct payments
         payment_type = DonsConfig.PAYMENT_TYPE
-        if validated_data["to"] == TO_2022:
-            payment_type = Presidentielle2022Config.DONATION_PAYMENT_TYPE
 
         validated_data["location_state"] = validated_data["location_country"]
 

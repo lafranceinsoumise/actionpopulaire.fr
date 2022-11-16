@@ -6,7 +6,7 @@ import BaseButton from "@agir/front/genericComponents/Button";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import AppLink from "@agir/front/app/Link";
 
-import CONFIG from "./config";
+import CONFIG from "@agir/donations/common/config";
 
 export const Link = styled(AppLink)`
   color: ${(props) => props.theme.primary500};

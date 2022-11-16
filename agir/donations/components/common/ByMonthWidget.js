@@ -2,7 +2,10 @@ import PropTypes from "prop-types";
 import React from "react";
 
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-import { Button, SelectedButton } from "./StyledComponents";
+import {
+  Button,
+  SelectedButton,
+} from "@agir/donations/common/StyledComponents";
 
 const ByMonthWidget = (props) => {
   const { value, onChange, disabled } = props;

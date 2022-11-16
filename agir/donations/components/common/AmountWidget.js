@@ -4,11 +4,14 @@ import styled from "styled-components";
 
 import { displayPrice } from "@agir/lib/utils/display";
 
+import ByMonthWidget from "@agir/donations/common/ByMonthWidget";
+import GroupPercentageWidget from "@agir/donations/common/GroupPercentageWidget";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-
-import ByMonthWidget from "./ByMonthWidget";
-import GroupPercentageWidget from "./GroupPercentageWidget";
-import { Button, SelectedButton, StyledButtonLabel } from "./StyledComponents";
+import {
+  Button,
+  SelectedButton,
+  StyledButtonLabel,
+} from "@agir/donations/common/StyledComponents";
 
 const DEFAULT_AMOUNTS = [500, 1000, 1500, 3000, 5000];
 
