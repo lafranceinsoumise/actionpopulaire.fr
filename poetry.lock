@@ -1938,7 +1938,7 @@ tornado = ["tornado (>=5)"]
 
 [[package]]
 name = "sepaxml"
-version = "2.5.0"
+version = "2.6.0"
 description = "Python SEPA XML implementations"
 category = "main"
 optional = false
@@ -3832,8 +3832,8 @@ sentry-sdk = [
     {file = "sentry_sdk-1.11.0-py2.py3-none-any.whl", hash = "sha256:f467e6c7fac23d4d42bc83eb049c400f756cd2d65ab44f0cc1165d0c7c3d40bc"},
 ]
 sepaxml = [
-    {file = "sepaxml-2.5.0-py3-none-any.whl", hash = "sha256:06d72ef9514e17e7b59cd49ca898e6aa9f2a895eef4282d03a443faea64f231d"},
-    {file = "sepaxml-2.5.0.tar.gz", hash = "sha256:c5b82a84ae76965b5e5076918d8f2c8a170a8bf27756be0e8a7904a878699422"},
+    {file = "sepaxml-2.6.0-py3-none-any.whl", hash = "sha256:1fca1b129b81fca9c876d6d82c1442a676ed182523591275472870ee83d1b353"},
+    {file = "sepaxml-2.6.0.tar.gz", hash = "sha256:b6d189c9b16d60fbaa5c79abd7e4c4e3c7b3a4b1a20571275013946e47124ed2"},
 ]
 setuptools = [
     {file = "setuptools-65.5.0-py3-none-any.whl", hash = "sha256:f62ea9da9ed6289bfe868cd6845968a2c854d1427f8548d52cae02a42b4f0356"},
