@@ -10,6 +10,7 @@ from .models import LocationMixin
 
 logger = logging.getLogger(__name__)
 
+NON_DIGIT = re.compile("[^\d]+")
 NON_WORD = re.compile("[^\w]+")
 MULTIPLE_SPACES = re.compile("\s\s+")
 
@@ -38,19 +39,28 @@ def normaliser_nom_ville(s):
     return MULTIPLE_SPACES.sub(" ", NON_WORD.sub(" ", unidecode(s.strip()))).lower()
 
 
+def normalize_french_zip_code(zip_code):
+    return NON_DIGIT.sub("", zip_code.strip())
+
+
 def is_geocodable(item):
-    # geocoding only if got at least: country AND (city OR zip)
-    return item.location_country and (item.location_city or item.location_zip)
+    return item.location_city or item.location_zip
 
 
 def is_in_france(item):
-    if item.location_country in FRENCH_COUNTRY_CODES:
-        return True
+    if item.location_country and item.location_country not in FRENCH_COUNTRY_CODES:
+        return False
 
-    if item.location_zip and CodePostal.objects.filter(code=item.location_zip).exists():
-        return True
+    if (
+        item.location_zip
+        and CodePostal.objects.filter(
+            code=normalize_french_zip_code(item.location_zip)
+        ).exists()
+        is False
+    ):
+        return False
 
-    return False
+    return True
 
 
 def geocode_element(item):
@@ -106,7 +116,9 @@ def get_results_from_ban(query):
 def geocode_data_france(item):
     if item.location_zip:
         try:
-            code_postal = CodePostal.objects.get(code=item.location_zip)
+            code_postal = CodePostal.objects.get(
+                code=normalize_french_zip_code(item.location_zip)
+            )
         except CodePostal.DoesNotExist:
             pass
         else:
@@ -229,13 +241,17 @@ def geocode_france(item):
             for l in [
                 item.location_address1,
                 item.location_address2,
-                item.location_zip,
+                normalize_french_zip_code(item.location_zip),
                 item.location_city,
             ]
             if l
         )
 
-        query = {"q": q, "postcode": item.location_zip, "limit": 5}
+        query = {
+            "q": q,
+            "postcode": normalize_french_zip_code(item.location_zip),
+            "limit": 5,
+        }
         results = get_results_from_ban(query)
 
         if results is not None:
