@@ -332,7 +332,7 @@ urlpatterns = [
         name="donation_amount",
     ),
     path(
-        "dons/infos/",
+        "dons/validation/",
         views.DonationView.as_view(),
         name="donation_information_modal",
     ),
@@ -345,36 +345,6 @@ urlpatterns = [
         "dons-mensuels/informations/",
         views.DonationView.as_view(),
         name="monthly_donation_information",
-    ),
-    path(
-        "2022/dons/",
-        RedirectView.as_view(
-            pattern_name="donation_amount", permanent=True, query_string=True
-        ),
-        name="donations_2022_amount",
-    ),
-    path(
-        "2022/dons/infos/",
-        RedirectView.as_view(
-            pattern_name="donation_information_modal", permanent=True, query_string=True
-        ),
-        name="donation_2022_information_modal",
-    ),
-    path(
-        "2022/dons/informations/",
-        RedirectView.as_view(
-            pattern_name="donation_information", permanent=True, query_string=True
-        ),
-        name="donation_2022_information",
-    ),
-    path(
-        "2022/dons-mensuels/informations/",
-        RedirectView.as_view(
-            pattern_name="monthly_donation_information",
-            permanent=True,
-            query_string=True,
-        ),
-        name="monthly_donation_2022_information",
     ),
     # VOTING PROXIES
     path("procuration/", include(voting_proxy_patterns)),

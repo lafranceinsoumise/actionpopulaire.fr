@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React from "react";
 
 import styled from "styled-components";
@@ -37,5 +38,9 @@ const Breadcrumb = ({ onClick }) => (
     <div>3. Paiement</div>
   </StyledBreadcrumb>
 );
+
+Breadcrumb.propTypes = {
+  onClick: PropTypes.func,
+};
 
 export default Breadcrumb;

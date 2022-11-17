@@ -1,8 +1,8 @@
 import React from "react";
 
-import CONFIG from "./config";
-import { Theme } from "./StyledComponents";
-import AmountWidget from "./AmountWidget";
+import CONFIG from "@agir/donations/common/config";
+import { Theme } from "@agir/donations/common/StyledComponents";
+import AmountWidget from "@agir/donations/common/AmountWidget";
 
 export default {
   component: AmountWidget,

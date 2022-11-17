@@ -14,7 +14,6 @@ from rest_framework.test import APITestCase
 from agir.api.redis import using_separate_redis_server
 from agir.donations.apps import DonsConfig
 from agir.donations.models import Operation, MonthlyAllocation
-from agir.donations.serializers import SendDonationSerializer
 from agir.donations.tasks import (
     send_monthly_donation_confirmation_email,
     send_donation_email,
@@ -87,8 +86,7 @@ class DonationTestMixin:
 
         self.amount_url = reverse("donation_amount")
         self.information_modal_url = reverse("donation_information_modal")
-        self.create_donation_session_url = reverse("api_create_donation_session")
-        self.send_donation_url = reverse("api_send_donation")
+        self.create_donation_url = reverse("api_donation_create")
 
 
 class DonationTestCase(DonationTestMixin, APITestCase):
@@ -99,21 +97,11 @@ class DonationTestCase(DonationTestMixin, APITestCase):
         res = self.client.get(self.amount_url)
         self.assertEqual(res.status_code, 200)
 
-        res = self.client.post(
-            self.create_donation_session_url,
-            {
-                "paymentTimes": donations.serializers.TYPE_SINGLE_TIME,
-                "amount": "200",
-            },
-        )
-        self.assertEqual(res.status_code, 201)
-        self.assertIn(self.information_modal_url, res.data["next"])
-
         res = self.client.get(self.information_modal_url)
         self.assertEqual(res.status_code, 200)
 
         res = self.client.post(
-            self.send_donation_url, self.donation_information_payload
+            self.create_donation_url, self.donation_information_payload
         )
         # no other payment
         payment = Payment.objects.get()
@@ -152,23 +140,12 @@ class DonationTestCase(DonationTestMixin, APITestCase):
             self.donation_information_payload["locationCountry"],
         )
 
-        # check person is not unsubscribed
-        self.assertIn(Person.NEWSLETTER_2022, self.p1.newsletters)
-
         # fake systempay webhook
         complete_payment(payment)
         donation_notification_listener(payment)
         on_commit.assert_called_once()
 
     def test_cannot_donate_without_required_fields(self):
-
-        res = self.client.post(
-            self.create_donation_session_url,
-            {"paymentTimes": donations.serializers.TYPE_SINGLE_TIME, "amount": "200"},
-        )
-        self.assertEqual(res.status_code, 201)
-        self.assertIn(self.information_modal_url, res.data["next"])
-
         required_fields = [
             "nationality",
             "firstName",
@@ -183,24 +160,16 @@ class DonationTestCase(DonationTestMixin, APITestCase):
             d = self.donation_information_payload.copy()
             del d[f]
 
-            res = self.client.post(self.send_donation_url, d)
+            res = self.client.post(self.create_donation_url, d)
             self.assertEqual(
                 res.status_code,
                 422,
             )
 
     def test_create_person_when_using_new_address(self):
-
-        res = self.client.post(
-            self.create_donation_session_url,
-            {"paymentTimes": donations.serializers.TYPE_SINGLE_TIME, "amount": "200"},
-        )
-        self.assertEqual(res.status_code, 201)
-        self.assertIn(self.information_modal_url, res.data["next"])
-
         self.donation_information_payload["email"] = "test2@test.com"
         res = self.client.post(
-            self.send_donation_url, self.donation_information_payload
+            self.create_donation_url, self.donation_information_payload
         )
 
         payment = Payment.objects.get()
@@ -242,92 +211,36 @@ class DonationTestCase(DonationTestMixin, APITestCase):
             payment.phone_number, self.donation_information_payload["contactPhone"]
         )
 
-        self.assertNotIn(Person.NEWSLETTER_2022, p2.newsletters)
-
-    def test_create_and_subscribe_with_new_address(self):
-
-        res = self.client.post(
-            self.create_donation_session_url,
-            {"paymentTimes": donations.serializers.TYPE_SINGLE_TIME, "amount": "200"},
-        )
-        self.assertEqual(res.status_code, 201)
-        self.assertIn(self.information_modal_url, res.data["next"])
-
-        self.donation_information_payload["email"] = "test2@test.com"
-        res = self.client.post(
-            self.send_donation_url,
-            {**self.donation_information_payload, "subscribed2022": True},
-        )
-        payment = Payment.objects.get()
-        self.assertEqual(res.status_code, 200)
-        self.assertIn(front_url("payment_page", args=(payment.pk,)), res.data["next"])
-
-        self.assertTrue(payment.meta.get("subscribed_2022"))
-
-        # simulate correct payment
-        complete_payment(payment)
-        donation_notification_listener(payment)
-
-        p2 = Person.objects.exclude(pk=self.p1.pk).get()
-        self.assertIn(Person.NEWSLETTER_2022, p2.newsletters)
-
     def test_cannot_donate_to_uncertified_group(self):
         self.group.subtypes.all().delete()
         self.client.force_login(self.p1.role)
-        session = self.client.session
 
         res = self.client.get(self.amount_url)
         self.assertEqual(res.status_code, 200)
 
         res = self.client.post(
-            self.create_donation_session_url,
+            self.create_donation_url,
             {
+                **self.donation_information_payload,
                 "paymentTimes": donations.serializers.TYPE_SINGLE_TIME,
                 "amount": "200",
                 "allocations": f'{{"group": "{str(self.group.pk)}", "amount": 10000}}',
             },
         )
         self.assertEqual(res.status_code, 422)
-        self.assertNotIn("_donation_", session)
 
     @using_separate_redis_server
     def test_can_donate_with_allocation(self):
         self.client.force_login(self.p1.role)
-        session = self.client.session
 
         res = self.client.get(self.amount_url)
         self.assertEqual(res.status_code, 200)
-
-        res = self.client.post(
-            self.create_donation_session_url,
-            {
-                "paymentTimes": donations.serializers.TYPE_SINGLE_TIME,
-                "amount": "20000",
-                "allocations": [
-                    {"group": str(self.group.pk), "amount": 10000},
-                    {"group": str(self.other_group.pk), "amount": 5000},
-                ],
-            },
-        )
-
-        self.assertEqual(res.status_code, 201)
-        self.assertIn(self.information_modal_url, res.data["next"])
-
-        self.assertEqual(
-            session["_donation_"]["allocations"],
-            json.dumps(
-                [
-                    {"group": str(self.group.pk), "amount": 10000},
-                    {"group": str(self.other_group.pk), "amount": 5000},
-                ]
-            ),
-        )
 
         res = self.client.get(self.information_modal_url)
         self.assertEqual(res.status_code, 200)
 
         res = self.client.post(
-            self.send_donation_url,
+            self.create_donation_url,
             {
                 **self.donation_information_payload,
                 "allocations": [
@@ -414,22 +327,11 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
         res = self.client.get(self.amount_url)
         self.assertEqual(res.status_code, 200)
 
-        res = self.client.post(
-            self.create_donation_session_url,
-            {
-                "paymentTimes": donations.serializers.TYPE_MONTHLY,
-                "amount": "20000",
-                "allocations": [{"group": str(self.group.pk), "amount": 10000}],
-            },
-        )
-        self.assertEqual(res.status_code, 201)
-        self.assertIn(self.information_modal_url, res.data["next"])
-
         res = self.client.get(self.information_modal_url)
         self.assertEqual(res.status_code, 200)
 
         res = self.client.post(
-            self.send_donation_url,
+            self.create_donation_url,
             {
                 **self.donation_information_payload,
                 "paymentTimes": donations.serializers.TYPE_MONTHLY,
@@ -546,20 +448,12 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
         "agir.donations.views.api_views.send_monthly_donation_confirmation_email"
     )
     def test_create_person_when_using_new_address(self, send_email):
-
-        res = self.client.post(
-            self.create_donation_session_url,
-            {"paymentTimes": donations.serializers.TYPE_MONTHLY, "amount": "200"},
-        )
-        self.assertEqual(res.status_code, 201)
-        self.assertIn(self.information_modal_url, res.data["next"])
-
         res = self.client.get(self.information_modal_url)
         self.assertEqual(res.status_code, 200)
 
         self.donation_information_payload["email"] = "test2@test.com"
         res = self.client.post(
-            self.send_donation_url,
+            self.create_donation_url,
             {
                 **self.donation_information_payload,
                 "paymentTimes": donations.serializers.TYPE_MONTHLY,
@@ -650,7 +544,7 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
         )
 
         res = self.client.post(
-            self.send_donation_url,
+            self.create_donation_url,
             {
                 **self.donation_information_payload,
                 "amount": 700,
@@ -685,25 +579,11 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
 
         self.client.force_login(self.p1.role)
 
-        res = self.client.post(
-            self.create_donation_session_url,
-            {
-                "paymentTimes": donations.serializers.TYPE_MONTHLY,
-                "amount": "500",
-                "allocations": [
-                    {"group": str(self.group.pk), "amount": 100},
-                    {"group": str(self.other_group.pk), "amount": 300},
-                ],
-            },
-        )
-        self.assertEqual(res.status_code, 201)
-        self.assertIn(self.information_modal_url, res.data["next"])
-
         res = self.client.get(self.information_modal_url)
         self.assertEqual(res.status_code, 200)
 
         res = self.client.post(
-            self.send_donation_url,
+            self.create_donation_url,
             data={
                 **self.donation_information_payload,
                 "paymentTimes": donations.serializers.TYPE_MONTHLY,
@@ -745,26 +625,12 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
         existing_person = Person.objects.create_2022(
             "existing@person.test", create_role=True
         )
-        res = self.client.post(
-            self.create_donation_session_url,
-            data={
-                "paymentTimes": donations.serializers.TYPE_MONTHLY,
-                "amount": "500",
-                "allocations": [
-                    {"group": str(self.group.pk), "amount": 100},
-                    {"group": str(self.other_group.pk), "amount": 300},
-                ],
-            },
-        )
-        self.assertEqual(res.status_code, 201)
-        self.assertIn(self.information_modal_url, res.data["next"])
         res = self.client.get(self.information_modal_url)
         self.assertEqual(res.status_code, 200)
         res = self.client.post(
-            self.send_donation_url,
+            self.create_donation_url,
             data={
                 "email": existing_person.email,
-                "subscribed2022": True,
                 **self.donation_information_payload,
                 "paymentTimes": donations.serializers.TYPE_MONTHLY,
                 "amount": "500",
@@ -796,7 +662,6 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
             "location_city": "Bordeaux",
             "location_country": "FR",
             "contact_phone": "+33645789845",
-            "subscribed_2022": True,
         }
         for key, value in expected.items():
             self.assertIn(key, send_email.delay.call_args[1])

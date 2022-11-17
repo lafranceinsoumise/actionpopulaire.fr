@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import CustomField from "./CustomField";
+import CustomField from "@agir/donations/common/CustomField";
 
 import TextField from "@agir/front/formComponents/TextField";
 import CountryField from "@agir/front/formComponents/CountryField";

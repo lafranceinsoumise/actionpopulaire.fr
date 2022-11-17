@@ -2,12 +2,9 @@ import PropTypes from "prop-types";
 import React, { useState } from "react";
 import styled from "styled-components";
 
-import CONFIG from "./config";
-
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-import Spacer from "@agir/front/genericComponents/Spacer";
 
-import AmountWidget from "./AmountWidget";
+import AmountWidget from "@agir/donations/common/AmountWidget";
 import {
   Link,
   StepButton,
@@ -16,9 +13,9 @@ import {
   StyledPage,
   StyledLogo,
   StyledMain,
-} from "./StyledComponents";
+} from "@agir/donations/common/StyledComponents";
 
-import acceptedPaymentMethods from "./images/accepted-payment-methods.svg";
+import acceptedPaymentMethods from "@agir/donations/common/images/accepted-payment-methods.svg";
 
 const StyledErrorMessage = styled.p`
   text-align: center;
@@ -95,22 +92,21 @@ const StyledGroup = styled.div`
 const AmountStep = (props) => {
   const {
     isLoading,
-    type,
     beneficiary,
     legalParagraph,
     externalLinkRoute,
-    hasGroups,
+    hasUser,
     group,
     onSubmit,
     error,
     maxAmount,
     maxAmountWarning,
-    amountInit = 0,
-    byMonthInit = false,
+    initialAmount = 0,
+    initialByMonth = false,
   } = props;
 
-  const [amount, setAmount] = useState(amountInit);
-  const [byMonth, setByMonth] = useState(byMonthInit);
+  const [amount, setAmount] = useState(initialAmount);
+  const [byMonth, setByMonth] = useState(initialByMonth);
   const [groupPercentage, setGroupPercentage] = useState();
 
   const hasGroup = !!group?.id;
@@ -118,16 +114,16 @@ const AmountStep = (props) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const totalAmount = Math.round(amount * 100) / 100;
     onSubmit({
-      amount,
-      to: type,
+      amount: totalAmount,
       paymentTimes: byMonth ? "M" : "S",
       allocations:
         hasGroup && groupPercentage
           ? [
               {
                 group: group?.id,
-                amount: (amount * groupPercentage) / 100,
+                amount: (totalAmount * groupPercentage) / 100,
               },
             ]
           : [],
@@ -145,13 +141,18 @@ const AmountStep = (props) => {
             rel="noopener noreferrer"
             target="_blank"
           />
-          {!hasGroup && hasGroups ? (
+          {!hasGroup ? (
             <StyledGroupLink>
               <RawFeatherIcon name="share" />
               <span>
-                <strong>Pour faire un don alloué</strong> vers votre groupe
+                <strong>Pour faire un don alloué</strong> vers un groupe
                 d'action certifié, utilisez le bouton "financer" dans{" "}
-                <Link route="groups">la page de votre groupe</Link>
+                <Link
+                  route={hasUser ? "groups" : "groupMap"}
+                  params={!hasUser ? { subtype: "certifié" } : null}
+                >
+                  la page du groupe
+                </Link>
               </span>
             </StyledGroupLink>
           ) : null}
@@ -236,9 +237,8 @@ const AmountStep = (props) => {
 };
 
 AmountStep.propTypes = {
-  hasGroups: PropTypes.bool,
+  hasUser: PropTypes.bool,
   group: PropTypes.object,
-  type: PropTypes.oneOf(Object.keys(CONFIG)),
   beneficiary: PropTypes.string,
   legalParagraph: PropTypes.string,
   externalLinkRoute: PropTypes.string,
@@ -247,6 +247,8 @@ AmountStep.propTypes = {
   error: PropTypes.string,
   maxAmount: PropTypes.number,
   maxAmountWarning: PropTypes.node,
+  initialAmount: PropTypes.number,
+  initialByMonth: PropTypes.bool,
 };
 
 export default AmountStep;
