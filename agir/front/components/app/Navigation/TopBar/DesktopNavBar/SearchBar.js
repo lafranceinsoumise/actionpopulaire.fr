@@ -69,10 +69,11 @@ const SearchBarWrapper = styled.form`
 const SearchBar = () => {
   const inputRef = useRef();
   const location = window.location;
+
   let currentSearch = "";
   if (location.pathname.includes(routeConfig.search.path)) {
     const urlParams = new URLSearchParams(location.search);
-    currentSearch = urlParams.get("q");
+    currentSearch = urlParams.get("q") || "";
   }
 
   const [value, setValue] = useState(currentSearch);
