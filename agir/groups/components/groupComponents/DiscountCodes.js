@@ -6,16 +6,6 @@ import { parseDiscountCodes } from "@agir/groups/groupPage/utils";
 
 import ShareLink from "@agir/front/genericComponents/ShareLink";
 
-const StyledDiscountWarning = styled.p`
-  background-color: ${(props) => props.theme.primary100};
-  border-radius: ${(props) => props.theme.borderRadius};
-  color: ${(props) => props.theme.black1000};
-  font-size: 0.875rem;
-  padding: 0.875rem;
-  line-height: 1.5;
-  margin: 0 0 1rem;
-`;
-
 const StyledSection = styled.section`
   margin: 1.5rem 0 0;
 
