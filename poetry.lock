@@ -1657,7 +1657,7 @@ lxml = ">=2.1"
 
 [[package]]
 name = "pyrogram"
-version = "2.0.61"
+version = "2.0.62"
 description = "Elegant, modern and asynchronous Telegram MTProto API framework in Python for users and bots"
 category = "main"
 optional = false
@@ -3615,8 +3615,8 @@ pyquery = [
     {file = "pyquery-1.4.3.tar.gz", hash = "sha256:a388eefb6bc4a55350de0316fbd97cda999ae669b6743ae5b99102ba54f5aa72"},
 ]
 pyrogram = [
-    {file = "Pyrogram-2.0.61-py3-none-any.whl", hash = "sha256:0f45419b8dda511cbec4d2ce8c7627534e173cd12d0b69fb7f6e6a34d72e3a2a"},
-    {file = "Pyrogram-2.0.61.tar.gz", hash = "sha256:10d3ed7b916c06bd8ee212660f12898018076e919b5cca0801380c742381e099"},
+    {file = "Pyrogram-2.0.62-py3-none-any.whl", hash = "sha256:1c111b96e0de093477dd9dfc14af24a5c4ce5047deb5d0a0cd9866e533a60265"},
+    {file = "Pyrogram-2.0.62.tar.gz", hash = "sha256:7e14e4363e9d04e01ce91cc196311fc28bcb04b91f38069d0d2b1e4120538091"},
 ]
 pysocks = [
     {file = "PySocks-1.7.1-py27-none-any.whl", hash = "sha256:08e69f092cc6dbe92a0fdd16eeb9b9ffbc13cadfe5ca4c7bd92ffb078b293299"},
