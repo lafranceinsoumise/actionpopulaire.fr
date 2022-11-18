@@ -271,6 +271,8 @@ class MonthlyDonationEmailConfirmationView(VerifyLinkSignatureMixin, View):
             person=person, status=Subscription.STATUS_ACTIVE
         ).first()
 
+        # TODO: handle renewals from september on if existing_subscription is a contribution
+
         # Redirect if user already contributor
         if (
             existing_subscription is not None

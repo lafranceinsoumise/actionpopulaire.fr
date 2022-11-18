@@ -101,6 +101,12 @@ const StyledField = styled.label`
     &.select__control--is-disabled {
       background-color: ${style.black100};
     }
+
+    & .select__placeholder {
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
   }
 
   ${StyledMenu} {

@@ -14,6 +14,28 @@ const don = {
       groupements politiques
     </span>
   ),
+  thankYouNote: (
+    <div>
+      <p>Chère donatrice, Cher donateur,</p>
+      <br />
+      <p>Vous venez d'apporter votre appui financier à la France insoumise.</p>
+      <p>
+        Je vous remercie très chaleureusement. Cet appui est crucial pour nous.
+        En effet, nous ne pouvons pas compter comme nos adversaires sur le
+        soutien des oligarques ni de la finance. Notre force, c'est notre
+        nombre. Ils ont les millions, mais nous sommes des millions&nbsp;!
+      </p>
+      <p>
+        Je mesure combien donner quelques euros est souvent un effort financier
+        important tant les temps sont durs pour beaucoup de Français. Votre
+        argent ne sera pas gaspillé. Il sera utilisé avec rigueur et un souci
+        constant de le rendre utile à notre action commune. Je m'y engage.
+      </p>
+      <p>Courage, les mauvais jours finiront.</p>
+      <br />
+      <p style={{ textAlign: "right" }}>Jean-Luc Mélenchon</p>
+    </div>
+  ),
   beneficiary: "la France insoumise",
   externalLinkRoute: "lafranceinsoumise",
   title: "Faire un don - La France insoumise",

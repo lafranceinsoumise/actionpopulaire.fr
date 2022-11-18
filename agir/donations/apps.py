@@ -25,6 +25,7 @@ class DonsConfig(AppConfig):
     )
 
     def ready(self):
+        from django.urls import reverse_lazy
         from django.views.generic import RedirectView
         from .views import (
             notification_listener,
@@ -67,7 +68,7 @@ class DonsConfig(AppConfig):
         single_time_donation_payment_type = PaymentType(
             self.SINGLE_TIME_DONATION_TYPE,
             "Don",
-            RedirectView.as_view(url="https://lafranceinsoumise.fr/remerciement-don/"),
+            RedirectView.as_view(url=reverse_lazy("donation_success")),
             status_listener=notification_listener,
             description_template="donations/description.html",
             description_context_generator=payment_description_context_generator,
@@ -80,7 +81,7 @@ class DonsConfig(AppConfig):
         monthly_donation_payment_type = PaymentType(
             self.MONTHLY_DONATION_TYPE,
             "Don mensuel",
-            RedirectView.as_view(url="https://lafranceinsoumise.fr/remerciement-don/"),
+            RedirectView.as_view(url=reverse_lazy("donation_success")),
             status_listener=notification_listener,
             description_template="donations/description.html",
             description_context_generator=payment_description_context_generator,
@@ -92,7 +93,7 @@ class DonsConfig(AppConfig):
         monthly_donation_subscription_type = SubscriptionType(
             self.MONTHLY_DONATION_TYPE,
             "Don mensuel",
-            RedirectView.as_view(url="https://lafranceinsoumise.fr/remerciement-don/"),
+            RedirectView.as_view(url=reverse_lazy("donation_success")),
             status_listener=subscription_notification_listener,
             description_template="donations/subscription_description.html",
             description_context_generator=subscription_description_context_generator,
@@ -104,7 +105,7 @@ class DonsConfig(AppConfig):
         contribution_payment_type = PaymentType(
             self.CONTRIBUTION_TYPE,
             "Contribution financière volontaire",
-            RedirectView.as_view(url="https://lafranceinsoumise.fr/remerciement-don/"),
+            RedirectView.as_view(url=reverse_lazy("contribution_success")),
             status_listener=notification_listener,
             description_template="donations/description.html",
             description_context_generator=payment_description_context_generator,
@@ -116,7 +117,7 @@ class DonsConfig(AppConfig):
         contribution_subscription_type = SubscriptionType(
             self.CONTRIBUTION_TYPE,
             "Contribution financière volontaire",
-            RedirectView.as_view(url="https://lafranceinsoumise.fr/remerciement-don/"),
+            RedirectView.as_view(url=reverse_lazy("contribution_success")),
             status_listener=subscription_notification_listener,
             description_template="donations/subscription_description.html",
             description_context_generator=subscription_description_context_generator,
