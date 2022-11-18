@@ -33,3 +33,50 @@ export const getScrollableParent = (element) => {
 
   return scrollParent(element);
 };
+
+const INTERACTIVE_ELEMENT = {
+  A: (element) => element.hasAttribute("href"),
+  AUDIO: (element) => element.hasAttribute("controls"),
+  BUTTON: true,
+  DETAILS: true,
+  EMBED: true,
+  IFRAME: true,
+  KEYGEN: true,
+  LABEL: true,
+  SELECT: true,
+  TEXTAREA: true,
+  VIDEO: (element) => element.hasAttribute("controls"),
+};
+
+export function isInteractiveElement(element) {
+  const { nodeName } = element;
+  if (element instanceof HTMLInputElement && element.type !== "hidden") {
+    return true;
+  }
+  if (element.hasAttribute("tabindex") && element.tabIndex > -1) {
+    return true;
+  }
+  if (!INTERACTIVE_ELEMENT[nodeName]) {
+    return false;
+  }
+  if (typeof INTERACTIVE_ELEMENT[nodeName] === "function") {
+    return INTERACTIVE_ELEMENT[nodeName](element);
+  }
+  return INTERACTIVE_ELEMENT[nodeName] === true;
+}
+
+export const handleEventExceptForInteractiveChild = (event, callback) => {
+  if (!callback) {
+    return;
+  }
+  for (
+    let target = event.target;
+    target !== event.currentTarget;
+    target = target.parentElement
+  ) {
+    if (isInteractiveElement(target)) {
+      return;
+    }
+  }
+  callback(event);
+};

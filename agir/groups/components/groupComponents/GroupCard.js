@@ -1,19 +1,20 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback } from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
 import { routeConfig } from "@agir/front/app/routes.config";
 import style from "@agir/front/genericComponents/_variables.scss";
 
+import Link from "@agir/front/app/Link";
 import Button from "@agir/front/genericComponents/Button";
 import Card from "@agir/front/genericComponents/Card";
 import Collapsible from "@agir/front/genericComponents/Collapsible.js";
-import { Column, Hide, Row } from "@agir/front/genericComponents/grid";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
-import Link from "@agir/front/app/Link";
+import { Column, Hide, Row } from "@agir/front/genericComponents/grid";
 
 import DiscountCodes from "@agir/groups/groupComponents/DiscountCodes";
+import { handleEventExceptForInteractiveChild } from "@agir/lib/utils/dom";
 
 const GroupIcon = styled.div`
   display: flex;
@@ -75,12 +76,10 @@ const GroupCard = ({
 
   const handleClick = useCallback(
     (e) => {
-      if (["A", "INPUT", "BUTTON"].includes(e.target.tagName.toUpperCase())) {
-        return;
-      }
       id &&
-        routeConfig.groupDetails &&
-        history.push(routeConfig.groupDetails.getLink({ groupPk: id }));
+        handleEventExceptForInteractiveChild(e, () => {
+          history.push(routeConfig.groupDetails.getLink({ groupPk: id }));
+        });
     },
     [history, id]
   );
@@ -195,6 +194,7 @@ const GroupCard = ({
 };
 
 GroupCard.propTypes = {
+  id: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   description: PropTypes.string,
   eventCount: PropTypes.number,
@@ -203,12 +203,14 @@ GroupCard.propTypes = {
   isManager: PropTypes.bool,
   typeLabel: PropTypes.string,
   labels: PropTypes.arrayOf(PropTypes.string),
+  discountCodes: PropTypes.array,
   routes: PropTypes.object,
   displayGroupLogo: PropTypes.bool,
   displayType: PropTypes.bool,
   displayDescription: PropTypes.bool,
   displayMembership: PropTypes.bool,
   isEmbedded: PropTypes.bool,
+  isCertified: PropTypes.bool,
 };
 
 GroupCard.defaultProps = {
