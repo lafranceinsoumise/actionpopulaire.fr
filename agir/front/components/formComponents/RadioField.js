@@ -162,6 +162,7 @@ const RadioField = (props) => {
               onChange={handleChange}
               checked={value === option.value}
               value={option.value}
+              disabled={disabled}
             />
             <StyledBox />
             <StyledOptionLabel>{option.label}</StyledOptionLabel>
