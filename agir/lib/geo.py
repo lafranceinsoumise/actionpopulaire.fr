@@ -48,19 +48,7 @@ def is_geocodable(item):
 
 
 def is_in_france(item):
-    if item.location_country and item.location_country not in FRENCH_COUNTRY_CODES:
-        return False
-
-    if (
-        item.location_zip
-        and CodePostal.objects.filter(
-            code=normalize_french_zip_code(item.location_zip)
-        ).exists()
-        is False
-    ):
-        return False
-
-    return True
+    return not item.location_country or item.location_country in FRENCH_COUNTRY_CODES
 
 
 def geocode_element(item):
