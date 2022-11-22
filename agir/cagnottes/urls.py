@@ -6,9 +6,9 @@ app_name = "cagnottes"
 
 urlpatterns = [
     path(
-        "informations/",
+        "<slug:slug>/informations/",
         views.PersonalInformationView.as_view(),
         name="personal_information",
     ),
-    path("compteur/", views.CompteurView.as_view(), name="compteur"),
+    path("<slug:slug>/compteur/", views.CompteurView.as_view(), name="compteur"),
 ]
