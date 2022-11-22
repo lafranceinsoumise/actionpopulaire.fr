@@ -1026,7 +1026,7 @@ python-versions = "*"
 
 [[package]]
 name = "hypothesis"
-version = "6.57.1"
+version = "6.58.0"
 description = "A library for property-based testing"
 category = "dev"
 optional = false
@@ -2328,7 +2328,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "66042275e0aaa5924460ab7fcc6372fec0636a2c6c599722aa454dd00cee6376"
+content-hash = "6c7fc2cb241ade122597c3d23c1d1e20994f55d4a3cbecd872d1523da299d706"
 
 [metadata.files]
 amqp = [
@@ -3103,8 +3103,8 @@ hyperframe = [
     {file = "hyperframe-3.2.0.tar.gz", hash = "sha256:05f0e063e117c16fcdd13c12c93a4424a2c40668abfac3bb419a10f57698204e"},
 ]
 hypothesis = [
-    {file = "hypothesis-6.57.1-py3-none-any.whl", hash = "sha256:91c22db726ffd68f2658e273af111a6fcae2e53fa430580862e8522686b5c071"},
-    {file = "hypothesis-6.57.1.tar.gz", hash = "sha256:1d8ed5136f368e343f39172b06f68aa7fd1312cf643c332ab18a75d56789fa90"},
+    {file = "hypothesis-6.58.0-py3-none-any.whl", hash = "sha256:c2ffa10c94ff1a4a12f4ff515d78a4a3060a7c5b9968331d7b2707576a29570d"},
+    {file = "hypothesis-6.58.0.tar.gz", hash = "sha256:89d9aa676dac7275755371d42d65fc81366ff0e0289ab525aa2bb3dcf7c98b9f"},
 ]
 ics = [
     {file = "ics-0.7.2-py2.py3-none-any.whl", hash = "sha256:5fcf4d29ec6e7dfcb84120abd617bbba632eb77b097722b7df70e48dbcf26103"},
