@@ -1,6 +1,13 @@
 import validate from "@agir/lib/utils/validate";
 
-const GENDER_OPTIONS = ["M", "F"];
+export const ONE_TIME_PAYMENT = "S";
+export const MONTHLY_PAYMENT = "M";
+
+export const GENDER_OPTIONS = [
+  { label: "", value: "" },
+  { label: "Madame", value: "F" },
+  { label: "Monsieur", value: "M" },
+];
 
 export const INITIAL_DATA = {
   email: "",
@@ -18,7 +25,7 @@ export const INITIAL_DATA = {
   to: "",
   paymentMode: "",
   amount: 0,
-  paymentTimes: "S",
+  paymentTiming: "",
   allocations: [],
   consentCertification: false,
 };
@@ -91,7 +98,7 @@ export const DONATION_DATA_CONSTRAINTS = {
       message: "Ce champ ne peut pas être vide.",
     },
     inclusion: {
-      within: GENDER_OPTIONS,
+      within: GENDER_OPTIONS.map((option) => option.value).filter(Boolean),
       message: "Veuillez choisir une des options.",
     },
   },
@@ -144,7 +151,7 @@ export const DONATION_DATA_CONSTRAINTS = {
       message: "Ce champ ne peut pas être vide.",
     },
   },
-  paymentTimes: {
+  paymentTiming: {
     presence: {
       allowEmpty: false,
       message: "Ce champ ne peut pas être vide.",

@@ -14,10 +14,6 @@ const Template = ({ onChange, ...args }) => {
   const [value, setValue] = React.useState();
   const handleChange = React.useCallback(
     (newValue) => {
-      console.log(
-        args.totalAmount,
-        newValue.map((i) => i.value)
-      );
       onChange(newValue);
       setValue(newValue);
     },
@@ -25,7 +21,7 @@ const Template = ({ onChange, ...args }) => {
   );
 
   return (
-    <Theme type="LFI">
+    <Theme>
       <AllocationWidget {...args} value={value} onChange={handleChange} />
     </Theme>
   );

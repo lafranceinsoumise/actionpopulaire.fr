@@ -55,7 +55,7 @@ class DonationTestMixin:
             "contactPhone": "+33645789845",
             "amount": "20000",
             "paymentMode": payment_modes.DEFAULT_MODE,
-            "paymentTimes": donations.serializers.TYPE_SINGLE_TIME,
+            "paymentTiming": donations.serializers.TYPE_SINGLE_TIME,
             "gender": "F",
         }
 
@@ -222,7 +222,7 @@ class DonationTestCase(DonationTestMixin, APITestCase):
             self.create_donation_url,
             {
                 **self.donation_information_payload,
-                "paymentTimes": donations.serializers.TYPE_SINGLE_TIME,
+                "paymentTiming": donations.serializers.TYPE_SINGLE_TIME,
                 "amount": "200",
                 "allocations": f'{{"group": "{str(self.group.pk)}", "amount": 10000}}',
             },
@@ -334,7 +334,7 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
             self.create_donation_url,
             {
                 **self.donation_information_payload,
-                "paymentTimes": donations.serializers.TYPE_MONTHLY,
+                "paymentTiming": donations.serializers.TYPE_MONTHLY,
                 "allocations": [{"group": str(self.group.pk), "amount": 10000}],
             },
         )
@@ -456,7 +456,7 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
             self.create_donation_url,
             {
                 **self.donation_information_payload,
-                "paymentTimes": donations.serializers.TYPE_MONTHLY,
+                "paymentTiming": donations.serializers.TYPE_MONTHLY,
                 "allocations": [],
             },
         )
@@ -549,7 +549,7 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
                 **self.donation_information_payload,
                 "amount": 700,
                 "allocations": [{"group": str(self.group.pk), "amount": 700}],
-                "paymentTimes": donations.serializers.TYPE_MONTHLY,
+                "paymentTiming": donations.serializers.TYPE_MONTHLY,
             },
         )
 
@@ -586,7 +586,7 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
             self.create_donation_url,
             data={
                 **self.donation_information_payload,
-                "paymentTimes": donations.serializers.TYPE_MONTHLY,
+                "paymentTiming": donations.serializers.TYPE_MONTHLY,
                 "amount": "500",
                 "allocations": [
                     {"group": str(self.group.pk), "amount": 100},
@@ -632,7 +632,7 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
             data={
                 "email": existing_person.email,
                 **self.donation_information_payload,
-                "paymentTimes": donations.serializers.TYPE_MONTHLY,
+                "paymentTiming": donations.serializers.TYPE_MONTHLY,
                 "amount": "500",
                 "allocations": [
                     {"group": str(self.group.pk), "amount": 100},

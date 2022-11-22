@@ -71,8 +71,8 @@ const DonationPage = () => {
 
   const { allowedPaymentModes, hasGroupAllocations, theme, title, type } =
     config;
-  const { amount, paymentTimes } = formData;
-  const paymentModes = allowedPaymentModes[paymentTimes];
+  const { amount, paymentTiming } = formData;
+  const paymentModes = allowedPaymentModes[paymentTiming];
   const groupPk = hasGroupAllocations && urlParams.get("group");
 
   const { data: group } = useSWR(
@@ -128,7 +128,7 @@ const DonationPage = () => {
           isLoading={isLoading}
           error={formErrors.amount}
           initialAmount={formData.amount}
-          initialByMonth={formData.paymentTimes === "M"}
+          initialPaymentTiming={formData.paymentTiming}
           onSubmit={openModal}
         />
         <StyledModal shouldShow={isModalOpen} onClose={closeModal}>

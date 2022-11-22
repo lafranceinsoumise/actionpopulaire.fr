@@ -1,3 +1,4 @@
+from data_france.models import Departement
 from rest_framework import serializers
 
 from agir.checks import DonationCheckPaymentMode
@@ -6,7 +7,7 @@ from agir.lib.serializers import PhoneField
 from agir.payments import payment_modes
 from agir.people.models import Person
 
-TO_LFI = "LFI"
+TO_LFI = "DONATION"
 
 TYPE_SINGLE_TIME = "S"
 TYPE_MONTHLY = "M"
@@ -16,11 +17,43 @@ PAYMENTS_LFI_MONTHLY = [payment_modes.DEFAULT_MODE]
 
 
 class DonationAllocationSerializer(serializers.Serializer):
+    default_error_messages = (
+        ("Boo", "Boo"),
+        ("Boo", "Boo"),
+    )
+    type = serializers.ChoiceField(
+        choices=(
+            ("group", "à un groupe d'action"),
+            ("departement", "à une caisse départementale"),
+            ("cns", "à la caisse nationale de solidarité"),
+        ),
+        default="group",
+        required=False,
+    )
     group = serializers.PrimaryKeyRelatedField(
-        queryset=SupportGroup.objects.active().certified(),
-        required=True,
+        queryset=SupportGroup.objects.active().certified(), required=False
+    )
+    departement = serializers.SlugRelatedField(
+        queryset=Departement.objects.all(), slug_field="code", required=False
     )
     amount = serializers.IntegerField(min_value=1, required=True)
+
+    def validate(self, attrs):
+        if attrs.get("type", "group") == "group" and not attrs.get("group"):
+            raise serializers.ValidationError(
+                detail={
+                    "group": "L'id du groupe est obligatoire pour ce type d'allocation"
+                }
+            )
+
+        if attrs.get("type", "group") == "departement" and not attrs.get("departement"):
+            raise serializers.ValidationError(
+                detail={
+                    "departement": "Le code du departement est obligatoire pour ce type d'allocation"
+                }
+            )
+
+        return attrs
 
 
 class DonationSerializer(serializers.ModelSerializer):
@@ -47,8 +80,8 @@ class DonationSerializer(serializers.ModelSerializer):
         default=TO_LFI,
     )
     amount = serializers.IntegerField(min_value=1, required=True)
-    paymentTimes = serializers.ChoiceField(
-        source="payment_times",
+    paymentTiming = serializers.ChoiceField(
+        source="payment_timing",
         choices=((TYPE_SINGLE_TIME, "une seule fois"), (TYPE_MONTHLY, "tous les mois")),
         required=True,
     )
@@ -67,10 +100,10 @@ class DonationSerializer(serializers.ModelSerializer):
     # Check payment_mode is allowed for the type of donation
     def validate(self, attrs):
         payment_mode = attrs["payment_mode"]
-        payment_times = attrs["payment_times"]
+        payment_timing = attrs["payment_timing"]
 
         error = False
-        if payment_times == TYPE_MONTHLY:
+        if payment_timing == TYPE_MONTHLY:
             if payment_mode not in PAYMENTS_LFI_MONTHLY:
                 error = True
         else:
@@ -80,7 +113,7 @@ class DonationSerializer(serializers.ModelSerializer):
         if error:
             raise serializers.ValidationError(
                 detail={
-                    "paymentMode": f"Ce mode de paiement n'est actuellement pas autorisé pour ce type de dons"
+                    "paymentMode": "Ce mode de paiement n'est actuellement pas autorisé pour ce type de dons"
                 }
             )
 
@@ -111,6 +144,6 @@ class DonationSerializer(serializers.ModelSerializer):
             "paymentMode",
             "to",
             "amount",
-            "paymentTimes",
+            "paymentTiming",
             "allocations",
         )
