@@ -3,6 +3,7 @@ import React from "react";
 import CONFIG from "@agir/donations/common/config";
 import { Theme } from "@agir/donations/common/StyledComponents";
 import AmountWidget from "@agir/donations/common/AmountWidget";
+import { MONTHLY_PAYMENT, ONE_TIME_PAYMENT } from "./form.config";
 
 export default {
   component: AmountWidget,
@@ -18,10 +19,12 @@ export default {
   },
 };
 
-const Template = ({ theme, groupDonation, ...args }) => {
+const Template = (args) => {
   const [amount, setAmount] = React.useState(0);
-  const [groupPercentage, setGroupPercentage] = React.useState();
-  const [byMonth, setByMonth] = React.useState(false);
+  const [allocations, setAllocations] = React.useState();
+  const [paymentTiming, setPaymentTiming] = React.useState(
+    args.allowedPaymentTimings[0]
+  );
 
   const handleChangeAmount = React.useCallback(
     (value) => {
@@ -31,34 +34,32 @@ const Template = ({ theme, groupDonation, ...args }) => {
     [args]
   );
 
-  const handleChangeGroupPercentage = React.useCallback(
+  const handleChangeAllocations = React.useCallback(
     (value) => {
-      args.onChangeGroupPercentage(value);
-      setGroupPercentage(value);
+      args.onChangeAllocations(value);
+      setAllocations(value);
     },
     [args]
   );
 
-  const handleChangeByMonth = React.useCallback(
+  const handleChangePaymentTiming = React.useCallback(
     (value) => {
-      args.onChangeByMonth(value);
-      setByMonth(value);
+      args.onChangePaymentTiming(value);
+      setPaymentTiming(value);
     },
     [args]
   );
 
   return (
-    <Theme type={theme}>
+    <Theme>
       <AmountWidget
         {...args}
         amount={amount}
         onChangeAmount={handleChangeAmount}
-        groupPercentage={groupDonation ? groupPercentage : undefined}
-        onChangeGroupPercentage={
-          groupDonation ? handleChangeGroupPercentage : undefined
-        }
-        byMonth={byMonth}
-        onChangeByMonth={handleChangeByMonth}
+        allocations={allocations}
+        onChangeAllocations={handleChangeAllocations}
+        paymentTiming={paymentTiming}
+        onChangePaymentTiming={handleChangePaymentTiming}
       />
     </Theme>
   );
@@ -66,14 +67,26 @@ const Template = ({ theme, groupDonation, ...args }) => {
 
 export const Default = Template.bind({});
 Default.args = {
-  groupDonation: false,
+  groupId: null,
   disabled: false,
   error: "",
-  theme: "LFI",
+  allowedPaymentTimings: [MONTHLY_PAYMENT, ONE_TIME_PAYMENT],
 };
 
 export const WithGroupDonation = Template.bind({});
 WithGroupDonation.args = {
   ...Default.args,
-  groupDonation: true,
+  groupId: "12345",
+};
+
+export const WithFixedRatio = Template.bind({});
+WithFixedRatio.args = {
+  ...Default.args,
+  fixedRatio: 0.5,
+};
+
+export const WithoutPaymentTimingChoice = Template.bind({});
+WithoutPaymentTimingChoice.args = {
+  ...Default.args,
+  allowedPaymentTimings: [ONE_TIME_PAYMENT],
 };

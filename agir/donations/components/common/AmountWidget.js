@@ -4,14 +4,14 @@ import styled from "styled-components";
 
 import { displayPrice } from "@agir/lib/utils/display";
 
-import ByMonthWidget from "@agir/donations/common/ByMonthWidget";
-import GroupPercentageWidget from "@agir/donations/common/GroupPercentageWidget";
+import PaymentTimingWidget from "@agir/donations/common/PaymentTimingWidget";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import {
   Button,
   SelectedButton,
   StyledButtonLabel,
 } from "@agir/donations/common/StyledComponents";
+import AllocationWidget from "./AllocationWidget";
 
 const DEFAULT_AMOUNTS = [500, 1000, 1500, 3000, 5000];
 
@@ -66,11 +66,14 @@ const AmountWidget = (props) => {
     amount,
     maxAmount,
     maxAmountWarning,
-    groupPercentage,
-    byMonth,
+    allocations,
+    groupId,
+    fixedRatio,
+    paymentTiming,
+    allowedPaymentTimings,
     onChangeAmount,
-    onChangeGroupPercentage,
-    onChangeByMonth,
+    onChangeAllocations,
+    onChangePaymentTiming,
     disabled,
   } = props;
 
@@ -152,17 +155,21 @@ const AmountWidget = (props) => {
           </span>
         </StyledTaxReduction>
       ) : null}
-      {onChangeGroupPercentage && (
-        <GroupPercentageWidget
-          value={groupPercentage}
-          onChange={onChangeGroupPercentage}
+      {!!amount && (
+        <AllocationWidget
+          totalAmount={amount}
+          value={allocations}
+          groupId={groupId}
+          fixedRatio={fixedRatio}
+          onChange={onChangeAllocations}
           disabled={disabled}
         />
       )}
-      <ByMonthWidget
-        value={byMonth}
-        onChange={onChangeByMonth}
+      <PaymentTimingWidget
+        value={paymentTiming}
+        onChange={onChangePaymentTiming}
         disabled={disabled}
+        allowedPaymentTimings={allowedPaymentTimings}
       />
     </StyledAmountWidget>
   );
@@ -172,13 +179,16 @@ AmountWidget.propTypes = {
   amount: PropTypes.number,
   maxAmount: PropTypes.number,
   maxAmountWarning: PropTypes.node,
-  groupPercentage: PropTypes.number,
-  byMonth: PropTypes.bool,
-  onChangeAmount: PropTypes.func.isRequired,
-  onChangeGroupPercentage: PropTypes.func,
-  onChangeByMonth: PropTypes.func.isRequired,
-  disabled: PropTypes.bool,
+  allocations: PropTypes.arrayOf(PropTypes.object),
+  groupId: PropTypes.string,
+  fixedRatio: PropTypes.number,
   error: PropTypes.string,
+  paymentTiming: PropTypes.string,
+  allowedPaymentTimings: PropTypes.array,
+  disabled: PropTypes.bool,
+  onChangeAmount: PropTypes.func.isRequired,
+  onChangeAllocations: PropTypes.func.isRequired,
+  onChangePaymentTiming: PropTypes.func.isRequired,
 };
 
 export default AmountWidget;

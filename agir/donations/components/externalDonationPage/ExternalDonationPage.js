@@ -4,6 +4,7 @@ import { useHistory, useLocation, useParams } from "react-router-dom";
 
 import { routeConfig } from "@agir/front/app/routes.config";
 import { useDonations } from "@agir/donations/common/hooks";
+import { MONTHLY_PAYMENT, ONE_TIME_PAYMENT } from "../common/form.config";
 
 import DonationForm from "@agir/donations/common/DonationForm";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
@@ -34,13 +35,15 @@ const ExternalDonationPage = () => {
     handleSubmit,
   } = useDonations(params?.type, {
     amount: urlParams.get("amount") || 0,
-    paymentTimes: pathname.includes("dons-mensuels") ? "M" : "S",
+    paymentTiming: pathname.includes("dons-mensuels")
+      ? MONTHLY_PAYMENT
+      : ONE_TIME_PAYMENT,
   });
 
   const { allowedPaymentModes, beneficiary, externalLinkRoute, title, type } =
     config;
-  const { paymentTimes } = formData;
-  const paymentModes = allowedPaymentModes[paymentTimes];
+  const { paymentTiming } = formData;
+  const paymentModes = allowedPaymentModes[paymentTiming];
 
   const handleBack = useCallback(
     () => history.replace(routeConfig.donations.getLink(params) + search),

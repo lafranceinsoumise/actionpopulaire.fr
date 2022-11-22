@@ -178,9 +178,9 @@ export const StyledPage = styled.div`
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center center;
-    background-image: url(${(props) => props.theme.illustration.large});
+    background-image: url(${(props) => props.theme.illustration?.large});
     @media (max-width: ${(props) => props.theme.collapse}px) {
-      content: url(${(props) => props.theme.illustration.small});
+      content: url(${(props) => props.theme.illustration?.small});
       width: 100%;
       height: auto;
     }

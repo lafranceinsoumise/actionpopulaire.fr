@@ -92,6 +92,7 @@ const StyledGroup = styled.div`
 const AmountStep = (props) => {
   const {
     isLoading,
+    allowedPaymentModes,
     beneficiary,
     legalParagraph,
     externalLinkRoute,
@@ -102,12 +103,12 @@ const AmountStep = (props) => {
     maxAmount,
     maxAmountWarning,
     initialAmount = 0,
-    initialByMonth = false,
+    initialPaymentTiming,
   } = props;
 
   const [amount, setAmount] = useState(initialAmount);
-  const [byMonth, setByMonth] = useState(initialByMonth);
-  const [groupPercentage, setGroupPercentage] = useState();
+  const [paymentTiming, setPaymentTiming] = useState(initialPaymentTiming);
+  const [allocations, setAllocations] = useState();
 
   const hasGroup = !!group?.id;
   const hasSubmit = !isLoading && amount && amount <= maxAmount;
@@ -117,18 +118,12 @@ const AmountStep = (props) => {
     const totalAmount = Math.round(amount * 100) / 100;
     onSubmit({
       amount: totalAmount,
-      paymentTimes: byMonth ? "M" : "S",
-      allocations:
-        hasGroup && groupPercentage
-          ? [
-              {
-                group: group?.id,
-                amount: (totalAmount * groupPercentage) / 100,
-              },
-            ]
-          : [],
+      paymentTiming,
+      allocations,
     });
   };
+
+  const allowedPaymentTimings = Object.keys(allowedPaymentModes);
 
   return (
     <StyledPage>
@@ -191,13 +186,13 @@ const AmountStep = (props) => {
               amount={amount}
               maxAmount={maxAmount}
               maxAmountWarning={maxAmountWarning}
-              byMonth={byMonth}
-              groupPercentage={hasGroup ? groupPercentage : undefined}
+              paymentTiming={paymentTiming}
+              allocations={allocations}
+              groupId={group?.id}
               onChangeAmount={setAmount}
-              onChangeByMonth={setByMonth}
-              onChangeGroupPercentage={
-                hasGroup ? setGroupPercentage : undefined
-              }
+              onChangePaymentTiming={setPaymentTiming}
+              onChangeAllocations={setAllocations}
+              allowedPaymentTimings={allowedPaymentTimings}
             />
             {!isLoading && error ? (
               <StyledErrorMessage>{error}</StyledErrorMessage>
@@ -248,7 +243,8 @@ AmountStep.propTypes = {
   maxAmount: PropTypes.number,
   maxAmountWarning: PropTypes.node,
   initialAmount: PropTypes.number,
-  initialByMonth: PropTypes.bool,
+  initialPaymentTiming: PropTypes.string,
+  allowedPaymentModes: PropTypes.object.isRequired,
 };
 
 export default AmountStep;

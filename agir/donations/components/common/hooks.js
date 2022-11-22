@@ -24,6 +24,7 @@ export const useDonations = (type = CONFIG.default.type, defaults = {}) => {
     ...INITIAL_DATA,
     ...defaults,
     to: type,
+    paymentTiming: Object.keys(config.allowedPaymentModes)[0],
   });
   const [formErrors, setFormErrors] = useState({});
 

@@ -243,7 +243,7 @@ AllocationWidget.propTypes = {
   value: PropTypes.arrayOf(
     PropTypes.shape({
       type: PropTypes.string,
-      value: PropTypes.number,
+      value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     })
   ),
   groupId: PropTypes.string,

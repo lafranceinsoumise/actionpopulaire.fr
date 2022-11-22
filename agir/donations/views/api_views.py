@@ -19,7 +19,7 @@ from agir.payments.actions.payments import create_payment
 from agir.payments.models import Subscription
 
 
-class CreteDonationAPIView(UpdateModelMixin, GenericAPIView):
+class CreateDonationAPIView(UpdateModelMixin, GenericAPIView):
     permission_classes = (IsActionPopulaireClientPermission,)
     serializer_class = DonationSerializer
 
@@ -106,16 +106,18 @@ class CreteDonationAPIView(UpdateModelMixin, GenericAPIView):
         if self.person is not None:
             self.perform_update(serializer)
 
+        # TODO: new allocation format and types should be handled here:
         allocations = {
             str(allocation["group"].id): allocation["amount"]
             for allocation in validated_data.get("allocations", [])
+            if "group" in allocation
         }
 
         if "allocations" in validated_data:
             validated_data["allocations"] = json.dumps(allocations)
 
         # Monthly payments
-        if validated_data["payment_times"] == TYPE_MONTHLY:
+        if validated_data["payment_timing"] == TYPE_MONTHLY:
             return self.monthly_payment(allocations)
 
         # Direct payments

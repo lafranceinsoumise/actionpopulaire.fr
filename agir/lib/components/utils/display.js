@@ -24,12 +24,12 @@ export function parsePrice(s) {
   return null;
 }
 
-export function displayPrice(n, forceCents = false) {
+export function displayPrice(n, forceCents = false, unit = "€") {
   if (!forceCents && n % 100 === 0) {
-    return displayNumber(n / 100, 0) + NBSP + "€";
+    return `${displayNumber(n / 100, 0)}${NBSP}${unit}`;
   }
 
-  return displayNumber(n / 100, 2) + NBSP + "€";
+  return `${displayNumber(n / 100, 2)}${NBSP}${unit}`;
 }
 
 export const GENDER = {

@@ -4,8 +4,9 @@ import styled from "styled-components";
 
 import { displayPrice } from "@agir/lib/utils/display";
 import { scrollToError } from "@agir/front/app/utils";
+import { GENDER_OPTIONS, MONTHLY_PAYMENT } from "./form.config";
 
-import AmountInformations from "@agir/donations/common/AmountInformations";
+import AllocationDetails from "@agir/donations/common/AllocationDetails";
 import Breadcrumb from "@agir/donations/common/Breadcrumb";
 import Button from "@agir/front/genericComponents/Button";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
@@ -68,12 +69,6 @@ const FORM_HELP_TEXT = {
     "Je certifie sur l'honneur être une personne physique et que le réglement de mon don ne provient pas d'une personne morale (association, société, société civile...) mais de mon compte bancaire personnel.*",
 };
 
-const GENDER_OPTIONS = [
-  { label: "", value: "" },
-  { label: "Madame", value: "F" },
-  { label: "Monsieur", value: "M" },
-];
-
 const DonationForm = ({
   type = "",
   formData,
@@ -119,9 +114,6 @@ const DonationForm = ({
     Array.isArray(allowedPaymentModes) &&
     allowedPaymentModes.find((value) => !value.includes("check"));
 
-  const groupAmount =
-    Array.isArray(formData.allocations) && formData.allocations[0]?.amount;
-
   const scrollToErrorRef = useRef(null);
   const shouldScrollToError = useRef(false);
 
@@ -141,15 +133,15 @@ const DonationForm = ({
     <div ref={scrollToErrorRef}>
       <Title>
         Je donne {displayPrice(formData.amount)}{" "}
-        {formData.paymentTimes === "M" && "par mois"}
+        {formData.paymentTiming === MONTHLY_PAYMENT && "par mois"}
       </Title>
       <Breadcrumb onClick={onBack} />
       <Spacer size="1rem" />
-      <AmountInformations
+      <AllocationDetails
         groupName={groupName}
+        byMonth={formData.paymentTiming === MONTHLY_PAYMENT}
         totalAmount={formData.amount}
-        groupAmount={groupAmount}
-        nationalAmount={formData.amount - groupAmount}
+        allocations={formData.allocations}
       />
       <Spacer size="1rem" />
       <div>

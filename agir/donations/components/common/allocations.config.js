@@ -1,6 +1,6 @@
 export const TYPE_CNS = "cns";
 export const TYPE_GROUP = "group";
-export const TYPE_DEPARTMENT = "department";
+export const TYPE_DEPARTMENT = "departement";
 export const TYPE_NATIONAL = "national";
 
 export const TYPE_LABEL = {
@@ -14,15 +14,16 @@ export const formatAllocations = (data) =>
   data.allocations
     .filter((allocation) => allocation.type !== TYPE_NATIONAL)
     .map((allocation) => {
+      console.log(allocation);
       const formattedAllocation = {
         type: allocation.type || TYPE_GROUP,
-        value: allocation.value || 0,
+        amount: allocation.value || 0,
       };
       if (formattedAllocation.type === TYPE_GROUP) {
-        formattedAllocation.id = allocation.groupId;
+        formattedAllocation.group = allocation.group;
       }
       if (formattedAllocation.type === TYPE_DEPARTMENT) {
-        formattedAllocation.code = data.departement;
+        formattedAllocation.departement = data.departement || 75;
       }
       return formattedAllocation;
     });
@@ -93,7 +94,7 @@ export const getAllocationOptions = (
       ? {
           type: TYPE_GROUP,
           label: TYPE_LABEL[TYPE_GROUP],
-          id: groupId,
+          group: groupId,
           defaultValue: 0,
         }
       : undefined,
