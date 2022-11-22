@@ -6,6 +6,6 @@
     la France insoumise le {{ payment.created | date }}.
   </div>
   {% if cagnotte %}
-    {{ cagnotte.description }}
+    {{ cagnotte.description|safe }}
   {% endif %}
 </div>

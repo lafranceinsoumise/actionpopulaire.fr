@@ -14,7 +14,7 @@
 {% endblock %}
 
 {% block legal %}
-  {{ cagnotte.legal }}
+  {{ cagnotte.legal|safe }}
   <div style="font-size: small">
     {% include "donations/legal.html" %}
   </div>
