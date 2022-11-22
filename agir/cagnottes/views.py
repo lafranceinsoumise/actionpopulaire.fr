@@ -48,4 +48,12 @@ class PersonalInformationView(base_views.BasePersonalInformationView):
 
 
 class RemerciementView(RedirectView):
-    url = "https://lafranceinsoumise.fr/caisse-de-greve-insoumise-remerciements"
+    def get_redirect_url(self, *args, payment=None, **kwargs):
+        if "cagnotte" in payment.meta:
+            try:
+                return Cagnotte.objects.get(
+                    id=payment.meta["cagnotte"]
+                ).url_remerciement
+            except (Cagnotte.DoesNotExist, ValueError):
+                pass
+        return "/"

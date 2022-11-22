@@ -9,7 +9,7 @@ from agir.lib.display import display_price
 class CagnotteAdmin(admin.ModelAdmin):
     list_display = ("nom", "slug", "public")
     fieldsets = (
-        (None, {"fields": ("nom", "slug", "public", "compteur")}),
+        (None, {"fields": ("nom", "slug", "public", "url_remerciement", "compteur")}),
         ("Présentation", {"fields": ("titre", "legal", "description")}),
     )
     readonly_fields = ("compteur",)

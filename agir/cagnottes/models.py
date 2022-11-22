@@ -22,3 +22,9 @@ class Cagnotte(models.Model):
         blank=True,
         help_text="Texte affiché dans le profil sur la page des dons d'une personne.",
     )
+
+    url_remerciement = models.URLField(
+        "URL de présentation",
+        help_text="L'URL vers laquelle rediriger après le paiement.",
+        blank=False,
+    )
