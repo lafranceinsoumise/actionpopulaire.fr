@@ -2,6 +2,8 @@
 
 from django.db import migrations, models
 
+from agir.lib.models import DescriptionField
+
 
 def creer_cagnotte_initiale(apps, schema):
     Cagnotte = apps.get_model("cagnottes", "Cagnotte")
@@ -41,6 +43,9 @@ class Migration(migrations.Migration):
                 ("nom", models.CharField(max_length=100)),
                 ("slug", models.SlugField()),
                 ("public", models.BooleanField(default=True)),
+                ("titre", models.CharField(max_length=100)),
+                ("description", DescriptionField(blank=True)),
+                ("legal", DescriptionField(blank=True)),
             ],
         ),
         migrations.RunPython(

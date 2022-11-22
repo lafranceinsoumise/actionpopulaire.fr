@@ -12,8 +12,19 @@ class CagnottesConfig(AppConfig):
     PAYMENT_TYPE = "don_cagnotte"
 
     def ready(self):
+        from agir.payments.models import Payment
+        from agir.cagnottes.models import Cagnotte
         from agir.donations.views import notification_listener
         from .views import RemerciementView
+
+        def recuperer_cagnotte(payment: Payment):
+            if "cagnotte" in payment.meta:
+                try:
+                    return {
+                        "cagnotte": Cagnotte.objects.get(id=payment.meta["cagnotte"])
+                    }
+                except (Cagnotte.DoesNotExist, ValueError):
+                    return {}
 
         register_payment_type(
             payment_type=PaymentType(
@@ -22,6 +33,7 @@ class CagnottesConfig(AppConfig):
                 RemerciementView.as_view(),
                 status_listener=notification_listener,
                 description_template="cagnottes/description.html",
+                description_context_generator=recuperer_cagnotte,
                 email_template_code="DONATION_CAGNOTTE",
                 email_from="Caisse de grève insoumise <nepasrepondre@lafranceinsoumise.fr>",
             )
