@@ -28,7 +28,7 @@ Default.args = {
     },
     {
       type: "group",
-      id: "12345",
+      group: "12345",
       value: 2750,
     },
     {

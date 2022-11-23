@@ -13,6 +13,7 @@ from agir.authentication.utils import (
 )
 from agir.donations.views.donations_views import DONATION_SESSION_NAMESPACE
 from agir.groups.models import SupportGroup, Membership
+from agir.lib.data import departement_from_zipcode
 from agir.lib.utils import front_url
 from agir.voting_proxies.models import VotingProxyRequest
 
@@ -36,6 +37,7 @@ class UserContextSerializer(serializers.Serializer):
     address2 = serializers.CharField(source="location_address2")
     city = serializers.CharField(source="location_city")
     zip = serializers.CharField(source="location_zip")
+    departement = serializers.SerializerMethodField(read_only=True)
     country = CountryField(source="location_country")
     votingProxyId = serializers.SerializerMethodField(method_name="get_voting_proxy_id")
 
@@ -45,6 +47,13 @@ class UserContextSerializer(serializers.Serializer):
     def get_image(self, obj):
         if obj.image and obj.image.thumbnail:
             return obj.image.thumbnail.url
+
+    def get_departement(self, obj):
+        if not obj.location_zip:
+            return None
+        departement = departement_from_zipcode(obj.location_zip)
+        if departement:
+            return departement.get("id")
 
     def get_groups(self, obj):
         person_groups = (

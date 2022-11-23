@@ -12,6 +12,7 @@ import Button from "@agir/front/genericComponents/Button";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import CountryField from "@agir/front/formComponents/CountryField";
 import CustomField from "@agir/donations/common/CustomField";
+import DepartementField from "@agir/front/formComponents/DepartementField";
 import Legal from "@agir/donations/common/Legal";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import SelectField from "@agir/front/formComponents/SelectField";
@@ -60,6 +61,8 @@ const StyledButton = styled.button`
 `;
 
 const FORM_HELP_TEXT = {
+  departement:
+    "Indiquez le département auquel vous souhaitez reserver une partie de votre contribution",
   email:
     "Si vous êtes déjà inscrit·e sur lafranceinsoumise.fr, utilisez l'adresse avec laquelle vous êtes inscrit·e",
   nationality: "Si double nationalité dont française : indiquez France",
@@ -97,6 +100,9 @@ const DonationForm = ({
   };
   const handleChangeGender = (choice) => {
     updateFormData("gender", choice.value);
+  };
+  const handleChangeDepartement = (departement) => {
+    updateFormData("departement", departement);
   };
   const handleChangeCountry = (country) => {
     updateFormData("locationCountry", country);
@@ -283,6 +289,17 @@ const DonationForm = ({
             style={{ width: "100%" }}
           />
         </GroupedFields>
+        <Spacer size="1rem" />
+        <CustomField
+          Component={DepartementField}
+          label="Département*"
+          name="departement"
+          placeholder=""
+          value={formData.departement}
+          onChange={handleChangeDepartement}
+          error={formErrors?.departement}
+          helpText={FORM_HELP_TEXT.departement}
+        />
         <Spacer size="1rem" />
         <CustomField
           Component={CountryField}

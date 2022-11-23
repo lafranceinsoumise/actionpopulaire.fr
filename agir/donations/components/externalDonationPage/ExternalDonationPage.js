@@ -31,9 +31,10 @@ const ExternalDonationPage = () => {
     formErrors,
     sessionUser,
     isLoading,
+    isReady,
     updateFormData,
     handleSubmit,
-  } = useDonations(params?.type, {
+  } = useDonations(params?.type, urlParams.get("group"), {
     amount: urlParams.get("amount") || 0,
     paymentTiming: pathname.includes("dons-mensuels")
       ? MONTHLY_PAYMENT
@@ -60,10 +61,7 @@ const ExternalDonationPage = () => {
         <title>{title}</title>
       </Helmet>
 
-      <PageFadeIn
-        ready={typeof sessionUser !== "undefined"}
-        wait={<Skeleton />}
-      >
+      <PageFadeIn ready={isReady} wait={<Skeleton />}>
         <StyledPage>
           <StyledIllustration aria-hidden="true" />
           <StyledBody>

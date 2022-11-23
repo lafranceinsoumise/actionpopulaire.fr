@@ -1,8 +1,8 @@
-from data_france.models import Departement
 from rest_framework import serializers
 
 from agir.checks import DonationCheckPaymentMode
 from agir.groups.models import SupportGroup
+from agir.lib.data import departements_choices
 from agir.lib.serializers import PhoneField
 from agir.payments import payment_modes
 from agir.people.models import Person
@@ -33,9 +33,7 @@ class DonationAllocationSerializer(serializers.Serializer):
     group = serializers.PrimaryKeyRelatedField(
         queryset=SupportGroup.objects.active().certified(), required=False
     )
-    departement = serializers.SlugRelatedField(
-        queryset=Departement.objects.all(), slug_field="code", required=False
-    )
+    departement = serializers.ChoiceField(choices=departements_choices, required=False)
     amount = serializers.IntegerField(min_value=1, required=True)
 
     def validate(self, attrs):
