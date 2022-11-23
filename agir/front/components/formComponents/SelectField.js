@@ -253,7 +253,7 @@ const SelectField = (props) => {
     ...rest
   } = props;
 
-  const maxMenuHeight = useResponsiveMemo(isSearchable ? 124 : 238, "auto");
+  const maxMenuHeight = useResponsiveMemo(isSearchable ? 124 : 238, 238);
 
   return (
     <StyledField
@@ -298,6 +298,7 @@ SelectField.propTypes = {
   label: PropTypes.node,
   helpText: PropTypes.node,
   error: PropTypes.node,
+  isSearchable: PropTypes.bool,
 };
 
 export default SelectField;
