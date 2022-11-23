@@ -58,7 +58,7 @@ export const getDefaultAllocations = (totalAmount, options) => {
   options
     .filter((option) => !!option.fixedRatio)
     .forEach((option) => {
-      result[option.type] = totalAmount * option.fixedRatio;
+      result[option.type] = Math.round(totalAmount * option.fixedRatio);
       totalAmount -= result[option.type];
     });
 
