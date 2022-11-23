@@ -28,13 +28,16 @@ export const formatAllocations = (data) =>
     });
 
 export const getReminder = (value, totalAmount) => {
-  const sum = value
-    ? Object.values(value).reduce(
-        (tot, v) => (isNaN(parseInt(v)) ? tot : tot + v),
-        0
-      )
-    : 0;
-  return value ? totalAmount - sum : 0;
+  if (!value) {
+    return 0;
+  }
+  value = Array.isArray(value) ? value : Object.values(value);
+  const sum = value.reduce(
+    (tot, allocation) =>
+      isNaN(parseInt(allocation.value)) ? tot : tot + allocation.value,
+    0
+  );
+  return totalAmount - sum;
 };
 
 export const distributeInteger = (total, divider) => {

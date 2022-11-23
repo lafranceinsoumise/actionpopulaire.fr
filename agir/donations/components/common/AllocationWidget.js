@@ -120,8 +120,8 @@ const AllocationWidget = (props) => {
   );
 
   const remainder = useMemo(
-    () => getReminder(currentValue, totalAmount),
-    [currentValue, totalAmount]
+    () => getReminder(value, totalAmount),
+    [value, totalAmount]
   );
 
   const handleSelectOption = useCallback(
@@ -206,6 +206,7 @@ const AllocationWidget = (props) => {
                   name={type}
                   type="number"
                   min="0"
+                  step="1.00"
                   value={
                     currentValue
                       ? isNaN(parseInt(currentValue[type]))
