@@ -22,7 +22,7 @@ def send_login_email(email, short_code, expiry_time):
 
     code = interleave_spaces(short_code)
     send_template_email(
-        template_name="authentication/LOGIN_MESSAGE.html",
+        template_name="authentication/login_email.html",
         from_email=settings.EMAIL_FROM,
         bindings={
             "code": code,
