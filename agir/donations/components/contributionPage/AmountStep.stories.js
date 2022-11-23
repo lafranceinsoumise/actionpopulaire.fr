@@ -8,7 +8,7 @@ import CONFIG from "@agir/donations/common/config";
 
 export default {
   component: AmountStep,
-  title: "Donations/AmountStep",
+  title: "Donations/Contributions/AmountStep",
 };
 
 const Template = (args) => (
@@ -19,7 +19,7 @@ const Template = (args) => (
 
 export const Default = Template.bind({});
 Default.args = {
-  ...CONFIG.default,
+  ...CONFIG.CONTRIBUTION,
   isLoading: false,
   error: "",
   hasGroups: false,
