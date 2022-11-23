@@ -1,10 +1,11 @@
 import PropTypes from "prop-types";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 
-import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import { getReminder } from "@agir/donations/common/allocations.config";
 
 import AmountWidget from "@agir/donations/common/AmountWidget";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import {
   Link,
   StepButton,
@@ -112,8 +113,14 @@ const AmountStep = (props) => {
   const [paymentTiming, setPaymentTiming] = useState(initialPaymentTiming);
   const [allocations, setAllocations] = useState();
 
+  const remainder = useMemo(
+    () => getReminder(allocations, amount),
+    [allocations, amount]
+  );
+
   const hasGroup = !!group?.id;
-  const hasSubmit = !isLoading && amount && amount <= maxAmount;
+  const hasSubmit =
+    !isLoading && amount && amount <= maxAmount && remainder === 0;
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -201,7 +208,7 @@ const AmountStep = (props) => {
           <p>
             <Link route="contributionHelp">En savoir plus</Link>
           </p>
-          <form onSubmit={handleSubmit}>
+          <form noValidate onSubmit={handleSubmit}>
             <AmountWidget
               disabled={isLoading}
               amount={amount}
