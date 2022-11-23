@@ -346,6 +346,16 @@ urlpatterns = [
         views.DonationView.as_view(),
         name="monthly_donation_information",
     ),
+    path(
+        "contributions/",
+        views.ContributionView.as_view(),
+        name="contribution_amount",
+    ),
+    path(
+        "contributions/validation/",
+        views.ContributionView.as_view(),
+        name="contribution_information_modal",
+    ),
     # VOTING PROXIES
     path("procuration/", include(voting_proxy_patterns)),
     # POLLING STATION OFFICERS

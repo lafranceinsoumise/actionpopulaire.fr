@@ -171,6 +171,14 @@ class DonationView(BaseAppCachedView):
     )
 
 
+class ContributionView(BaseAppCachedView):
+    meta_title = "Faire une contribution financière - La France insoumise"
+    meta_description = (
+        "Pour financer les dépenses liées à l’organisation d’événements, à l’achat de matériel, au"
+        "fonctionnement du site, etc., nous avons besoin du soutien financier de chacun.e d’entre vous !"
+    )
+
+
 class Donation2022View(DonationView):
     meta_title = "Faire un don - Mélenchon 2022"
 

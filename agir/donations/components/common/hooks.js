@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import useSWR from "swr";
 
 import CONFIG from "@agir/donations/common/config";
@@ -18,12 +18,12 @@ export const useDonations = (
 ) => {
   const config = CONFIG[type] || CONFIG.default;
 
+  const [isReady, setIsReady] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { data: session, isValidating: isSessionLoading } = useSWR(
     "/api/session/",
     MANUAL_REVALIDATION_SWR_CONFIG
   );
-
   const { data: group, isValidating: isGroupLoading } = useSWR(
     config.hasGroupAllocations && groupPk && `/api/groupes/${groupPk}/`,
     MANUAL_REVALIDATION_SWR_CONFIG
@@ -96,13 +96,17 @@ export const useDonations = (
     updateFormData("departement", group.location.departement);
   }, [group, updateFormData]);
 
+  useEffect(() => {
+    !isReady && !isSessionLoading && !isGroupLoading && setIsReady(true);
+  }, [isReady, isSessionLoading, isGroupLoading]);
+
   return {
     config,
     formData,
     formErrors,
     sessionUser: session?.user || null,
     group,
-    isReady: !isSessionLoading && !isGroupLoading,
+    isReady,
     isLoading,
     updateFormData,
     handleSubmit,
