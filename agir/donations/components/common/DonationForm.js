@@ -112,11 +112,13 @@ const DonationForm = ({
     updateFormData("frenchResident", country === "FR");
   };
 
-  const checkPaymentMode =
+  const hasMonthlyPayment = formData.paymentTiming === MONTHLY_PAYMENT;
+
+  const hasCheck =
     Array.isArray(allowedPaymentModes) &&
     allowedPaymentModes.find((value) => value.includes("check"));
 
-  const cardPaymentMode =
+  const hasCard =
     Array.isArray(allowedPaymentModes) &&
     allowedPaymentModes.find((value) => !value.includes("check"));
 
@@ -139,13 +141,13 @@ const DonationForm = ({
     <div ref={scrollToErrorRef}>
       <Title>
         Je donne {displayPrice(formData.amount)}{" "}
-        {formData.paymentTiming === MONTHLY_PAYMENT && "par mois"}
+        {hasMonthlyPayment && "par mois"}
       </Title>
       <Breadcrumb onClick={onBack} />
       <Spacer size="1rem" />
       <AllocationDetails
         groupName={groupName}
-        byMonth={formData.paymentTiming === MONTHLY_PAYMENT}
+        byMonth={hasMonthlyPayment}
         totalAmount={formData.amount}
         allocations={formData.allocations}
       />
@@ -350,10 +352,7 @@ const DonationForm = ({
             <Spacer size="1rem" />
           </>
         )}
-        <StepButton
-          disabled={isLoading}
-          onClick={handleSubmit(cardPaymentMode)}
-        >
+        <StepButton disabled={isLoading} onClick={handleSubmit(hasCard)}>
           <span>
             <strong>Continuer</strong>
             <br />
@@ -361,7 +360,7 @@ const DonationForm = ({
           </span>
           <RawFeatherIcon name="arrow-right" />
         </StepButton>
-        {!!checkPaymentMode && (
+        {!!hasCheck && (
           <>
             <Spacer size="1rem" />
             <div
@@ -374,11 +373,10 @@ const DonationForm = ({
             >
               ou
               <Spacer size="1rem" />
-              <Button
-                disabled={isLoading}
-                onClick={handleSubmit(checkPaymentMode)}
-              >
-                Envoyer un chèque
+              <Button disabled={isLoading} onClick={handleSubmit(hasCheck)}>
+                {hasMonthlyPayment
+                  ? "Payer en une seule fois par chèque"
+                  : "Envoyer un chèque"}
               </Button>
             </div>
           </>

@@ -14,7 +14,6 @@ export const formatAllocations = (data) =>
   data.allocations
     .filter((allocation) => allocation.type !== TYPE_NATIONAL)
     .map((allocation) => {
-      console.log(allocation);
       const formattedAllocation = {
         type: allocation.type || TYPE_GROUP,
         amount: allocation.value || 0,
