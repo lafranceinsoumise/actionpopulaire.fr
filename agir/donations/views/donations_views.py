@@ -339,35 +339,47 @@ def subscription_notification_listener(subscription):
         )
 
 
+def apply_allocations(payment):
+    with transaction.atomic():
+        # S'il s'agit d'un don ponctuel, le fléchage éventuel des dons est enregistré dans les meta
+        # du paiement. Dans le cas d'un don mensuel, les infos d'allocations sont enregistrées sur la souscription.
+        if payment.subscription is None:
+            allocations = {}
+            if "allocations" in payment.meta:
+                try:
+                    allocations = json.loads(payment.meta["allocations"])
+                except ValueError:
+                    pass
+
+            for group_id, amount in allocations.items():
+                try:
+                    group = SupportGroup.objects.get(pk=group_id)
+                except SupportGroup.DoesNotExist:
+                    continue
+
+                Operation.objects.update_or_create(
+                    payment=payment, group=group, defaults={"amount": amount}
+                )
+        else:
+            for allocation in payment.subscription.allocations.all():
+                Operation.objects.update_or_create(
+                    payment=payment,
+                    group=allocation.group,
+                    defaults={"amount": allocation.amount},
+                )
+
+
 def notification_listener(payment):
     if payment.status == Payment.STATUS_COMPLETED:
         with transaction.atomic():
+            # Dans le cas où il s'agissait d'un paiement réalisé sans session ouverte, l'utilisateur devait saisir son
+            # adresse email. On récupère la personne associée à cette adresse email, ou on la crée, et on l'associe à
+            # ce paiement.
             find_or_create_person_from_payment(payment)
+
+            apply_allocations(payment)
+
             if payment.subscription is None:
                 transaction.on_commit(
                     partial(send_donation_email.delay, payment.person.pk, payment.type)
                 )
-
-                allocations = {}
-                if "allocations" in payment.meta:
-                    try:
-                        allocations = json.loads(payment.meta["allocations"])
-                    except ValueError:
-                        pass
-
-                for group_id, amount in allocations.items():
-                    try:
-                        group = SupportGroup.objects.get(pk=group_id)
-                    except SupportGroup.DoesNotExist:
-                        continue
-
-                    Operation.objects.update_or_create(
-                        payment=payment, group=group, defaults={"amount": amount}
-                    )
-            else:
-                for allocation in payment.subscription.allocations.all():
-                    Operation.objects.update_or_create(
-                        payment=payment,
-                        group=allocation.group,
-                        defaults={"amount": allocation.amount},
-                    )

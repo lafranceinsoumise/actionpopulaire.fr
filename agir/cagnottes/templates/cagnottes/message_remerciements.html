@@ -1,0 +1,17 @@
+{% extends email_template %}
+
+{% block header %}{% endblock %}
+
+{% block subject %}
+  Merci pour votre don !
+{% endblock %}
+
+{% block html_content %}
+  {{ cagnotte.remerciements|safe }}
+{% endblock %}
+
+{% block html_footer %}
+{% block text_footer %}
+Cet email est la confirmation d'un don effectué à la France insoumise.
+{% endblock %}
+{% endblock %}

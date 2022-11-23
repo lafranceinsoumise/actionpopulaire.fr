@@ -28,3 +28,14 @@ class Cagnotte(models.Model):
         help_text="L'URL vers laquelle rediriger après le paiement.",
         blank=False,
     )
+
+    expediteur_email = models.CharField(
+        max_length=200,
+        help_text="Adresse d'expédition pour l'email de remerciement",
+        blank=True,
+    )
+
+    remerciements = DescriptionField(
+        help_text="Message de remerciement notamment utilisé dans le mail de confirmation.",
+        blank=True,
+    )

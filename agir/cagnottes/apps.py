@@ -14,8 +14,7 @@ class CagnottesConfig(AppConfig):
     def ready(self):
         from agir.payments.models import Payment
         from agir.cagnottes.models import Cagnotte
-        from agir.donations.views import notification_listener
-        from .views import RemerciementView
+        from .views import RemerciementView, notification_listener
 
         def recuperer_cagnotte(payment: Payment):
             if "cagnotte" in payment.meta:
@@ -34,7 +33,5 @@ class CagnottesConfig(AppConfig):
                 status_listener=notification_listener,
                 description_template="cagnottes/description.html",
                 description_context_generator=recuperer_cagnotte,
-                email_template_code="DONATION_CAGNOTTE",
-                email_from="Caisse de grève insoumise <nepasrepondre@lafranceinsoumise.fr>",
             )
         )

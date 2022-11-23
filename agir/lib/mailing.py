@@ -16,7 +16,12 @@ from agir.api.context_processors import basic_information
 from agir.lib.utils import generate_token_params, front_url, AutoLoginUrl
 from agir.people.models import Person
 
-__all__ = ["send_mosaico_email", "generate_plain_text", "fetch_mosaico_template"]
+__all__ = [
+    "send_template_email",
+    "send_mosaico_email",
+    "generate_plain_text",
+    "fetch_mosaico_template",
+]
 
 MOSAICO_VAR_REGEX = re.compile(r"\[([-A-Z_]+)\]")
 
@@ -147,7 +152,7 @@ def render_email_template(template, context):
 
 
 def send_template_email(
-    code,
+    template_name,
     from_email,
     recipients,
     bindings=None,
@@ -157,7 +162,7 @@ def send_template_email(
     attachments=None,
 ):
 
-    template = get_template(f"mail_templates/{code}.html")
+    template = get_template(template_name)
 
     if connection is None:
         connection = get_connection(backend)
@@ -167,7 +172,7 @@ def send_template_email(
             if getattr(recipient, "role", None) and not recipient.role.is_active:
                 continue
 
-            context = get_context_from_bindings(code, recipient, bindings)
+            context = get_context_from_bindings(None, recipient, bindings)
             subject, text, html = render_email_template(template, context)
 
             send_message(

@@ -1,3 +1,6 @@
+from functools import partial
+
+from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators import cache
@@ -8,10 +11,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from agir.donations import base_views
+from agir.payments.actions.payments import find_or_create_person_from_payment
+from agir.payments.models import Payment
 from .actions import montant_cagnotte
 from .apps import CagnottesConfig
 from .forms import PersonalInformationForm
 from .models import Cagnotte
+from .tasks import envoyer_email_remerciement
 
 
 class CompteurView(APIView):
@@ -57,3 +63,19 @@ class RemerciementView(RedirectView):
             except (Cagnotte.DoesNotExist, ValueError):
                 pass
         return "/"
+
+
+def notification_listener(payment):
+    if payment.status == Payment.STATUS_COMPLETED:
+        with transaction.atomic():
+            # Dans le cas où il s'agissait d'un paiement réalisé sans session ouverte, l'utilisateur devait saisir son
+            # adresse email. On récupère la personne associée à cette adresse email, ou on la crée, et on l'associe à
+            # ce paiement.
+            find_or_create_person_from_payment(payment)
+
+            transaction.on_commit(
+                partial(
+                    envoyer_email_remerciement.delay,
+                    payment.pk,
+                )
+            )

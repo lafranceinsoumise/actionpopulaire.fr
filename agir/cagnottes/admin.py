@@ -10,7 +10,8 @@ class CagnotteAdmin(admin.ModelAdmin):
     list_display = ("nom", "slug", "public")
     fieldsets = (
         (None, {"fields": ("nom", "slug", "public", "url_remerciement", "compteur")}),
-        ("Présentation", {"fields": ("titre", "legal", "description")}),
+        ("Texte des pages", {"fields": ("titre", "legal", "description")}),
+        ("Email de remerciement", {"fields": ("expediteur_email", "remerciements")}),
     )
     readonly_fields = ("compteur",)
 
