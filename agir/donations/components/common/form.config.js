@@ -21,6 +21,7 @@ export const INITIAL_DATA = {
   locationCountry: "FR",
   nationality: "FR",
   frenchResident: true,
+  departement: "",
 
   to: "",
   paymentMode: "",
@@ -44,6 +45,7 @@ export const setFormDataForUser = (user) => (data) => ({
   locationZip: data.locationZip || user.zip || INITIAL_DATA.locationZip,
   locationCity: data.locationCity || user.city || INITIAL_DATA.locationCity,
   locationCountry: data.locationCountry || user.country || INITIAL_DATA.country,
+  departement: data.departement || user.departement || INITIAL_DATA.departement,
   gender: data.gender
     ? data.gender
     : GENDER_OPTIONS.includes(user.gender)
@@ -109,6 +111,12 @@ export const DONATION_DATA_CONSTRAINTS = {
     },
   },
   locationCity: {
+    presence: {
+      allowEmpty: false,
+      message: "Ce champ ne peut pas être vide.",
+    },
+  },
+  departement: {
     presence: {
       allowEmpty: false,
       message: "Ce champ ne peut pas être vide.",

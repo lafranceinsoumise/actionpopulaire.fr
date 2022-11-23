@@ -11,12 +11,21 @@ import {
   validateDonationData,
 } from "@agir/donations/common/form.config";
 
-export const useDonations = (type = CONFIG.default.type, defaults = {}) => {
+export const useDonations = (
+  type = CONFIG.default.type,
+  groupPk,
+  defaults = {}
+) => {
   const config = CONFIG[type] || CONFIG.default;
 
   const [isLoading, setIsLoading] = useState(false);
-  const { data: session } = useSWR(
+  const { data: session, isValidating: isSessionLoading } = useSWR(
     "/api/session/",
+    MANUAL_REVALIDATION_SWR_CONFIG
+  );
+
+  const { data: group, isValidating: isGroupLoading } = useSWR(
+    config.hasGroupAllocations && groupPk && `/api/groupes/${groupPk}/`,
     MANUAL_REVALIDATION_SWR_CONFIG
   );
 
@@ -80,12 +89,20 @@ export const useDonations = (type = CONFIG.default.type, defaults = {}) => {
     setFormData(setFormDataForUser(session?.user || {}));
   }, [session]);
 
+  useEffect(() => {
+    if (!group?.location.departement) {
+      return;
+    }
+    updateFormData("departement", group.location.departement);
+  }, [group, updateFormData]);
+
   return {
     config,
     formData,
     formErrors,
-    sessionUser:
-      typeof session === "undefined" ? undefined : session?.user || null,
+    sessionUser: session?.user || null,
+    group,
+    isReady: !isSessionLoading && !isGroupLoading,
     isLoading,
     updateFormData,
     handleSubmit,
