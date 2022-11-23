@@ -24,7 +24,7 @@ class Cagnotte(models.Model):
     )
 
     url_remerciement = models.URLField(
-        "URL de présentation",
+        "URL de remerciement",
         help_text="L'URL vers laquelle rediriger après le paiement.",
         blank=False,
     )
@@ -39,3 +39,9 @@ class Cagnotte(models.Model):
         help_text="Message de remerciement notamment utilisé dans le mail de confirmation.",
         blank=True,
     )
+
+    def __repr__(self):
+        return f"Cagnotte(id={self.id}, slug={self.slug!r})"
+
+    def __str__(self):
+        return self.nom
