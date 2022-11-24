@@ -101,6 +101,7 @@ export const scrollToError = (errors, scrollerElement, marginTop = 30) => {
     }
   }
   errorElement &&
+    scrollableElement &&
     scrollableElement.scrollTo({
       top: errorElement.offsetTop - marginTop,
     });
