@@ -61,6 +61,7 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                 "fields": (
                     "draw_status",
                     "supportgroup_status",
+                    "supportgroups",
                     "supportgroup_subtypes",
                     "events",
                     "events_start_date",
@@ -125,6 +126,7 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     map_template = "custom_fields/french_area_widget.html"
     autocomplete_fields = (
         "tags",
+        "supportgroups",
         "supportgroup_subtypes",
         "events",
         "events_subtypes",
@@ -141,15 +143,25 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     list_display = (
         "name",
         "supportgroup_status",
+        "supportgroup_list",
         "supportgroup_subtypes_list",
         "tags_list",
     )
 
+    def supportgroup_list(self, instance):
+        return ", ".join(str(s) for s in instance.supportgroups.all())
+
+    supportgroup_list.short_description = "Groupes"
+
     def supportgroup_subtypes_list(self, instance):
         return ", ".join(str(s) for s in instance.supportgroup_subtypes.all())
 
+    supportgroup_subtypes_list.short_description = "Types de groupe"
+
     def tags_list(self, instance):
         return ", ".join(str(t) for t in instance.tags.all())
+
+    tags_list.short_description = "Tags"
 
 
 @admin.register(Campaign)
