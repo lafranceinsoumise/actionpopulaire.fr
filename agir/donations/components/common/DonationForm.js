@@ -245,7 +245,7 @@ const DonationForm = ({
         />
         {hasAddress2 ||
         formData.locationAddress2 ||
-        formErrors.locationAddress2 ? (
+        formErrors?.locationAddress2 ? (
           <>
             <Spacer size="0.5rem" />
             <CustomField
@@ -343,15 +343,16 @@ const DonationForm = ({
           déduire cette somme de mes impôts dans les limites fixées par la loi.
         </p>
         <Spacer size="1rem" />
-        {!!Object.values(formErrors).filter((error) => !!error).length && (
-          <>
-            <StaticToast style={{ marginTop: "0.5rem" }}>
-              Des erreurs sont présentes dans le formulaire, veuillez les
-              résoudre avant de l'envoyer
-            </StaticToast>
-            <Spacer size="1rem" />
-          </>
-        )}
+        {formErrors &&
+          !!Object.values(formErrors).filter((error) => !!error).length && (
+            <>
+              <StaticToast style={{ marginTop: "0.5rem" }}>
+                Des erreurs sont présentes dans le formulaire, veuillez les
+                résoudre avant de l'envoyer
+              </StaticToast>
+              <Spacer size="1rem" />
+            </>
+          )}
         <StepButton disabled={isLoading} onClick={handleSubmit(hasCard)}>
           <span>
             <strong>Continuer</strong>

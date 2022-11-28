@@ -3,6 +3,7 @@ import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 
 import { displayPrice } from "@agir/lib/utils/display";
+import { MONTHLY_PAYMENT } from "./form.config";
 
 import PaymentTimingWidget from "@agir/donations/common/PaymentTimingWidget";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
@@ -104,6 +105,8 @@ const AmountWidget = (props) => {
     [onChangeAmount]
   );
 
+  const unit = paymentTiming === MONTHLY_PAYMENT ? "€/mois" : "€";
+
   return (
     <StyledAmountWidget>
       <StyledAmountGrid>
@@ -119,7 +122,8 @@ const AmountWidget = (props) => {
                 : Button
             }
           >
-            {displayPrice(defaultAmount)}
+            {displayPrice(defaultAmount, false, "")}
+            <small>{unit}</small>
           </Button>
         ))}
         <StyledButtonLabel
@@ -150,8 +154,13 @@ const AmountWidget = (props) => {
         <StyledTaxReduction>
           <RawFeatherIcon name="arrow-right" />
           <span>
-            Soit&nbsp;<strong>{displayPrice(amount * 0.34)}</strong>&nbsp;après
-            la réduction d'impôt, si vous payez l'impôt sur le revenu&nbsp;!
+            Soit&nbsp;
+            <strong>
+              {displayPrice(amount * 0.34, false, "")}
+              <small>{unit}</small>
+            </strong>
+            &nbsp;après la réduction d'impôt, si vous payez l'impôt sur le
+            revenu&nbsp;!
           </span>
         </StyledTaxReduction>
       ) : null}
@@ -163,6 +172,7 @@ const AmountWidget = (props) => {
           fixedRatio={fixedRatio}
           onChange={onChangeAllocations}
           disabled={disabled}
+          unit={unit}
         />
       )}
       <PaymentTimingWidget

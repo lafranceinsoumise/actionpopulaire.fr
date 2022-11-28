@@ -149,11 +149,9 @@ const AmountStep = (props) => {
             <StyledGroupLink>
               <RawFeatherIcon name="share" />
               <span>
-                <strong>
-                  Pour destiner une partie de votre contribution financière
-                </strong>{" "}
-                à un groupe d'action certifié, utilisez le bouton "financer"
-                dans{" "}
+                Pour destiner une partie de votre contribution financière{" "}
+                <strong>à un groupe d'action certifié</strong>, utilisez le
+                bouton "financer" dans{" "}
                 <Link
                   route={hasUser ? "groups" : "groupMap"}
                   params={!hasUser ? { subtype: "certifié" } : null}
@@ -163,7 +161,7 @@ const AmountStep = (props) => {
               </span>
             </StyledGroupLink>
           ) : null}
-          <h2>Devenir contributeur·ice financier·ère</h2>
+          <h2>Devenir financeur·euse</h2>
           <h4>de {beneficiary}</h4>
           {hasGroup ? (
             <StyledGroup>
@@ -175,9 +173,9 @@ const AmountStep = (props) => {
             </StyledGroup>
           ) : null}
           <p>
-            En devenant contributeur·ice financier·ère de la France insoumise,
-            vous vous engagez à ce que votre contribution financière volontaire
-            soit versée <strong>mensuellement</strong> avec un engagement{" "}
+            En devenant financeur·euse de la France insoumise, vous vous engagez
+            à ce que votre contribution financière volontaire soit versée{" "}
+            <strong>mensuellement</strong> avec un engagement{" "}
             <strong>jusqu'au mois de décembre {contributionEndYear}</strong>.
           </p>
           <p>
@@ -189,12 +187,10 @@ const AmountStep = (props) => {
             <>
               <p>
                 Une partie de cette contribution ({fixedRatio * 100}%) sera
-                reservée à une{" "}
-                <strong>
-                  <Link route="contributionHelp">
-                    caisse nationale de solidarité financière
-                  </Link>
-                </strong>{" "}
+                automatiquement reservée à une{" "}
+                <Link route="contributionHelp">
+                  caisse nationale de solidarité financière
+                </Link>{" "}
                 et sera ensuite redistribuée aux caisses départementales.
               </p>
               <p>

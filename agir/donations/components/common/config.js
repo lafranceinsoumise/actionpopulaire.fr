@@ -36,7 +36,7 @@ const CONTRIBUTION = {
       ? new Date().getFullYear()
       : new Date().getFullYear() + 1,
   type: "CONTRIBUTION",
-  title: "Faire une contribution financière - La France insoumise",
+  title: "Devenir financeur·euse de La France insoumise",
   fixedRatio: 0.2,
   allowedPaymentModes: {
     [MONTHLY_PAYMENT]: ["system_pay", "check_donations"],
