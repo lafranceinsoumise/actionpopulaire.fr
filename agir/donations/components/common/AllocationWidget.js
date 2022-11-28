@@ -109,6 +109,7 @@ const AllocationWidget = (props) => {
   } = props;
 
   const previousTotalAmount = usePrevious(totalAmount);
+  const previousGroupId = usePrevious(groupId);
 
   const [isCustom, setIsCustom] = useState(false);
 
@@ -170,6 +171,12 @@ const AllocationWidget = (props) => {
       handleSelectOption();
     }
   }, [currentValue, totalAmount, previousTotalAmount, handleSelectOption]);
+
+  useEffect(() => {
+    if (!currentValue || groupId !== previousGroupId) {
+      handleSelectOption();
+    }
+  }, [currentValue, groupId, previousGroupId, handleSelectOption]);
 
   if (!currentValue || totalAmount !== previousTotalAmount) {
     return null;

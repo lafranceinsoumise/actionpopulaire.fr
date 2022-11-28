@@ -16,6 +16,7 @@ import {
 } from "@agir/donations/common/StyledComponents";
 
 import acceptedPaymentMethods from "@agir/donations/common/images/accepted-payment-methods.svg";
+import SelectedGroupWidget from "../common/SelectedGroupWidget";
 
 const StyledErrorMessage = styled.p`
   text-align: center;
@@ -48,47 +49,6 @@ const PaymentParagraph = styled.p`
   }
 `;
 
-const StyledGroupLink = styled.div`
-  margin: 1rem 0;
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 1rem;
-  border-radius: ${(props) => props.theme.borderRadius};
-  border: 1px solid ${(props) => props.theme.black200};
-  & > span {
-    flex: 1 1 auto;
-  }
-  ${RawFeatherIcon} {
-    flex: 0 0 auto;
-  }
-`;
-
-const StyledGroup = styled.div`
-  margin: 1rem 0;
-  display: flex;
-  gap: 1rem;
-  padding: 1rem;
-  border-radius: ${(props) => props.theme.borderRadius};
-  background-color: ${(props) => props.theme.default.primary50};
-  color: ${(props) => props.theme.default.primary500};
-
-  & > span {
-    flex: 1 1 auto;
-    font-size: 0.875rem;
-    strong {
-      display: block;
-      font-weight: 500;
-      font-size: 1rem;
-      color: ${(props) => props.theme.black1000};
-    }
-  }
-
-  ${RawFeatherIcon} {
-    flex: 0 0 auto;
-  }
-`;
-
 const AmountStep = (props) => {
   const {
     isLoading,
@@ -96,9 +56,10 @@ const AmountStep = (props) => {
     beneficiary,
     legalParagraph,
     externalLinkRoute,
-    hasUser,
     group,
+    groups,
     onSubmit,
+    selectGroup,
     error,
     maxAmount,
     maxAmountWarning,
@@ -136,39 +97,19 @@ const AmountStep = (props) => {
             rel="noopener noreferrer"
             target="_blank"
           />
-          {!hasGroup ? (
-            <StyledGroupLink>
-              <RawFeatherIcon name="share" />
-              <span>
-                <strong>Pour faire un don alloué</strong> vers un groupe
-                d'action certifié, utilisez le bouton "financer" dans{" "}
-                <Link
-                  route={hasUser ? "groups" : "groupMap"}
-                  params={!hasUser ? { subtype: "certifié" } : null}
-                >
-                  la page du groupe
-                </Link>
-              </span>
-            </StyledGroupLink>
-          ) : null}
           <h2>Faire un don</h2>
           <h4>à {beneficiary}</h4>
-          {hasGroup ? (
-            <>
-              <StyledGroup>
-                <RawFeatherIcon name="arrow-right-circle" />
-                <span>
-                  Dons alloués vers le groupe
-                  <strong>{group.name}</strong>
-                </span>
-              </StyledGroup>
-              <p>
-                Pour financer ses actions, le groupe d’action certifié a la
-                possibilité de se constituer une enveloppe par l’intermédiaire
-                de dons alloués.{" "}
-                <Link route="donationHelp">En savoir plus</Link>
-              </p>
-            </>
+          <SelectedGroupWidget
+            group={group}
+            groups={groups}
+            onChange={selectGroup}
+          />
+          {group?.id ? (
+            <p>
+              Pour financer ses actions, le groupe d’action certifié a la
+              possibilité de se constituer une enveloppe par l’intermédiaire de
+              dons alloués. <Link route="donationHelp">En savoir plus</Link>
+            </p>
           ) : (
             <>
               <p>
@@ -232,13 +173,14 @@ const AmountStep = (props) => {
 };
 
 AmountStep.propTypes = {
-  hasUser: PropTypes.bool,
   group: PropTypes.object,
+  groups: PropTypes.array,
   beneficiary: PropTypes.string,
   legalParagraph: PropTypes.string,
   externalLinkRoute: PropTypes.string,
   isLoading: PropTypes.bool,
   onSubmit: PropTypes.func.isRequired,
+  selectGroup: PropTypes.func,
   error: PropTypes.string,
   maxAmount: PropTypes.number,
   maxAmountWarning: PropTypes.node,

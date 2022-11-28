@@ -34,7 +34,7 @@ const StyledEditor = styled(ReactQuill)`
       return style.black100;
     }
     if ($focused) {
-      return style.black1000;
+      return style.black500;
     }
     return style.black100;
   }};

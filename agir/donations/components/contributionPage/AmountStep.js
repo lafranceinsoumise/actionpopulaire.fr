@@ -17,11 +17,19 @@ import {
 } from "@agir/donations/common/StyledComponents";
 
 import acceptedPaymentMethods from "@agir/donations/common/images/accepted-payment-methods.svg";
+import SelectedGroupWidget from "@agir/donations/common/SelectedGroupWidget";
+
+const StyledPhi = styled.span`
+  color: ${({ theme }) => theme.redNSP};
+  font-size: 1.5em;
+  font-weight: 400;
+  line-height: 0.75;
+`;
 
 const StyledErrorMessage = styled.p`
   text-align: center;
   font-weight: 500;
-  color: ${(props) => props.theme.redNSP};
+  color: ${({ theme }) => theme.redNSP};
   padding-bottom: 2rem;
 `;
 
@@ -30,7 +38,7 @@ const LegalParagraph = styled.p`
   margin: 0 auto;
   font-weight: 400;
   font-size: 0.813rem;
-  color: ${(props) => props.theme.black500};
+  color: ${({ theme }) => theme.black500};
 `;
 
 const PaymentParagraph = styled.p`
@@ -40,53 +48,13 @@ const PaymentParagraph = styled.p`
   text-align: center;
   font-weight: 500;
   font-size: 0.813rem;
-  color: ${(props) => props.theme.black500};
+  color: ${({ theme }) => theme.black500};
+
   & > span {
     display: flex;
     justify-content: center;
     align-items: center;
     padding-bottom: 1.5rem;
-  }
-`;
-
-const StyledGroupLink = styled.div`
-  margin: 1rem 0;
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 1rem;
-  border-radius: ${(props) => props.theme.borderRadius};
-  border: 1px solid ${(props) => props.theme.black200};
-  & > span {
-    flex: 1 1 auto;
-  }
-  ${RawFeatherIcon} {
-    flex: 0 0 auto;
-  }
-`;
-
-const StyledGroup = styled.div`
-  margin: 1rem 0;
-  display: flex;
-  gap: 1rem;
-  padding: 1rem;
-  border-radius: ${(props) => props.theme.borderRadius};
-  background-color: ${(props) => props.theme.default.primary50};
-  color: ${(props) => props.theme.default.primary500};
-
-  & > span {
-    flex: 1 1 auto;
-    font-size: 0.875rem;
-    strong {
-      display: block;
-      font-weight: 500;
-      font-size: 1rem;
-      color: ${(props) => props.theme.black1000};
-    }
-  }
-
-  ${RawFeatherIcon} {
-    flex: 0 0 auto;
   }
 `;
 
@@ -97,8 +65,9 @@ const AmountStep = (props) => {
     beneficiary,
     legalParagraph,
     externalLinkRoute,
-    hasUser,
     group,
+    groups,
+    selectGroup,
     onSubmit,
     error,
     maxAmount,
@@ -145,43 +114,25 @@ const AmountStep = (props) => {
             rel="noopener noreferrer"
             target="_blank"
           />
-          {!hasGroup ? (
-            <StyledGroupLink>
-              <RawFeatherIcon name="share" />
-              <span>
-                Pour destiner une partie de votre contribution financière{" "}
-                <strong>à un groupe d'action certifié</strong>, utilisez le
-                bouton "financer" dans{" "}
-                <Link
-                  route={hasUser ? "groups" : "groupMap"}
-                  params={!hasUser ? { subtype: "certifié" } : null}
-                >
-                  la page du groupe
-                </Link>
-              </span>
-            </StyledGroupLink>
-          ) : null}
-          <h2>Devenir financeur·euse</h2>
+          <h2>
+            Devenir <StyledPhi>φ</StyledPhi>nanceur·euse
+          </h2>
           <h4>de {beneficiary}</h4>
-          {hasGroup ? (
-            <StyledGroup>
-              <RawFeatherIcon name="arrow-right-circle" />
-              <span>
-                Groupe bénéficiaire de votre contribution&nbsp;:
-                <strong>{group.name}</strong>
-              </span>
-            </StyledGroup>
-          ) : null}
+          <SelectedGroupWidget
+            group={group}
+            groups={groups}
+            onChange={selectGroup}
+          />
           <p>
             En devenant financeur·euse de la France insoumise, vous vous engagez
-            à ce que votre contribution financière volontaire soit versée{" "}
+            à ce que votre contribution soit versée{" "}
             <strong>mensuellement</strong> avec un engagement{" "}
             <strong>jusqu'au mois de décembre {contributionEndYear}</strong>.
           </p>
           <p>
-            Grâce à votre engagement dans la durée, vous permettrez à notre
-            mouvement de mieux planifier et organiser ses activités au niveau
-            locale et/ou nationale tout au long de l’année.
+            Grâce à <strong>votre engagement dans la durée</strong>, vous
+            permettrez à notre mouvement de mieux planifier et organiser ses
+            activités au niveau local et/ou national tout au long de l’année.
           </p>
           {fixedRatio && (
             <>
@@ -194,13 +145,18 @@ const AmountStep = (props) => {
                 et sera ensuite redistribuée aux caisses départementales.
               </p>
               <p>
-                Vous pouvez choisir de repartir la partie restante entre{" "}
+                Vous pouvez repartir la partie restante entre{" "}
                 {hasGroup ? "le groupe d'action local, " : ""}une caisse
                 départementale et/ou les initiatives nationales de la France
                 insoumise.
               </p>
             </>
           )}
+          <p>
+            Vous pouvez choisir de règler votre contribution{" "}
+            <strong>mensuellement par carte bancaire</strong> ou{" "}
+            <strong>en une seule fois par chèque</strong>.
+          </p>
           <p>
             <Link route="contributionHelp">En savoir plus</Link>
           </p>
@@ -257,13 +213,14 @@ const AmountStep = (props) => {
 };
 
 AmountStep.propTypes = {
-  hasUser: PropTypes.bool,
   group: PropTypes.object,
+  groups: PropTypes.array,
   beneficiary: PropTypes.string,
   legalParagraph: PropTypes.string,
   externalLinkRoute: PropTypes.string,
   isLoading: PropTypes.bool,
   onSubmit: PropTypes.func.isRequired,
+  selectGroup: PropTypes.func,
   error: PropTypes.string,
   maxAmount: PropTypes.number,
   maxAmountWarning: PropTypes.node,
