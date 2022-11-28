@@ -6,7 +6,6 @@ import { MONTHLY_PAYMENT, ONE_TIME_PAYMENT } from "./form.config";
 
 const DONATION = {
   type: "DONATION",
-  hasGroupAllocations: true,
   maxAmount: 750000,
   maxAmountWarning: (
     <span>

@@ -59,8 +59,10 @@ const DonationPage = () => {
     isReady,
     sessionUser,
     group,
+    groups,
     updateFormData,
     handleSubmit,
+    selectGroup,
   } = useDonations(params?.type, urlParams.get("group"), {
     amount: isNaN(parseInt(urlParams.get("amount")))
       ? 0
@@ -113,13 +115,14 @@ const DonationPage = () => {
       <PageFadeIn ready={isReady} wait={<Skeleton />}>
         <AmountStep
           {...config}
-          hasUser={!!sessionUser}
-          group={group?.isCertified ? group : null}
+          group={group}
+          groups={groups}
           isLoading={isLoading}
           error={formErrors.amount}
           initialAmount={formData.amount}
           initialPaymentTiming={formData.paymentTiming}
           onSubmit={openModal}
+          selectGroup={selectGroup}
         />
         <StyledModal shouldShow={isModalOpen} onClose={closeModal}>
           <ModalContainer>
