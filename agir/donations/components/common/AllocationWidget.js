@@ -97,8 +97,16 @@ const StyledWidget = styled.div`
 `;
 
 const AllocationWidget = (props) => {
-  const { totalAmount, value, groupId, fixedRatio, error, disabled, onChange } =
-    props;
+  const {
+    totalAmount,
+    value,
+    groupId,
+    fixedRatio,
+    error,
+    unit = "€",
+    disabled,
+    onChange,
+  } = props;
 
   const previousTotalAmount = usePrevious(totalAmount);
 
@@ -177,7 +185,9 @@ const AllocationWidget = (props) => {
             value: "default",
             label: options.map((option) => (
               <span key={option.type} style={{ display: "block" }}>
-                <strong>{displayPrice(option.defaultValue)}</strong>
+                <strong>
+                  {displayPrice(option.defaultValue, false, unit)}
+                </strong>
                 &nbsp;
                 {option.label}
                 {!!option.fixedRatio ? ` (${option.fixedRatio * 100}%)` : ""}
@@ -228,7 +238,7 @@ const AllocationWidget = (props) => {
             <StyledError>
               ⚠&nbsp;La somme des montants indiqués est différente du total :{" "}
               <strong>
-                {displayPrice(Math.abs(remainder))}{" "}
+                {displayPrice(Math.abs(remainder, false, unit))}{" "}
                 {remainder < 0 ? "en trop" : "en moins"}
               </strong>
             </StyledError>
@@ -250,6 +260,7 @@ AllocationWidget.propTypes = {
   groupId: PropTypes.string,
   fixedRatio: PropTypes.number,
   error: PropTypes.string,
+  unit: PropTypes.string,
   disabled: PropTypes.bool,
   onChange: PropTypes.func.isRequired,
 };
