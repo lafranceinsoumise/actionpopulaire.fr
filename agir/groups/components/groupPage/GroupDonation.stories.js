@@ -18,4 +18,6 @@ const Template = (args) => {
 export const Default = Template.bind({});
 Default.args = {
   url: "#dons",
+  id: "12345",
+  isCertified: true,
 };

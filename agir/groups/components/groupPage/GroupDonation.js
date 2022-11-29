@@ -13,11 +13,22 @@ const GroupFacts = (props) => {
 
   return (
     <Card title="Financez les actions du groupe">
+      <p />
       <p>
         Pour que ce groupe puisse financer ses frais de fonctionnement et
-        s’équiper en matériel, vous pouvez contribuer financièrement.
+        s’équiper en matériel, vous pouvez contribuer financièrement de manière
+        ponctuelle ou mensuellement.
       </p>
       <p>Chaque euro compte.</p>
+      <Button
+        route="contributions"
+        params={{ group: id }}
+        link
+        color="secondary"
+        style={{ marginTop: "0.5rem" }}
+      >
+        Devenir financeur·euse
+      </Button>
       <Button
         route="donations"
         params={{ group: id }}
@@ -25,7 +36,7 @@ const GroupFacts = (props) => {
         color="secondary"
         style={{ marginTop: "0.5rem" }}
       >
-        Faire un don
+        Faire un don ponctuel
       </Button>
     </Card>
   );

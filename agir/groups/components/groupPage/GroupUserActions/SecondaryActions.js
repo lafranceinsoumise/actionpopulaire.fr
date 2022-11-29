@@ -87,7 +87,7 @@ const SecondaryActions = ({
         <span>Contacter</span>
       </button>
       {isCertified && (
-        <StyledLink route="donations" params={{ group: id }}>
+        <StyledLink route="contributions" params={{ group: id }}>
           <RawFeatherIcon name="upload" width="1.5rem" height="1.5rem" />
           <span>Financer</span>
         </StyledLink>
