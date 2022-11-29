@@ -343,7 +343,9 @@ urlpatterns = [
     ),
     path(
         "dons-mensuels/informations/",
-        views.DonationView.as_view(),
+        RedirectView.as_view(
+            pattern_name="contribution_information_modal", query_string=True
+        ),
         name="monthly_donation_information",
     ),
     path(

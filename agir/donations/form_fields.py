@@ -72,24 +72,40 @@ AllocationsMapping = Dict[SupportGroup, int]
 
 
 def serialize_allocations(allocations: AllocationsMapping) -> str:
-    return json.dumps({str(group.pk): amount for group, amount in allocations.items()})
+    from agir.donations.models import AllocationModelMixin
+
+    # TODO: implement other allocation types
+    return json.dumps(
+        {
+            "type": AllocationModelMixin.TYPE_GROUP,
+            "group": str(group.pk),
+            "amount": amount,
+        }
+        for group, amount in allocations.items()
+    )
 
 
 def deserialize_allocations(
     serialized_allocations: str, raise_if_missing=False
 ) -> AllocationsMapping:
-    mapping = json.loads(serialized_allocations)
+    from agir.donations.allocations import get_allocation_list
+    from agir.donations.models import AllocationModelMixin
 
-    allocations = {}
-    for id, amount in mapping.items():
+    mapping = {}
+    allocations = json.loads(serialized_allocations)
+    # TODO: implement other allocation types
+    allocations = get_allocation_list(allocations, AllocationModelMixin.TYPE_GROUP)
+    for allocation in allocations:
         try:
-            allocations[SupportGroup.objects.get(pk=id)] = amount
+            mapping[
+                SupportGroup.objects.get(pk=allocation.get("group"))
+            ] = allocation.get("amount")
         except SupportGroup.DoesNotExist:
             if raise_if_missing:
                 raise
             pass
 
-    return allocations
+    return mapping
 
 
 def sum_allocations(
@@ -117,6 +133,8 @@ class AllocationsField(forms.Field):
 
         try:
             value = json.loads(value)
+            # TODO: implement other allocation types
+            value = get_allocation_list(value, AllocationModelMixin.TYPE_GROUP)
             value = {
                 self.queryset.get(pk=allocation["group"]): int(allocation["amount"])
                 for allocation in value

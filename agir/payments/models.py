@@ -105,7 +105,7 @@ class Payment(ExportModelOperationsMixin("payment"), TimeStampedModel, LocationM
     get_type_display.short_description = "Type de paiement"
 
     def get_allocations_display(self):
-        allocations = self.meta.get("allocations", "{}")
+        allocations = self.meta.get("allocations", "[]")
         allocations = json.loads(allocations)
         return display_allocations(allocations)
 
@@ -204,7 +204,7 @@ class Subscription(ExportModelOperationsMixin("subscription"), TimeStampedModel)
     get_price_display.short_description = "Prix"
 
     def get_allocations_display(self):
-        allocations = self.meta.get("allocations", "{}")
+        allocations = self.meta.get("allocations", "[]")
         allocations = json.loads(allocations)
         return display_allocations(allocations)
 

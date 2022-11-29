@@ -19,6 +19,7 @@ from agir.authentication.view_mixins import (
     HardLoginRequiredMixin,
 )
 from agir.donations.forms import AllocationSubscriptionForm
+from agir.donations.models import AllocationModelMixin
 from agir.donations.views import DONATION_SESSION_NAMESPACE, AskAmountView
 from agir.payments.models import Payment, Subscription
 from agir.people.actions.management import merge_persons
@@ -299,7 +300,10 @@ class PaymentsView(AskAmountView, ProfileViewMixin, TemplateView):
         )
 
     def get_initial_for_subscription(self, subscription):
-        allocations = subscription.allocations.all()
+        # TODO: implement other allocation types
+        allocations = subscription.allocations.filter(
+            type=AllocationModelMixin.TYPE_GROUP
+        )
 
         initial = {
             "amount": subscription.price,

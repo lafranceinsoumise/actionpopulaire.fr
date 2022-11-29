@@ -1,4 +1,5 @@
 import json
+from functools import partial
 
 from django.db import transaction
 from django.http import HttpResponseRedirect
@@ -8,15 +9,25 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import never_cache
 from django.views.generic import TemplateView, FormView
-from functools import partial
 
 from agir.authentication.tokens import monthly_donation_confirmation_token_generator
 from agir.authentication.utils import soft_login
 from agir.authentication.view_mixins import VerifyLinkSignatureMixin
-from agir.donations.allocations import create_monthly_donation
+from agir.donations import forms
+from agir.donations.allocations import (
+    create_monthly_donation,
+    get_allocation_list,
+    apply_payment_allocations,
+)
 from agir.donations.apps import DonsConfig
 from agir.donations.base_views import BaseAskAmountView
+from agir.donations.form_fields import (
+    deserialize_allocations,
+    sum_allocations,
+)
 from agir.donations.forms import AlreadyHasSubscriptionForm
+from agir.donations.models import Operation, AllocationModelMixin
+from agir.donations.tasks import send_donation_email
 from agir.front.view_mixins import SimpleOpengraphMixin
 from agir.groups.models import SupportGroup
 from agir.payments import payment_modes
@@ -27,13 +38,6 @@ from agir.payments.actions.subscriptions import (
 )
 from agir.payments.models import Payment, Subscription
 from agir.people.models import Person
-from agir.donations import forms
-from agir.donations.form_fields import (
-    deserialize_allocations,
-    sum_allocations,
-)
-from agir.donations.models import Operation
-from agir.donations.tasks import send_donation_email
 
 __all__ = (
     "AskAmountView",
@@ -174,7 +178,13 @@ class AlreadyHasSubscriptionView(FormView):
         add_amount = replace_amount + self.old_subscription.price
         add_allocations = sum_allocations(
             self.new_subscription_info["allocations"],
-            {a.group: a.amount for a in self.old_subscription.allocations.all()},
+            # TODO: implement other allocation types
+            {
+                a.group: a.amount
+                for a in self.old_subscription.allocations.filter(
+                    type=AllocationModelMixin.TYPE_GROUP
+                )
+            },
         )
 
         return super().get_context_data(
@@ -244,20 +254,12 @@ class MonthlyDonationEmailConfirmationView(VerifyLinkSignatureMixin, View):
             return self.link_error_page()
 
         allocations = {}
-
         if raw_allocations:
             try:
-                raw_allocations = json.loads(raw_allocations)
+                # TODO: implement other allocation types
+                allocations = deserialize_allocations(raw_allocations)
             except ValueError:
                 pass
-            else:
-                for group_pk, allocation_amount in raw_allocations.items():
-                    try:
-                        allocations[
-                            SupportGroup.objects.get(pk=group_pk)
-                        ] = allocation_amount
-                    except SupportGroup.DoesNotExist:
-                        continue
 
         try:
             person = Person.objects.get_by_natural_key(email)
@@ -339,36 +341,6 @@ def subscription_notification_listener(subscription):
         )
 
 
-def apply_allocations(payment):
-    with transaction.atomic():
-        # S'il s'agit d'un don ponctuel, le fléchage éventuel des dons est enregistré dans les meta
-        # du paiement. Dans le cas d'un don mensuel, les infos d'allocations sont enregistrées sur la souscription.
-        if payment.subscription is None:
-            allocations = {}
-            if "allocations" in payment.meta:
-                try:
-                    allocations = json.loads(payment.meta["allocations"])
-                except ValueError:
-                    pass
-
-            for group_id, amount in allocations.items():
-                try:
-                    group = SupportGroup.objects.get(pk=group_id)
-                except SupportGroup.DoesNotExist:
-                    continue
-
-                Operation.objects.update_or_create(
-                    payment=payment, group=group, defaults={"amount": amount}
-                )
-        else:
-            for allocation in payment.subscription.allocations.all():
-                Operation.objects.update_or_create(
-                    payment=payment,
-                    group=allocation.group,
-                    defaults={"amount": allocation.amount},
-                )
-
-
 def notification_listener(payment):
     if payment.status == Payment.STATUS_COMPLETED:
         with transaction.atomic():
@@ -377,7 +349,7 @@ def notification_listener(payment):
             # ce paiement.
             find_or_create_person_from_payment(payment)
 
-            apply_allocations(payment)
+            apply_payment_allocations(payment)
 
             if payment.subscription is None:
                 transaction.on_commit(

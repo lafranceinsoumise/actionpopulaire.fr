@@ -217,14 +217,17 @@ class DonationTestCase(DonationTestMixin, APITestCase):
 
         res = self.client.get(self.amount_url)
         self.assertEqual(res.status_code, 200)
-
+        allocations = [
+            {"type": "group", "group": str(self.group.pk), "amount": 10000},
+            {"type": "group", "group": str(self.other_group.pk), "amount": 5000},
+        ]
         res = self.client.post(
             self.create_donation_url,
             {
                 **self.donation_information_payload,
                 "paymentTiming": donations.serializers.TYPE_SINGLE_TIME,
                 "amount": "200",
-                "allocations": f'{{"group": "{str(self.group.pk)}", "amount": 10000}}',
+                "allocations": allocations,
             },
         )
         self.assertEqual(res.status_code, 422)
@@ -238,16 +241,13 @@ class DonationTestCase(DonationTestMixin, APITestCase):
 
         res = self.client.get(self.information_modal_url)
         self.assertEqual(res.status_code, 200)
-
+        allocations = [
+            {"type": "group", "group": str(self.group.pk), "amount": 10000},
+            {"type": "group", "group": str(self.other_group.pk), "amount": 5000},
+        ]
         res = self.client.post(
             self.create_donation_url,
-            {
-                **self.donation_information_payload,
-                "allocations": [
-                    {"group": str(self.group.pk), "amount": 10000},
-                    {"group": str(self.other_group.pk), "amount": 5000},
-                ],
-            },
+            {**self.donation_information_payload, "allocations": allocations},
         )
         # no other payment
         payment = Payment.objects.get()
@@ -257,7 +257,7 @@ class DonationTestCase(DonationTestMixin, APITestCase):
         self.assertIn("allocations", payment.meta)
         self.assertEqual(
             payment.meta["allocations"],
-            json.dumps({str(self.group.pk): 10000, str(self.other_group.pk): 5000}),
+            json.dumps(allocations),
         )
 
         complete_payment(payment)
@@ -338,9 +338,8 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
                 "allocations": [{"group": str(self.group.pk), "amount": 10000}],
             },
         )
-
-        # no other payment
         subscription = Subscription.objects.last()
+        self.assertTrue(MonthlyAllocation.objects.exists())
         allocation = MonthlyAllocation.objects.last()
         self.assertEqual(allocation.subscription, subscription)
         self.assertEqual(allocation.amount, 10000)
@@ -471,7 +470,7 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
             "email": "test2@test.com",
             "confirmation_view_name": "monthly_donation_confirm",
             "subscription_total": 20000,
-            "allocations": "{}",
+            "allocations": "[]",
             "payment_mode": payment_modes.DEFAULT_MODE,
             "nationality": "FR",
             "first_name": "Marc",
@@ -627,6 +626,10 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
         )
         res = self.client.get(self.information_modal_url)
         self.assertEqual(res.status_code, 200)
+        allocations = [
+            {"type": "group", "group": str(self.group.pk), "amount": 100},
+            {"type": "group", "group": str(self.other_group.pk), "amount": 300},
+        ]
         res = self.client.post(
             self.create_donation_url,
             data={
@@ -634,10 +637,7 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
                 **self.donation_information_payload,
                 "paymentTiming": donations.serializers.TYPE_MONTHLY,
                 "amount": "500",
-                "allocations": [
-                    {"group": str(self.group.pk), "amount": 100},
-                    {"group": str(self.other_group.pk), "amount": 300},
-                ],
+                "allocations": allocations,
             },
         )
         self.assertEqual(res.status_code, 200)
@@ -649,9 +649,7 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
             "confirmation_view_name": "monthly_donation_confirm",
             "email": existing_person.email,
             "subscription_total": 500,
-            "allocations": json.dumps(
-                {str(self.group.pk): 100, str(self.other_group.pk): 300}
-            ),
+            "allocations": json.dumps(allocations),
             "payment_mode": payment_modes.DEFAULT_MODE,
             "nationality": "FR",
             "first_name": "Marc",

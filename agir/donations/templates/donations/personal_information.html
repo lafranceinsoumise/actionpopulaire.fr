@@ -38,6 +38,7 @@
               <li><strong>{{ national | display_price_in_cent }}</strong> seront alloués aux activités et campagnes
                 nationales
               </li>
+              {#  TODO: implement other allocation types  #}
               {% for group, amount in allocations.items %}
                 <li><strong>{{ amount | display_price_in_cent }}</strong> seront alloués au financement des activités du groupe
                   d'action « <em>{{ group.name }}</em> »

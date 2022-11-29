@@ -2,8 +2,8 @@ import datetime
 import string
 
 from django.template.defaultfilters import floatformat
-from django.utils.html import format_html, format_html_join, mark_safe
 from django.utils.formats import date_format
+from django.utils.html import format_html, format_html_join, mark_safe
 from django.utils.timezone import utc, is_aware
 from django.utils.translation import gettext as _, ngettext
 
@@ -47,26 +47,33 @@ def display_price(price, price_in_cents=True):
 
 
 def display_allocations(allocations):
-    """Display each group allocations if exist"""
-    if isinstance(allocations, list):
-        allocations = {
-            allocation["group"]: allocation["amount"] for allocation in allocations
-        }
-
     from agir.groups.models import SupportGroup
+    from agir.donations.models import AllocationModelMixin
+    from agir.donations.allocations import get_allocation_list
 
     strings = []
-    for group_id, amount in allocations.items():
-        try:
-            group = SupportGroup.objects.get(pk=group_id)
-            strings.append(f"{amount/100}€ vers {group.name}")
-        except SupportGroup.DoesNotExist:
-            strings.append(f"{amount/100}€ vers {group_id}")
+    for allocation in get_allocation_list(allocations):
+        allocation_type = allocation.get("type")
+        amount = allocation.get("amount")
+        if allocation_type == AllocationModelMixin.TYPE_GROUP:
+            group_id = allocation.get("group")
+            try:
+                group = SupportGroup.objects.get(pk=group_id)
+                strings.append(f"{amount/100}€ vers {group.name}")
+            except SupportGroup.DoesNotExist:
+                strings.append(f"{amount/100}€ vers {group_id}")
+        elif allocation_type == AllocationModelMixin.TYPE_DEPARTEMENT:
+            departement = allocation.get("departement")
+            strings.append(f"{amount / 100}€ vers le département {departement}")
+        elif allocation_type == AllocationModelMixin.TYPE_CNS:
+            strings.append(f"{amount / 100}€ vers la caisse nationale de solidarité")
 
     if not strings:
         return "-"
 
-    return f"dont {', '.join(strings)}"
+    if len(strings) == 1:
+        return strings[0]
+    return "{} et {}".format(", ".join(strings[:-1]), strings[-1])
 
 
 def pretty_time_since(d, relative_to=None):

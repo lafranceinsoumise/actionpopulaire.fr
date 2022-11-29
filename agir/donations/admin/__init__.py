@@ -14,6 +14,8 @@ from agir.donations.models import (
     Document,
     Operation,
     MonthlyAllocation,
+    DepartementOperation,
+    CNSOperation,
 )
 from agir.lib.display import display_price
 
@@ -139,7 +141,6 @@ class SpendingRequestAdmin(admin.ModelAdmin):
 @admin.register(Operation)
 class OperationAdmin(admin.ModelAdmin):
     list_display = ("group", "amount", "payment", "created")
-
     fields = ("group", "amount")
     autocomplete_fields = ("group",)
 
@@ -147,15 +148,33 @@ class OperationAdmin(admin.ModelAdmin):
         return request.user.is_superuser
 
 
+@admin.register(DepartementOperation)
+class DepartementOperationAdmin(admin.ModelAdmin):
+    list_display = ("departement", "amount", "payment", "created")
+    fields = ("departement", "amount")
+
+    def has_change_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+
+@admin.register(CNSOperation)
+class CNSOperationAdmin(admin.ModelAdmin):
+    list_display = ("amount", "payment", "created")
+    fields = ("amount",)
+
+    def has_change_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+
 @admin.register(MonthlyAllocation)
 class MonthlyAllocationAdmin(admin.ModelAdmin):
-    list_display = ("__str__", "group", "amount", "subscription")
+    list_display = ("__str__", "type", "group", "departement", "amount", "subscription")
     list_filter = (
         MonthlyAllocationGroupFilter,
         MonthlyAllocationSubscriptionPersonFilter,
         "subscription__status",
     )
-    readonly_fields = ("group", "subscription", "amount")
+    readonly_fields = ("type", "group", "departement", "subscription", "amount")
 
     class Media:
         pass

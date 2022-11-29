@@ -31,8 +31,9 @@ class CreateDonationAPIView(UpdateModelMixin, GenericAPIView):
         if DONATION_SESSION_NAMESPACE in self.request.session:
             del self.request.session[DONATION_SESSION_NAMESPACE]
 
-    def monthly_payment(self, allocations):
+    def monthly_payment(self):
         validated_data = self.validated_data
+        allocations = validated_data.get("allocations", [])
         payment_mode = validated_data["payment_mode"]
         amount = validated_data["amount"]
         payment_type = DonsConfig.SUBSCRIPTION_TYPE
@@ -106,19 +107,12 @@ class CreateDonationAPIView(UpdateModelMixin, GenericAPIView):
         if self.person is not None:
             self.perform_update(serializer)
 
-        # TODO: new allocation format and types should be handled here:
-        allocations = {
-            str(allocation["group"].id): allocation["amount"]
-            for allocation in validated_data.get("allocations", [])
-            if "group" in allocation
-        }
-
         if "allocations" in validated_data:
-            validated_data["allocations"] = json.dumps(allocations)
+            validated_data["allocations"] = json.dumps(validated_data["allocations"])
 
         # Monthly payments
         if validated_data["payment_timing"] == TYPE_MONTHLY:
-            return self.monthly_payment(allocations)
+            return self.monthly_payment()
 
         # Direct payments
         payment_type = DonsConfig.PAYMENT_TYPE
