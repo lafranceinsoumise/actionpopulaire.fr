@@ -51,10 +51,18 @@ const GroupFinancePage = (props) => {
         )}
       </PageFadeIn>
       <p style={{ color: style.black700 }}>
-        Vous pouvez allouer des dons à vos actions sur la{" "}
-        <a href="/dons/">page de dons</a>.
+        Vous pouvez allouer des dons à vos actions de manière ponctuelle ou avec
+        une contribution financière sur l'année.
       </p>
       <p>
+        <Button
+          link
+          route="contributions"
+          params={group?.id ? { group: group.id } : undefined}
+          color="secondary"
+        >
+          Devenir financeur·euse
+        </Button>{" "}
         <Button
           link
           route="donations"

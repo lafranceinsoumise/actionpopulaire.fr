@@ -109,6 +109,41 @@ export const ActionTools = () => {
           </span>
         </span>
       </StyledCardItem>
+      <StyledCardItem as="span">
+        <i
+          aria-hidden="true"
+          css={`
+            background-color: ${({ theme }) => theme.redNSP};
+            color: ${({ theme }) => theme.white};
+          `}
+        >
+          <RawFeatherIcon name="heart" />
+        </i>
+        <span>
+          <strong>Financer les actions du mouvement</strong>
+          <span>
+            Pour que le mouvement puisse financer ses frais de fonctionnement,
+            organiser des actions et s’équiper en matériel, vous pouvez
+            contribuer financièrement de manière ponctuelle ou mensuellement.
+            Chaque euro compte.
+          </span>
+          <span
+            css={`
+              display: inline-flex;
+              flex-wrap: wrap;
+              gap: 0.5rem;
+              margin-top: 0.25rem;
+            `}
+          >
+            <Button small link route="contributions">
+              Devenir financeur·euse
+            </Button>
+            <Button small link route="donations">
+              Faire un don ponctuel
+            </Button>
+          </span>
+        </span>
+      </StyledCardItem>
       <StyledCardItem route="createContact">
         <i
           aria-hidden="true"
@@ -191,25 +226,6 @@ export const ActionTools = () => {
             </Button>
           </span>
         </span>
-      </StyledCardItem>
-      <StyledCardItem route="coupDeFil">
-        <i
-          aria-hidden="true"
-          css={`
-            background-color: ${({ theme }) => theme.green500};
-            color: ${({ theme }) => theme.white};
-          `}
-        >
-          <RawFeatherIcon name="phone" />
-        </i>
-        <span>
-          <strong>Coup de fil pour convaincre</strong>
-          <span>
-            Vous avez deux minutes&nbsp;? Appelez un·e citoyen·ne proche de chez
-            vous pour le·a convaincre d’aller voter. On vous explique tout.
-          </span>
-        </span>
-        <RawFeatherIcon aria-hidden="true" name="chevron-right" />
       </StyledCardItem>
       <StyledCardItem route="materiel">
         <i
