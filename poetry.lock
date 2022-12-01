@@ -824,7 +824,7 @@ boltons = ">=20.0.0"
 
 [[package]]
 name = "faker"
-version = "15.3.3"
+version = "15.3.4"
 description = "Faker is a Python package that generates fake data for you."
 category = "main"
 optional = false
@@ -2823,8 +2823,8 @@ face = [
     {file = "face-22.0.0.tar.gz", hash = "sha256:d5d692f90bc8f5987b636e47e36384b9bbda499aaf0a77aa0b0bbe834c76923d"},
 ]
 faker = [
-    {file = "Faker-15.3.3-py3-none-any.whl", hash = "sha256:b95b2423ef18d17dcd5977732a0bf0fbbde4937f10dce24ff804581f7f3ca4e9"},
-    {file = "Faker-15.3.3.tar.gz", hash = "sha256:20d090e661bbe88a5d801ea5eb3d853564940352120c84c9a14968847aca2893"},
+    {file = "Faker-15.3.4-py3-none-any.whl", hash = "sha256:c2a2ff9dd8dfd991109b517ab98d5cb465e857acb45f6b643a0e284a9eb2cc76"},
+    {file = "Faker-15.3.4.tar.gz", hash = "sha256:2d5443724f640ce07658ca8ca8bbd40d26b58914e63eec6549727869aa67e2cc"},
 ]
 flask = [
     {file = "Flask-2.2.2-py3-none-any.whl", hash = "sha256:b9c46cc36662a7949f34b52d8ec7bb59c0d74ba08ba6cb9ce9adc1d8676d9526"},
