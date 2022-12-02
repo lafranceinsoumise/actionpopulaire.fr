@@ -33,7 +33,7 @@ jobs:
           SENTRY_ENV: "production"
 
       - name: Print build asset tree
-        run: tree -n 3 assets/
+        run: tree -L 3 assets/
 
       - uses: actions/upload-artifact@v3
         with:
