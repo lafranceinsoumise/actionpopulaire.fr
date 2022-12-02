@@ -2,10 +2,10 @@ import React from "react";
 
 import themeLFI from "@agir/front/genericComponents/themes/LFI";
 
-import { MONTHLY_PAYMENT, ONE_TIME_PAYMENT } from "./form.config";
+import { MONTHLY_PAYMENT, SINGLE_TIME_PAYMENT } from "./form.config";
 
-const DONATION = {
-  type: "DONATION",
+const don = {
+  type: "don",
   maxAmount: 750000,
   maxAmountWarning: (
     <span>
@@ -19,22 +19,26 @@ const DONATION = {
   title: "Faire un don - La France insoumise",
   theme: themeLFI,
   allowedPaymentModes: {
-    [ONE_TIME_PAYMENT]: ["system_pay", "check_donations"],
+    [SINGLE_TIME_PAYMENT]: ["system_pay", "check_donations"],
   },
   legalParagraph:
     "Les dons seront versés à L'Association de financement de La France insoumise (AFLFI). Premier alinéa de l’article 11-4 de la loi 88-227 du 11 mars 1988 modifiée : une personne physique peut verser un don à un parti ou groupement politique si elle est de nationalité française ou si elle réside en France.",
 };
 
-const CONTRIBUTION = {
-  ...DONATION,
+const contribution = {
+  ...don,
   // Contribution ends in december :
   // - of the current year until august
   // - of the next year from september on
-  contributionEndYear:
-    new Date().getMonth() < 8
-      ? new Date().getFullYear()
-      : new Date().getFullYear() + 1,
-  type: "CONTRIBUTION",
+  getEndDate: () =>
+    new Date(
+      `${
+        new Date().getMonth() < 8
+          ? new Date().getFullYear()
+          : new Date().getFullYear() + 1
+      }-12-31 23:59:59`
+    ).toISOString(),
+  type: "contribution",
   title: "Devenir financeur·euse de La France insoumise",
   fixedRatio: 0.2,
   allowedPaymentModes: {
@@ -43,9 +47,9 @@ const CONTRIBUTION = {
 };
 
 const CONFIG = {
-  DONATION,
-  CONTRIBUTION,
-  default: DONATION,
+  don,
+  contribution,
+  default: don,
 };
 
 export default CONFIG;

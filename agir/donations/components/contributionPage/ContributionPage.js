@@ -2,10 +2,9 @@ import React, { useCallback, useEffect } from "react";
 import { useLocation, useParams, useHistory } from "react-router-dom";
 import styled from "styled-components";
 
-import CONFIG from "@agir/donations/common/config";
-
 import { routeConfig } from "@agir/front/app/routes.config";
 import { useDonations } from "@agir/donations/common/hooks";
+import ROUTES from "@agir/front/globalContext/nonReactRoutes.config";
 
 import AmountStep from "./AmountStep";
 import DonationForm from "@agir/donations/common/DonationForm";
@@ -45,6 +44,8 @@ const ModalContainer = styled.div`
   }
 `;
 
+const TYPE = "contribution";
+
 const ContributionPage = () => {
   const history = useHistory();
   const params = useParams();
@@ -63,7 +64,7 @@ const ContributionPage = () => {
     updateFormData,
     handleSubmit,
     selectGroup,
-  } = useDonations("CONTRIBUTION", urlParams.get("group"), {
+  } = useDonations(TYPE, urlParams.get("group"), {
     amount: isNaN(parseInt(urlParams.get("amount")))
       ? 0
       : parseInt(urlParams.get("amount")),
@@ -99,6 +100,12 @@ const ContributionPage = () => {
     isModalOpen && !amount && closeModal();
   }, [amount, isModalOpen, closeModal]);
 
+  if (!isLoading && sessionUser?.hasContribution === true) {
+    window.location.href = ROUTES.alreadyContributor;
+
+    return null;
+  }
+
   return (
     <Theme type={formData.to} theme={theme}>
       <OpenGraphTags title={title} />
@@ -113,12 +120,13 @@ const ContributionPage = () => {
           onSubmit={openModal}
           groups={groups}
           selectGroup={selectGroup}
+          endDate={formData.endDate}
         />
         <StyledModal shouldShow={isModalOpen} onClose={closeModal}>
           <ModalContainer>
             <DonationForm
               isLoading={isLoading}
-              type="CONTRIBUTION"
+              type={TYPE}
               formData={formData}
               formErrors={formErrors}
               groupName={group?.name}

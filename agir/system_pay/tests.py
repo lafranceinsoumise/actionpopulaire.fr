@@ -74,7 +74,7 @@ class PaymentUXTestCase(FakeDataMixin, TestCase):
             person=self.data["people"]["user1"],
             email=self.data["people"]["user1"].email,
             price=1000,
-            type=DonsConfig.PAYMENT_TYPE,
+            type=DonsConfig.SINGLE_TIME_DONATION_TYPE,
             mode=SystemPayPaymentMode.id,
         )
         self.client.force_login(self.data["people"]["user1"].role)
@@ -113,7 +113,7 @@ class WebhookTestCase(FakeDataMixin, TestCase):
         payment = Payment.objects.create(
             person=self.data["people"]["user1"],
             price=1000,
-            type=DonsConfig.PAYMENT_TYPE,
+            type=DonsConfig.SINGLE_TIME_DONATION_TYPE,
             mode=SystemPayPaymentMode.id,
         )
 
@@ -173,7 +173,7 @@ class WebhookTestCase(FakeDataMixin, TestCase):
         payment = Payment.objects.create(
             person=self.data["people"]["user1"],
             price=1000,
-            type=DonsConfig.PAYMENT_TYPE,
+            type=DonsConfig.SINGLE_TIME_DONATION_TYPE,
             mode=SystemPayPaymentMode.id,
         )
 
@@ -211,7 +211,7 @@ class WebhookTestCase(FakeDataMixin, TestCase):
         subscription = Subscription.objects.create(
             person=self.data["people"]["user1"],
             price=1000,
-            type=DonsConfig.PAYMENT_TYPE,
+            type=DonsConfig.SINGLE_TIME_DONATION_TYPE,
             mode=SystemPayPaymentMode.id,
         )
 

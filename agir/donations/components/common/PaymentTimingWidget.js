@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import React, { useEffect } from "react";
 
-import { MONTHLY_PAYMENT, ONE_TIME_PAYMENT } from "./form.config";
+import { MONTHLY_PAYMENT, SINGLE_TIME_PAYMENT } from "./form.config";
 
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import {
@@ -41,16 +41,16 @@ const PaymentTimingWidget = (props) => {
       </Button>
       <Button
         type="button"
-        as={value === ONE_TIME_PAYMENT ? SelectedButton : Button}
+        as={value === SINGLE_TIME_PAYMENT ? SelectedButton : Button}
         disabled={disabled}
-        onClick={() => onChange(ONE_TIME_PAYMENT)}
+        onClick={() => onChange(SINGLE_TIME_PAYMENT)}
         style={{
           flex: "1 1 auto",
           borderTopLeftRadius: 0,
           borderBottomLeftRadius: 0,
         }}
       >
-        {value === ONE_TIME_PAYMENT ? <RawFeatherIcon name="check" /> : null}
+        {value === SINGLE_TIME_PAYMENT ? <RawFeatherIcon name="check" /> : null}
         Une seule fois
       </Button>
     </div>
@@ -58,11 +58,11 @@ const PaymentTimingWidget = (props) => {
 };
 
 PaymentTimingWidget.propTypes = {
-  value: PropTypes.oneOf([MONTHLY_PAYMENT, ONE_TIME_PAYMENT]),
+  value: PropTypes.oneOf([MONTHLY_PAYMENT, SINGLE_TIME_PAYMENT]),
   onChange: PropTypes.func.isRequired,
   disabled: PropTypes.bool,
   allowedPaymentTimings: PropTypes.arrayOf(
-    PropTypes.oneOf([MONTHLY_PAYMENT, ONE_TIME_PAYMENT])
+    PropTypes.oneOf([MONTHLY_PAYMENT, SINGLE_TIME_PAYMENT])
   ),
 };
 

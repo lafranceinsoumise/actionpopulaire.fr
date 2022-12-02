@@ -71,50 +71,32 @@ class AskAmountField(forms.IntegerField):
 AllocationsMapping = Dict[SupportGroup, int]
 
 
-def serialize_allocations(allocations: AllocationsMapping) -> str:
-    from agir.donations.models import AllocationModelMixin
+def serialize_allocations(allocations):
+    result = []
+    for allocation in allocations:
+        if "group" in allocation and isinstance(allocation["group"], SupportGroup):
+            allocation["group"] = str(allocation["group"].id)
+        result.append(allocation)
 
-    # TODO: implement other allocation types
-    return json.dumps(
-        {
-            "type": AllocationModelMixin.TYPE_GROUP,
-            "group": str(group.pk),
-            "amount": amount,
-        }
-        for group, amount in allocations.items()
-    )
+    return json.dumps(result)
 
 
-def deserialize_allocations(
-    serialized_allocations: str, raise_if_missing=False
-) -> AllocationsMapping:
+def deserialize_allocations(serialized_allocations: str, raise_if_missing=False):
     from agir.donations.allocations import get_allocation_list
-    from agir.donations.models import AllocationModelMixin
 
-    mapping = {}
     allocations = json.loads(serialized_allocations)
-    # TODO: implement other allocation types
-    allocations = get_allocation_list(allocations, AllocationModelMixin.TYPE_GROUP)
+    allocations = get_allocation_list(allocations)
     for allocation in allocations:
         try:
-            mapping[
-                SupportGroup.objects.get(pk=allocation.get("group"))
-            ] = allocation.get("amount")
+            if "group" in allocation:
+                allocation["group"] = SupportGroup.objects.get(
+                    pk=allocation.get("group")
+                )
         except SupportGroup.DoesNotExist:
             if raise_if_missing:
                 raise
             pass
 
-    return mapping
-
-
-def sum_allocations(
-    allocations1: AllocationsMapping, allocations2: AllocationsMapping
-) -> AllocationsMapping:
-    allocations = {
-        group: allocations1.get(group, 0) + allocations2.get(group, 0)
-        for group in set(allocations1) | set(allocations2)
-    }
     return allocations
 
 
@@ -132,8 +114,11 @@ class AllocationsField(forms.Field):
             return {}
 
         try:
+            from agir.donations.allocations import get_allocation_list
+            from agir.donations.models import AllocationModelMixin
+
             value = json.loads(value)
-            # TODO: implement other allocation types
+            # TODO: implement other allocation types (or remove if the field is no longer used)
             value = get_allocation_list(value, AllocationModelMixin.TYPE_GROUP)
             value = {
                 self.queryset.get(pk=allocation["group"]): int(allocation["amount"])

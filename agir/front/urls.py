@@ -358,6 +358,11 @@ urlpatterns = [
         views.ContributionView.as_view(),
         name="contribution_information_modal",
     ),
+    path(
+        "deja-contributeur-ice/",
+        views.AlreadyContributorRedirectView.as_view(),
+        name="already_contributor",
+    ),
     # VOTING PROXIES
     path("procuration/", include(voting_proxy_patterns)),
     # POLLING STATION OFFICERS

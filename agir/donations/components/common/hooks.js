@@ -77,6 +77,8 @@ export const useDonations = (
     ...defaults,
     to: type,
     paymentTiming: Object.keys(config.allowedPaymentModes)[0],
+    endDate:
+      typeof config.getEndDate === "function" ? config.getEndDate() : null,
   });
 
   const { group, groups, isGroupReady, selectGroup } =

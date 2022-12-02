@@ -1,6 +1,6 @@
 import validate from "@agir/lib/utils/validate";
 
-export const ONE_TIME_PAYMENT = "S";
+export const SINGLE_TIME_PAYMENT = "S";
 export const MONTHLY_PAYMENT = "M";
 
 export const GENDER_OPTIONS = [

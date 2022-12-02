@@ -4,7 +4,7 @@ import { useHistory, useLocation, useParams } from "react-router-dom";
 
 import { routeConfig } from "@agir/front/app/routes.config";
 import { useDonations } from "@agir/donations/common/hooks";
-import { MONTHLY_PAYMENT, ONE_TIME_PAYMENT } from "../common/form.config";
+import { MONTHLY_PAYMENT, SINGLE_TIME_PAYMENT } from "../common/form.config";
 
 import DonationForm from "@agir/donations/common/DonationForm";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
@@ -38,7 +38,7 @@ const ExternalDonationPage = () => {
     amount: urlParams.get("amount") || 0,
     paymentTiming: pathname.includes("dons-mensuels")
       ? MONTHLY_PAYMENT
-      : ONE_TIME_PAYMENT,
+      : SINGLE_TIME_PAYMENT,
   });
 
   const { allowedPaymentModes, beneficiary, externalLinkRoute, title, type } =

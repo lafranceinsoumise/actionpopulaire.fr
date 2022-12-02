@@ -1,17 +1,16 @@
 {% load display_lib %}
-<h4>Don mensuel à l'AFLFI</h4>
-<p>Vous donnez <strong>{{ subscription.price | display_price_in_cent }}</strong> chaque {{ subscription.day_of_month }} du
-mois à l'association de financement de la France insoumise.</p>
+
+<h5>{{ subscription_type.label }} à l'AFLFI</h5>
+<p>
+  Vous donnez <strong>{{ subscription.price | display_price_in_cent }}</strong> par mois à l'association de financement de la France insoumise.
+</p>
+<p>
+  Ce montant sera prélevé sur votre carte <strong>chaque {{ subscription.day_of_month }} du mois</strong>
+  {% if subscription.end_date %}
+    jusqu'à <strong>{{ subscription.end_date | date:"F Y" }}</strong>
+  {% endif %}.
+</p>
 {% if subscription.allocations.count > 0 %}
-  Sur ces {{ subscription.price | display_price_in_cent }}&nbsp;:
-  <ul>
-    <li>{{ national_amount |display_price_in_cent }} sont alloués aux actions, aux campagnes nationales, et aux outils mis à la disposition des insoumis⋅es (comme cette plateforme internet).</li>
-  {% for allocation in subscription.allocations.all %}
-    {#  TODO: implement other allocation types  #}
-    {% if allocation.group %}
-      <li>{{ allocation.amount | display_price_in_cent }} sont alloués aux actions du groupe &laquo;&nbsp;{{ allocation.group }}&nbsp;&raquo;</li>
-    {% endif %}
-  {% endfor %}
-  </ul>
+  {% include "donations/includes/allocation_description.html" with allocations=subscription.allocations.all national_amount=national_amount only %}
 {% endif %}
 {% if expiry_date %}<p>Votre carte expire le {{ expiry_date }}.</p>{% endif %}

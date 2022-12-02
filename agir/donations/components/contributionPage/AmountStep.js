@@ -1,3 +1,4 @@
+import { DateTime } from "luxon";
 import PropTypes from "prop-types";
 import React, { useMemo, useState } from "react";
 import styled from "styled-components";
@@ -74,7 +75,7 @@ const AmountStep = (props) => {
     maxAmountWarning,
     initialAmount = 0,
     initialPaymentTiming,
-    contributionEndYear,
+    endDate,
     fixedRatio,
   } = props;
 
@@ -85,6 +86,14 @@ const AmountStep = (props) => {
   const remainder = useMemo(
     () => getReminder(allocations, amount),
     [allocations, amount]
+  );
+
+  const endDateString = useMemo(
+    () =>
+      DateTime.fromJSDate(new Date(endDate))
+        .setLocale("fr")
+        .toFormat("MMMM yyyy"),
+    [endDate]
   );
 
   const hasGroup = !!group?.id;
@@ -114,9 +123,7 @@ const AmountStep = (props) => {
             rel="noopener noreferrer"
             target="_blank"
           />
-          <h2>
-            Devenir <StyledPhi>φ</StyledPhi>nanceur·euse
-          </h2>
+          <h2>Devenir financeur·euse</h2>
           <h4>de {beneficiary}</h4>
           <SelectedGroupWidget
             group={group}
@@ -124,41 +131,44 @@ const AmountStep = (props) => {
             onChange={selectGroup}
           />
           <p>
-            En devenant financeur·euse de la France insoumise, vous vous engagez
-            à ce que votre contribution soit versée{" "}
-            <strong>mensuellement</strong> avec un engagement{" "}
-            <strong>jusqu'au mois de décembre {contributionEndYear}</strong>.
+            <strong>La contribution volontaire</strong> est un don versé
+            mensuellement jusqu’à la fin de l’année civile. En devenant
+            financeur·euse de la france insoumise, vous vous engagez à ce que
+            votre contribution soit versée{" "}
+            <strong>chaque mois jusqu’au mois de {endDateString}</strong>*.
           </p>
           <p>
-            Grâce à <strong>votre engagement dans la durée</strong>, vous
-            permettrez à notre mouvement de mieux planifier et organiser ses
-            activités au niveau local et/ou national tout au long de l’année.
+            Par votre engagement, vous permettrez à notre mouvement de mieux
+            planifier et organiser ses activités au niveau local et/ou national,
+            tout au long de l’année. C'est pourquoi, dès le mois de décembre
+            prochain, vous serez sollicité pour reconduire votre contribution
+            volontaire pour l'année suivante.
           </p>
           {fixedRatio && (
-            <>
-              <p>
-                Une partie de cette contribution ({fixedRatio * 100}%) sera
-                automatiquement reservée à une{" "}
-                <Link route="contributionHelp">
-                  caisse nationale de solidarité financière
-                </Link>{" "}
-                et sera ensuite redistribuée aux caisses départementales.
-              </p>
-              <p>
-                Vous pouvez repartir la partie restante entre{" "}
-                {hasGroup ? "le groupe d'action local, " : ""}une caisse
-                départementale et/ou les initiatives nationales de la France
-                insoumise.
-              </p>
-            </>
+            <p>
+              Une partie de votre contribution volontaire ({fixedRatio * 100}%)
+              sera automatiquement réservée à une{" "}
+              <strong>caisse nationale de solidarité financière</strong> afin
+              d'être redistribuée aux caisses départementales. Le reste de votre
+              contribution peut être alloué, suivant la répartition que vous
+              choisissez, entre {hasGroup ? "le groupe d'action local, " : ""}
+              une caisse départementale et/ou les initiatives nationales de la
+              France insoumise.
+            </p>
           )}
           <p>
-            Vous pouvez choisir de règler votre contribution{" "}
+            Votre contribution volontaire peut être réglée{" "}
             <strong>mensuellement par carte bancaire</strong> ou{" "}
             <strong>en une seule fois par chèque</strong>.
           </p>
           <p>
             <Link route="contributionHelp">En savoir plus</Link>
+          </p>
+          <p style={{ fontSize: "0.875rem" }}>
+            * Dans l’éventualité où vous souhaitiez interrompre votre
+            contribution volontaire, vous pourrez le faire à tout moment en vous
+            rendant dans l'onglet &laquo;&nbsp;Payments&nbsp;&raquo; de votre
+            espace personnel sur actionpopulaire.fr.
           </p>
           <form noValidate onSubmit={handleSubmit}>
             <AmountWidget
@@ -227,7 +237,7 @@ AmountStep.propTypes = {
   initialAmount: PropTypes.number,
   initialPaymentTiming: PropTypes.string,
   allowedPaymentModes: PropTypes.object.isRequired,
-  contributionEndYear: PropTypes.number,
+  endDate: PropTypes.string,
   fixedRatio: PropTypes.number,
 };
 

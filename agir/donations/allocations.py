@@ -13,7 +13,7 @@ from agir.donations.models import (
     AllocationModelMixin,
 )
 from agir.groups.models import SupportGroup
-from agir.payments.actions.subscriptions import create_subscription
+from agir.lib.data import departements_choices
 
 
 def get_balance(qs):
@@ -36,7 +36,7 @@ def group_can_handle_allocation(group):
     return group.subtypes.filter(label__in=settings.CERTIFIED_GROUP_SUBTYPES).exists()
 
 
-def get_allocation_list(allocations, limit_to_type=None):
+def get_allocation_list(allocations, limit_to_type=None, with_labels=False):
     allocation_list = allocations
 
     if isinstance(allocation_list, str):
@@ -61,42 +61,25 @@ def get_allocation_list(allocations, limit_to_type=None):
             if allocation.get("type") == limit_to_type
         ]
 
+    if with_labels:
+        for allocation in allocation_list:
+            allocation["label"] = dict(AllocationModelMixin.TYPE_CHOICES).get(
+                allocation.get("type")
+            )
+
+            if allocation.get("group"):
+                allocation["group"] = (
+                    SupportGroup.objects.filter(pk=allocation["group"]).first()
+                    or allocation["group"]
+                )
+
+            if allocation.get("departement"):
+                allocation["departement"] = (
+                    dict(departements_choices).get(allocation.get("departement"))
+                    or allocation["departement"]
+                )
+
     return allocation_list
-
-
-def create_monthly_donation(
-    person,
-    mode,
-    subscription_total,
-    allocations=None,
-    type=DonsConfig.SUBSCRIPTION_TYPE,
-    **kwargs
-):
-    subscription = create_subscription(
-        person=person,
-        price=subscription_total,
-        mode=mode,
-        type=type,
-        day_of_month=settings.MONTHLY_DONATION_DAY,
-        **kwargs,
-    )
-
-    if allocations is None:
-        return subscription
-
-    for allocation in get_allocation_list(allocations):
-        group = allocation.pop("group", None)
-
-        if group and not isinstance(group, SupportGroup):
-            group = SupportGroup.objects.filter(pk=group).first()
-
-        MonthlyAllocation.objects.create(
-            **allocation,
-            subscription=subscription,
-            group=group,
-        )
-
-    return subscription
 
 
 def apply_payment_allocation(payment, allocation):

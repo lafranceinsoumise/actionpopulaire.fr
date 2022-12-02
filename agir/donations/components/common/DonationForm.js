@@ -347,8 +347,8 @@ const DonationForm = ({
           !!Object.values(formErrors).filter((error) => !!error).length && (
             <>
               <StaticToast style={{ marginTop: "0.5rem" }}>
-                Des erreurs sont présentes dans le formulaire, veuillez les
-                résoudre avant de l'envoyer
+                {formErrors?.global ||
+                  "Des erreurs sont présentes dans le formulaire, veuillez les résoudre avant de l'envoyer"}
               </StaticToast>
               <Spacer size="1rem" />
             </>
