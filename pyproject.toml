@@ -99,7 +99,7 @@ pympler = "*"
 locust = "*"
 pyquery = "*"
 jedi = "==0.18.*"  # version 0.18.* fait crasher IPython (08/01/2021)
-hypothesis = {extras = ["django"], version = "^6.58.1"}
+hypothesis = {extras = ["django"], version = "^6.59.0"}
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
