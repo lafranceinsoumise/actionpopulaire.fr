@@ -12,7 +12,9 @@ export const TYPE_LABEL = {
 
 export const formatAllocations = (data) =>
   data.allocations
-    .filter((allocation) => allocation.type !== TYPE_NATIONAL)
+    .filter(
+      (allocation) => allocation.type !== TYPE_NATIONAL && allocation.amount
+    )
     .map((allocation) => {
       const formattedAllocation = {
         type: allocation.type || TYPE_GROUP,

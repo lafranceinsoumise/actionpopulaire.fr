@@ -20,13 +20,6 @@ import {
 import acceptedPaymentMethods from "@agir/donations/common/images/accepted-payment-methods.svg";
 import SelectedGroupWidget from "@agir/donations/common/SelectedGroupWidget";
 
-const StyledPhi = styled.span`
-  color: ${({ theme }) => theme.redNSP};
-  font-size: 1.5em;
-  font-weight: 400;
-  line-height: 0.75;
-`;
-
 const StyledErrorMessage = styled.p`
   text-align: center;
   font-weight: 500;
@@ -133,7 +126,7 @@ const AmountStep = (props) => {
           <p>
             <strong>La contribution volontaire</strong> est un don versé
             mensuellement jusqu’à la fin de l’année civile. En devenant
-            financeur·euse de la france insoumise, vous vous engagez à ce que
+            financeur·euse de la France insoumise, vous vous engagez à ce que
             votre contribution soit versée{" "}
             <strong>chaque mois jusqu’au mois de {endDateString}</strong>*.
           </p>
@@ -141,7 +134,7 @@ const AmountStep = (props) => {
             Par votre engagement, vous permettrez à notre mouvement de mieux
             planifier et organiser ses activités au niveau local et/ou national,
             tout au long de l’année. C'est pourquoi, dès le mois de décembre
-            prochain, vous serez sollicité pour reconduire votre contribution
+            prochain, vous serez sollicité·e pour reconduire votre contribution
             volontaire pour l'année suivante.
           </p>
           {fixedRatio && (
@@ -152,8 +145,7 @@ const AmountStep = (props) => {
               d'être redistribuée aux caisses départementales. Le reste de votre
               contribution peut être alloué, suivant la répartition que vous
               choisissez, entre {hasGroup ? "le groupe d'action local, " : ""}
-              une caisse départementale et/ou les initiatives nationales de la
-              France insoumise.
+              une caisse départementale et/ou la France insoumise.
             </p>
           )}
           <p>
@@ -167,7 +159,7 @@ const AmountStep = (props) => {
           <p style={{ fontSize: "0.875rem" }}>
             * Dans l’éventualité où vous souhaitiez interrompre votre
             contribution volontaire, vous pourrez le faire à tout moment en vous
-            rendant dans l'onglet &laquo;&nbsp;Payments&nbsp;&raquo; de votre
+            rendant dans l'onglet &laquo;&nbsp;Paiements&nbsp;&raquo; de votre
             espace personnel sur actionpopulaire.fr.
           </p>
           <form noValidate onSubmit={handleSubmit}>

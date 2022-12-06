@@ -12,6 +12,7 @@ import DonationForm from "@agir/donations/common/DonationForm";
 import Modal from "@agir/front/genericComponents/Modal";
 import OpenGraphTags from "@agir/front/app/OpenGraphTags";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 import { Theme } from "@agir/donations/common/StyledComponents";
 
@@ -21,6 +22,25 @@ const StyledModal = styled(Modal)`
       margin-right: 14px;
       width: auto;
     }
+  }
+`;
+
+const ModalCloseButton = styled.div`
+  display: none;
+
+  @media (max-width: ${(props) => props.theme.collapse}px) {
+    display: block;
+  }
+
+  button {
+    display: inline-block;
+    height: 2.5rem;
+    width: 2.5rem;
+    background: transparent;
+    border: none;
+    text-align: left;
+    padding: 0;
+    cursor: pointer;
   }
 `;
 
@@ -126,6 +146,15 @@ const DonationPage = () => {
         />
         <StyledModal shouldShow={isModalOpen} onClose={closeModal}>
           <ModalContainer>
+            <ModalCloseButton>
+              <button
+                type="button"
+                onClick={closeModal}
+                aria-label="Fermer la modale"
+              >
+                <RawFeatherIcon name="arrow-left" />
+              </button>
+            </ModalCloseButton>
             <DonationForm
               isLoading={isLoading}
               type={type}
