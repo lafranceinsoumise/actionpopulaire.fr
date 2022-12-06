@@ -13,7 +13,7 @@ export const TYPE_LABEL = {
 export const formatAllocations = (data) =>
   data.allocations
     .filter(
-      (allocation) => allocation.type !== TYPE_NATIONAL && allocation.amount
+      (allocation) => allocation.type !== TYPE_NATIONAL && allocation.value
     )
     .map((allocation) => {
       const formattedAllocation = {
@@ -24,7 +24,7 @@ export const formatAllocations = (data) =>
         formattedAllocation.group = allocation.group;
       }
       if (formattedAllocation.type === TYPE_DEPARTMENT) {
-        formattedAllocation.departement = data.departement || 75;
+        formattedAllocation.departement = data.departement;
       }
       return formattedAllocation;
     });
