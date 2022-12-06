@@ -26,7 +26,7 @@ from rest_framework.generics import (
 )
 from rest_framework.response import Response
 
-from agir.donations.allocations import get_balance
+from agir.donations.allocations import get_supportgroup_balance
 from agir.donations.models import SpendingRequest
 from agir.events.models import Event, GroupAttendee
 from agir.events.serializers import EventListSerializer
@@ -816,7 +816,7 @@ class GroupFinanceAPIView(GenericAPIView):
 
     def get(self, request, *args, **kwargs):
         group = self.get_object()
-        donation = get_balance(group)
+        donation = get_supportgroup_balance(group)
         spending_requests = [
             {
                 "id": spending_request.id,

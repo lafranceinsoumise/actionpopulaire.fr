@@ -18,7 +18,10 @@ from agir.authentication.view_mixins import (
     SoftLoginRequiredMixin,
     HardLoginRequiredMixin,
 )
+from agir.donations.actions import can_make_contribution
+from agir.donations.allocations import get_allocation_list
 from agir.donations.forms import AllocationSubscriptionForm
+from agir.donations.models import AllocationModelMixin
 from agir.donations.views import DONATION_SESSION_NAMESPACE, AskAmountView
 from agir.payments.models import Payment, Subscription
 from agir.people.actions.management import merge_persons
@@ -299,19 +302,12 @@ class PaymentsView(AskAmountView, ProfileViewMixin, TemplateView):
         )
 
     def get_initial_for_subscription(self, subscription):
-        allocations = subscription.allocations.all()
-
+        allocations = get_allocation_list(subscription.allocations)
         initial = {
             "amount": subscription.price,
             "previous_subscription": subscription.pk,
-            "allocations": {
-                allocation.group: allocation.amount for allocation in allocations
-            },
+            "allocations": allocations,
         }
-        allocation = subscription.allocations.first()
-        if allocation:
-            initial["group"] = allocation.group
-            initial["allocation"] = allocation.amount
 
         return initial
 
@@ -326,6 +322,9 @@ class PaymentsView(AskAmountView, ProfileViewMixin, TemplateView):
                 user=self.request.user,
                 initial=self.get_initial_for_subscription(subscription),
             )
+        kwargs["can_make_contribution"] = can_make_contribution(
+            person=self.request.user.person
+        )
 
         return super().get_context_data(
             is_hard_logged=is_hard_logged(self.request),

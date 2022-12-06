@@ -44,11 +44,21 @@
               </div>
             {% endfor %}
           </div>
-        {% else %}
+        {% elif can_make_contribution %}
           <div class="padtopmore padbottommore">
-          <h3>Faire un don mensuel</h3>
-          <p>Vous pouvez aider régulièrement la France insoumise en faisant un don mensuel automatique.</p>
-          <p><a class="btn btn-primary" href="{% url "donation_amount" %}">Je fais un don à la France insoumise</a></p>
+          <h3>Devenir financeur·euse de la France insoumise</h3>
+          <p>
+            En devenant financeur·euse de la France insoumise, vous vous engagez à ce que votre contribution soit versée
+            automatiquement tous les mois et jusqu'à la fin de l'année.
+          </p>
+          <p>
+            Grâce à <strong>votre engagement dans la durée</strong>, vous
+            permettrez à notre mouvement de mieux planifier et organiser ses
+            activités au niveau local et/ou national tout au long de l’année.
+          </p>
+          <p>
+            <a class="btn btn-primary" href="{% url "contribution_amount" %}">Je deviens financeur·euse</a>
+          </p>
           </div>
         {% endif %}
 

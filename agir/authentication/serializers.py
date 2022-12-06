@@ -11,6 +11,7 @@ from agir.authentication.utils import (
     is_soft_logged,
     get_bookmarked_emails,
 )
+from agir.donations.actions import can_make_contribution
 from agir.donations.views.donations_views import DONATION_SESSION_NAMESPACE
 from agir.groups.models import SupportGroup, Membership
 from agir.lib.data import departement_from_zipcode
@@ -39,7 +40,7 @@ class UserContextSerializer(serializers.Serializer):
     zip = serializers.CharField(source="location_zip")
     departement = serializers.SerializerMethodField(read_only=True)
     country = CountryField(source="location_country")
-    votingProxyId = serializers.SerializerMethodField(method_name="get_voting_proxy_id")
+    hasContribution = serializers.SerializerMethodField(method_name="has_contribution")
 
     def get_full_name(self, obj):
         return obj.get_full_name()
@@ -78,14 +79,8 @@ class UserContextSerializer(serializers.Serializer):
             for group in person_groups
         ]
 
-    def get_voting_proxy_id(self, obj):
-        accepted_voting_proxy_request = (
-            VotingProxyRequest.objects.filter(proxy__person_id=obj.id)
-            .upcoming()
-            .first()
-        )
-        if accepted_voting_proxy_request:
-            return accepted_voting_proxy_request.proxy_id
+    def has_contribution(self, obj):
+        return can_make_contribution(person=obj) == False
 
 
 class SessionSerializer(serializers.Serializer):

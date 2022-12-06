@@ -5,6 +5,7 @@ from django.views import View
 from django.views.generic import FormView, UpdateView
 
 import agir.donations.base_forms
+from agir.donations.allocations import get_allocation_list
 from agir.payments.actions.payments import create_payment
 from agir.people.models import Person
 
@@ -84,6 +85,11 @@ class BasePersonalInformationView(FormView):
         }
 
     def get_context_data(self, **kwargs):
+        if "allocations" in kwargs:
+            kwargs["allocations"] = get_allocation_list(
+                kwargs["allocations"], with_labels=True
+            )
+
         return super().get_context_data(**self.persistent_data, **kwargs)
 
     def get_metas(self, form):

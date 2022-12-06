@@ -3,7 +3,7 @@ import React from "react";
 import CONFIG from "@agir/donations/common/config";
 import { Theme } from "@agir/donations/common/StyledComponents";
 import AmountWidget from "@agir/donations/common/AmountWidget";
-import { MONTHLY_PAYMENT, ONE_TIME_PAYMENT } from "./form.config";
+import { MONTHLY_PAYMENT, SINGLE_TIME_PAYMENT } from "./form.config";
 
 export default {
   component: AmountWidget,
@@ -70,7 +70,7 @@ Default.args = {
   groupId: null,
   disabled: false,
   error: "",
-  allowedPaymentTimings: [MONTHLY_PAYMENT, ONE_TIME_PAYMENT],
+  allowedPaymentTimings: [MONTHLY_PAYMENT, SINGLE_TIME_PAYMENT],
 };
 
 export const WithGroupDonation = Template.bind({});
@@ -88,5 +88,5 @@ WithFixedRatio.args = {
 export const WithoutPaymentTimingChoice = Template.bind({});
 WithoutPaymentTimingChoice.args = {
   ...Default.args,
-  allowedPaymentTimings: [ONE_TIME_PAYMENT],
+  allowedPaymentTimings: [SINGLE_TIME_PAYMENT],
 };

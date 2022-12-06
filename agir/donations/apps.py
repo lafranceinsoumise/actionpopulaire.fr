@@ -14,8 +14,15 @@ from ..payments.types import (
 class DonsConfig(AppConfig):
     name = "agir.donations"
 
-    PAYMENT_TYPE = "don"
-    SUBSCRIPTION_TYPE = "don_mensuel"
+    SINGLE_TIME_DONATION_TYPE = "don"
+    MONTHLY_DONATION_TYPE = "don_mensuel"
+    CONTRIBUTION_TYPE = "contribution"
+
+    TYPE_CHOICES = (
+        (SINGLE_TIME_DONATION_TYPE, "don ponctuel"),
+        (MONTHLY_DONATION_TYPE, "don mensuel"),
+        (CONTRIBUTION_TYPE, "contribution"),
+    )
 
     def ready(self):
         from django.views.generic import RedirectView
@@ -23,33 +30,31 @@ class DonsConfig(AppConfig):
             notification_listener,
             subscription_notification_listener,
         )
-        from ..payments.actions.subscriptions import (
-            default_description_context_generator,
-        )
 
-        payment_type = PaymentType(
-            self.PAYMENT_TYPE,
-            "Don",
-            RedirectView.as_view(url="https://lafranceinsoumise.fr/remerciement-don/"),
-            status_listener=notification_listener,
-            description_template="donations/description.html",
-            matomo_goal=settings.DONATION_MATOMO_GOAL,
-        )
+        def payment_description_context_generator(payment):
+            from .allocations import get_allocation_list
+            from agir.payments.actions.payments import (
+                default_description_context_generator,
+            )
 
-        monthly_payment_type = PaymentType(
-            self.SUBSCRIPTION_TYPE,
-            "Don automatique",
-            RedirectView.as_view(url="https://lafranceinsoumise.fr/remerciement-don/"),
-            status_listener=notification_listener,
-            description_template="donations/description.html",
-            matomo_goal=settings.MONTHLY_DONATION_MATOMO_GOAL,
-        )
+            context = default_description_context_generator(payment)
+            allocations = get_allocation_list(
+                payment.meta.get("allocations", []), with_labels=True
+            )
+            if allocations:
+                context["allocations"] = allocations
+                allocation_amount = sum(
+                    [allocation.get("amount") for allocation in allocations]
+                )
+                context["national_amount"] = payment.price - allocation_amount
 
-        register_payment_type(monthly_payment_type)
+            return context
 
-        register_payment_type(payment_type)
+        def subscription_description_context_generator(subscription):
+            from agir.payments.actions.subscriptions import (
+                default_description_context_generator,
+            )
 
-        def monthly_donation_description_context_generator(subscription):
             context = default_description_context_generator(subscription)
             allocation_amount = subscription.allocations.all().aggregate(
                 total=Coalesce(Sum("amount"), 0)
@@ -58,13 +63,64 @@ class DonsConfig(AppConfig):
 
             return context
 
-        subscription_type = SubscriptionType(
-            self.SUBSCRIPTION_TYPE,
+        ## SINGLE TIME DONATIONS
+        single_time_donation_payment_type = PaymentType(
+            self.SINGLE_TIME_DONATION_TYPE,
+            "Don",
+            RedirectView.as_view(url="https://lafranceinsoumise.fr/remerciement-don/"),
+            status_listener=notification_listener,
+            description_template="donations/description.html",
+            description_context_generator=payment_description_context_generator,
+            matomo_goal=settings.DONATION_MATOMO_GOAL,
+        )
+
+        register_payment_type(single_time_donation_payment_type)
+
+        ## MONTHLY DONATIONS
+        monthly_donation_payment_type = PaymentType(
+            self.MONTHLY_DONATION_TYPE,
+            "Don automatique",
+            RedirectView.as_view(url="https://lafranceinsoumise.fr/remerciement-don/"),
+            status_listener=notification_listener,
+            description_template="donations/description.html",
+            description_context_generator=payment_description_context_generator,
+            matomo_goal=settings.MONTHLY_DONATION_MATOMO_GOAL,
+        )
+
+        register_payment_type(monthly_donation_payment_type)
+
+        monthly_donation_subscription_type = SubscriptionType(
+            self.MONTHLY_DONATION_TYPE,
             "Don mensuel",
             RedirectView.as_view(url="https://lafranceinsoumise.fr/remerciement-don/"),
             status_listener=subscription_notification_listener,
             description_template="donations/subscription_description.html",
-            description_context_generator=monthly_donation_description_context_generator,
+            description_context_generator=subscription_description_context_generator,
         )
 
-        register_subscription_type(subscription_type)
+        register_subscription_type(monthly_donation_subscription_type)
+
+        ## CONTRIBUTIONS
+        contribution_payment_type = PaymentType(
+            self.CONTRIBUTION_TYPE,
+            "Contribution financière volontaire",
+            RedirectView.as_view(url="https://lafranceinsoumise.fr/remerciement-don/"),
+            status_listener=notification_listener,
+            description_template="donations/description.html",
+            description_context_generator=payment_description_context_generator,
+            matomo_goal=settings.CONTRIBUTION_MATOMO_GOAL,
+        )
+
+        register_payment_type(contribution_payment_type)
+
+        contribution_subscription_type = SubscriptionType(
+            self.CONTRIBUTION_TYPE,
+            "Contribution financière volontaire",
+            RedirectView.as_view(url="https://lafranceinsoumise.fr/remerciement-don/"),
+            status_listener=subscription_notification_listener,
+            description_template="donations/subscription_description.html",
+            description_context_generator=subscription_description_context_generator,
+            day_of_month=settings.CONTRIBUTION_DONATION_DAY,
+        )
+
+        register_subscription_type(contribution_subscription_type)

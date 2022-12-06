@@ -159,7 +159,7 @@ const AllocationWidget = (props) => {
       newState[type].value = newValue;
       if (!isNaN(parseFloat(newState[type].value))) {
         newState[type].value = parseFloat(newState[type].value);
-        newState[type].value = Math.abs(newState[type].value) * 100;
+        newState[type].value = Math.floor(Math.abs(newState[type].value) * 100);
       }
       onChange(Object.values(newState));
     },

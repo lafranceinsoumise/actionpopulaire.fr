@@ -11,7 +11,7 @@ def convert_to_donation(
     today = timezone.now().date()
     person = payment.person
 
-    assert payment.type != DonsConfig.PAYMENT_TYPE
+    assert payment.type != DonsConfig.SINGLE_TIME_DONATION_TYPE
     assert payment.status == Payment.STATUS_COMPLETED
 
     # seuls les personnes de nationalité françaises, ou résidents fiscaux en France
@@ -42,5 +42,5 @@ def convert_to_donation(
     payment.first_name = person.first_name
     payment.last_name = person.last_name
     payment.email = person.email
-    payment.type = DonsConfig.PAYMENT_TYPE
+    payment.type = DonsConfig.SINGLE_TIME_DONATION_TYPE
     payment.save(update_fields=["first_name", "last_name", "email", "type", "meta"])

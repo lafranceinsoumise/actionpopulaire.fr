@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Callable, Mapping, Any, TYPE_CHECKING, Optional, Union
 
+from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpRequest, HttpResponse
 
@@ -48,6 +49,7 @@ class SubscriptionType:
     status_listener: Callable[["Subscription"], None] = None
     description_template: str = None
     description_context_generator: Callable[["Subscription"], Mapping[str, Any]] = None
+    day_of_month: int = settings.MONTHLY_DONATION_DAY
 
 
 def register_subscription_type(subscription_type: SubscriptionType):
