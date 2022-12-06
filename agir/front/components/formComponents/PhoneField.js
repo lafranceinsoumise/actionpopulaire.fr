@@ -55,7 +55,7 @@ const StyledField = styled.label`
 
       &:focus {
         border-color: ${({ $invalid }) =>
-          $invalid ? style.redNSP : style.black1000};
+          $invalid ? style.redNSP : style.black500};
       }
     }
   }

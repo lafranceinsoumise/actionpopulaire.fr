@@ -89,7 +89,9 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
     isOpen = serializers.BooleanField(source="open", read_only=True)
 
     routes = RoutesField(routes=GROUP_ROUTES, read_only=True)
-    isCertified = serializers.SerializerMethodField(read_only=True)
+    isCertified = serializers.SerializerMethodField(
+        read_only=True, method_name="get_is_certified"
+    )
 
     def to_representation(self, instance):
         user = self.context["request"].user
@@ -152,7 +154,9 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
     def get_eventCount(self, obj):
         return obj.events_count
 
-    def get_isCertified(self, obj):
+    def get_is_certified(self, obj):
+        if obj.type != SupportGroup.TYPE_LOCAL_GROUP:
+            return False
         if hasattr(obj, "has_certification_subtype"):
             return obj.has_certification_subtype
         return obj.is_certified
@@ -190,7 +194,9 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
     isOpen = serializers.BooleanField(source="open", read_only=True)
     isCertifiable = serializers.BooleanField(read_only=True, source="is_certifiable")
     certificationCriteria = serializers.SerializerMethodField(read_only=True)
-    isCertified = serializers.BooleanField(read_only=True, source="is_certified")
+    isCertified = serializers.SerializerMethodField(
+        read_only=True, method_name="get_is_certified"
+    )
     is2022Certified = serializers.BooleanField(
         read_only=True, source="is_2022_certified"
     )
@@ -459,6 +465,9 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def get_certificationCriteria(self, obj):
         return obj.check_certification_criteria()
+
+    def get_is_certified(self, obj):
+        return obj.type == SupportGroup.TYPE_LOCAL_GROUP and obj.is_certified
 
 
 class SupportGroupSearchResultSerializer(serializers.ModelSerializer):

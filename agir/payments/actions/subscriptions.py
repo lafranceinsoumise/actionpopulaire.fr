@@ -1,23 +1,67 @@
+import logging
+
+from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.http import HttpResponseRedirect
 from django.template import loader
 from django.urls import reverse
 from django.utils import timezone
 
+from agir.donations.allocations import get_allocation_list
+from agir.donations.apps import DonsConfig
+from agir.donations.models import MonthlyAllocation
+from agir.groups.models import SupportGroup
 from agir.payments.models import Subscription
-from agir.payments.payment_modes import DEFAULT_MODE, PAYMENT_MODES
+from agir.payments.payment_modes import PAYMENT_MODES
 from agir.payments.types import SUBSCRIPTION_TYPES
 from agir.system_pay import AbstractSystemPayPaymentMode
+
+logger = logging.getLogger(__name__)
 
 
 class SubscriptionException(Exception):
     pass
 
 
-def create_subscription(person, type, price, mode=DEFAULT_MODE, **kwargs):
-    return Subscription.objects.create(
-        person=person, price=price, mode=mode, type=type, **kwargs
+def create_subscription(person, mode, amount, allocations=None, **kwargs):
+    from agir.payments.types import SUBSCRIPTION_TYPES
+
+    subscription_type_id = kwargs.pop("type", DonsConfig.MONTHLY_DONATION_TYPE)
+    subscription_type = SUBSCRIPTION_TYPES.get(subscription_type_id, None)
+    day_of_month = kwargs.pop("day_of_month", settings.MONTHLY_DONATION_DAY)
+    if (
+        subscription_type
+        and hasattr(subscription_type, "day_of_month")
+        and isinstance(subscription_type.day_of_month, int)
+    ):
+        day_of_month = subscription_type.day_of_month
+
+    subscription = Subscription.objects.create(
+        person=person,
+        price=amount,
+        mode=mode,
+        type=subscription_type_id,
+        day_of_month=day_of_month,
+        **kwargs,
     )
+
+    if allocations is None:
+        return subscription
+
+    for allocation in get_allocation_list(allocations):
+        group = allocation.pop("group", None)
+
+        if group and not isinstance(group, SupportGroup):
+            group = SupportGroup.objects.filter(pk=group).first()
+
+        MonthlyAllocation.objects.create(
+            **allocation,
+            subscription=subscription,
+            group=group,
+        )
+
+    return subscription
 
 
 def redirect_to_subscribe(subscription):
@@ -61,9 +105,15 @@ def default_description_context_generator(subscription):
     context = {"subscription": subscription, "subscription_type": subscription_type}
 
     if isinstance(PAYMENT_MODES[subscription.mode], AbstractSystemPayPaymentMode):
-        context["expiry_date"] = subscription.system_pay_subscriptions.get(
-            active=True
-        ).alias.expiry_date
+        try:
+            context["expiry_date"] = subscription.system_pay_subscriptions.get(
+                active=True
+            ).alias.expiry_date
+        except ObjectDoesNotExist:
+            logger.error(
+                f"No SystemPaySubscription found for subsciption #{subscription}",
+                exc_info=True,
+            )
 
     return context
 
@@ -83,7 +133,6 @@ def description_for_subscription(subscription):
 
 
 def replace_subscription(previous_subscription, new_subscription):
-    assert previous_subscription.type == new_subscription.type
     assert previous_subscription.mode == new_subscription.mode
     assert previous_subscription.status == Subscription.STATUS_ACTIVE
     assert new_subscription.status == Subscription.STATUS_WAITING

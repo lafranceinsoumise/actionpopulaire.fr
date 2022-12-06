@@ -351,6 +351,7 @@ class SubscriptionAdmin(PersonLinkMixin, admin.ModelAdmin):
         "created",
         "mode",
         "day_of_month",
+        "end_date",
     )
     readonly_fields = (
         "mode",
@@ -360,6 +361,8 @@ class SubscriptionAdmin(PersonLinkMixin, admin.ModelAdmin):
         "get_allocations_display",
         "status",
         "terminate_button",
+        "end_date",
+        "day_of_month",
     )
     fields = readonly_fields
     list_filter = ("status", "mode", ("created", DateRangeFilter))

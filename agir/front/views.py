@@ -13,6 +13,7 @@ from django.http import (
 from django.templatetags.static import static
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
+from django.utils.safestring import mark_safe
 from django.views.decorators import cache
 from django.views.generic import View, RedirectView
 from django.views.generic.detail import BaseDetailView
@@ -28,9 +29,10 @@ from .view_mixins import (
     SimpleOpengraphMixin,
     ObjectOpengraphMixin,
 )
+from ..donations.actions import can_make_contribution
 from ..events.views.event_views import EventDetailMixin
 from ..groups.views.public_views import SupportGroupDetailMixin
-from ..lib.utils import generate_token_params
+from ..lib.utils import generate_token_params, front_url
 from ..msgs.models import SupportGroupMessage
 
 cache_decorators = [cache.cache_page(30), cache.cache_control(public=True)]
@@ -169,6 +171,42 @@ class DonationView(BaseAppCachedView):
         "Pour financer les dépenses liées à l’organisation d’événements, à l’achat de matériel, au"
         "fonctionnement du site, etc., nous avons besoin du soutien financier de chacun.e d’entre vous !"
     )
+
+
+class AlreadyContributorRedirectView(RedirectView):
+    query_string = False
+    url = reverse_lazy("view_payments")
+
+    def get(self, request, *args, **kwargs):
+        messages.add_message(
+            request=request,
+            level=messages.WARNING,
+            message=mark_safe(
+                "Vous avez déjà effectuée une contribution financière pour cette année ! "
+                "Merci de votre soutien ! Si vous le souhaitez vous pouvez toujours faire un don ponctuel "
+                f'<a href="{front_url("donation_amount", absolute=True)}">sur la page de don</a>.'
+            ),
+        )
+        return super().get(request, *args, **kwargs)
+
+
+class ContributionView(BaseAppCachedView):
+    meta_title = "Faire une contribution financière - La France insoumise"
+    meta_description = (
+        "Pour financer les dépenses liées à l’organisation d’événements, à l’achat de matériel, au"
+        "fonctionnement du site, etc., nous avons besoin du soutien financier de chacun.e d’entre vous !"
+    )
+
+    def get(self, request, *args, **kwargs):
+        if (
+            request.user.is_authenticated
+            and hasattr(request.user, "person")
+            and request.user.person is not None
+            and not can_make_contribution(person=request.user.person)
+        ):
+            return HttpResponseRedirect(reverse_lazy("already_contributor"))
+
+        return super().get(request, *args, **kwargs)
 
 
 class Donation2022View(DonationView):

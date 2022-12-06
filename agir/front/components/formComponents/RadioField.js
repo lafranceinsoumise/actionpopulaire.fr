@@ -162,6 +162,7 @@ const RadioField = (props) => {
               onChange={handleChange}
               checked={value === option.value}
               value={option.value}
+              disabled={disabled}
             />
             <StyledBox />
             <StyledOptionLabel>{option.label}</StyledOptionLabel>
@@ -178,7 +179,7 @@ RadioField.propTypes = {
   options: PropTypes.arrayOf(
     PropTypes.shape({
       value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-      label: PropTypes.string,
+      label: PropTypes.node,
     })
   ).isRequired,
   id: PropTypes.string,

@@ -1,6 +1,13 @@
 import validate from "@agir/lib/utils/validate";
 
-const GENDER_OPTIONS = ["M", "F"];
+export const SINGLE_TIME_PAYMENT = "S";
+export const MONTHLY_PAYMENT = "M";
+
+export const GENDER_OPTIONS = [
+  { label: "", value: "" },
+  { label: "Madame", value: "F" },
+  { label: "Monsieur", value: "M" },
+];
 
 export const INITIAL_DATA = {
   email: "",
@@ -14,11 +21,12 @@ export const INITIAL_DATA = {
   locationCountry: "FR",
   nationality: "FR",
   frenchResident: true,
+  departement: "",
 
   to: "",
   paymentMode: "",
   amount: 0,
-  paymentTimes: "S",
+  paymentTiming: "",
   allocations: [],
   consentCertification: false,
 };
@@ -37,6 +45,7 @@ export const setFormDataForUser = (user) => (data) => ({
   locationZip: data.locationZip || user.zip || INITIAL_DATA.locationZip,
   locationCity: data.locationCity || user.city || INITIAL_DATA.locationCity,
   locationCountry: data.locationCountry || user.country || INITIAL_DATA.country,
+  departement: data.departement || user.departement || INITIAL_DATA.departement,
   gender: data.gender
     ? data.gender
     : GENDER_OPTIONS.includes(user.gender)
@@ -91,7 +100,7 @@ export const DONATION_DATA_CONSTRAINTS = {
       message: "Ce champ ne peut pas être vide.",
     },
     inclusion: {
-      within: GENDER_OPTIONS,
+      within: GENDER_OPTIONS.map((option) => option.value).filter(Boolean),
       message: "Veuillez choisir une des options.",
     },
   },
@@ -102,6 +111,12 @@ export const DONATION_DATA_CONSTRAINTS = {
     },
   },
   locationCity: {
+    presence: {
+      allowEmpty: false,
+      message: "Ce champ ne peut pas être vide.",
+    },
+  },
+  departement: {
     presence: {
       allowEmpty: false,
       message: "Ce champ ne peut pas être vide.",
@@ -144,7 +159,7 @@ export const DONATION_DATA_CONSTRAINTS = {
       message: "Ce champ ne peut pas être vide.",
     },
   },
-  paymentTimes: {
+  paymentTiming: {
     presence: {
       allowEmpty: false,
       message: "Ce champ ne peut pas être vide.",

@@ -58,42 +58,21 @@
 {% block main %}
 <div>
   <h2>Vous faites déjà un don mensuel&nbsp;!</h2>
-  <h3>Souhaitez-vous&nbsp;:</h3>
   <form method="post" id="card-wrapper">
     {% csrf_token %}
     <div class="card">
-      <h4><strong>Remplacer</strong> le don mensuel existant</h4>
+      <h4>Je remplace mon don mensuel existant</h4>
       <article>
-        Je donnerais <strong>{{ replace_amount|display_price_in_cent }}</strong> répartis ainsi&nbsp;:
-        <ul>
-          <li><strong>{{ replace_national | display_price_in_cent }}</strong> seront alloués aux activités et campagnes
-            nationales
-          </li>
-          {% for group, amount in replace_allocations %}
-          <li><strong>{{ amount | display_price_in_cent }}</strong> seront alloués au financement des activités du groupe
-            d'action &laquo;&nbsp;<em>{{ group }}</em>&nbsp;&raquo;
-          </li>
-          {% endfor %}
-        </ul>
+      <p>
+        Je donnerai <strong>{{ new_subscription.amount | display_price_in_cent }}</strong> par mois {% if new_subscription.end_date %}
+          jusqu'à <strong>{{ new_subscription.end_date | date:"F Y" }}</strong>
+        {% endif %}.
+      </p>
+        {% if new_subscription.allocations %}
+          {% include "donations/includes/allocation_description.html" with allocations=new_subscription.allocations national_amount=new_subscription.national_amount only %}
+        {% endif %}
       </article>
-      <button class="btn btn-primary" type="submit" name="choice" value="R">Je remplace le don précédent</button>
-    </div>
-    <div class="card">
-      <h4><strong>Augmenter</strong> le don existant du montant correspondant</h4>
-      <article>
-        Je donnerais <strong>{{ add_amount|display_price_in_cent }}</strong> répartis ainsi&nbsp;:
-        <ul>
-          <li><strong>{{ add_national | display_price_in_cent }}</strong> seront alloués aux activités et campagnes
-            nationales
-          </li>
-          {% for group, amount in add_allocations %}
-          <li><strong>{{ amount | display_price_in_cent }}</strong> seront alloués au financement des activités du groupe
-            d'action &laquo;&nbsp;<em>{{ group }}</em>&nbsp;&raquo;
-          </li>
-          {% endfor %}
-        </ul>
-      </article>
-      <button class="btn btn-primary" type="submit" name="choice" value="A">J'ajoute au don précédent</button>
+      <button class="btn btn-primary" type="submit" name="choice" value="R">Je remplace le don existant</button>
     </div>
   </form>
 </div>

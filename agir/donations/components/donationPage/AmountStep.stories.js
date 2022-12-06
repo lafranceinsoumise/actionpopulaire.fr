@@ -2,25 +2,24 @@ import React from "react";
 
 import group from "@agir/front/mockData/group.json";
 
-import CONFIG from "@agir/donations/common/config";
-
+import { Theme } from "@agir/donations/common/StyledComponents";
 import AmountStep from "./AmountStep";
+import CONFIG from "@agir/donations/common/config";
 
 export default {
   component: AmountStep,
   title: "Donations/AmountStep",
-  argTypes: {
-    type: {
-      options: Object.keys(CONFIG),
-      control: { type: "radio" },
-    },
-  },
 };
 
-const Template = (args) => <AmountStep {...args} />;
+const Template = (args) => (
+  <Theme>
+    <AmountStep {...args} />
+  </Theme>
+);
 
 export const Default = Template.bind({});
 Default.args = {
+  ...CONFIG.default,
   isLoading: false,
   error: "",
   hasGroups: false,
@@ -29,7 +28,6 @@ Default.args = {
 export const WithGroupLink = Template.bind({});
 WithGroupLink.args = {
   ...Default.args,
-  type: "LFI",
   hasGroups: true,
 };
 

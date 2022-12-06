@@ -1,10 +1,8 @@
 import React, { useCallback, useEffect } from "react";
 import { useLocation, useParams, useHistory } from "react-router-dom";
 import styled from "styled-components";
-import useSWR from "swr";
 
 import CONFIG from "@agir/donations/common/config";
-import { MANUAL_REVALIDATION_SWR_CONFIG } from "@agir/front/allPages/SWRContext";
 
 import { routeConfig } from "@agir/front/app/routes.config";
 import { useDonations } from "@agir/donations/common/hooks";
@@ -58,10 +56,14 @@ const DonationPage = () => {
     formData,
     formErrors,
     isLoading,
+    isReady,
     sessionUser,
+    group,
+    groups,
     updateFormData,
     handleSubmit,
-  } = useDonations(params?.type, {
+    selectGroup,
+  } = useDonations(params?.type, urlParams.get("group"), {
     amount: isNaN(parseInt(urlParams.get("amount")))
       ? 0
       : parseInt(urlParams.get("amount")),
@@ -69,16 +71,9 @@ const DonationPage = () => {
 
   const isModalOpen = params?.step === "validation";
 
-  const { allowedPaymentModes, hasGroupAllocations, theme, title, type } =
-    config;
-  const { amount, paymentTimes } = formData;
-  const paymentModes = allowedPaymentModes[paymentTimes];
-  const groupPk = hasGroupAllocations && urlParams.get("group");
-
-  const { data: group } = useSWR(
-    groupPk && `/api/groupes/${groupPk}/`,
-    MANUAL_REVALIDATION_SWR_CONFIG
-  );
+  const { allowedPaymentModes, theme, title, type } = config;
+  const { amount, paymentTiming } = formData;
+  const paymentModes = allowedPaymentModes[paymentTiming];
 
   const openModal = useCallback(
     (amountData) => {
@@ -117,19 +112,17 @@ const DonationPage = () => {
   return (
     <Theme type={formData.to} theme={theme}>
       <OpenGraphTags title={title} />
-      <PageFadeIn
-        ready={typeof sessionUser !== "undefined"}
-        wait={<Skeleton />}
-      >
+      <PageFadeIn ready={isReady} wait={<Skeleton />}>
         <AmountStep
           {...config}
-          hasUser={!!sessionUser}
-          group={group?.isCertified ? group : null}
+          group={group}
+          groups={groups}
           isLoading={isLoading}
           error={formErrors.amount}
           initialAmount={formData.amount}
-          initialByMonth={formData.paymentTimes === "M"}
+          initialPaymentTiming={formData.paymentTiming}
           onSubmit={openModal}
+          selectGroup={selectGroup}
         />
         <StyledModal shouldShow={isModalOpen} onClose={closeModal}>
           <ModalContainer>

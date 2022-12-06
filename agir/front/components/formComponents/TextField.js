@@ -51,8 +51,9 @@ const StyledField = styled.label`
     padding-right: ${({ $invalid }) => ($invalid ? "3.25rem" : "0.5rem")};
 
     &:focus {
+      outline: none;
       border-color: ${({ $invalid }) =>
-        $invalid ? style.redNSP : style.black1000};
+        $invalid ? style.redNSP : style.black500};
     }
   }
   ${StyledInput} {

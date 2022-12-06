@@ -1,5 +1,6 @@
 import axios from "@agir/lib/utils/axios";
 
+import { formatAllocations } from "./allocations.config";
 export const ENDPOINT = {
   createDonation: "/api/dons/",
 };
@@ -20,9 +21,12 @@ export const createDonation = async (data) => {
     error: null,
   };
   const url = getDonationEndpoint("createDonation");
-
+  const body = {
+    ...data,
+    allocations: formatAllocations(data),
+  };
   try {
-    const response = await axios.post(url, data);
+    const response = await axios.post(url, body);
     result.data = response.data;
   } catch (e) {
     result.error = (e.response && e.response.data) || e.message;

@@ -12,6 +12,13 @@ const ACTIONS = {
     icon: "heart",
     color: style.redNSP,
   },
+  contributions: {
+    key: "contributions",
+    route: "contributions",
+    label: ["Financer", "Devenir financeur·euse"],
+    icon: "activity",
+    color: style.redLFI,
+  },
   createEvent: {
     key: "createEvent",
     route: "createEvent",
@@ -172,23 +179,19 @@ const ACTIONS = {
 
 const DEFAULT_ACTION_ORDER = [
   "donations",
+  "contributions",
   "createEvent",
   "materiel",
-  // "votingProxy",
-  // "newPollingStationOfficer",
   "createContact",
-  "coupDeFil",
   "toktokPreview",
   "actionTools",
 ];
 const GROUP_MANAGER_ACTION_ORDER = [
+  "contributions",
   "createEvent",
   "materiel",
-  // "votingProxy",
-  // "newPollingStationOfficer",
   "createContact",
   "toktokPreview",
-  "coupDeFil",
   "donations",
   "actionTools",
 ];

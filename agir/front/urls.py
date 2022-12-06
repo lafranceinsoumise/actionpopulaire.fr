@@ -343,8 +343,25 @@ urlpatterns = [
     ),
     path(
         "dons-mensuels/informations/",
-        views.DonationView.as_view(),
+        RedirectView.as_view(
+            pattern_name="contribution_information_modal", query_string=True
+        ),
         name="monthly_donation_information",
+    ),
+    path(
+        "contributions/",
+        views.ContributionView.as_view(),
+        name="contribution_amount",
+    ),
+    path(
+        "contributions/validation/",
+        views.ContributionView.as_view(),
+        name="contribution_information_modal",
+    ),
+    path(
+        "deja-contributeur-ice/",
+        views.AlreadyContributorRedirectView.as_view(),
+        name="already_contributor",
     ),
     # VOTING PROXIES
     path("procuration/", include(voting_proxy_patterns)),

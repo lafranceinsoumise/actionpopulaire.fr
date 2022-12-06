@@ -165,8 +165,8 @@ const GroupCard = ({
           <Button
             link
             key="fund"
-            icon="fast-forward"
-            route="donations"
+            icon="activity"
+            route="contributions"
             params={{ group: id }}
           >
             Financer
