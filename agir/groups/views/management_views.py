@@ -118,6 +118,7 @@ class SupportGroupManagementView(RedirectView):
 class CreateSupportGroupView(HardLoginRequiredMixin, TemplateView):
     template_name = "groups/create.html"
     per_type_animation_limit = 2
+    available_types = ((SupportGroup.TYPE_LOCAL_GROUP, "Groupe local"),)
 
     def get_context_data(self, **kwargs):
         person = self.request.user.person
@@ -136,7 +137,7 @@ class CreateSupportGroupView(HardLoginRequiredMixin, TemplateView):
 
         types = []
 
-        for type_id, label in SupportGroup.TYPE_CHOICES:
+        for type_id, label in self.available_types:
             disabled = self.per_type_animation_limit <= (
                 SupportGroup.objects.active()
                 .filter(
