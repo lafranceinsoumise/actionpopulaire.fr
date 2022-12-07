@@ -108,12 +108,7 @@ class DonationTestCase(DonationTestMixin, APITestCase):
         self.assertEqual(res.status_code, 200)
         self.assertIn(front_url("payment_page", args=(payment.pk,)), res.data["next"])
 
-        res = self.client.get(reverse("payment_return", args=(payment.pk,)))
-        self.assertRedirects(
-            res,
-            "https://lafranceinsoumise.fr/remerciement-don/",
-            fetch_redirect_response=False,
-        )
+        self.client.get(reverse("payment_return", args=(payment.pk,)))
 
         self.p1.refresh_from_db()
 
@@ -433,12 +428,12 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
         self.assertContains(res, "Vous donnez <strong>10,00\u00A0€</strong>")
         self.assertContains(
             res,
-            "<li><strong>6,00\u00A0€</strong> sont alloués <strong>aux actions du groupe &laquo;&nbsp;Groupe&nbsp;&raquo;</strong></li>",
+            "<li><strong>6,00\u00A0€</strong> seront alloués <strong>aux actions du groupe &laquo;&nbsp;Groupe&nbsp;&raquo;</strong></li>",
             html=True,
         )
         self.assertContains(
             res,
-            "<li><strong>4,00\u00A0€</strong> sont alloués <strong>aux actions et campagnes nationales</strong>, ainsi qu'aux outils mis à la disposition des insoumis⋅es (comme Action populaire&nbsp;!).</li>",
+            "<li><strong>4,00\u00A0€</strong> seront alloués <strong>aux actions et campagnes nationales</strong>, ainsi qu'aux outils mis à la disposition des insoumis⋅es (comme Action populaire&nbsp;!).</li>",
             html=True,
         )
 

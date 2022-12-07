@@ -56,23 +56,33 @@
 {% endblock %}
 
 {% block main %}
-<div>
-  <h2>Vous faites déjà un don mensuel&nbsp;!</h2>
+<div class="padtopmore">
+  <h2>Vous avez déjà un don mensuel en cours&nbsp;!</h2>
   <form method="post" id="card-wrapper">
     {% csrf_token %}
     <div class="card">
-      <h4>Je remplace mon don mensuel existant</h4>
-      <article>
       <p>
-        Je donnerai <strong>{{ new_subscription.amount | display_price_in_cent }}</strong> par mois {% if new_subscription.end_date %}
-          jusqu'à <strong>{{ new_subscription.end_date | date:"F Y" }}</strong>
-        {% endif %}.
+        En cliquant sur le bouton &laquo;&nbsp;Je remplace mon don existant&nbsp;&raquo;, vous acceptez que votre
+        <strong>{{ old_subscription.get_type_display|lower }} existant de {{ old_subscription.price | display_price_in_cent }}
+          par mois soit annulé et remplacé</strong> par le prélevement mensuel suivant&nbsp;:
+      </p>
+      <article style="margin-bottom: 0;">
+      <p>
+        {{ new_subscription.type_display }} de <strong>{{ new_subscription.amount | display_price_in_cent }}</strong> par mois
+        {% if new_subscription.end_date %}jusqu'à <strong>{{ new_subscription.end_date | date:"F Y" }}</strong>{% endif %}.
       </p>
         {% if new_subscription.allocations %}
           {% include "donations/includes/allocation_description.html" with allocations=new_subscription.allocations national_amount=new_subscription.national_amount only %}
         {% endif %}
       </article>
-      <button class="btn btn-primary" type="submit" name="choice" value="R">Je remplace le don existant</button>
+      <div class="row">
+        <div class="padtop col-md-6">
+          <button class="btn btn-block btn-primary" type="submit" name="choice" value="R">Je remplace mon don existant</button>
+        </div>
+        <div class="padtop col-md-6">
+          <a class="btn btn-block btn-info" href="{% url 'view_payments' %}">Annuler</a>
+        </div>
+      </div>
     </div>
   </form>
 </div>

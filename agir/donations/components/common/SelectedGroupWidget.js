@@ -18,6 +18,7 @@ const StyledWidget = styled.div`
   & > div {
     font-size: 0.875rem;
     flex: 1 1 auto;
+    min-width: 1px;
   }
 
   & > ${RawFeatherIcon} {

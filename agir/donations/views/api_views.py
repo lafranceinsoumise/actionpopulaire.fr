@@ -64,6 +64,8 @@ class CreateDonationAPIView(UpdateModelMixin, GenericAPIView):
             mode=payment_mode,
         ).first()
 
+        # TODO: handle renewals from september on if existing_subscription is a contribution
+
         # Redirect if user already monthly donator
         if existing_subscription is not None:
             # stocker toutes les infos en session

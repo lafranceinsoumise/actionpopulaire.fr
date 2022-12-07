@@ -191,15 +191,17 @@ class AlreadyContributorRedirectView(RedirectView):
 
 
 class ContributionView(BaseAppCachedView):
-    meta_title = "Faire une contribution financière - La France insoumise"
+    meta_title = "Devenir financeur·euse de la France insoumise"
     meta_description = (
         "Pour financer les dépenses liées à l’organisation d’événements, à l’achat de matériel, au"
         "fonctionnement du site, etc., nous avons besoin du soutien financier de chacun.e d’entre vous !"
     )
+    restricted = True
 
     def get(self, request, *args, **kwargs):
         if (
-            request.user.is_authenticated
+            self.restricted
+            and request.user.is_authenticated
             and hasattr(request.user, "person")
             and request.user.person is not None
             and not can_make_contribution(person=request.user.person)

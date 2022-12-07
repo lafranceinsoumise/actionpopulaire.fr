@@ -9,9 +9,11 @@ import Card from "@agir/front/genericComponents/Card";
 import { Column, Row } from "@agir/front/genericComponents/grid";
 
 import facebookLogo from "@agir/front/genericComponents/logos/facebook.svg";
-import twitterLogo from "@agir/front/genericComponents/logos/twitter.svg";
 import telegramLogo from "@agir/front/genericComponents/logos/telegram.svg";
+import twitterLogo from "@agir/front/genericComponents/logos/twitter.svg";
 import whatsappLogo from "@agir/front/genericComponents/logos/whatsapp.svg";
+
+import { relativeToAbsoluteURL } from "@agir/lib/utils/url";
 
 let logoSpacing = { margin: "0 8px" };
 
@@ -24,11 +26,8 @@ const StyledCard = styled(Card)`
 const ShareCard = (props) => {
   const { url, title, ...rest } = props;
 
-  const encodedLocation = useMemo(() => {
-    return url
-      ? encodeURIComponent(url)
-      : encodeURIComponent(window.location.href);
-  }, [url]);
+  const absoluteURL = url ? relativeToAbsoluteURL(url) : window.location.href;
+  const encodedLocation = encodeURIComponent(absoluteURL);
 
   let [copied, setCopied] = useState(false);
   let copyUrl = useCallback(() => {
@@ -105,7 +104,7 @@ const ShareCard = (props) => {
           {" "}
           <input
             type="text"
-            value={window.location.href}
+            value={absoluteURL}
             style={{
               width: "100%",
               height: "32px",

@@ -2,11 +2,11 @@
 
 <div class="panel panel-primary margintop">
   <h6 class="panel-heading" style="margin: 0;">
-    Ce montant a été reparti de la manière suivante&nbsp;:
+    Ce montant sera reparti de la manière suivante&nbsp;:
   </h6>
   <ul class="list-unstyled panel-body" style="font-size: 0.875rem; margin-bottom: 0;">
   {% for allocation in allocations %}
-    <li><strong>{{ allocation.amount | display_price_in_cent }}</strong> sont alloués
+    <li><strong>{{ allocation.amount | display_price_in_cent }}</strong> seront alloués
     <strong>
       {% if allocation.type == "group" %}
         aux actions du groupe &laquo;&nbsp;{{ allocation.group }}&nbsp;&raquo;
@@ -20,7 +20,7 @@
   {% endfor %}
   {% if national_amount %}
     <li>
-      <strong>{{ national_amount | display_price_in_cent }}</strong> sont alloués <strong>aux actions et campagnes nationales</strong>,
+      <strong>{{ national_amount | display_price_in_cent }}</strong> seront alloués <strong>aux actions et campagnes nationales</strong>,
       ainsi qu'aux outils mis à la disposition des insoumis⋅es (comme Action populaire&nbsp;!).
     </li>
   {% endif %}
