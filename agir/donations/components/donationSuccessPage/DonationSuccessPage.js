@@ -15,6 +15,7 @@ import {
   StyledPage,
   Theme,
 } from "@agir/donations/common/StyledComponents";
+import Link from "@agir/front/app/Link";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
@@ -55,6 +56,14 @@ const DonationPage = () => {
                   Vous allez recevoir un e-mail de confirmation dès que votre
                   paiement aura été validé.
                 </h4>
+                <p style={{ fontSize: "0.875rem" }}>
+                  Vous pouvez à tout moment consulter vos dons et paiements
+                  depuis{" "}
+                  <Link route="personalPayments">
+                    l'onglet &laquo;&nbsp;Dons et paiements&nbsp;&raquo;
+                  </Link>{" "}
+                  de votre espace personnel sur actionpopulaire.fr.
+                </p>
               </div>
               <Spacer size="2rem" />
               {thankYouNote}

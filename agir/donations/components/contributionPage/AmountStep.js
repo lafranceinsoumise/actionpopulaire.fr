@@ -159,8 +159,8 @@ const AmountStep = (props) => {
           <p style={{ fontSize: "0.875rem" }}>
             * Dans l’éventualité où vous souhaitiez interrompre votre
             contribution volontaire, vous pourrez le faire à tout moment en vous
-            rendant dans l'onglet &laquo;&nbsp;Paiements&nbsp;&raquo; de votre
-            espace personnel sur actionpopulaire.fr.
+            rendant dans l'onglet &laquo;&nbsp;Dons et paiements&nbsp;&raquo; de
+            votre espace personnel sur actionpopulaire.fr.
           </p>
           <form noValidate onSubmit={handleSubmit}>
             <AmountWidget

@@ -29,17 +29,17 @@
         {{ subscription.description }}
       </p>
     </div>
-    <form method="post" class=" row padtop padbottom">
+    <form method="post">
       {% csrf_token %}
-      <div class="col-xs-12 col-sm-5 marginbottom">
-        <a class="btn btn-block btn-default" href="{% url 'view_payments' %}">
-          Retour à la liste de mes paiements
-        </a>
-      </div>
-      <div class="col-xs-12 col-sm-4 marginbottom">
-        <button type="submit" class="btn btn-block btn-primary">
-          Mettre fin au paiement
-        </button>
+      <div class="row">
+        <div class="padtop col-md-6">
+          <button type="submit" class="btn btn-block btn-primary">
+            Mettre fin au paiement
+          </button>
+        </div>
+        <div class="padtop col-md-4">
+          <a class="btn btn-block btn-info" href="{% url 'view_payments' %}">Annuler</a>
+        </div>
       </div>
     </form>
     </div>
