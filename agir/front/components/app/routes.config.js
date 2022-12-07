@@ -378,7 +378,7 @@ export const routeConfig = {
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Devenir financeur·euse de la France insoumise",
-    Component: RouteComponents.DonationSuccessPage,
+    Component: RouteComponents.ContributionSuccessPage,
     hasLayout: false,
     hideFeedbackButton: true,
     hideFooter: true,

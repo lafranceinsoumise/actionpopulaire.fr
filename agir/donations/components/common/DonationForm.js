@@ -374,7 +374,11 @@ const DonationForm = ({
             >
               ou
               <Spacer size="1rem" />
-              <Button disabled={isLoading} onClick={handleSubmit(hasCheck)}>
+              <Button
+                wrap
+                disabled={isLoading}
+                onClick={handleSubmit(hasCheck)}
+              >
                 {hasMonthlyPayment
                   ? "Payer en une seule fois par chèque"
                   : "Envoyer un chèque"}
