@@ -79,7 +79,7 @@ class DonsConfig(AppConfig):
         ## MONTHLY DONATIONS
         monthly_donation_payment_type = PaymentType(
             self.MONTHLY_DONATION_TYPE,
-            "Don automatique",
+            "Don mensuel",
             RedirectView.as_view(url="https://lafranceinsoumise.fr/remerciement-don/"),
             status_listener=notification_listener,
             description_template="donations/description.html",

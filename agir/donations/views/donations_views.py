@@ -35,6 +35,7 @@ from agir.payments.actions.subscriptions import (
     create_subscription,
 )
 from agir.payments.models import Payment, Subscription
+from agir.payments.types import SUBSCRIPTION_TYPES
 from agir.people.models import Person
 
 __all__ = (
@@ -187,6 +188,14 @@ class AlreadyHasSubscriptionView(FormView):
                 for allocation in kwargs["new_subscription"]["allocations"]
             ]
         )
+        if (
+            "type" in self.new_subscription_info
+            and SUBSCRIPTION_TYPES[self.new_subscription_info.get("type")]
+        ):
+            kwargs["new_subscription"]["type_display"] = SUBSCRIPTION_TYPES[
+                self.new_subscription_info.get("type")
+            ].label
+
         kwargs["old_subscription"] = self.old_subscription
 
         return super().get_context_data(**kwargs)
