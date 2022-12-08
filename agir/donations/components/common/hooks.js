@@ -4,6 +4,7 @@ import useSWR from "swr";
 import CONFIG from "@agir/donations/common/config";
 import { MANUAL_REVALIDATION_SWR_CONFIG } from "@agir/front/allPages/SWRContext";
 import * as api from "@agir/donations/common/api";
+import { getReminder } from "@agir/donations/common/allocations.config";
 
 import {
   INITIAL_DATA,
@@ -107,6 +108,13 @@ export const useDonations = (
         paymentMode,
       };
       let validationErrors = validateDonationData(donation);
+      if (getReminder(formData?.allocations, formData.amount)) {
+        validationErrors = {
+          ...(validationErrors || {}),
+          global:
+            "La somme des des allocations est différente du montant total",
+        };
+      }
       if (donation.nationality !== "FR" && donation.locationCountry !== "FR") {
         validationErrors = {
           ...(validationErrors || {}),

@@ -71,7 +71,6 @@ const AmountStep = (props) => {
   const [paymentTiming, setPaymentTiming] = useState(initialPaymentTiming);
   const [allocations, setAllocations] = useState();
 
-  const hasGroup = !!group?.id;
   const hasSubmit = !isLoading && amount && amount <= maxAmount;
 
   const handleSubmit = (e) => {
