@@ -1,6 +1,11 @@
 export const parseURL = (url) =>
   new URL(url, window.location && window.location.origin);
 
+export const relativeToAbsoluteURL = ((a) => (url) => {
+  a.href = url;
+  return a.href;
+})(document.createElement("a"));
+
 export const addQueryStringParams = (url, params = {}, relative = false) => {
   if (!url) {
     return "";

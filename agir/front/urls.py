@@ -162,6 +162,47 @@ event_settings_patterns = [
     ),
 ]
 
+donation_patterns = [
+    path(
+        "",
+        views.DonationView.as_view(),
+        name="donation_amount",
+    ),
+    path(
+        "validation/",
+        views.DonationView.as_view(),
+        name="donation_information_modal",
+    ),
+    path(
+        "remerciement/",
+        views.DonationView.as_view(),
+        name="donation_success",
+    ),
+    path(
+        "informations/",
+        views.DonationView.as_view(),
+        name="donation_information",
+    ),
+]
+
+contribution_patterns = [
+    path(
+        "",
+        views.ContributionView.as_view(),
+        name="contribution_amount",
+    ),
+    path(
+        "validation/",
+        views.ContributionView.as_view(),
+        name="contribution_information_modal",
+    ),
+    path(
+        "remerciement/",
+        views.ContributionView.as_view(restricted=False),
+        name="contribution_success",
+    ),
+]
+
 voting_proxy_patterns = [
     path(
         "donner-ma-procuration/",
@@ -326,25 +367,19 @@ urlpatterns = [
         name="create_contact_success",
     ),
     # DONATION VIEWS
-    path(
-        "dons/",
-        views.DonationView.as_view(),
-        name="donation_amount",
-    ),
-    path(
-        "dons/validation/",
-        views.DonationView.as_view(),
-        name="donation_information_modal",
-    ),
-    path(
-        "dons/informations/",
-        views.DonationView.as_view(),
-        name="donation_information",
-    ),
+    path("dons/", include(donation_patterns)),
+    path("contributions/", include(contribution_patterns)),
     path(
         "dons-mensuels/informations/",
-        views.DonationView.as_view(),
+        RedirectView.as_view(
+            pattern_name="contribution_information_modal", query_string=True
+        ),
         name="monthly_donation_information",
+    ),
+    path(
+        "deja-contributeur-ice/",
+        views.AlreadyContributorRedirectView.as_view(),
+        name="already_contributor",
     ),
     # VOTING PROXIES
     path("procuration/", include(voting_proxy_patterns)),

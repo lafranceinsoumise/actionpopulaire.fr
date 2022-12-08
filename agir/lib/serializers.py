@@ -9,6 +9,7 @@ from rest_framework.serializers import BaseSerializer
 from rest_framework_gis.fields import GeometryField
 
 from agir.carte.models import StaticMapImage
+from .data import departement_from_zipcode
 from .geo import FRENCH_COUNTRY_CODES
 from .tasks import create_static_map_image_from_coordinates
 
@@ -53,6 +54,7 @@ class LocationSerializer(serializers.Serializer):
     )
     zip = serializers.CharField(source="location_zip")
     city = serializers.CharField(source="location_city")
+    departement = serializers.SerializerMethodField(read_only=True)
     country = CountryField(source="location_country")
     address = serializers.SerializerMethodField()
 
@@ -66,6 +68,13 @@ class LocationSerializer(serializers.Serializer):
         if not ["name"] and not data["zip"] and not data["city"]:
             return None
         return data
+
+    def get_departement(self, obj):
+        if not obj.location_zip:
+            return None
+        departement = departement_from_zipcode(obj.location_zip)
+        if departement:
+            return departement.get("id")
 
     def get_address(self, obj):
         parts = [

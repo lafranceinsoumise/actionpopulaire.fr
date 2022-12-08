@@ -126,7 +126,7 @@ const StyledField = styled.label`
     &:focus,
     &.select__control--is-focused {
       border-color: ${({ $invalid }) =>
-        $invalid ? style.redNSP : style.black1000};
+        $invalid ? style.redNSP : style.black500};
     }
 
     .select-search__placeholder {

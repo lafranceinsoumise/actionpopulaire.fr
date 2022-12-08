@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from glom import glom, T
 from reversion.models import Version
 
-from agir.donations.allocations import get_balance
+from agir.donations.allocations import get_supportgroup_balance
 from agir.donations.models import SpendingRequest, Spending, Document
 from agir.donations.tasks import send_spending_request_to_review_email
 from agir.lib.display import display_price
@@ -20,7 +20,7 @@ def group_formatter(group):
         group_email=group.contact_email,
         group_phone=group.contact_phone,
         group_link=front_url("view_group", args=(group.id,)),
-        group_balance=display_price(get_balance(group)),
+        group_balance=display_price(get_supportgroup_balance(group)),
     )
 
 
@@ -82,7 +82,7 @@ def summary(spending_request):
         status = format_html("<strong>{}</strong>", status)
     yield {"label": get_spending_request_field_label("status"), "value": status}
 
-    balance = get_balance(spending_request.group)
+    balance = get_supportgroup_balance(spending_request.group)
 
     amount_text = display_price(spending_request.amount)
     if spending_request.amount > balance:
@@ -303,4 +303,4 @@ def can_be_sent(spending_request):
 
 
 def are_funds_sufficient(spending_request):
-    return spending_request.amount <= get_balance(spending_request.group)
+    return spending_request.amount <= get_supportgroup_balance(spending_request.group)

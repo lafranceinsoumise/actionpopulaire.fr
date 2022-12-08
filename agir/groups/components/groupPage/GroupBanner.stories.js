@@ -17,7 +17,6 @@ export default {
   title: "Group/GroupBanner",
   argTypes: {
     type: {
-      defaultValue: "Groupe local",
       control: {
         type: "select",
         required: true,
@@ -34,6 +33,7 @@ const Template = (args) => {
 export const Default = Template.bind({});
 Default.args = {
   ...group,
+  type: "Groupe local",
 };
 
 export const NoMap = Template.bind({});

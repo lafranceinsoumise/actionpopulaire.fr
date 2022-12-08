@@ -10,27 +10,81 @@ from django.utils.translation import gettext_lazy as _
 from dynamic_filenames import FilePattern
 
 from agir.donations.model_fields import BalanceField
-from agir.lib.history import HistoryMixin
-from agir.payments.model_fields import AmountField
+from agir.lib.data import departements_choices
 from agir.lib.display import display_price
+from agir.lib.history import HistoryMixin
 from agir.lib.model_fields import IBANField
 from agir.lib.models import TimeStampedModel
+from agir.payments.model_fields import AmountField
 
-__all__ = ["Operation", "Spending", "SpendingRequest", "Document"]
+__all__ = [
+    "AllocationModelMixin",
+    "Operation",
+    "Spending",
+    "SpendingRequest",
+    "Document",
+    "MonthlyAllocation",
+]
 
 
-class Operation(models.Model):
-    created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now=True)
+class AllocationModelMixin(models.Model):
+    TYPE_GROUP = "group"
+    TYPE_DEPARTEMENT = "departement"
+    TYPE_CNS = "cns"
+    TYPE_CHOICES = (
+        (TYPE_GROUP, _("à un groupe d'action")),
+        (TYPE_DEPARTEMENT, _("à une caisse départementale")),
+        (TYPE_CNS, _("à la caisse nationale de solidarité")),
+    )
+
+    type = models.CharField(
+        "type",
+        null=False,
+        blank=False,
+        choices=TYPE_CHOICES,
+        default=TYPE_GROUP,
+        max_length=200,
+    )
+
+    amount = models.SmallIntegerField("montant", null=False, blank=False)
 
     group = models.ForeignKey(
         to="groups.SupportGroup",
-        null=False,
-        blank=False,
-        on_delete=models.PROTECT,
-        related_name="operations",
-        related_query_name="operation",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="subscriptions",
     )
+
+    departement = models.CharField(
+        "département",
+        null=True,
+        blank=True,
+        choices=departements_choices,
+        default=None,
+        max_length=200,
+    )
+
+    def __str__(self):
+        return "Allocation n°" + str(self.pk)
+
+    def to_dict(self):
+        return {
+            "pk": self.pk,
+            "type": self.type,
+            "amount": self.amount,
+            "group": self.group,
+            "departement": self.departement,
+        }
+
+    class Meta:
+        abstract = True
+
+
+class OperationModelMixin(models.Model):
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+
     amount = BalanceField(
         _("montant net"),
         null=False,
@@ -47,6 +101,9 @@ class Operation(models.Model):
         on_delete=models.PROTECT,
     )
 
+    def validate_balance(self, errors):
+        return errors
+
     def validate_unique(self, exclude=None):
         try:
             super().validate_unique(exclude)
@@ -55,13 +112,32 @@ class Operation(models.Model):
         else:
             errors = {}
 
-        from agir.donations.allocations import get_balance
+        errors = self.validate_balance(errors)
+
+        if errors:
+            raise ValidationError(errors)
+
+    class Meta:
+        abstract = True
+
+
+class Operation(OperationModelMixin):
+    group = models.ForeignKey(
+        to="groups.SupportGroup",
+        null=False,
+        blank=False,
+        on_delete=models.PROTECT,
+        related_name="operations",
+        related_query_name="operation",
+    )
+
+    def validate_balance(self, errors=dict):
+        from agir.donations.allocations import get_supportgroup_balance
 
         if self.group and isinstance(self.amount, int) and self.amount < 0:
-            balance = get_balance(self.group)
+            balance = get_supportgroup_balance(self.group)
 
             if balance + self.amount < 0:
-
                 errors.setdefault("amount", []).append(
                     ValidationError(
                         f"La balance d'un groupe ne peut pas devenir négative (actuellement : {display_price(balance)})",
@@ -69,13 +145,66 @@ class Operation(models.Model):
                     )
                 )
 
-        if errors:
-            raise ValidationError(errors)
+        return errors
 
     class Meta:
         verbose_name = "Opération"
         verbose_name_plural = "Opérations"
         unique_together = ("payment", "group")
+
+
+class DepartementOperation(OperationModelMixin):
+    departement = models.CharField(
+        "département",
+        null=False,
+        blank=False,
+        choices=departements_choices,
+        max_length=200,
+    )
+
+    def validate_balance(self, errors=dict):
+        from agir.donations.allocations import get_departement_balance
+
+        if self.departement and isinstance(self.amount, int) and self.amount < 0:
+            balance = get_departement_balance(self.departement)
+
+            if balance + self.amount < 0:
+                errors.setdefault("amount", []).append(
+                    ValidationError(
+                        f"La balance d'un département ne peut pas devenir négative (actuellement : {display_price(balance)})",
+                        code="negative_balance",
+                    )
+                )
+
+        return errors
+
+    class Meta:
+        verbose_name = "Opération départementale"
+        verbose_name_plural = "Opérations départementales"
+        unique_together = ("payment", "departement")
+
+
+class CNSOperation(OperationModelMixin):
+    def validate_balance(self, errors=dict):
+        from agir.donations.allocations import get_cns_balance
+
+        if isinstance(self.amount, int) and self.amount < 0:
+            balance = get_cns_balance()
+
+            if balance + self.amount < 0:
+                errors.setdefault("amount", []).append(
+                    ValidationError(
+                        f"La balance de la caisse nationale de solidarité ne peut pas devenir négative (actuellement : {display_price(balance)})",
+                        code="negative_balance",
+                    )
+                )
+
+        return errors
+
+    class Meta:
+        verbose_name = "Opération CNS"
+        verbose_name_plural = "Opérations CNS"
+        unique_together = ("payment",)
 
 
 class Spending(Operation):
@@ -381,23 +510,10 @@ class Document(models.Model):
     deleted = models.BooleanField(_("Supprimé"), null=False, default=False)
 
 
-class MonthlyAllocation(models.Model):
+class MonthlyAllocation(AllocationModelMixin):
     subscription = models.ForeignKey(
         "payments.Subscription", related_name="allocations", on_delete=models.PROTECT
     )
-
-    group = models.ForeignKey(
-        to="groups.SupportGroup",
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="subscriptions",
-    )
-
-    amount = models.SmallIntegerField("montant", null=False, blank=False)
-
-    def __str__(self):
-        return "Allocation n°" + str(self.pk)
 
     class Meta:
         verbose_name = "Allocation mensuelle"

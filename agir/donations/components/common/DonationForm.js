@@ -4,13 +4,15 @@ import styled from "styled-components";
 
 import { displayPrice } from "@agir/lib/utils/display";
 import { scrollToError } from "@agir/front/app/utils";
+import { GENDER_OPTIONS, MONTHLY_PAYMENT } from "./form.config";
 
-import AmountInformations from "@agir/donations/common/AmountInformations";
+import AllocationDetails from "@agir/donations/common/AllocationDetails";
 import Breadcrumb from "@agir/donations/common/Breadcrumb";
 import Button from "@agir/front/genericComponents/Button";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import CountryField from "@agir/front/formComponents/CountryField";
 import CustomField from "@agir/donations/common/CustomField";
+import DepartementField from "@agir/front/formComponents/DepartementField";
 import Legal from "@agir/donations/common/Legal";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import SelectField from "@agir/front/formComponents/SelectField";
@@ -59,6 +61,8 @@ const StyledButton = styled.button`
 `;
 
 const FORM_HELP_TEXT = {
+  departement:
+    "Indiquez le département auquel vous souhaitez reserver une partie de votre contribution",
   email:
     "Si vous êtes déjà inscrit·e sur lafranceinsoumise.fr, utilisez l'adresse avec laquelle vous êtes inscrit·e",
   nationality: "Si double nationalité dont française : indiquez France",
@@ -67,12 +71,6 @@ const FORM_HELP_TEXT = {
   consentCertification:
     "Je certifie sur l'honneur être une personne physique et que le réglement de mon don ne provient pas d'une personne morale (association, société, société civile...) mais de mon compte bancaire personnel.*",
 };
-
-const GENDER_OPTIONS = [
-  { label: "", value: "" },
-  { label: "Madame", value: "F" },
-  { label: "Monsieur", value: "M" },
-];
 
 const DonationForm = ({
   type = "",
@@ -103,6 +101,9 @@ const DonationForm = ({
   const handleChangeGender = (choice) => {
     updateFormData("gender", choice.value);
   };
+  const handleChangeDepartement = (departement) => {
+    updateFormData("departement", departement);
+  };
   const handleChangeCountry = (country) => {
     updateFormData("locationCountry", country);
   };
@@ -111,16 +112,15 @@ const DonationForm = ({
     updateFormData("frenchResident", country === "FR");
   };
 
-  const checkPaymentMode =
+  const hasMonthlyPayment = formData.paymentTiming === MONTHLY_PAYMENT;
+
+  const hasCheck =
     Array.isArray(allowedPaymentModes) &&
     allowedPaymentModes.find((value) => value.includes("check"));
 
-  const cardPaymentMode =
+  const hasCard =
     Array.isArray(allowedPaymentModes) &&
     allowedPaymentModes.find((value) => !value.includes("check"));
-
-  const groupAmount =
-    Array.isArray(formData.allocations) && formData.allocations[0]?.amount;
 
   const scrollToErrorRef = useRef(null);
   const shouldScrollToError = useRef(false);
@@ -141,15 +141,15 @@ const DonationForm = ({
     <div ref={scrollToErrorRef}>
       <Title>
         Je donne {displayPrice(formData.amount)}{" "}
-        {formData.paymentTimes === "M" && "par mois"}
+        {hasMonthlyPayment && "par mois"}
       </Title>
       <Breadcrumb onClick={onBack} />
       <Spacer size="1rem" />
-      <AmountInformations
+      <AllocationDetails
         groupName={groupName}
+        byMonth={hasMonthlyPayment}
         totalAmount={formData.amount}
-        groupAmount={groupAmount}
-        nationalAmount={formData.amount - groupAmount}
+        allocations={formData.allocations}
       />
       <Spacer size="1rem" />
       <div>
@@ -245,7 +245,7 @@ const DonationForm = ({
         />
         {hasAddress2 ||
         formData.locationAddress2 ||
-        formErrors.locationAddress2 ? (
+        formErrors?.locationAddress2 ? (
           <>
             <Spacer size="0.5rem" />
             <CustomField
@@ -293,6 +293,17 @@ const DonationForm = ({
         </GroupedFields>
         <Spacer size="1rem" />
         <CustomField
+          Component={DepartementField}
+          label="Département*"
+          name="departement"
+          placeholder=""
+          value={formData.departement}
+          onChange={handleChangeDepartement}
+          error={formErrors?.departement}
+          helpText={FORM_HELP_TEXT.departement}
+        />
+        <Spacer size="1rem" />
+        <CustomField
           Component={CountryField}
           label="Pays*"
           name="locationCountry"
@@ -332,19 +343,17 @@ const DonationForm = ({
           déduire cette somme de mes impôts dans les limites fixées par la loi.
         </p>
         <Spacer size="1rem" />
-        {!!Object.values(formErrors).filter((error) => !!error).length && (
-          <>
-            <StaticToast style={{ marginTop: "0.5rem" }}>
-              Des erreurs sont présentes dans le formulaire, veuillez les
-              résoudre avant de l'envoyer
-            </StaticToast>
-            <Spacer size="1rem" />
-          </>
-        )}
-        <StepButton
-          disabled={isLoading}
-          onClick={handleSubmit(cardPaymentMode)}
-        >
+        {formErrors &&
+          !!Object.values(formErrors).filter((error) => !!error).length && (
+            <>
+              <StaticToast style={{ marginTop: "0.5rem" }}>
+                {formErrors?.global ||
+                  "Des erreurs sont présentes dans le formulaire, veuillez les résoudre avant de l'envoyer"}
+              </StaticToast>
+              <Spacer size="1rem" />
+            </>
+          )}
+        <StepButton disabled={isLoading} onClick={handleSubmit(hasCard)}>
           <span>
             <strong>Continuer</strong>
             <br />
@@ -352,7 +361,7 @@ const DonationForm = ({
           </span>
           <RawFeatherIcon name="arrow-right" />
         </StepButton>
-        {!!checkPaymentMode && (
+        {!!hasCheck && (
           <>
             <Spacer size="1rem" />
             <div
@@ -366,10 +375,13 @@ const DonationForm = ({
               ou
               <Spacer size="1rem" />
               <Button
+                wrap
                 disabled={isLoading}
-                onClick={handleSubmit(checkPaymentMode)}
+                onClick={handleSubmit(hasCheck)}
               >
-                Envoyer un chèque
+                {hasMonthlyPayment
+                  ? "Payer en une seule fois par chèque"
+                  : "Envoyer un chèque"}
               </Button>
             </div>
           </>

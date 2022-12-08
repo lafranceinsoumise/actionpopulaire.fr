@@ -4,6 +4,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import logger from "@agir/lib/utils/logger";
 
 import { AUTHENTICATION } from "@agir/front/authentication/common";
+import { relativeToAbsoluteURL } from "@agir/lib/utils/url";
 
 import RouteComponents from "./routes.components";
 export const BASE_PATH = "/";
@@ -37,15 +38,17 @@ export class RouteConfig {
   /**
    * Method to build a link to the RouteConfig pathname with optional URL parameters
    * @param  {object} params An object mapping the path parameters value
+   * @param  {absolute} absolute Whether to return an absolute or relative link
    * @return {string} The link path string
    */
-  getLink(params) {
+  getLink(params, absolute = false) {
     try {
       params = {
         ...(this.params || {}),
         ...(params || {}),
       };
-      return this.__toPath__(params);
+      const link = this.__toPath__(params);
+      return absolute ? relativeToAbsoluteURL(link) : link;
     } catch (e) {
       log.error("Failed to generate path", e);
       return Array.isArray(this.path) ? this.path[0] : this.path;
@@ -330,14 +333,27 @@ export const routeConfig = {
     hideFeedbackButton: true,
     hideFooter: true,
   }),
-  donationsInformations: new RouteConfig({
-    id: "donationsInformations",
+  donationSuccess: new RouteConfig({
+    id: "donationSuccess",
+    params: { type: null },
+    path: "/:type?/dons/remerciement/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Faire un don",
+    Component: RouteComponents.DonationSuccessPage,
+    hasLayout: false,
+    hideFeedbackButton: true,
+    hideFooter: true,
+    appOnlyTopBar: true,
+  }),
+  externalDonation: new RouteConfig({
+    id: "externalDonation",
     params: { type: null },
     path: ["/:type?/dons/informations/", "/:type?/dons-mensuels/informations/"],
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Faire un don",
-    Component: RouteComponents.DonationExternalDonationPage,
+    Component: RouteComponents.ExternalDonationPage,
     hasLayout: false,
     hideFeedbackButton: true,
     hideFooter: true,
@@ -351,6 +367,31 @@ export const routeConfig = {
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Faire un don",
     Component: RouteComponents.DonationPage,
+    hasLayout: false,
+    hideFeedbackButton: true,
+    hideFooter: true,
+    appOnlyTopBar: true,
+  }),
+  contributionSuccess: new RouteConfig({
+    id: "contributionSuccess",
+    path: "/contributions/remerciement/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Devenir financeur·euse de la France insoumise",
+    Component: RouteComponents.ContributionSuccessPage,
+    hasLayout: false,
+    hideFeedbackButton: true,
+    hideFooter: true,
+    appOnlyTopBar: true,
+  }),
+  contributions: new RouteConfig({
+    id: "contributions",
+    path: "/contributions/:step?/",
+    params: { step: null },
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Devenir financeur·euse de la France insoumise",
+    Component: RouteComponents.ContributionPage,
     hasLayout: false,
     hideFeedbackButton: true,
     hideFooter: true,

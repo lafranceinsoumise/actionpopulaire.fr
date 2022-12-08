@@ -48,31 +48,23 @@ const CustomMenu = (props) => (
 const StyledMenu = styled(CustomMenu)``;
 
 const StyledField = styled.label`
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-rows: auto auto auto auto;
-  grid-gap: 4px 0.75rem;
-  align-items: stretch;
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 0.5rem;
   font-size: 1rem;
   font-weight: 400;
   line-height: 1;
   margin-bottom: 0;
 
   ${StyledLabel} {
-    grid-row: 1;
-    grid-column: 1/3;
     font-weight: 600;
   }
+
   ${StyledHelpText} {
-    grid-row: 2;
-    grid-column: 1/3;
     line-height: 1.5;
   }
 
   ${StyledSelectContainer} {
-    grid-row: 3;
-    grid-column: 1/3;
-
     .select__indicator-separator {
       display: none;
     }
@@ -85,8 +77,10 @@ const StyledField = styled.label`
     border-radius: ${style.softBorderRadius};
     border: 1px solid;
     max-width: 100%;
-    height: 40px;
-    font-size: 1rem;
+    height: 2.5rem;
+    line-height: 1.5;
+    font-size: ${({ $small }) => ($small ? "0.875rem" : "1rem")};
+    font-weight: ${({ $small }) => ($small ? "600" : "auto")};
 
     &,
     &:hover,
@@ -101,15 +95,17 @@ const StyledField = styled.label`
     &:focus,
     &.select__control--is-focused {
       border-color: ${({ $invalid }) =>
-        $invalid ? style.redNSP : style.black1000};
+        $invalid ? style.redNSP : style.black500};
     }
 
     &.select__control--is-disabled {
       background-color: ${style.black100};
     }
 
-    @media (max-width: ${style.collapse}px) {
-      font-size: 1rem;
+    & .select__placeholder {
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
     }
   }
 
@@ -198,8 +194,6 @@ const StyledField = styled.label`
 
   ${StyledError} {
     display: ${({ $invalid }) => ($invalid ? "flex" : "none")};
-    grid-row: 4;
-    grid-column: 1/3;
     color: ${style.redNSP};
   }
 `;
@@ -250,10 +244,11 @@ const SelectField = (props) => {
     helpText,
     options,
     isSearchable,
+    small,
     ...rest
   } = props;
 
-  const maxMenuHeight = useResponsiveMemo(isSearchable ? 124 : 238, "auto");
+  const maxMenuHeight = useResponsiveMemo(isSearchable ? 124 : 238, 238);
 
   return (
     <StyledField
@@ -262,6 +257,7 @@ const SelectField = (props) => {
       $invalid={!!error}
       $empty={!!value}
       $searchable={!!isSearchable}
+      $small={small}
     >
       {label && <StyledLabel>{label}</StyledLabel>}
       {helpText && <StyledHelpText>{helpText}</StyledHelpText>}
@@ -298,6 +294,8 @@ SelectField.propTypes = {
   label: PropTypes.node,
   helpText: PropTypes.node,
   error: PropTypes.node,
+  isSearchable: PropTypes.bool,
+  small: PropTypes.bool,
 };
 
 export default SelectField;

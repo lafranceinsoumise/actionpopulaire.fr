@@ -11,8 +11,10 @@ from agir.authentication.utils import (
     is_soft_logged,
     get_bookmarked_emails,
 )
+from agir.donations.actions import can_make_contribution
 from agir.donations.views.donations_views import DONATION_SESSION_NAMESPACE
 from agir.groups.models import SupportGroup, Membership
+from agir.lib.data import departement_from_zipcode
 from agir.lib.utils import front_url
 from agir.voting_proxies.models import VotingProxyRequest
 
@@ -36,8 +38,9 @@ class UserContextSerializer(serializers.Serializer):
     address2 = serializers.CharField(source="location_address2")
     city = serializers.CharField(source="location_city")
     zip = serializers.CharField(source="location_zip")
+    departement = serializers.SerializerMethodField(read_only=True)
     country = CountryField(source="location_country")
-    votingProxyId = serializers.SerializerMethodField(method_name="get_voting_proxy_id")
+    hasContribution = serializers.SerializerMethodField(method_name="has_contribution")
 
     def get_full_name(self, obj):
         return obj.get_full_name()
@@ -45,6 +48,13 @@ class UserContextSerializer(serializers.Serializer):
     def get_image(self, obj):
         if obj.image and obj.image.thumbnail:
             return obj.image.thumbnail.url
+
+    def get_departement(self, obj):
+        if not obj.location_zip:
+            return None
+        departement = departement_from_zipcode(obj.location_zip)
+        if departement:
+            return departement.get("id")
 
     def get_groups(self, obj):
         person_groups = (
@@ -69,14 +79,8 @@ class UserContextSerializer(serializers.Serializer):
             for group in person_groups
         ]
 
-    def get_voting_proxy_id(self, obj):
-        accepted_voting_proxy_request = (
-            VotingProxyRequest.objects.filter(proxy__person_id=obj.id)
-            .upcoming()
-            .first()
-        )
-        if accepted_voting_proxy_request:
-            return accepted_voting_proxy_request.proxy_id
+    def has_contribution(self, obj):
+        return can_make_contribution(person=obj) == False
 
 
 class SessionSerializer(serializers.Serializer):

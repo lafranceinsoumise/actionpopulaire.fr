@@ -104,9 +104,24 @@ const Routes = {
       /* webpackChunkName: "r-donationpage" */ "@agir/donations/donationPage/DonationPage"
     )
   ),
-  DonationExternalDonationPage: lazy(() =>
+  ExternalDonationPage: lazy(() =>
     import(
-      /* webpackChunkName: "r-donationExternalDonationPage" */ "@agir/donations/externalDonationPage/ExternalDonationPage"
+      /* webpackChunkName: "r-externalDonationPage" */ "@agir/donations/externalDonationPage/ExternalDonationPage"
+    )
+  ),
+  DonationSuccessPage: lazy(() =>
+    import(
+      /* webpackChunkName: "r-donationSuccessPage" */ "@agir/donations/donationSuccessPage/DonationSuccessPage"
+    )
+  ),
+  ContributionPage: lazy(() =>
+    import(
+      /* webpackChunkName: "r-contributionpage" */ "@agir/donations/contributionPage/ContributionPage"
+    )
+  ),
+  ContributionSuccessPage: lazy(() =>
+    import(
+      /* webpackChunkName: "r-contributionSuccessPage" */ "@agir/donations/contributionSuccessPage/ContributionSuccessPage"
     )
   ),
   ActionToolsPage: lazy(() =>

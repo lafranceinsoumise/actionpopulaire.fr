@@ -33,17 +33,7 @@
             </p>
           {% endblock %}
           {% if allocations %}
-            <p>{% if monthly %}Chaque mois :{% else %}Ce don sera alloué comme suivant :{% endif %}
-            <ul>
-              <li><strong>{{ national | display_price_in_cent }}</strong> seront alloués aux activités et campagnes
-                nationales
-              </li>
-              {% for group, amount in allocations.items %}
-                <li><strong>{{ amount | display_price_in_cent }}</strong> seront alloués au financement des activités du groupe
-                  d'action « <em>{{ group.name }}</em> »
-                </li>
-              {% endfor %}
-            </ul>
+              {% include "donations/includes/allocation_description.html" with allocations=allocations national_amount=national only %}
           {% endif %}
           {% if monthly %}
             <p>
