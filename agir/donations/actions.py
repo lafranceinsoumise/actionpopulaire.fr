@@ -26,7 +26,7 @@ def monthly_to_single_time_contribution(data):
         pd.date_range(
             start=today,
             end=data.get("end_date"),
-            freq="M",
+            freq="MS",
         )
     )
     data["amount"] *= multiplier
