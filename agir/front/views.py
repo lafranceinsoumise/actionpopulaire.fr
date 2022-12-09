@@ -192,10 +192,14 @@ class AlreadyContributorRedirectView(RedirectView):
 
 class ContributionView(BaseAppCachedView):
     meta_title = "Devenir financeur·euse de la France insoumise"
+    meta_image = urljoin(
+        settings.FRONT_DOMAIN, static("front/og-image/contributions.png")
+    )
     meta_description = (
         "Pour financer les dépenses liées à l’organisation d’événements, à l’achat de matériel, au"
         "fonctionnement du site, etc., nous avons besoin du soutien financier de chacun.e d’entre vous !"
     )
+
     restricted = True
 
     def get(self, request, *args, **kwargs):
