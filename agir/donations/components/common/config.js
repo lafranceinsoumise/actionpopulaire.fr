@@ -53,13 +53,11 @@ const contribution = {
   // - of the current year until august
   // - of the next year from september on
   getEndDate: () =>
-    new Date(
-      `${
-        new Date().getMonth() < 8
-          ? new Date().getFullYear()
-          : new Date().getFullYear() + 1
-      }-12-31 23:59:59`
-    ).toISOString(),
+    `${
+      new Date().getMonth() < 8
+        ? new Date().getFullYear()
+        : new Date().getFullYear() + 1
+    }-12-31T22:59:59Z`,
   type: "contribution",
   title: "Devenir financeur·euse de La France insoumise",
   fixedRatio: 0.2,
