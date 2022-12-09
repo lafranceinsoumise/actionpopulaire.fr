@@ -3,6 +3,10 @@ from django.urls import reverse, path
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
+from agir.donations.admin.actions import (
+    export_spending_requests_to_xlsx,
+    export_spending_requests_to_csv,
+)
 from agir.donations.admin.filters import (
     MonthlyAllocationGroupFilter,
     MonthlyAllocationSubscriptionPersonFilter,
@@ -77,7 +81,11 @@ class SpendingRequestAdmin(admin.ModelAdmin):
     sortable_by = ("title", "spending_date", "show_amount")
     search_fields = ("id", "title", "group__name")
     list_filter = (RequestStatusFilter,)
-    actions = (mark_as_paid,)
+    actions = (
+        export_spending_requests_to_csv,
+        export_spending_requests_to_xlsx,
+        mark_as_paid,
+    )
 
     fieldsets = (
         (
