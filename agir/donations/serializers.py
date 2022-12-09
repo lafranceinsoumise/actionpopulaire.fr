@@ -1,4 +1,3 @@
-import pandas as pd
 from django.conf import settings
 from django.utils import timezone
 from rest_framework import serializers
@@ -13,6 +12,7 @@ from agir.donations.apps import DonsConfig
 from agir.donations.models import AllocationModelMixin
 from agir.groups.models import SupportGroup
 from agir.lib.data import departements_choices
+from agir.lib.display import display_price
 from agir.lib.serializers import PhoneField
 from agir.payments import payment_modes
 from agir.people.models import Person
@@ -84,7 +84,7 @@ class DonationSerializer(serializers.ModelSerializer):
         default=DonsConfig.SINGLE_TIME_DONATION_TYPE,
         source="payment_type",
     )
-    amount = serializers.IntegerField(min_value=1, required=True)
+    amount = serializers.IntegerField(required=True)
     endDate = serializers.DateTimeField(
         required=False,
         allow_null=True,
@@ -132,6 +132,29 @@ class DonationSerializer(serializers.ModelSerializer):
                         "global": "La somme des montants des allocations est supérieur au montant total"
                     }
                 )
+
+        return attrs
+
+    def validate_amount_range(self, attrs):
+        amount = attrs.get("amount")
+        payment_timing = attrs.get("payment_timing")
+        error = None
+        mininimum = settings.DONATION_MINIMUM
+        maximum = settings.DONATION_MAXIMUM
+
+        if payment_timing == MONTHLY:
+            mininimum = settings.MONTHLY_DONATION_MINIMUM
+            maximum = settings.MONTHLY_DONATION_MAXIMUM
+
+        if amount > maximum:
+            error = f"Le montant maximum autorisé est de {display_price(maximum)}."
+        elif amount < mininimum:
+            error = (
+                f"Le montant ne peut pas être inférieur à {display_price(mininimum)}."
+            )
+
+        if error:
+            raise serializers.ValidationError(detail={"global": error})
 
         return attrs
 
@@ -186,6 +209,7 @@ class DonationSerializer(serializers.ModelSerializer):
         elif payment_type == DonsConfig.SINGLE_TIME_DONATION_TYPE:
             attrs = self.validate_lfi_donations(attrs)
 
+        attrs = self.validate_amount_range(attrs)
         attrs = self.validate_allocation_amount(attrs)
 
         return attrs
