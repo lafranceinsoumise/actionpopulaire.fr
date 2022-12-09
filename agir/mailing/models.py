@@ -71,10 +71,17 @@ class Segment(BaseSegment, models.Model):
         choices=GA_STATUS_CHOICES,
         blank=True,
     )
+    supportgroups = models.ManyToManyField(
+        "groups.SupportGroup",
+        verbose_name="Limiter aux membres d'un de ces groupes",
+        blank=True,
+    )
     supportgroup_subtypes = models.ManyToManyField(
         "groups.SupportGroupSubtype",
         verbose_name="Limiter aux membres de groupes d'un de ces sous-types",
         blank=True,
+        help_text="Ce filtre ne sera pas appliqué lorsque le filtre "
+        "'Limiter aux membres d'un de ces groupes' est actif",
     )
     events = models.ManyToManyField(
         "events.Event",
@@ -280,6 +287,40 @@ class Segment(BaseSegment, models.Model):
         blank=True,
     )
 
+    def apply_supportgroup_filters(self, query):
+        filters = {}
+
+        supportgroup_pks = self.supportgroups.values_list("pk", flat=True)
+        subtype_pks = self.supportgroup_subtypes.values_list("pk", flat=True)
+
+        if len(supportgroup_pks) > 0:
+            filters["memberships__supportgroup__pk__in"] = supportgroup_pks
+        elif len(subtype_pks) > 0:
+            filters["memberships__supportgroup__subtypes__pk__in"] = subtype_pks
+
+        if self.supportgroup_status:
+            filters["memberships__supportgroup__published"] = True
+
+        if self.supportgroup_status == self.GA_STATUS_NOT_MEMBER:
+            return query & ~Q(**filters)
+        if self.supportgroup_status == self.GA_STATUS_MEMBER:
+            return query & Q(**filters)
+        if self.supportgroup_status == self.GA_STATUS_REFERENT:
+            return query & Q(
+                **filters,
+                memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
+            )
+        if self.supportgroup_status == self.GA_STATUS_MANAGER:
+            return query & Q(
+                **filters,
+                memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+            )
+
+        if filters:
+            return query & Q(**filters)
+
+        return query
+
     def get_subscribers_q(self):
         # ne pas inclure les rôles inactifs dans les envois de mail
         q = ~Q(role__is_active=False)
@@ -297,30 +338,7 @@ class Segment(BaseSegment, models.Model):
         if self.tags.all().count() > 0:
             q = q & Q(tags__in=self.tags.all())
 
-        if self.supportgroup_status:
-            if self.supportgroup_status == self.GA_STATUS_NOT_MEMBER:
-                supportgroup_q = ~Q(memberships__supportgroup__published=True)
-            elif self.supportgroup_status == self.GA_STATUS_MEMBER:
-                supportgroup_q = Q(memberships__supportgroup__published=True)
-
-            elif self.supportgroup_status == self.GA_STATUS_REFERENT:
-                supportgroup_q = Q(
-                    memberships__supportgroup__published=True,
-                    memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
-                )
-            else:
-                # ==> self.supportgroup_status == self.GA_STATUS_MANAGER
-                supportgroup_q = Q(
-                    memberships__supportgroup__published=True,
-                    memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
-                )
-
-            if self.supportgroup_subtypes.all().count() > 0:
-                supportgroup_q = supportgroup_q & Q(
-                    memberships__supportgroup__subtypes__in=self.supportgroup_subtypes.all()
-                )
-
-            q = q & supportgroup_q
+        q = self.apply_supportgroup_filters(q)
 
         events_filter = {}
 
