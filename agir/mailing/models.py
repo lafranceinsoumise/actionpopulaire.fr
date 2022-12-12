@@ -288,38 +288,60 @@ class Segment(BaseSegment, models.Model):
     )
 
     def apply_supportgroup_filters(self, query):
-        filters = {}
+        supportgroup_ids = self.supportgroups.values_list("id", flat=True)
+        subtype_ids = self.supportgroup_subtypes.values_list("id", flat=True)
 
-        supportgroup_pks = self.supportgroups.values_list("pk", flat=True)
-        subtype_pks = self.supportgroup_subtypes.values_list("pk", flat=True)
+        if (
+            not self.supportgroup_status
+            and len(subtype_ids) == 0
+            and len(supportgroup_ids) == 0
+        ):
+            return query
 
-        if len(supportgroup_pks) > 0:
-            filters["memberships__supportgroup__pk__in"] = supportgroup_pks
-        elif len(subtype_pks) > 0:
-            filters["memberships__supportgroup__subtypes__pk__in"] = subtype_pks
+        # Simplify queries for supportgroup_status only filtering
+        if len(subtype_ids) == 0 and len(supportgroup_ids) == 0:
+            if self.supportgroup_status == self.GA_STATUS_NOT_MEMBER:
+                return query & ~Q(memberships__supportgroup__published=True)
+            if self.supportgroup_status == self.GA_STATUS_MEMBER:
+                return query & Q(memberships__supportgroup__published=True)
+            if self.supportgroup_status == self.GA_STATUS_REFERENT:
+                return query & Q(
+                    memberships__supportgroup__published=True,
+                    memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
+                )
+            if self.supportgroup_status == self.GA_STATUS_MANAGER:
+                return query & Q(
+                    memberships__supportgroup__published=True,
+                    memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+                )
 
-        if self.supportgroup_status:
-            filters["memberships__supportgroup__published"] = True
+        # Use membership subquery for multi-field supportgroup filtering
+        memberships = Membership.objects.filter(supportgroup__published=True)
 
-        if self.supportgroup_status == self.GA_STATUS_NOT_MEMBER:
-            return query & ~Q(**filters)
-        if self.supportgroup_status == self.GA_STATUS_MEMBER:
-            return query & Q(**filters)
+        if len(supportgroup_ids) > 0:
+            memberships = memberships.filter(supportgroup_id__in=supportgroup_ids)
+        elif len(subtype_ids) > 0:
+            memberships = memberships.filter(supportgroup__subtypes__id__in=subtype_ids)
+
         if self.supportgroup_status == self.GA_STATUS_REFERENT:
-            return query & Q(
-                **filters,
-                memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
+            memberships = memberships.filter(
+                membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
             )
         if self.supportgroup_status == self.GA_STATUS_MANAGER:
-            return query & Q(
-                **filters,
-                memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+            memberships = memberships.filter(
+                membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
             )
 
-        if filters:
-            return query & Q(**filters)
+        member_ids = (
+            memberships.distinct("person_id")
+            .order_by("person_id")
+            .values_list("person_id", flat=True)
+        )
 
-        return query
+        if self.supportgroup_status == self.GA_STATUS_NOT_MEMBER:
+            return query & ~Q(id__in=member_ids)
+
+        return query & Q(id__in=member_ids)
 
     def get_subscribers_q(self):
         # ne pas inclure les rôles inactifs dans les envois de mail
