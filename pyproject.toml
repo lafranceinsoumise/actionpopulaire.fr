@@ -10,7 +10,7 @@ python = "^3.9"
 # Django et extensions
 django = ">=3.0,<4.0"
 ## config helpers
-dj-database-url = "==1.0.*"  # for easing up database settings
+dj-database-url = "==1.1.*"  # for easing up database settings
 dj-email-url = "==1.0.*"  # for easing up SMTP settings
 django-cors-headers = "==3.*"  # configuring CORS Headers
 ## model and form fields

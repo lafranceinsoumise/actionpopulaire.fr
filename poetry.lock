@@ -469,14 +469,14 @@ dev = ["PyTest", "PyTest (<5)", "PyTest-Cov", "PyTest-Cov (<2.6)", "bump2version
 
 [[package]]
 name = "dj-database-url"
-version = "1.0.0"
+version = "1.1.0"
 description = "Use Database URLs in your Django Application."
 category = "main"
 optional = false
 python-versions = "*"
 
 [package.dependencies]
-Django = ">3.2"
+Django = ">=3.2"
 
 [[package]]
 name = "dj-email-url"
@@ -2329,7 +2329,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "ae3c8152063967dc550c2d2d6b0af1a5bf0befd5001dce38f169f4e75a06bafc"
+content-hash = "1d453b881f9ed037960b8e464a8b0bf7df154090c2897331fb88a2ed69d8679b"
 
 [metadata.files]
 amqp = [
@@ -2712,8 +2712,8 @@ deprecated = [
     {file = "Deprecated-1.2.13.tar.gz", hash = "sha256:43ac5335da90c31c24ba028af536a91d41d53f9e6901ddb021bcc572ce44e38d"},
 ]
 dj-database-url = [
-    {file = "dj-database-url-1.0.0.tar.gz", hash = "sha256:ccf3e8718f75ddd147a1e212fca88eecdaa721759ee48e38b485481c77bca3dc"},
-    {file = "dj_database_url-1.0.0-py3-none-any.whl", hash = "sha256:cd354a3b7a9136d78d64c17b2aec369e2ae5616fbca6bfbe435ef15bb372ce39"},
+    {file = "dj-database-url-1.1.0.tar.gz", hash = "sha256:8be4253439d75412aaad4f82af7aecda956893c87fb8d10edc0adb2d34312527"},
+    {file = "dj_database_url-1.1.0-py3-none-any.whl", hash = "sha256:5f2f6b3f65786bac5d3b9e749bff1dcac83398d95778576909697f7b16aee6b9"},
 ]
 dj-email-url = [
     {file = "dj-email-url-1.0.6.tar.gz", hash = "sha256:55ffe3329e48f54f8a75aa36ece08f365e09d61f8a209773ef09a1d4760e699a"},
