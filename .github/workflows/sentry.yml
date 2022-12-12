@@ -16,7 +16,9 @@ jobs:
           SENTRY_URL: ${{ secrets.SENTRY_URL }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_LOG_LEVEL: debug
         with:
           ignore_missing: true
+          finalize: false
           environment: $(echo ${GITHUB_REF#refs/heads/})
           projects: ${{ secrets.SENTRY_PROJECT_BACK }} ${{ secrets.SENTRY_PROJECT_FRONT }}
