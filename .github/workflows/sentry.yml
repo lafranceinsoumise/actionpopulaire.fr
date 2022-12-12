@@ -22,5 +22,5 @@ jobs:
         with:
           ignore_missing: true
           finalize: false
-          environment: $(echo ${GITHUB_REF#refs/heads/})
+          environment: ${{ github.ref_name }}
           projects: ${{ secrets.SENTRY_PROJECT_BACK }} ${{ secrets.SENTRY_PROJECT_FRONT }}
