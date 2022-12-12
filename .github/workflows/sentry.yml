@@ -17,5 +17,6 @@ jobs:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
         with:
+          ignore_missing: true
           environment: $(echo ${GITHUB_REF#refs/heads/})
           projects: ${{ secrets.SENTRY_PROJECT_BACK }} ${{ secrets.SENTRY_PROJECT_FRONT }}
