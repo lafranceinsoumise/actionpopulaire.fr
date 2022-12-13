@@ -3,7 +3,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Submit, Div
 from django import forms
 
-from agir.events.models import EventSubtype, Event
+from agir.events.models import EventSubtype, Event, EventTag
 from agir.lib.filters import FixedModelMultipleChoiceFilter
 
 
@@ -42,6 +42,16 @@ class EventFilter(django_filters.rest_framework.FilterSet):
         widget=forms.CheckboxInput(),
     )
 
+    tag = FixedModelMultipleChoiceFilter(
+        field_name="tags",
+        to_field_name="label",
+        queryset=EventTag.objects.all(),
+    )
+
+    date = django_filters.DateFilter(
+        label="Date", method="filter_by_date", widget=forms.DateInput
+    )
+
     def __init__(self, data=None, *args, **kwargs):
         if data is not None:
             data = data.copy()
@@ -55,6 +65,12 @@ class EventFilter(django_filters.rest_framework.FilterSet):
     def filter_include_past(self, qs, name, value):
         if not value:
             return qs.upcoming(published_only=False)
+        else:
+            return qs
+
+    def filter_by_date(self, qs, name, value):
+        if value:
+            return qs.filter(start_time__date__lte=value, end_time__date__gte=value)
         else:
             return qs
 
