@@ -153,6 +153,8 @@ class SupportGroupDetailMixin(GlobalOrObjectPermissionRequiredMixin):
         self.object = self.get_object()
 
         if not self.can_join():
+            # TODO: je ne comprends pas ce que fait cette ligne ou à quoi ça sert??
+            # La vue en reverse ne me paraît pas exister
             return HttpResponseRedirect(f'{reverse("join")}')
 
         if request.POST["action"] == "join":

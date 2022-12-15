@@ -633,6 +633,8 @@ class QuitGroupAPIView(DestroyAPIView):
             person=request.user.person,
         )
 
+        # TODO: rajouter plutôt le check de la permission groups.delete_membership
+        # vérifier que ça n'introduit pas de changement de comportement
         if (
             membership.membership_type >= Membership.MEMBERSHIP_TYPE_REFERENT
             and not Membership.objects.filter(
@@ -773,6 +775,9 @@ class GroupMemberUpdateAPIView(UpdateAPIView):
     serializer_class = MembershipSerializer
 
     def check_request_data_permissions(self, request, obj):
+        # TODO: implémenter la logique de cette fonction directement dans la définition de la permission
+
+        # TODO: ne plus accéder directement au champ `membershipType` mais passer par le serializer
         # Group manager can only change membership type for members / followers
         membershipType = request.data.get("membershipType", 0)
         user_should_be_at_least_referent = (
@@ -786,6 +791,7 @@ class GroupMemberUpdateAPIView(UpdateAPIView):
             ).membership_type
             < Membership.MEMBERSHIP_TYPE_REFERENT
         ):
+            # TODO: je comprends pas ce que font les gettattr ?
             self.permission_denied(
                 request,
                 message=getattr("groups.change_membership_type", "message", None),
