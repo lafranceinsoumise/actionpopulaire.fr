@@ -233,7 +233,7 @@ class AbstractListMapView(MapViewMixin, TemplateView):
         if self.request.GET.get("date"):
             params["date"] = self.request.GET.get("date")
 
-        if self.request.GET.get("tags"):
+        if self.request.GET.get("tag"):
             params["tag"] = self.request.GET.get("tag")
 
         subtype_info = [
