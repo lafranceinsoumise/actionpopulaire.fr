@@ -32,7 +32,7 @@ class PersonFormDisplay:
         "italic": "<em>{}</em>",
         "normal": "{}",
     }
-    admin_fields_label = ["ID", "Personne", "Date de la réponse"]
+    admin_fields_label = ["ID", "Actions", "Personne", "Date de la réponse"]
 
     def get_admin_fields_label(self, form):
         return self.admin_fields_label
@@ -155,16 +155,21 @@ class PersonFormDisplay:
                 s.person._email = s.email
 
         if html:
-            id_field_template = (
+            id_field_template = "{id}"
+            action_field_template = (
                 '<a href="{details}" title="Voir le détail">&#128269;</a>&ensp;'
                 '<a href="{edit}" title="Modifier">&#x1F58A;&#xFE0F;️</a>&ensp;'
-                '<a href="{delete}" title="Supprimer cette submission">&#x274c;</a>&ensp;{id}'
+                '<a href="{delete}" title="Supprimer cette submission">&#x274c;</a>'
             )
             person_field_template = '<a href="{link}">{person}</a>'
 
             id_fields = [
+                format_html(id_field_template, id=submission.pk)
+                for submission in submissions
+            ]
+            action_fields = [
                 format_html(
-                    id_field_template,
+                    action_field_template,
                     details=reverse(
                         "admin:people_personformsubmission_detail",
                         args=(submission.pk,),
@@ -177,7 +182,6 @@ class PersonFormDisplay:
                         "admin:people_personformsubmission_delete",
                         args=(submission.pk,),
                     ),
-                    id=submission.pk,
                 )
                 for submission in submissions
             ]
@@ -194,11 +198,13 @@ class PersonFormDisplay:
                 else "Anonyme"
                 for submission in submissions
             ]
+            return [
+                list(a) for a in zip(id_fields, action_fields, person_fields, dates)
+            ]
         else:
             id_fields = [s.pk for s in submissions]
             person_fields = [s.person if s.person else "Anonyme" for s in submissions]
-
-        return [list(a) for a in zip(id_fields, person_fields, dates)]
+            return [list(a) for a in zip(id_fields, person_fields, dates)]
 
     def get_form_field_labels(self, form, fieldsets_titles=False):
         """Renvoie un dictionnaire associant id de champs et libellés à présenter

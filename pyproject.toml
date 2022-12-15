@@ -10,13 +10,13 @@ python = "^3.9"
 # Django et extensions
 django = ">=3.0,<4.0"
 ## config helpers
-dj-database-url = "==1.0.*"  # for easing up database settings
+dj-database-url = "==1.2.*"  # for easing up database settings
 dj-email-url = "==1.0.*"  # for easing up SMTP settings
 django-cors-headers = "==3.*"  # configuring CORS Headers
 ## model and form fields
 django-countries = "==7.*"  # country fields
 django-phonenumber-field = "==7.*"  # phone number field
-phonenumbers = "==8.13.1"  # optional requirement of django-phonenumber-field
+phonenumbers = "==8.13.2"  # optional requirement of django-phonenumber-field
 django-stdimage = "==6.*"  # better image field with handling of variations
 django-dynamic-filenames = "==1.*"  # better handling of upload path for file fields
 unicode-slugify = "==0.1.*"  # optional requirement of django-dynamic-filenames
@@ -90,7 +90,7 @@ Django = "^3.2"
 
 [tool.poetry.dev-dependencies]
 ipython = "*"
-black = "==22.10.0"
+black = "==22.12.0"
 coverage = "*"
 django-debug-toolbar = "*"
 redislite = "*"  # used for testing
@@ -99,7 +99,7 @@ pympler = "*"
 locust = "*"
 pyquery = "*"
 jedi = "==0.18.*"  # version 0.18.* fait crasher IPython (08/01/2021)
-hypothesis = {extras = ["django"], version = "^6.60.0"}
+hypothesis = {extras = ["django"], version = "^6.61.0"}
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

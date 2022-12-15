@@ -11,7 +11,7 @@ const history = createBrowserHistory();
 
 if (process.env.NODE_ENV === "production") {
   init({
-    dsn: "https://208ef75bce0a46f6b20b69c2952957d7@erreurs.lafranceinsoumise.fr/4",
+    dsn: "https://f922ec88796e450191953c4c4f0389b7@o4504333216841728.ingest.sentry.io/4504333336510464",
     environment: process.env.SENTRY_ENV,
     autoSessionTracking: true,
     release: process.env.SENTRY_RELEASE,
