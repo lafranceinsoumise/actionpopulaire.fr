@@ -1,13 +1,18 @@
 {% extends "admin/base_site.html" %}
 {% load i18n admin_urls static admin_modify %}
 
-{% block extrahead %}{{ block.super }}
+{% block extrahead %}
+  {{ block.super }}
   <script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
   {{ media }}
 {% endblock %}
 
-{% block extrastyle %}{{ block.super }}
-  <link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}"/>{% endblock %}
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.20/css/dataTables.bootstrap.min.css" rel="stylesheet">
+{% endblock %}
 
 {% block coltype %}colM{% endblock %}
 
@@ -29,24 +34,43 @@
 {% endif %}
 
 {% block content %}
-
-  <table>
+  <table class="table table-condensed table-responsive"  id="form-result-table">
+    <thead>
     <tr>
       {% for header in headers %}
         <th>{{ header }}</th>
       {% endfor %}
     </tr>
-    {% for submission in submissions %}
-      <tr>
-        {% for value in submission %}
-          {% if forloop.counter == 1 %}
-            <th>{{ value }}</th>
-          {% else %}
-            <td>{{ value }}</td>
-          {% endif %}
-        {% endfor %}
-      </tr>
-    {% endfor %}
+    </thead>
+    <tbody>
+      {% for submission in submissions %}
+        <tr>
+          {% for value in submission %}
+            {% if forloop.counter == 1 %}
+              <td>{{ value }}</td>
+            {% else %}
+              <td>{{ value }}</td>
+            {% endif %}
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </tbody>
   </table>
+{% endblock %}
 
+{% block footer %}
+  {{ block.super }}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.20/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.20/js/dataTables.bootstrap.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#form-result-table').DataTable({
+        locale: 'fr',
+        pageLength: 50,
+        language: { url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/fr-FR.json" },
+        order: [[3, 'desc']]
+      });
+    });
+  </script>
 {% endblock %}
