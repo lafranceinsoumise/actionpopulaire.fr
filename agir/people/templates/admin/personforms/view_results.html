@@ -10,8 +10,8 @@
 {% block extrastyle %}
   {{ block.super }}
   <link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}"/>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.20/css/dataTables.bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css"/>
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs-3.3.7/jq-3.6.0/dt-1.13.1/b-2.3.3/datatables.min.css"/>
 {% endblock %}
 
 {% block coltype %}colM{% endblock %}
@@ -34,7 +34,7 @@
 {% endif %}
 
 {% block content %}
-  <div class="navbar">
+  <div class="navbar" id="nav">
     <p class="navbar-text navbar-right">
         <a class="btn btn-default" href="{% url 'admin:people_personform_download_results' form.pk|admin_urlquote %}">
           <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>&nbsp;
@@ -68,12 +68,11 @@
 
 {% block footer %}
   {{ block.super }}
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.20/js/jquery.dataTables.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.20/js/dataTables.bootstrap.min.js"></script>
+  <script type="text/javascript" src="https://cdn.datatables.net/v/bs-3.3.7/jq-3.6.0/dt-1.13.1/b-2.3.3/datatables.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
   <script>
     $(document).ready(function() {
-      $('#form-result-table').DataTable({
+      const table = $('#form-result-table').DataTable({
         locale: 'fr',
         pageLength: 50,
         language: { url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/fr-FR.json" },
@@ -83,7 +82,7 @@
           { "targets": 1, "type": "num" },
           { "targets": 2, "type": "html" },
           { "targets": 3, "type": "date", render: (data) => { return new Date(data).toLocaleString() } },
-          { "targets": "_all", "type": "html-num-fmt" }
+          { "targets": "_all" }
         ],
       });
     });
