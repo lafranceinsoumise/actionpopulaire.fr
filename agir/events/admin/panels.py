@@ -158,15 +158,16 @@ class EventRsvpPersonFormDisplay(PersonFormDisplay):
         except PersonFormSubmission.rsvp.RelatedObjectDoesNotExist:
             return submission.rsvp_guest
 
-    def get_admin_fields_label(self, form):
-        additional_fields = []
+    def get_admin_fields_label(self, form, *args, **kwargs):
+        fields = super().get_admin_fields_label(form, *args, **kwargs)
+
         if not form.event.is_free:
-            additional_fields.append("Paiement")
+            fields.append("Paiement")
 
         if form.event.allow_guests:
-            additional_fields.append("Invité⋅e par")
+            fields.append("Invité⋅e par")
 
-        return super().get_admin_fields_label(form) + additional_fields
+        return fields
 
     def _get_admin_fields(self, submissions, html=True):
         results = super()._get_admin_fields(submissions, html)
