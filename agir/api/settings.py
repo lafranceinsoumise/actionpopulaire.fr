@@ -774,10 +774,11 @@ PROMETHEUS_USER = os.environ.get("PROMETHEUS_USER", "prometheus")
 PROMETHEUS_PASSWORD = os.environ.get("PROMETHEUS_PASSWORD", "password")
 
 # Systempay
-SYSTEMPAY_SITE_ID = os.environ.get("SYSTEMPAY_SITE_ID", 0)
+SYSTEMPAY_SITE_ID = os.environ.get("SYSTEMPAY_SITE_ID", "0")
 SYSTEMPAY_PRODUCTION = os.environ.get("SYSTEMPAY_PRODUCTION", "false").lower() == "true"
 SYSTEMPAY_CURRENCY = os.environ.get("SYSTEMPAY_CURRENCY", 978)
 SYSTEMPAY_CERTIFICATE = os.environ.get("SYSTEMPAY_CERTIFICATE", "arbitrarystring")
+SYSTEMPAY_API_PASSWORD = os.environ.get("SYSTEMPAY_API_PASSWORD", "arbitrarystring")
 
 # Systempay 2022
 SYSTEMPAY_AFCP2022_SITE_ID = os.environ.get("SYSTEMPAY_AFCP2022_SITE_ID", 0)

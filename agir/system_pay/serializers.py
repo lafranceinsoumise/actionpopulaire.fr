@@ -112,7 +112,7 @@ class SystemPayWebhookSerializer(serializers.Serializer):
         self.cleaned_data = clean_system_pay_data(initial_data)
 
         if "signature" not in initial_data or not check_signature(
-            initial_data, self.sp_config["certificate"]
+            initial_data, self.sp_config.certificate
         ):
             raise serializers.ValidationError(
                 detail={"signature": "Signature manquante ou incorrecte"},

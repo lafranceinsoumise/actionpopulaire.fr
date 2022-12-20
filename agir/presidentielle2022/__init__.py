@@ -1,19 +1,19 @@
 from django.conf import settings
 
 from agir.checks import AbstractCheckPaymentMode
-from agir.system_pay import AbstractSystemPayPaymentMode
+from agir.system_pay import AbstractSystemPayPaymentMode, SystemPayConfig
 
 
 class AFCP2022SystemPayPaymentMode(AbstractSystemPayPaymentMode):
     id = "system_pay_afcp2022"
     url_fragment = "carte-afcp2022"
     title = "Paiement par carte bleue à l'AFCP Mélenchon 2022"
-    sp_config = {
-        "site_id": settings.SYSTEMPAY_AFCP2022_SITE_ID,
-        "production": settings.SYSTEMPAY_AFCP2022_PRODUCTION,
-        "currency": settings.SYSTEMPAY_CURRENCY,
-        "certificate": settings.SYSTEMPAY_AFCP2022_CERTIFICATE,
-    }
+    sp_config = SystemPayConfig(
+        site_id=settings.SYSTEMPAY_AFCP2022_SITE_ID,
+        production=settings.SYSTEMPAY_AFCP2022_PRODUCTION,
+        currency=settings.SYSTEMPAY_CURRENCY,
+        certificate=settings.SYSTEMPAY_AFCP2022_CERTIFICATE,
+    )
     email_template_code = "DONATION_MESSAGE_2022"
     email_from = settings.EMAIL_FROM_MELENCHON_2022
 

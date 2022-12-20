@@ -4,6 +4,7 @@ from phonenumbers import phonenumberutil, PhoneNumberType
 
 from agir.lib.utils import front_url_lazy, front_url
 from agir.system_pay.utils import get_trans_id_from_order_id, get_recurrence_rule
+from . import SystemPayConfig
 from .crypto import get_signature
 
 
@@ -98,7 +99,7 @@ class SystempayNewSubscriptionForm(SystempayBaseForm):
     vads_sub_desc = fields.CharField(widget=forms.HiddenInput())
 
     @classmethod
-    def get_form_for_transaction(cls, transaction, sp_config):
+    def get_form_for_transaction(cls, transaction, sp_config: SystemPayConfig):
         person = transaction.subscription.person
 
         success_url = front_url(
@@ -121,9 +122,9 @@ class SystempayNewSubscriptionForm(SystempayBaseForm):
 
         form = cls(
             initial={
-                "vads_site_id": sp_config["site_id"],
-                "vads_ctx_mode": "PRODUCTION" if sp_config["production"] else "TEST",
-                "vads_sub_currency": sp_config["currency"],
+                "vads_site_id": sp_config.site_id,
+                "vads_ctx_mode": "PRODUCTION" if sp_config.production else "TEST",
+                "vads_sub_currency": sp_config.currency,
                 "vads_order_id": transaction.pk,
                 "vads_trans_id": get_trans_id_from_order_id(transaction.pk),
                 "vads_trans_date": transaction.created.strftime("%Y%m%d%H%M%S"),
@@ -152,7 +153,7 @@ class SystempayNewSubscriptionForm(SystempayBaseForm):
             }
         )
 
-        form.update_signature(sp_config["certificate"])
+        form.update_signature(sp_config.certificate)
 
         return form
 
@@ -182,9 +183,9 @@ class SystempayPaymentForm(SystempayBaseForm):
 
         form = cls(
             initial={
-                "vads_site_id": sp_config["site_id"],
-                "vads_ctx_mode": "PRODUCTION" if sp_config["production"] else "TEST",
-                "vads_currency": sp_config["currency"],
+                "vads_site_id": sp_config.site_id,
+                "vads_ctx_mode": "PRODUCTION" if sp_config.production else "TEST",
+                "vads_currency": sp_config.currency,
                 "vads_order_id": transaction.pk,
                 "vads_trans_id": get_trans_id_from_order_id(transaction.pk),
                 "vads_trans_date": transaction.created.strftime("%Y%m%d%H%M%S"),
@@ -228,6 +229,6 @@ class SystempayPaymentForm(SystempayBaseForm):
         for key in transaction.payment.meta:
             form.add_field("vads_ext_info_meta_" + key, transaction.payment.meta[key])
 
-        form.update_signature(sp_config["certificate"])
+        form.update_signature(sp_config.certificate)
 
         return form
