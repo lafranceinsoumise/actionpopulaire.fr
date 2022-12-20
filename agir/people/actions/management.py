@@ -262,6 +262,7 @@ MERGE_STRATEGIES = {
     "voting_proxy": None,
     "polling_station_officer": None,
     "crp": merge_comments,
+    "person_qualification": merge_reassign_related,
 }
 
 
