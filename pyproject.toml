@@ -62,7 +62,6 @@ django-anymail =  "==8.*"
 boto3 = "*"
 num2words = "*"
 sepaxml = "==2.*"
-zeep = "*"
 social-auth-app-django = "==4.*"
 # data wrangling
 glom = "*"
@@ -87,6 +86,7 @@ xlsxwriter = "*"
 trio = "^0.22.0"
 asks = "^3.0.0"
 Django = "^3.2"
+pydantic = "^1.10.2"
 
 [tool.poetry.dev-dependencies]
 ipython = "*"

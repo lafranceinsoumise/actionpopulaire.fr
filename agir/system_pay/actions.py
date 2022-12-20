@@ -49,7 +49,7 @@ def replace_sp_subscription_for_subscription(subscription, sp_subscription):
         # Ne pas annuler l'alias si on le réutilise pour la nouvelle souscription
         alias = old_sp_subscription.alias
         if alias != sp_subscription.alias:
-            PAYMENT_MODES[subscription.mode].soap_client.cancel_alias(alias)
+            PAYMENT_MODES[subscription.mode].api_client.cancel_alias(alias)
             alias.active = False
             alias.save(update_fields=["active"])
         old_sp_subscription.active = False
