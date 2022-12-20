@@ -10,8 +10,20 @@
 {% block extrastyle %}
   {{ block.super }}
   <link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}"/>
-  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css"/>
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs-3.3.7/jq-3.6.0/dt-1.13.1/b-2.3.3/datatables.min.css"/>
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css"
+    integrity="sha512-Dop/vW3iOtayerlYAqCgkVr2aTr2ErwwTYOvRFUpzl2VhCMJyjQF0Q9TjUXIo6JhuM/3i0vVEt2e/7QQmnHQqw=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/css/dataTables.bootstrap.min.css"
+    integrity="sha512-BMbq2It2D3J17/C7aRklzOODG1IQ3+MHw3ifzBHMBwGO/0yUqYmsStgBjI0z5EYlaDEFnvYV7gNYdD3vFLRKsA=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
 {% endblock %}
 
 {% block coltype %}colM{% endblock %}
@@ -68,8 +80,29 @@
 
 {% block footer %}
   {{ block.super }}
-  <script type="text/javascript" src="https://cdn.datatables.net/v/bs-3.3.7/jq-3.6.0/dt-1.13.1/b-2.3.3/datatables.min.js"></script>
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.2/jquery.min.js"
+    integrity="sha512-tWHlutFnuG0C6nQRlpvrEhE4QpkG1nn2MOUMWmUeRePl4e3Aki0VB6W1v3oLjFtd0hVOtRQ9PHpSfN6u6/QXkQ=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer">
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.js"
+    integrity="sha512-NP/69p3iBF6LkK2vcsbD1zuZu1gYMu594b5400dTo7qX06obhSfsF0fSXidZTk4KSpEE4eft6BGrdIqht2aELA=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer">
+  </script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/jquery.dataTables.min.js"
+    integrity="sha512-BkpSL20WETFylMrcirBahHfSnY++H2O1W+UnEEO4yNIl+jI2+zowyoGJpbtk6bx97fBXf++WJHSSK2MV4ghPcg=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer">
+  </script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/dataTables.bootstrap.min.js"
+    integrity="sha512-F0E+jKGaUC90odiinxkfeS3zm9uUT1/lpusNtgXboaMdA3QFMUez0pBmAeXGXtGxoGZg3bLmrkSkbK1quua4/Q=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer">
+  </script>
   <script>
     $(document).ready(function() {
       const table = $('#form-result-table').DataTable({
@@ -81,8 +114,7 @@
           { "targets": 0, "type": "html", "searchable": false, "orderable": false },
           { "targets": 1, "type": "num" },
           { "targets": 2, "type": "html" },
-          { "targets": 3, "type": "date", render: (data) => { return new Date(data).toLocaleString() } },
-          { "targets": "_all" }
+          { "targets": 3, "type": "date", render: (data, type) => type === "display" ? new Date(data).toLocaleString() : data }
         ],
       });
     });
