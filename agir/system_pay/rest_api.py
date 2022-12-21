@@ -136,6 +136,9 @@ class SystemPayRestAPI:
             )
 
     def cancel_subscription(self, subscription, termination_date=None):
+        if termination_date is None:
+            termination_date = timezone.now()
+
         system_pay_subscription = subscription.system_pay_subscriptions.get(active=True)
         alias = system_pay_subscription.alias
 
