@@ -1,5 +1,7 @@
 from typing import Mapping
 
+from agir.payments.actions.subscriptions import count_installments
+
 SENSITIVE_FIELDS = {
     "vads_bank_code",
     "vads_bank_label",
@@ -31,5 +33,11 @@ def clean_system_pay_data(data: Mapping[str, str]):
     return {k: v for k, v in data.items() if k not in SENSITIVE_FIELDS}
 
 
-def get_recurrence_rule(subscription):
-    return "RRULE:FREQ=MONTHLY;BYMONTHDAY=" + str(subscription.day_of_month)
+def get_recurrence_rule(subscription, end_date=None):
+    rule = f"RRULE:FREQ=MONTHLY;BYMONTHDAY={subscription.day_of_month}"
+
+    if end_date or subscription.end_date:
+        installments = count_installments(subscription, end_date)
+        rule = f"{rule};COUNT={installments}"
+
+    return rule
