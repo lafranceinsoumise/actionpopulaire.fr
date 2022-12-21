@@ -18,7 +18,7 @@ class SystemPayConfig:
     site_id: str
     production: bool
     certificate: str
-    currency: str = "EUR"
+    currency: int = 978
     api_password: Optional[str] = None
     api_hmac_key: Optional[str] = None
 

@@ -18,6 +18,9 @@ from agir.system_pay.utils import get_recurrence_rule
 logger = logging.getLogger(__name__)
 
 
+CURRENCIES = {978: "EUR"}
+
+
 class SystemPayAPIError(SystemPayError):
     """Signale une défaillance de l'API REST SystemPay"""
 
@@ -147,7 +150,7 @@ class SystemPayRestAPI:
             data={
                 "paymentMethodToken": alias.identifier.hex,
                 "subscriptionId": system_pay_subscription.identifier,
-                "terminationDate": termination_date.isoformat(),
+                "terminationDate": termination_date.isoformat("T", "seconds"),
             },
         )
         if not answer["responseCode"] == 0:
@@ -197,11 +200,11 @@ class SystemPayRestAPI:
             data={
                 "paymentMethodToken": alias.identifier.hex,
                 "amount": subscription.price,
-                "currency": self.sp_config.currency,
-                "effectDate": timezone.now().isoformat(),
+                "currency": CURRENCIES[self.sp_config.currency],
+                "effectDate": timezone.now().isoformat("T", "seconds"),
                 "rrule": get_recurrence_rule(subscription),
                 # "installmentNumber": count_installments(subscription),  # ça fait pas doublon avec la rrule ?
             },
         )
 
-        return answer["subcriptionId"]
+        return answer["subscriptionId"]
