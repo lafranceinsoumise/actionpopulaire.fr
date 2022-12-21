@@ -127,7 +127,7 @@ class SystemPayRestAPI:
 
     def cancel_alias(self, alias):
         answer = self._make_request(
-            "Token/Cancel", data={"paymentMethodToken": alias.identifier}
+            "Token/Cancel", data={"paymentMethodToken": alias.identifier.hex}
         )
         if not answer["responseCode"] == 0:
             raise SystemPayError(
@@ -142,7 +142,7 @@ class SystemPayRestAPI:
         answer = self._make_request(
             "Subscription/Cancel",
             data={
-                "paymentMethodToken": alias.identifier,
+                "paymentMethodToken": alias.identifier.hex,
                 "subscriptionId": system_pay_subscription.identifier,
                 "terminationDate": termination_date.isoformat(),
             },
@@ -162,7 +162,7 @@ class SystemPayRestAPI:
         answer = self._make_request(
             "Subscription/Get",
             data={
-                "paymentMethodToken": alias.identifier,
+                "paymentMethodToken": alias.identifier.hex,
                 "subscriptionId": system_pay_subscription.identifier,
             },
         )
@@ -192,7 +192,7 @@ class SystemPayRestAPI:
         answer = self._make_request(
             "Charge/CreateSubscription",
             data={
-                "paymentMethodToken": alias.identifier,
+                "paymentMethodToken": alias.identifier.hex,
                 "amount": subscription.price,
                 "currency": self.sp_config.currency,
                 "effectDate": timezone.now().isoformat(),
