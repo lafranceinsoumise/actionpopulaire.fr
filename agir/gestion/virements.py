@@ -113,7 +113,9 @@ def virements_depuis_dataframe(
 
     if iban_invalide:
         base_message = "Certains IBAN ne sont pas valides :"
-        message = "\n".join(f"{i+2}: {recipients[i].nom}" for i in iban_invalide)
+        message = "\n".join(
+            f"{i+2}: {recipients[i].nom} ({recipients[i].iban})" for i in iban_invalide
+        )
 
         raise ValueError(f"{base_message}\n{message}")
 
