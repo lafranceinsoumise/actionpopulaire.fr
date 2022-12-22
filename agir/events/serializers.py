@@ -833,8 +833,8 @@ class UpdateEventSerializer(serializers.ModelSerializer):
         if tz and end:
             validated_data.update({"end_time": replace_datetime_timezone(end, tz)})
 
-        # Assign default description images if its not filled
-        if not validated_data.get("description"):
+        # Assign default description and image if needed
+        if not instance.description and not validated_data.get("description"):
             validated_data.update({"description": instance.subtype.default_description})
         if not instance.image and not validated_data.get("image"):
             validated_data.update({"image": instance.subtype.default_image})
