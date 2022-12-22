@@ -62,7 +62,7 @@ class IBAN:
             raise AttributeError("BIC inconnu pour cette banque")
 
     def __init__(self, value):
-        self.value = value.translate(str.maketrans("", "", string.whitespace)).upper()
+        self.value = re.sub(r"\s+", "", value).upper()
 
     def _get_modulo(self):
         # 1. on déplace les 4 premiers symboles à la fin
