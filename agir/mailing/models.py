@@ -511,7 +511,7 @@ class Segment(BaseSegment, models.Model):
         for s in self.exclude_segments.all():
             qs = qs.exclude(pk__in=s.get_subscribers_queryset())
 
-        return qs.order_by("id").distinct("id")
+        return qs.order_by("id", "emails___order").distinct("id")
 
     def get_subscribers_count(self):
         return (
