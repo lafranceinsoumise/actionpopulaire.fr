@@ -135,6 +135,11 @@ def description_for_subscription(subscription):
 
 
 def replace_subscription(previous_subscription, new_subscription):
+    # attention à ne pas exécuter cette fonction dans une transaction !
+    # il vaut mieux sauver au fur et à mesure les résultats de l'appel de cette fonction,
+    # vu qu'elle peut interagir avec des systèmes externes.
+    # Dans le cas contraire, il est très difficile d'identifier quelles opérations ont
+    # effectivement été effectées.
     assert previous_subscription.mode == new_subscription.mode
     assert previous_subscription.status == Subscription.STATUS_ACTIVE
     assert new_subscription.status == Subscription.STATUS_WAITING
@@ -145,6 +150,7 @@ def replace_subscription(previous_subscription, new_subscription):
 
     previous_subscription.status = Subscription.STATUS_TERMINATED
     new_subscription.status = Subscription.STATUS_ACTIVE
+
     previous_subscription.save(update_fields=["status"])
     new_subscription.save(update_fields=["status"])
 
