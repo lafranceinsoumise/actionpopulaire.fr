@@ -1,6 +1,8 @@
 import json
 
+import requests
 from django import forms
+from django.contrib import messages
 from django.core.serializers.json import DjangoJSONEncoder
 from django.template import loader
 from django.utils.html import _json_script_escapes
@@ -23,7 +25,7 @@ class CoordinatesFormMixin(forms.Form):
         ),
     )
 
-    def save(self, commit=True):
+    def save(self, commit=True, request=None):
         # on calcule la position si
         # - c'est demandé explicitement
         # - il n'y a pas de position pour cet item
@@ -44,7 +46,15 @@ class CoordinatesFormMixin(forms.Form):
         ):
             self.instance.location_citycode = ""
             # geocode directly in process
-            geocode_element(self.instance)
+            try:
+                geocode_element(self.instance)
+            except requests.exceptions.Timeout:
+                if request:
+                    messages.warning(
+                        request,
+                        "La géolocalisation automatique n'est actuellement pas disponible. "
+                        "Veuillez indiquer les coordonnées manuellement pour que l'élément apparaisse sur la carte.",
+                    )
 
         return super().save(commit=commit)
 

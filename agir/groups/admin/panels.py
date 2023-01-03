@@ -415,6 +415,9 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                 )
         return cl
 
+    def save_form(self, request, form, change):
+        return form.save(commit=False, request=request)
+
     class Media:
         # classe Media requise par le CirconscriptionLegislativeFilter, quand bien même elle est vide
         pass
