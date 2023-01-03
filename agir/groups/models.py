@@ -123,6 +123,9 @@ class MembershipQuerySet(models.QuerySet):
             person__role__isnull=False, person__role__is_active=False
         )
 
+    def with_serializer_prefetch(self):
+        return self.prefetch_related("person", "person__emails", "subscription_set")
+
 
 class SupportGroup(
     ExportModelOperationsMixin("support_group"),
