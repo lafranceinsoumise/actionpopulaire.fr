@@ -22,6 +22,13 @@ from .html import sanitize_html
 
 RE_FRENCH_ZIPCODE = re.compile("^[0-9]{5}$")
 
+icon_image_file_path = FilePattern(
+    filename_pattern="{app_label}/{model_name}/{instance.id}/icon{ext}"
+)
+banner_image_file_path = FilePattern(
+    filename_pattern="{app_label}/{model_name}/{instance.id}/banner/{uuid:base32}{ext}"
+)
+
 
 class TimeStampedModel(models.Model):
     created = models.DateTimeField(
@@ -296,11 +303,6 @@ class AbstractLabel(models.Model):
         return self.label
 
 
-icon_path = FilePattern(
-    filename_pattern="{app_label}/{model_name}/{instance.id}/icon{ext}"
-)
-
-
 class BaseSubtype(TimeStampedModel, AbstractLabel):
     """
     Abstract class for event and group labels which should have special appearance on map
@@ -325,7 +327,7 @@ class BaseSubtype(TimeStampedModel, AbstractLabel):
 
     icon = models.ImageField(
         verbose_name=_("icon"),
-        upload_to=icon_path,
+        upload_to=icon_image_file_path,
         help_text=_("L'icône associée aux marqueurs sur la carte."),
         blank=True,
     )
@@ -394,15 +396,10 @@ class BaseSubtype(TimeStampedModel, AbstractLabel):
         abstract = True
 
 
-banner_path = FilePattern(
-    filename_pattern="{app_label}/{model_name}/{instance.id}/banner/{uuid:base32}{ext}"
-)
-
-
 class ImageMixin(models.Model):
     image = StdImageField(
         _("image"),
-        upload_to=banner_path,
+        upload_to=banner_image_file_path,
         variations=settings.BANNER_CONFIG,
         blank=True,
         help_text=_(

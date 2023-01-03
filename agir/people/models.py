@@ -15,7 +15,7 @@ from django.db.models import JSONField, Subquery, OuterRef, DateTimeField
 from django.db.models import Q
 from django.db.models.fields.json import KeyTextTransform
 from django.db.models.functions import Cast, Coalesce
-from django.utils import timezone
+from django.utils import timezone, formats
 from django.utils.functional import cached_property
 from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
@@ -40,6 +40,7 @@ from . import metrics
 from .model_fields import MandatesField, ValidatedPhoneNumberField
 from .person_forms.models import *
 from ..elus.models import StatutMandat
+from ..events.models import CustomDateTimeField
 from ..lib.display import genrer
 from ..lib.model_fields import ChoiceArrayField
 
@@ -47,6 +48,8 @@ __all__ = [
     "Person",
     "PersonEmail",
     "PersonTag",
+    "Qualification",
+    "PersonQualification",
     "PersonForm",
     "PersonFormSubmission",
     "PersonValidationSMS",
@@ -778,6 +781,116 @@ class PersonTag(AbstractLabel):
 
     class Meta:
         verbose_name = _("tag")
+
+
+class Qualification(AbstractLabel):
+    """
+    Model that represents a tag that may be used to qualify people through a PersonQualification instance
+    """
+
+    class Meta:
+        verbose_name = _("type de statut")
+        verbose_name_plural = _("types de statuts")
+
+
+class PersonQualificationQueryset(models.QuerySet):
+    def effective(self):
+        now = timezone.now()
+        return self.filter(
+            Q(start_time__isnull=True, end_time__isnull=True)
+            | Q(start_time__isnull=True, end_time__gte=now)
+            | Q(end_time__isnull=True, start_time__lte=now)
+            | Q(start_time__lte=now, end_time__gte=now)
+        )
+
+    def past(self):
+        now = timezone.now()
+        return self.filter(end_time__isnull=False, end_time__lt=now)
+
+    def future(self):
+        now = timezone.now()
+        return self.filter(start_time__isnull=False, start_time__gt=now)
+
+
+class PersonQualification(TimeStampedModel):
+    """
+    Model that represents a tag that may be used to qualify people and that may be temporary
+    if a value is specified for its start_time and/or end_time fields
+    """
+
+    objects = PersonQualificationQueryset.as_manager()
+
+    person = models.ForeignKey(
+        "people.Person",
+        verbose_name=_("personne"),
+        related_name="person_qualifications",
+        related_query_name="person_qualification",
+        on_delete=models.CASCADE,
+    )
+    qualification = models.ForeignKey(
+        "people.Qualification",
+        verbose_name=_("type de statut"),
+        related_name="person_qualifications",
+        related_query_name="person_qualification",
+        on_delete=models.CASCADE,
+    )
+    description = models.TextField(_("description"), null=False, blank=True)
+    start_time = CustomDateTimeField(_("date et heure de début"), null=True, blank=True)
+    end_time = CustomDateTimeField(_("date et heure de fin"), null=True, blank=True)
+
+    @property
+    def is_effective(self):
+        now = timezone.now()
+        if self.start_time and self.end_time:
+            return self.start_time <= now <= self.end_time
+        if self.end_time:
+            return self.end_time >= now
+        if self.start_time:
+            return self.start_time <= now
+        return True
+
+    def get_range_display(self):
+        strings = []
+        if self.start_time:
+            strings.append(
+                _("du {date}, {time}").format(
+                    date=formats.date_format(self.start_time, "DATE_FORMAT"),
+                    time=formats.date_format(self.start_time, "TIME_FORMAT"),
+                )
+            )
+        if self.end_time:
+            strings.append(
+                _("jusqu'au {date}, {time}").format(
+                    date=formats.date_format(self.end_time, "DATE_FORMAT"),
+                    time=formats.date_format(self.end_time, "TIME_FORMAT"),
+                )
+            )
+
+        return " ".join(strings)
+
+    def clean(self):
+        if self.start_time and self.end_time and self.end_time < self.start_time:
+            raise ValidationError(
+                {
+                    "start_time": _(
+                        "La date de début doit être antérieure à celle de fin"
+                    ),
+                    "end_time": _(
+                        "La date de fin doit être postérieure à celle de début"
+                    ),
+                }
+            )
+
+    def __str__(self):
+        return "{person} : {tag_label} {range}".format(
+            person=str(self.person),
+            tag_label=self.qualification.label,
+            range=self.get_range_display(),
+        )
+
+    class Meta:
+        verbose_name = _("statut d'une personne")
+        verbose_name_plural = _("statuts")
 
 
 class PersonEmailManager(models.Manager):
