@@ -143,15 +143,9 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     list_display = (
         "name",
         "supportgroup_status",
-        "supportgroup_list",
         "supportgroup_subtypes_list",
         "tags_list",
     )
-
-    def supportgroup_list(self, instance):
-        return ", ".join(str(s) for s in instance.supportgroups.all())
-
-    supportgroup_list.short_description = "Groupes"
 
     def supportgroup_subtypes_list(self, instance):
         return ", ".join(str(s) for s in instance.supportgroup_subtypes.all())
