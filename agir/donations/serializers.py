@@ -109,7 +109,7 @@ class DonationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("L'email est obligatoire.")
         return value
 
-    def validated_end_date(self, value):
+    def validate_end_date(self, value):
         if value is None:
             return value
         now = timezone.now().date()

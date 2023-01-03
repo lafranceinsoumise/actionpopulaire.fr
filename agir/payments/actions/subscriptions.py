@@ -1,5 +1,7 @@
 import logging
 
+import pandas as pd
+
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
@@ -133,6 +135,11 @@ def description_for_subscription(subscription):
 
 
 def replace_subscription(previous_subscription, new_subscription):
+    # attention à ne pas exécuter cette fonction dans une transaction !
+    # il vaut mieux sauver au fur et à mesure les résultats de l'appel de cette fonction,
+    # vu qu'elle peut interagir avec des systèmes externes.
+    # Dans le cas contraire, il est très difficile d'identifier quelles opérations ont
+    # effectivement été effectées.
     assert previous_subscription.mode == new_subscription.mode
     assert previous_subscription.status == Subscription.STATUS_ACTIVE
     assert new_subscription.status == Subscription.STATUS_WAITING
@@ -143,5 +150,19 @@ def replace_subscription(previous_subscription, new_subscription):
 
     previous_subscription.status = Subscription.STATUS_TERMINATED
     new_subscription.status = Subscription.STATUS_ACTIVE
+
     previous_subscription.save(update_fields=["status"])
     new_subscription.save(update_fields=["status"])
+
+
+def count_installments(subscription, start_date=None):
+    if start_date is None:
+        start_date = timezone.now().astimezone(timezone.get_default_timezone()).date()
+    end_date = subscription.end_date
+
+    if end_date is None:
+        return None
+
+    # compte le nombre de jours entre les deux dates limite dont le jour du mois est égal à la date de prélèvement
+    days = pd.date_range(start=start_date, end=end_date, freq="D")
+    return (days.day == subscription.day_of_month).sum()

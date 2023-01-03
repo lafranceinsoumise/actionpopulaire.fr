@@ -5,19 +5,15 @@ from unittest.mock import patch
 from django.core import mail
 from django.test import TestCase
 from django.utils import timezone
-from django.utils.http import urlencode
 from rest_framework import status
 from rest_framework.reverse import reverse
 
-from agir.authentication.tokens import subscription_confirmation_token_generator
 from agir.events.models import Event, OrganizerConfig
 from agir.groups.tasks import invite_to_group
 from agir.people.models import Person
 from ..forms import SupportGroupForm
-from ..models import SupportGroup, Membership, SupportGroupSubtype
+from ..models import SupportGroup, Membership
 from ...activity.models import Activity
-
-from agir.lib.tests.mixins import create_group
 
 
 class SupportGroupMixin:

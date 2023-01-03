@@ -17,7 +17,7 @@ from agir.payments.models import Payment, Subscription
 from agir.system_pay import SystemPayPaymentMode
 from agir.system_pay.crypto import get_signature
 from agir.system_pay.models import SystemPayTransaction
-from agir.system_pay.soap_client import SystemPaySoapClient
+from agir.system_pay.rest_api import SystemPayRestAPI
 from agir.system_pay.utils import get_trans_id_from_order_id
 
 
@@ -205,7 +205,7 @@ class WebhookTestCase(FakeDataMixin, TestCase):
         payment.refresh_from_db()
         self.assertEqual(payment.status, Payment.STATUS_CANCELED)
 
-    @mock.patch.object(SystemPaySoapClient, "cancel_alias")
+    @mock.patch.object(SystemPayRestAPI, "cancel_alias")
     @mock.patch("agir.donations.views.donations_views.send_donation_email")
     def test_subscription(self, send_donation_email, cancel_alias):
         subscription = Subscription.objects.create(

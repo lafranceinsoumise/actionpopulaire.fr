@@ -201,14 +201,17 @@ class AlreadyHasSubscriptionView(FormView):
         return super().get_context_data(**kwargs)
 
     def form_valid(self, form):
-        with transaction.atomic():
-            new_subscription = create_subscription(
-                person=self.request.user.person, **self.new_subscription_info
-            )
-            replace_subscription(
-                previous_subscription=self.old_subscription,
-                new_subscription=new_subscription,
-            )
+        # il vaut mieux ne pas avoir de transaction ici
+        # en effet, si l'opération échoue au milieu, on a ainsi accès à la nouvelle
+        # souscription, et on peut tenter de réparer les choses à la main.
+        new_subscription = create_subscription(
+            person=self.request.user.person, **self.new_subscription_info
+        )
+
+        replace_subscription(
+            previous_subscription=self.old_subscription,
+            new_subscription=new_subscription,
+        )
 
         del self.request.session[self.session_namespace]
         return HttpResponseRedirect(reverse("view_payments"))

@@ -684,7 +684,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIAL = False
 # TODO: tous les points API n'ont pas vocation à être accédés depuis n'importe quel site
 # à mon avis il faudrait restreindre
-CORS_URLS_REGEX = r"^(?:/legacy/|/communes/chercher/|/api/|/caisse/compteur/)"
+CORS_URLS_REGEX = r"^(?:/legacy/|/communes/chercher/|/api/|/cagnottes/[^/]+/compteur/$)"
 
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True
@@ -774,10 +774,11 @@ PROMETHEUS_USER = os.environ.get("PROMETHEUS_USER", "prometheus")
 PROMETHEUS_PASSWORD = os.environ.get("PROMETHEUS_PASSWORD", "password")
 
 # Systempay
-SYSTEMPAY_SITE_ID = os.environ.get("SYSTEMPAY_SITE_ID", 0)
+SYSTEMPAY_SITE_ID = os.environ.get("SYSTEMPAY_SITE_ID", "0")
 SYSTEMPAY_PRODUCTION = os.environ.get("SYSTEMPAY_PRODUCTION", "false").lower() == "true"
 SYSTEMPAY_CURRENCY = os.environ.get("SYSTEMPAY_CURRENCY", 978)
 SYSTEMPAY_CERTIFICATE = os.environ.get("SYSTEMPAY_CERTIFICATE", "arbitrarystring")
+SYSTEMPAY_API_PASSWORD = os.environ.get("SYSTEMPAY_API_PASSWORD", "arbitrarystring")
 
 # Systempay 2022
 SYSTEMPAY_AFCP2022_SITE_ID = os.environ.get("SYSTEMPAY_AFCP2022_SITE_ID", 0)

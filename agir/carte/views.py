@@ -29,7 +29,7 @@ from agir.municipales.models import CommunePage
 from . import serializers
 from ..events.filters import EventFilter
 from ..events.models import Event, EventSubtype
-from ..groups.models import SupportGroup, SupportGroupSubtype
+from ..groups.models import SupportGroup, SupportGroupSubtype, SupportGroupTag
 from ..groups.utils import is_active_group_filter
 from ..lib.filters import FixedModelMultipleChoiceFilter
 from ..lib.views import AnonymousAPIView
@@ -146,9 +146,15 @@ class GroupFilterSet(django_filters.rest_framework.FilterSet):
         queryset=SupportGroupSubtype.objects.all(),
     )
 
+    tag = FixedModelMultipleChoiceFilter(
+        field_name="tags",
+        to_field_name="label",
+        queryset=SupportGroupTag.objects.all(),
+    )
+
     class Meta:
         model = SupportGroup
-        fields = ("subtype",)
+        fields = ("subtype", "tag")
 
 
 class GroupsView(AnonymousAPIView, ListAPIView):
@@ -223,6 +229,12 @@ class AbstractListMapView(MapViewMixin, TemplateView):
 
         if self.request.GET.get("include_hidden"):
             params["include_hidden"] = "1"
+
+        if self.request.GET.get("date"):
+            params["date"] = self.request.GET.get("date")
+
+        if self.request.GET.get("tag"):
+            params["tag"] = self.request.GET.get("tag")
 
         subtype_info = [
             dict_to_camelcase(st.get_subtype_information()) for st in subtypes

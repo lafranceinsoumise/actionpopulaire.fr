@@ -1,13 +1,30 @@
 {% extends "admin/base_site.html" %}
 {% load i18n admin_urls static admin_modify %}
 
-{% block extrahead %}{{ block.super }}
+{% block extrahead %}
+  {{ block.super }}
   <script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
   {{ media }}
 {% endblock %}
 
-{% block extrastyle %}{{ block.super }}
-  <link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}"/>{% endblock %}
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}"/>
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css"
+    integrity="sha512-Dop/vW3iOtayerlYAqCgkVr2aTr2ErwwTYOvRFUpzl2VhCMJyjQF0Q9TjUXIo6JhuM/3i0vVEt2e/7QQmnHQqw=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/css/dataTables.bootstrap.min.css"
+    integrity="sha512-BMbq2It2D3J17/C7aRklzOODG1IQ3+MHw3ifzBHMBwGO/0yUqYmsStgBjI0z5EYlaDEFnvYV7gNYdD3vFLRKsA=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+{% endblock %}
 
 {% block coltype %}colM{% endblock %}
 
@@ -29,24 +46,77 @@
 {% endif %}
 
 {% block content %}
-
-  <table>
+  <div class="navbar" id="nav">
+    <p class="navbar-text navbar-right">
+        <a class="btn btn-default" href="{% url 'admin:people_personform_download_results' form.pk|admin_urlquote %}">
+          <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>&nbsp;
+          Télécharger les résultats
+        </a>
+    </p>
+  </div>
+  <table class="table table-condensed table-responsive"  id="form-result-table">
+    <thead>
     <tr>
       {% for header in headers %}
         <th>{{ header }}</th>
       {% endfor %}
     </tr>
-    {% for submission in submissions %}
-      <tr>
-        {% for value in submission %}
-          {% if forloop.counter == 1 %}
-            <th>{{ value }}</th>
-          {% else %}
-            <td>{{ value }}</td>
-          {% endif %}
-        {% endfor %}
-      </tr>
-    {% endfor %}
+    </thead>
+    <tbody>
+      {% for submission in submissions %}
+        <tr>
+          {% for value in submission %}
+            {% if forloop.counter == 1 %}
+              <td>{{ value }}</td>
+            {% else %}
+              <td>{{ value }}</td>
+            {% endif %}
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </tbody>
   </table>
+{% endblock %}
 
+{% block footer %}
+  {{ block.super }}
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.2/jquery.min.js"
+    integrity="sha512-tWHlutFnuG0C6nQRlpvrEhE4QpkG1nn2MOUMWmUeRePl4e3Aki0VB6W1v3oLjFtd0hVOtRQ9PHpSfN6u6/QXkQ=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer">
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.js"
+    integrity="sha512-NP/69p3iBF6LkK2vcsbD1zuZu1gYMu594b5400dTo7qX06obhSfsF0fSXidZTk4KSpEE4eft6BGrdIqht2aELA=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer">
+  </script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/jquery.dataTables.min.js"
+    integrity="sha512-BkpSL20WETFylMrcirBahHfSnY++H2O1W+UnEEO4yNIl+jI2+zowyoGJpbtk6bx97fBXf++WJHSSK2MV4ghPcg=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer">
+  </script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/dataTables.bootstrap.min.js"
+    integrity="sha512-F0E+jKGaUC90odiinxkfeS3zm9uUT1/lpusNtgXboaMdA3QFMUez0pBmAeXGXtGxoGZg3bLmrkSkbK1quua4/Q=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer">
+  </script>
+  <script>
+    $(document).ready(function() {
+      const table = $('#form-result-table').DataTable({
+        locale: 'fr',
+        pageLength: 50,
+        language: { url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/fr-FR.json" },
+        order: [[1, 'desc']],
+        columnDefs: [
+          { "targets": 0, "type": "html", "searchable": false, "orderable": false },
+          { "targets": 1, "type": "num" },
+          { "targets": 2, "type": "html" },
+          { "targets": 3, "type": "date", render: (data, type) => type === "display" ? new Date(data).toLocaleString() : data }
+        ],
+      });
+    });
+  </script>
 {% endblock %}

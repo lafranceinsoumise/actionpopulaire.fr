@@ -34,7 +34,10 @@ class PersonFormDisplay:
     }
     admin_fields_label = ["ID", "Personne", "Date de la réponse"]
 
-    def get_admin_fields_label(self, form):
+    def get_admin_fields_label(self, form, html=True):
+        if html:
+            return ["Actions", *self.admin_fields_label]
+
         return self.admin_fields_label
 
     def _get_form_and_submissions(self, submissions_or_form):
@@ -144,10 +147,7 @@ class PersonFormDisplay:
         return value
 
     def _get_admin_fields(self, submissions, html=True):
-        dates = [
-            localize(submission.created.astimezone(get_current_timezone()))
-            for submission in submissions
-        ]
+        id_fields = [str(s.pk) for s in submissions]
 
         for s in submissions:
             # copier l'email de façon à éviter une requête pour l'email PAR submission
@@ -155,16 +155,20 @@ class PersonFormDisplay:
                 s.person._email = s.email
 
         if html:
-            id_field_template = (
+            dates = [
+                submission.created.astimezone(get_current_timezone())
+                .replace(microsecond=0)
+                .isoformat()
+                for submission in submissions
+            ]
+            action_field_template = (
                 '<a href="{details}" title="Voir le détail">&#128269;</a>&ensp;'
                 '<a href="{edit}" title="Modifier">&#x1F58A;&#xFE0F;️</a>&ensp;'
-                '<a href="{delete}" title="Supprimer cette submission">&#x274c;</a>&ensp;{id}'
+                '<a href="{delete}" title="Supprimer cette submission">&#x274c;</a>'
             )
-            person_field_template = '<a href="{link}">{person}</a>'
-
-            id_fields = [
+            action_fields = [
                 format_html(
-                    id_field_template,
+                    action_field_template,
                     details=reverse(
                         "admin:people_personformsubmission_detail",
                         args=(submission.pk,),
@@ -177,10 +181,11 @@ class PersonFormDisplay:
                         "admin:people_personformsubmission_delete",
                         args=(submission.pk,),
                     ),
-                    id=submission.pk,
                 )
                 for submission in submissions
             ]
+
+            person_field_template = '<a href="{link}">{person}</a>'
             person_fields = [
                 format_html(
                     person_field_template,
@@ -194,11 +199,17 @@ class PersonFormDisplay:
                 else "Anonyme"
                 for submission in submissions
             ]
-        else:
-            id_fields = [s.pk for s in submissions]
-            person_fields = [s.person if s.person else "Anonyme" for s in submissions]
 
-        return [list(a) for a in zip(id_fields, person_fields, dates)]
+            return [
+                list(a) for a in zip(action_fields, id_fields, person_fields, dates)
+            ]
+        else:
+            dates = [
+                localize(submission.created.astimezone(get_current_timezone()))
+                for submission in submissions
+            ]
+            person_fields = [s.person if s.person else "Anonyme" for s in submissions]
+            return [list(a) for a in zip(id_fields, person_fields, dates)]
 
     def get_form_field_labels(self, form, fieldsets_titles=False):
         """Renvoie un dictionnaire associant id de champs et libellés à présenter
@@ -308,7 +319,7 @@ class PersonFormDisplay:
         if include_admin_fields:
             admin_values = self._get_admin_fields(submissions, html and resolve_values)
             return (
-                self.get_admin_fields_label(form) + headers,
+                self.get_admin_fields_label(form, html=html) + headers,
                 [
                     admin_values + values
                     for admin_values, values in zip(admin_values, ordered_values)
@@ -317,7 +328,9 @@ class PersonFormDisplay:
 
         return headers, ordered_values
 
-    def get_formatted_submission(self, submission, include_admin_fields=False):
+    def get_formatted_submission(
+        self, submission, include_admin_fields=False, html=True
+    ):
         data = submission.data
         fields_dict = submission.form.fields_dict
         labels = self.get_form_field_labels(submission.form)
@@ -329,7 +342,7 @@ class PersonFormDisplay:
                     "data": [
                         {"label": l, "value": v}
                         for l, v in zip(
-                            self.get_admin_fields_label(submission.form),
+                            self.get_admin_fields_label(submission.form, html=html),
                             self._get_admin_fields([submission])[0],
                         )
                     ],
