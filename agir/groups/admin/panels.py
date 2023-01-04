@@ -160,6 +160,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                     "tags",
                     "published",
                     "open",
+                    "editable",
                 )
             },
         ),

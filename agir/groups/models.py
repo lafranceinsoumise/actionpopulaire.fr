@@ -193,24 +193,17 @@ class SupportGroup(
         "SupportGroupSubtype", related_name="supportgroups", blank=True
     )
 
-    published = models.BooleanField(
-        _("publié"),
-        default=True,
-        blank=False,
-        help_text=_("Le groupe doit-il être visible publiquement."),
-    )
-
     tags = models.ManyToManyField("SupportGroupTag", related_name="groups", blank=True)
 
     members = models.ManyToManyField(
         "people.Person", related_name="supportgroups", through="Membership", blank=True
     )
 
-    is_private_messaging_enabled = models.BooleanField(
-        _("Messagerie privée activée"),
+    published = models.BooleanField(
+        _("publié"),
         default=True,
         blank=False,
-        help_text=_("La messagerie privée est activée ou non pour ce groupe."),
+        help_text=_("Le groupe est visible publiquement"),
     )
 
     open = models.BooleanField(
@@ -218,9 +211,24 @@ class SupportGroup(
         default=True,
         blank=False,
         null=False,
+        help_text=_("Le groupe accueilir de nouveaux membres ou abonné·es"),
+    )
+
+    editable = models.BooleanField(
+        _("éditable"),
+        default=True,
+        blank=False,
+        null=False,
         help_text=_(
-            "Ce groupe peut-il ou pas accueilir des nouveaux membres ou abonné·es"
+            "Les informations du groupe peuvent être éditées par ses animateur·ices et gestionnaires"
         ),
+    )
+
+    is_private_messaging_enabled = models.BooleanField(
+        _("messagerie privée activée"),
+        default=True,
+        blank=False,
+        help_text=_("La messagerie privée est activée pour le groupe"),
     )
 
     @property
