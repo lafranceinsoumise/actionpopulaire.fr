@@ -128,6 +128,7 @@ class ManageSpendingRequestView(
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
+            spending_request=self.object,
             supportgroup=self.object.group,
             documents=self.object.documents.filter(deleted=False),
             can_edit=can_edit(self.object),
@@ -239,6 +240,7 @@ class CreateDocumentView(
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
+            spending_request=self.spending_request,
             supportgroup=self.spending_request.group,
             **kwargs,
         )
@@ -259,6 +261,13 @@ class AccessDocumentMixin(
 
     def get_permission_object(self):
         return self.spending_request
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(
+            spending_request=self.spending_request,
+            supportgroup=self.spending_request.group,
+            **kwargs,
+        )
 
 
 @method_decorator(never_cache, name="get")
@@ -285,12 +294,6 @@ class EditDocumentView(AccessDocumentMixin, UpdateView):
             )
 
         return super().render_to_response(self.get_context_data(), **response_kwargs)
-
-    def get_context_data(self, **kwargs):
-        return super().get_context_data(
-            supportgroup=self.spending_request.group,
-            **kwargs,
-        )
 
 
 class DeleteDocumentView(AccessDocumentMixin, SingleObjectMixin, View):

@@ -12,20 +12,20 @@
   <div class="row">
     <div class="col-xs-12 margintopmore text-right" style="line-height: 45px; margin-bottom: 0;">
       <div class="pull-left">
-        <a class="menu-back-link" href="{% url "list_events" %}">
-          <i class="fa fa-arrow-left"></i>&emsp;Retour à l'accueil
+        <a class="menu-back-link" href="{% url "view_group_settings_finance" supportgroup.pk %}">
+          <i class="fa fa-arrow-left"></i>&emsp;Retour
         </a>
       </div>
       <div class="pull-right">
         {% if can_edit %}
           <a
             class="btn btn-sm btn-default"
-            href="{% url "edit_spending_request" spendingrequest.pk %}">
+            href="{% url "edit_spending_request" spending_request.pk %}">
             <i class="fa fa-pencil"></i> Modifier la demande
           </a>
           <a
             class="btn btn-sm btn-default"
-            href="{% url "create_document" spendingrequest.pk %}">
+            href="{% url "create_document" spending_request.pk %}">
             <i class="fa fa-plus"></i> Ajouter une pièce justificative
           </a>
         {% endif %}
@@ -85,12 +85,12 @@
                     </td>
                     <td>{{ document.get_type_display }}</td>
                     <td>
-                      <a href="{% url "edit_document" spendingrequest.pk document.pk %}" class="btn btn-default">
+                      <a href="{% url "edit_document" spending_request.pk document.pk %}" class="btn btn-default">
                         <span class="fa fa-edit" title="Modifier {{ document.title }}"></span>
                       </a>
                       <span style="display: inline-block" class="delete-document"
                            data-document-name="{{ document.title }}"
-                           data-delete-url="{% url "delete_document" spendingrequest.pk document.pk %}"></span>
+                           data-delete-url="{% url "delete_document" spending_request.pk document.pk %}"></span>
                     </td>
                   </tr>
                 {% endfor %}
