@@ -591,6 +591,9 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
 
         return super().changelist_view(request, extra_context)
 
+    def save_form(self, request, form, change):
+        return form.save(commit=False, request=request)
+
     class Media:
         pass
 

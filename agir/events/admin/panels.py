@@ -567,6 +567,9 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
             obj.end_time = replace_datetime_timezone(obj.end_time, obj.timezone)
         return super().save_model(request, obj, form, change)
 
+    def save_form(self, request, form, change):
+        return form.save(commit=False, request=request)
+
 
 @admin.register(models.Calendar)
 class CalendarAdmin(admin.ModelAdmin):
