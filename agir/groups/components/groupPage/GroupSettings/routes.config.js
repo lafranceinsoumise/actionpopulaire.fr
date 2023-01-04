@@ -10,9 +10,14 @@ import illustrationGeneral from "@agir/front/genericComponents/images/group_gene
 import illustrationContact from "@agir/front/genericComponents/images/group_contact.svg";
 import illustrationLinks from "@agir/front/genericComponents/images/group_links.svg";
 
-const GroupSettingsMembers = lazy(() =>
+const GroupSettingsReadOnlyMembers = lazy(() =>
   import(
-    /* webpackChunkName: "r-groupsettingsmembers" */ "@agir/groups/groupPage/GroupSettings/GroupMembersPage"
+    /* webpackChunkName: "r-groupsettingsreadonlymembers" */ "@agir/groups/groupPage/GroupSettings/GroupReadOnlyMembersPage"
+  )
+);
+const GroupSettingsActiveMembers = lazy(() =>
+  import(
+    /* webpackChunkName: "r-groupsettingsactivemembers" */ "@agir/groups/groupPage/GroupSettings/GroupActiveMembersPage"
   )
 );
 const GroupSettingsContacts = lazy(() =>
@@ -75,7 +80,10 @@ export const routeConfig = {
     exact: true,
     label: "Membres actifs",
     icon: "users",
-    Component: GroupSettingsMembers,
+    getComponent: (group) =>
+      group.isEditable
+        ? GroupSettingsActiveMembers
+        : GroupSettingsReadOnlyMembers,
     isActive: true,
     menuGroup: 1,
   },
@@ -86,7 +94,7 @@ export const routeConfig = {
     label: "Contacts",
     icon: "rss",
     Component: GroupSettingsContacts,
-    isActive: true,
+    isActive: (group) => group.isEditable,
     menuGroup: 1,
   },
   manage: {
@@ -97,7 +105,7 @@ export const routeConfig = {
     icon: "lock",
     Component: GroupSettingsManage,
     illustration: illustrationManage,
-    isActive: (group) => group?.isReferent || group?.isManager,
+    isActive: (group) => group.isEditable,
     menuGroup: 1,
   },
   certification: {
@@ -107,8 +115,7 @@ export const routeConfig = {
     label: "Certification",
     icon: "check-circle",
     Component: GroupSettingsCertification,
-    isActive: (group) =>
-      group?.isCertifiable && (group?.isReferent || group?.isManager),
+    isActive: (group) => group.isCertifiable,
     menuGroup: 1,
   },
   materiel: {
@@ -130,7 +137,7 @@ export const routeConfig = {
     icon: "sun",
     Component: GroupSettingsFinance,
     illustration: illustrationFinance,
-    isActive: (group) => group?.isCertified,
+    isActive: (group) => group.isCertified,
     menuGroup: 1,
   },
   general: {
@@ -141,7 +148,7 @@ export const routeConfig = {
     icon: "file-text",
     Component: GroupSettingsGeneral,
     illustration: illustrationGeneral,
-    isActive: true,
+    isActive: (group) => group.isEditable,
     menuGroup: 2,
   },
   location: {
@@ -151,7 +158,7 @@ export const routeConfig = {
     label: "Localisation",
     icon: "map-pin",
     Component: GroupSettingsLocation,
-    isActive: true,
+    isActive: (group) => group.isEditable,
     menuGroup: 2,
   },
   contact: {
@@ -162,7 +169,7 @@ export const routeConfig = {
     icon: "mail",
     Component: GroupSettingsContact,
     illustration: illustrationContact,
-    isActive: true,
+    isActive: (group) => group.isEditable,
     menuGroup: 2,
   },
   links: {
@@ -186,6 +193,9 @@ export const getMenuRoute = (basePath) =>
 
 const getActiveRoutes = (group) =>
   Object.values(routeConfig).filter((route) => {
+    if (!group || !group.isManager) {
+      return false;
+    }
     if (typeof route.isActive === "function") {
       return !!route.isActive(group);
     }
@@ -197,6 +207,10 @@ export const getRoutes = (basePath, group) =>
     (route) =>
       new RouteConfig({
         ...route,
+        Component:
+          typeof route.getComponent === "function"
+            ? route.getComponent(group)
+            : route.Component,
         path: basePath + menuRoute.path + route.path,
       })
   );

@@ -62,12 +62,42 @@ const MembersSkeleton = (
   </StyledSkeleton>
 );
 
-const MembershipPanel = (props) => {
+export const ReadOnlyMembershipPanel = (props) => {
+  const { groupPk, illustration, MainPanel, onBack } = props;
+  const group = useGroup(groupPk);
+  const { data: members, isLoading } = useSWR(
+    getGroupEndpoint("getMembers", { groupPk })
+  );
+
+  return (
+    <>
+      <HeaderPanel onBack={onBack} illustration={illustration} />
+      <PageFadeIn ready={Array.isArray(members)} wait={MembersSkeleton}>
+        <MainPanel
+          group={group}
+          members={members}
+          routes={group?.routes}
+          isLoading={isLoading}
+        />
+      </PageFadeIn>
+    </>
+  );
+};
+
+ReadOnlyMembershipPanel.propTypes = {
+  groupPk: PropTypes.string,
+  members: PropTypes.array,
+  illustration: PropTypes.string,
+  MainPanel: PropTypes.elementType,
+  onBack: PropTypes.func,
+};
+
+const EditableMembershipPanel = (props) => {
   const {
-    onBack,
-    illustration,
     groupPk,
+    illustration,
     MainPanel,
+    onBack,
     unselectMemberAfterUpdate = false,
   } = props;
   const sendToast = useToast();
@@ -76,6 +106,7 @@ const MembershipPanel = (props) => {
   const { data: members, mutate: mutateMembers } = useSWR(
     getGroupEndpoint("getMembers", { groupPk })
   );
+
   const [selectedMembershipType, setSelectedMembershipType] = useState(null);
   const [selectedMember, setSelectedMember] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -197,11 +228,13 @@ const MembershipPanel = (props) => {
     </>
   );
 };
-MembershipPanel.propTypes = {
-  onBack: PropTypes.func,
-  illustration: PropTypes.string,
+
+EditableMembershipPanel.propTypes = {
   groupPk: PropTypes.string,
+  illustration: PropTypes.string,
   MainPanel: PropTypes.elementType,
   unselectMemberAfterUpdate: PropTypes.bool,
+  onBack: PropTypes.func,
 };
-export default MembershipPanel;
+
+export default EditableMembershipPanel;
