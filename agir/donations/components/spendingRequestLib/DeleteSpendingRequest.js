@@ -6,7 +6,7 @@ import { getCookie } from "@agir/lib/utils/cookies";
 import Button from "@agir/lib/bootstrap/Button";
 import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 
-const DeleteDocumentButton = ({ deleteUrl, documentName }) => {
+const DeleteSpendingRequest = ({ deleteUrl }) => {
   const deleteForm = useRef();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -24,20 +24,16 @@ const DeleteDocumentButton = ({ deleteUrl, documentName }) => {
 
   return (
     <>
-      <Button
-        bsSize="sm"
-        bsStyle="danger"
-        onClick={handleOpen}
-        title="Supprimer le document"
-      >
+      <Button bsSize="sm" bsStyle="danger" onClick={handleOpen}>
         <span className="fa fa-trash" />
+        &nbsp;Supprimer la demande
       </Button>
       <ModalConfirmation
         shouldShow={isOpen}
         onClose={handleClose}
-        title={`Supprimer le document ${documentName}`}
+        title="Supprimer la demande de dépenses"
         dismissLabel="Annuler"
-        confirmationLabel="Supprimer le document"
+        confirmationLabel="Supprimer la demande"
         onConfirm={handleConfirm}
         shouldDismissOnClick
       >
@@ -47,7 +43,10 @@ const DeleteDocumentButton = ({ deleteUrl, documentName }) => {
             name="csrfmiddlewaretoken"
             value={getCookie("csrftoken")}
           />
-          <p>Confirmez-vous la suppression définitive de ce document&nbsp;?</p>
+          <p>
+            Confirmez-vous la suppression définitive de cette demande de dépense
+            et de tous les documents associés&nbsp;?
+          </p>
           <p>Attention&nbsp;: cette action est irréversible.</p>
         </form>
       </ModalConfirmation>
@@ -55,9 +54,8 @@ const DeleteDocumentButton = ({ deleteUrl, documentName }) => {
   );
 };
 
-DeleteDocumentButton.propTypes = {
+DeleteSpendingRequest.propTypes = {
   deleteUrl: PropTypes.string,
-  documentName: PropTypes.string,
 };
 
-export default DeleteDocumentButton;
+export default DeleteSpendingRequest;

@@ -73,23 +73,7 @@ const GroupFinancePage = (props) => {
         </Button>
       </p>
 
-      <PageFadeIn ready={!!data}>
-        <Spacer size="2rem" />
-        <StyledTitle style={{ fontSize: "1.25rem" }}>
-          Demandes de dépense
-        </StyledTitle>
-        <p style={{ color: style.black700 }}>
-          Vous pouvez déjà créer une demande, mais vous ne pourrez la faire
-          valider que lorsque votre allocation sera suffisante.
-        </p>
-        <Spacer size=".5rem" />
-        <SpendingRequests
-          spendingRequests={data?.spendingRequests}
-          newSpendingRequestLink={group?.routes?.createSpendingRequest}
-        />
-      </PageFadeIn>
-
-      <Spacer size="3rem" />
+      <Spacer size="2rem" />
 
       <StyledTitle style={{ fontSize: "1.25rem" }}>
         Solliciter des dons pour mon groupe
@@ -105,6 +89,22 @@ const GroupFinancePage = (props) => {
         url={group?.routes?.donations}
         $wrap={400}
       />
+
+      <PageFadeIn ready={!!data}>
+        <Spacer size="3rem" />
+        <StyledTitle style={{ fontSize: "1.25rem" }}>
+          Demandes de dépense
+        </StyledTitle>
+        <p style={{ color: style.black700 }}>
+          Vous pouvez déjà créer une demande, mais vous ne pourrez la faire
+          valider que lorsque votre allocation sera suffisante.
+        </p>
+        <Spacer size=".5rem" />
+        <SpendingRequests
+          spendingRequests={data?.spendingRequests}
+          newSpendingRequestLink={group?.routes?.createSpendingRequest}
+        />
+      </PageFadeIn>
     </>
   );
 };

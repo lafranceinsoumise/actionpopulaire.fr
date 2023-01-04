@@ -7,7 +7,13 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import gettext as _
 from django.views import View
 from django.views.decorators.cache import never_cache
-from django.views.generic import TemplateView, DetailView, UpdateView, CreateView
+from django.views.generic import (
+    TemplateView,
+    DetailView,
+    UpdateView,
+    CreateView,
+    DeleteView,
+)
 from django.views.generic.detail import SingleObjectMixin
 
 from agir.authentication.view_mixins import (
@@ -27,6 +33,7 @@ from agir.donations.spending_requests import (
     get_current_action,
     summary,
     validate_action,
+    can_delete,
 )
 from agir.groups.models import SupportGroup
 
@@ -34,6 +41,7 @@ __all__ = (
     "CreateSpendingRequestView",
     "EditSpendingRequestView",
     "ManageSpendingRequestView",
+    "DeleteSpendingRequestView",
     "CreateDocumentView",
     "EditDocumentView",
     "DeleteDocumentView",
@@ -132,6 +140,7 @@ class ManageSpendingRequestView(
             supportgroup=self.object.group,
             documents=self.object.documents.filter(deleted=False),
             can_edit=can_edit(self.object),
+            can_delete=can_delete(self.object),
             action=get_current_action(self.object, self.request.user),
             summary=summary(self.object),
             history=self.object.get_history(),
@@ -196,9 +205,39 @@ class EditSpendingRequestView(
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
+            spending_request=self.object,
             supportgroup=self.object.group,
             **kwargs,
         )
+
+
+class DeleteSpendingRequestView(
+    HardLoginRequiredMixin, GlobalOrObjectPermissionRequiredMixin, DeleteView
+):
+    model = SpendingRequest
+    permission_required = ("donations.delete_spendingrequest",)
+
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not can_delete(self.object):
+            messages.add_message(
+                self.request,
+                messages.INFO,
+                "Il n'est plus possible de supprimer cette demande de dépense",
+            )
+            return HttpResponseRedirect(
+                reverse("manage_spending_request", args=(self.object.pk,))
+            )
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        messages.add_message(
+            self.request,
+            messages.SUCCESS,
+            "La demande de dépense a bien été supprimée",
+        )
+        return reverse("view_group_settings_finance", args=(self.object.group.pk,))
 
 
 @method_decorator(never_cache, name="get")
