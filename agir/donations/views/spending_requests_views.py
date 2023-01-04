@@ -208,11 +208,15 @@ class CreateDocumentView(
     form_class = DocumentForm
     permission_required = ("donations.change_spendingrequest",)
     template_name = "donations/create_document.html"
+    spending_request = None
+
+    def dispatch(self, request, *args, spending_request_id=None, **kwargs):
+        self.spending_request = get_object_or_404(
+            SpendingRequest, pk=spending_request_id
+        )
+        return super().dispatch(request, *args, **kwargs)
 
     def get_permission_object(self):
-        self.spending_request = get_object_or_404(
-            SpendingRequest, pk=self.kwargs["spending_request_id"]
-        )
         return self.spending_request
 
     def get_form_kwargs(self):
@@ -245,12 +249,15 @@ class AccessDocumentMixin(
 ):
     permission_required = ("donations.change_spendingrequest",)
 
-    def get_permission_object(self):
+    def dispatch(self, request, *args, spending_request_id=None, pk=None, **kwargs):
         self.spending_request = get_object_or_404(
             SpendingRequest,
-            pk=self.kwargs["spending_request_id"],
-            document__pk=self.kwargs["pk"],
+            pk=spending_request_id,
+            document__pk=pk,
         )
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_permission_object(self):
         return self.spending_request
 
 
