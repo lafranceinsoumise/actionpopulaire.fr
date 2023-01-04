@@ -35,7 +35,7 @@ const fetcher = async (url) => {
 
 const errorRetry = (error, ...rest) => {
   if ([403, 404].includes(error.status)) return;
-  SWRConfig.default.onErrorRetry(error, ...rest);
+  SWRConfig.defaultValue.onErrorRetry(error, ...rest);
 };
 
 const SWRContext = ({ children }) => (
