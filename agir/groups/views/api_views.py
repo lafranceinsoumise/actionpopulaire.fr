@@ -667,9 +667,8 @@ class GroupMembersAPIView(ListAPIView):
     def get_queryset(self):
         return (
             Membership.objects.active()
+            .with_serializer_prefetch()
             .filter(supportgroup_id=self.kwargs.get("pk"))
-            .prefetch_related("person")
-            .prefetch_related("person__emails")
         )
 
 
