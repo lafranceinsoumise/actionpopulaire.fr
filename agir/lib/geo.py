@@ -6,6 +6,7 @@ from data_france.models import CodePostal, Commune
 from django.contrib.gis.geos import Point
 from unidecode import unidecode
 
+from .data import departement_from_zipcode
 from .models import LocationMixin
 
 logger = logging.getLogger(__name__)
@@ -101,6 +102,64 @@ def get_results_from_ban(query):
     return results
 
 
+def geocode_ban(item):
+    if not item.location_address1 and not item.location_address2:
+        return False
+
+    item.location_citycode = ""
+
+    q = " ".join(
+        l
+        for l in [
+            item.location_address1,
+            item.location_address2,
+            item.location_zip,
+            item.location_city,
+        ]
+        if l
+    )
+
+    query = {
+        "q": q,
+        "postcode": item.location_zip,
+        "limit": 5,
+    }
+    results = get_results_from_ban(query)
+
+    if results is None:
+        return False
+
+    types = {
+        "housenumber": LocationMixin.COORDINATES_EXACT,
+        "street": LocationMixin.COORDINATES_STREET,
+        "city": LocationMixin.COORDINATES_CITY,
+    }
+
+    features = [
+        feature
+        for feature in results["features"]
+        if feature["geometry"]["type"] == "Point"
+        and feature["properties"]["type"] in types
+    ][:1]
+
+    if features:
+        feature = features[0]
+        item.coordinates = Point(*feature["geometry"]["coordinates"])
+        item.coordinates_type = types[feature["properties"]["type"]]
+        item.location_citycode = feature["properties"]["citycode"]
+
+        if not item.location_zip and "postcode" in feature["properties"]:
+            item.location_zip = feature["properties"]["postcode"]
+
+        item.location_departement_id = departement_from_zipcode(
+            item.location_zip, fallback_value=dict
+        ).get("id", "")
+
+        return True
+
+    return False
+
+
 def geocode_data_france(item):
     if item.location_zip:
         try:
@@ -114,14 +173,15 @@ def geocode_data_france(item):
 
             if nb_communes == 1:
                 commune = code_postal.communes.get()
+                item.location_city = commune.nom_complet
+                item.location_citycode = commune.code
+                item.location_departement_id = commune.code_departement
                 item.coordinates = commune.geometry.centroid
                 item.coordinates_type = (
                     LocationMixin.COORDINATES_CITY
                     if commune.type == Commune.TYPE_COMMUNE
                     else LocationMixin.COORDINATES_DISTRICT
                 )
-                item.location_city = commune.nom_complet
-                item.location_citycode = commune.code
                 return
 
             if nb_communes > 1 and item.location_city:
@@ -133,8 +193,9 @@ def geocode_data_france(item):
                         if normaliser_nom_ville(v.nom) == nom_normalise
                     )
                     if commune.geometry:
-                        item.coordinates = commune.geometry.centroid
                         item.location_citycode = commune.code
+                        item.location_departement_id = commune.code_departement
+                        item.coordinates = commune.geometry.centroid
                         item.coordinates_type = (
                             LocationMixin.COORDINATES_CITY
                             if commune.type == Commune.TYPE_COMMUNE
@@ -156,9 +217,14 @@ def geocode_data_france(item):
                 """,
                     {"cp_id": code_postal.id},
                 )[0]
+                item.location_departement_id = departement_from_zipcode(
+                    item.location_zip, fallback_value=dict
+                ).get("id", "")
                 item.coordinates = code_postal.centroid
                 item.coordinates_type = LocationMixin.COORDINATES_UNKNOWN_PRECISION
                 return
+
+    item.location_zip = ""
 
     # pas de code postal
     if item.location_city:
@@ -172,15 +238,18 @@ def geocode_data_france(item):
         if len(communes) == 1:
             commune = communes[0]
             if commune.geometry is not None:
+                item.location_city = commune.nom_complet
+                item.location_citycode = commune.code
+                item.location_departement_id = commune.code_departement
                 item.coordinates = commune.geometry.centroid
                 item.coordinates_type = (
                     LocationMixin.COORDINATES_CITY
                     if commune.type == Commune.TYPE_COMMUNE
                     else LocationMixin.COORDINATES_DISTRICT
                 )
-                item.location_city = commune.nom_complet
-                item.location_citycode = commune.code
                 return
+
+    item.location_city = ""
 
     if item.location_citycode:
         try:
@@ -193,16 +262,18 @@ def geocode_data_france(item):
             commune = None
 
         if commune is not None:
+            item.location_city = commune.nom_complet
+            item.location_citycode = commune.code
+            item.location_departement_id = commune.code_departement
             item.coordinates = commune.geometry.centroid
             item.coordinates_type = (
                 LocationMixin.COORDINATES_CITY
                 if commune.type == Commune.TYPE_COMMUNE
                 else LocationMixin.COORDINATES_DISTRICT
             )
-            item.location_city = commune.nom_complet
-            item.location_citycode = commune.code
             return
 
+    item.location_citycode = ""
     item.coordinates = None
     item.coordinates_type = LocationMixin.COORDINATES_NOT_FOUND
 
@@ -216,50 +287,17 @@ def geocode_france(item):
     Dans le cas où on a une adresse plus précise, on peut aller interroger la BAN.
     """
 
-    # First reset coordinates and geolocation-depending fields to avoid
-    # address / coordinates asynchronisation
+    # Normalize location_zip field
+    item.location_zip = normalize_french_zip_code(item.location_zip)
+
+    # First reset coordinate fields to avoid asynchronisation
     item.coordinates = None
     item.coordinates_type = LocationMixin.COORDINATES_NOT_FOUND
+
     # Try to geolocate with BAN if the full address is given
-    if item.location_address1 or item.location_address2:
-        item.location_citycode = ""
-
-        q = " ".join(
-            l
-            for l in [
-                item.location_address1,
-                item.location_address2,
-                normalize_french_zip_code(item.location_zip),
-                item.location_city,
-            ]
-            if l
-        )
-
-        query = {
-            "q": q,
-            "postcode": normalize_french_zip_code(item.location_zip),
-            "limit": 5,
-        }
-        results = get_results_from_ban(query)
-
-        if results is not None:
-            types = {
-                "housenumber": LocationMixin.COORDINATES_EXACT,
-                "street": LocationMixin.COORDINATES_STREET,
-                "city": LocationMixin.COORDINATES_CITY,
-            }
-
-            for feature in results["features"]:
-                if feature["geometry"]["type"] != "Point":
-                    continue
-                if feature["properties"]["type"] in types:
-                    item.coordinates = Point(*feature["geometry"]["coordinates"])
-                    item.coordinates_type = types[feature["properties"]["type"]]
-                    item.location_citycode = feature["properties"]["citycode"]
-                    return
-
-    # Fallback to data france if address is incomplete or no BAN result has been found
-    geocode_data_france(item)
+    if not geocode_ban(item):
+        # Fallback to data france if address is incomplete or no BAN result has been found
+        geocode_data_france(item)
 
 
 def geocode_internationally(item):

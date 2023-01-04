@@ -50,11 +50,7 @@ class UserContextSerializer(serializers.Serializer):
             return obj.image.thumbnail.url
 
     def get_departement(self, obj):
-        if not obj.location_zip:
-            return None
-        departement = departement_from_zipcode(obj.location_zip)
-        if departement:
-            return departement.get("id")
+        return obj.get_departement(as_field="id")
 
     def get_groups(self, obj):
         person_groups = (

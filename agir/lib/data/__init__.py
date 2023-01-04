@@ -98,14 +98,15 @@ def filtre_region(code):
     )
 
 
-def departement_from_zipcode(zipcode):
+def departement_from_zipcode(zipcode, fallback_value=None):
+    if not zipcode:
+        return fallback_value
     if zipcode.startswith("97"):
-        return departements_par_code.get(zipcode[:3], None)
-
+        return departements_par_code.get(zipcode[:3], fallback_value)
     # on retourne toujours par défaut le premier département Corse
     if zipcode[:2] == "20":
         zipcode = "2A"
-    return departements_par_code.get(zipcode[:2], None)
+    return departements_par_code.get(zipcode[:2], fallback_value)
 
 
 def french_zipcode_to_country_code(zipcode):
