@@ -71,10 +71,17 @@ class Segment(BaseSegment, models.Model):
         choices=GA_STATUS_CHOICES,
         blank=True,
     )
+    supportgroups = models.ManyToManyField(
+        "groups.SupportGroup",
+        verbose_name="Limiter aux membres d'un de ces groupes",
+        blank=True,
+    )
     supportgroup_subtypes = models.ManyToManyField(
         "groups.SupportGroupSubtype",
         verbose_name="Limiter aux membres de groupes d'un de ces sous-types",
         blank=True,
+        help_text="Ce filtre ne sera pas appliqué lorsque le filtre "
+        "'Limiter aux membres d'un de ces groupes' est actif",
     )
     events = models.ManyToManyField(
         "events.Event",
@@ -280,6 +287,62 @@ class Segment(BaseSegment, models.Model):
         blank=True,
     )
 
+    def apply_supportgroup_filters(self, query):
+        supportgroup_ids = self.supportgroups.values_list("id", flat=True)
+        subtype_ids = self.supportgroup_subtypes.values_list("id", flat=True)
+
+        if (
+            not self.supportgroup_status
+            and len(subtype_ids) == 0
+            and len(supportgroup_ids) == 0
+        ):
+            return query
+
+        # Simplify queries for supportgroup_status only filtering
+        if len(subtype_ids) == 0 and len(supportgroup_ids) == 0:
+            if self.supportgroup_status == self.GA_STATUS_NOT_MEMBER:
+                return query & ~Q(memberships__supportgroup__published=True)
+            if self.supportgroup_status == self.GA_STATUS_MEMBER:
+                return query & Q(memberships__supportgroup__published=True)
+            if self.supportgroup_status == self.GA_STATUS_REFERENT:
+                return query & Q(
+                    memberships__supportgroup__published=True,
+                    memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
+                )
+            if self.supportgroup_status == self.GA_STATUS_MANAGER:
+                return query & Q(
+                    memberships__supportgroup__published=True,
+                    memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+                )
+
+        # Use membership subquery for multi-field supportgroup filtering
+        memberships = Membership.objects.filter(supportgroup__published=True)
+
+        if len(supportgroup_ids) > 0:
+            memberships = memberships.filter(supportgroup_id__in=supportgroup_ids)
+        elif len(subtype_ids) > 0:
+            memberships = memberships.filter(supportgroup__subtypes__id__in=subtype_ids)
+
+        if self.supportgroup_status == self.GA_STATUS_REFERENT:
+            memberships = memberships.filter(
+                membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
+            )
+        if self.supportgroup_status == self.GA_STATUS_MANAGER:
+            memberships = memberships.filter(
+                membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+            )
+
+        member_ids = (
+            memberships.distinct("person_id")
+            .order_by("person_id")
+            .values_list("person_id", flat=True)
+        )
+
+        if self.supportgroup_status == self.GA_STATUS_NOT_MEMBER:
+            return query & ~Q(id__in=member_ids)
+
+        return query & Q(id__in=member_ids)
+
     def get_subscribers_q(self):
         # ne pas inclure les rôles inactifs dans les envois de mail
         q = ~Q(role__is_active=False)
@@ -297,30 +360,7 @@ class Segment(BaseSegment, models.Model):
         if self.tags.all().count() > 0:
             q = q & Q(tags__in=self.tags.all())
 
-        if self.supportgroup_status:
-            if self.supportgroup_status == self.GA_STATUS_NOT_MEMBER:
-                supportgroup_q = ~Q(memberships__supportgroup__published=True)
-            elif self.supportgroup_status == self.GA_STATUS_MEMBER:
-                supportgroup_q = Q(memberships__supportgroup__published=True)
-
-            elif self.supportgroup_status == self.GA_STATUS_REFERENT:
-                supportgroup_q = Q(
-                    memberships__supportgroup__published=True,
-                    memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
-                )
-            else:
-                # ==> self.supportgroup_status == self.GA_STATUS_MANAGER
-                supportgroup_q = Q(
-                    memberships__supportgroup__published=True,
-                    memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
-                )
-
-            if self.supportgroup_subtypes.all().count() > 0:
-                supportgroup_q = supportgroup_q & Q(
-                    memberships__supportgroup__subtypes__in=self.supportgroup_subtypes.all()
-                )
-
-            q = q & supportgroup_q
+        q = self.apply_supportgroup_filters(q)
 
         events_filter = {}
 
