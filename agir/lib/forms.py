@@ -48,7 +48,11 @@ class CoordinatesFormMixin(forms.Form):
             # geocode directly in process
             try:
                 geocode_element(self.instance)
-            except requests.exceptions.Timeout:
+            except (
+                requests.HTTPError,
+                requests.RequestException,
+                requests.exceptions.Timeout,
+            ):
                 if request:
                     messages.warning(
                         request,
