@@ -9,7 +9,7 @@ from rest_framework.serializers import BaseSerializer
 from rest_framework_gis.fields import GeometryField
 
 from agir.carte.models import StaticMapImage
-from .data import departement_from_zipcode
+from .data import code_postal_vers_code_departement
 from .geo import FRENCH_COUNTRY_CODES
 from .tasks import create_static_map_image_from_coordinates
 
@@ -69,11 +69,11 @@ class SimpleLocationSerializer(serializers.Serializer):
 
     def get_departement(self, obj):
         if hasattr(obj, "get_departement"):
-            return obj.get_departement(as_field="id")
+            return obj.get_departement()
         if hasattr(obj, "departement"):
             return obj.departement
         if obj.location_zip:
-            return departement_from_zipcode(obj.location_zip, {"id": ""}).get("id")
+            return code_postal_vers_code_departement(obj.location_zip)
         return None
 
     def get_address(self, obj):

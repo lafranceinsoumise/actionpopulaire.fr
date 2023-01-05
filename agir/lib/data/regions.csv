@@ -1,19 +1,19 @@
-id,nom,article,locatif,possessif,alias
-01,Guadeloupe,la ,en ,de ,
-02,Martinique,la ,en ,de ,
-03,Guyane,la ,en ,de ,
-04,La Réunion,,à ,de ,Réunion
-06,Mayotte,,à ,de ,
-11,Île-de-France,l',en ,d',IDF
-24,Centre-Val de Loire,le ,au ,du ,Centre
-27,Bourgogne-Franche-Comté,la ,en ,de la ,Bourgogne
-28,Normandie,la ,en ,de la ,
-32,Hauts-de-France,les ,dans les ,des ,
-44,Grand Est,le ,dans le ,du ,
-52,Pays de la Loire,les ,dans les ,des ,
-53,Bretagne,la ,en ,de la,
-75,Nouvelle-Aquitaine,la ,en ,de la ,Aquitaine
-76,Occitanie,l',en ,de l',
-84,Auvergne-Rhône-Alpes,l',en ,de l',
-93,Provence-Alpes-Côte d'Azur,,en région ,de la région ,PACA
-94,Corse,la ,en ,de ,
+id,cheflieu,tncc,nom,alias
+01,97105,3,Guadeloupe,
+02,97209,3,Martinique,
+03,97302,3,Guyane,
+04,97411,0,La Réunion,Réunion
+06,97608,0,Mayotte,
+11,75056,1,Île-de-France,IDF
+24,45234,2,Centre-Val de Loire,Centre
+27,21231,0,Bourgogne-Franche-Comté,Bourgogne/Franche-Comté
+28,76540,0,Normandie,
+32,59350,4,Hauts-de-France,Nord
+44,67482,2,Grand Est,
+52,44109,4,Pays de la Loire,
+53,35238,0,Bretagne,
+75,33063,3,Nouvelle-Aquitaine,Aquitaine
+76,31555,1,Occitanie,
+84,69123,1,Auvergne-Rhône-Alpes,
+93,13055,0,Provence-Alpes-Côte d'Azur,PACA
+94,2A004,0,Corse,

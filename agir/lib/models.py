@@ -15,7 +15,7 @@ from stdimage.models import StdImageField
 
 from agir.lib import data
 from agir.lib.data import (
-    departement_from_zipcode,
+    code_postal_vers_code_departement,
     FRANCE_COUNTRY_CODES,
     departements_choices,
     departements_par_code,
@@ -129,39 +129,36 @@ class SimpleLocationMixin(models.Model):
             str(getattr(self, attr)) for attr in attrs if getattr(self, attr)
         )
 
-    def get_departement(self, as_field=None):
+    def get_departement(self):
         if self.location_country in FRANCE_COUNTRY_CODES and RE_FRENCH_ZIPCODE.match(
             self.location_zip
         ):
-            departement = departement_from_zipcode(self.location_zip)
-            if not departement:
-                return ""
-            if as_field and as_field in departement:
-                return departement[as_field]
-            return departement
+            return code_postal_vers_code_departement(self.location_zip)
 
     @property
     def departement(self):
-        return self.get_departement(as_field="nom")
+        code_departement = self.get_departement()
+        if code_departement:
+            return data.departements_par_code[code_departement].nom
 
-    def get_region(self, ancienne):
+    def get_region(self, ancienne=False):
         if self.location_country in FRANCE_COUNTRY_CODES and RE_FRENCH_ZIPCODE.match(
             self.location_zip
         ):
-            departement = departement_from_zipcode(self.location_zip)
-            regions_map = (
-                data.anciennes_regions_par_code if ancienne else data.regions_par_code
-            )
-            region_key = "ancienne_region" if ancienne else "region"
+            code_departement = code_postal_vers_code_departement(self.location_zip)
 
-            if departement is not None and departement[region_key] in regions_map:
-                return regions_map.get(departement[region_key])["nom"]
+            if code_departement:
+                departement = departements_par_code[code_departement]
+
+                if ancienne:
+                    return departement.nom_ancienne_region
+                return departement.nom_region
 
         return ""
 
     @property
     def region(self):
-        return self.get_region(ancienne=False)
+        return self.get_region()
 
     @property
     def ancienne_region(self):
@@ -246,16 +243,13 @@ class LocationMixin(SimpleLocationMixin):
     def should_relocate_when_address_changed(self):
         return not self.has_location() or not self.has_manual_location()
 
-    def get_departement(self, as_field=None):
+    def get_departement(self):
         if self.location_departement_id:
-            departement = departements_par_code.get(self.location_departement_id, "")
-            if not departement:
-                return departement
-            if as_field and as_field in departement:
-                return departement[as_field]
-            return departement
+            departement = departements_par_code.get(self.location_departement_id)
+            if departement:
+                return departement.id
 
-        return super().get_departement(as_field=as_field)
+        return super().get_departement()
 
     class Meta:
         abstract = True

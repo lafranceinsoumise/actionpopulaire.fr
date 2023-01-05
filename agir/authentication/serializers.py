@@ -14,9 +14,7 @@ from agir.authentication.utils import (
 from agir.donations.actions import can_make_contribution
 from agir.donations.views.donations_views import DONATION_SESSION_NAMESPACE
 from agir.groups.models import SupportGroup, Membership
-from agir.lib.data import departement_from_zipcode
 from agir.lib.utils import front_url
-from agir.voting_proxies.models import VotingProxyRequest
 
 
 class UserContextSerializer(serializers.Serializer):
@@ -50,7 +48,7 @@ class UserContextSerializer(serializers.Serializer):
             return obj.image.thumbnail.url
 
     def get_departement(self, obj):
-        return obj.get_departement(as_field="id")
+        return obj.get_departement()
 
     def get_groups(self, obj):
         person_groups = (

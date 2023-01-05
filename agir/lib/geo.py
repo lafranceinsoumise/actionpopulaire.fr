@@ -6,7 +6,7 @@ from data_france.models import CodePostal, Commune
 from django.contrib.gis.geos import Point
 from unidecode import unidecode
 
-from .data import departement_from_zipcode
+from .data import code_postal_vers_code_departement
 from .models import LocationMixin
 
 logger = logging.getLogger(__name__)
@@ -151,9 +151,9 @@ def geocode_ban(item):
         if not item.location_zip and "postcode" in feature["properties"]:
             item.location_zip = feature["properties"]["postcode"]
 
-        item.location_departement_id = departement_from_zipcode(
-            item.location_zip, fallback_value=dict
-        ).get("id", "")
+        item.location_departement_id = code_postal_vers_code_departement(
+            item.location_zip
+        )
 
         return True
 
@@ -217,9 +217,9 @@ def geocode_data_france(item):
                 """,
                     {"cp_id": code_postal.id},
                 )[0]
-                item.location_departement_id = departement_from_zipcode(
-                    item.location_zip, fallback_value=dict
-                ).get("id", "")
+                item.location_departement_id = code_postal_vers_code_departement(
+                    item.location_zip
+                )
                 item.coordinates = code_postal.centroid
                 item.coordinates_type = LocationMixin.COORDINATES_UNKNOWN_PRECISION
                 return

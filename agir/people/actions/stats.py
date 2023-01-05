@@ -6,7 +6,7 @@ from django.utils import timezone
 from push_notifications.models import GCMDevice, APNSDevice
 
 from agir.groups.models import Membership, SupportGroup
-from agir.lib.data import departement_from_zipcode
+from agir.lib.data import code_postal_vers_code_departement, departements_par_code
 from agir.payments.models import Payment
 from agir.people.models import Person
 from agir.presidentielle2022.apps import Presidentielle2022Config
@@ -85,8 +85,9 @@ def get_statistics_for_queryset(original_queryset):
             if person.location_zip not in stats["zip_codes"]:
                 stats["zip_codes"][person.location_zip] = 0
             stats["zip_codes"][person.location_zip] += 1
-            departement = departement_from_zipcode(person.location_zip)
-            if departement:
+            code_departement = code_postal_vers_code_departement(person.location_zip)
+            if code_departement:
+                departement = departements_par_code[code_departement]
                 departement = f'{departement.get("id")} - {departement.get("nom")}'
                 if departement not in stats["departements"]:
                     stats["departements"][departement] = 0
