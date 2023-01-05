@@ -637,7 +637,7 @@ def send_soon_to_be_inactive_group_warning(supportgroup_pk):
     supportgroup = SupportGroup.objects.get(pk=supportgroup_pk)
     recipients = supportgroup.referents
     send_template_email(
-        code="SOON_TO_BE_INACTIVE_GROUP_WARNING",
+        template_name="groups/email/soon_to_be_inactive_group_warning_email.html",
         from_email=settings.EMAIL_FROM,
         bindings={
             "GROUP_NAME": supportgroup.name,
