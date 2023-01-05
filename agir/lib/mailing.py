@@ -139,7 +139,12 @@ def render_email_template(template, context):
         **basic_information(None),
     }
     subject = template.render(
-        {**context, "email_template": Template("{% block subject %}{% endblock %}")}
+        {
+            **context,
+            "email_template": Template(
+                "{% autoescape off %}{% block subject %}{% endblock %}{% endautoescape %}"
+            ),
+        }
     ).strip()
     text_content = template.render(
         {**context, "email_template": "mail_templates/layout.txt"}
