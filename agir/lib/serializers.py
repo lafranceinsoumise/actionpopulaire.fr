@@ -9,7 +9,7 @@ from rest_framework.serializers import BaseSerializer
 from rest_framework_gis.fields import GeometryField
 
 from agir.carte.models import StaticMapImage
-from .data import departement_from_zipcode
+from .data import code_postal_vers_code_departement
 from .geo import FRENCH_COUNTRY_CODES
 from .tasks import create_static_map_image_from_coordinates
 
@@ -46,7 +46,7 @@ class NullableCountryField(NullAsBlankMixin, CountryField):
     pass
 
 
-class LocationSerializer(serializers.Serializer):
+class SimpleLocationSerializer(serializers.Serializer):
     name = serializers.CharField(source="location_name")
     address1 = serializers.CharField(source="location_address1")
     address2 = serializers.CharField(
@@ -60,8 +60,6 @@ class LocationSerializer(serializers.Serializer):
 
     shortAddress = serializers.CharField(source="short_address", required=False)
     shortLocation = serializers.CharField(source="short_location", required=False)
-    coordinates = GeometryField(required=False)
-    staticMapUrl = serializers.SerializerMethodField(read_only=True)
 
     def to_representation(self, instance):
         data = super().to_representation(instance=instance)
@@ -70,11 +68,13 @@ class LocationSerializer(serializers.Serializer):
         return data
 
     def get_departement(self, obj):
-        if not obj.location_zip:
-            return None
-        departement = departement_from_zipcode(obj.location_zip)
-        if departement:
-            return departement.get("id")
+        if hasattr(obj, "get_departement"):
+            return obj.get_departement()
+        if hasattr(obj, "departement"):
+            return obj.departement
+        if obj.location_zip:
+            return code_postal_vers_code_departement(obj.location_zip)
+        return None
 
     def get_address(self, obj):
         parts = [
@@ -87,6 +87,11 @@ class LocationSerializer(serializers.Serializer):
             parts.append(obj.location_country.name)
 
         return "\n".join(p for p in parts if p)
+
+
+class LocationSerializer(SimpleLocationSerializer):
+    coordinates = GeometryField(required=False)
+    staticMapUrl = serializers.SerializerMethodField(read_only=True)
 
     def get_staticMapUrl(self, obj):
         if hasattr(obj, "static_map_image") and obj.static_map_image:

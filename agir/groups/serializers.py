@@ -19,6 +19,7 @@ from agir.lib.serializers import (
     NestedContactSerializer,
     NestedLocationSerializer,
     PhoneField,
+    SimpleLocationSerializer,
 )
 from agir.lib.utils import front_url
 from agir.people.serializers import PersonSerializer
@@ -92,6 +93,7 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
     isCertified = serializers.SerializerMethodField(
         read_only=True, method_name="get_is_certified"
     )
+    location = SimpleLocationSerializer(source="*", read_only=True)
 
     def to_representation(self, instance):
         user = self.context["request"].user
