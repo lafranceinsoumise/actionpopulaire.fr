@@ -42,6 +42,7 @@ from agir.people.admin.actions import (
     export_people_to_csv,
     export_liaisons_to_csv,
     unsubscribe_from_all_newsletters,
+    bulk_add_tag,
 )
 from agir.people.admin.forms import PersonAdminForm, PersonFormForm
 from agir.people.admin.inlines import (
@@ -269,7 +270,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
     # de recherche
     search_fields = ["search", "contact_phone"]
 
-    actions = (export_people_to_csv,)
+    actions = (export_people_to_csv, bulk_add_tag)
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = deepcopy(super().get_fieldsets(request, obj))
@@ -550,6 +551,11 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
 
     def has_export_permission(self, request):
         return request.user.has_perm("people.export_people")
+
+    def has_bulk_add_tag_permission(self, request):
+        return request.user.has_perm("people.change_person") and request.user.has_perm(
+            "people.view_persontag"
+        )
 
     def changelist_view(self, request, extra_context=None):
         if extra_context is None:
