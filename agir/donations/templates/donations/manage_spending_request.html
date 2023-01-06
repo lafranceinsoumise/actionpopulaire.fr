@@ -72,8 +72,6 @@
                     <th>Nom</th>
                     <th>Type</th>
                     <th></th>
-                    <th></th>
-                    <th></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -83,15 +81,13 @@
                       {{ document.title }}
                     </td>
                     <td>{{ document.get_type_display }}</td>
-                    <td>
+                    <td style="white-space: nowrap;">
                       <a
                         class="btn btn-sm btn-info"
                         href="{{ document.file.url }}"
                         title="Télécharger le document">
                         <span class="fa fa-eye"></span>
                       </a>
-                    </td>
-                    <td>
                       <a
                         href="{% url "edit_document" spending_request.pk document.pk %}"
                         class="btn btn-sm btn-info"
@@ -99,8 +95,6 @@
                       >
                         <span class="fa fa-pencil"></span>
                       </a>
-                    </td>
-                    <td>
                       <span style="display: inline-block" class="delete-document"
                            data-document-name="{{ document.title }}"
                            data-delete-url="{% url "delete_document" spending_request.pk document.pk %}"></span>
