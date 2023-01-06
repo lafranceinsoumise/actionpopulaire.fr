@@ -35,7 +35,7 @@ django-redis = "==5.*"
 psycopg2 = "*"
 django-prometheus = "==2.*"
 # celery
-celery = "==4.*"
+celery = "==5.*"
 celery-prometheus-exporter = "==1.*"
 # redis
 redis = ">=3.2.0"
