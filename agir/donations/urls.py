@@ -34,6 +34,11 @@ urlpatterns = [
         name="edit_spending_request",
     ),
     path(
+        "financement/requete/<uuid:pk>/supprimer/",
+        views.DeleteSpendingRequestView.as_view(),
+        name="delete_spending_request",
+    ),
+    path(
         "financement/requete/<uuid:spending_request_id>/document/creer/",
         views.CreateDocumentView.as_view(),
         name="create_document",
