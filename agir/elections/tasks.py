@@ -1,11 +1,7 @@
-from datetime import timezone
-
-import isodate
 from django.utils.datetime_safe import datetime
 
 from agir.elections.data import get_campaign_manager_for_circonscription_legislative
 from agir.elections.models import PollingStationOfficer
-
 from agir.lib.celery import emailing_task
 from agir.lib.mailing import send_mosaico_email
 from agir.lib.utils import front_url
