@@ -730,7 +730,7 @@ test = ["pytest", "pytest-cov", "pytest-django"]
 
 [[package]]
 name = "django-storages"
-version = "1.13.1"
+version = "1.13.2"
 description = "Support for many storage backends in Django"
 category = "main"
 optional = false
@@ -745,7 +745,7 @@ boto3 = ["boto3 (>=1.4.4)"]
 dropbox = ["dropbox (>=7.2.1)"]
 google = ["google-cloud-storage (>=1.27.0)"]
 libcloud = ["apache-libcloud"]
-sftp = ["paramiko"]
+sftp = ["paramiko (>=1.10.0)"]
 
 [[package]]
 name = "djangorestframework"
@@ -2260,7 +2260,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "bbb2da004147962473db074631d6e3a6ad927dd31b9d756d5836f6a11b929f70"
+content-hash = "d00e6a0eab687a3d52d68cf4ef97c253d475ddf695f9d0d58ff466d1dbc0b74e"
 
 [metadata.files]
 amqp = [
@@ -2715,8 +2715,8 @@ django-stdimage = [
     {file = "django_stdimage-6.0.1-py2.py3-none-any.whl", hash = "sha256:67984acde2a8077e49a43998856b7571ffe0a90e23cb578267c1b0ed454e3e5f"},
 ]
 django-storages = [
-    {file = "django-storages-1.13.1.tar.gz", hash = "sha256:b3d98ecc09f1b1627c2b2cf430964322ce4e08617dbf9b4236c16a32875a1e0b"},
-    {file = "django_storages-1.13.1-py3-none-any.whl", hash = "sha256:3540b45618b04be2c867c0982e8d2bd8e34f84dae922267fcebe4691fb93daf0"},
+    {file = "django-storages-1.13.2.tar.gz", hash = "sha256:cbadd15c909ceb7247d4ffc503f12a9bec36999df8d0bef7c31e57177d512688"},
+    {file = "django_storages-1.13.2-py3-none-any.whl", hash = "sha256:31dc5a992520be571908c4c40d55d292660ece3a55b8141462b4e719aa38eab3"},
 ]
 djangorestframework = [
     {file = "djangorestframework-3.14.0-py3-none-any.whl", hash = "sha256:eb63f58c9f218e1a7d064d17a70751f528ed4e1d35547fdade9aaf4cd103fd08"},
