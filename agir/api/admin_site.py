@@ -22,6 +22,9 @@ class PersonAuthenticationForm(OTPAdminAuthenticationForm):
         self.user_cache = None
         super().__init__(*args, **kwargs)
 
+        self.fields["username"].max_length = None
+        self.fields["username"].widget.attrs["maxlength"] = None
+
     def clean(self):
         email = self.cleaned_data.get("username")
         password = self.cleaned_data.get("password")
