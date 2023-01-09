@@ -1,67 +1,63 @@
-import React from "react";
 import PropTypes from "prop-types";
-import styled from "styled-components";
+import React, { useCallback, useRef, useState } from "react";
 
-import Modal from "@agir/lib/bootstrap/Modal";
-import Button from "@agir/lib/bootstrap/Button";
 import { getCookie } from "@agir/lib/utils/cookies";
 
-const Centerer = styled.div`
-  display: flex;
-  justify-content: center;
-`;
+import Button from "@agir/lib/bootstrap/Button";
+import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 
-const Spacer = styled.div`
-  margin: 1em;
-`;
+const DeleteDocumentButton = ({ deleteUrl, documentName }) => {
+  const deleteForm = useRef();
+  const [isOpen, setIsOpen] = useState(false);
 
-class DeleteDocumentButton extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { modalShown: false };
-  }
+  const handleOpen = useCallback(() => {
+    setIsOpen(true);
+  }, []);
 
-  render() {
-    return (
-      <React.Fragment>
-        <Button onClick={() => this.setState({ modalShown: true })}>
-          <span className="fa fa-trash" />
-        </Button>
-        <Modal
-          show={this.state.modalShown}
-          onHide={() => this.setState({ modalShown: false })}
-          title={`Voulez-vous vraiment supprimer le document ${this.props.documentName} ?`}
-        >
-          <Modal.Body>
-            <form method="post" action={this.props.deleteUrl}>
-              <input
-                type="hidden"
-                name="csrfmiddlewaretoken"
-                value={getCookie("csrftoken")}
-              />
-              <Centerer>
-                <Spacer>
-                  <Button type="submit" bsStyle="danger">
-                    Oui
-                  </Button>
-                </Spacer>
-                <Spacer>
-                  <Button onClick={() => this.setState({ modalShown: false })}>
-                    Non
-                  </Button>
-                </Spacer>
-              </Centerer>
-            </form>
-          </Modal.Body>
-        </Modal>
-      </React.Fragment>
-    );
-  }
-}
+  const handleClose = useCallback(() => {
+    setIsOpen(false);
+  }, []);
+
+  const handleConfirm = useCallback(() => {
+    deleteForm.current && deleteForm.current.submit();
+  }, []);
+
+  return (
+    <>
+      <Button
+        bsSize="sm"
+        bsStyle="danger"
+        onClick={handleOpen}
+        title="Supprimer le document"
+      >
+        <span className="fa fa-trash" />
+      </Button>
+      <ModalConfirmation
+        shouldShow={isOpen}
+        onClose={handleClose}
+        title={`Supprimer le document ${documentName}`}
+        dismissLabel="Annuler"
+        confirmationLabel="Supprimer le document"
+        onConfirm={handleConfirm}
+        shouldDismissOnClick
+      >
+        <form ref={deleteForm} method="post" action={deleteUrl}>
+          <input
+            type="hidden"
+            name="csrfmiddlewaretoken"
+            value={getCookie("csrftoken")}
+          />
+          <p>Confirmez-vous la suppression définitive de ce document&nbsp;?</p>
+          <p>Attention&nbsp;: cette action est irréversible.</p>
+        </form>
+      </ModalConfirmation>
+    </>
+  );
+};
 
 DeleteDocumentButton.propTypes = {
-  documentName: PropTypes.string,
   deleteUrl: PropTypes.string,
+  documentName: PropTypes.string,
 };
 
 export default DeleteDocumentButton;

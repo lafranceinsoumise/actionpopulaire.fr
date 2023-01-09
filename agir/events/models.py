@@ -45,7 +45,7 @@ from agir.lib.models import (
     DescriptionField,
     BaseSubtype,
     TimeStampedModel,
-    banner_path,
+    banner_image_file_path,
 )
 from agir.lib.search import PrefixSearchQuery
 from agir.lib.utils import front_url, resize_and_autorotate
@@ -895,7 +895,7 @@ class EventSubtype(BaseSubtype):
 
     default_image = StdImageField(
         _("image par défaut"),
-        upload_to=banner_path,
+        upload_to=banner_image_file_path,
         variations=settings.BANNER_CONFIG,
         blank=True,
         help_text=_("L'image associée par défaut à un événement de ce sous-type."),

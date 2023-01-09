@@ -16,7 +16,7 @@ django-cors-headers = "==3.*"  # configuring CORS Headers
 ## model and form fields
 django-countries = "==7.*"  # country fields
 django-phonenumber-field = "==7.*"  # phone number field
-phonenumbers = "==8.13.2"  # optional requirement of django-phonenumber-field
+phonenumbers = "==8.13.3"  # optional requirement of django-phonenumber-field
 django-stdimage = "==6.*"  # better image field with handling of variations
 django-dynamic-filenames = "==1.*"  # better handling of upload path for file fields
 unicode-slugify = "==0.1.*"  # optional requirement of django-dynamic-filenames
@@ -35,7 +35,7 @@ django-redis = "==5.*"
 psycopg2 = "*"
 django-prometheus = "==2.*"
 # celery
-celery = "==4.*"
+celery = "==5.*"
 celery-prometheus-exporter = "==1.*"
 # redis
 redis = ">=3.2.0"
@@ -80,13 +80,13 @@ sentry-sdk = "*"
 django-push-notifications =  {version = "*", extras=["apns"]}
 pywebpush = "*"
 social-auth-core = "==4.0.2"
-django-storages = "^1.11.1"
+django-storages = "^1.13.2"
 qrcode = {extras = ["pil"], version = "^7.2"}
 xlsxwriter = "*"
 trio = "^0.22.0"
 asks = "^3.0.0"
 Django = "^3.2"
-pydantic = "^1.10.2"
+pydantic = "^1.10.4"
 
 [tool.poetry.dev-dependencies]
 ipython = "*"

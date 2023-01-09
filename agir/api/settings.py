@@ -660,9 +660,39 @@ if not DEBUG:
         },
     }
 
+    def sentry_traces_sampler(ctx):
+        default_traces_sample_rate = os.environ.get("SENTRY_DEFAULT_TRACES_SAMPLE_RATE")
+        try:
+            default_traces_sample_rate = float(default_traces_sample_rate)
+            if default_traces_sample_rate < 0 or default_traces_sample_rate > 1:
+                raise ValueError()
+        except (ValueError, TypeError):
+            default_traces_sample_rate = 0.1
+
+        # cf. https://stackoverflow.com/a/74411586/8218652
+        if ctx.get("parent_sampled", None):
+            # If this transaction has a parent, we usually want to sample it
+            # if and only if its parent was sampled.
+            return ctx["parent_sampled"]
+
+        op = ctx["transaction_context"]["op"]
+        if op == "http.server":
+            url = ""
+            if "wsgi_environ" in ctx:
+                # Get the URL for WSGI requests
+                url = ctx["wsgi_environ"].get("PATH_INFO", "")
+            elif "asgi_scope" in ctx:
+                # Get the URL for ASGI requests
+                url = ctx["asgi_scope"].get("path", "")
+
+            if url and "/ping/" in url:
+                return 0.01
+
+        return default_traces_sample_rate
+
     sentry_sdk.init(
         integrations=[DjangoIntegration(), RedisIntegration()],
-        traces_sample_rate=0.1,
+        traces_sampler=sentry_traces_sampler,
         environment=os.environ.get("SENTRY_ENV", "production"),
     )
 

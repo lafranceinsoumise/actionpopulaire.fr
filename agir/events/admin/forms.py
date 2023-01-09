@@ -153,8 +153,8 @@ class EventAdminForm(CoordinatesFormMixin, forms.ModelForm):
 
         return cleaned_data
 
-    def save(self, commit=True):
-        result = super().save(commit)
+    def save(self, commit=True, **kwargs):
+        result = super().save(commit, **kwargs)
         if (
             self.cleaned_data["send_visibility_notification"]
             and "visibility" in self.changed_data

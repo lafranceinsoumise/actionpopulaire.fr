@@ -145,6 +145,16 @@ def can_edit(spending_request):
     return spending_request.status in EDITABLE_STATUSES
 
 
+DELETABLE_STATUSES = [
+    SpendingRequest.STATUS_DRAFT,
+    SpendingRequest.STATUS_AWAITING_GROUP_VALIDATION,
+]
+
+
+def can_delete(spending_request):
+    return spending_request.status in DELETABLE_STATUSES
+
+
 def can_send_for_review(spending_request, user):
     """Check if user can send spending_request for review
 

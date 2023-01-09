@@ -18,6 +18,7 @@ from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse, SimpleTemplateResponse
 from django.urls import reverse, path
+from django.utils import timezone
 from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
@@ -41,16 +42,27 @@ from agir.people.admin.actions import (
     export_people_to_csv,
     export_liaisons_to_csv,
     unsubscribe_from_all_newsletters,
+    bulk_add_tag,
 )
 from agir.people.admin.forms import PersonAdminForm, PersonFormForm
-from agir.people.admin.inlines import RSVPInline, MembershipInline, EmailInline
+from agir.people.admin.inlines import (
+    RSVPInline,
+    MembershipInline,
+    EmailInline,
+    PersonQualificationInline,
+)
 from agir.people.admin.views import (
     FormSubmissionViewsMixin,
     AddPersonEmailView,
     MergePersonsView,
     PersonFormSandboxView,
 )
-from agir.people.models import Person, PersonTag
+from agir.people.models import (
+    Person,
+    PersonTag,
+    PersonQualification,
+    Qualification,
+)
 from agir.people.person_forms.display import default_person_form_display
 from agir.people.person_forms.models import PersonForm, PersonFormSubmission
 
@@ -196,6 +208,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
                     "location_address2",
                     "location_city",
                     "location_zip",
+                    "location_departement_id",
                     "location_state",
                     "location_country",
                     "location_citycode",
@@ -225,6 +238,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "campaigns_link",
         "supportgroups",
         "events",
+        "location_departement_id",
         "coordinates_type",
         "coordinates_value",
         "mandats",
@@ -247,7 +261,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         ("created", DateRangeFilter),
     )
 
-    inlines = (RSVPInline, MembershipInline, EmailInline)
+    inlines = (PersonQualificationInline, RSVPInline, MembershipInline, EmailInline)
 
     autocomplete_fields = ("tags",)
 
@@ -256,7 +270,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
     # de recherche
     search_fields = ["search", "contact_phone"]
 
-    actions = (export_people_to_csv,)
+    actions = (export_people_to_csv, bulk_add_tag)
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = deepcopy(super().get_fieldsets(request, obj))
@@ -314,6 +328,8 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
     )
 
     def unsubscribe_from_all_newsletters(self, obj):
+        if not obj or not obj.pk:
+            return "-"
         return format_html(
             '<a href="{}" class="button">Désinscrire de tous les envois d\'e-mails et de notifications push</a>',
             reverse(
@@ -536,6 +552,11 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
     def has_export_permission(self, request):
         return request.user.has_perm("people.export_people")
 
+    def has_bulk_add_tag_permission(self, request):
+        return request.user.has_perm("people.change_person") and request.user.has_perm(
+            "people.view_persontag"
+        )
+
     def changelist_view(self, request, extra_context=None):
         if extra_context is None:
             extra_context = {}
@@ -577,6 +598,9 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
                 request.POST = post
 
         return super().changelist_view(request, extra_context)
+
+    def save_form(self, request, form, change):
+        return form.save(commit=False, request=request)
 
     class Media:
         pass
@@ -1012,6 +1036,105 @@ class LiaisonAdmin(admin.ModelAdmin):
 
     def get_queryset(self, *args, **kwargs):
         return super().get_queryset(*args, **kwargs).liaisons()
+
+    class Media:
+        pass
+
+
+@admin.register(Qualification)
+class QualificationAdmin(admin.ModelAdmin):
+    list_display = ("label", "description", "active_count", "total_count")
+    search_fields = ("label",)
+
+    def active_count(self, obj):
+        return obj.person_qualifications.effective().count()
+
+    active_count.short_description = "En cours"
+    active_count.integer = True
+
+    def total_count(self, obj):
+        return obj.person_qualifications.count()
+
+    total_count.short_description = "Total"
+    total_count.integer = True
+
+
+class QualificationListFilter(AutocompleteRelatedModelFilter):
+    field_name = "qualification"
+    title = "type de statut"
+
+
+class PersonQualificationStatusListFilter(admin.SimpleListFilter):
+    title = "état du statut"
+    parameter_name = "status"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("0", "En cours"),
+            ("1", "À venir"),
+            ("-1", "Passés"),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == "0":
+            return queryset.effective()
+        if self.value() == "1":
+            return queryset.future()
+        if self.value() == "-1":
+            return queryset.past()
+
+        return queryset
+
+
+@admin.register(PersonQualification)
+class PersonQualificationAdmin(admin.ModelAdmin):
+    list_display = (
+        "__str__",
+        "qualification_link",
+        "person_link",
+        "start_time",
+        "end_time",
+        "is_effective",
+    )
+    search_fields = ("person__search", "qualification__label")
+    list_filter = (
+        PersonQualificationStatusListFilter,
+        QualificationListFilter,
+    )
+    autocomplete_fields = ("person", "qualification")
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return ["person", "qualification"]
+        return super().get_readonly_fields(request, obj)
+
+    def qualification_link(self, obj):
+        return format_html(
+            '<a href="{link}">{qualification}</a>',
+            qualification=str(obj.qualification),
+            link=reverse(
+                "admin:people_qualification_change", args=[obj.qualification_id]
+            ),
+        )
+
+    qualification_link.short_description = "Type de statut"
+    qualification_link.ordering = "qualification"
+
+    def person_link(self, obj):
+        return format_html(
+            '<a href="{link}">{person}</a>',
+            person=str(obj.person),
+            link=reverse("admin:people_person_change", args=[obj.person_id]),
+        )
+
+    person_link.short_description = "Personne"
+    person_link.ordering = "qualification"
+
+    def is_effective(self, obj):
+        return obj.is_effective
+
+    is_effective.short_description = "En cours"
+    is_effective.boolean = True
 
     class Media:
         pass

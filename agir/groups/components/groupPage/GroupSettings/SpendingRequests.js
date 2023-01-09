@@ -3,6 +3,7 @@ import React from "react";
 import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
+import Spacer from "@agir/front/genericComponents/Spacer";
 
 const StyledSpendingRequest = styled.a`
   display: flex;
@@ -100,15 +101,6 @@ SpendingRequest.propTypes = {
 const SpendingRequests = ({ newSpendingRequestLink, spendingRequests }) => {
   return (
     <StyledSpendingRequests>
-      {Array.isArray(spendingRequests) && spendingRequests.length > 0 && (
-        <ul>
-          {spendingRequests.map((spendingRequest) => (
-            <li key={spendingRequest.id}>
-              <SpendingRequest {...spendingRequest} />
-            </li>
-          ))}
-        </ul>
-      )}
       {newSpendingRequestLink && (
         <Button
           link
@@ -119,6 +111,16 @@ const SpendingRequests = ({ newSpendingRequestLink, spendingRequests }) => {
         >
           Créer une demande de dépense
         </Button>
+      )}
+      <Spacer size="1rem" />
+      {Array.isArray(spendingRequests) && spendingRequests.length > 0 && (
+        <ul>
+          {spendingRequests.map((spendingRequest) => (
+            <li key={spendingRequest.id}>
+              <SpendingRequest {...spendingRequest} />
+            </li>
+          ))}
+        </ul>
       )}
     </StyledSpendingRequests>
   );

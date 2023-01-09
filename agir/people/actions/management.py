@@ -211,6 +211,7 @@ MERGE_STRATEGIES = {
     "location_city": merge_text_fields,
     "location_zip": merge_text_fields,
     "location_state": merge_text_fields,
+    "location_departement_id": merge_text_fields,
     "location_country": merge_text_fields,
     "role": None,
     "auto_login_salt": None,
@@ -262,6 +263,7 @@ MERGE_STRATEGIES = {
     "voting_proxy": None,
     "polling_station_officer": None,
     "crp": merge_comments,
+    "person_qualification": merge_reassign_related,
 }
 
 

@@ -12,34 +12,34 @@
   <div class="row">
     <div class="col-xs-12 margintopmore text-right" style="line-height: 45px; margin-bottom: 0;">
       <div class="pull-left">
-        <a class="menu-back-link" href="{% url "list_events" %}">
-          <i class="fa fa-arrow-left"></i>&emsp;Retour à l'accueil
+        <a class="menu-back-link" href="{% url "view_group_settings_finance" supportgroup.pk %}">
+          <i class="fa fa-arrow-left"></i>&emsp;Retour
         </a>
       </div>
       <div class="pull-right">
         {% if can_edit %}
           <a
             class="btn btn-sm btn-default"
-            href="{% url "edit_spending_request" spendingrequest.pk %}">
+            href="{% url "edit_spending_request" spending_request.pk %}">
             <i class="fa fa-pencil"></i> Modifier la demande
           </a>
           <a
             class="btn btn-sm btn-default"
-            href="{% url "create_document" spendingrequest.pk %}">
+            href="{% url "create_document" spending_request.pk %}">
             <i class="fa fa-plus"></i> Ajouter une pièce justificative
           </a>
         {% endif %}
-        <a
-          class="btn btn-sm btn-default"
-          href="{% url "view_group" supportgroup.pk %}">
-          Page publique du groupe
-        </a>
+        {% if can_delete %}
+          <span
+            class="delete-spending-request"
+            data-delete-url="{% url "delete_spending_request" spending_request.pk %}">
+          </span>
+        {% endif %}
       </div>
       <div class="clearfix"></div>
       <hr />
     </div>
-    <div class="col-xs-12 col-md-2 margintopmore"></div>
-    <div class="col-xs-12 col-md-8 tab-content">
+    <div class="col-xs-12 tab-content">
       <h2 class="headline">
         {{ supportgroup.name }}
       </h2>
@@ -48,10 +48,9 @@
         Gérer ma demande de dépense ou de remboursement
       </h4>
       <div class="row">
-        <div class="col-md-6">
-
+        <div class="col-md-8">
           <div class="padtop padbottommore">
-            <h4>Les détails de ma demande</h4>
+            <h4>Détails</h4>
             <div class="table-responsive">
               <table class="table table-condensed">
                 {% for field in summary %}
@@ -64,7 +63,7 @@
             </div>
           </div>
           <div class="padtop padbottommore">
-            <h4>Mes pièces justificatives</h4>
+            <h4>Pièces justificatives</h4>
             {% if documents %}
             <div class="table-responsive">
               <table class="table table-condensed">
@@ -72,25 +71,33 @@
                   <tr>
                     <th>Nom</th>
                     <th>Type</th>
-                    <th>Modifier</th>
+                    <th></th>
                   </tr>
                 </thead>
                 <tbody>
                 {% for document in documents %}
                   <tr>
                     <td>
-                      <a href="{{ document.file.url }}">
-                        {{ document.title }} <span class="fa fa-download"></span>
-                      </a>
+                      {{ document.title }}
                     </td>
                     <td>{{ document.get_type_display }}</td>
-                    <td>
-                      <a href="{% url "edit_document" spendingrequest.pk document.pk %}" class="btn btn-default">
-                        <span class="fa fa-edit" title="Modifier {{ document.title }}"></span>
+                    <td style="white-space: nowrap;">
+                      <a
+                        class="btn btn-sm btn-info"
+                        href="{{ document.file.url }}"
+                        title="Télécharger le document">
+                        <span class="fa fa-eye"></span>
+                      </a>
+                      <a
+                        href="{% url "edit_document" spending_request.pk document.pk %}"
+                        class="btn btn-sm btn-info"
+                        title="Modifier le document"
+                      >
+                        <span class="fa fa-pencil"></span>
                       </a>
                       <span style="display: inline-block" class="delete-document"
                            data-document-name="{{ document.title }}"
-                           data-delete-url="{% url "delete_document" spendingrequest.pk document.pk %}"></span>
+                           data-delete-url="{% url "delete_document" spending_request.pk document.pk %}"></span>
                     </td>
                   </tr>
                 {% endfor %}
@@ -104,7 +111,7 @@
             {% endif %}
           </div>
         </div>
-        <div class="col-md-5 col-md-offset-1">
+        <div class="col-md-4">
           <div class="padtop padbottommore">
             <h4>Statut de la demande</h4>
             <p class="padbottom">{{ action.explanation }}</p>
@@ -125,7 +132,7 @@
             {% endif %}
           </div>
           <div class="padtop padbottommore">
-            <h4>Historique de ma demande</h4>
+            <h4>Historique</h4>
             <div class="list-group">
               {% for step in history %}
                 <div class="list-group-item marginbottom" style="border-radius: 8px;">

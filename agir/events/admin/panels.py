@@ -287,6 +287,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
                     "location_address2",
                     "location_city",
                     "location_zip",
+                    "location_departement_id",
                     "location_state",
                     "location_country",
                     "coordinates",
@@ -321,6 +322,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "organizers",
         "created",
         "modified",
+        "location_departement_id",
         "coordinates_type",
         "rsvps_buttons",
         "participants_display",
@@ -566,6 +568,9 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         if "timezone" in form.changed_data or "end_time" in form.changed_data:
             obj.end_time = replace_datetime_timezone(obj.end_time, obj.timezone)
         return super().save_model(request, obj, form, change)
+
+    def save_form(self, request, form, change):
+        return form.save(commit=False, request=request)
 
 
 @admin.register(models.Calendar)

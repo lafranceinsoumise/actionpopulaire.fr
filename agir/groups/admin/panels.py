@@ -172,6 +172,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                     "location_address2",
                     "location_city",
                     "location_zip",
+                    "location_departement_id",
                     "location_state",
                     "location_country",
                     "coordinates",
@@ -209,6 +210,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         "action_buttons",
         "created",
         "modified",
+        "location_departement_id",
         "coordinates_type",
         "promo_code",
         "allocation",
@@ -414,6 +416,9 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                     partial(self.allocation, show_add_button=True), self.allocation
                 )
         return cl
+
+    def save_form(self, request, form, change):
+        return form.save(commit=False, request=request)
 
     class Media:
         # classe Media requise par le CirconscriptionLegislativeFilter, quand bien même elle est vide
