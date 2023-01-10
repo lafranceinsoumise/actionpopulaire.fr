@@ -26,14 +26,30 @@ class GroupRulesTestCase(TestCase):
         )
 
     def test_is_published(self):
+        self.group1.published = True
+        self.group1.save()
+
         self.group2.published = False
         self.group2.save()
 
-        self.assertTrue(rules.is_group_published(None, self.group1))
-        self.assertTrue(rules.is_group_published(self.person.role, self.group1))
+        self.assertTrue(rules.is_published_group(None, self.group1))
+        self.assertTrue(rules.is_published_group(self.person.role, self.group1))
 
-        self.assertFalse(rules.is_group_published(None, self.group2))
-        self.assertFalse(rules.is_group_published(self.person.role, self.group2))
+        self.assertFalse(rules.is_published_group(None, self.group2))
+        self.assertFalse(rules.is_published_group(self.person.role, self.group2))
+
+    def test_is_editable(self):
+        self.group1.editable = True
+        self.group1.save()
+
+        self.group2.editable = False
+        self.group2.save()
+
+        self.assertTrue(rules.is_editable_group(None, self.group1))
+        self.assertTrue(rules.is_editable_group(self.person.role, self.group1))
+
+        self.assertFalse(rules.is_editable_group(None, self.group2))
+        self.assertFalse(rules.is_editable_group(self.person.role, self.group2))
 
     def test_has_manager_rights(self):
         self.membership2.membership_type = Membership.MEMBERSHIP_TYPE_MANAGER

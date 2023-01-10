@@ -7,8 +7,24 @@ from ..msgs.models import SupportGroupMessage, SupportGroupMessageComment
 
 
 @rules.predicate
-def is_group_published(role, supportgroup=None):
+def is_published_group(role, supportgroup=None):
     return supportgroup is not None and supportgroup.published
+
+
+@rules.predicate
+def is_editable_group(role, object=None):
+    if object is None:
+        return False
+    if isinstance(object, SupportGroup):
+        supportgroup = object
+    elif hasattr(object, "supportgroup"):
+        supportgroup = object.supportgroup
+    elif isinstance(object, SupportGroupMessageComment):
+        supportgroup = object.message.supportgroup
+    else:
+        return False
+
+    return supportgroup.editable
 
 
 @rules.predicate
@@ -126,24 +142,25 @@ rules.add_perm(
     is_authenticated_person & is_at_least_manager_for_group,
 )
 rules.add_perm(
-    "groups.change_group_name", is_authenticated_person & is_at_least_referent_for_group
+    "groups.change_group_name",
+    is_editable_group & is_authenticated_person & is_at_least_referent_for_group,
 )
 rules.add_perm(
     "groups.delete_supportgroup",
-    is_authenticated_person & is_at_least_referent_for_group,
+    is_editable_group & is_authenticated_person & is_at_least_referent_for_group,
 )
-rules.add_perm("groups.view_supportgroup", is_group_published)
+rules.add_perm("groups.view_supportgroup", is_published_group)
 rules.add_perm(
     "groups.add_manager_to_supportgroup",
-    is_authenticated_person & is_at_least_referent_for_group,
+    is_editable_group & is_authenticated_person & is_at_least_referent_for_group,
 )
 rules.add_perm(
     "groups.add_referent_to_supportgroup",
-    is_authenticated_person & is_group_only_referent,
+    is_editable_group & is_authenticated_person & is_group_only_referent,
 )
 rules.add_perm(
     "groups.change_membership",
-    is_authenticated_person & own_membership_has_higher_rights,
+    is_editable_group & is_authenticated_person & own_membership_has_higher_rights,
 )
 rules.add_perm(
     "groups.update_own_membership",
@@ -154,11 +171,12 @@ rules.add_perm(
     is_authenticated_person & is_own_membership & (~is_group_only_referent),
 )
 rules.add_perm(
-    "groups.transfer_members", is_authenticated_person & is_at_least_manager_for_group
+    "groups.transfer_members",
+    is_editable_group & is_authenticated_person & is_at_least_manager_for_group,
 )
 rules.add_perm(
     "groups.change_membership_type",
-    is_authenticated_person & is_at_least_manager_for_group,
+    is_editable_group & is_authenticated_person & is_at_least_manager_for_group,
 )
 rules.add_perm(
     "groups.view_group_finance",
