@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("groups", "0011_alter_supportgroup_image"),
+        ("groups", "0012_supportgroup_location_departement_id"),
     ]
 
     operations = [

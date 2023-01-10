@@ -16,10 +16,15 @@ def creer_sous_type_boucle_departementale(apps, schema):
     )
 
 
+def supprimer_sous_type_boucle_departementale(apps, schema):
+    SupportGroupSubtype = apps.get_model("groups", "SupportGroupSubtype")
+    SupportGroupSubtype.objects.filter(type="D").delete()
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("groups", "0012_supportgroup_location_departement_id"),
+        ("groups", "0013_add_supportgroup_editable_field"),
     ]
 
     operations = [
@@ -54,6 +59,6 @@ class Migration(migrations.Migration):
         ),
         migrations.RunPython(
             code=creer_sous_type_boucle_departementale,
-            reverse_code=migrations.RunPython.noop,
+            reverse_code=supprimer_sous_type_boucle_departementale,
         ),
     ]
