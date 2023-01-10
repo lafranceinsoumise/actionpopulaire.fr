@@ -1,13 +1,27 @@
 import React, { useEffect } from "react";
 import { Redirect, useLocation } from "react-router-dom";
 import useSWRImmutable from "swr/immutable";
+import useSWRMutation from "swr/mutation";
 
 import { logout } from "@agir/front/authentication/api";
 import { routeConfig } from "@agir/front/app/routes.config";
 
+const logoutAndMutate = async (mutate) => {
+  await logout();
+  mutate({
+    optimisticData: (data) => ({
+      ...data,
+      user: false,
+      authentication: 0,
+    }),
+  });
+};
+
 const Logout = () => {
   const location = useLocation();
-  const { data, mutate, isLoading } = useSWRImmutable("/api/session/");
+
+  const { data, isLoading } = useSWRImmutable("/api/session/");
+  const { trigger } = useSWRMutation("/api/session/");
 
   const isAuthenticated = !isLoading && !!data?.user?.id;
 
@@ -15,15 +29,8 @@ const Logout = () => {
     if (!isAuthenticated) {
       return;
     }
-    mutate(logout, {
-      populateCache: (_, data) => ({
-        ...data,
-        user: false,
-        authentication: 0,
-      }),
-      revalidate: false,
-    });
-  }, [isAuthenticated, mutate]);
+    logoutAndMutate(trigger);
+  }, [isAuthenticated, trigger]);
 
   return data?.user === false ? (
     <Redirect

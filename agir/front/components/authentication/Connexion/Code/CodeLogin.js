@@ -8,6 +8,7 @@ import React, {
 import { useHistory, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import useSWR from "swr";
+import useSWRMutation from "swr/mutation";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
@@ -18,12 +19,7 @@ import TextField from "@agir/front/formComponents/TextField";
 import { checkCode } from "@agir/front/authentication/api";
 import { routeConfig, getRouteByPathname } from "@agir/front/app/routes.config";
 import { useBookmarkedEmails } from "@agir/front/authentication/hooks";
-import {
-  useSelector,
-  useDispatch,
-} from "@agir/front/globalContext/GlobalContext";
-import { getUser, getAuthentication } from "@agir/front/globalContext/reducers";
-import { setSessionContext } from "@agir/front/globalContext/actions";
+
 import { AUTHENTICATION } from "@agir/front/authentication/common";
 
 const DEFAULT_NEXT_PAGE = routeConfig.tellMore.getLink();
@@ -87,19 +83,17 @@ const LocalCode = styled.h2`
 `;
 
 const CodeConnexion = () => {
-  const dispatch = useDispatch();
-  const authentication = useSelector(getAuthentication);
-  const user = useSelector(getUser);
   const history = useHistory();
   const location = useLocation();
   const [code, setCode] = useState("");
   const [error, setError] = useState({});
-  const [submitted, setSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [, bookmarkEmail] = useBookmarkedEmails();
 
   const shouldBeConnected = useRef(false);
 
-  let { data: session, mutate: mutate } = useSWR("/api/session/");
+  const { data: session } = useSWR("/api/session/");
+  const { trigger: mutate } = useSWRMutation("/api/session/");
 
   const isAuto = useMemo(
     () => !!location.state && location.state.auto === true,
@@ -114,10 +108,10 @@ const CodeConnexion = () => {
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
-      setSubmitted(true);
+      setIsLoading(true);
       setError({});
       const data = await checkCode(code);
-      setSubmitted(false);
+      setIsLoading(false);
 
       if (data.error) {
         setError(data.error);
@@ -137,11 +131,7 @@ const CodeConnexion = () => {
   );
 
   useEffect(() => {
-    dispatch(setSessionContext(session));
-  }, [dispatch, session]);
-
-  useEffect(() => {
-    if (!user || authentication < AUTHENTICATION.HARD) return;
+    if (!session?.user || session?.authentication < AUTHENTICATION.HARD) return;
 
     if (location.state) {
       location.state.email && bookmarkEmail(location.state.email);
@@ -157,7 +147,7 @@ const CodeConnexion = () => {
     }
 
     history.push(DEFAULT_NEXT_PAGE);
-  }, [authentication, user, bookmarkEmail, location, history]);
+  }, [session, bookmarkEmail, location, history]);
 
   return (
     <Container onSubmit={handleSubmit}>
@@ -199,13 +189,14 @@ const CodeConnexion = () => {
           label="Code de connexion"
           onChange={handleCode}
           value={code}
-          disabled={submitted}
+          disabled={isLoading}
           autoFocus
         />
         <Button
           block
           color="primary"
-          disabled={submitted}
+          disabled={isLoading}
+          loading={isLoading}
           style={{ height: 40 }}
         >
           Valider

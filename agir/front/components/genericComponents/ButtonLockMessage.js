@@ -2,7 +2,8 @@
 import PropTypes from "prop-types";
 import React, { useState, useMemo } from "react";
 import styled from "styled-components";
-import useSWR, { mutate } from "swr";
+import { mutate } from "swr";
+import useSWRImmutable from "swr/immutable";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
