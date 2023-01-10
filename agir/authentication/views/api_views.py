@@ -148,7 +148,8 @@ class CheckCodeAPIView(APIView):
             raise exceptions.ValidationError(
                 detail={"code": self.messages["invalid_format"]}, code="invalid_format"
             )
-        if not check_short_code_bucket.has_tokens(email):
+
+        if not settings.DEBUG and not check_short_code_bucket.has_tokens(email):
             raise exceptions.Throttled(
                 detail=self.messages["throttled"], code="throttled"
             )
