@@ -69,7 +69,7 @@ pyrogram = "==2.*"
 tgcrypto = "*"
 tenacity = "*"
 pandas = "==1.*"
-data-france = "^0.14.1"
+data-france = "^0.14.2"
 beautifultable = "==1.1.*"
 scipy = "==1.*"
 PyYAML = "==6.*"
@@ -96,9 +96,6 @@ django-debug-toolbar = "*"
 redislite = "*"  # used for testing
 click = "*"
 pympler = "*"
-locust = "*"
-pyquery = "*"
-jedi = "==0.18.*"  # version 0.18.* fait crasher IPython (08/01/2021)
 hypothesis = {extras = ["django"], version = "^6.61.0"}
 
 [build-system]
