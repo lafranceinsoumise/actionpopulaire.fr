@@ -1,7 +1,5 @@
 import React, { useMemo } from "react";
-import useSWR from "swr";
-
-import { MANUAL_REVALIDATION_SWR_CONFIG } from "@agir/front/allPages/SWRContext";
+import useSWRImmutable from "swr/immutable";
 
 import Button from "@agir/front/genericComponents/Button";
 import Link from "@agir/front/app/Link";
@@ -17,11 +15,8 @@ import {
 } from "./StyledComponents";
 import HowTo from "./HowTo";
 
-const TokTokPreview = (props) => {
-  const { data: session } = useSWR(
-    "/api/session/",
-    MANUAL_REVALIDATION_SWR_CONFIG
-  );
+const TokTokPreview = () => {
+  const { data: session } = useSWRImmutable("/api/session/");
 
   const isGroupManager = useMemo(
     () =>

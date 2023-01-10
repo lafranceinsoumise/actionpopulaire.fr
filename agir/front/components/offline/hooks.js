@@ -20,11 +20,7 @@ const pingerConfig = {
 };
 
 export const useIsOffline = () => {
-  const { data: isOnline, isValidating } = useSWR(
-    "/api/ping/",
-    pinger,
-    pingerConfig
-  );
+  const { data: isOnline } = useSWR("/api/ping/", pinger, pingerConfig);
 
   const [isUnloading, setIsUnloading] = useState(false);
 

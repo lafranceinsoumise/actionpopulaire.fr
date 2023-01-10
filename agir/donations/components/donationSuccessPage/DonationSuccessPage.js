@@ -1,10 +1,9 @@
 import React from "react";
 import Helmet from "react-helmet";
 import { useParams } from "react-router-dom";
-import useSWR from "swr";
+import useSWRImmutable from "swr/immutable";
 
 import CONFIG from "@agir/donations/common/config";
-import { MANUAL_REVALIDATION_SWR_CONFIG } from "@agir/front/allPages/SWRContext";
 import { routeConfig } from "@agir/front/app/routes.config";
 
 import {
@@ -22,10 +21,7 @@ import Skeleton from "@agir/front/genericComponents/Skeleton";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 const DonationPage = () => {
-  const { data: session } = useSWR(
-    "/api/session/",
-    MANUAL_REVALIDATION_SWR_CONFIG
-  );
+  const { data: session } = useSWRImmutable("/api/session/");
 
   const params = useParams();
   const type =
