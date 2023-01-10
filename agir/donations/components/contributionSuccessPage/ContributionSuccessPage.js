@@ -1,9 +1,8 @@
 import React from "react";
 import Helmet from "react-helmet";
-import useSWR from "swr";
+import useSWRImmutable from "swr/immutable";
 
 import CONFIG from "@agir/donations/common/config";
-import { MANUAL_REVALIDATION_SWR_CONFIG } from "@agir/front/allPages/SWRContext";
 import { routeConfig } from "@agir/front/app/routes.config";
 
 import {
@@ -23,10 +22,7 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 const TYPE = "contribution";
 
 const ContributionSuccessPage = () => {
-  const { data: session } = useSWR(
-    "/api/session/",
-    MANUAL_REVALIDATION_SWR_CONFIG
-  );
+  const { data: session } = useSWRImmutable("/api/session/");
 
   const config = CONFIG[TYPE];
   const { beneficiary, externalLinkRoute, title, thankYouNote } = config;

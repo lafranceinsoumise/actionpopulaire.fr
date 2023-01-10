@@ -24,7 +24,7 @@ export const EventMessages = (props) => {
   const { eventPk } = props;
 
   const user = useSelector(getUser);
-  const { data: messages, error } = useSWR(
+  const { data: messages } = useSWR(
     !!user && getEventEndpoint("getEventMessages", { eventPk })
   );
 

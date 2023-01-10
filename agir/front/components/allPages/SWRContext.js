@@ -4,12 +4,6 @@ import { SWRConfig } from "swr";
 
 import axios from "@agir/lib/utils/axios";
 
-export const MANUAL_REVALIDATION_SWR_CONFIG = {
-  revalidateIfStale: false,
-  revalidateOnFocus: false,
-  revalidateOnReconnect: false,
-};
-
 const fetcher = async (url) => {
   if (
     // Check if a preload link exists for the requested URL

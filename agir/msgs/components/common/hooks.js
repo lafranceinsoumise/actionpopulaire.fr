@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useTimeout } from "react-use";
 import useSWR, { mutate } from "swr";
+import useSWRImmutable from "swr/immutable";
 import useSWRInfinite from "swr/infinite";
 import { validate as uuidValidate } from "uuid";
 
@@ -10,19 +11,14 @@ import * as groupAPI from "@agir/groups/utils/api";
 import { routeConfig } from "@agir/front/app/routes.config";
 import { setBackLink } from "@agir/front/globalContext/actions";
 import { useDispatch } from "@agir/front/globalContext/GlobalContext";
-
-import { MANUAL_REVALIDATION_SWR_CONFIG } from "@agir/front/allPages/SWRContext";
-import { useCurrentLocation } from "@agir/front/app/utils.js";
+import { useCurrentLocation } from "@agir/front/app/utils";
 
 const MESSAGES_PAGE_SIZE = 10;
 const COMMENTS_PAGE_SIZE = 15;
 
 export const useUnreadMessageCount = () => {
   const [isReady] = useTimeout(3000);
-  const { data: session } = useSWR(
-    "/api/session/",
-    MANUAL_REVALIDATION_SWR_CONFIG
-  );
+  const { data: session } = useSWRImmutable("/api/session/");
   const { data } = useSWR(
     isReady() && session?.user && "/api/user/messages/unread_count/",
     {
@@ -46,7 +42,11 @@ export const useCommentsSWR = (messagePk) => {
       `/api/groupes/messages/${messagePk}/comments/?page=${
         index + 1
       }&page_size=${COMMENTS_PAGE_SIZE}`,
-    MANUAL_REVALIDATION_SWR_CONFIG
+    {
+      revalidateIfStale: false,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    }
   );
 
   const comments = useMemo(() => {
@@ -102,10 +102,7 @@ export const useMessageSWR = (messagePk) => {
 
   const isAutoRefreshPausedRef = useRef(false);
 
-  const { data: session } = useSWR(
-    "/api/session/",
-    MANUAL_REVALIDATION_SWR_CONFIG
-  );
+  const { data: session } = useSWRImmutable("/api/session/");
   const user = session?.user;
 
   const {
@@ -119,22 +116,24 @@ export const useMessageSWR = (messagePk) => {
     (index) =>
       user &&
       `/api/user/messages/?page=${index + 1}&page_size=${MESSAGES_PAGE_SIZE}`,
-    MANUAL_REVALIDATION_SWR_CONFIG
+    {
+      revalidateIfStale: false,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    }
   );
-  const { data: messageRecipients } = useSWR(
-    data && "/api/user/messages/recipients/",
-    MANUAL_REVALIDATION_SWR_CONFIG
+  const { data: messageRecipients } = useSWRImmutable(
+    data && "/api/user/messages/recipients/"
   );
   const {
     data: currentMessage,
     error,
     isValidating,
     mutate: mutateMessage,
-  } = useSWR(
+  } = useSWRImmutable(
     data && messagePk && uuidValidate(messagePk)
       ? `/api/groupes/messages/${messagePk}/`
-      : null,
-    MANUAL_REVALIDATION_SWR_CONFIG
+      : null
   );
 
   const messages = useMemo(() => {
