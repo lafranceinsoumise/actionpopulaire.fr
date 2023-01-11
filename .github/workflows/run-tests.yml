@@ -1,7 +1,5 @@
 name: Tests
 on: [push]
-permissions:
-  packages: write
 jobs:
   js-tests:
     name: Frontend
