@@ -796,6 +796,9 @@ USER_ALLOWED_TAGS = [
 ]
 ADMIN_ALLOWED_TAGS = USER_ALLOWED_TAGS + ["table", "tr", "td", "th", "img"]
 
+# How many people are exportable in one file from the admin people person list view
+ADMIN_PERSON_EXPORT_LIMIT = int(os.environ.get("ADMIN_PERSON_EXPORT_LIMIT", 1000))
+
 SITE_ID = 1
 
 FILE_UPLOAD_PERMISSIONS = 0o644
