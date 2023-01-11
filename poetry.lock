@@ -441,7 +441,7 @@ python-versions = ">3.6, <4"
 
 [[package]]
 name = "data-france"
-version = "0.14.2"
+version = "0.14.3"
 description = "Paquet agrégeant des données administratives publiques pour en rendre l'utilisation facile."
 category = "main"
 optional = false
@@ -450,7 +450,7 @@ python-versions = ">=3.8,<4"
 [package.dependencies]
 django = ">=3.1"
 django-countries = ">=7.3.1,<8.0.0"
-psycopg = ">=3.0.16,<4.0.0"
+psycopg2 = ">=2.9.5"
 
 [[package]]
 name = "decorator"
@@ -839,7 +839,7 @@ boltons = ">=20.0.0"
 
 [[package]]
 name = "faker"
-version = "16.1.0"
+version = "16.2.0"
 description = "Faker is a Python package that generates fake data for you."
 category = "main"
 optional = false
@@ -1382,26 +1382,6 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [package.extras]
 test = ["enum34", "ipaddress", "mock", "pywin32", "wmi"]
-
-[[package]]
-name = "psycopg"
-version = "3.1.7"
-description = "PostgreSQL database adapter for Python"
-category = "main"
-optional = false
-python-versions = ">=3.7"
-
-[package.dependencies]
-typing-extensions = ">=4.1"
-tzdata = {version = "*", markers = "sys_platform == \"win32\""}
-
-[package.extras]
-binary = ["psycopg-binary (>=3.1.6,<=3.1.7)"]
-c = ["psycopg-c (>=3.1.6,<=3.1.7)"]
-dev = ["black (>=22.3.0)", "dnspython (>=2.1)", "flake8 (>=4.0)", "mypy (>=0.990)", "types-setuptools (>=57.4)", "wheel (>=0.37)"]
-docs = ["Sphinx (>=5.0)", "furo (==2022.6.21)", "sphinx-autobuild (>=2021.3.14)", "sphinx-autodoc-typehints (>=1.12)"]
-pool = ["psycopg-pool"]
-test = ["mypy (>=0.990)", "pproxy (>=2.7)", "pytest (>=6.2.5)", "pytest-asyncio (>=0.17)", "pytest-cov (>=3.0)", "pytest-randomly (>=3.10)"]
 
 [[package]]
 name = "psycopg2"
@@ -1953,14 +1933,6 @@ optional = false
 python-versions = ">=3.7"
 
 [[package]]
-name = "tzdata"
-version = "2022.7"
-description = "Provider of IANA time zone data"
-category = "main"
-optional = false
-python-versions = ">=2"
-
-[[package]]
 name = "unicode-slugify"
 version = "0.1.5"
 description = "A slug generator that turns strings into unicode slugs."
@@ -2064,7 +2036,7 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "9e0053a3bd5f6e03555be20878b7d230d4c77b407182ad4564ad9e9a420499e8"
+content-hash = "c2ecc3968dedb1030a66fad37896e158a46f6b7a48ad4c11315f99357d8ee465"
 
 [metadata.files]
 amqp = [
@@ -2340,8 +2312,8 @@ cysystemd = [
     {file = "cysystemd-1.5.3.tar.gz", hash = "sha256:a943e70f7c83c8bdfcede6c7cc8bb1fb00c78de2259b1bab757c54e69cbcfe0d"},
 ]
 data-france = [
-    {file = "data_france-0.14.2-py3-none-any.whl", hash = "sha256:e860d0fa87758a7f5deeeb9c07b13d0854cd8cc44fdd701356a3b82a7111e976"},
-    {file = "data_france-0.14.2.tar.gz", hash = "sha256:0a8781c5c34a3d93518b75c7bc58594596cfde8c88a73844d6c5287cf92e153d"},
+    {file = "data_france-0.14.3-py3-none-any.whl", hash = "sha256:37d28daaa5d7a5286bf47c6607ff4655a6b80fdf381bf3342d7a2bfaa5a98b9a"},
+    {file = "data_france-0.14.3.tar.gz", hash = "sha256:e701faaa892387d1120056fffceeaad83587202422581b37c606e46356dc8db8"},
 ]
 decorator = [
     {file = "decorator-5.1.1-py3-none-any.whl", hash = "sha256:b8c3f85900b9dc423225913c5aace94729fe1fa9763b38939a95226f02d37186"},
@@ -2467,8 +2439,8 @@ face = [
     {file = "face-22.0.0.tar.gz", hash = "sha256:d5d692f90bc8f5987b636e47e36384b9bbda499aaf0a77aa0b0bbe834c76923d"},
 ]
 faker = [
-    {file = "Faker-16.1.0-py3-none-any.whl", hash = "sha256:e15becbddc3a69a342e03ca6810caab7299e28e48106ae113a07f65c627d6fd7"},
-    {file = "Faker-16.1.0.tar.gz", hash = "sha256:4a8bc3cec832dde1928f8ce0817452bdadf63863d9e4d8307817247a38e51523"},
+    {file = "Faker-16.2.0-py3-none-any.whl", hash = "sha256:5858ba216e68e93ed4d47f2c44f4d467ac043944269d02f0913fbebf876c0a62"},
+    {file = "Faker-16.2.0.tar.gz", hash = "sha256:cc14622e15f528440e60e80eb891826a8a8583d490babf3c7d4c75cd59e06294"},
 ]
 glom = [
     {file = "glom-22.1.0-py2.py3-none-any.whl", hash = "sha256:5339da206bf3532e01a83a35aca202960ea885156986d190574b779598e9e772"},
@@ -2892,10 +2864,6 @@ psutil = [
     {file = "psutil-5.9.4-cp38-abi3-macosx_11_0_arm64.whl", hash = "sha256:6001c809253a29599bc0dfd5179d9f8a5779f9dffea1da0f13c53ee568115e1e"},
     {file = "psutil-5.9.4.tar.gz", hash = "sha256:3d7f9739eb435d4b1338944abe23f49584bde5395f27487d2ee25ad9a8774a62"},
 ]
-psycopg = [
-    {file = "psycopg-3.1.7-py3-none-any.whl", hash = "sha256:7030781cb98f33b6780ffef4cfe0449a1e0ec626d4009378aa081143dab3b20f"},
-    {file = "psycopg-3.1.7.tar.gz", hash = "sha256:83bb8b231a58802b6434d994d20c4897818d7e2d8970206975a06b6919c63985"},
-]
 psycopg2 = [
     {file = "psycopg2-2.9.5-cp310-cp310-win32.whl", hash = "sha256:d3ef67e630b0de0779c42912fe2cbae3805ebaba30cda27fea2a3de650a9414f"},
     {file = "psycopg2-2.9.5-cp310-cp310-win_amd64.whl", hash = "sha256:4cb9936316d88bfab614666eb9e32995e794ed0f8f6b3b718666c22819c1d7ee"},
@@ -3243,10 +3211,6 @@ trio = [
 typing-extensions = [
     {file = "typing_extensions-4.4.0-py3-none-any.whl", hash = "sha256:16fa4864408f655d35ec496218b85f79b3437c829e93320c7c9215ccfd92489e"},
     {file = "typing_extensions-4.4.0.tar.gz", hash = "sha256:1511434bb92bf8dd198c12b1cc812e800d4181cfcb867674e0f8279cc93087aa"},
-]
-tzdata = [
-    {file = "tzdata-2022.7-py2.py3-none-any.whl", hash = "sha256:2b88858b0e3120792a3c0635c23daf36a7d7eeeca657c323da299d2094402a0d"},
-    {file = "tzdata-2022.7.tar.gz", hash = "sha256:fe5f866eddd8b96e9fcba978f8e503c909b19ea7efda11e52e39494bad3a7bfa"},
 ]
 unicode-slugify = [
     {file = "unicode-slugify-0.1.5.tar.gz", hash = "sha256:25f424258317e4cb41093e2953374b3af1f23097297664731cdb3ae46f6bd6c3"},
