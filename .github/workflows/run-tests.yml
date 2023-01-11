@@ -87,7 +87,7 @@ jobs:
             poetry-${{ hashFiles('**/poetry.lock') }}
             poetry-
       - name: Install backend dependencies
-        run: poetry install --no-interaction
+        run: poetry install --sync --no-interaction
       - name: Setup node
         uses: actions/setup-node@v3
         with:
