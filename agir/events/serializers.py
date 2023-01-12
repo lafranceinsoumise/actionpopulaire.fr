@@ -653,7 +653,6 @@ class UpdateEventSerializer(serializers.ModelSerializer):
         "timezone",
         "facebook",
         "onlineUrl",
-        "contact",
         "location",
         "organizerGroup",
     ]
@@ -708,7 +707,7 @@ class UpdateEventSerializer(serializers.ModelSerializer):
         return super().to_internal_value(data)
 
     def validate_contact(self, value):
-        if self.instance.is_past():
+        if "contact" in self.UPCOMING_ONLY_FIELDS and self.instance.is_past():
             forbidden_fields = [
                 field
                 for field, value in value.items()
