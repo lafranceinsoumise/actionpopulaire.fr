@@ -52,6 +52,7 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                     "name",
                     "newsletters",
                     "tags",
+                    "excluded_tags",
                     "is_2022",
                     "is_insoumise",
                 )
@@ -137,6 +138,7 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     map_template = "custom_fields/french_area_widget.html"
     autocomplete_fields = (
         "tags",
+        "excluded_tags",
         "qualifications",
         "supportgroups",
         "supportgroup_subtypes",
@@ -171,7 +173,14 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     supportgroup_subtypes_list.short_description = "Types de groupe"
 
     def tags_list(self, instance):
-        return ", ".join(str(t) for t in instance.tags.all())
+        tags = [str(t) for t in instance.tags.all()] + [
+            f"<span style='text-decoration: line-through rgba(0,0,0,0.5);'>&ensp;{t}&ensp;</span>"
+            for t in instance.excluded_tags.all()
+        ]
+        if not tags:
+            return "—"
+
+        return format_html(", ".join(tags))
 
     tags_list.short_description = "Tags"
 

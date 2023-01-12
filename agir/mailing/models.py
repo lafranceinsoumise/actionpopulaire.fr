@@ -53,7 +53,19 @@ class Segment(BaseSegment, models.Model):
 
     name = models.CharField("Nom", max_length=255)
 
-    tags = models.ManyToManyField("people.PersonTag", blank=True)
+    tags = models.ManyToManyField(
+        "people.PersonTag",
+        help_text="Limiter le segment aux personnes ayant les tags sélectionnés",
+        blank=True,
+    )
+    excluded_tags = models.ManyToManyField(
+        "people.PersonTag",
+        verbose_name="Tags à exclure",
+        help_text="Limite le segment aux personnes n'ayant pas les tags sélectionnés "
+        "(l'exclusion d'un tag aura la précédence sur son inclusion)",
+        related_name="+",
+        blank=True,
+    )
 
     qualifications = models.ManyToManyField(
         "people.Qualification",
@@ -379,6 +391,17 @@ class Segment(BaseSegment, models.Model):
             id__in=person_qualifications.values_list("person_id", flat=True)
         )
 
+    def apply_tag_filters(self, query):
+        excluded_tags = list(self.excluded_tags.values_list("pk", flat=True))
+        if len(excluded_tags) > 0:
+            query &= ~Q(tags__pk__in=excluded_tags)
+
+        tags = list(self.tags.values_list("pk", flat=True))
+        if len(tags) > 0:
+            query &= Q(tags__pk__in=tags)
+
+        return query
+
     def get_subscribers_q(self):
         # ne pas inclure les rôles inactifs dans les envois de mail
         q = ~Q(role__is_active=False)
@@ -393,8 +416,7 @@ class Segment(BaseSegment, models.Model):
         if self.is_2022 is not None:
             q = q & Q(is_2022=self.is_2022)
 
-        if self.tags.all().count() > 0:
-            q = q & Q(tags__in=self.tags.all())
+        q = self.apply_tag_filters(q)
 
         q = self.apply_qualification_filters(q)
 
