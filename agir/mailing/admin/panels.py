@@ -1,8 +1,6 @@
 from django.contrib import admin
-from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.db.models import Q
-from django.forms import ModelForm, CheckboxSelectMultiple
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.html import format_html
@@ -20,24 +18,9 @@ from nuntius.models import (
 )
 
 from agir.lib.admin.panels import CenterOnFranceMixin
+from agir.mailing.admin import list_filters
+from agir.mailing.admin.forms import SegmentAdminForm
 from agir.mailing.models import Segment
-
-
-class SegmentAdminForm(ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["countries"].widget = FilteredSelectMultiple(
-            "pays", False, choices=self.fields["countries"].choices
-        )
-        self.fields["departements"].widget = FilteredSelectMultiple(
-            "départements", False, choices=self.fields["departements"].choices
-        )
-
-    class Meta:
-        widgets = {
-            "newsletters": CheckboxSelectMultiple,
-            "person_qualification_status": CheckboxSelectMultiple,
-        }
 
 
 @admin.register(Segment)
@@ -155,9 +138,10 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     search_fields = ("name",)
     list_filter = (
         "supportgroup_status",
-        "supportgroup_subtypes",
-        "tags",
-        "qualifications",
+        list_filters.SupportGroupSubtypeListFilter,
+        list_filters.TagListFilter,
+        list_filters.ExcludedTagListFilter,
+        list_filters.QualificationListFilter,
     )
     list_display = (
         "name",
@@ -202,6 +186,9 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         )
 
     subscribers_count.short_description = "Nombre d'abonnés"
+
+    class Media:
+        pass
 
 
 @admin.register(Campaign)
