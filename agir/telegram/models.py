@@ -21,7 +21,11 @@ class TelegramSession(TimeStampedModel, models.Model):
 
     def create_client(self):
         if self.session_string:
-            return Client(self.session_string, **api_params)
+            return Client(
+                f"session-{self.phone_number}",
+                session_string=self.session_string,
+                **api_params,
+            )
 
     def __str__(self):
         return str(self.phone_number)

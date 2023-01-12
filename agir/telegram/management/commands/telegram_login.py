@@ -21,10 +21,13 @@ class Command(BaseCommand):
             phone_number=phone_number
         )
 
-        client = Client(":memory:", phone_number=str(phone_number), **api_params)
-        client.start()
-        session_string = client.export_session_string()
-        session.session_string = session_string
-        session.save()
-
-        client.stop()
+        client = Client(
+            f"session-{session.phone_number}",
+            in_memory=True,
+            phone_number=str(phone_number),
+            **api_params,
+        )
+        with client:
+            session_string = client.export_session_string()
+            session.session_string = session_string
+            session.save()
