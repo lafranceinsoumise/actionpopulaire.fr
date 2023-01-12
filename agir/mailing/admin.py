@@ -5,6 +5,7 @@ from django.db.models import Q
 from django.forms import ModelForm, CheckboxSelectMultiple
 from django.template.response import TemplateResponse
 from django.urls import reverse
+from django.utils.html import format_html
 from nuntius.admin import (
     CampaignAdmin,
     CampaignSentEventAdmin,
@@ -35,6 +36,7 @@ class SegmentAdminForm(ModelForm):
     class Meta:
         widgets = {
             "newsletters": CheckboxSelectMultiple,
+            "person_qualification_status": CheckboxSelectMultiple,
         }
 
 
@@ -52,6 +54,15 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                     "tags",
                     "is_2022",
                     "is_insoumise",
+                )
+            },
+        ),
+        (
+            "Statut",
+            {
+                "fields": (
+                    "qualifications",
+                    "person_qualification_status",
                 )
             },
         ),
@@ -121,11 +132,12 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             },
         ),
         ("Combiner des segments", {"fields": ("add_segments", "exclude_segments")}),
-        ("Abonnés", {"fields": ("get_subscribers_count",)}),
+        ("Abonnés", {"fields": ("subscribers_count",)}),
     )
     map_template = "custom_fields/french_area_widget.html"
     autocomplete_fields = (
         "tags",
+        "qualifications",
         "supportgroups",
         "supportgroup_subtypes",
         "events",
@@ -136,15 +148,21 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         "forms",
         "polls",
     )
-    readonly_fields = ("get_subscribers_count",)
+    readonly_fields = ("subscribers_count",)
     ordering = ("name",)
     search_fields = ("name",)
-    list_filter = ("supportgroup_status", "supportgroup_subtypes", "tags")
+    list_filter = (
+        "supportgroup_status",
+        "supportgroup_subtypes",
+        "tags",
+        "qualifications",
+    )
     list_display = (
         "name",
         "supportgroup_status",
         "supportgroup_subtypes_list",
         "tags_list",
+        "subscribers_count",
     )
 
     def supportgroup_subtypes_list(self, instance):
@@ -156,6 +174,25 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         return ", ".join(str(t) for t in instance.tags.all())
 
     tags_list.short_description = "Tags"
+
+    def subscribers_count(self, instance):
+        if not instance:
+            return "-"
+
+        count = instance.get_subscribers_count()
+
+        if count == 0:
+            return "Ce segment est vide"
+
+        return format_html(
+            '{} personne{}&ensp;(<a href="{}?segment={}">Voir la liste</a>)',
+            count,
+            "s" if count > 1 else "",
+            reverse("admin:people_person_changelist"),
+            str(instance.pk),
+        )
+
+    subscribers_count.short_description = "Nombre d'abonnés"
 
 
 @admin.register(Campaign)

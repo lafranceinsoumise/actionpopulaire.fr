@@ -811,12 +811,39 @@ class PersonQualificationQueryset(models.QuerySet):
         now = timezone.now()
         return self.filter(start_time__isnull=False, start_time__gt=now)
 
+    def only_statuses(self, statuses=None):
+        if statuses is None:
+            return self
+        available_statuses = PersonQualification.Status.values
+        clean_statuses = set(
+            [status for status in statuses if status in available_statuses]
+        )
+        # Do not filter if no status is selected or all are
+        if not clean_statuses or len(clean_statuses) == len(available_statuses):
+            return self
+
+        query = self.none()
+
+        if PersonQualification.Status.EFFECTIVE in clean_statuses:
+            query = query | self.effective()
+        if PersonQualification.Status.PAST in clean_statuses:
+            query = query | self.past()
+        if PersonQualification.Status.FUTURE in clean_statuses:
+            query = query | self.future()
+
+        return query
+
 
 class PersonQualification(TimeStampedModel):
     """
     Model that represents a tag that may be used to qualify people and that may be temporary
     if a value is specified for its start_time and/or end_time fields
     """
+
+    class Status(models.TextChoices):
+        EFFECTIVE = "E", "Statut effectif"
+        PAST = "P", "Statut passé"
+        FUTURE = "F", "Statut futur"
 
     objects = PersonQualificationQueryset.as_manager()
 
@@ -839,15 +866,17 @@ class PersonQualification(TimeStampedModel):
     end_time = CustomDateTimeField(_("date et heure de fin"), null=True, blank=True)
 
     @property
-    def is_effective(self):
+    def status(self):
         now = timezone.now()
-        if self.start_time and self.end_time:
-            return self.start_time <= now <= self.end_time
-        if self.end_time:
-            return self.end_time >= now
-        if self.start_time:
-            return self.start_time <= now
-        return True
+        if self.end_time and self.end_time < now:
+            return self.Status.PAST
+        if self.start_time and self.start_time > now:
+            return self.Status.FUTURE
+        return self.Status.EFFECTIVE
+
+    @property
+    def is_effective(self):
+        return self.status == self.Status.EFFECTIVE
 
     def get_range_display(self):
         strings = []

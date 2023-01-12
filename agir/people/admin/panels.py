@@ -18,7 +18,6 @@ from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse, SimpleTemplateResponse
 from django.urls import reverse, path
-from django.utils import timezone
 from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
@@ -72,6 +71,9 @@ __all__ = [
     "PersonFormAdmin",
     "PersonFormSubmissionAdmin",
     "ContactAdmin",
+    "LiaisonAdmin",
+    "QualificationAdmin",
+    "PersonQualificationAdmin",
 ]
 
 
@@ -1069,20 +1071,11 @@ class PersonQualificationStatusListFilter(admin.SimpleListFilter):
     parameter_name = "status"
 
     def lookups(self, request, model_admin):
-        return (
-            ("0", "En cours"),
-            ("1", "À venir"),
-            ("-1", "Passés"),
-        )
+        return PersonQualification.Status.choices
 
     def queryset(self, request, queryset):
-        if self.value() == "0":
-            return queryset.effective()
-        if self.value() == "1":
-            return queryset.future()
-        if self.value() == "-1":
-            return queryset.past()
-
+        if self.value():
+            return queryset.only_statuses(statuses=[self.value()])
         return queryset
 
 

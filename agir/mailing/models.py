@@ -14,7 +14,10 @@ from agir.lib import data
 from agir.lib.model_fields import ChoiceArrayField
 from agir.payments.model_fields import AmountField
 from agir.payments.models import Subscription, Payment
-from agir.people.models import Person
+from agir.people.models import (
+    Person,
+    PersonQualification,
+)
 
 __all__ = ["Segment"]
 
@@ -51,6 +54,20 @@ class Segment(BaseSegment, models.Model):
     name = models.CharField("Nom", max_length=255)
 
     tags = models.ManyToManyField("people.PersonTag", blank=True)
+
+    qualifications = models.ManyToManyField(
+        "people.Qualification",
+        verbose_name="Type de statut",
+        blank=True,
+    )
+    person_qualification_status = ChoiceArrayField(
+        models.CharField(choices=PersonQualification.Status.choices, max_length=1),
+        verbose_name="État du statut",
+        help_text="Si un type de statut est indiqué, limiter aux personnes dont les statuts de ce type sont dans l'un des états choisis",
+        default=list,
+        blank=True,
+        null=False,
+    )
 
     is_2022 = models.BooleanField("Inscrits NSP", null=True, blank=True, default=True)
     is_insoumise = models.BooleanField(
@@ -343,6 +360,25 @@ class Segment(BaseSegment, models.Model):
 
         return query & Q(id__in=member_ids)
 
+    def apply_qualification_filters(self, query):
+        qualification_ids = list(self.qualifications.values_list("pk", flat=True))
+
+        if not qualification_ids:
+            return query
+
+        person_qualifications = PersonQualification.objects.filter(
+            qualification_id__in=qualification_ids
+        )
+
+        if self.person_qualification_status:
+            person_qualifications = person_qualifications.only_statuses(
+                statuses=self.person_qualification_status
+            )
+
+        return query & Q(
+            id__in=person_qualifications.values_list("person_id", flat=True)
+        )
+
     def get_subscribers_q(self):
         # ne pas inclure les rôles inactifs dans les envois de mail
         q = ~Q(role__is_active=False)
@@ -359,6 +395,8 @@ class Segment(BaseSegment, models.Model):
 
         if self.tags.all().count() > 0:
             q = q & Q(tags__in=self.tags.all())
+
+        q = self.apply_qualification_filters(q)
 
         q = self.apply_supportgroup_filters(q)
 
