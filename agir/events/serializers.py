@@ -465,7 +465,7 @@ class EventPropertyOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer
     organizerGroup = serializers.SerializerMethodField()
     subtype = serializers.SerializerMethodField()
     defaultContact = serializers.SerializerMethodField()
-    onlineUrl = serializers.SerializerMethodField()
+    # onlineUrl = serializers.SerializerMethodField()
 
     def to_representation(self, instance):
         user = self.context["request"].user
