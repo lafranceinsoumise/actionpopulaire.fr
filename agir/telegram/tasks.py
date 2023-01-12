@@ -67,7 +67,7 @@ def update_telegram_groups(self, pk):
                 and str(person.contact_phone)[1:] not in in_chat_numbers
             ]
 
-            client.add_contacts(
+            client.import_contacts(
                 [
                     InputPhoneContact(
                         phone=str(person.contact_phone),
