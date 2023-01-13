@@ -142,6 +142,10 @@ rules.add_perm(
     is_authenticated_person & is_at_least_manager_for_group,
 )
 rules.add_perm(
+    "groups.change_group_location",
+    is_editable_group & is_authenticated_person & is_at_least_manager_for_group,
+)
+rules.add_perm(
     "groups.change_group_name",
     is_editable_group & is_authenticated_person & is_at_least_referent_for_group,
 )

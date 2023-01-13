@@ -298,6 +298,7 @@ class ChangeGroupLocationView(BaseSupportGroupAdminView, ChangeLocationBaseView)
     template_name = "groups/change_location.html"
     form_class = GroupGeocodingForm
     success_view_name = "view_group_settings_location"
+    permission_required = ("groups.change_group_location",)
 
 
 class RedirectToPresseroView(BaseSupportGroupAdminView, DetailView):
