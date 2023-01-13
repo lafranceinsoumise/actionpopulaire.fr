@@ -649,57 +649,68 @@ def send_soon_to_be_inactive_group_warning(supportgroup_pk):
     )
 
 
-def maj_boucles_departementales():
-    groupes_eligibles = SupportGroup.objects.filter(
-        type=SupportGroup.TYPE_LOCAL_GROUP,
-        subtypes__label__in=settings.CERTIFIED_GROUP_SUBTYPES,
-        published=True,
+def maj_boucle_departementale(departement, dry_run=False):
+    try:
+        boucle_departementale = SupportGroup.objects.get(
+            type=SupportGroup.TYPE_BOUCLE_DEPARTEMENTALE,
+            location_departement_id=departement.id,
+        )
+    except SupportGroup.DoesNotExist:
+        return departement, None
+
+    groupes_eligibles = (
+        SupportGroup.objects.active()
+        .certified()
+        .filter(type=SupportGroup.TYPE_LOCAL_GROUP)
+        .filter(departement.filtre)
+    )
+    personnes_eligibles = Person.objects.exclude(role__is_active=False)
+    tag_departemental = PersonTag.objects.filter(
+        label=f"Membre boucle départementale {departement.id}"
+    ).first()
+
+    membres_souhaites = set(
+        personnes_eligibles.filter(
+            memberships__membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+            memberships__supportgroup__in=groupes_eligibles,
+        ).values_list("id", flat=True)
     )
 
-    personnes_eligibles = Person.objects.exclude(role__is_active=False)
+    if tag_departemental:
+        membres_souhaites.update(tag_departemental.people.values_list("id", flat=True))
 
-    for d in departements:
-        try:
-            boucle_departementale = SupportGroup.objects.get(
-                type=SupportGroup.TYPE_BOUCLE_DEPARTEMENTALE,
-                location_departement_id=d.id,
-            )
-        except SupportGroup.DoesNotExist:
-            print(f"Pas de boucle départementale pour le département {d}")
-            continue
+    membres_actuels = set(boucle_departementale.members.values_list("id", flat=True))
 
-        tag_departemental = PersonTag.objects.filter(
-            label=f"Membre boucle départementale {d.id}"
-        ).first()
+    a_ajouter = membres_souhaites.difference(membres_actuels)
+    a_retirer = membres_actuels.difference(membres_souhaites)
 
-        groupes = groupes_eligibles.filter(d.filtre)
+    if dry_run:
+        return departement, (len(membres_actuels), len(a_ajouter), len(a_retirer))
 
-        membres_souhaites = set(
-            personnes_eligibles.filter(
-                membership__membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
-                membership__supportgroup__in=groupes,
-            ).values_list("id", flat=True)
+    _, deleted_objects = Membership.objects.filter(
+        supportgroup=boucle_departementale, person_id__in=a_retirer
+    ).delete()
+
+    new_members = [
+        Membership(
+            supportgroup=boucle_departementale,
+            person_id=p,
+            membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
         )
+        for p in a_ajouter
+    ]
+    created = Membership.objects.bulk_create(new_members, ignore_conflicts=True)
 
-        if tag_departemental:
-            membres_souhaites.update(
-                tag_departemental.people.values_list("id", flat=True)
-            )
+    return departement, (
+        len(membres_actuels),
+        len(created),
+        deleted_objects.get("groups.Membership", 0),
+    )
 
-        membres_actuels = set(
-            boucle_departementale.members.values_list("id", flat=True)
-        )
 
-        a_ajouter = membres_souhaites.difference(membres_actuels)
-        a_retirer = membres_actuels.difference(membres_souhaites)
-
-        Membership.objects.filter(
-            supportgroup=boucle_departementale, person_id__in=a_retirer
-        ).delete()
-
-        for p in a_ajouter:
-            Membership.objects.create(
-                supportgroup=boucle_departementale,
-                person_id=p,
-                membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
-            )
+def maj_boucles_departementales(only_departements=None, dry_run=False):
+    target_departements = only_departements if only_departements else departements
+    return [
+        maj_boucle_departementale(departement=departement, dry_run=dry_run)
+        for departement in target_departements
+    ]
