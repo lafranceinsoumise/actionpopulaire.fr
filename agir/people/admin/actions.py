@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin.widgets import RelatedFieldWidgetWrapper
 from django.core.exceptions import PermissionDenied
@@ -10,17 +11,15 @@ from agir.lib.admin.form_fields import AutocompleteSelectModel
 from agir.people.actions.export import liaisons_to_csv_response, people_to_csv_response
 from agir.people.models import PersonTag
 
-ADMIN_PERSON_EXPORT_LIMIT = 500
-
 
 def export_people_to_csv(modeladmin, request, queryset):
-    return people_to_csv_response(queryset[:ADMIN_PERSON_EXPORT_LIMIT])
+    return people_to_csv_response(queryset[: settings.ADMIN_PERSON_EXPORT_LIMIT])
 
 
-export_people_to_csv.short_description = f"Exporter les personnes en CSV (max. {ADMIN_PERSON_EXPORT_LIMIT} personnnes par export)"
+export_people_to_csv.short_description = f"Exporter les personnes en CSV (max. {settings.ADMIN_PERSON_EXPORT_LIMIT} personnnes par export)"
 export_people_to_csv.allowed_permissions = ["export"]
 export_people_to_csv.select_across = True
-export_people_to_csv.max_items = ADMIN_PERSON_EXPORT_LIMIT
+export_people_to_csv.max_items = settings.ADMIN_PERSON_EXPORT_LIMIT
 
 
 def export_liaisons_to_csv(modeladmin, request, queryset):

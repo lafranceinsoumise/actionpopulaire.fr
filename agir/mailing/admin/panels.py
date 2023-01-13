@@ -1,10 +1,9 @@
 from django.contrib import admin
-from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.db.models import Q
-from django.forms import ModelForm, CheckboxSelectMultiple
 from django.template.response import TemplateResponse
 from django.urls import reverse
+from django.utils.html import format_html
 from nuntius.admin import (
     CampaignAdmin,
     CampaignSentEventAdmin,
@@ -19,23 +18,9 @@ from nuntius.models import (
 )
 
 from agir.lib.admin.panels import CenterOnFranceMixin
+from agir.mailing.admin import list_filters
+from agir.mailing.admin.forms import SegmentAdminForm
 from agir.mailing.models import Segment
-
-
-class SegmentAdminForm(ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["countries"].widget = FilteredSelectMultiple(
-            "pays", False, choices=self.fields["countries"].choices
-        )
-        self.fields["departements"].widget = FilteredSelectMultiple(
-            "départements", False, choices=self.fields["departements"].choices
-        )
-
-    class Meta:
-        widgets = {
-            "newsletters": CheckboxSelectMultiple,
-        }
 
 
 @admin.register(Segment)
@@ -50,8 +35,18 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                     "name",
                     "newsletters",
                     "tags",
+                    "excluded_tags",
                     "is_2022",
                     "is_insoumise",
+                )
+            },
+        ),
+        (
+            "Statut",
+            {
+                "fields": (
+                    "qualifications",
+                    "person_qualification_status",
                 )
             },
         ),
@@ -121,11 +116,13 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             },
         ),
         ("Combiner des segments", {"fields": ("add_segments", "exclude_segments")}),
-        ("Abonnés", {"fields": ("get_subscribers_count",)}),
+        ("Abonnés", {"fields": ("subscribers_count",)}),
     )
     map_template = "custom_fields/french_area_widget.html"
     autocomplete_fields = (
         "tags",
+        "excluded_tags",
+        "qualifications",
         "supportgroups",
         "supportgroup_subtypes",
         "events",
@@ -136,15 +133,22 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         "forms",
         "polls",
     )
-    readonly_fields = ("get_subscribers_count",)
+    readonly_fields = ("subscribers_count",)
     ordering = ("name",)
     search_fields = ("name",)
-    list_filter = ("supportgroup_status", "supportgroup_subtypes", "tags")
+    list_filter = (
+        "supportgroup_status",
+        list_filters.SupportGroupSubtypeListFilter,
+        list_filters.TagListFilter,
+        list_filters.ExcludedTagListFilter,
+        list_filters.QualificationListFilter,
+    )
     list_display = (
         "name",
         "supportgroup_status",
         "supportgroup_subtypes_list",
         "tags_list",
+        "subscribers_count",
     )
 
     def supportgroup_subtypes_list(self, instance):
@@ -153,9 +157,38 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     supportgroup_subtypes_list.short_description = "Types de groupe"
 
     def tags_list(self, instance):
-        return ", ".join(str(t) for t in instance.tags.all())
+        tags = [str(t) for t in instance.tags.all()] + [
+            f"<span style='text-decoration: line-through rgba(0,0,0,0.5);'>&ensp;{t}&ensp;</span>"
+            for t in instance.excluded_tags.all()
+        ]
+        if not tags:
+            return "—"
+
+        return format_html(", ".join(tags))
 
     tags_list.short_description = "Tags"
+
+    def subscribers_count(self, instance):
+        if not instance:
+            return "-"
+
+        count = instance.get_subscribers_count()
+
+        if count == 0:
+            return "Ce segment est vide"
+
+        return format_html(
+            '{} personne{}&ensp;(<a href="{}?segment={}">Voir la liste</a>)',
+            count,
+            "s" if count > 1 else "",
+            reverse("admin:people_person_changelist"),
+            str(instance.pk),
+        )
+
+    subscribers_count.short_description = "Nombre d'abonnés"
+
+    class Media:
+        pass
 
 
 @admin.register(Campaign)
