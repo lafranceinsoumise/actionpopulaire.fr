@@ -327,7 +327,7 @@ class SegmentTagFilterTestCase(TestCase):
         return person
 
     def setUp(self):
-        self.tag_labels = fake.words(int=100, unique=True)
+        self.tag_labels = fake.words(nb=100, unique=True)
         self.default_tag = self.create_tag()
         self.untagged_person = self.create_person()
         self.default_tagged_person = self.create_person(with_tags=self.default_tag)
