@@ -155,7 +155,7 @@ def get_supportgroup_routes(supportgroup, membership=None, user=None):
         "settings": front_url("view_group_settings", kwargs={"pk": supportgroup.pk}),
     }
 
-    if not supportgroup.is_certified and supportgroup.is_certifiable:
+    if membership and not supportgroup.is_certified and supportgroup.is_certifiable:
         certification_request_url = (
             "https://lafranceinsoumise.fr/groupes-appui/demande-de-certification/"
         )
