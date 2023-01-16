@@ -1,36 +1,38 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Redirect, useLocation } from "react-router-dom";
-import useSWR from "swr";
+import useSWRImmutable from "swr/immutable";
+import useSWRMutation from "swr/mutation";
 
 import { logout } from "@agir/front/authentication/api";
 import { routeConfig } from "@agir/front/app/routes.config";
 
+const logoutAndMutate = async (mutate) => {
+  await logout();
+  mutate({
+    optimisticData: (data) => ({
+      ...data,
+      user: false,
+      authentication: 0,
+    }),
+  });
+};
+
 const Logout = () => {
   const location = useLocation();
-  const {
-    data: session,
-    mutate: mutate,
-    isValidating,
-  } = useSWR("/api/session/", {
-    revalidateIfStale: false,
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-  });
-  const isAuthenticated = !isValidating && !!session?.user?.id;
+
+  const { data, isLoading } = useSWRImmutable("/api/session/");
+  const { trigger } = useSWRMutation("/api/session/");
+
+  const isAuthenticated = !isLoading && !!data?.user?.id;
+
   useEffect(() => {
     if (!isAuthenticated) {
       return;
     }
-    const doLogout = async () => {
-      await logout();
-      mutate(
-        (session) => ({ ...session, user: false, authentication: 0 }),
-        false
-      );
-    };
-    doLogout();
-  }, [isAuthenticated]);
-  return session?.user === false ? (
+    logoutAndMutate(trigger);
+  }, [isAuthenticated, trigger]);
+
+  return data?.user === false ? (
     <Redirect
       to={{
         pathname: routeConfig.login.getLink(),

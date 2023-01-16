@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import useSWR from "swr";
-
-import { MANUAL_REVALIDATION_SWR_CONFIG } from "@agir/front/allPages/SWRContext";
+import useSWRImmutable from "swr/immutable";
 
 export const EVENT_TYPES = {
   nearEvents: "suggestions pour moi",
@@ -34,10 +33,7 @@ export const getAgendaEndpoint = (key, params) => {
 export const useEventSuggestions = (isPaused = false) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const activeKey = Object.keys(EVENT_TYPES)[activeIndex];
-  const { data: session } = useSWR(
-    "/api/session/",
-    MANUAL_REVALIDATION_SWR_CONFIG
-  );
+  const { data: session } = useSWRImmutable("/api/session/");
   const { data: events, mutate } = useSWR(
     activeKey && getAgendaEndpoint(activeKey),
     { isPaused }

@@ -1,9 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
-import useSWR from "swr";
+import useSWRImmutable from "swr/immutable";
 
 const CSRFProtectedForm = ({ children, ...props }) => {
-  const { data } = useSWR("/api/csrf/");
+  const { data } = useSWRImmutable("/api/csrf/");
 
   return (
     <form {...props}>

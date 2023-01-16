@@ -81,6 +81,10 @@ class Departement(AvecTypeNom):
             return anciennes_regions_par_code[self.code_ancienne_region].nom
         return ""
 
+    @property
+    def filtre(self):
+        return filtre_departement(self.id)
+
 
 @dataclasses.dataclass
 class Region(AvecTypeNom):
@@ -174,9 +178,12 @@ def filtre_departements(*codes):
 
 def filtre_departement(code):
     if code in departements_par_code:
-        return Q(
-            location_country__in=FRANCE_COUNTRY_CODES,
-            location_zip__startswith=_CORSE_RE.sub("0", code),
+        return Q(location_country__in=FRANCE_COUNTRY_CODES) & (
+            Q(
+                location_departement_id="",
+                location_zip__startswith=_CORSE_RE.sub("0", code),
+            )
+            | Q(location_departement_id=code)
         )
 
     elif _normalize_entity_name(code) in departements_par_nom:

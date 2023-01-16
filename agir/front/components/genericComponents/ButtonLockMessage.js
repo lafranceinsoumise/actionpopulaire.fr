@@ -1,7 +1,9 @@
+/* eslint-disable react/display-name */
 import PropTypes from "prop-types";
 import React, { useState, useMemo } from "react";
 import styled from "styled-components";
-import useSWR, { mutate } from "swr";
+import { mutate } from "swr";
+import useSWRImmutable from "swr/immutable";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
@@ -14,7 +16,6 @@ import { useIsDesktop } from "@agir/front/genericComponents/grid";
 import { useToast } from "@agir/front/globalContext/hooks";
 
 import { updateMessageLock, getGroupEndpoint } from "@agir/groups/utils/api";
-import { MANUAL_REVALIDATION_SWR_CONFIG } from "@agir/front/allPages/SWRContext";
 
 const StyledButton = styled.div`
   cursor: pointer;
@@ -36,9 +37,8 @@ const ButtonLockMessage = ({ message }) => {
   const [isLockedLoading, setIsLockedLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { data: isLocked, mutate: mutateLocked } = useSWR(
-    getGroupEndpoint("messageLocked", { messagePk: message?.id }),
-    MANUAL_REVALIDATION_SWR_CONFIG
+  const { data: isLocked, mutate: mutateLocked } = useSWRImmutable(
+    getGroupEndpoint("messageLocked", { messagePk: message?.id })
   );
 
   const switchLockedMessage = async () => {

@@ -155,7 +155,14 @@ const StyledMenu = styled.div`
 
     hr {
       border-color: ${style.black200};
-      margin: 0.5rem 0;
+      margin: 0.5rem 0 1.5rem;
+    }
+
+    hr:first-child,
+    li:first-child + hr,
+    hr + li + hr {
+      display: none;
+      margin: 0;
     }
   }
 `;
@@ -185,6 +192,7 @@ ManagementMenuItem.propTypes = {
   textDisabled: PropTypes.string,
   icon: PropTypes.string,
   disabled: PropTypes.bool,
+  disabledLabel: PropTypes.node,
   getLink: PropTypes.func.isRequired,
   menuGroup: PropTypes.oneOf([1, 2, 3]),
   isCancel: PropTypes.bool,
@@ -227,7 +235,6 @@ const ManagementMenu = (props) => {
         {groupedItems[1] && (
           <>
             <hr />
-            <Spacer size="1rem" />
             {groupedItems[1].map((item) => (
               <li key={item.id}>
                 <ManagementMenuItem {...item} />
@@ -238,7 +245,6 @@ const ManagementMenu = (props) => {
         {groupedItems[2] && (
           <>
             <hr />
-            <Spacer size="1rem" />
             {groupedItems[2].map((item) => (
               <li key={item.id}>
                 <ManagementMenuItem {...item} />

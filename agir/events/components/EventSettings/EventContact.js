@@ -73,7 +73,7 @@ const EventContact = (props) => {
     mutate(api.getEventEndpoint("getEvent", { eventPk }));
   };
 
-  const isDisabled = !event || !event.isEditable || event.isPast || isLoading;
+  const isDisabled = !event || !event.isEditable || isLoading;
 
   return (
     <form onSubmit={handleSubmit}>

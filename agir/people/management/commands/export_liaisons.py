@@ -128,13 +128,14 @@ class Command(BaseCommand):
             filename=f"{slugify(subject.lower())}.csv",
         )
 
-        send_message(
-            from_email="robot@actionpopulaire.fr",
-            subject=subject,
-            recipient=email,
-            text=EXPORT_EMAIL_BODY % (subject.lower(), csv_string),
-            attachments=(attachment,),
-        )
+        for recipient in email:
+            send_message(
+                from_email="robot@actionpopulaire.fr",
+                subject=subject,
+                recipient=recipient,
+                text=EXPORT_EMAIL_BODY % (subject.lower(), csv_string),
+                attachments=(attachment,),
+            )
 
     def handle(self, all=False, from_date=None, to_date=None, emails=None, **kwargs):
         (queryset, subject) = self.get_liaisons(

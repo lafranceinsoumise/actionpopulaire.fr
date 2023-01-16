@@ -21,11 +21,12 @@ from agir.lib.html import sanitize_html
 from agir.lib.mailing import send_mosaico_email, send_template_email
 from agir.lib.utils import front_url, clean_subject_email, is_absolute_url
 from agir.people.actions.subscription import make_subscription_token
-from agir.people.models import Person
+from agir.people.models import Person, PersonTag
 from .actions.invitation import make_abusive_invitation_report_link
 from .models import SupportGroup, Membership
 from .utils import DAYS_SINCE_LAST_EVENT_WARNING
 from ..activity.models import Activity
+from ..lib.data import departements
 from ..msgs.models import SupportGroupMessage, SupportGroupMessageComment
 from ..notifications.models import Subscription
 
@@ -646,3 +647,70 @@ def send_soon_to_be_inactive_group_warning(supportgroup_pk):
         },
         recipients=recipients,
     )
+
+
+def maj_boucle_departementale(departement, dry_run=False):
+    try:
+        boucle_departementale = SupportGroup.objects.get(
+            type=SupportGroup.TYPE_BOUCLE_DEPARTEMENTALE,
+            location_departement_id=departement.id,
+        )
+    except SupportGroup.DoesNotExist:
+        return departement, None
+
+    groupes_eligibles = (
+        SupportGroup.objects.active()
+        .certified()
+        .filter(type=SupportGroup.TYPE_LOCAL_GROUP)
+        .filter(departement.filtre)
+    )
+    personnes_eligibles = Person.objects.exclude(role__is_active=False)
+    tag_departemental = PersonTag.objects.filter(
+        label=f"Membre boucle départementale {departement.id}"
+    ).first()
+
+    membres_souhaites = set(
+        personnes_eligibles.filter(
+            memberships__membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+            memberships__supportgroup__in=groupes_eligibles,
+        ).values_list("id", flat=True)
+    )
+
+    if tag_departemental:
+        membres_souhaites.update(tag_departemental.people.values_list("id", flat=True))
+
+    membres_actuels = set(boucle_departementale.members.values_list("id", flat=True))
+
+    a_ajouter = membres_souhaites.difference(membres_actuels)
+    a_retirer = membres_actuels.difference(membres_souhaites)
+
+    if dry_run:
+        return departement, (len(membres_actuels), len(a_ajouter), len(a_retirer))
+
+    _, deleted_objects = Membership.objects.filter(
+        supportgroup=boucle_departementale, person_id__in=a_retirer
+    ).delete()
+
+    new_members = [
+        Membership(
+            supportgroup=boucle_departementale,
+            person_id=p,
+            membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
+        )
+        for p in a_ajouter
+    ]
+    created = Membership.objects.bulk_create(new_members, ignore_conflicts=True)
+
+    return departement, (
+        len(membres_actuels),
+        len(created),
+        deleted_objects.get("groups.Membership", 0),
+    )
+
+
+def maj_boucles_departementales(only_departements=None, dry_run=False):
+    target_departements = only_departements if only_departements else departements
+    return [
+        maj_boucle_departementale(departement=departement, dry_run=dry_run)
+        for departement in target_departements
+    ]

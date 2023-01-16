@@ -4,8 +4,8 @@ import MembershipPanel from "@agir/groups/groupPage/GroupSettings/MembershipPane
 
 import MainPanel from "./MainPanel";
 
-const GroupMembersPage = (props) => (
+const GroupActiveMembersPage = (props) => (
   <MembershipPanel MainPanel={MainPanel} {...props} />
 );
 
-export default GroupMembersPage;
+export default GroupActiveMembersPage;

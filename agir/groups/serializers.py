@@ -1,5 +1,3 @@
-from urllib.parse import urlencode
-
 from django.conf import settings
 from django_countries.serializers import CountryFieldMixin
 from rest_framework import serializers
@@ -9,7 +7,6 @@ from agir.groups.tasks import (
     send_support_group_changed_notification,
     geocode_support_group,
 )
-from agir.lib.admin.utils import admin_url
 from agir.lib.geo import get_commune
 from agir.lib.html import textify
 from agir.lib.serializers import (
@@ -21,12 +18,12 @@ from agir.lib.serializers import (
     PhoneField,
     SimpleLocationSerializer,
 )
-from agir.lib.utils import front_url
 from agir.people.serializers import PersonSerializer
 from . import models
 from .actions import get_promo_codes
 from .actions.notifications import member_to_follower_notification
 from .models import Membership, SupportGroup, SupportGroupExternalLink
+from .utils import get_supportgroup_routes
 from ..front.serializer_utils import RoutesField
 from ..people.models import Person
 
@@ -88,6 +85,7 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
     discountCodes = serializers.SerializerMethodField(read_only=True)
     isFull = serializers.BooleanField(source="is_full", read_only=True)
     isOpen = serializers.BooleanField(source="open", read_only=True)
+    isEditable = serializers.BooleanField(source="editable", read_only=True)
 
     routes = RoutesField(routes=GROUP_ROUTES, read_only=True)
     isCertified = serializers.SerializerMethodField(
@@ -194,6 +192,7 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
     textDescription = serializers.SerializerMethodField(read_only=True)
     isFull = serializers.BooleanField(source="is_full", read_only=True)
     isOpen = serializers.BooleanField(source="open", read_only=True)
+    isEditable = serializers.BooleanField(source="editable", read_only=True)
     isCertifiable = serializers.BooleanField(read_only=True, source="is_certifiable")
     certificationCriteria = serializers.SerializerMethodField(read_only=True)
     isCertified = serializers.SerializerMethodField(
@@ -340,87 +339,7 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             }
 
     def get_routes(self, obj):
-        routes = {
-            "details": front_url("view_group", kwargs={"pk": obj.pk}),
-        }
-        if obj.is_certified:
-            routes["donations"] = front_url("donation_amount", query={"group": obj.pk})
-        if self.membership is not None:
-            routes["quit"] = front_url("quit_group", kwargs={"pk": obj.pk})
-            routes["calendarExport"] = front_url("ics_group", kwargs={"pk": obj.pk})
-        if (
-            self.membership is not None
-            and self.membership.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER
-        ):
-            routes["createEvent"] = f'{front_url("create_event")}?group={str(obj.pk)}'
-            routes["createSpendingRequest"] = front_url(
-                "create_spending_request", kwargs={"group_id": obj.pk}
-            )
-            routes["settings"] = front_url("view_group_settings", kwargs={"pk": obj.pk})
-            routes["edit"] = front_url(
-                "view_group_settings_general", kwargs={"pk": obj.pk}
-            )
-            routes["members"] = front_url(
-                "view_group_settings_members", kwargs={"pk": obj.pk}
-            )
-            routes["followers"] = front_url(
-                "view_group_settings_followers", kwargs={"pk": obj.pk}
-            )
-            routes["membershipTransfer"] = front_url(
-                "transfer_group_members", kwargs={"pk": obj.pk}
-            )
-            routes["geolocate"] = front_url(
-                "change_group_location", kwargs={"pk": obj.pk}
-            )
-            routes["invitation"] = front_url(
-                "view_group_settings_contact",
-                kwargs={"pk": obj.pk},
-            )
-            routes["orders"] = "https://materiel.actionpopulaire.fr/"
-            if obj.tags.filter(label=settings.PROMO_CODE_TAG).exists():
-                routes["materiel"] = front_url(
-                    "view_group_settings_materiel", kwargs={"pk": obj.pk}
-                )
-            if obj.is_certified:
-                routes["financement"] = front_url(
-                    "view_group_settings_finance",
-                    kwargs={"pk": obj.pk},
-                )
-        if (
-            self.membership is not None
-            and self.membership.membership_type >= Membership.MEMBERSHIP_TYPE_REFERENT
-        ):
-            routes["animation"] = front_url(
-                "view_group_settings_management", kwargs={"pk": obj.pk}
-            )
-            routes[
-                "animationChangeRequest"
-            ] = "https://actionpopulaire.fr/formulaires/demande-changement-animation-ga/"
-            routes[
-                "referentResignmentRequest"
-            ] = "https://infos.actionpopulaire.fr/contact/"
-            routes[
-                "deleteGroup"
-            ] = "https://actionpopulaire.fr/formulaires/demande-suppression-ga/"
-            if not obj.is_certified and obj.is_certifiable:
-                certification_request_url = "https://lafranceinsoumise.fr/groupes-appui/demande-de-certification/"
-                certification_request_params = {
-                    "group-id": obj.pk,
-                    "email": self.membership.person.email,
-                    "animateur": self.membership.person.get_full_name(),
-                }
-                routes[
-                    "certificationRequest"
-                ] = f"{certification_request_url}?{urlencode(certification_request_params)}"
-        if (
-            not self.user.is_anonymous
-            and self.user.person
-            and self.user.is_staff
-            and self.user.has_perm("groups.change_supportgroup")
-        ):
-            routes["admin"] = admin_url("groups_supportgroup_change", args=[obj.pk])
-
-        return routes
+        return get_supportgroup_routes(obj, self.membership, self.user)
 
     def get_discountCodes(self, obj):
         if (

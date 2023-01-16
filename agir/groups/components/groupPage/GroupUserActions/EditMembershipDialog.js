@@ -69,6 +69,7 @@ const EditMembershipDialog = (props) => {
 EditMembershipDialog.propTypes = {
   shouldShow: PropTypes.bool,
   isLoading: PropTypes.bool,
+  personalInfoConsent: PropTypes.bool,
   onUpdate: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
 };

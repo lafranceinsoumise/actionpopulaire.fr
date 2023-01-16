@@ -50,7 +50,7 @@ export const GroupSettings = (props) => {
 
   // Open first panel on Desktop
   if (isDesktop && routeMenuMatch?.isExact) {
-    return <Redirect to="membres/" />;
+    return <Redirect to={routes[0] ? routes[0].getLink() : basePath} />;
   }
 
   return (

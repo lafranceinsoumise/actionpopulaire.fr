@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import useSWR from "swr";
+import useSWRImmutable from "swr/immutable";
 
 import CONFIG from "@agir/donations/common/config";
-import { MANUAL_REVALIDATION_SWR_CONFIG } from "@agir/front/allPages/SWRContext";
 import * as api from "@agir/donations/common/api";
 import { getReminder } from "@agir/donations/common/allocations.config";
 
@@ -14,14 +13,11 @@ import {
 
 export const useGroupDonation = (initialGroupPk) => {
   const [isReady, setIsReady] = useState(false);
-  const { data: initialGroup, isValidating: isGroupLoading } = useSWR(
-    initialGroupPk && `/api/groupes/${initialGroupPk}/`,
-    MANUAL_REVALIDATION_SWR_CONFIG
+  const { data: initialGroup, isValidating: isGroupLoading } = useSWRImmutable(
+    initialGroupPk && `/api/groupes/${initialGroupPk}/`
   );
-  const { data: groups, isValidating: areGroupsLoading } = useSWR(
-    `/api/groupes/`,
-    MANUAL_REVALIDATION_SWR_CONFIG
-  );
+  const { data: groups, isValidating: areGroupsLoading } =
+    useSWRImmutable(`/api/groupes/`);
 
   const [selectedGroup, setSelectedGroup] = useState(null);
 
@@ -69,10 +65,8 @@ export const useDonations = (
 
   const [isReady, setIsReady] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { data: session, isValidating: isSessionLoading } = useSWR(
-    "/api/session/",
-    MANUAL_REVALIDATION_SWR_CONFIG
-  );
+  const { data: session, isValidating: isSessionLoading } =
+    useSWRImmutable("/api/session/");
   const [formData, setFormData] = useState({
     ...INITIAL_DATA,
     ...defaults,

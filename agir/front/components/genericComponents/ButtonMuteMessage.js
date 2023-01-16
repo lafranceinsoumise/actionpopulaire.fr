@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import React, { useState, useMemo } from "react";
 import styled from "styled-components";
-import useSWR from "swr";
+import useSWRImmutable from "swr/immutable";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
@@ -17,7 +17,6 @@ import {
   updateMessageNotification,
   getGroupEndpoint,
 } from "@agir/groups/utils/api";
-import { MANUAL_REVALIDATION_SWR_CONFIG } from "@agir/front/allPages/SWRContext";
 
 const StyledMuteButton = styled.div`
   cursor: pointer;
@@ -39,9 +38,8 @@ const ButtonMuteMessage = ({ message }) => {
   const [isMutedLoading, setIsMutedLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { data: isMuted, mutate } = useSWR(
-    getGroupEndpoint("messageNotification", { messagePk: message?.id }),
-    MANUAL_REVALIDATION_SWR_CONFIG
+  const { data: isMuted, mutate } = useSWRImmutable(
+    getGroupEndpoint("messageNotification", { messagePk: message?.id })
   );
 
   const switchNotificationMessage = async () => {

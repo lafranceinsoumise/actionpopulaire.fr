@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useState } from "react";
 import styled from "styled-components";
-import useSWR from "swr";
+import useSWRImmutable from "swr/immutable";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
@@ -11,7 +11,6 @@ import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 
 import { getGroupEndpoint } from "@agir/groups/utils/api";
-import { MANUAL_REVALIDATION_SWR_CONFIG } from "@agir/front/allPages/SWRContext";
 
 const Description = styled.span`
   font-size: 14px;
@@ -29,9 +28,8 @@ const PrimarySpan = styled.span`
 const MessageDetails = ({ message }) => {
   const [openParticipants, setOpenParticipants] = useState(false);
 
-  const { data: participants } = useSWR(
-    getGroupEndpoint("messageParticipants", { messagePk: message?.id }),
-    MANUAL_REVALIDATION_SWR_CONFIG
+  const { data: participants } = useSWRImmutable(
+    getGroupEndpoint("messageParticipants", { messagePk: message?.id })
   );
 
   const closeParticipants = useCallback(() => {

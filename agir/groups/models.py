@@ -142,17 +142,20 @@ class SupportGroup(
     TYPE_LOCAL_GROUP = "L"
     TYPE_THEMATIC = "B"
     TYPE_FUNCTIONAL = "F"
+    TYPE_BOUCLE_DEPARTEMENTALE = "D"
 
     TYPE_CHOICES = (
         (TYPE_LOCAL_GROUP, "Groupe local"),
         (TYPE_THEMATIC, "Groupe thématique"),
         (TYPE_FUNCTIONAL, "Groupe fonctionnel"),
+        (TYPE_BOUCLE_DEPARTEMENTALE, "Boucle départementale"),
     )
 
     TYPE_PARAMETERS = {
         TYPE_LOCAL_GROUP: {"color": "#4a64ac", "icon_name": "users"},
         TYPE_THEMATIC: {"color": "#49b37d", "icon_name": "book"},
         TYPE_FUNCTIONAL: {"color": "#e14b35", "icon_name": "cog"},
+        TYPE_BOUCLE_DEPARTEMENTALE: {"color": "#e4b363", "icon_name": "chart-network"},
     }
 
     TYPE_DESCRIPTION = {
@@ -165,12 +168,15 @@ class SupportGroup(
         TYPE_FUNCTIONAL: "Les groupes fonctionnels rassemblent les personnes d'une même zone s'organisant à plusieurs "
         "pour accomplir des fonctions précises (gestion d'un local, organisation des manifestation, "
         "etc.)",
+        TYPE_BOUCLE_DEPARTEMENTALE: "Les boucles départementales assurent la coordination des groupes d'action au sein"
+        "d'un département.",
     }
 
     TYPE_DISABLED_DESCRIPTION = {
         TYPE_LOCAL_GROUP: "✅ Vous animez déjà deux groupes locaux",
         TYPE_THEMATIC: "✅ Vous animez déjà deux groupes thématiques",
         TYPE_FUNCTIONAL: "✅ Vous animez déjà deux groupes fonctionnels",
+        TYPE_BOUCLE_DEPARTEMENTALE: "✅ Il n'est pas possible de créer de boucle départementale vous-même",
     }
 
     MEMBERSHIP_LIMIT = 30
@@ -193,24 +199,17 @@ class SupportGroup(
         "SupportGroupSubtype", related_name="supportgroups", blank=True
     )
 
-    published = models.BooleanField(
-        _("publié"),
-        default=True,
-        blank=False,
-        help_text=_("Le groupe doit-il être visible publiquement."),
-    )
-
     tags = models.ManyToManyField("SupportGroupTag", related_name="groups", blank=True)
 
     members = models.ManyToManyField(
         "people.Person", related_name="supportgroups", through="Membership", blank=True
     )
 
-    is_private_messaging_enabled = models.BooleanField(
-        _("Messagerie privée activée"),
+    published = models.BooleanField(
+        _("publié"),
         default=True,
         blank=False,
-        help_text=_("La messagerie privée est activée ou non pour ce groupe."),
+        help_text=_("Le groupe est visible publiquement"),
     )
 
     open = models.BooleanField(
@@ -218,9 +217,24 @@ class SupportGroup(
         default=True,
         blank=False,
         null=False,
+        help_text=_("Le groupe accueilir de nouveaux membres ou abonné·es"),
+    )
+
+    editable = models.BooleanField(
+        _("éditable"),
+        default=True,
+        blank=False,
+        null=False,
         help_text=_(
-            "Ce groupe peut-il ou pas accueilir des nouveaux membres ou abonné·es"
+            "Les informations du groupe peuvent être éditées par ses animateur·ices et gestionnaires"
         ),
+    )
+
+    is_private_messaging_enabled = models.BooleanField(
+        _("messagerie privée activée"),
+        default=True,
+        blank=False,
+        help_text=_("La messagerie privée est activée pour le groupe"),
     )
 
     @property

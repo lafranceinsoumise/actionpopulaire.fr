@@ -1,9 +1,8 @@
 import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
-import useSWR from "swr";
+import useSWRImmutable from "swr/immutable";
 
-import { MANUAL_REVALIDATION_SWR_CONFIG } from "@agir/front/allPages/SWRContext";
 import { getEventEndpoint } from "@agir/events/common/api";
 
 import Button from "@agir/front/genericComponents/Button";
@@ -66,9 +65,8 @@ ReportFormCard.propTypes = {
 };
 
 const ConnectedReportFormCard = ({ eventPk }) => {
-  const { data } = useSWR(
-    eventPk && getEventEndpoint("getEventReportForm", { eventPk }),
-    MANUAL_REVALIDATION_SWR_CONFIG
+  const { data } = useSWRImmutable(
+    eventPk && getEventEndpoint("getEventReportForm", { eventPk })
   );
   return (
     <PageFadeIn ready={!!data?.url}>
@@ -84,7 +82,7 @@ const ConnectedReportFormCard = ({ eventPk }) => {
   );
 };
 
-ReportFormCard.propTypes = {
+ConnectedReportFormCard.propTypes = {
   eventPk: PropTypes.string,
 };
 
