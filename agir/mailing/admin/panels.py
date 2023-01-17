@@ -148,7 +148,7 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         "supportgroup_status",
         "supportgroup_subtypes_list",
         "tags_list",
-        "subscribers_count",
+        "subscriber_list_link",
     )
 
     def supportgroup_subtypes_list(self, instance):
@@ -186,6 +186,18 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         )
 
     subscribers_count.short_description = "Nombre d'abonnés"
+
+    def subscriber_list_link(self, instance):
+        if not instance:
+            return "-"
+
+        return format_html(
+            '<a href="{}?segment={}">Voir la liste des abonné·es</a>',
+            reverse("admin:people_person_changelist"),
+            str(instance.pk),
+        )
+
+    subscriber_list_link.short_description = "Abonné·es"
 
     class Media:
         pass
