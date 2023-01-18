@@ -11,47 +11,49 @@
     .form-control {
       scroll-margin-top: 200px;
     }
+    .btn-submit {
+      max-width: 320px;
+      margin-left: auto;
+      margin-right: auto;
+    }
   </style>
 {% endblock %}
 
-{% block main %}
-  <div class="row">
-    <div class="col-xs-12 col-md-8 col-md-offset-2">
-      {% if person_form.config.public %}
-        <p class="col-sm-offset-8 col-sm-4 margintopmore marginbottom">
-          <a href="{% url "person_form_submissions" person_form.slug %}" class="btn btn-default btn-block">
-            Voir les réponses
-          </a>
-        </p>
-      {% endif %}
-      <h2 class="headline center">
-        {{ person_form.title }}
-      </h2>
-      <div class="row">
-        {% if not is_authorized %}
-          <div class="col-xs-12 col-md-8 intro">
-            {{ person_form.html_unauthorized_message }}
-          </div>
-        {% elif person_form.is_open %}
-          <div class="col-xs-12 col-md-8 col-md-offset-2 intro">
-            {{ person_form.html_description }}
-          </div>
-          <div class="col-xs-12 col-md-8 col-md-offset-2 intro">
-            {% crispy form %}
-          </div>
-          {% if person_form.campaign_template %}
-            <script>
-            document.getElementById("submit-id-preview").onclick = function() {
-              document.getElementById("submit-id-submit").disabled = false;
-            };
-            </script>
-          {% endif %}
-        {% else %}
-          <div class="col-xs-12 intro">
-            {{ person_form.html_closed_message }}
-          </div>
-        {% endif %}
-      </div>
-    </div>
+{% block main_column %}
+{% if not person_form.config.public %}
+    <p class="col-xs-12 margintopmore marginbottom text-right">
+      <a href="{% url "person_form_submissions" person_form.slug %}" class="btn btn-sm btn-default">
+        Voir les réponses
+      </a>
+    </p>
+{% endif %}
+
+<h2 class="col-xs-12 headline center">
+  {{ person_form.title }}
+</h2>
+
+{% if not is_authorized %}
+  <div class="col-xs-12 intro">
+    {{ person_form.html_unauthorized_message }}
   </div>
+{% elif person_form.is_open %}
+  <div class="col-xs-12 intro">
+    {{ person_form.html_description }}
+  </div>
+  <div class="col-xs-12 intro">
+    {% crispy form %}
+  </div>
+  {% if person_form.campaign_template %}
+    <script>
+    document.getElementById("submit-id-preview").onclick = function() {
+      document.getElementById("submit-id-submit").disabled = false;
+    };
+    </script>
+  {% endif %}
+{% else %}
+  <div class="col-xs-12 intro">
+    {{ person_form.html_closed_message }}
+  </div>
+{% endif %}
+
 {% endblock %}

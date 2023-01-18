@@ -13,6 +13,8 @@ import gregorian_en from "react-date-object/locales/gregorian_en";
 const StyledHelpText = styled.p`
   color: ${style.black700};
   font-size: 0.75rem;
+  text-align: left;
+  padding: 0 1rem;
 `;
 
 const StyledCalendar = styled(Calendar)`
@@ -187,11 +189,13 @@ const LengthHelpText = (props) => {
   if (!current) {
     text += "Veuillez sélectionner ";
     if (min && max && min !== max) {
-      text += `entre ${min} et ${max} dates.`;
+      text += `entre ${min} et ${max} dates`;
+    } else if (min === max) {
+      text += `${max} dates`;
     } else if (min) {
-      text += `minimum ${min} date${min > 1 ? "s" : ""}.`;
+      text += `minimum ${min} date${min > 1 ? "s" : ""}`;
     } else {
-      text += `${max} date${max > 1 ? "s" : ""} maximum.`;
+      text += `${max} date${max > 1 ? "s" : ""} maximum`;
     }
   } else {
     text += `${current}${max ? `/${max}` : ""} date${
@@ -229,7 +233,7 @@ const MultiDateInput = (props) => {
 
   const handleChange = useCallback(
     (value) => {
-      Array.isArray(value)
+      Array.isArray(value) && maxLength
         ? setValue(value.slice(0, maxLength))
         : setValue(value);
     },
@@ -257,13 +261,8 @@ const MultiDateInput = (props) => {
     if (minDate) {
       return new DateObject(minDate);
     }
-    if (maxDate) {
-      return new DateObject(maxDate);
-    }
     return new DateObject();
-  }, [value, minDate, maxDate]);
-
-  console.log(initialDate.format());
+  }, [value, minDate]);
 
   return (
     <StyledCalendar
@@ -287,7 +286,7 @@ const MultiDateInput = (props) => {
         id={id}
         name={name}
         type="hidden"
-        value={value ? value.map((v) => v.format()).join(",") : ""}
+        value={value ? value.map((v) => v.format(format)).join(",") : ""}
         onChange={onChange}
       />
       <LengthHelpText
@@ -304,7 +303,7 @@ const MultiDateInput = (props) => {
 };
 
 MultiDateInput.propTypes = {
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   initialValue: PropTypes.string,
   id: PropTypes.string,
   name: PropTypes.string,
@@ -315,6 +314,8 @@ MultiDateInput.propTypes = {
   maxDate: PropTypes.string,
   minLength: PropTypes.number,
   maxLength: PropTypes.number,
+  minDelta: PropTypes.number,
+  maxDelta: PropTypes.number,
   className: PropTypes.string,
   disabled: PropTypes.bool,
   readOnly: PropTypes.bool,
