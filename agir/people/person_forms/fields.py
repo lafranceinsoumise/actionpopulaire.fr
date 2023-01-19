@@ -17,6 +17,8 @@ from django.utils.deconstruct import deconstructible
 from django.utils.formats import localize_input
 from django.utils.translation import gettext as _
 from phonenumber_field.formfields import PhoneNumberField
+from slugify import slugify
+from unidecode import unidecode
 
 from agir.events.models import Event
 from agir.lib.data import departements_choices, regions_choices, zones_fe_choices
@@ -30,6 +32,7 @@ from agir.lib.form_fields import (
     BetterIntegerInput,
 )
 from ..models import Person
+from ...event_requests.models import EventTheme, EventThemeType
 from ...groups.models import SupportGroup, Membership
 from ...municipales.models import CommunePage
 
@@ -342,6 +345,50 @@ class PersonNewslettersField(forms.MultipleChoiceField):
         return value
 
 
+class EventThemeField(forms.ModelChoiceField):
+    instance_in_kwargs = True
+    widget = SelectizeWidget
+    iterator = ModelDefaultChoiceIterator
+
+    def __init__(
+        self,
+        *,
+        instance,
+        event_theme_type=None,
+        **kwargs,
+    ):
+        self.default_queryset = self.get_default_queryset(event_theme_type)
+        super().__init__(self.default_queryset, **kwargs)
+
+    def get_default_queryset(self, event_theme_type=None):
+        if not event_theme_type:
+            return EventTheme.objects.all()
+
+        match = None
+        if isinstance(event_theme_type, int):
+            match = EventThemeType.objects.filter(pk=event_theme_type).first()
+        else:
+            event_theme_type = (
+                unidecode(str(event_theme_type)).lower().replace("-", " ")
+            )
+            for ett in EventThemeType.objects.all():
+                normalized_name = unidecode(str(ett.name)).lower().replace("-", " ")
+                if normalized_name == event_theme_type:
+                    match = ett
+                    break
+
+        if not match:
+            return EventTheme.objects.none()
+
+        return match.event_themes.all()
+
+    def to_python(self, value):
+        value = super().to_python(value)
+        if value is None:
+            return None
+        return str(value.pk)
+
+
 FIELDS = {
     "short_text": ShortTextField,
     "long_text": LongTextField,
@@ -367,6 +414,7 @@ FIELDS = {
     "multiple_groups": MultipleGroupField,
     "newsletters": PersonNewslettersField,
     "uuid": forms.UUIDField,
+    "event_theme": EventThemeField,
 }
 
 
