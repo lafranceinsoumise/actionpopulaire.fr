@@ -28,6 +28,7 @@ module.exports = merge.merge(common("dev"), {
   },
   watchOptions: {
     poll: 1000,
+    ignored: /theme\.scss$/,
   },
   devServer: {
     hot: "only",

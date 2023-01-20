@@ -36,7 +36,7 @@ Certaines propriétés de cet objet sont spécifiques aux types de champs, alors
   Le libellé du champs. Cette propriété est obligatoire uniquement si la propriété `person_field` (cf. [Paramètres optionnels](#parametres-optionnels)) n'est pas indiquée ou sa valeur est `false`.
 
 - `"type": "short_text" [string]`
-  Le type de champs à utiliser. Cette propriété est obligatoire uniquement si la propriété `person_field` (cf. [Paramètres optionnels](#parametres-optionnels)) n'est pas indiquée ou sa valeur est `false`. Les types de champs disponibles sont: ["short_text"](#short_text), ["long_text"](#long_text), ["choice"](#choice), ["radio_choice"](#radio_choice), ["autocomplete_choice"](#autocomplete_choice), ["autocomplete_multiple_choice"](#autocomplete_multiple_choice), ["multiple_choice"](#multiple_choice), ["email_address"](#email_address), ["phone_number"](#phone_number), ["url"](#url), ["file"](#file), ["boolean"](#boolean), ["integer"](#integer), ["decimal"](#decimal), ["datetime"](#datetime), ["date"](#date), ["person"](#person), ["iban"](#iban), ["commune"](#commune), ["group"](#group), ["multiple_groups"](#multiple_groups), ["newsletters"](#newsletters), ["event_theme"](#event_theme).
+  Le type de champs à utiliser. Cette propriété est obligatoire uniquement si la propriété `person_field` (cf. [Paramètres optionnels](#parametres-optionnels)) n'est pas indiquée ou sa valeur est `false`. Les types de champs disponibles sont: ["short_text"](#short_text), ["long_text"](#long_text), ["choice"](#choice), ["radio_choice"](#radio_choice), ["autocomplete_choice"](#autocomplete_choice), ["autocomplete_multiple_choice"](#autocomplete_multiple_choice), ["multiple_choice"](#multiple_choice), ["email_address"](#email_address), ["phone_number"](#phone_number), ["url"](#url), ["file"](#file), ["boolean"](#boolean), ["integer"](#integer), ["decimal"](#decimal), ["datetime"](#datetime), ["date"](#date), ["multidate"](#date), ["person"](#person), ["iban"](#iban), ["commune"](#commune), ["group"](#group), ["multiple_groups"](#multiple_groups), ["newsletters"](#newsletters), ["event_theme"](#event_theme).
 
 ##### Paramètres optionnels
 
@@ -620,6 +620,42 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
   "max_value": "1871-05-28"
 }
 ```
+#### `multidate`
+
+Un champs qui permet de saisir une liste de dates.
+
+##### Paramètres obligatoires
+
+_Ce type n'a pas de paramètres obligatoires spécifiques._
+
+##### Paramètres optionnels
+
+- `"min_value": "1871-05-21" [string]`, `"max_value": "1871-05-28" [string]`
+  La valeur minimale et maximale autorisée pour le champs. Il est possible d'indiquer une date exacte, ou bien une date relative (en anglais, ex. *'today', '2 years ago', '2 weeks from now'*).
+
+- `"min_length": 1 [number]`, `"max_length": 10 [number]`
+  La longeur minimale et maximale de la liste
+
+- `"min_delta": 1 [number]`, `"max_delta": 10 [number]`
+  La différence minimale et maximale entre la première et la dernière date de la liste (en jours).
+
+##### Examples
+
+```json
+{
+  "id": "dates",
+  "type": "multidate",
+  "label": "Dates disponibles",
+  "initial": "1871-05-21",
+  "required": false,
+  "min_value": "1871-05-21",
+  "max_value": "1871-05-28",
+  "min_length": 2,
+  "max_length": 3,
+  "min_delta": 3,
+  "max_delta": 5
+}
+```
 
 #### `person`
 
@@ -1186,6 +1222,25 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
         "min_value": "1871-05-21",
         "max_value": "1871-05-28"
       }
+    ]
+  },
+  {
+    "title": "Champs 'multidate'",
+    "intro_html": "<p>Champs de saisie de plusieurs dates</p>",
+    "fields": [
+        {
+          "id": "dates",
+          "type": "multidate",
+          "label": "Dates disponibles",
+          "initial": "1871-05-21",
+          "required": false,
+          "min_value": "1871-05-21",
+          "max_value": "1871-05-28",
+          "min_length": 2,
+          "max_length": 3,
+          "min_delta": 3,
+          "max_delta": 5
+        }
     ]
   },
   {

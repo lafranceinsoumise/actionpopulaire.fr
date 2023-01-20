@@ -30,6 +30,7 @@ from agir.lib.form_fields import (
     SelectizeMultipleWidget,
     DatePickerWidget,
     BetterIntegerInput,
+    MultiDateField,
 )
 from ..models import Person
 from ...event_requests.models import EventTheme, EventThemeType
@@ -407,6 +408,7 @@ FIELDS = {
     "decimal": forms.DecimalField,
     "datetime": DateTimeField,
     "date": DateField,
+    "multidate": MultiDateField,
     "person": PersonChoiceField,
     "iban": IBANField,
     "commune": CommuneField,

@@ -121,6 +121,7 @@ const getOtherEntryFiles = (compilation) => {
     "lib/creationForms",
     "lib/IBANField",
     "lib/locationSearchField",
+    "lib/multiDateField",
     "theme",
   ]
     .map((name) =>
