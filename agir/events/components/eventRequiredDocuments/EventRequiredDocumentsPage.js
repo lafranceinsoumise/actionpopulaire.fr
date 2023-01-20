@@ -18,7 +18,7 @@ import { useEventFormOptions } from "@agir/events/common/hooks";
 import { routeConfig } from "@agir/front/app/routes.config";
 
 const EventRequiredDocumentsUploadPage = (props) => {
-  const { eventPk, onBack, embedded } = props;
+  const { eventPk, embedded } = props;
   const { data, mutate, error } = useSWR(
     getEventEndpoint("eventProject", { eventPk })
   );
@@ -109,7 +109,6 @@ const EventRequiredDocumentsUploadPage = (props) => {
 
 EventRequiredDocumentsUploadPage.propTypes = {
   eventPk: PropTypes.string.isRequired,
-  onBack: PropTypes.string,
   embedded: PropTypes.bool,
 };
 

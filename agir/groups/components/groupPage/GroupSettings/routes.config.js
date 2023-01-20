@@ -9,6 +9,7 @@ import illustrationFinance from "@agir/front/genericComponents/images/group_fina
 import illustrationGeneral from "@agir/front/genericComponents/images/group_general.svg";
 import illustrationContact from "@agir/front/genericComponents/images/group_contact.svg";
 import illustrationLinks from "@agir/front/genericComponents/images/group_links.svg";
+import illustrationHelp from "@agir/front/genericComponents/images/group_help.svg";
 
 const GroupSettingsReadOnlyMembers = lazy(() =>
   import(
@@ -63,6 +64,11 @@ const GroupSettingsLinks = lazy(() =>
 const GroupSettingsCertification = lazy(() =>
   import(
     /* webpackChunkName: "r-groupsettingscertification" */ "@agir/groups/groupPage/GroupSettings/GroupCertificationPage"
+  )
+);
+const GroupSettingsHelp = lazy(() =>
+  import(
+    /* webpackChunkName: "r-groupsettingshelp" */ "@agir/groups/groupPage/GroupSettings/GroupHelpPage"
   )
 );
 
@@ -182,6 +188,17 @@ export const routeConfig = {
     illustration: illustrationLinks,
     isActive: true,
     menuGroup: 2,
+  },
+  help: {
+    id: "help",
+    path: "ressources/",
+    exact: true,
+    label: "Ressources",
+    icon: "more-horizontal",
+    Component: GroupSettingsHelp,
+    illustration: illustrationHelp,
+    isActive: true,
+    menuGroup: 3,
   },
 };
 
