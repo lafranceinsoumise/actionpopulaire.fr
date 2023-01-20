@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib.gis.db import models
-from django.db import transaction
+from django.contrib.postgres.fields import ArrayField
 from django_countries.fields import CountryField
 
 from agir.lib.form_fields import CustomJSONEncoder
@@ -52,7 +52,14 @@ class EventTheme(BaseAPIResource):
         verbose_name_plural = "Thèmes d'évenement"
 
 
+class EventSpeakerQuerySet(models.QuerySet):
+    def available(self):
+        return self.filter(available=True)
+
+
 class EventSpeaker(BaseAPIResource):
+    object = EventSpeakerQuerySet.as_manager()
+
     person = models.OneToOneField(
         "people.Person",
         verbose_name="personne",
@@ -76,7 +83,7 @@ class EventSpeaker(BaseAPIResource):
     )
 
     def __str__(self):
-        return str(self.person)
+        return f"{str(self.person.get_full_name())} ({'disponible' if self.available else 'indisponible'})"
 
     class Meta:
         verbose_name = "Intervenant·e"
@@ -100,19 +107,6 @@ class EventRequestQueryset(models.QuerySet):
         return self.filter(status=EventRequest.Status.PENDING)
 
 
-class EventRequestManager(models.Manager.from_queryset(EventRequestQueryset)):
-    def create_for_dates(self, dates, *args, **kwargs):
-        with transaction.atomic():
-            event_request = self.model(**kwargs)
-            for event_request_date in EventRequestDate.objects.bulk_create(
-                (EventRequestDate(date=date) for date in dates), ignore_conflicts=True
-            ):
-                event_request.dates.add(event_request_date)
-            event_request.save(using=self._db)
-
-            return event_request
-
-
 class EventRequestStatus(models.IntegerChoices):
     PENDING = 0, "Demande en cours"
     DONE = 1, "Demande traitée"
@@ -120,7 +114,7 @@ class EventRequestStatus(models.IntegerChoices):
 
 
 class EventRequest(BaseAPIResource):
-    objects = EventRequestManager()
+    objects = EventRequestQueryset.as_manager()
 
     Status = EventRequestStatus
 
@@ -131,11 +125,11 @@ class EventRequest(BaseAPIResource):
         null=False,
         default=EventRequestStatus.PENDING,
     )
-    dates = models.ManyToManyField(
-        "EventRequestDate",
+    dates = ArrayField(
+        base_field=models.DateField(),
         verbose_name="dates possibles",
-        related_name="+",
-        blank=True,
+        blank=False,
+        null=False,
     )
     event_theme = models.ForeignKey(
         "EventTheme",
@@ -172,10 +166,11 @@ class EventRequest(BaseAPIResource):
         null=True,
         blank=True,
     )
+    comment = models.TextField("Commentaire", blank=True, null=False)
 
     @property
     def date_list(self):
-        return ",".join([str(date) for date in self.dates.all()])
+        return ",".join([str(date) for date in self.dates])
 
     def __str__(self):
         return (
@@ -193,6 +188,9 @@ class EventSpeakerRequestQueryset(models.QuerySet):
     def answered(self):
         return self.filter(status__isnull=False)
 
+    def accepted(self):
+        return self.filter(accepted=False)
+
 
 class EventSpeakerRequest(BaseAPIResource):
     objects = models.Manager.from_queryset(EventRequestQueryset)
@@ -202,6 +200,11 @@ class EventSpeakerRequest(BaseAPIResource):
         null=True,
         default=None,
         help_text="L'intervenant·e est disponible ou non",
+    )
+    accepted = models.BooleanField(
+        verbose_name="confirmé·e",
+        default=False,
+        help_text="L'intervenant·e a été confirmé·e ou pas pour cette demande",
     )
     event_request = models.ForeignKey(
         "EventRequest",
@@ -217,28 +220,24 @@ class EventSpeakerRequest(BaseAPIResource):
         related_name="event_speaker_requests",
         related_query_name="event_speaker_request",
     )
-    event_request_date = models.ForeignKey(
-        "EventRequestDate",
-        verbose_name="date",
-        on_delete=models.PROTECT,
-        related_name="+",
-    )
+    date = models.DateField(verbose_name="date", null=False, blank=False)
+    comment = models.TextField("Commentaire", blank=True, null=False)
 
     def __str__(self):
-        return f"{self.event_speaker.person} / {self.event_request_date} / {self.event_request}"
+        return f"{self.event_speaker.person} / {self.date} / {self.event_request}"
 
     class Meta:
         verbose_name = "Demande de disponibilité d'intervenant·e"
         verbose_name_plural = "Demandes de disponibilité d'intervenant·e"
-        ordering = ("event_request_date",)
+        ordering = ("date",)
         indexes = (
             models.Index(
-                fields=("event_request_date",),
+                fields=("date",),
             ),
         )
         constraints = (
             models.UniqueConstraint(
-                fields=["event_request", "event_speaker", "event_request_date"],
+                fields=["event_request", "event_speaker", "date"],
                 name="unique_for_request_speaker_date",
             ),
         )

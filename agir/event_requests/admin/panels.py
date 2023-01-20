@@ -1,29 +1,12 @@
 from django.contrib import admin
 from django.urls import reverse, path
 from django.utils.safestring import mark_safe
+from django.utils.translation import ngettext
 from rangefilter.filters import DateRangeFilter
 
 from agir.event_requests import models
 from agir.event_requests.admin import inlines, views
 from agir.lib.admin.panels import PersonLinkMixin
-
-
-@admin.register(models.EventRequestDate)
-class EventRequestDateAdmin(admin.ModelAdmin):
-    createonly_fields = ("date",)
-    search_fields = ("date",)
-
-    def has_module_permission(self, request):
-        return False
-
-    def has_delete_permission(self, request, obj=None):
-        return False
-
-    def get_readonly_fields(self, request, obj=None):
-        readonly_fields = super().get_readonly_fields(request, obj)
-        if obj is None:
-            return readonly_fields
-        return readonly_fields + self.createonly_fields
 
 
 @admin.register(models.EventThemeType)
@@ -60,14 +43,36 @@ class EventSpeakerAdmin(admin.ModelAdmin, PersonLinkMixin):
 @admin.register(models.EventRequest)
 class EventRequestAdmin(admin.ModelAdmin):
     readonly_fields = ("event",)
-    list_display = ("__str__", "date_list", "status", "event")
+    list_display = ("__str__", "date_list", "status", "created", "event_link")
+    list_filter = (
+        "status",
+        "event_theme__event_theme_type",
+        "event_theme",
+    )
     inlines = (inlines.EventSpeakerRequestInline,)
-    autocomplete_fields = ("dates",)
+    date_hierarchy = "created"
 
     def date_list(self, obj):
         return obj.date_list
 
     date_list.short_description = "Dates possibles"
+
+    def event_link(self, obj):
+        if obj.event is None:
+            return "-"
+
+        return mark_safe(
+            '<a href="%s">%s</a>'
+            % (
+                reverse(
+                    "admin:events_event_change",
+                    args=(obj.event.id,),
+                ),
+                obj.event.name,
+            )
+        )
+
+    event_link.short_description = "Événement"
 
 
 @admin.register(models.EventSpeakerRequest)
@@ -76,24 +81,30 @@ class EventSpeakerRequestAdmin(admin.ModelAdmin):
         "id",
         "event_request_link",
         "event_speaker_link",
-        "event_request_date",
+        "date",
         "available",
+        "accepted",
         "created",
         "modified",
         "validate",
     )
     list_filter = (
         "available",
+        "accepted",
         "event_request__status",
         "event_speaker",
-        ("event_request_date__date", DateRangeFilter),
+        ("date", DateRangeFilter),
     )
     createonly_fields = (
         "event_request",
         "event_speaker",
-        "event_request_date",
+        "date",
     )
-    readonly_fields = ("validate",)
+    readonly_fields = (
+        "accepted",
+        "validate",
+    )
+    date_hierarchy = "date"
 
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = super().get_readonly_fields(request, obj)
@@ -116,7 +127,7 @@ class EventSpeakerRequestAdmin(admin.ModelAdmin):
             )
         )
 
-    event_request_link.short_description = "demande"
+    event_request_link.short_description = "Demande"
 
     def event_speaker_link(self, obj):
         if obj.event_speaker is None:
@@ -133,7 +144,7 @@ class EventSpeakerRequestAdmin(admin.ModelAdmin):
             )
         )
 
-    event_speaker_link.short_description = "intervenant·e"
+    event_speaker_link.short_description = "Intervenant·e"
 
     def get_urls(self):
         return [

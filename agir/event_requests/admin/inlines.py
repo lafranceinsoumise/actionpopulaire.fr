@@ -45,9 +45,12 @@ class EventSpeakerRequestInline(admin.TabularInline):
     show_change_link = True
     verbose_name = "demandes de disponibilité"
     verbose_name_plural = "demandes de disponibilité"
-    fields = ("event_speaker", "event_request_date", "available", "validate")
-    readonly_fields = ("validate",)
-    actions = ["make_published"]
+    fields = ("event_speaker", "date", "available", "accepted", "validate")
+    readonly_fields = (
+        "accepted",
+        "validate",
+    )
+    ordering = ("-accepted", "-available")
 
     def has_add_permission(self, request, obj):
         return False

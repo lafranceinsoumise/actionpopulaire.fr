@@ -11,7 +11,7 @@ from agir.people.models import Person
 
 def create_event_from_event_speaker_request(event_speaker_request=None):
     event_request = event_speaker_request.event_request
-    event_date = event_speaker_request.event_request_date.date
+    event_date = event_speaker_request.date
     data = deepcopy(event_speaker_request.event_request.event_data)
 
     organizer_person = None
