@@ -1,10 +1,10 @@
 from django.contrib import admin
-from django.urls import reverse
+from django.urls import reverse, path
 from django.utils.safestring import mark_safe
 from rangefilter.filters import DateRangeFilter
 
 from agir.event_requests import models
-from agir.event_requests.admin import inlines
+from agir.event_requests.admin import inlines, views
 from agir.lib.admin.panels import PersonLinkMixin
 
 
@@ -80,6 +80,7 @@ class EventSpeakerRequestAdmin(admin.ModelAdmin):
         "available",
         "created",
         "modified",
+        "validate",
     )
     list_filter = (
         "available",
@@ -92,6 +93,7 @@ class EventSpeakerRequestAdmin(admin.ModelAdmin):
         "event_speaker",
         "event_request_date",
     )
+    readonly_fields = ("validate",)
 
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = super().get_readonly_fields(request, obj)
@@ -132,3 +134,34 @@ class EventSpeakerRequestAdmin(admin.ModelAdmin):
         )
 
     event_speaker_link.short_description = "intervenant·e"
+
+    def get_urls(self):
+        return [
+            path(
+                "<uuid:pk>/validate/",
+                self.admin_site.admin_view(self.validate_event_speaker_request),
+                name="{}_{}_validate".format(self.opts.app_label, self.opts.model_name),
+            )
+        ] + super().get_urls()
+
+    def validate_event_speaker_request(self, request, pk):
+        return views.validate_event_speaker_request(self, request, pk)
+
+    def validate(self, obj):
+        if (
+            not obj.available
+            or obj.event_request.status != obj.event_request.Status.PENDING
+        ):
+            return "-"
+
+        return mark_safe(
+            '<a class="button" href="%s">Valider</a>'
+            % (
+                reverse(
+                    "admin:event_requests_eventspeakerrequest_validate",
+                    args=(obj.pk,),
+                )
+            )
+        )
+
+    validate.short_description = "Validation"

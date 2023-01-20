@@ -1,6 +1,9 @@
 from django.contrib import admin
+from django.urls import reverse
+from django.utils.safestring import mark_safe
 
 from agir.event_requests import models
+from agir.event_requests.models import EventRequest
 
 
 class EventThemeInline(admin.TabularInline):
@@ -42,10 +45,28 @@ class EventSpeakerRequestInline(admin.TabularInline):
     show_change_link = True
     verbose_name = "demandes de disponibilité"
     verbose_name_plural = "demandes de disponibilité"
-    fields = ("event_speaker", "event_request_date", "available")
+    fields = ("event_speaker", "event_request_date", "available", "validate")
+    readonly_fields = ("validate",)
+    actions = ["make_published"]
 
     def has_add_permission(self, request, obj):
         return False
 
     def has_change_permission(self, request, obj=None):
         return False
+
+    def validate(self, obj):
+        if not obj.available or obj.event_request.status != EventRequest.Status.PENDING:
+            return "-"
+
+        return mark_safe(
+            '<a class="button" href="%s">Valider</a>'
+            % (
+                reverse(
+                    "admin:event_requests_eventspeakerrequest_validate",
+                    args=(obj.pk,),
+                )
+            )
+        )
+
+    validate.short_description = "Validation"
