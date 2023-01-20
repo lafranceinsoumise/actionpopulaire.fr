@@ -1,1 +1,1 @@
-export * from "./config.legislatives2022";
+export * from "./config.default";

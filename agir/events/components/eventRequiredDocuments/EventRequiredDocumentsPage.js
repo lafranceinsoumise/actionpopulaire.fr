@@ -116,11 +116,9 @@ EventRequiredDocumentsUploadPage.propTypes = {
 const EventRequiredDocumentsPage = (props) => {
   const { eventPk, embedded } = props;
 
-  const {
-    data: event,
-    mutate,
-    error,
-  } = useSWR(getEventEndpoint("getDetailAdvanced", { eventPk }));
+  const { data: event, error } = useSWR(
+    getEventEndpoint("getDetailAdvanced", { eventPk })
+  );
 
   if (error?.response?.status === 403 || error?.response?.status === 404) {
     return <Redirect to={routeConfig.eventDetails.getLink({ eventPk })} />;
@@ -140,6 +138,11 @@ const EventRequiredDocumentsPage = (props) => {
       )}
     </PageFadeIn>
   );
+};
+
+EventRequiredDocumentsPage.propTypes = {
+  eventPk: PropTypes.string.isRequired,
+  embedded: PropTypes.bool,
 };
 
 export default EventRequiredDocumentsPage;

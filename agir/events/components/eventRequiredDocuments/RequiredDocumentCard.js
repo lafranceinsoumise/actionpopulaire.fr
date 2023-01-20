@@ -88,7 +88,13 @@ const RequiredDocumentCard = (props) => {
     return null;
   }
 
-  const { image, name, description, templateLink } = EVENT_DOCUMENT_TYPES[type];
+  const {
+    image,
+    name,
+    description,
+    templateLink,
+    templateLinkLabel = "Télécharger le modèle vierge",
+  } = EVENT_DOCUMENT_TYPES[type];
 
   return (
     <StyledCard {...rest} $img={!embedded ? image : undefined}>
@@ -124,7 +130,7 @@ const RequiredDocumentCard = (props) => {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Télécharger le modèle vierge
+                  {templateLinkLabel}
                 </a>
               </>
             )}
@@ -138,7 +144,7 @@ const RequiredDocumentCard = (props) => {
             rel="noopener noreferrer"
           >
             <RawFeatherIcon name="download" style={{ marginRight: "0.5rem" }} />
-            Télécharger le modèle vierge
+            {templateLinkLabel}
           </Button>
         )}
       </div>
