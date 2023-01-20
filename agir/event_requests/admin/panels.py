@@ -1,11 +1,10 @@
 from django.contrib import admin
 from django.urls import reverse, path
 from django.utils.safestring import mark_safe
-from django.utils.translation import ngettext
 from rangefilter.filters import DateRangeFilter
 
 from agir.event_requests import models
-from agir.event_requests.admin import inlines, views
+from agir.event_requests.admin import inlines, views, filter as filters
 from agir.lib.admin.panels import PersonLinkMixin
 
 
@@ -39,6 +38,9 @@ class EventSpeakerAdmin(admin.ModelAdmin, PersonLinkMixin):
 
     themes.short_description = "Thèmes"
 
+    class Media:
+        pass
+
 
 @admin.register(models.EventRequest)
 class EventRequestAdmin(admin.ModelAdmin):
@@ -47,7 +49,8 @@ class EventRequestAdmin(admin.ModelAdmin):
     list_filter = (
         "status",
         "event_theme__event_theme_type",
-        "event_theme",
+        filters.EventThemesAutocompleteFilter,
+        filters.EventAutocompleteFilter,
     )
     inlines = (inlines.EventSpeakerRequestInline,)
     date_hierarchy = "created"
@@ -74,6 +77,9 @@ class EventRequestAdmin(admin.ModelAdmin):
 
     event_link.short_description = "Événement"
 
+    class Media:
+        pass
+
 
 @admin.register(models.EventSpeakerRequest)
 class EventSpeakerRequestAdmin(admin.ModelAdmin):
@@ -92,7 +98,7 @@ class EventSpeakerRequestAdmin(admin.ModelAdmin):
         "available",
         "accepted",
         "event_request__status",
-        "event_speaker",
+        filters.EventSpeakerAutocompleteFilter,
         ("date", DateRangeFilter),
     )
     createonly_fields = (
@@ -176,3 +182,6 @@ class EventSpeakerRequestAdmin(admin.ModelAdmin):
         )
 
     validate.short_description = "Validation"
+
+    class Media:
+        pass
