@@ -18,6 +18,8 @@ const renderField = (originalField) => {
       initialValue={originalField.value}
       minDate={originalField.min}
       maxDate={originalField.max}
+      disabled={originalField.disabled}
+      readOnly={originalField.readOnly}
     />,
     renderingNode
   );

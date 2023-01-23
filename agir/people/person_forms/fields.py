@@ -30,6 +30,7 @@ from agir.lib.form_fields import (
     SelectizeMultipleWidget,
     DatePickerWidget,
     BetterIntegerInput,
+    MultiDateTimeField,
     MultiDateField,
 )
 from ..models import Person
@@ -407,8 +408,9 @@ FIELDS = {
     "better_integer": partial(forms.IntegerField, widget=BetterIntegerInput),
     "decimal": forms.DecimalField,
     "datetime": DateTimeField,
+    "datetimes": MultiDateTimeField,
     "date": DateField,
-    "multidate": MultiDateField,
+    "dates": MultiDateField,
     "person": PersonChoiceField,
     "iban": IBANField,
     "commune": CommuneField,

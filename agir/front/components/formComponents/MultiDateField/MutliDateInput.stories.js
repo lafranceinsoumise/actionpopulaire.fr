@@ -6,12 +6,11 @@ export default {
   title: "Form/MultiDateField/Input",
   parameters: {
     layout: "padded",
+    actions: { argTypesRegex: "^on.*" },
   },
 };
 
-const Template = (args) => {
-  return <MultiDateInput {...args} />;
-};
+const Template = (args) => <MultiDateInput {...args} />;
 
 export const Default = Template.bind({});
 Default.args = {
@@ -23,7 +22,7 @@ Default.args = {
 export const Filled = Template.bind({});
 Filled.args = {
   ...Default.args,
-  initialValue: "2023-01-06,2023-05-07",
+  initialValue: "2023-01-06 20:00:00,2023-05-07 16:35:00",
 };
 
 export const Disabled = Template.bind({});
@@ -42,7 +41,6 @@ MinMax.args = {
 export const MinMaxLength = Template.bind({});
 MinMaxLength.args = {
   ...Default.args,
-  helpText: "Les dates devront couvrir une période d'au moins deux semaines",
   minLength: 1,
   maxLength: 3,
 };
@@ -51,4 +49,10 @@ export const WithError = Template.bind({});
 WithError.args = {
   ...Filled.args,
   error: "Les dates choisies n'ont pas de sens !",
+};
+
+export const DateOnly = Template.bind({});
+DateOnly.args = {
+  ...Filled.args,
+  format: "YYYY-MM-DD",
 };

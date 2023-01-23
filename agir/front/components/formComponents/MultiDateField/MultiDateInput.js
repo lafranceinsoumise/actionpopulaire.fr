@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import React, { useCallback, useMemo, useState } from "react";
 import { Calendar, DateObject } from "react-multi-date-picker";
 import DatePanel from "react-multi-date-picker/plugins/date_panel";
+import TimePicker from "react-multi-date-picker/plugins/time_picker";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -14,7 +15,10 @@ const StyledHelpText = styled.p`
   color: ${style.black700};
   font-size: 0.75rem;
   text-align: left;
-  padding: 0 1rem;
+  padding: 1rem;
+  margin: 0;
+  border-top: 1px solid ${style.black100};
+  text-align: center;
 `;
 
 const StyledCalendar = styled(Calendar)`
@@ -35,18 +39,35 @@ const StyledCalendar = styled(Calendar)`
     &.rmdp-deactive {
       color: ${style.primary600};
     }
-    &.rmdp-today span {
+    &.rmdp-today span,
+    &.rmdp-today span:hover {
       color: ${style.primary500};
       background-color: transparent;
       font-weight: 700;
     }
+    &.rmdp-selected span.highlight,
     &.rmdp-selected span:not(.highlight) {
-      color: ${style.white};
-      background-color: ${style.primary500};
+      color: ${(props) => (props.disabled ? style.black1000 : style.white)};
+      background-color: ${(props) =>
+        props.disabled ? style.primary150 : style.primary500};
       box-shadow: none;
     }
+    &.rmdp-selected span.highlight {
+      box-shadow: 0 0 0 3px ${style.primary150};
+    }
     &:not(.rmdp-day-hidden) span:hover {
-      background-color: ${style.primary600} !important;
+      background-color: ${(props) =>
+        props.disabled ? "transparent" : style.primary600} !important;
+      color: ${(props) =>
+        props.disabled ? style.black1000 : style.white} !important;
+    }
+    &.rmdp-today:not(.rmdp-day-hidden) span:hover {
+      color: ${(props) =>
+        props.disabled ? style.primary500 : style.white} !important;
+    }
+    &.rmdp-selected:not(.rmdp-day-hidden) span:hover {
+      background-color: ${style.primary150} !important;
+      color: ${style.primary600};
     }
   }
 
@@ -72,6 +93,20 @@ const StyledCalendar = styled(Calendar)`
     border-width: 0 2px 2px 0;
   }
 
+  /* TIME PICKER */
+  .rmdp-time-picker {
+    justify-content: center;
+
+    & > * {
+      flex: 0 0 auto;
+    }
+
+    & > div input {
+      padding: 0;
+      width: 4rem;
+    }
+  }
+
   /* DATE LIST */
   .rmdp-rtl .rmdp-panel {
     border-left: unset;
@@ -80,34 +115,51 @@ const StyledCalendar = styled(Calendar)`
   .rmdp-panel-header:empty {
     display: none;
   }
+
+  .rmdp-panel {
+    & > div {
+      position: static !important;
+      height: auto !important;
+    }
+  }
+
   .rmdp-panel-body {
     margin: 0;
     padding: 0.5rem;
+    position: static;
 
     &::-webkit-scrollbar-thumb {
       background: ${style.primary500};
     }
 
     li {
-      cursor: pointer;
       box-shadow: none;
       align-items: stretch;
       overflow: hidden;
       gap: 0.25rem;
       background-color: transparent;
+      border-radius: 0.25rem;
 
-      & > :first-child {
-        background-color: ${style.primary500};
-        padding: 0 0.5rem;
+      & > span {
+        background-color: ${style.primary100};
+        color: ${style.black1000};
+        padding: 0.25rem 0.75rem;
         font-size: 0.75rem;
         text-align: left;
         font-weight: 500;
         flex: 1 1 auto;
         margin: 0;
+
+        &:hover {
+          background-color: ${style.primary150};
+        }
       }
 
-      &.last-selected-day > :first-child {
-        font-weight: 600;
+      &.last-selected-day {
+        & > span {
+          border-left: 0.5rem solid ${style.primary500};
+          font-weight: 600;
+        }
       }
 
       & > .b-deselect {
@@ -128,6 +180,10 @@ const StyledCalendar = styled(Calendar)`
         background-size: 1rem 1rem;
         background-repeat: no-repeat;
         background-position: center center;
+
+        &:hover {
+          background-color: ${style.black200};
+        }
       }
     }
   }
@@ -176,7 +232,12 @@ const getInitialValue = (value) => {
   }
   return value
     .split(",")
-    .map((v) => new DateObject(v))
+    .map(
+      (v) =>
+        new DateObject(
+          new Date(v.length === 10 ? v + " 00:00:00" : v).toISOString()
+        )
+    )
     .filter((v) => v.isValid);
 };
 
@@ -218,7 +279,7 @@ const MultiDateInput = (props) => {
     name,
     helpText,
     error,
-    format = "YYYY-MM-DD",
+    format = "YYYY-MM-DD HH:mm:ss",
     minDate,
     maxDate,
     minLength = 1,
@@ -230,6 +291,64 @@ const MultiDateInput = (props) => {
 
   const calendarMonths = useResponsiveMemo(1, 2);
   const [value, setValue] = useState(getInitialValue(initialValue));
+  const [focusedDate, setFocusedDate] = useState();
+
+  const hasTime = useMemo(() => format.toUpperCase().includes("HH"), [format]);
+
+  const DateList = useMemo(
+    () => (
+      <DatePanel
+        sort="date"
+        position="bottom"
+        formatFunction={(date) =>
+          date.date.format(`DD MMMM YYYY${hasTime ? " — HH:mm" : ""}`)
+        }
+        markFocused
+        focusedClassName="last-selected-day"
+        className={disabled || readOnly ? "rmdp-panel-disabled" : ""}
+      />
+    ),
+    [readOnly, disabled, hasTime]
+  );
+
+  const TimeInput = useMemo(
+    () => (
+      <TimePicker
+        key="time-picker"
+        position="bottom"
+        disabled={disabled || readOnly}
+        hideSeconds
+      />
+    ),
+    [readOnly, disabled]
+  );
+
+  const initialDate = useMemo(
+    () =>
+      new DateObject((value && value[0]) || minDate || undefined).set({
+        hour: 18,
+        minute: 0,
+        second: 0,
+      }),
+    [value, minDate]
+  );
+
+  const outputValue = useMemo(
+    () =>
+      value
+        ? value
+            .map((dateObject) =>
+              hasTime
+                ? // Cast dateObject to UTC string with datetimes
+                  new Date(dateObject.format(format))
+                    .toISOString()
+                    .split(".")[0] + "Z"
+                : dateObject.format(format)
+            )
+            .join(",")
+        : "",
+    [value, format, hasTime]
+  );
 
   const handleChange = useCallback(
     (value) => {
@@ -240,29 +359,13 @@ const MultiDateInput = (props) => {
     [maxLength]
   );
 
-  const DateList = useMemo(
-    () => (
-      <DatePanel
-        sort="date"
-        position="bottom"
-        formatFunction={(date) => date.date.format("DD MMMM YYYY")}
-        markFocused
-        focusedClassName="last-selected-day"
-        className={disabled || readOnly ? "rmdp-panel-disabled" : ""}
-      />
-    ),
-    [readOnly, disabled]
+  const mapDays = useCallback(
+    ({ date, isSameDate }) =>
+      isSameDate(date, focusedDate) ? { className: "highlight" } : undefined,
+    [focusedDate]
   );
 
-  const initialDate = useMemo(() => {
-    if (value && value[0]) {
-      return undefined;
-    }
-    if (minDate) {
-      return new DateObject(minDate);
-    }
-    return new DateObject();
-  }, [value, minDate]);
+  console.log(outputValue);
 
   return (
     <StyledCalendar
@@ -276,17 +379,22 @@ const MultiDateInput = (props) => {
       maxDate={maxDate}
       value={value}
       onChange={handleChange}
+      onFocusedDateChange={setFocusedDate}
       disabled={disabled}
       readOnly={readOnly}
       className={className}
-      plugins={value && value.length > 0 ? [DateList] : undefined}
+      plugins={[
+        hasTime && TimeInput,
+        value && value.length > 0 && DateList,
+      ].filter(Boolean)}
       shadow={false}
+      mapDays={mapDays}
     >
       <input
         id={id}
         name={name}
         type="hidden"
-        value={value ? value.map((v) => v.format(format)).join(",") : ""}
+        value={outputValue}
         onChange={onChange}
       />
       <LengthHelpText

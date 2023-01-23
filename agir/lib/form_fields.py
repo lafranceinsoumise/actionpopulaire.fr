@@ -338,33 +338,39 @@ class BetterIntegerInput(Input):
         super().__init__(attrs=attrs)
 
 
-class MultiDateWidget(forms.DateInput):
+class MultiDateTimeBaseInput:
     template_name = "custom_fields/multi_date_widget.html"
     component = "MultiDateInput"
-    format = "%Y-%m-%d"
 
     def __init__(self, attrs=None):
         if attrs is None:
             attrs = {}
         attrs["data-component"] = self.component
+        attrs["data-format"] = self.widget_format
         super().__init__(attrs=attrs, format=self.format)
 
     def format_value(self, value):
         format_value = super().format_value
-        if not value or not isinstance(value, str):
-            return value
-        values = ",".join(
-            [
-                format_value(date.strip())
-                for date in value.strip().split(",")
-                if date.strip()
-            ]
-        )
+        if not value:
+            return ""
+        values = value
+        if isinstance(value, str):
+            values = set(value.strip().split(","))
+        values = ",".join([formats.localize_input(v, self.format) for v in values if v])
         return values
 
 
-class MultiDateField(forms.DateField):
-    input_formats = ("%Y-%m-%d",)
+class MultiDateTimeWidget(MultiDateTimeBaseInput, forms.DateTimeInput):
+    widget_format = "YYYY-MM-DD HH:mm:ss"
+    format = "%Y-%m-%d %H:%M:%S"
+
+
+class MultiDateWidget(MultiDateTimeBaseInput, forms.DateInput):
+    widget_format = "YYYY-MM-DD"
+    format = "%Y-%m-%d"
+
+
+class MultiTemporaFieldMixin:
     empty_values = ("", [])
     default_error_messages = {
         "invalid": "Veuillez indiquer une ou plusieurs dates valides",
@@ -391,7 +397,6 @@ class MultiDateField(forms.DateField):
             "limit_value",
         ),
     }
-    widget = MultiDateWidget
 
     def __init__(
         self,
@@ -429,9 +434,8 @@ class MultiDateField(forms.DateField):
         super().__init__(*args, validators=validators, **kwargs)
 
     def parse_date_string(self, string):
-        date_format = self.input_formats[0]
         try:
-            date = timezone.datetime.strptime(string, date_format)
+            date = timezone.datetime.strptime(string, "%Y-%m-%d")
         except ValueError:
             try:
                 date = dehumanize_naturaltime(string)
@@ -471,11 +475,23 @@ class MultiDateField(forms.DateField):
         return attrs
 
     def to_python(self, value):
-        if value in self.empty_values or not isinstance(value, str):
+        if value in self.empty_values:
             return []
         to_python = super().to_python
-        return [
-            to_python(date.strip())
-            for date in set(value.strip().split(","))
-            if date.strip()
-        ]
+        values = value
+        if isinstance(value, str):
+            values = set(value.strip().split(","))
+        return [to_python(v) for v in values if v]
+
+
+class MultiDateField(MultiTemporaFieldMixin, forms.DateField):
+    input_formats = ("%Y-%m-%d",)
+    widget = MultiDateWidget
+
+
+class MultiDateTimeField(MultiTemporaFieldMixin, forms.DateTimeField):
+    input_formats = ("%Y-%m-%d %H:%M:%S",)
+    widget = MultiDateTimeWidget
+
+    def clean(self, value):
+        return super().clean(value)
