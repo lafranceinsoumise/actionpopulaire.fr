@@ -87,7 +87,7 @@ class EventSpeakerRequestAdmin(admin.ModelAdmin):
         "id",
         "event_request_link",
         "event_speaker_link",
-        "date",
+        "datetime",
         "available",
         "accepted",
         "created",
@@ -99,18 +99,18 @@ class EventSpeakerRequestAdmin(admin.ModelAdmin):
         "accepted",
         "event_request__status",
         filters.EventSpeakerAutocompleteFilter,
-        ("date", DateRangeFilter),
+        ("datetime", DateRangeFilter),
     )
     createonly_fields = (
         "event_request",
         "event_speaker",
-        "date",
+        "datetime",
     )
     readonly_fields = (
         "accepted",
         "validate",
     )
-    date_hierarchy = "date"
+    date_hierarchy = "datetime"
 
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = super().get_readonly_fields(request, obj)

@@ -90,18 +90,6 @@ class EventSpeaker(BaseAPIResource):
         verbose_name_plural = "Intervenant·es"
 
 
-class EventRequestDate(models.Model):
-    date = models.DateField("Date", unique=True, null=False, blank=False)
-
-    def __str__(self):
-        return self.date.strftime("%d/%m/%Y")
-
-    class Meta:
-        verbose_name = "Date de demande d'événement"
-        verbose_name_plural = "Dates de demande d'évenement"
-        ordering = ("date",)
-
-
 class EventRequestQueryset(models.QuerySet):
     def pending(self):
         return self.filter(status=EventRequest.Status.PENDING)
@@ -125,8 +113,8 @@ class EventRequest(BaseAPIResource):
         null=False,
         default=EventRequestStatus.PENDING,
     )
-    dates = ArrayField(
-        base_field=models.DateField(),
+    datetimes = ArrayField(
+        base_field=models.DateTimeField(),
         verbose_name="dates possibles",
         blank=False,
         null=False,
@@ -170,7 +158,12 @@ class EventRequest(BaseAPIResource):
 
     @property
     def date_list(self):
-        return ",".join([str(date) for date in self.dates])
+        return ", ".join(
+            [
+                datetime.date().strftime("%d/%m/%Y")
+                for datetime in sorted(self.datetimes)
+            ]
+        )
 
     def __str__(self):
         return (
@@ -220,24 +213,26 @@ class EventSpeakerRequest(BaseAPIResource):
         related_name="event_speaker_requests",
         related_query_name="event_speaker_request",
     )
-    date = models.DateField(verbose_name="date", null=False, blank=False)
+    datetime = models.DateTimeField(verbose_name="date", null=False, blank=False)
     comment = models.TextField("Commentaire", blank=True, null=False)
 
     def __str__(self):
-        return f"{self.event_speaker.person} / {self.date} / {self.event_request}"
+        return (
+            f"{self.event_speaker.person} / {self.datetime.date} / {self.event_request}"
+        )
 
     class Meta:
         verbose_name = "Demande de disponibilité d'intervenant·e"
         verbose_name_plural = "Demandes de disponibilité d'intervenant·e"
-        ordering = ("date",)
+        ordering = ("datetime",)
         indexes = (
             models.Index(
-                fields=("date",),
+                fields=("datetime",),
             ),
         )
         constraints = (
             models.UniqueConstraint(
-                fields=["event_request", "event_speaker", "date"],
-                name="unique_for_request_speaker_date",
+                fields=["event_request", "event_speaker", "datetime"],
+                name="unique_for_request_speaker_datetime",
             ),
         )

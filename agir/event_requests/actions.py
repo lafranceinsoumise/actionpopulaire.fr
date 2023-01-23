@@ -11,7 +11,7 @@ from agir.people.models import Person
 
 def create_event_from_event_speaker_request(event_speaker_request=None):
     event_request = event_speaker_request.event_request
-    event_date = event_speaker_request.date
+    start_time = event_speaker_request.datetime
     data = deepcopy(event_speaker_request.event_request.event_data)
 
     organizer_person = None
@@ -35,15 +35,8 @@ def create_event_from_event_speaker_request(event_speaker_request=None):
     if tz not in pytz.all_timezones:
         tz = timezone.get_default_timezone().zone
 
-    start_time = datetime.time.fromisoformat(
-        data.pop("start_time", str(datetime.time.min))
-    )
-    start_time = datetime.datetime.combine(
-        event_date, start_time, tzinfo=pytz.timezone(tz)
-    )
-
-    end_time = datetime.time.fromisoformat(data.pop("end_time", str(datetime.time.max)))
-    end_time = datetime.datetime.combine(event_date, end_time, tzinfo=pytz.timezone(tz))
+    duration = int(data.pop("duration", 1))
+    end_time = start_time + datetime.timedelta(hours=duration)
 
     data["location_zip"] = event_request.location_zip
     data["location_city"] = event_request.location_city
