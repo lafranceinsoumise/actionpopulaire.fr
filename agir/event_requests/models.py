@@ -58,7 +58,7 @@ class EventSpeakerQuerySet(models.QuerySet):
 
 
 class EventSpeaker(BaseAPIResource):
-    object = EventSpeakerQuerySet.as_manager()
+    objects = EventSpeakerQuerySet.as_manager()
 
     person = models.OneToOneField(
         "people.Person",
@@ -80,6 +80,10 @@ class EventSpeaker(BaseAPIResource):
         default=True,
         help_text="Cette personne est disponible pour recevoir "
         "des demandes d'événement",
+    )
+    event_requests = models.ManyToManyField(
+        "EventRequest",
+        through="EventSpeakerRequest",
     )
 
     def __str__(self):
@@ -215,6 +219,13 @@ class EventSpeakerRequest(BaseAPIResource):
     )
     datetime = models.DateTimeField(verbose_name="date", null=False, blank=False)
     comment = models.TextField("Commentaire", blank=True, null=False)
+
+    @property
+    def is_answerable(self):
+        return (
+            self.available is None
+            and self.event_request.status == EventRequest.Status.PENDING
+        )
 
     def __str__(self):
         return (
