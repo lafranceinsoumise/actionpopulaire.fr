@@ -332,6 +332,12 @@ urlpatterns = [
     ),
     path("outils/", views.RedirectView.as_view(pattern_name="tools", permanent=True)),
     path("navigation/", views.BaseAppSoftAuthView.as_view(), name="navigation_menu"),
+    ## EVENT REQUEST VIEWS
+    path(
+        "evenements/demandes/intervenant-e/",
+        views.EventSpeakerView.as_view(),
+        name="event_speaker",
+    ),
     ## EVENT VIEWS
     path("evenements/carte/", views.BaseAppCachedView.as_view(), name="event_map_page"),
     path("evenements/creer/", views.CreateEventView.as_view(), name="create_event"),

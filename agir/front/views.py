@@ -30,6 +30,7 @@ from .view_mixins import (
     ObjectOpengraphMixin,
 )
 from ..donations.actions import can_make_contribution
+from ..event_requests.views.public_views import EventSpeakerViewMixin
 from ..events.views.event_views import EventDetailMixin
 from ..groups.views.public_views import SupportGroupDetailMixin
 from ..lib.utils import generate_token_params, front_url
@@ -422,3 +423,10 @@ class PollingStationOfficerView(PostElectionRedirectView):
     )
     meta_type = "website"
     meta_image = urljoin(settings.FRONT_DOMAIN, static("front/assets/og_image_pso.jpg"))
+
+
+class EventSpeakerView(SoftLoginRequiredMixin, EventSpeakerViewMixin, ReactBaseView):
+    api_preloads = [
+        reverse_lazy("api_event_speaker_retrieve_update"),
+        reverse_lazy("api_event_speaker_event_list"),
+    ]

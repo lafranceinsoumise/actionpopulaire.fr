@@ -4,6 +4,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.db.models import Prefetch
 from django_countries.fields import CountryField
 
+from agir.events.models import Event
 from agir.lib.form_fields import CustomJSONEncoder
 from agir.lib.models import BaseAPIResource, DescriptionField, SimpleLocationMixin
 
@@ -127,6 +128,19 @@ class EventSpeaker(BaseAPIResource):
         through="EventSpeakerRequest",
     )
 
+    def get_upcoming_events(self, queryset=None):
+        if queryset is None:
+            queryset = (
+                Event.objects.with_serializer_prefetch(self.person).listed().upcoming()
+            )
+        return queryset.filter(
+            id__in=list(
+                self.event_speaker_requests.filter(
+                    event_request__status=EventRequest.Status.DONE, accepted=True
+                ).values_list("event_request__event_id", flat=True)
+            )
+        )
+
     def __str__(self):
         return f"{str(self.person.get_full_name())} ({'disponible' if self.available else 'indisponible'})"
 
@@ -195,7 +209,8 @@ class EventRequest(BaseAPIResource):
         "events.Event",
         verbose_name="événement",
         on_delete=models.SET_NULL,
-        related_name="+",
+        related_name="event_request",
+        related_query_name="event_request",
         null=True,
         blank=True,
     )
@@ -227,7 +242,9 @@ class EventSpeakerRequestQueryset(models.QuerySet):
         return self.filter(status__isnull=False)
 
     def accepted(self):
-        return self.filter(accepted=False)
+        return self.filter(
+            event_request__status=EventRequest.Status.DONE, accepted=True
+        )
 
 
 class EventSpeakerRequest(BaseAPIResource):
@@ -263,10 +280,7 @@ class EventSpeakerRequest(BaseAPIResource):
 
     @property
     def is_answerable(self):
-        return (
-            self.available is None
-            and self.event_request.status == EventRequest.Status.PENDING
-        )
+        return self.event_request.status == EventRequest.Status.PENDING
 
     def __str__(self):
         return (

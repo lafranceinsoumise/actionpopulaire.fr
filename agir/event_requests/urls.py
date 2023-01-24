@@ -9,6 +9,11 @@ api_urlpatterns = [
         name="api_event_speaker_retrieve_update",
     ),
     path(
+        "intervenant-e/evenements-a-venir/",
+        views.EventSpeakerEventListAPIView.as_view(),
+        name="api_event_speaker_event_list",
+    ),
+    path(
         "disponibilite/<uuid:pk>/",
         views.EventSpeakerRequestRetrieveUpdateAPIView.as_view(),
         name="api_event_speaker_request_retrieve_update",

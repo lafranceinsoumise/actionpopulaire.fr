@@ -23,7 +23,7 @@ const StyledField = styled.label`
   grid-template-rows: auto auto auto auto;
   grid-gap: 4px 0.75rem;
   align-items: stretch;
-  font-size: 1rem;
+  font-size: ${({ $small }) => ($small ? "0.875rem" : "1rem")};
   font-weight: 400;
   line-height: 1;
   margin-bottom: 0;
@@ -58,7 +58,7 @@ const StyledField = styled.label`
   }
   ${StyledInput} {
     height: 40px;
-    font-size: 1rem;
+    font-size: ${({ $small }) => ($small ? "0.875rem" : "1rem")};
   }
   ${StyledTextArea} {
     resize: none;
@@ -101,7 +101,8 @@ const TextField = forwardRef((props, ref) => {
     textArea,
     rows,
     hasCounter,
-    autoComplete = "on",
+    autoComplete,
+    small,
     ...rest
   } = props;
 
@@ -125,6 +126,7 @@ const TextField = forwardRef((props, ref) => {
       $invalid={!!error}
       $empty={!!value}
       $hasCounter={!!maxLength && !!hasCounter}
+      $small={!!small}
     >
       {label && <StyledLabel>{label}</StyledLabel>}
       {helpText && <StyledHelpText>{helpText}</StyledHelpText>}
@@ -174,12 +176,16 @@ TextField.propTypes = {
   textArea: PropTypes.bool,
   rows: PropTypes.number,
   hasCounter: PropTypes.bool,
+  autoComplete: PropTypes.string,
+  small: PropTypes.bool,
 };
 
 TextField.defaultProps = {
   type: "text",
   textArea: false,
   hasCounter: true,
+  autoComplete: "on",
+  small: false,
 };
 
 TextField.displayName = "TextField";

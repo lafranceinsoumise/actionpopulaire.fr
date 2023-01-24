@@ -133,6 +133,15 @@ export const routeConfig = {
     Component: RouteComponents.EventPage,
     hideFeedbackButton: true,
   }),
+  eventSpeaker: new RouteConfig({
+    id: "eventSpeaker",
+    path: "/evenements/demandes/intervenant-e/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.HARD,
+    Component: RouteComponents.EventSpeakerPage,
+    hasLayout: false,
+    hideFeedbackButton: true,
+  }),
   groups: new RouteConfig({
     id: "groups",
     path: "/mes-groupes/",

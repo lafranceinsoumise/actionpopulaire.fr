@@ -179,6 +179,11 @@ const Routes = {
       /* webpackChunkName: "r-newpollingstationofficer" */ "@agir/elections/PollingStationOfficer/NewPollingStationOfficer"
     )
   ),
+  EventSpeakerPage: lazy(() =>
+    import(
+      /* webpackChunkName: "r-eventspeakerpage" */ "@agir/event_requests/EventSpeakerPage/EventSpeakerPage"
+    )
+  ),
 };
 
 export default Routes;

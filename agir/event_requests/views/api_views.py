@@ -1,6 +1,8 @@
-from rest_framework.generics import RetrieveUpdateAPIView
+from rest_framework.generics import RetrieveUpdateAPIView, RetrieveAPIView, ListAPIView
 
 from .. import serializers, models, permissions
+from ...events.models import Event
+from ...events.views.api_views import EventListAPIView
 from ...lib.rest_framework_permissions import (
     IsPersonPermission,
 )
@@ -8,6 +10,7 @@ from ...lib.rest_framework_permissions import (
 __all__ = [
     "EventSpeakerRetrieveUpdateAPIView",
     "EventSpeakerRequestRetrieveUpdateAPIView",
+    "EventSpeakerEventListAPIView",
 ]
 
 
@@ -32,3 +35,14 @@ class EventSpeakerRequestRetrieveUpdateAPIView(RetrieveUpdateAPIView):
     )
     queryset = models.EventSpeakerRequest.objects.all().select_related("event_request")
     serializer_class = serializers.EventSpeakerRequestSerialier
+
+
+class EventSpeakerEventListAPIView(EventListAPIView):
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        event_speaker = self.request.user.person.event_speaker
+        if event_speaker is None:
+            return queryset.none()
+        return event_speaker.get_upcoming_events(queryset=queryset).order_by(
+            "start_time"
+        )

@@ -1,8 +1,8 @@
 from datetime import timedelta
 
+from django.contrib import messages
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
-from django.contrib import messages
 from django.db import transaction, IntegrityError
 from django.db.models import Q, Value, CharField
 from django.http.response import JsonResponse
@@ -11,8 +11,6 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.timezone import now
-from agir.msgs.serializers import SupportGroupMessageSerializer
-from agir.msgs.actions import get_viewables_messages
 from rest_framework import exceptions, status
 from rest_framework.exceptions import NotFound, MethodNotAllowed
 from rest_framework.generics import (
@@ -46,6 +44,8 @@ from agir.events.serializers import (
     EventReportPersonFormSerializer,
 )
 from agir.groups.models import SupportGroup, Membership
+from agir.msgs.actions import get_viewables_messages
+from agir.msgs.serializers import SupportGroupMessageSerializer
 from agir.people.models import Person
 from agir.people.person_forms.models import PersonForm
 
@@ -90,7 +90,6 @@ from ..tasks import (
     send_group_coorganization_invitation_notification,
     send_group_attendee_notification,
 )
-from ...groups.serializers import SupportGroupDetailSerializer
 from ...groups.tasks import send_new_group_event_email, notify_new_group_event
 from ...lib.models import LocationMixin
 
@@ -119,7 +118,7 @@ class EventListAPIView(ListAPIView):
     queryset = Event.objects.public()
 
     def get_queryset(self):
-        return Event.objects.with_serializer_prefetch(
+        return self.queryset.with_serializer_prefetch(
             self.request.user.person
         ).select_related("subtype")
 
