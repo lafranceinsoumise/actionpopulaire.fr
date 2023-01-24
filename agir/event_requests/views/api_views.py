@@ -1,51 +1,34 @@
 from rest_framework.generics import RetrieveUpdateAPIView
 
-from .. import serializers
-from ..models import EventSpeaker
+from .. import serializers, models, permissions
 from ...lib.rest_framework_permissions import (
-    GlobalOrObjectPermissions,
     IsPersonPermission,
 )
 
 __all__ = [
     "EventSpeakerRetrieveUpdateAPIView",
+    "EventSpeakerRequestRetrieveUpdateAPIView",
 ]
 
 
-class EventSpeakerAPIPermissions(GlobalOrObjectPermissions):
-    perms_map = {
-        "GET": [],
-        "PATCH": [],
-        "PUT": [],
-    }
-    object_perms_map = {
-        "GET": ["event_requests.view_event_speaker"],
-        "PATCH": ["event_requests.change_event_speaker"],
-        "PUT": ["event_requests.change_event_speaker"],
-    }
-
-
 class EventSpeakerRetrieveUpdateAPIView(RetrieveUpdateAPIView):
-    serializer_class = serializers.EventSpeakerSerializer
-    queryset = EventSpeaker.objects.all()
     permission_classes = (
         IsPersonPermission,
-        EventSpeakerAPIPermissions,
+        permissions.EventSpeakerAPIPermissions,
     )
+    queryset = models.EventSpeaker.objects.all().with_serializer_prefetch()
     lookup_field = "person_id"
-
-    def get_queryset(self):
-        return (
-            super()
-            .get_queryset()
-            .prefetch_related(
-                "event_themes",
-                "event_themes__event_theme_type",
-                "event_speaker_requests",
-                "event_speaker_requests__event_request",
-            )
-        )
+    serializer_class = serializers.EventSpeakerSerializer
 
     def get_object(self):
         self.kwargs[self.lookup_field] = self.request.user.person.id
         return super().get_object()
+
+
+class EventSpeakerRequestRetrieveUpdateAPIView(RetrieveUpdateAPIView):
+    permission_classes = (
+        IsPersonPermission,
+        permissions.EventSpeakerRequestAPIPermissions,
+    )
+    queryset = models.EventSpeakerRequest.objects.all().select_related("event_request")
+    serializer_class = serializers.EventSpeakerRequestSerialier

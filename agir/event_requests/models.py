@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import ArrayField
+from django.db.models import Prefetch
 from django_countries.fields import CountryField
 
 from agir.lib.form_fields import CustomJSONEncoder
@@ -53,6 +54,46 @@ class EventTheme(BaseAPIResource):
 
 
 class EventSpeakerQuerySet(models.QuerySet):
+    def with_serializer_prefetch(self):
+        event_requests = Prefetch(
+            "event_requests",
+            queryset=EventRequest.objects.distinct()
+            .select_related("event_theme", "event_theme__event_theme_type")
+            .only(
+                "id",
+                "status",
+                "event_theme__id",
+                "event_theme__name",
+                "event_theme__event_theme_type__name",
+                "location_zip",
+                "location_city",
+                "location_country",
+                "event_id",
+            ),
+        )
+        event_speaker_requests = Prefetch(
+            "event_speaker_requests",
+            queryset=EventSpeakerRequest.objects.select_related("event_request").only(
+                "event_speaker_id",
+                "id",
+                "available",
+                "accepted",
+                "datetime",
+                "comment",
+                "event_request_id",
+                "event_request__status",
+            ),
+        )
+        event_themes = Prefetch(
+            "event_themes",
+            queryset=EventTheme.objects.select_related("event_theme_type").only(
+                "id", "name", "event_theme_type__name"
+            ),
+        )
+        return self.prefetch_related(
+            event_requests, event_speaker_requests, event_themes
+        )
+
     def available(self):
         return self.filter(available=True)
 

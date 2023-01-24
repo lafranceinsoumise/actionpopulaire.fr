@@ -1,51 +1,82 @@
-from django_countries.serializer_fields import CountryField
 from rest_framework import serializers, fields
 
 from agir.event_requests import models
 
 
 class EventThemeSerializer(serializers.ModelSerializer):
-    type = fields.CharField(source="event_theme_type.name", read_only=True)
+    type = fields.CharField(source="event_theme_type.name")
 
     class Meta:
         model = models.EventTheme
-        fields = ("id", "name", "type")
+        fields = read_only_fields = ("id", "name", "type")
 
 
 class EventRequestSerializer(serializers.ModelSerializer):
-    status = fields.CharField(source="get_status_display", read_only=True)
-    theme = EventThemeSerializer(source="event_theme", read_only=True)
-    zip = serializers.CharField(source="location_zip", read_only=True)
-    city = serializers.CharField(source="location_city", read_only=True)
-    country = CountryField(source="location_country", read_only=True)
+    status = fields.CharField(source="get_status_display")
+    theme = EventThemeSerializer(source="event_theme")
+    location = fields.SerializerMethodField()
+
+    def get_location(self, obj):
+        return {
+            "zip": obj.location_zip,
+            "city": obj.location_city,
+            "country": obj.location_country.name,
+        }
 
     class Meta:
         model = models.EventRequest
-        fields = ("id", "status", "theme", "datetimes", "zip", "city", "country")
+        fields = read_only_fields = (
+            "id",
+            "status",
+            "theme",
+            "location",
+            "event",
+        )
 
 
 class EventSpeakerRequestSerialier(serializers.ModelSerializer):
-    is_answerable = fields.BooleanField(read_only=True)
-    event_request = EventRequestSerializer(read_only=True)
+    isAnswerable = fields.BooleanField(source="is_answerable")
+    eventRequest = fields.UUIDField(source="event_request_id")
 
     class Meta:
         model = models.EventSpeakerRequest
         fields = (
             "id",
-            "is_answerable",
-            "event_request",
+            "isAnswerable",
+            "eventRequest",
             "available",
             "accepted",
             "datetime",
             "comment",
         )
+        read_only_fields = (
+            "id",
+            "isAnswerable",
+            "eventRequest",
+            "accepted",
+            "datetime",
+        )
 
 
 class EventSpeakerSerializer(serializers.ModelSerializer):
-    event_requests = EventRequestSerializer(many=True, read_only=True)
-    event_speaker_requests = EventSpeakerRequestSerialier(many=True, read_only=True)
-    event_themes = EventThemeSerializer(many=True, read_only=True)
+    themes = EventThemeSerializer(source="event_themes", many=True)
+    eventRequests = EventRequestSerializer(source="event_requests.distinct", many=True)
+    eventSpeakerRequests = EventSpeakerRequestSerialier(
+        source="event_speaker_requests", many=True
+    )
 
     class Meta:
         model = models.EventSpeaker
-        fields = "__all__"
+        fields = (
+            "id",
+            "available",
+            "themes",
+            "eventRequests",
+            "eventSpeakerRequests",
+        )
+        read_only_fields = (
+            "id",
+            "themes",
+            "eventRequests",
+            "eventSpeakerRequests",
+        )
