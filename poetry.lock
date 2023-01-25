@@ -1305,14 +1305,15 @@ tests = ["asttokens", "littleutils", "pytest", "rich"]
 
 [[package]]
 name = "face"
-version = "22.0.0"
+version = "20.1.1"
 description = "A command-line application framework (and CLI parser). Friendly for users, full-featured for developers."
 category = "main"
 optional = false
 python-versions = "*"
 files = [
-    {file = "face-22.0.0-py3-none-any.whl", hash = "sha256:344fe31562d0f6f444a45982418f3793d4b14f9abb98ccca1509d22e0a3e7e35"},
-    {file = "face-22.0.0.tar.gz", hash = "sha256:d5d692f90bc8f5987b636e47e36384b9bbda499aaf0a77aa0b0bbe834c76923d"},
+    {file = "face-20.1.1-py2-none-any.whl", hash = "sha256:3790311a7329e4b0d90baee346eecad54b337629576edf3a246683a5f0d24446"},
+    {file = "face-20.1.1-py3-none-any.whl", hash = "sha256:ca3a1d8b8b6aa8e61d62a300e9ee24e09c062aceda549e9a640128e4fa0f4559"},
+    {file = "face-20.1.1.tar.gz", hash = "sha256:7d59ca5ba341316e58cf72c6aff85cca2541cf5056c4af45cb63af9a814bed3e"},
 ]
 
 [package.dependencies]
@@ -1335,20 +1336,20 @@ python-dateutil = ">=2.4"
 
 [[package]]
 name = "glom"
-version = "22.1.0"
+version = "23.1.1"
 description = "A declarative object transformer and formatter, for conglomerating nested data."
 category = "main"
 optional = false
 python-versions = "*"
 files = [
-    {file = "glom-22.1.0-py2.py3-none-any.whl", hash = "sha256:5339da206bf3532e01a83a35aca202960ea885156986d190574b779598e9e772"},
-    {file = "glom-22.1.0.tar.gz", hash = "sha256:1510c6587a8f9c64a246641b70033cbc5ebde99f02ad245693678038e821aeb5"},
+    {file = "glom-23.1.1-py2.py3-none-any.whl", hash = "sha256:b6bef86c36dde4539b70fe096cf23dc4eb0b8b5df9e00df6d18dfe144d75f85e"},
+    {file = "glom-23.1.1.tar.gz", hash = "sha256:b7442309e013feb6feab206197abf8aec32835ec709d8a92a8514322f64c0eff"},
 ]
 
 [package.dependencies]
 attrs = "*"
 boltons = ">=19.3.0"
-face = ">=20.1.0"
+face = "20.1.1"
 
 [package.extras]
 yaml = ["PyYAML"]
