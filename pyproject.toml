@@ -97,7 +97,7 @@ django-debug-toolbar = "*"
 redislite = "*"  # used for testing
 click = "*"
 pympler = "*"
-hypothesis = {extras = ["django"], version = "^6.64.0"}
+hypothesis = {extras = ["django"], version = "^6.65.0"}
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
