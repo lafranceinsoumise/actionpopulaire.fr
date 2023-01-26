@@ -5,8 +5,27 @@ import pytz
 from django.utils import timezone
 
 from agir.events.models import Event
+from agir.events.tasks import (
+    send_event_creation_notification,
+    geocode_event,
+)
 from agir.groups.models import SupportGroup
+from agir.groups.tasks import notify_new_group_event, send_new_group_event_email
 from agir.people.models import Person
+
+
+def schedule_new_event_tasks(event):
+    organizer_config = event.organizer_configs.first()
+    organizer_group = event.organizers_groups.first()
+
+    geocode_event.delay(event.pk)
+
+    if organizer_config:
+        send_event_creation_notification.delay(organizer_config.pk)
+
+    if organizer_group:
+        notify_new_group_event.delay(organizer_group.pk, event.pk)
+        send_new_group_event_email.delay(organizer_group.pk, event.pk)
 
 
 def create_event_from_event_speaker_request(event_speaker_request=None):
@@ -60,5 +79,8 @@ def create_event_from_event_speaker_request(event_speaker_request=None):
         image=data.pop("image", subtype.default_image),
         **data,
     )
+
+    event.attendees.add(event_speaker_request.event_speaker.person)
+    schedule_new_event_tasks(event)
 
     return event

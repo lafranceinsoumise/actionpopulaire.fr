@@ -49,6 +49,9 @@ def validate_event_speaker_request(model_admin, request, pk):
 
         if event:
             # Mark the event speaker request as accepted
+            event_speaker_request.event_request.event_speaker_requests.update(
+                accepted=False
+            )
             event_speaker_request.accepted = True
             event_speaker_request.save()
             # Change the event request event and status
