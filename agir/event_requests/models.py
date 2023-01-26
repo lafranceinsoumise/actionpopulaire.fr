@@ -1,7 +1,9 @@
 from django.conf import settings
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import ArrayField
+from django.core.exceptions import ValidationError
 from django.db.models import Prefetch
+from django.utils import formats
 from django_countries.fields import CountryField
 
 from agir.events.models import Event
@@ -220,7 +222,16 @@ class EventRequest(BaseAPIResource):
     def date_list(self):
         return ", ".join(
             [
-                datetime.date().strftime("%d/%m/%Y")
+                formats.localize_input(datetime, "%d/%m/%Y")
+                for datetime in sorted(self.datetimes)
+            ]
+        )
+
+    @property
+    def datetime_list(self):
+        return ", ".join(
+            [
+                formats.localize_input(datetime, "%d/%m/%Y %H:%M")
                 for datetime in sorted(self.datetimes)
             ]
         )
@@ -294,6 +305,15 @@ class EventSpeakerRequest(BaseAPIResource):
     @property
     def is_answerable(self):
         return self.event_request.status == EventRequest.Status.PENDING
+
+    def clean(self):
+        if self.datetime:
+            datetime = formats.localize_input(self.datetime, "%d/%m/%Y %H:%M")
+            if datetime not in self.event_request.datetime_list:
+                raise ValidationError(
+                    f"La date choisie ({datetime}) ne fait pas partie des dates indiquées "
+                    f"pour cette demande d'événement. Valeurs possibiles : {self.event_request.datetime_list}"
+                )
 
     def __str__(self):
         return (

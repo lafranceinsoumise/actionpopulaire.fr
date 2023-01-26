@@ -22,6 +22,7 @@ const StyledHelpText = styled.p`
 `;
 
 const StyledCalendar = styled(Calendar)`
+  clear: both;
   border-radius: 0;
   border: 1px solid ${style.black100};
   box-shadow: none !important;
@@ -364,8 +365,6 @@ const MultiDateInput = (props) => {
       isSameDate(date, focusedDate) ? { className: "highlight" } : undefined,
     [focusedDate]
   );
-
-  console.log(outputValue);
 
   return (
     <StyledCalendar

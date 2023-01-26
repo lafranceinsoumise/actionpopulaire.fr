@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib import admin
 from django.urls import reverse, path
 from django.utils.safestring import mark_safe
@@ -6,6 +7,7 @@ from rangefilter.filters import DateRangeFilter
 from agir.event_requests import models
 from agir.event_requests.admin import inlines, views, filter as filters
 from agir.lib.admin.panels import PersonLinkMixin
+from agir.lib.form_fields import MultiDateTimeField
 
 
 @admin.register(models.EventThemeType)
@@ -42,8 +44,17 @@ class EventSpeakerAdmin(admin.ModelAdmin, PersonLinkMixin):
         pass
 
 
+class EventRequestAdminForm(forms.ModelForm):
+    datetimes = MultiDateTimeField()
+
+    class Meta:
+        model = models.EventRequest
+        fields = "__all__"
+
+
 @admin.register(models.EventRequest)
 class EventRequestAdmin(admin.ModelAdmin):
+    form = EventRequestAdminForm
     readonly_fields = ("event",)
     list_display = ("__str__", "date_list", "status", "created", "event_link")
     list_filter = (
