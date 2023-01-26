@@ -247,8 +247,21 @@ class EventSpeakerRequestQueryset(models.QuerySet):
         )
 
 
+class EventSpeakerRequestManager(
+    models.Manager.from_queryset(EventSpeakerRequestQueryset)
+):
+    def bulk_create(self, instances, send_post_save_signal=False, **kwargs):
+        activities = super().bulk_create(instances, **kwargs)
+        if send_post_save_signal:
+            for instance in instances:
+                models.signals.post_save.send(
+                    instance.__class__, instance=instance, created=True
+                )
+        return activities
+
+
 class EventSpeakerRequest(BaseAPIResource):
-    objects = models.Manager.from_queryset(EventRequestQueryset)
+    objects = EventSpeakerRequestManager()
 
     available = models.BooleanField(
         verbose_name="disponible",

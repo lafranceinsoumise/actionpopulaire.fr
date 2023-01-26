@@ -129,6 +129,17 @@ const GenericCard = (props) => {
         </GenericCardContainer>
       );
     }
+    case "new-event-speaker-request": {
+      return (
+        <GenericCardContainer {...props}>
+          Une nouvelle demande d'événement à été créée pour un de vos thèmes
+          d'intervention.
+          <br />
+          Indiquez si vous êtes ou pas disponible pour une ou plusieurs des
+          dates demandées.
+        </GenericCardContainer>
+      );
+    }
     case "group-coorganization-invite": {
       return (
         <GenericCardContainer {...props}>
