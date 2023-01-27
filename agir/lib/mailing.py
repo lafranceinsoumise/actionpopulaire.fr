@@ -103,7 +103,9 @@ def get_context_from_bindings(code, recipient, bindings):
             for key, value in bindings.items():
                 if isinstance(value, AutoLoginUrl):
                     bindings[key] = add_params_to_urls(value, connection_params)
-            bindings["MERGE_LOGIN"] = urlencode(connection_params)
+            bindings["merge_login"] = bindings["MERGE_LOGIN"] = urlencode(
+                connection_params
+            )
 
         bindings["email"] = bindings["EMAIL"] = recipient.email
         bindings["greetings"] = bindings["formule_adresse"] = bindings[
@@ -158,8 +160,8 @@ def render_email_template(template, context):
 
 def send_template_email(
     template_name,
-    from_email,
     recipients,
+    from_email=settings.EMAIL_FROM,
     bindings=None,
     connection=None,
     backend=None,

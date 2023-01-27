@@ -316,9 +316,7 @@ class EventSpeakerRequest(BaseAPIResource):
                 )
 
     def __str__(self):
-        return (
-            f"{self.event_speaker.person} / {self.datetime.date} / {self.event_request}"
-        )
+        return f"{self.event_speaker.person} / {formats.localize_input(self.datetime, '%d/%m/%Y %H:%M')} / {self.event_request}"
 
     class Meta:
         verbose_name = "Demande de disponibilité d'intervenant·e"

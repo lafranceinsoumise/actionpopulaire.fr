@@ -137,7 +137,7 @@ export const routeConfig = {
     id: "eventSpeaker",
     path: "/evenements/demandes/intervenant-e/",
     exact: true,
-    neededAuthentication: AUTHENTICATION.HARD,
+    neededAuthentication: AUTHENTICATION.SOFT,
     Component: RouteComponents.EventSpeakerPage,
     hasLayout: false,
     hideFeedbackButton: true,
