@@ -4,6 +4,7 @@ from copy import deepcopy
 import pytz
 from django.utils import timezone
 
+from agir.event_requests.models import EventRequest
 from agir.events.models import Event
 from agir.events.tasks import (
     send_event_creation_notification,
@@ -12,6 +13,7 @@ from agir.events.tasks import (
 from agir.groups.models import SupportGroup
 from agir.groups.tasks import notify_new_group_event, send_new_group_event_email
 from agir.people.models import Person
+from agir.people.person_forms.models import PersonFormSubmission
 
 
 def schedule_new_event_tasks(event):
@@ -67,6 +69,8 @@ def create_event_from_event_speaker_request(event_speaker_request=None):
         f"avec {event_speaker_request.event_speaker.person.get_full_name()}"
     )
 
+    data = {k: v for k, v in data.items() if k in Event._meta.get_fields()}
+
     event = Event.objects.create_event(
         visibility=Event.VISIBILITY_PUBLIC,
         organizer_person=organizer_person,
@@ -84,3 +88,28 @@ def create_event_from_event_speaker_request(event_speaker_request=None):
     schedule_new_event_tasks(event)
 
     return event
+
+
+def create_event_request_from_personform_submission(submission_id):
+    submission = PersonFormSubmission.objects.get(id=submission_id)
+    submission_data = deepcopy(submission.data)
+    event_data = {
+        "from_personform": submission.form_id,
+        "from_personform_submission_id": submission_id,
+        "organizer_person_id": submission_data.pop(
+            "organizer_person_id", str(submission.person_id)
+        ),
+        "contact_hide_phone": submission_data.pop("contact_hide_phone", True),
+        **submission_data,
+    }
+    event_request = EventRequest.objects.create(
+        datetimes=event_data.pop("datetimes", None),
+        event_theme_id=event_data.pop("event_theme", None),
+        location_zip=event_data.pop("location_zip", None),
+        location_city=event_data.pop("location_city", None),
+        location_country=event_data.pop("location_country", None),
+        comment=event_data.pop("comment", ""),
+        event_data=event_data,
+    )
+
+    return event_request
