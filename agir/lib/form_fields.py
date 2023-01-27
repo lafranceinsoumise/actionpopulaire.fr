@@ -362,7 +362,7 @@ class MultiDateTimeBaseInput:
 
 class MultiDateTimeWidget(MultiDateTimeBaseInput, forms.DateTimeInput):
     widget_format = "YYYY-MM-DD HH:mm:ss"
-    format = "%Y-%m-%d %H:%M:%S"
+    format = "%Y-%m-%dT%H:%M:%S%z"
 
 
 class MultiDateWidget(MultiDateTimeBaseInput, forms.DateInput):
@@ -490,7 +490,7 @@ class MultiDateField(MultiTemporaFieldMixin, forms.DateField):
 
 
 class MultiDateTimeField(MultiTemporaFieldMixin, forms.DateTimeField):
-    input_formats = ("%Y-%m-%d %H:%M:%S",)
+    input_formats = ("%Y-%m-%dT%H:%M:%S%z",)
     widget = MultiDateTimeWidget
 
     def clean(self, value):
