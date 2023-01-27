@@ -69,7 +69,9 @@ def create_event_from_event_speaker_request(event_speaker_request=None):
         f"avec {event_speaker_request.event_speaker.person.get_full_name()}"
     )
 
-    data = {k: v for k, v in data.items() if k in Event._meta.get_fields()}
+    data = {
+        k: v for k, v in data.items() if k in [f.name for f in Event._meta.get_fields()]
+    }
 
     event = Event.objects.create_event(
         visibility=Event.VISIBILITY_PUBLIC,
@@ -90,7 +92,7 @@ def create_event_from_event_speaker_request(event_speaker_request=None):
     return event
 
 
-def create_event_request_from_personform_submission(submission_id):
+def create_event_request_from_personform_submission(submission_id, do_not_create=False):
     submission = PersonFormSubmission.objects.get(id=submission_id)
     submission_data = deepcopy(submission.data)
     event_data = {
@@ -102,14 +104,16 @@ def create_event_request_from_personform_submission(submission_id):
         "contact_hide_phone": submission_data.pop("contact_hide_phone", True),
         **submission_data,
     }
-    event_request = EventRequest.objects.create(
-        datetimes=event_data.pop("datetimes", None),
-        event_theme_id=event_data.pop("event_theme", None),
-        location_zip=event_data.pop("location_zip", None),
-        location_city=event_data.pop("location_city", None),
-        location_country=event_data.pop("location_country", None),
-        comment=event_data.pop("comment", ""),
-        event_data=event_data,
-    )
+    event_request_data = {
+        "datetimes": event_data.pop("datetimes", None),
+        "event_theme_id": event_data.pop("event_theme", None),
+        "location_zip": event_data.pop("location_zip", None),
+        "location_city": event_data.pop("location_city", None),
+        "location_country": event_data.pop("location_country", None),
+        "comment": event_data.pop("comment", ""),
+        "event_data": event_data,
+    }
+    if do_not_create:
+        return EventRequest(**event_request_data)
 
-    return event_request
+    return EventRequest.objects.create(**event_request_data)
