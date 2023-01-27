@@ -63,6 +63,11 @@ supportgroup_settings_patterns = [
         views.SupportGroupSettingsView.as_view(),
         name="view_group_settings_certification",
     ),
+    path(
+        "gestion/ressources/",
+        views.SupportGroupSettingsView.as_view(),
+        name="view_group_settings_help",
+    ),
 ]
 
 supportgroup_patterns = [

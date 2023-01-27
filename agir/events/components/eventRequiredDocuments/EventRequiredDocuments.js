@@ -67,7 +67,7 @@ const StyledDocumentList = styled.div`
   }
 `;
 
-const ContactFormLink = styled.div`
+const HelpLink = styled.div`
   color: ${(props) => props.theme.black700};
 
   & > div {
@@ -133,7 +133,7 @@ const StyledWrapper = styled.main`
     text-align: ${({ $embedded }) => ($embedded ? "left" : "center")};
   }
 
-  ${ContactFormLink} > div {
+  ${HelpLink} > div {
     justify-content: ${({ $embedded }) =>
       $embedded ? "flex-start" : "center"};
   }
@@ -301,20 +301,15 @@ const EventRequiredDocuments = (props) => {
         </StyledDocumentList>
       )}
       <Spacer size="2rem" />
-      <ContactFormLink>
+      <HelpLink>
         Besoin d'aide&nbsp;?
         <Spacer size="1rem" />
         <div>
-          <Button
-            link
-            rel="noopener noreferrer"
-            target="_blank"
-            route="contact"
-          >
-            Formulaire de contact
+          <Button link rel="noopener noreferrer" target="_blank" route="help">
+            Accèder au centre d'aide
           </Button>
         </div>
-      </ContactFormLink>
+      </HelpLink>
       <RequiredDocumentModal
         type={selectedType}
         shouldShow={!!selectedType}
