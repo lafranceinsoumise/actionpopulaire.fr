@@ -441,7 +441,7 @@ class MultiTemporaFieldMixin:
                 date = dehumanize_naturaltime(string)
             except ValueError:
                 return None
-        return date.date()
+        return date
 
     def get_validators(self, validators=()):
         if self.min_value is not None:
@@ -487,6 +487,12 @@ class MultiTemporaFieldMixin:
 class MultiDateField(MultiTemporaFieldMixin, forms.DateField):
     input_formats = ("%Y-%m-%d",)
     widget = MultiDateWidget
+
+    def parse_date_string(self, string):
+        datetime = super().parse_date_string(string)
+        if datetime is None:
+            return None
+        return datetime.date()
 
 
 class MultiDateTimeField(MultiTemporaFieldMixin, forms.DateTimeField):
