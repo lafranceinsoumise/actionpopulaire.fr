@@ -2,7 +2,10 @@ import logging
 from functools import partial
 from uuid import UUID
 
+import django_countries
 import iso8601
+import pytz
+from data_france.models import CodePostal
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import (
@@ -17,7 +20,6 @@ from django.utils.deconstruct import deconstructible
 from django.utils.formats import localize_input
 from django.utils.translation import gettext as _
 from phonenumber_field.formfields import PhoneNumberField
-from slugify import slugify
 from unidecode import unidecode
 
 from agir.events.models import Event
@@ -444,6 +446,11 @@ PREDEFINED_CHOICES = {
         )
     ),
     "newsletters": Person.NEWSLETTERS_CHOICES,
+    "french_zip_codes": lambda instance: tuple(
+        (code, code) for code in CodePostal.objects.all().values_list("code", flat=True)
+    ),
+    "countries": django_countries.countries,
+    "timezones": lambda instance: ((tz, tz) for tz in pytz.common_timezones),
 }
 
 
