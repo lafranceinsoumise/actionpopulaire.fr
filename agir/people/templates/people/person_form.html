@@ -20,7 +20,7 @@
 {% endblock %}
 
 {% block main_column %}
-{% if not person_form.config.public %}
+{% if person_form.config.public %}
     <p class="col-xs-12 margintopmore marginbottom text-right">
       <a href="{% url "person_form_submissions" person_form.slug %}" class="btn btn-sm btn-default">
         Voir les réponses
