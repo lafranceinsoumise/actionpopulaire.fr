@@ -51,7 +51,7 @@ Pillow = ">=7.1.0"
 # command line helpers
 tqdm = "*"
 # third party techs
-prometheus-client = "==0.15.*"
+prometheus-client = "==0.16.*"
 cysystemd = "==1.*"
 ovh = "*"
 nuntius = "2.3.0b4"
