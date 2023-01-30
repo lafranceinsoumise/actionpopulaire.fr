@@ -23,7 +23,7 @@ import { routeConfig } from "@agir/front/app/routes.config";
 
 import { Column, Container, Row } from "@agir/front/genericComponents/grid";
 import EventSettings from "@agir/events/EventSettings/EventSettings";
-import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage.js";
+import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage";
 import OpenGraphTags from "@agir/front/app/OpenGraphTags";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import {

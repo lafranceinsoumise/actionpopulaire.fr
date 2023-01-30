@@ -4,6 +4,10 @@ from data_france.models import Commune
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.serializers.json import DjangoJSONEncoder
+from django.core.validators import (
+    MinLengthValidator,
+    MaxLengthValidator,
+)
 from django.forms.widgets import (
     Textarea,
     DateTimeBaseInput,
@@ -11,13 +15,20 @@ from django.forms.widgets import (
     Select,
     SelectMultiple,
 )
-from django.utils import formats
-from django.utils.translation import gettext_lazy as _
+from django.utils import formats, timezone
+from django.utils.translation import gettext_lazy as _, ngettext_lazy
 from django_countries import countries
 from phonenumber_field.phonenumber import PhoneNumber
 
 from agir.donations.validators import validate_iban
 from agir.lib.iban import IBAN, to_iban
+from agir.lib.time import dehumanize_naturaltime
+from agir.lib.validators import (
+    MinValueListValidator,
+    MinDaysDeltaValidator,
+    MaxDaysDeltaValidator,
+    MaxValueListValidator,
+)
 
 
 class BootstrapDateTimePickerBaseWidget(DateTimeBaseInput):
@@ -325,3 +336,168 @@ class BetterIntegerInput(Input):
         attrs.setdefault("pattern", "-?[0-9]+")
         attrs.setdefault("title", "Saisissez un nombre entier")
         super().__init__(attrs=attrs)
+
+
+class MultiDateTimeBaseInput:
+    template_name = "custom_fields/multi_date_widget.html"
+    component = "MultiDateInput"
+
+    def __init__(self, attrs=None):
+        if attrs is None:
+            attrs = {}
+        attrs["data-component"] = self.component
+        attrs["data-format"] = self.widget_format
+        super().__init__(attrs=attrs, format=self.format)
+
+    def format_value(self, value):
+        format_value = super().format_value
+        if not value:
+            return ""
+        values = value
+        if isinstance(value, str):
+            values = set(value.strip().split(","))
+        values = ",".join([formats.localize_input(v, self.format) for v in values if v])
+        return values
+
+
+class MultiDateTimeWidget(MultiDateTimeBaseInput, forms.DateTimeInput):
+    widget_format = "YYYY-MM-DD HH:mm:ss"
+    format = "%Y-%m-%dT%H:%M:%S%z"
+
+
+class MultiDateWidget(MultiDateTimeBaseInput, forms.DateInput):
+    widget_format = "YYYY-MM-DD"
+    format = "%Y-%m-%d"
+
+
+class MultiTemporaFieldMixin:
+    empty_values = ("", [])
+    default_error_messages = {
+        "invalid": "Veuillez indiquer une ou plusieurs dates valides",
+        "min_value": "Veuillez n'indiquer que des dates après le %(limit_value)s",
+        "max_value": "Veuillez n'indiquer que des dates avant le %(limit_value)s",
+        "min_length": ngettext_lazy(
+            "Veuillez indiquer au moins une date",
+            "Veuillez indiquer au moins %(limit_value)d dates",
+            "limit_value",
+        ),
+        "max_length": ngettext_lazy(
+            "Veuillez n'indiquer qu'une seule date",
+            "Veuillez n'indiquer que %(limit_value)d dates maximum",
+            "limit_value",
+        ),
+        "min_delta": ngettext_lazy(
+            "La différence entre la première et la dernière date devrait être d'au moins un jour",
+            "La différence entre la première et la dernière date devrait être d'au moins %(limit_value)d jours",
+            "limit_value",
+        ),
+        "max_delta": ngettext_lazy(
+            "La différence entre la première et la dernière date devrait être d'un jour maximum",
+            "La différence entre la première et la dernière date devrait être de %(limit_value)d jours maximum",
+            "limit_value",
+        ),
+    }
+
+    def __init__(
+        self,
+        *args,
+        min_value=None,
+        max_value=None,
+        min_length=None,
+        max_length=None,
+        min_delta=None,
+        max_delta=None,
+        validators=(),
+        **kwargs,
+    ):
+        self.min_value = None
+        if isinstance(min_value, str) and min_value:
+            self.min_value = self.parse_date_string(min_value)
+        self.max_value = None
+        if isinstance(max_value, str) and max_value:
+            self.max_value = self.parse_date_string(max_value)
+        self.min_length = None
+        if isinstance(min_length, int):
+            self.min_length = max(0, min_length)
+        self.max_length = None
+        if isinstance(max_length, int):
+            self.max_length = max(self.min_length or 0, 1, max_length)
+        self.min_delta = None
+        if isinstance(min_delta, int):
+            self.min_delta = max(0, min_delta)
+        self.max_delta = None
+        if isinstance(max_delta, int):
+            self.max_delta = max(self.min_delta or 0, 1, max_delta)
+
+        validators = self.get_validators(validators)
+
+        super().__init__(*args, validators=validators, **kwargs)
+
+    def parse_date_string(self, string):
+        try:
+            date = timezone.datetime.strptime(string, "%Y-%m-%d")
+        except ValueError:
+            try:
+                date = dehumanize_naturaltime(string)
+            except ValueError:
+                return None
+        return date
+
+    def get_validators(self, validators=()):
+        if self.min_value is not None:
+            validators += (MinValueListValidator(self.min_value),)
+        if self.max_value is not None:
+            validators += (MaxValueListValidator(self.max_value),)
+        if self.min_length is not None:
+            validators += (MinLengthValidator(self.min_length),)
+        if self.max_length is not None:
+            validators += (MaxLengthValidator(self.max_length),)
+        if self.min_delta is not None:
+            validators += (MinDaysDeltaValidator(self.min_delta),)
+        if self.max_delta is not None:
+            validators += (MaxDaysDeltaValidator(self.max_delta),)
+        return validators
+
+    def widget_attrs(self, widget):
+        attrs = super().widget_attrs(widget)
+        if self.min_value is not None:
+            attrs["min"] = self.min_value
+        if self.max_value is not None:
+            attrs["max"] = self.max_value
+        if self.min_length is not None:
+            attrs["data-min-length"] = self.min_length
+        if self.max_length is not None:
+            attrs["data-max-length"] = self.max_length
+        if self.min_delta is not None:
+            attrs["data-min-delta"] = self.min_delta
+        if self.max_delta is not None:
+            attrs["data-max-delta"] = self.max_delta
+        return attrs
+
+    def to_python(self, value):
+        if value in self.empty_values:
+            return []
+        to_python = super().to_python
+        values = value
+        if isinstance(value, str):
+            values = set(value.strip().split(","))
+        return [to_python(v) for v in values if v]
+
+
+class MultiDateField(MultiTemporaFieldMixin, forms.DateField):
+    input_formats = ("%Y-%m-%d",)
+    widget = MultiDateWidget
+
+    def parse_date_string(self, string):
+        datetime = super().parse_date_string(string)
+        if datetime is None:
+            return None
+        return datetime.date()
+
+
+class MultiDateTimeField(MultiTemporaFieldMixin, forms.DateTimeField):
+    input_formats = ("%Y-%m-%dT%H:%M:%S%z",)
+    widget = MultiDateTimeWidget
+
+    def clean(self, value):
+        return super().clean(value)

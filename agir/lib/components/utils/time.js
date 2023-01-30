@@ -226,6 +226,21 @@ export const simpleDate = (datetimeString, hideCurrentYear = true) => {
   });
 };
 
+export const simpleDateTime = (datetimeString, hideCurrentYear = true) => {
+  let dateTime = new Date(datetimeString);
+  dateTime = DateTime.fromJSDate(dateTime).setLocale("fr");
+  return dateTime.toLocaleString({
+    year:
+      hideCurrentYear && new Date().getFullYear() === dateTime.get("year")
+        ? undefined
+        : "numeric",
+    month: "long",
+    day: "numeric",
+    weekday: "long",
+    ...HOUR_ONLY_FORMAT,
+  });
+};
+
 export const timeAgo = (date, maxUnit = units[0]) => {
   try {
     let dateTime = new Date(date);

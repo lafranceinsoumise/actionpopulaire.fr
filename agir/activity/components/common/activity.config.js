@@ -196,6 +196,23 @@ const ACTIVITY_CONFIG = {
           }
         : null,
   },
+  "new-event-speaker-request": {
+    icon: "calendar",
+    action: () => ({
+      route: "eventSpeaker",
+      label: "Voir mes demandes",
+    }),
+  },
+  "group-creation-confirmation": {
+    icon: "users",
+    action: ({ routes }) =>
+      routes?.newGroupHelp
+        ? {
+            href: routes.newGroupHelp,
+            label: "Lire l'article",
+          }
+        : null,
+  },
   "group-creation-confirmation": {
     icon: "users",
     action: ({ routes }) =>

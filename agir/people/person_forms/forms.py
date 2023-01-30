@@ -103,7 +103,7 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
                     "preview",
                     "Prévisualiser l'email",
                     formtarget="_blank",
-                    css_class="btn btn-primary btn-block margintopmore",
+                    css_class="btn btn-primary btn-block margintopmore btn-submit",
                 )
             )
 
@@ -112,7 +112,7 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
                 "submit",
                 self.person_form_instance.submit_label,
                 disabled=self.person_form_instance.campaign_template is not None,
-                css_class="btn btn-primary btn-block margintopmore",
+                css_class="btn btn-primary btn-block margintopmore btn-submit",
             )
         )
         self.helper.layout = Layout()

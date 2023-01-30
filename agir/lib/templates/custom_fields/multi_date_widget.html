@@ -1,0 +1,45 @@
+<style>
+  .progress {
+      background-color: #dfdfdf;
+      border-radius: 9999px;
+      height: 0.5rem;
+      position: relative;
+      overflow: hidden;
+  }
+
+  .progress::before {
+      content: "";
+      display: block;
+      background-color: #571aff;
+      border-radius: 9999px;
+      position: absolute;
+      bottom: 0;
+      top: 0;
+      width: 50%;
+      animation-duration: 2s;
+      animation-iteration-count: infinite;
+      animation-name: indeterminate-progress-bar;
+  }
+
+  .progress > * {
+    display: none;
+  }
+
+  @keyframes indeterminate-progress-bar {
+      from {
+          left: -50%;
+      }
+      to {
+          left: 100%;
+      }
+  }
+</style>
+{% include 'django/forms/widgets/input.html' %}
+<script>
+  document
+  .querySelectorAll('input[data-component="MultiDateInput"]')
+  .forEach((field) => {
+    field.parentNode.classList.add("progress");
+  });
+</script>
+{% include "lib/multiDateField.bundle.html" %}

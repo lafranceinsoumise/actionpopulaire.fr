@@ -150,14 +150,14 @@ const RadioField = (props) => {
         {options.map((option) => (
           <StyledOption
             key={option.value}
-            htmlFor={option.value}
+            htmlFor={id + "_" + option.value}
             $checked={value === option.value}
             $disabled={disabled}
             $small={small}
           >
             <input
               {...rest}
-              id={option.value}
+              id={id + "_" + option.value}
               type="radio"
               onChange={handleChange}
               checked={value === option.value}
