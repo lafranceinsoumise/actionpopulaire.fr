@@ -240,7 +240,7 @@ class EventRequest(BaseAPIResource):
 
 class EventSpeakerRequestQueryset(models.QuerySet):
     def answered(self):
-        return self.filter(status__isnull=False)
+        return self.filter(available__isnull=False)
 
     def accepted(self):
         return self.filter(

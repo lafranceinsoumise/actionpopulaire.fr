@@ -56,7 +56,14 @@ class EventRequestAdminForm(forms.ModelForm):
 class EventRequestAdmin(admin.ModelAdmin):
     form = EventRequestAdminForm
     readonly_fields = ("event",)
-    list_display = ("__str__", "date_list", "status", "created", "event_link")
+    list_display = (
+        "__str__",
+        "created",
+        "date_list",
+        "status",
+        "answered_count",
+        "event_link",
+    )
     list_filter = (
         "status",
         "event_theme__event_theme_type",
@@ -65,6 +72,24 @@ class EventRequestAdmin(admin.ModelAdmin):
     )
     inlines = (inlines.EventSpeakerRequestInline,)
     date_hierarchy = "created"
+
+    def answered_count(self, obj):
+        if obj.status != self.model.Status.PENDING:
+            return "-"
+
+        count = (
+            obj.event_speaker_requests.answered()
+            .distinct("event_speaker_id")
+            .order_by("event_speaker_id")
+            .count()
+        )
+
+        if count == 0:
+            return "-"
+
+        return count
+
+    answered_count.short_description = "Réponses"
 
     def date_list(self, obj):
         return ", ".join(obj.simple_datetimes)
