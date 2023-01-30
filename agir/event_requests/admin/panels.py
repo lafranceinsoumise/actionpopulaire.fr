@@ -67,7 +67,7 @@ class EventRequestAdmin(admin.ModelAdmin):
     date_hierarchy = "created"
 
     def date_list(self, obj):
-        return obj.date_list
+        return ", ".join(obj.simple_datetimes)
 
     date_list.short_description = "Dates possibles"
 

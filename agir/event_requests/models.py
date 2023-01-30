@@ -3,7 +3,7 @@ from django.contrib.gis.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.db.models import Prefetch
-from django.utils import formats
+from django.utils import formats, timezone
 from django_countries.fields import CountryField
 
 from agir.events.models import Event
@@ -219,22 +219,12 @@ class EventRequest(BaseAPIResource):
     comment = models.TextField("Commentaire", blank=True, null=False)
 
     @property
-    def date_list(self):
-        return ", ".join(
-            [
-                formats.localize_input(datetime, "%d/%m/%Y")
-                for datetime in sorted(self.datetimes)
-            ]
-        )
-
-    @property
-    def datetime_list(self):
-        return ", ".join(
-            [
-                formats.localize_input(datetime, "%d/%m/%Y %H:%M")
-                for datetime in sorted(self.datetimes)
-            ]
-        )
+    def simple_datetimes(self):
+        tz = timezone.get_current_timezone()
+        return [
+            formats.localize_input(dt.astimezone(tz), "%Y-%m-%d %H:%M")
+            for dt in self.datetimes
+        ]
 
     def __str__(self):
         return (
@@ -306,17 +296,23 @@ class EventSpeakerRequest(BaseAPIResource):
     def is_answerable(self):
         return self.event_request.status == EventRequest.Status.PENDING
 
+    @property
+    def simple_datetime(self):
+        tz = timezone.get_current_timezone()
+        return formats.localize_input(self.datetime.astimezone(tz), "%Y-%m-%d %H:%M")
+
     def clean(self):
         if self.datetime:
-            datetime = formats.localize_input(self.datetime, "%d/%m/%Y %H:%M")
-            if datetime not in self.event_request.datetime_list:
+            datetime = self.simple_datetime
+            event_request_datetimes = self.event_request.simple_datetimes
+            if datetime not in event_request_datetimes:
                 raise ValidationError(
                     f"La date choisie ({datetime}) ne fait pas partie des dates indiquées "
-                    f"pour cette demande d'événement. Valeurs possibiles : {self.event_request.datetime_list}"
+                    f"pour cette demande d'événement. Valeurs possibiles : {event_request_datetimes}"
                 )
 
     def __str__(self):
-        return f"{self.event_speaker.person} / {formats.localize_input(self.datetime, '%d/%m/%Y %H:%M')} / {self.event_request}"
+        return f"{self.event_speaker.person} / {self.simple_datetime} / {self.event_request}"
 
     class Meta:
         verbose_name = "Demande de disponibilité d'intervenant·e"
