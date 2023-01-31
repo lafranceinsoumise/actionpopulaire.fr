@@ -2137,14 +2137,14 @@ ptyprocess = ">=0.5"
 
 [[package]]
 name = "phonenumbers"
-version = "8.13.4"
+version = "8.13.5"
 description = "Python version of Google's common library for parsing, formatting, storing and validating international phone numbers."
 category = "main"
 optional = false
 python-versions = "*"
 files = [
-    {file = "phonenumbers-8.13.4-py2.py3-none-any.whl", hash = "sha256:a577a46c069ad889c7b7cf4dd978751d059edeab28b97acead4775d2ea1fc70a"},
-    {file = "phonenumbers-8.13.4.tar.gz", hash = "sha256:6d63455012fc9431105ffc7739befca61c3efc551b287dca58d2be2e745475a9"},
+    {file = "phonenumbers-8.13.5-py2.py3-none-any.whl", hash = "sha256:2e3fd1f3fde226b289489275517c76edf223eafd9f43a2c2c36498a44b73d4b0"},
+    {file = "phonenumbers-8.13.5.tar.gz", hash = "sha256:6eb2faf29c19f946baf10f1c977a1f856cab90819fe7735b8e141d5407420c4a"},
 ]
 
 [[package]]
@@ -3427,4 +3427,4 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "7ef5a7138dde6eef3b126eb2434b5fe5742d881018130e84673752677b9ebe81"
+content-hash = "8c3532841911866d593cfe15fc56c1392e975325210e1babf45495f4e586e906"
