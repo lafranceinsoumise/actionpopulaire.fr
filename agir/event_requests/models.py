@@ -1,14 +1,124 @@
+import io
+
 from django.conf import settings
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import ArrayField
+from django.core import validators
 from django.core.exceptions import ValidationError
+from django.core.files import File
 from django.db.models import Prefetch
 from django.utils import formats, timezone
+from django.utils.text import slugify
 from django_countries.fields import CountryField
+from dynamic_filenames import FilePattern
 
 from agir.events.models import Event
+from agir.lib.documents import render_svg_template, svg_to_pdf
 from agir.lib.form_fields import CustomJSONEncoder
 from agir.lib.models import BaseAPIResource, DescriptionField, SimpleLocationMixin
+
+ASSET_FILE_PATH = FilePattern(
+    filename_pattern="{app_label}/{model_name}/{instance.id}/{uuid:.8base32}{ext}"
+)
+
+
+class EventAssetTemplate(BaseAPIResource):
+    name = models.CharField("Nom", null=False, blank=False, max_length=200)
+    file = models.FileField(
+        "Fichier",
+        null=False,
+        max_length=255,
+        upload_to=ASSET_FILE_PATH,
+        validators=[validators.FileExtensionValidator(["svg"])],
+        help_text="Le fichier doit être au format SVG et contenir des variables correspondantes "
+        "aux données d'un événement (au format: {{ nom_de_la_variable }})",
+    )
+
+    def render(self, data=None):
+        return render_svg_template(self.file, data)
+
+    class Meta:
+        verbose_name = "Template de visuel"
+        verbose_name_plural = "Templates de visuels"
+
+
+class EventAssetManager(models.Manager):
+    def create(self, *args, **kwargs):
+        event_asset = super(EventAssetManager, self).create(*args, **kwargs)
+        event_asset.render()
+        return event_asset
+
+
+class EventAsset(BaseAPIResource):
+    objects = EventAssetManager()
+
+    class EventAssetRenderingException(Exception):
+        pass
+
+    name = models.CharField(
+        "Nom", null=False, blank=False, editable=False, max_length=200
+    )
+    file = models.FileField(
+        "Fichier",
+        null=False,
+        editable=False,
+        max_length=255,
+        upload_to=ASSET_FILE_PATH,
+        validators=[validators.FileExtensionValidator(["pdf"])],
+    )
+    template = models.ForeignKey(
+        "event_requests.EventAssetTemplate",
+        verbose_name="template",
+        on_delete=models.SET_NULL,
+        related_name="+",
+        null=True,
+        blank=False,
+    )
+    event = models.ForeignKey(
+        "events.Event",
+        verbose_name="événement",
+        on_delete=models.SET_NULL,
+        related_name="event_assets",
+        related_query_name="event_asset",
+        null=True,
+        blank=False,
+        editable=False,
+    )
+    extra_data = models.JSONField(
+        "Données supplémentaires",
+        default=dict,
+        blank=True,
+        encoder=CustomJSONEncoder,
+        help_text="Les données qui seront utilisées, en plus de celles de l'événement, pour générer le visuel",
+    )
+
+    @property
+    def deprecated(self):
+        return self.template_id is None or self.event_id is None
+
+    def render(self):
+        if self.deprecated:
+            raise self.EventAssetRenderingException(
+                "Ce visuel est obsolète : l'événement et/ou le template ont été supprimés"
+            )
+        rendered_svg = self.template.render(
+            data={"event": self.event, **self.extra_data}
+        )
+        self.name = self.template.name
+        self.file = File(
+            io.BytesIO(svg_to_pdf(rendered_svg)), name=f"{slugify(self.name)}.pdf"
+        )
+        self.save()
+
+    class Meta:
+        verbose_name = "Visuel de l'événement"
+        verbose_name_plural = "Visuels des événements"
+        constraints = (
+            models.UniqueConstraint(
+                fields=["event", "template"],
+                name="unique_event_asset_for_event_and_template",
+            ),
+        )
 
 
 class EventThemeType(models.Model):
@@ -20,6 +130,12 @@ class EventThemeType(models.Model):
         related_name="+",
         null=False,
         blank=False,
+    )
+    event_asset_templates = models.ManyToManyField(
+        "event_requests.EventAssetTemplate",
+        related_name="event_theme_types",
+        related_query_name="event_theme_type",
+        blank=True,
     )
 
     def __str__(self):
@@ -47,6 +163,19 @@ class EventTheme(BaseAPIResource):
         null=False,
         blank=False,
     )
+    event_asset_templates = models.ManyToManyField(
+        "event_requests.EventAssetTemplate",
+        related_name="event_themes",
+        related_query_name="event_theme",
+        blank=True,
+    )
+
+    def get_event_asset_templates(self):
+        # Defaults to the event theme type event asset templates
+        # if no asset exists for the particular event theme
+        if not self.event_asset_templates.exists():
+            return self.event_theme_type.event_asset_templates.all()
+        return self.event_asset_templates.all()
 
     def __str__(self):
         return self.name

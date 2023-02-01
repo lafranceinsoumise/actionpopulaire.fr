@@ -53,6 +53,11 @@ if ! dpkg -s wkhtmltox &> /dev/null; then
      sudo apt-get -yqq install wkhtmltopdf &> /dev/null
 fi
 
+echo "## Install librsvg2-bin"
+if ! dpkg -s librsvg2-bin &> /dev/null; then
+     sudo apt-get -yqq install librsvg2-bin &> /dev/null
+fi
+
 echo "## Install node..."
 if ! dpkg -s nodejs &> /dev/null; then
     curl -sL https://deb.nodesource.com/setup_18.x -o /tmp/nodesource_setup.sh
@@ -84,6 +89,9 @@ echo "## Migrate and populate test database..."
 
 echo "## Create super user (address: admin@agir.local, password: password)"
 (cd /vagrant && (SUPERPERSON_PASSWORD="password" $POETRY_HOME/bin/poetry run ./manage.py createsuperperson --noinput --email admin@agir.local || true)) &> /dev/null
+
+echo "## Install fonts"
+sudo /vagrant/install_fonts.sh
 
 
 echo "## Create unit files..."

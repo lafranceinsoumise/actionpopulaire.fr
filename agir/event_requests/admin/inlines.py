@@ -4,13 +4,29 @@ from django.utils.safestring import mark_safe
 
 from agir.event_requests import models
 from agir.event_requests.models import EventRequest
+from agir.lib.admin.inlines import NonrelatedTabularInline
+
+
+class EventAssetTemplateInline(NonrelatedTabularInline):
+    verbose_name = "Template de visuel"
+    verbose_name_plural = "Templates de visuels"
+    model = models.EventAssetTemplate
+    fields = ("name", "file")
+    extra = 0
+
+    def get_form_queryset(self, obj):
+        return obj.event_asset_templates.all()
+
+    def save_new_instance(self, parent, instance):
+        instance.save()
+        parent.event_asset_templates.add(instance)
 
 
 class EventThemeInline(admin.TabularInline):
     model = models.EventTheme
     extra = 0
     show_change_link = True
-    exclude = ("description",)
+    exclude = ("description", "event_asset_templates")
 
 
 class EventSpeakerThemeInline(admin.TabularInline):

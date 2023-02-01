@@ -4,7 +4,7 @@ from copy import deepcopy
 import pytz
 from django.utils import timezone
 
-from agir.event_requests.models import EventRequest
+from agir.event_requests.models import EventRequest, EventAsset
 from agir.events.models import Event
 from agir.events.tasks import (
     send_event_creation_notification,
@@ -88,6 +88,17 @@ def create_event_from_event_speaker_request(event_speaker_request=None):
 
     event.attendees.add(event_speaker_request.event_speaker.person)
     schedule_new_event_tasks(event)
+
+    for event_asset_template in event_request.event_theme.get_event_asset_templates():
+        EventAsset.objects.create(
+            template=event_asset_template,
+            event=event,
+            extra_data={
+                "speaker_full_name": event_speaker_request.event_speaker.person.get_full_name(),
+                "speaker_first_name": event_speaker_request.event_speaker.person.first_name,
+                "speaker_last_name": event_speaker_request.event_speaker.person.last_name,
+            },
+        )
 
     return event
 

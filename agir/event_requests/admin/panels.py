@@ -1,4 +1,3 @@
-from django import forms
 from django.contrib import admin
 from django.urls import reverse, path
 from django.utils.safestring import mark_safe
@@ -6,8 +5,13 @@ from rangefilter.filters import DateRangeFilter
 
 from agir.event_requests import models
 from agir.event_requests.admin import inlines, views, filter as filters
+from agir.event_requests.admin.forms import EventRequestAdminForm
 from agir.lib.admin.panels import PersonLinkMixin
-from agir.lib.form_fields import MultiDateTimeField
+
+
+@admin.register(models.EventAsset)
+class EventAssetAdmin(admin.ModelAdmin):
+    readonly_fields = ("file",)
 
 
 @admin.register(models.EventThemeType)
@@ -15,16 +19,21 @@ class EventThemeTypeAdmin(admin.ModelAdmin):
     list_display = ("name", "event_subtype")
     list_filter = ("event_theme",)
     autocomplete_fields = ("event_subtype",)
-    inlines = (inlines.EventThemeInline,)
+    inlines = (inlines.EventThemeInline, inlines.EventAssetTemplateInline)
     search_fields = ("name",)
+    exclude = ("event_asset_templates",)
 
 
 @admin.register(models.EventTheme)
 class EventThemeAdmin(admin.ModelAdmin):
     list_filter = ("event_theme_type",)
     list_display = ("name", "event_theme_type")
-    inlines = (inlines.EventThemeSpeakerInline,)
+    inlines = (
+        inlines.EventThemeSpeakerInline,
+        inlines.EventAssetTemplateInline,
+    )
     autocomplete_fields = ("event_theme_type",)
+    exclude = ("event_asset_templates",)
 
 
 @admin.register(models.EventSpeaker)
@@ -42,14 +51,6 @@ class EventSpeakerAdmin(admin.ModelAdmin, PersonLinkMixin):
 
     class Media:
         pass
-
-
-class EventRequestAdminForm(forms.ModelForm):
-    datetimes = MultiDateTimeField()
-
-    class Meta:
-        model = models.EventRequest
-        fields = "__all__"
 
 
 @admin.register(models.EventRequest)
