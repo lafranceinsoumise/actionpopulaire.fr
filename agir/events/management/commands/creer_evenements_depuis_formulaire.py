@@ -2,8 +2,9 @@ import logging
 from datetime import timedelta
 
 from django.db import transaction
-from django.db.models import Func, F, Value, UUIDField
+from django.db.models import Func, F, Value, UUIDField, DateTimeField
 from django.db.models.functions import Cast
+from django.utils import timezone
 from iso8601 import parse_date
 
 from agir.events.models import Event, EventSubtype, OrganizerConfig
@@ -62,7 +63,15 @@ class Command(LoggingCommand):
                 ),
                 output_field=UUIDField(),
             ),
-        ).filter(evenement_existe__isnull=True)
+            start_time=Cast(
+                Func(
+                    F("data"),
+                    Value("start_time"),
+                    function="jsonb_extract_path_text",
+                ),
+                output_field=DateTimeField(),
+            ),
+        ).filter(evenement_existe__isnull=True, start_time__gte=timezone.now())
 
         logger.info(f"Création de {submissions.count()} nouveaux événements")
         # créer les projets correspondants
