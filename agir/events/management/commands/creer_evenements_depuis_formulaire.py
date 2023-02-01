@@ -97,7 +97,7 @@ class Command(LoggingCommand):
             else:
                 group = None
 
-            if values.pop("publish_contact_information"):
+            if values.pop("publish_contact_information", False):
                 if "contact_name" not in values:
                     values[
                         "contact_name"
