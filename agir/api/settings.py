@@ -132,6 +132,7 @@ INSTALLED_APPS = [
     "agir.authentication",
     "agir.people",
     "agir.events",
+    "agir.event_requests",
     "agir.groups",
     "agir.polls",
     "agir.msgs",

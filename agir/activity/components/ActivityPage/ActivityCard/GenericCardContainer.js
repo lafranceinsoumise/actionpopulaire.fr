@@ -229,6 +229,7 @@ GenericCardContainer.propTypes = {
     hideDate: PropTypes.bool,
   }),
   onClick: PropTypes.func,
+  isLoadingEventCard: PropTypes.bool,
 };
 
 export default GenericCardContainer;

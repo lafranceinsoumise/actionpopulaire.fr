@@ -44,6 +44,7 @@ class Activity(TimeStampedModel):
     TYPE_REMINDER_DOCS_EVENT_NEXTDAY = "reminder-docs-event-nextday"
     TYPE_REMINDER_REPORT_FORM_FOR_EVENT = "reminder-report-form-for-event"
     TYPE_REMINDER_UPCOMING_EVENT_START = "reminder-upcoming-event-start"
+    TYPE_NEW_EVENT_SPEAKER_REQUEST = "new-event-speaker-request"
 
     # GROUP TYPES
     TYPE_NEW_REPORT = "new-report"
@@ -89,6 +90,7 @@ class Activity(TimeStampedModel):
         TYPE_GROUP_COORGANIZATION_INFO,
         TYPE_ACCEPTED_INVITATION_MEMBER,
         TYPE_WAITING_LOCATION_EVENT,
+        TYPE_NEW_EVENT_SPEAKER_REQUEST,
         TYPE_GROUP_COORGANIZATION_INVITE,
         TYPE_GROUP_COORGANIZATION_ACCEPTED,
         TYPE_GROUP_COORGANIZATION_ACCEPTED_FROM,
@@ -126,6 +128,7 @@ class Activity(TimeStampedModel):
         ),
         (TYPE_WAITING_LOCATION_GROUP, "Préciser la localisation du groupe"),
         (TYPE_WAITING_LOCATION_EVENT, "Préciser la localisation d'un événement"),
+        (TYPE_NEW_EVENT_SPEAKER_REQUEST, "Nouvelle demande d'événement reçue"),
         (
             TYPE_GROUP_COORGANIZATION_INVITE,
             "Invitation à coorganiser un événement reçue",

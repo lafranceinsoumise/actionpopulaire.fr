@@ -1,3 +1,4 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction, IntegrityError
 
 __all__ = ["merge_persons"]
@@ -167,6 +168,29 @@ def merge_acces_application_parrainages(p1, p2, _field):
     ac1.save()
 
 
+def merge_event_speakers(p1, p2, _field):
+    try:
+        es2 = p2.event_speaker
+    except ObjectDoesNotExist:
+        return
+
+    try:
+        es1 = p1.event_speaker
+    except ObjectDoesNotExist:
+        es2.person = p2
+        es2.save()
+        return
+
+    # If both people have a related event_speaker, combine es2 and es1 themes
+    es1_themes = es1.event_themes.all()
+    for theme in es2.event_themes.all():
+        if theme not in es1_themes:
+            es1.event_themes.add(theme)
+    with transaction.atomic():
+        es1.save()
+        es2.delete()
+
+
 MERGE_STRATEGIES = {
     # Many2one
     "form_submissions": merge_reassign_related,
@@ -264,6 +288,7 @@ MERGE_STRATEGIES = {
     "polling_station_officer": None,
     "crp": merge_comments,
     "person_qualification": merge_reassign_related,
+    "event_speaker": merge_event_speakers,
 }
 
 

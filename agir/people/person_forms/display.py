@@ -68,12 +68,13 @@ class PersonFormDisplay:
         :param html: s'il faut inclure du HTML ou non
         :return:
         """
-        if isinstance(field_descriptor["choices"], str):
-            if callable(PREDEFINED_CHOICES.get(field_descriptor["choices"])):
-                value = (
-                    PREDEFINED_CHOICES_REVERSE.get(field_descriptor["choices"])(value)
-                    or value
-                )
+        choices = field_descriptor["choices"]
+        if isinstance(choices, str):
+            pre_choices = PREDEFINED_CHOICES.get(choices)
+            reverse_pre_choices = PREDEFINED_CHOICES_REVERSE.get(choices)
+            if callable(pre_choices):
+                if callable(reverse_pre_choices):
+                    value = reverse_pre_choices(value) or value
                 if hasattr(value, "get_absolute_url") and html:
                     return format_html(
                         '<a href="{0}">{1}</a>', value.get_absolute_url(), str(value)

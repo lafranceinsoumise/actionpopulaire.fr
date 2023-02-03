@@ -14,7 +14,7 @@ const StyledField = styled.label`
   display: flex;
   flex-flow: row nowrap;
   align-items: flex-start;
-  font-size: 1rem;
+  font-size: ${(props) => (props.$small ? "0.875rem" : "1rem")};
   line-height: 1.5;
   cursor: ${({ $disabled }) => ($disabled ? "default" : "pointer")};
   font-weight: 400;
@@ -30,10 +30,10 @@ const StyledField = styled.label`
     justify-content: center;
     align-items: center;
     flex: 0 0 auto;
-    margin-top: 0.25rem;
-    margin-right: 0.5rem;
-    width: 1rem;
-    height: 1rem;
+    margin-top: 0.25em;
+    margin-right: 0.5em;
+    width: ${(props) => (props.$small ? "0.875rem" : "1rem")};
+    height: ${(props) => (props.$small ? "0.875rem" : "1rem")};
     border-radius: ${style.softBorderRadius};
     border-style: solid;
     border-width: ${({ $checked }) => ($checked ? 0 : 1)}px;
@@ -82,6 +82,7 @@ const CheckboxField = (props) => {
     label,
     className,
     style,
+    small,
     ...rest
   } = props;
 
@@ -92,6 +93,7 @@ const CheckboxField = (props) => {
       htmlFor={id}
       $checked={!!value}
       $disabled={rest.disabled}
+      $small={small}
     >
       <input
         {...rest}
@@ -126,6 +128,7 @@ CheckboxField.propTypes = {
   style: PropTypes.object,
   className: PropTypes.string,
   inputValue: PropTypes.string,
+  small: PropTypes.bool,
 };
 
 export default CheckboxField;
