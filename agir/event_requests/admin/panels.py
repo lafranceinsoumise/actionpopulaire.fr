@@ -34,6 +34,7 @@ class EventSpeakerAdmin(admin.ModelAdmin, PersonLinkMixin):
     inlines = (inlines.EventSpeakerThemeInline, inlines.EventSpeakerRequestInline)
     search_fields = ("person__search",)
     exclude = ("event_themes",)
+    autocomplete_fields = ("person",)
 
     def themes(self, obj):
         return ", ".join(obj.event_themes.values_list("name", flat=True))
