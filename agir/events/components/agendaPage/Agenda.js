@@ -8,7 +8,9 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import ActionButtons from "@agir/front/app/ActionButtons/ActionButtons";
 import Button from "@agir/front/genericComponents/Button";
 import Card from "@agir/front/genericComponents/Card";
+import CustomAnnouncementCard from "@agir/activity/common/CustomAnnouncementCard";
 import FeedbackButton from "@agir/front/allPages/FeedbackButton";
+import Link from "@agir/front/app/Link";
 import { Hide, useIsDesktop } from "@agir/front/genericComponents/grid";
 import { LayoutTitle } from "@agir/front/app/Layout/StyledComponents";
 import RenderIfVisibile from "@agir/front/genericComponents/RenderIfVisible";
@@ -130,13 +132,21 @@ const Agenda = () => {
               marginTop: 0,
             }}
           >
-            Bonjour {user?.firstName || user?.displayName} 👋
+            Bonjour{" "}
+            {user?.displayName.length > 2
+              ? user?.displayName
+              : user?.firstName || user?.displayName}{" "}
+            👋
           </h2>
           <ActionButtons />
         </Hide>
         <TopBar>
           <LayoutTitle>
-            Bonjour {user?.firstName || user?.displayName} 👋
+            Bonjour{" "}
+            {user?.displayName.length > 2
+              ? user?.displayName
+              : user?.firstName || user?.displayName}{" "}
+            👋
           </LayoutTitle>
           <Hide under>
             <Button small link route="eventMap" icon="map">
@@ -145,6 +155,10 @@ const Agenda = () => {
           </Hide>
         </TopBar>
       </header>
+      <CustomAnnouncementCard
+        slug="BouclesDepartementaleAnnouncement"
+        useAnnouncementData
+      />
       <PageFadeIn
         style={{ marginBottom: "4rem" }}
         ready={isReady}

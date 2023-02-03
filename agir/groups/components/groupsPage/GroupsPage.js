@@ -9,6 +9,7 @@ import { getUser } from "@agir/front/globalContext/reducers";
 import GroupsPageHeader from "./GroupsPageHeader";
 import GroupCard from "@agir/groups/groupComponents/GroupCard";
 
+import CustomAnnouncementCard from "@agir/activity/common/CustomAnnouncementCard";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 
@@ -44,6 +45,10 @@ const GroupsPage = () => {
       <PageFadeIn ready={isReady} wait={<Skeleton boxes={2} />}>
         <Suspense fallback={<Skeleton boxes={2} />}>
           <StyledContainer>
+            <CustomAnnouncementCard
+              slug="BouclesDepartementaleAnnouncement"
+              useAnnouncementData
+            />
             {isReady && userGroups && <UserGroups groups={userGroups} />}
             {isReady && groupSuggestions && (
               <GroupSuggestions groups={groupSuggestions} />

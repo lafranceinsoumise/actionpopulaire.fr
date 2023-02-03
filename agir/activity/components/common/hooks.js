@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo } from "react";
 import { useSessionStorage, useTimeout } from "react-use";
 import useSWR from "swr";
+import useSWRImmutable from "swr/immutable";
 import useSWRInfinite from "swr/infinite";
 
 import {
@@ -82,17 +83,12 @@ export const useCustomAnnouncement = (slug, shouldPause = true) => {
   const { data: session } = useSWR("/api/session/");
 
   const isPaused = shouldPause && wasPaused;
-  const { data, mutate, error } = useSWR(
+  const { data, mutate, error } = useSWRImmutable(
     !isPaused && session?.user && slug
       ? getActivityEndpoint("customAnnouncement", { slug })
-      : null,
-    {
-      revalidateIfStale: false,
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-    }
+      : null
   );
-
+  console.log(wasPaused, data, error);
   const errorStatus = error?.response?.status;
   const announcement =
     !data?.id || data?.status === ACTIVITY_STATUS.STATUS_INTERACTED
