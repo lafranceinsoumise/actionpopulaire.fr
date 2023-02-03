@@ -34,8 +34,8 @@ from ..models import Membership
 
 class MembershipInline(admin.TabularInline):
     model = models.Membership
-    fields = ("person_link", "membership_type")
-    readonly_fields = ("person_link",)
+    fields = ("person_link", "membership_type", "description")
+    readonly_fields = ("person_link", "description")
 
     def person_link(self, obj):
         return mark_safe(

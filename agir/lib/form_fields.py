@@ -1,4 +1,5 @@
 import json
+from uuid import UUID
 
 from data_france.models import Commune
 from django import forms
@@ -179,6 +180,8 @@ class AcceptCreativeCommonsLicenceField(forms.BooleanField):
 
 class CustomJSONEncoder(DjangoJSONEncoder):
     def default(self, o):
+        if isinstance(o, UUID):
+            return str(o)
         if isinstance(o, PhoneNumber):
             return o.as_e164
         if isinstance(o, IBAN):

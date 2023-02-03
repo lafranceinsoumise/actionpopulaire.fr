@@ -11,6 +11,7 @@ from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
 
 from agir.carte.models import StaticMapImage
+from agir.lib.form_fields import CustomJSONEncoder
 from agir.lib.geo import FRENCH_COUNTRY_CODES
 from agir.lib.models import (
     BaseAPIResource,
@@ -491,6 +492,13 @@ class Membership(ExportModelOperationsMixin("membership"), TimeStampedModel):
         ),
     )
 
+    meta = models.JSONField(
+        "Données supplémentaires",
+        default=dict,
+        blank=True,
+        encoder=CustomJSONEncoder,
+    )
+
     class Meta:
         verbose_name = _("adhésion")
         verbose_name_plural = _("adhésions")
@@ -515,6 +523,10 @@ class Membership(ExportModelOperationsMixin("membership"), TimeStampedModel):
     @property
     def is_manager(self):
         return self.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER
+
+    @property
+    def description(self):
+        return self.meta.get("description", "")
 
 
 class TransferOperation(models.Model):

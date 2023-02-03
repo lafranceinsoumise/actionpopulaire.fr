@@ -649,6 +649,55 @@ def send_soon_to_be_inactive_group_warning(supportgroup_pk):
     )
 
 
+def maj_boucle_departementale_par_animation(departement):
+    groupes_eligibles = (
+        SupportGroup.objects.active()
+        .certified()
+        .filter(type=SupportGroup.TYPE_LOCAL_GROUP)
+        .filter(departement.filtre)
+    )
+    membres_souhaites = []
+    metas = {}
+    for groupe in groupes_eligibles:
+        membres_groupe = list(
+            Person.objects.exclude(role__is_active=False)
+            .filter(
+                memberships__membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+                memberships__supportgroup__in=groupes_eligibles,
+            )
+            .values_list("id", flat=True)
+        )
+        membres_souhaites += membres_groupe
+        meta = {
+            "description": "Animateur·ice de groupe d'action local certifié",
+            "group_id": groupe.id,
+        }
+        for person_id in membres_groupe:
+            metas[person_id] = meta
+
+    return membres_souhaites, metas
+
+
+def maj_boucle_departementale_par_tag(departement):
+    tags = PersonTag.objects.filter(
+        label__endswith=f"Membre boucle départementale {departement.id}"
+    )
+
+    membres_souhaites = []
+    metas = {}
+
+    for tag in tags:
+        membres_tags = list(tag.people.values_list("id", flat=True))
+        membres_souhaites += membres_tags
+        if not tag.description:
+            continue
+        meta = {"description": tag.description, "tag_id": tag.id}
+        for person_id in membres_tags:
+            metas[person_id] = meta
+
+    return membres_souhaites, metas
+
+
 def maj_boucle_departementale(departement, dry_run=False):
     try:
         boucle_departementale = SupportGroup.objects.get(
@@ -658,40 +707,24 @@ def maj_boucle_departementale(departement, dry_run=False):
     except SupportGroup.DoesNotExist:
         return departement, None
 
-    groupes_eligibles = (
-        SupportGroup.objects.active()
-        .certified()
-        .filter(type=SupportGroup.TYPE_LOCAL_GROUP)
-        .filter(departement.filtre)
-    )
-    personnes_eligibles = Person.objects.exclude(role__is_active=False)
-    tag_departemental = PersonTag.objects.filter(
-        label=f"Membre boucle départementale {departement.id}"
-    ).first()
+    membres_souhaites = []
+    metas = {}
 
-    membres_souhaites = set(
-        personnes_eligibles.filter(
-            memberships__membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
-            memberships__supportgroup__in=groupes_eligibles,
-        ).values_list("id", flat=True)
-    )
+    for f in (
+        maj_boucle_departementale_par_animation,
+        maj_boucle_departementale_par_tag,
+    ):
+        f_membres_souhaites, f_metas = f(departement)
+        membres_souhaites += f_membres_souhaites
+        metas.update(f_metas)
 
-    if tag_departemental:
-        membres_souhaites.update(tag_departemental.people.values_list("id", flat=True))
-
+    membres_souhaites = set(membres_souhaites)
     membres_actuels = set(boucle_departementale.members.values_list("id", flat=True))
 
     a_ajouter = membres_souhaites.difference(membres_actuels)
     a_retirer = membres_actuels.difference(membres_souhaites)
 
-    if dry_run:
-        return departement, (len(membres_actuels), len(a_ajouter), len(a_retirer))
-
-    _, deleted_objects = Membership.objects.filter(
-        supportgroup=boucle_departementale, person_id__in=a_retirer
-    ).delete()
-
-    new_members = [
+    a_ajouter = [
         Membership(
             supportgroup=boucle_departementale,
             person_id=p,
@@ -699,12 +732,26 @@ def maj_boucle_departementale(departement, dry_run=False):
         )
         for p in a_ajouter
     ]
-    created = Membership.objects.bulk_create(new_members, ignore_conflicts=True)
+    a_retirer = Membership.objects.filter(
+        supportgroup=boucle_departementale, person_id__in=a_retirer
+    )
+
+    if dry_run:
+        return departement, (len(membres_actuels), len(a_ajouter), len(a_retirer))
+
+    _, membres_supprimes = a_retirer.delete()
+    nouveau_membres = Membership.objects.bulk_create(a_ajouter, ignore_conflicts=True)
+    membres_apres_maj = list(
+        Membership.objects.filter(supportgroup=boucle_departementale)
+    )
+    for membre in membres_apres_maj:
+        membre.meta = metas[membre.person_id]
+    Membership.objects.bulk_update(membres_apres_maj, ("meta",))
 
     return departement, (
         len(membres_actuels),
-        len(created),
-        deleted_objects.get("groups.Membership", 0),
+        len(nouveau_membres),
+        membres_supprimes.get("groups.Membership", 0),
     )
 
 
