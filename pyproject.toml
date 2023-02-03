@@ -81,7 +81,7 @@ django-push-notifications =  {version = "*", extras=["apns"]}
 pywebpush = "*"
 social-auth-core = "==4.0.2"
 django-storages = "^1.13.2"
-qrcode = {extras = ["pil"], version = "^7.2"}
+qrcode = {extras = ["pil"], version = "^7.4"}
 xlsxwriter = "*"
 trio = "^0.22.0"
 asks = "^3.0.0"

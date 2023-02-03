@@ -2520,6 +2520,18 @@ files = [
 ]
 
 [[package]]
+name = "pypng"
+version = "0.20220715.0"
+description = "Pure Python library for saving and loading PNG images"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "pypng-0.20220715.0-py3-none-any.whl", hash = "sha256:4a43e969b8f5aaafb2a415536c1a8ec7e341cd6a3f957fd5b5f32a4cfeed902c"},
+    {file = "pypng-0.20220715.0.tar.gz", hash = "sha256:739c433ba96f078315de54c0db975aee537cbc3e1d0ae4ed9aab0ca1e427e2c1"},
+]
+
+[[package]]
 name = "pyrogram"
 version = "2.0.97"
 description = "Elegant, modern and asynchronous Telegram MTProto API framework in Python for users and bots"
@@ -2664,25 +2676,28 @@ files = [
 
 [[package]]
 name = "qrcode"
-version = "7.3.1"
+version = "7.4"
 description = "QR Code image generator"
 category = "main"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 files = [
-    {file = "qrcode-7.3.1.tar.gz", hash = "sha256:375a6ff240ca9bd41adc070428b5dfc1dcfbb0f2507f1ac848f6cded38956578"},
+    {file = "qrcode-7.4-py3-none-any.whl", hash = "sha256:7ff613c4ef2d56a0dddbc54d8d1b6dce8060794ed7d1737356a83e2bdf49bbe9"},
+    {file = "qrcode-7.4.tar.gz", hash = "sha256:c775424e983c9eba814da1febdfcf853165ecc01e494077591e370c8d4802bd5"},
 ]
 
 [package.dependencies]
 colorama = {version = "*", markers = "platform_system == \"Windows\""}
-pillow = {version = "*", optional = true, markers = "extra == \"pil\""}
+pillow = {version = ">=9.1.0", optional = true, markers = "extra == \"pil\""}
+pypng = "*"
+typing-extensions = "*"
 
 [package.extras]
-all = ["pillow", "pytest", "pytest", "pytest-cov", "tox", "zest.releaser[recommended]"]
-dev = ["pytest", "tox"]
+all = ["pillow (>=9.1.0)", "pytest", "pytest-cov", "tox", "zest.releaser[recommended]"]
+dev = ["pytest", "pytest-cov", "tox"]
 maintainer = ["zest.releaser[recommended]"]
-pil = ["pillow"]
-test = ["pytest", "pytest-cov"]
+pil = ["pillow (>=9.1.0)"]
+test = ["coverage", "pytest"]
 
 [[package]]
 name = "redis"
@@ -3427,4 +3442,4 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "8c3532841911866d593cfe15fc56c1392e975325210e1babf45495f4e586e906"
+content-hash = "a59ac15106397a000d1e72b7988af79eb7280fee3572d478a240295885de9b6f"
