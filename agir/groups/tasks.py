@@ -1,6 +1,23 @@
 from collections import OrderedDict
 
 import ics
+from agir.events.models import Event, OrganizerConfig
+from agir.groups.display import genrer_membership
+from agir.lib.celery import (
+    emailing_task,
+    post_save_task,
+    http_task,
+)
+from agir.lib.data import departements
+from agir.lib.geo import geocode_element
+from agir.lib.html import sanitize_html
+from agir.lib.mailing import send_mosaico_email, send_template_email
+from agir.lib.utils import front_url, clean_subject_email, is_absolute_url
+from agir.msgs.models import SupportGroupMessage, SupportGroupMessageComment
+from agir.notifications.models import Subscription
+from agir.people.actions.subscription import make_subscription_token
+from agir.people.models import Person, PersonTag
+from data_france.models import CirconscriptionConsulaire, CirconscriptionLegislative
 from django.conf import settings
 from django.db.models import Q
 from django.template.defaultfilters import date as _date
@@ -9,26 +26,10 @@ from django.utils import timezone
 from django.utils.html import format_html_join, format_html
 from django.utils.translation import gettext_lazy as _
 
-from agir.events.models import Event, OrganizerConfig
-from agir.groups.display import genrer_membership
-from agir.lib.celery import (
-    emailing_task,
-    post_save_task,
-    http_task,
-)
-from agir.lib.geo import geocode_element
-from agir.lib.html import sanitize_html
-from agir.lib.mailing import send_mosaico_email, send_template_email
-from agir.lib.utils import front_url, clean_subject_email, is_absolute_url
-from agir.people.actions.subscription import make_subscription_token
-from agir.people.models import Person, PersonTag
 from .actions.invitation import make_abusive_invitation_report_link
 from .models import SupportGroup, Membership
 from .utils import DAYS_SINCE_LAST_EVENT_WARNING
 from ..activity.models import Activity
-from ..lib.data import departements
-from ..msgs.models import SupportGroupMessage, SupportGroupMessageComment
-from ..notifications.models import Subscription
 
 NOTIFIED_CHANGES = {
     "name": "information",
@@ -649,12 +650,45 @@ def send_soon_to_be_inactive_group_warning(supportgroup_pk):
     )
 
 
-def maj_boucle_departementale_par_animation(departement):
+def effectuer_changements(boucle, membres_souhaites, metas, dry_run=False):
+    membres_actuels = set(boucle.members.values_list("id", flat=True))
+
+    a_ajouter = membres_souhaites.difference(membres_actuels)
+    a_retirer = membres_actuels.difference(membres_souhaites)
+
+    a_ajouter = [
+        Membership(
+            supportgroup=boucle,
+            person_id=p,
+            membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
+        )
+        for p in a_ajouter
+    ]
+    a_retirer = Membership.objects.filter(supportgroup=boucle, person_id__in=a_retirer)
+
+    if dry_run:
+        return len(membres_actuels), len(a_ajouter), len(a_retirer)
+
+    _, membres_supprimes = a_retirer.delete()
+    nouveau_membres = Membership.objects.bulk_create(a_ajouter, ignore_conflicts=True)
+    membres_apres_maj = list(Membership.objects.filter(supportgroup=boucle))
+    for membre in membres_apres_maj:
+        membre.meta = metas[membre.person_id]
+    Membership.objects.bulk_update(membres_apres_maj, ("meta",))
+
+    return (
+        len(membres_actuels),
+        len(nouveau_membres),
+        membres_supprimes.get("groups.Membership", 0),
+    )
+
+
+def maj_boucle_par_animation(filter):
     groupes_eligibles = (
         SupportGroup.objects.active()
         .certified()
         .filter(type=SupportGroup.TYPE_LOCAL_GROUP)
-        .filter(departement.filtre)
+        .filter(filter)
     )
     membres_souhaites = []
     metas = {}
@@ -678,10 +712,8 @@ def maj_boucle_departementale_par_animation(departement):
     return membres_souhaites, metas
 
 
-def maj_boucle_departementale_par_tag(departement):
-    tags = PersonTag.objects.filter(
-        label__endswith=f"Membre boucle départementale {departement.id}"
-    )
+def maj_boucle_par_tag(tag_suffix):
+    tags = PersonTag.objects.filter(label__endswith=tag_suffix)
 
     membres_souhaites = []
     metas = {}
@@ -705,59 +737,76 @@ def maj_boucle_departementale(departement, dry_run=False):
             location_departement_id=departement.id,
         )
     except SupportGroup.DoesNotExist:
-        return departement, None
+        return None
 
-    membres_souhaites = []
-    metas = {}
+    membres_animation, metas_animation = maj_boucle_par_animation(departement.filtre)
 
-    for f in (
-        maj_boucle_departementale_par_animation,
-        maj_boucle_departementale_par_tag,
-    ):
-        f_membres_souhaites, f_metas = f(departement)
-        membres_souhaites += f_membres_souhaites
-        metas.update(f_metas)
+    membres_tag, metas_tag = maj_boucle_par_tag(
+        f"Membre boucle départementale {departement.id}"
+    )
 
-    membres_souhaites = set(membres_souhaites)
-    membres_actuels = set(boucle_departementale.members.values_list("id", flat=True))
+    membres = set(membres_animation).union(membres_tag)
+    metas = {**metas_animation, **metas_tag}
 
-    a_ajouter = membres_souhaites.difference(membres_actuels)
-    a_retirer = membres_actuels.difference(membres_souhaites)
+    return effectuer_changements(boucle_departementale, membres, metas, dry_run=dry_run)
 
-    a_ajouter = [
-        Membership(
-            supportgroup=boucle_departementale,
-            person_id=p,
-            membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
+
+def maj_boucle_fe(circonscription, dry_run=False):
+    numero = int(circonscription.code.split("-")[-1])
+
+    circos_consulaires = CirconscriptionConsulaire.objects.filter(
+        circonscription_legislative=circonscription
+    ).only("pays")
+
+    pays = set(p for c in circos_consulaires for p in c.pays)
+
+    ordinal = "1ère" if numero == 1 else f"{numero}ème"
+    suffixe = f"{ordinal} circonscription des Français de l'étranger"
+
+    try:
+        boucle = SupportGroup.objects.get(
+            type=SupportGroup.TYPE_BOUCLE_DEPARTEMENTALE,
+            name__endswith=suffixe,
         )
-        for p in a_ajouter
-    ]
-    a_retirer = Membership.objects.filter(
-        supportgroup=boucle_departementale, person_id__in=a_retirer
+    except SupportGroup.DoesNotExist:
+        return None
+
+    membres_animations, metas_animation = maj_boucle_par_animation(
+        Q(location_country__in=pays)
     )
+    membres_tag, metas_tag = maj_boucle_par_tag(f"Membre boucle {suffixe}")
 
-    if dry_run:
-        return departement, (len(membres_actuels), len(a_ajouter), len(a_retirer))
-
-    _, membres_supprimes = a_retirer.delete()
-    nouveau_membres = Membership.objects.bulk_create(a_ajouter, ignore_conflicts=True)
-    membres_apres_maj = list(
-        Membership.objects.filter(supportgroup=boucle_departementale)
-    )
-    for membre in membres_apres_maj:
-        membre.meta = metas[membre.person_id]
-    Membership.objects.bulk_update(membres_apres_maj, ("meta",))
-
-    return departement, (
-        len(membres_actuels),
-        len(nouveau_membres),
-        membres_supprimes.get("groups.Membership", 0),
+    return effectuer_changements(
+        boucle,
+        set(membres_animations).union(membres_tag),
+        {**metas_animation, **metas_tag},
+        dry_run=dry_run,
     )
 
 
-def maj_boucles_departementales(only_departements=None, dry_run=False):
-    target_departements = only_departements if only_departements else departements
-    return [
-        maj_boucle_departementale(departement=departement, dry_run=dry_run)
-        for departement in target_departements
-    ]
+def maj_boucles(codes=None, dry_run=False):
+    if codes:
+        target_departements = [d for d in departements if d.id in codes]
+        target_circonscriptions = CirconscriptionLegislative.objects.filter(
+            code__in=codes
+        )
+    else:
+        target_departements = departements
+        target_circonscriptions = CirconscriptionLegislative.objects.filter(
+            code__startswith="99-"
+        )
+
+    return {
+        **{
+            departement: maj_boucle_departementale(
+                departement=departement, dry_run=dry_run
+            )
+            for departement in target_departements
+        },
+        **{
+            circonscription: maj_boucle_fe(
+                circonscription=circonscription, dry_run=dry_run
+            )
+            for circonscription in target_circonscriptions
+        },
+    }
