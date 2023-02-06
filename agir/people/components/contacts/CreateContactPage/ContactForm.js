@@ -255,17 +255,12 @@ export const ContactForm = (props) => {
         onChange={handleChange}
         value={data.phone}
         disabled={isLoading}
-        helpText={
-          <em>
-            Facultatif si une adresse e-mail a été renseignée, mais utile pour
-            vous rappeler d’aller voter avant le 1er tour&nbsp;!
-          </em>
-        }
+        helpText={<em>Facultatif si une adresse e-mail a été renseignée</em>}
       />
       <Spacer data-scroll="newsletters" size="2rem" />
       <h4>
-        &laquo;&nbsp;Souhaitez-vous compter dans les soutiens de Jean-Luc
-        Mélenchon pour 2022&nbsp;?&nbsp;&raquo;
+        &laquo;&nbsp;Souhaitez-vous compter dans les soutiens de l'Union
+        populaire&nbsp;?&nbsp;&raquo;
       </h4>
       <CheckboxField
         label="Je veux compter dans les soutiens"
@@ -283,8 +278,8 @@ export const ContactForm = (props) => {
             Informations très importantes et exceptionnelles
             <br />
             <em>
-              &laquo;&nbsp;Jean-Luc Mélenchon fait un meeting dans votre
-              ville&nbsp;&raquo;
+              &laquo;&nbsp;Un grand meeting ou une action importante est
+              organisée dans votre ville ou près de chez vous&nbsp;&raquo;
             </em>
           </>
         }
@@ -298,11 +293,11 @@ export const ContactForm = (props) => {
       <CheckboxField
         label={
           <>
-            Informations de la campagne
+            Informations des campagnes de la France insoumise
             <br />
             <em>
-              &laquo;&nbsp;Jean-Luc Mélenchon va passer à la TV la semaine
-              prochaine&nbsp;&raquo;
+              &laquo;&nbsp;Les lettres d'informations concernants les actions et
+              l'actualité du mouvement&nbsp;&raquo;
             </em>
           </>
         }
@@ -344,18 +339,18 @@ export const ContactForm = (props) => {
           <Spacer size="1.5rem" />
           <h4>
             Souhaitez-vous devenir correspondant·e pour votre immeuble ou votre
-            rue&nbsp;?
+            village&nbsp;?
           </h4>
           <p>
             <em>
               &laquo;&nbsp;Nous vous enverrons des informations et du matériel
-              pour diffuser nos propositions et inciter vos voisins à aller
-              voter pour tout changer en 2022&nbsp;&raquo;
+              pour diffuser nos propositions et actions auprès de vos voisins et
+              voisines&nbsp;&raquo;
             </em>
           </p>
           <Spacer size=".5rem" />
           <CheckboxField
-            label="Devenir correspondant·e de l'immeuble ou de la rue"
+            label="Devenir correspondant·e de l'immeuble ou du village"
             onChange={handleCheckNewsletter}
             value={data.newsletters.includes(NEWSLETTER_2022_LIAISON)}
             id={NEWSLETTER_2022_LIAISON}

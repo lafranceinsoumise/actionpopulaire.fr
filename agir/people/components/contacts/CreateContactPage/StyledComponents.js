@@ -9,7 +9,7 @@ import { useImageLoad } from "@agir/lib/utils/hooks";
 
 import bgSmall from "./images/bg-small.png";
 import bgSeaSmall from "./images/bg-sea-small.jpg";
-import bgLarge from "./images/bg-large.svg";
+import bgLarge from "./images/bg-large.png";
 import bgSeaLarge from "./images/bg-sea-large.jpg";
 
 const StyledBanner = styled.header`
@@ -17,13 +17,14 @@ const StyledBanner = styled.header`
   height: 166px;
   background-image: url(${bgSmall}), url(${bgSeaSmall});
   background-size: contain, cover;
-  background-position: bottom center;
+  background-position: center center;
   background-repeat: no-repeat;
   opacity: ${({ $isReady }) => ($isReady ? 1 : 0)};
   transition: opacity 300ms ease-in;
 
   @media (min-width: ${(props) => props.theme.collapse}px) {
     height: 191px;
+    background-position: bottom center;
     background-image: url(${bgLarge}), url(${bgSeaLarge});
     background-size: 680px 158px, cover;
   }
