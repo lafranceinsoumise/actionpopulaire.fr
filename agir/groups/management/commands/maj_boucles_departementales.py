@@ -1,9 +1,16 @@
+import re
+
 from django.core.management import BaseCommand
 
 from agir.groups.tasks import (
     maj_boucles,
 )
 from agir.lib.data import departements_par_code
+
+
+CODE_RE = re.compile(
+    r"^(?:99-(?:0[0-9]|1[01])|[01345678][0-9]|2[1-9AB]|9(?:[0-5]|7[1-8]|8[678]))$"
+)
 
 
 class Command(BaseCommand):
@@ -74,6 +81,11 @@ class Command(BaseCommand):
 
         if codes:
             codes = codes.split(",")
+            incorrects = [c for c in codes if not CODE_RE.match(c)]
+            if incorrects:
+                raise CommandError(
+                    f"Les code suivants sont incorrects : {' ,'.join(incorrects)}"
+                )
 
         if codes is None:
             self.log("\nMise à jour de toutes les boucles\n")

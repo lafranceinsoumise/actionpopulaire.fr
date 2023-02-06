@@ -785,16 +785,14 @@ def maj_boucle_fe(circonscription, dry_run=False):
 
 
 def maj_boucles(codes=None, dry_run=False):
+    target_departements = departements
+    target_circonscriptions = CirconscriptionLegislative.objects.filter(
+        code__startswith="99-"
+    )
+
     if codes:
-        target_departements = [d for d in departements if d.id in codes]
-        target_circonscriptions = CirconscriptionLegislative.objects.filter(
-            code__in=codes
-        )
-    else:
-        target_departements = departements
-        target_circonscriptions = CirconscriptionLegislative.objects.filter(
-            code__startswith="99-"
-        )
+        target_departements = [d for d in target_departements if d.id in codes]
+        target_circonscriptions = target_circonscriptions.filter(code__in=codes)
 
     return {
         **{
