@@ -88,7 +88,6 @@ export const useCustomAnnouncement = (slug, shouldPause = true) => {
       ? getActivityEndpoint("customAnnouncement", { slug })
       : null
   );
-  console.log(wasPaused, data, error);
   const errorStatus = error?.response?.status;
   const announcement =
     !data?.id || data?.status === ACTIVITY_STATUS.STATUS_INTERACTED
