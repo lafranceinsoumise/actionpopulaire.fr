@@ -1,3 +1,5 @@
+from django.conf import settings
+
 from agir.event_requests.models import EventSpeaker
 from agir.lib.celery import emailing_task
 from agir.lib.mailing import send_template_email
@@ -17,6 +19,7 @@ def send_new_event_speaker_request_notification(speaker_pk):
         return
 
     send_template_email(
+        from_email=settings.EMAIL_ILB,
         template_name="event_speaker/new_event_speaker_request_email.html",
         bindings={
             "event_speaker_page_url": front_url("event_speaker", absolute=True),

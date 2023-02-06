@@ -1,17 +1,16 @@
 {% extends email_template %}
 
 {% block subject %}
-Des demandes d'événement ont été créées pour vos thèmes d'intervention
+Demandes de formations locales sur vos thèmes
 {% endblock %}
 
 {% block html_content %}
 <p>{{ greetings|safe }}</p>
 <p>
-  Des nouvelles demandes d'événements vous concernant ont été créées sur notre plateforme Action populaire.
+  Des nouvelles demandes de formations où vous pouvez intervenir ont été faites.
 </p>
 <p>
-  Vous pouvez dès à présent indiquer vos disponibilités pour les dates demandées en cliquant
-  sur le lien ci-dessous&nbsp;:
+  Vous pouvez dès à présent indiquer vos disponibilités aux dates proposées en cliquant sur le lien ci-dessous.
 </p>
 <br />
 <table cellpadding="0" border="0" align="center" cellspacing="0" class="mobile-full">
@@ -28,8 +27,7 @@ Des demandes d'événement ont été créées pour vos thèmes d'intervention
 </table>
 <br />
 <p>
-  Vous recevez ce message car vous avez été inscrit·e comme intervenant·e
-  pour les thèmes d'événement suivants&nbsp;:
+  Vous recevez ce message car vous avez été inscrit·e comme intervenant·e potentiel·le pour les thèmes de formation suivants&nbsp;:
   <ul style="list-style-type: none; margin: 0px; padding: 16px; background:#eeeeee; border-radius:8px;">
     {% for theme in event_speaker_themes %}
       <li>&middot;&nbsp;{{ theme }}</li>

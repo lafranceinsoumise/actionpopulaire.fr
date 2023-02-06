@@ -76,7 +76,7 @@ const ConfirmContact = (props) => {
           <li>{`Recevra ${newsletters.join(", ")}`}</li>
         ) : null}
         {data.newsletters.includes("2022_liaison") ? (
-          <li>Sera correspondant·e de l’immeuble ou de la rue</li>
+          <li>Sera correspondant·e de l’immeuble ou de village</li>
         ) : null}
         {data.group?.id ? (
           <li>

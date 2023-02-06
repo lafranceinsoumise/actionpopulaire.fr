@@ -83,13 +83,6 @@ const StyledWrapper = styled.div`
   flex-flow: column nowrap;
   gap: 0.5rem;
   position: relative;
-
-  ${Button} {
-    ${"" /* TODO: remove after Button refactoring merge */}
-    width: 100%;
-    margin: 0;
-    justify-content: center;
-  }
 `;
 
 const ManagerActions = (props) => {
@@ -178,6 +171,17 @@ const ManagerActions = (props) => {
                 name="loader"
               />
               <Link to={groupSettingsLinks.finance}>Financement</Link>
+            </li>
+          )}
+          {groupSettingsLinks?.links && (
+            <li>
+              <RawFeatherIcon
+                small
+                inline
+                color={style.primary500}
+                name="loader"
+              />
+              <Link to={groupSettingsLinks.links}>Liens externes</Link>
             </li>
           )}
         </ul>
