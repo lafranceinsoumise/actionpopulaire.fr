@@ -1,7 +1,7 @@
 from django.core.management import BaseCommand
 
 from agir.groups.tasks import (
-    maj_boucles_departementales,
+    maj_boucles,
 )
 from agir.lib.data import departements_par_code
 
@@ -16,12 +16,12 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "-d",
-            "--departements",
-            dest="only_departements",
+            "-c",
+            "--codes",
+            dest="codes",
             default=None,
-            help=f"Limit to some departements based on a list of comma separated codes "
-            f"(ex. -d 01,02,03)",
+            help=f"Limiter à certaines boucles (code du département ou de la circonscription FE "
+            f"(ex. -d 01,02,03,99-03)",
         )
         parser.add_argument(
             "--dry-run",
@@ -46,16 +46,12 @@ class Command(BaseCommand):
     def print_result(self, result):
         if not result:
             return
-        for departement, count in result:
+        for lieu, count in result.items():
             if count is None:
-                self.log(
-                    f"✖ Département {departement.id} — {departement.nom} : pas de boucle départementale"
-                )
+                self.log(f"✖ {lieu} : pas de boucle")
                 continue
             existing, created, deleted = count
-            self.log(
-                f"✔ Département {departement.id} — {departement.nom} : boucle départementale mise à jour"
-            )
+            self.log(f"✔ {lieu} : boucle mise à jour")
             if self.dry_run:
                 self.log(f"  ├── Membres existants : {existing}")
                 self.log(f"  ├── Membres à supprimer : {deleted}")
@@ -68,7 +64,7 @@ class Command(BaseCommand):
     def handle(
         self,
         *args,
-        only_departements=None,
+        codes=None,
         dry_run=False,
         silent=False,
         **kwargs,
@@ -76,35 +72,14 @@ class Command(BaseCommand):
         self.dry_run = dry_run
         self.silent = silent
 
-        if only_departements:
-            only_departements = [
-                departements_par_code[code]
-                for code in sorted(set(only_departements.split(",")))
-                if code in departements_par_code.keys()
-            ]
+        if codes:
+            codes = codes.split(",")
 
-        if only_departements is None:
-            self.log(
-                "\nMise à jour des boucles départementales de tous les départements\n"
-            )
-            result = maj_boucles_departementales(
-                only_departements=None, dry_run=dry_run
-            )
-            self.print_result(result)
-            self.log("\nBye!\n\n")
-            return
+        if codes is None:
+            self.log("\nMise à jour de toutes les boucles\n")
+        else:
+            self.log("\nMise à jour des boucles suivantes :")
 
-        if only_departements:
-            self.log(
-                "\nMise à jour des boucles départementales des départements suivants :"
-            )
-            self.log(f"✹✹✹ {','.join(str(d) for d in only_departements)}\n")
-            result = maj_boucles_departementales(
-                only_departements=only_departements, dry_run=dry_run
-            )
-            self.print_result(result)
-            self.log("\nBye!\n\n")
-            return
-
-        self.log("\nAucun département trouvé pour les codes spécifiés !")
+        result = maj_boucles(codes=None, dry_run=dry_run)
+        self.print_result(result)
         self.log("\nBye!\n\n")
