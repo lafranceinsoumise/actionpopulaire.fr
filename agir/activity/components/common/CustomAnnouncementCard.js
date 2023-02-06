@@ -19,14 +19,14 @@ const StyledAnnouncement = styled.div`
   margin-bottom: 2rem;
 
   @media (max-width: ${style.collapse}px) {
-    padding: 1rem;
+    padding: 1.5em;
   }
 
   & > * {
     flex: 0 0 auto;
   }
 
-  div {
+  & > div {
     width: 80px;
     height: 80px;
     background-repeat: no-repeat;
@@ -38,7 +38,7 @@ const StyledAnnouncement = styled.div`
     }
   }
 
-  p {
+  & > article {
     flex: 1 1 auto;
     margin: 0;
     padding: 0;
@@ -66,7 +66,7 @@ const StyledAnnouncement = styled.div`
     }
   }
 
-  div + p {
+  & > div + article {
     padding-left: 1.5rem;
 
     @media (max-width: ${style.collapse}px) {
@@ -74,7 +74,7 @@ const StyledAnnouncement = styled.div`
     }
   }
 
-  button {
+  & > button {
     display: inline-flex;
     background-color: transparent;
     border: none;
@@ -86,7 +86,28 @@ const StyledAnnouncement = styled.div`
 `;
 
 export const CustomAnnouncementCard = (props) => {
-  const { config, illustration, title, children, onClose } = props;
+  const {
+    config,
+    illustration,
+    title,
+    children,
+    onClose,
+    useAnnouncementData,
+  } = props;
+
+  if (!children && useAnnouncementData) {
+    return (
+      <StyledAnnouncement>
+        <article>
+          <strong>{title || config.title}</strong>
+          <div dangerouslySetInnerHTML={{ __html: config.content }} />
+        </article>
+        <button onClick={onClose} aria-label="Fermer ce message">
+          <RawFeatherIcon name="x" color={style.black1000} />
+        </button>
+      </StyledAnnouncement>
+    );
+  }
 
   if (typeof children === "function") {
     return (
@@ -107,10 +128,10 @@ export const CustomAnnouncementCard = (props) => {
           style={{ backgroundImage: `url(${illustration})` }}
         />
       )}
-      <p>
+      <article>
         {title && <strong>{title}</strong>}
         {children}
-      </p>
+      </article>
       <button onClick={onClose} aria-label="Fermer ce message">
         <RawFeatherIcon name="x" color={style.black1000} />
       </button>
@@ -143,14 +164,15 @@ const HookedCustomAnnouncementCard = ({ slug, ...rest }) => {
 CustomAnnouncementCard.propTypes = {
   illustration: PropTypes.string,
   title: PropTypes.string,
-  children: PropTypes.oneOfType([PropTypes.node, PropTypes.func]).isRequired,
+  children: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
   onClose: PropTypes.func,
   config: PropTypes.object,
+  useAnnouncementData: PropTypes.bool,
 };
 HookedCustomAnnouncementCard.propTypes = {
   illustration: PropTypes.string,
   title: PropTypes.string,
-  children: PropTypes.oneOfType([PropTypes.node, PropTypes.func]).isRequired,
+  children: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
   slug: PropTypes.string.isRequired,
 };
 
