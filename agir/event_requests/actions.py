@@ -2,6 +2,7 @@ import datetime
 from copy import deepcopy
 
 import pytz
+from django.db import transaction
 from django.utils import timezone
 
 from agir.event_requests.models import EventRequest
@@ -13,7 +14,6 @@ from agir.events.tasks import (
 from agir.groups.models import SupportGroup
 from agir.groups.tasks import notify_new_group_event, send_new_group_event_email
 from agir.people.models import Person
-from agir.people.person_forms.models import PersonFormSubmission
 
 
 def schedule_new_event_tasks(event):
@@ -92,12 +92,11 @@ def create_event_from_event_speaker_request(event_speaker_request=None):
     return event
 
 
-def create_event_request_from_personform_submission(submission_id, do_not_create=False):
-    submission = PersonFormSubmission.objects.get(id=submission_id)
+def create_event_request_from_personform_submission(submission, do_not_create=False):
     submission_data = deepcopy(submission.data)
     event_data = {
         "from_personform": submission.form_id,
-        "from_personform_submission_id": submission_id,
+        "from_personform_submission_id": submission.id,
         "organizer_person_id": submission_data.pop(
             "organizer_person_id", str(submission.person_id)
         ),
@@ -116,4 +115,9 @@ def create_event_request_from_personform_submission(submission_id, do_not_create
     if do_not_create:
         return EventRequest(**event_request_data)
 
-    return EventRequest.objects.create(**event_request_data)
+    with transaction.atomic():
+        event_request = EventRequest.objects.create(**event_request_data)
+        submission.data["event_request_id"] = event_request.id
+        submission.save()
+
+        return event_request
