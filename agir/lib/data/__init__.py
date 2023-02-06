@@ -58,7 +58,7 @@ class AvecTypeNom:
         return f"{self.type_nom.charniere}{self.nom}"
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(frozen=True)
 class Departement(AvecTypeNom):
     id: str
     nom: str
@@ -67,7 +67,7 @@ class Departement(AvecTypeNom):
     type_nom: TypeNom
 
     def __str__(self):
-        return self.id
+        return f"{self.id} — {self.nom_complet}"
 
     @property
     def nom_region(self):

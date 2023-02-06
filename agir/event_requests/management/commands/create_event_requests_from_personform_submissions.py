@@ -5,7 +5,6 @@ from django.utils.translation import ngettext
 from tqdm import tqdm
 
 from agir.event_requests.actions import create_event_request_from_personform_submission
-from agir.event_requests.models import EventRequest
 from agir.people.person_forms.models import PersonFormSubmission
 
 
@@ -21,7 +20,6 @@ class Command(BaseCommand):
         self.tqdm = None
         self.dry_run = None
         self.silent = False
-        self.unique = False
 
     def execute(self, *args, **options):
         default_language = translation.get_language()
@@ -38,7 +36,7 @@ class Command(BaseCommand):
             dest="dry_run",
             action="store_true",
             default=False,
-            help="Execute without actually sending any notification or updating data",
+            help="Execute without creating any event request",
         )
         parser.add_argument(
             "-s",
@@ -49,15 +47,7 @@ class Command(BaseCommand):
             help="Display a progress bar during the script execution",
         )
         parser.add_argument(
-            "-u",
-            "--unique",
-            dest="unique",
-            action="store_true",
-            default=False,
-            help="Do not create an event request if another one already exists for the same person form submission",
-        )
-        parser.add_argument(
-            "submission_ids",
+            "personform_ids",
             nargs="*",
             type=int,
             help="Limit event request selection to the specified ids",
@@ -91,55 +81,48 @@ class Command(BaseCommand):
     def log_current_item(self, item):
         self.tqdm.set_description_str(str(item))
 
-    def create_event_request_from_personform_submission(self, submission_id):
+    def create_event_request_from_personform_submission(self, submission):
         self.tqdm.update(1)
-        self.log_current_item(f"{submission_id}")
+        self.log_current_item(f"{submission}")
 
-        submission_has_event_request = EventRequest.objects.filter(
-            event_data__from_personform_submission_id=submission_id
-        ).exists()
-
-        if submission_has_event_request and self.unique:
+        if submission.data.get("event_request_id", None):
             self.error(
                 f"No event request will be created since one already exists "
-                f"for this submission id: {submission_id}."
+                f"for this submission id: {submission.id}."
             )
             return None
 
-        if submission_has_event_request:
-            self.warning(
-                f"An event request already exists for this submission id: {submission_id}"
-            )
-
-        try:
-            return create_event_request_from_personform_submission(
-                submission_id, do_not_create=self.dry_run
-            )
-        except PersonFormSubmission.DoesNotExist:
-            self.error(f"No person form submission found for id: {submission_id}")
-            return None
+        return create_event_request_from_personform_submission(
+            submission, do_not_create=self.dry_run
+        )
 
     def handle(
         self,
         *args,
         dry_run=False,
         silent=False,
-        unique=False,
-        submission_ids=None,
+        personform_ids=None,
         **kwargs,
     ):
         self.dry_run = dry_run
         self.silent = silent
-        self.unique = unique
 
-        if submission_ids is None:
-            submission_ids = []
+        if personform_ids is None:
+            personform_ids = []
 
-        submission_ids = set(submission_ids)
-        submission_count = len(submission_ids)
+        personform_ids = list(set(personform_ids))
+
+        if len(personform_ids) == 0:
+            self.error("You should specify at least one person form id")
+            return
+
+        submissions = PersonFormSubmission.objects.filter(
+            form_id__in=personform_ids, data__event_request_id__isnull=True
+        )
+        submission_count = submissions.count()
 
         if submission_count == 0:
-            self.error("The following required arguments are missing: submission_id")
+            self.error("No submission found for the specified form ids")
             return
 
         self.info(
@@ -161,8 +144,8 @@ class Command(BaseCommand):
         event_requests = [
             event_request
             for event_request in [
-                self.create_event_request_from_personform_submission(submission_id)
-                for submission_id in submission_ids
+                self.create_event_request_from_personform_submission(submissions)
+                for submissions in submissions
             ]
             if event_request is not None
         ]
