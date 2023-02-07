@@ -1,10 +1,8 @@
 from django.contrib.humanize.templatetags.humanize import apnumber
-from django.core.management import BaseCommand
-from django.utils import translation
 from django.utils.translation import ngettext
-from tqdm import tqdm
 
 from agir.event_requests.actions import create_event_request_from_personform_submission
+from agir.lib.commands import BaseCommand
 from agir.people.person_forms.models import PersonFormSubmission
 
 
@@ -15,71 +13,14 @@ class Command(BaseCommand):
 
     help = "Create event request instances from one or more person form submission"
 
-    def __init__(self, stdout=None, stderr=None, no_color=False, force_color=False):
-        super().__init__(stdout, stderr, no_color, force_color)
-        self.tqdm = None
-        self.dry_run = None
-        self.silent = False
-
-    def execute(self, *args, **options):
-        default_language = translation.get_language()
-        translation.activate("en")
-        self.log("\n")
-        output = super().execute(*args, **options)
-        translation.activate(default_language)
-        self.log("\n👋 Bye!\n\n")
-        return output
-
     def add_arguments(self, parser):
-        parser.add_argument(
-            "--dry-run",
-            dest="dry_run",
-            action="store_true",
-            default=False,
-            help="Execute without creating any event request",
-        )
-        parser.add_argument(
-            "-s",
-            "--silent",
-            dest="silent",
-            action="store_true",
-            default=False,
-            help="Display a progress bar during the script execution",
-        )
+        super(Command, self).add_arguments(parser)
         parser.add_argument(
             "personform_ids",
             nargs="*",
             type=int,
             help="Limit event request selection to the specified ids",
         )
-
-    def log(self, message):
-        if self.silent:
-            return
-        if self.tqdm:
-            self.tqdm.clear()
-        if not isinstance(message, str):
-            message = str(message)
-        self.stdout.write(message)
-
-    def info(self, message):
-        self.log(self.style.MIGRATE_HEADING(f"{message}"))
-
-    def warning(self, message):
-        self.log(self.style.WARNING(f"⚠ {message}"))
-
-    def success(self, message):
-        if self.dry_run:
-            message = "[DRY-RUN] " + message
-        self.log(self.style.SUCCESS(f"✔ {message}"))
-
-    def error(self, message):
-        if self.dry_run:
-            message = "[DRY-RUN] " + message
-        self.log(self.style.ERROR(f"✖ {message}"))
-
-    def log_current_item(self, item):
-        self.tqdm.set_description_str(str(item))
 
     def create_event_request_from_personform_submission(self, submission):
         self.tqdm.update(1)
@@ -99,14 +40,9 @@ class Command(BaseCommand):
     def handle(
         self,
         *args,
-        dry_run=False,
-        silent=False,
         personform_ids=None,
         **kwargs,
     ):
-        self.dry_run = dry_run
-        self.silent = silent
-
         if personform_ids is None:
             personform_ids = []
 
@@ -125,6 +61,8 @@ class Command(BaseCommand):
             self.error("No submission found for the specified form ids")
             return
 
+        self.init_tqdm(total=submission_count)
+
         self.info(
             ngettext(
                 f"⌛ One person form submission found. Creating event request objects...",
@@ -132,13 +70,6 @@ class Command(BaseCommand):
                 f"Creating event request objects...",
                 submission_count,
             )
-        )
-
-        self.tqdm = tqdm(
-            total=submission_count,
-            bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}]",
-            disable=silent or submission_count == 1,
-            colour="#cbbfec",
         )
 
         event_requests = [
@@ -166,5 +97,3 @@ class Command(BaseCommand):
                 event_request_count,
             )
         )
-
-        return
