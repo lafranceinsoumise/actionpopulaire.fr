@@ -721,9 +721,7 @@ def maj_boucle_par_tag(tag_suffix):
     for tag in tags:
         membres_tags = list(tag.people.values_list("id", flat=True))
         membres_souhaites += membres_tags
-        if not tag.description:
-            continue
-        meta = {"description": tag.description, "tag_id": tag.id}
+        meta = {"tag_id": tag.id, "description": tag.description}
         for person_id in membres_tags:
             metas[person_id] = meta
 
