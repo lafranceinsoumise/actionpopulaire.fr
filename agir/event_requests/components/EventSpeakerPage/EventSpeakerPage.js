@@ -4,13 +4,14 @@ import styled from "styled-components";
 import { useEventSpeaker } from "@agir/event_requests/common/hooks";
 
 import BottomBar from "@agir/front/app/Navigation/BottomBar";
-import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage";
+import ErrorPage from "@agir/front/errorPage/ErrorPage";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import UpcomingEvents from "@agir/events/common/UpcomingEvents";
 import { Hide, useResponsiveMemo } from "@agir/front/genericComponents/grid";
 
 import EventRequestCard from "./EventRequestCard";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const StyledRequestCardList = styled.div`
   display: flex;
@@ -76,7 +77,15 @@ const EventSpeakerPage = () => {
   const upcomingEventOrientation = useResponsiveMemo("horizontal", "vertical");
 
   if (!isLoading && !speaker) {
-    return <NotFoundPage />;
+    return (
+      <ErrorPage
+        title="Vous n'êtes pas autorisé·e à accéder à cette page"
+        subtitle="Si vous êtes arrivé·e ici en suivant un lien reçu par e-mail, vérifiez que vous êtes bien connecté·e avec le compte correspondant à la même adresse e-mail."
+        icon={<RawFeatherIcon name="lock" />}
+        hasTopBar={false}
+        hasReload={false}
+      />
+    );
   }
 
   const hasEvents = Array.isArray(events) && events.length > 0;

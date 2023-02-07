@@ -131,7 +131,7 @@ export const ConnectedEventPage = (props) => {
   )
     return (
       <NotFoundPage
-        isTopBar={false}
+        hasTopBar={false}
         title="Événement"
         subtitle="Cet événement"
         reloadOnReconnection={false}

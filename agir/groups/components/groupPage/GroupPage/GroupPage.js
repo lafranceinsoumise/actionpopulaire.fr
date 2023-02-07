@@ -33,7 +33,7 @@ export const GroupPage = (props) => {
       )}
       {group === false ? (
         <NotFoundPage
-          isTopBar={false}
+          hasTopBar={false}
           title="Groupe"
           subtitle="Ce groupe"
           reloadOnReconnection={false}

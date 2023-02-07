@@ -186,7 +186,7 @@ const MessagePage = ({ messagePk }) => {
             )}
           </StyledPageFadeIn>
         ) : (
-          <NotFoundPage isTopBar={false} reloadOnReconnection={false} />
+          <NotFoundPage hasTopBar={false} reloadOnReconnection={false} />
         )}
       </StyledPage>
       <Hide over>
