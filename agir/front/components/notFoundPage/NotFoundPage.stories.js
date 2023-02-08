@@ -9,4 +9,4 @@ export default {
 const Template = (args) => <NotFoundPage {...args} />;
 
 export const Default = Template.bind({});
-Default.args = { isTopBar: false };
+Default.args = { hasTopBar: false };

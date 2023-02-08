@@ -18,6 +18,9 @@ def send_new_event_speaker_request_notification(speaker_pk):
     if speaker is None:
         return
 
+    # Make sure the speaker's person has a role, for the magic link to work
+    speaker.person.ensure_role_exists()
+
     send_template_email(
         from_email=settings.EMAIL_ILB,
         template_name="event_speaker/new_event_speaker_request_email.html",

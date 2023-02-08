@@ -46,7 +46,7 @@ const VotingProxyRequestDetails = () => {
 
   if (error?.response?.status === 404) {
     // The voting proxy does not exist or is no longer available
-    return <NotFoundPage isTopBar={false} reloadOnReconnection={false} />;
+    return <NotFoundPage hasTopBar={false} reloadOnReconnection={false} />;
   }
 
   return (

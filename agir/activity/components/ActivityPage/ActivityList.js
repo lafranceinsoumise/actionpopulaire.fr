@@ -109,7 +109,7 @@ const ActivityList = () => {
                 {isLoadingMore && <Skeleton />}
               </StyledList>
             ) : isOffline ? (
-              <NotFoundPage isTopBar={false} reloadOnReconnection={false} />
+              <NotFoundPage hasTopBar={false} reloadOnReconnection={false} />
             ) : (
               <EmptyActivityList />
             )}
