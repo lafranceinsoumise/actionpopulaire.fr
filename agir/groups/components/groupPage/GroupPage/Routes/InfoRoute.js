@@ -18,6 +18,7 @@ import GroupOrders from "@agir/groups/groupPage/GroupOrders";
 import { PromoMessage } from "@agir/groups/messages/PromoMessageModal";
 
 import { AgendaRoutePreview, MessagesRoutePreview } from "./RoutePreviews";
+import CollapsibleAnnouncementCard from "@agir/activity/common/CollapsibleAnnouncementCard";
 
 const StyledShareCard = styled.div`
   box-shadow: rgba(0, 35, 44, 0.5) 0px 0px 1px,
@@ -146,11 +147,14 @@ MobileInfoRoute.propTypes = DesktopInfoRoute.propTypes = {
 };
 
 const InfoRoute = (props) => (
-  <ResponsiveLayout
-    {...props}
-    MobileLayout={MobileInfoRoute}
-    DesktopLayout={DesktopInfoRoute}
-  />
+  <>
+    <CollapsibleAnnouncementCard slug="BouclesDepartementaleLongAnnouncement" />
+    <ResponsiveLayout
+      {...props}
+      MobileLayout={MobileInfoRoute}
+      DesktopLayout={DesktopInfoRoute}
+    />
+  </>
 );
 
 export default InfoRoute;
