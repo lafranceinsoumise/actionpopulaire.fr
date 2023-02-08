@@ -953,17 +953,18 @@ Django = ">=3.2"
 
 [[package]]
 name = "django-countries"
-version = "7.5"
+version = "7.5.1"
 description = "Provides a country field for Django models."
 category = "main"
 optional = false
 python-versions = "*"
 files = [
-    {file = "django-countries-7.5.tar.gz", hash = "sha256:979676b1147ebbc10e8cdd67857ffffbcba8d7a92abf7ca70696ecd57d8f3d4f"},
-    {file = "django_countries-7.5-py3-none-any.whl", hash = "sha256:5097d9c16eb5f8a8c195f55e647a1cf1ce8a88fdeb27b104de089424013845a6"},
+    {file = "django-countries-7.5.1.tar.gz", hash = "sha256:22915d9b9403932b731622619940a54894a3eb0da9a374e7249c8fc453c122d7"},
+    {file = "django_countries-7.5.1-py3-none-any.whl", hash = "sha256:2df707aca7a5e677254bed116cf6021a136ebaccd5c2f46860abd6452bb45521"},
 ]
 
 [package.dependencies]
+asgiref = "*"
 typing-extensions = "*"
 
 [package.extras]
