@@ -386,55 +386,47 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
 class EventAdvancedSerializer(EventSerializer):
     participants = serializers.SerializerMethodField()
-    organizers = serializers.SerializerMethodField()
     contact = NestedContactSerializer(source="*")
     groupsInvited = serializers.SerializerMethodField(method_name="get_groups_invited")
 
     def get_participants(self, obj):
-        return [
-            {"id": person.id, "email": person.email, "displayName": person.display_name}
+        organizers = {
+            str(person.id): {
+                "id": person.id,
+                "email": person.email,
+                "displayName": person.display_name,
+                "gender": person.gender,
+                "isOrganizer": True,
+            }
+            for person in obj.organizers.all()
+        }
+        organizer_group_referents = {
+            str(person.id): {
+                "id": person.id,
+                "email": person.email,
+                "displayName": person.display_name,
+                "gender": person.gender,
+                "isOrganizer": True,
+            }
+            for person in sum(
+                [group.referents for group in obj.organizers_groups.distinct()], []
+            )
+        }
+        other_participants = {
+            str(person.id): {
+                "id": person.id,
+                "email": person.email,
+                "displayName": person.display_name,
+                "gender": person.gender,
+            }
             for person in obj.attendees.all()
-            if person not in obj.organizers.all()
-        ]
+        }
 
-    # Return organizers and referents from organizers_groups
-    def get_organizers(self, obj):
-        current_organizers = obj.organizers.all()
-        all_organizers = []
-        person_ids = []
-
-        # Add initial organizers
-        for person in current_organizers:
-            if person.id in person_ids:
-                continue
-            person_ids += [person.id]
-            all_organizers += [
-                {
-                    "id": person.id,
-                    "email": person.email,
-                    "displayName": person.display_name,
-                    "gender": person.gender,
-                    "isOrganizer": True,
-                }
-            ]
-
-        # Add distinct organizers from groups coorganizing the event
-        for group in obj.organizers_groups.distinct():
-            for person in group.referents:
-                if person.id in person_ids:
-                    continue
-                person_ids += [person.id]
-                all_organizers += [
-                    {
-                        "id": person.id,
-                        "email": person.email,
-                        "displayName": person.display_name,
-                        "gender": person.gender,
-                        "isOrganizer": True,
-                    }
-                ]
-
-        return all_organizers
+        return {
+            **other_participants,
+            **organizer_group_referents,
+            **organizers,
+        }.values()
 
     def get_groups_invited(self, obj):
         groups_invited = SupportGroup.objects.filter(
