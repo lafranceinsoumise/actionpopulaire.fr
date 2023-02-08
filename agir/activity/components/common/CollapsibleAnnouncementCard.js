@@ -15,6 +15,7 @@ const StyledHeader = styled.button`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  text-align: left;
   border: none;
   outline: none;
   cursor: pointer;
