@@ -103,7 +103,7 @@ const Page = ({ groupPk, messagePk }) => {
   }, [dispatch, message]);
 
   if (isOffline && (!group || !message)) {
-    return <NotFoundPage reloadOnReconnection={false} isTopBar={false} />;
+    return <NotFoundPage reloadOnReconnection={false} hasTopBar={false} />;
   }
 
   if (

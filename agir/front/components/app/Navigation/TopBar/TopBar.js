@@ -45,7 +45,8 @@ const RouterTopBar = (props) => {
   );
 
   const hasTopBar =
-    route && !route.hideTopBar && (!route.appOnlyTopBar || isMobileApp);
+    props.hasTopBar ||
+    (route && !route.hideTopBar && (!route.appOnlyTopBar || isMobileApp));
 
   if (!hasTopBar) {
     return null;
@@ -53,10 +54,14 @@ const RouterTopBar = (props) => {
 
   return (
     <>
-      <TopBar path={pathname} hasLayout={route.hasLayout} />
+      <TopBar path={pathname} hasLayout={!!route?.hasLayout} />
       {isBannerDownload && <Spacer size="80px" />}
     </>
   );
+};
+
+RouterTopBar.propTypes = {
+  hasTopBar: PropTypes.bool,
 };
 
 export default RouterTopBar;

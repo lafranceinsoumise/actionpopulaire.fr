@@ -246,6 +246,9 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
     isMessagingEnabled = serializers.BooleanField(
         source="is_private_messaging_enabled", read_only=True
     )
+    isBoucleDepartementale = serializers.SerializerMethodField(
+        method_name="get_is_boucle_departementale", read_only=True
+    )
 
     def to_representation(self, instance):
         user = self.context["request"].user
@@ -389,6 +392,9 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def get_is_certified(self, obj):
         return obj.type == SupportGroup.TYPE_LOCAL_GROUP and obj.is_certified
+
+    def get_is_boucle_departementale(self, obj):
+        return obj.type == SupportGroup.TYPE_BOUCLE_DEPARTEMENTALE
 
 
 class SupportGroupSearchResultSerializer(serializers.ModelSerializer):

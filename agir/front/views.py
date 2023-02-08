@@ -425,7 +425,7 @@ class PollingStationOfficerView(PostElectionRedirectView):
     meta_image = urljoin(settings.FRONT_DOMAIN, static("front/assets/og_image_pso.jpg"))
 
 
-class EventSpeakerView(SoftLoginRequiredMixin, EventSpeakerViewMixin, ReactBaseView):
+class EventSpeakerView(SoftLoginRequiredMixin, ReactBaseView):
     api_preloads = [
         reverse_lazy("api_event_speaker_retrieve_update"),
         reverse_lazy("api_event_speaker_event_list"),
