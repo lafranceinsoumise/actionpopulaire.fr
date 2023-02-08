@@ -148,7 +148,9 @@ MobileInfoRoute.propTypes = DesktopInfoRoute.propTypes = {
 
 const InfoRoute = (props) => (
   <>
-    <CollapsibleAnnouncementCard slug="BouclesDepartementaleLongAnnouncement" />
+    {props.group?.isBoucleDepartementale && (
+      <CollapsibleAnnouncementCard slug="BouclesDepartementaleLongAnnouncement" />
+    )}
     <ResponsiveLayout
       {...props}
       MobileLayout={MobileInfoRoute}
@@ -156,5 +158,10 @@ const InfoRoute = (props) => (
     />
   </>
 );
+InfoRoute.propTypes = {
+  group: PropTypes.shape({
+    isBoucleDepartementale: PropTypes.bool,
+  }),
+};
 
 export default InfoRoute;
