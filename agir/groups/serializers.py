@@ -465,6 +465,7 @@ class MembershipSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(source="person.email", read_only=True)
     image = serializers.ImageField(source="person.image", read_only=True)
     gender = serializers.CharField(source="person.gender", read_only=True)
+    description = serializers.CharField(read_only=True)
     membershipType = serializers.ChoiceField(
         source="membership_type", choices=Membership.MEMBERSHIP_TYPE_CHOICES
     )
@@ -520,6 +521,7 @@ class MembershipSerializer(serializers.ModelSerializer):
             "image",
             "email",
             "gender",
+            "description",
             "membershipType",
             "personalInfoConsent",
             "hasGroupNotifications",

@@ -11,14 +11,17 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 
 import { MEMBERSHIP_TYPES } from "@agir/groups/utils/group";
 
-const Name = styled.span``;
-const Role = styled.span``;
-const Email = styled.span``;
+const StyledName = styled.p``;
+const StyledEmail = styled.p``;
+const StyledDescription = styled.p``;
+const StyledMembershipType = styled.p``;
 
-const Member = styled.div`
+const StyledMember = styled.div`
   background-color: ${style.white};
   padding: 0.75rem 1rem;
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr max-content auto;
+  grid-template-rows: auto auto auto;
   align-items: center;
   gap: 0 1rem;
   width: 100%;
@@ -31,11 +34,11 @@ const Member = styled.div`
 
   & > * {
     margin: 0;
-    flex: 0 0 auto;
   }
 
   ${Avatar} {
-    align-self: center;
+    grid-column: 1/2;
+    grid-row: 1/3;
     width: 2rem;
     height: 2rem;
 
@@ -49,31 +52,61 @@ const Member = styled.div`
     }
   }
 
-  ${Name} {
-    flex: 1 1 auto;
-    font-weight: 500;
+  ${StyledName},
+  ${StyledEmail},
+  ${StyledDescription} {
+    margin: 0;
+    padding: 0;
     min-width: 1px;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+
+    &:empty {
+      display: none;
+      min-width: 0;
+    }
   }
 
-  ${Email} {
-    display: block;
+  ${StyledName} {
+    grid-column: 2/3;
+    grid-row: 1/2;
+    font-weight: 500;
+  }
+
+  ${StyledEmail} {
+    grid-column: 2/3;
+    grid-row: 2/3;
     color: ${style.black500};
     font-weight: 400;
     font-size: 0.875rem;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
   }
 
-  ${Role} {
+  ${StyledDescription} {
+    grid-column: 2/5;
+    grid-row: 3/4;
+    color: ${style.black500};
+    font-weight: 400;
+    font-size: 0.75rem;
+
+    &::before {
+      content: "— ";
+
+      @media (max-width: 350px) {
+        display: none;
+      }
+    }
+  }
+
+  ${StyledMembershipType} {
+    grid-column: 3/4;
+    grid-row: 1/3;
     text-align: right;
     color: ${style.black1000};
     display: inline-flex;
     flex-flow: row nowrap;
     align-items: center;
+    min-width: 1px;
 
     @media (max-width: ${style.collapse}px) {
       font-size: 0.813rem;
@@ -91,6 +124,17 @@ const Member = styled.div`
         width: 0.813rem;
         height: 0.813rem;
       }
+    }
+  }
+
+  ${StyledMembershipType} + * {
+    grid-column: 4/5;
+    grid-row: 1/3;
+    width: 2rem;
+    height: 2rem;
+
+    @media (max-width: 350px) {
+      display: none;
     }
   }
 `;
@@ -117,27 +161,27 @@ const MembershipType = ({ gender, membershipType, hasGroupNotifications }) => {
   switch (membershipType) {
     case MEMBERSHIP_TYPES.FOLLOWER:
       return hasGroupNotifications ? (
-        <Role style={{ color: style.black500 }}>
+        <StyledMembershipType style={{ color: style.black500 }}>
           <RawFeatherIcon name="rss" small />
           &ensp;
           <span>{role}</span>
-        </Role>
+        </StyledMembershipType>
       ) : null;
     case MEMBERSHIP_TYPES.MANAGER:
       return (
-        <Role style={{ color: style.green500 }}>
+        <StyledMembershipType style={{ color: style.green500 }}>
           <RawFeatherIcon name="settings" small />
           &ensp;
           <span>{role}</span>
-        </Role>
+        </StyledMembershipType>
       );
     case MEMBERSHIP_TYPES.REFERENT:
       return (
-        <Role style={{ color: style.primary500 }}>
+        <StyledMembershipType style={{ color: style.primary500 }}>
           <RawFeatherIcon name="lock" small />
           &ensp;
           <span>{role}</span>
-        </Role>
+        </StyledMembershipType>
       );
     default:
       return null;
@@ -157,6 +201,7 @@ const GroupMember = (props) => {
     id,
     displayName,
     image = "",
+    description,
     membershipType,
     email,
     gender,
@@ -170,17 +215,16 @@ const GroupMember = (props) => {
   };
 
   return (
-    <Member
+    <StyledMember
       onClick={handleClick}
       disabled={isLoading}
       type={typeof onClick === "function" ? "button" : undefined}
       as={typeof onClick === "function" ? "button" : "div"}
     >
       <Avatar image={image} name={displayName} />
-      <Name>
-        {displayName}
-        <Email>{email}</Email>
-      </Name>
+      <StyledName>{displayName}</StyledName>
+      <StyledEmail>{email}</StyledEmail>
+      <StyledDescription>{description}</StyledDescription>
       <MembershipType
         gender={gender}
         membershipType={membershipType}
@@ -191,7 +235,7 @@ const GroupMember = (props) => {
       ) : (
         <Spacer size="2rem" />
       )}
-    </Member>
+    </StyledMember>
   );
 };
 GroupMember.propTypes = {
@@ -199,6 +243,7 @@ GroupMember.propTypes = {
   displayName: PropTypes.string,
   image: PropTypes.string,
   email: PropTypes.string,
+  description: PropTypes.string,
   membershipType: PropTypes.oneOf([
     MEMBERSHIP_TYPES.FOLLOWER,
     MEMBERSHIP_TYPES.MEMBER,

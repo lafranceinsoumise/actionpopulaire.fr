@@ -114,7 +114,7 @@ const DesktopInfoRoute = (props) => {
           />
           <ShareCard
             url={group.routes?.details}
-            title="Inviter vos ami·es à rejoindre le groupe"
+            title="Partager le lien du groupe"
           />
           <GroupLocation {...group} groupSettingsLinks={groupSettingsLinks} />
         </>

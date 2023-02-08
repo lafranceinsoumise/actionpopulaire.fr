@@ -95,11 +95,11 @@ export function displayHumanDate(datetime, relativeTo) {
 
 export const displayHumanDateString = (datetime, relativeTo) => {
   datetime = new Date(datetime);
-  datetime = DateTime.fromJSDate(datetime);
+  datetime = DateTime.fromJSDate(datetime).setLocale("fr");
 
   if (relativeTo) {
     relativeTo = new Date(relativeTo);
-    relativeTo = DateTime.fromJSDate(relativeTo);
+    relativeTo = DateTime.fromJSDate(relativeTo).setLocale("fr");
   }
 
   return displayHumanDate(datetime, relativeTo);
