@@ -412,6 +412,7 @@ class EventAdvancedSerializer(EventSerializer):
                 [group.referents for group in obj.organizers_groups.distinct()], []
             )
         }
+
         other_participants = {
             str(person.id): {
                 "id": person.id,
@@ -422,11 +423,24 @@ class EventAdvancedSerializer(EventSerializer):
             for person in obj.attendees.all()
         }
 
-        return {
+        participants = {
             **other_participants,
             **organizer_group_referents,
             **organizers,
-        }.values()
+        }
+
+        if hasattr(obj, "event_request"):
+            speaker_person_ids = [
+                str(person_id)
+                for person_id in obj.event_request.event_speaker_requests.accepted().values_list(
+                    "event_speaker__person_id", flat=True
+                )
+                if str(person_id) in participants
+            ]
+            for person_id in speaker_person_ids:
+                participants[person_id]["isEventSpeaker"] = True
+
+        return participants.values()
 
     def get_groups_invited(self, obj):
         groups_invited = SupportGroup.objects.filter(

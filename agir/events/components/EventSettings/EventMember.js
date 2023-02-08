@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
-import { FaLock } from "@agir/front/genericComponents/FaIcon";
+import { FaMicrophone, FaLock } from "@agir/front/genericComponents/FaIcon";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
@@ -111,18 +111,26 @@ const Member = styled.div`
   }
 `;
 
-const MEMBER_ROLE_LABEL = {
-  0: "",
-  1: ["Organisateur·ice", "Organisatrice", "Organisateur"],
-};
-
-const MEMBER_ROLE_ICON = {
-  0: null,
-  1: <FaLock />,
+const MEMBER_TYPE_CONFIG = {
+  organizer: {
+    label: ["Organisateur·ice", "Organisatrice", "Organisateur"],
+    icon: <FaLock />,
+  },
+  speaker: {
+    label: ["Intervenant·e", "Intervenante", "Intervenant"],
+    icon: <FaMicrophone />,
+  },
 };
 
 const EventMember = (props) => {
-  const { displayName, image = "", isOrganizer, email, gender } = props;
+  const {
+    displayName,
+    image = "",
+    isOrganizer,
+    isEventSpeaker,
+    email,
+    gender,
+  } = props;
 
   const [_, handleCopy] = useCopyToClipboard(
     email,
@@ -130,24 +138,28 @@ const EventMember = (props) => {
     "L'adresse e-mail a été copié"
   );
 
-  const role = useMemo(() => {
-    const label = MEMBER_ROLE_LABEL[isOrganizer ? 1 : 0];
-    if (!label) {
-      return "";
+  const memberTypeConfig = useMemo(() => {
+    const config = isOrganizer
+      ? MEMBER_TYPE_CONFIG.organizer
+      : isEventSpeaker
+      ? MEMBER_TYPE_CONFIG.speaker
+      : null;
+    if (!config) {
+      return {};
     }
-    if (Array.isArray(label)) {
-      return getGenderedWord(gender, ...label);
+    if (Array.isArray(config.label)) {
+      return { ...config, label: getGenderedWord(gender, ...config.label) };
     }
-    return label;
-  }, [isOrganizer, gender]);
+    return config;
+  }, [isOrganizer, isEventSpeaker, gender]);
 
   return (
     <Member>
       <Avatar image={image} name={displayName} />
       <Role>
-        {role && (
+        {memberTypeConfig && (
           <span>
-            {MEMBER_ROLE_ICON[isOrganizer ? 1 : 0]}&ensp;{role}
+            {memberTypeConfig.icon}&ensp;{memberTypeConfig.label}
           </span>
         )}
       </Role>
@@ -164,6 +176,7 @@ EventMember.propTypes = {
   image: PropTypes.string,
   email: PropTypes.string,
   isOrganizer: PropTypes.bool,
+  isEventSpeaker: PropTypes.bool,
   gender: PropTypes.oneOf(["", ...Object.values(GENDER)]),
 };
 
