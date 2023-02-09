@@ -38,6 +38,13 @@ def is_locked_message(role, message=None):
 
 
 @rules.predicate
+def is_readonly_message(role, message=None):
+    if not isinstance(message, SupportGroupMessage):
+        return False
+    return message.readonly
+
+
+@rules.predicate
 def is_msg_author(role, msg=None):
     return msg is not None and msg.author_id == role.person.id
 
@@ -53,15 +60,21 @@ rules.add_perm(
     is_authenticated_person & is_at_least_manager_for_group,
 )
 rules.add_perm(
-    "msgs.change_supportgroupmessage", is_authenticated_person & is_msg_author
+    "msgs.change_supportgroupmessage",
+    is_authenticated_person & is_msg_author & ~is_readonly_message,
 )
 rules.add_perm(
     "msgs.delete_supportgroupmessage",
-    is_authenticated_person & (is_msg_author | is_at_least_manager_for_group),
+    is_authenticated_person
+    & (is_msg_author | is_at_least_manager_for_group)
+    & ~is_readonly_message,
 )
 rules.add_perm(
     "msgs.add_supportgroupmessagecomment",
-    is_authenticated_person & can_view_message & ~is_locked_message,
+    is_authenticated_person
+    & can_view_message
+    & ~is_locked_message
+    & ~is_readonly_message,
 )
 rules.add_perm(
     "msgs.change_supportgroupmessagecomment", is_authenticated_person & is_msg_author

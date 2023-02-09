@@ -418,13 +418,13 @@ const MessageHeader = ({ message, subject, isManager, isAuthor }) => {
             <MessageDetails message={message} />
           </div>
         </div>
-        <div>
-          {isDesktop && (isManager || isAuthor) && (
-            <ButtonLockMessage message={message} />
-          )}
-          <Spacer size="0.5rem" style={{ display: "inline-block" }} />
-          {isDesktop && <ButtonMuteMessage message={message} />}
-        </div>
+        {!message?.readonly && isDesktop && (
+          <div>
+            {(isManager || isAuthor) && <ButtonLockMessage message={message} />}
+            <Spacer size="0.5rem" style={{ display: "inline-block" }} />
+            {<ButtonMuteMessage message={message} />}
+          </div>
+        )}
       </StyledMessageHeader>
       <ModalConfirmation
         shouldShow={isModalOpen}
@@ -439,6 +439,7 @@ const MessageHeader = ({ message, subject, isManager, isAuthor }) => {
 MessageHeader.propTypes = {
   message: PropTypes.shape({
     text: PropTypes.string.isRequired,
+    readonly: PropTypes.bool,
   }),
   subject: PropTypes.string.isRequired,
   isManager: PropTypes.bool,
@@ -464,8 +465,16 @@ const MessageCard = (props) => {
     autoScrollOnComment,
   } = props;
 
-  const { group, author, text, created, linkedEvent, lastUpdate, isLocked } =
-    message;
+  const {
+    group,
+    author,
+    text,
+    created,
+    linkedEvent,
+    lastUpdate,
+    isLocked,
+    readonly,
+  } = message;
 
   const {
     comments,
@@ -482,9 +491,9 @@ const MessageCard = (props) => {
   const event = useMemo(() => formatEvent(linkedEvent), [linkedEvent]);
 
   const isAuthor = author.id === user.id;
-  const canEdit = typeof onEdit === "function";
-  const canDelete = typeof onDelete === "function";
-  const canReport = typeof onReport === "function" && !isAuthor;
+  const canEdit = !readonly && typeof onEdit === "function";
+  const canDelete = !readonly && typeof onDelete === "function";
+  const canReport = !readonly && typeof onReport === "function" && !isAuthor;
   const hasActions = canEdit || canDelete || canReport;
 
   const messageURL = useMemo(() => {
@@ -542,7 +551,7 @@ const MessageCard = (props) => {
       messageCardRef.current.scrollTo(0, messageCardRef.current.scrollHeight);
       setLoadedComments(true);
     }
-  }, [comments]);
+  }, [loadedComments]);
 
   useEffect(() => {
     lastUpdate && mutateComments && mutateComments();
@@ -691,7 +700,7 @@ const MessageCard = (props) => {
                     id={message.id}
                     comments={comments}
                     isLoading={isLoading}
-                    disabled={isLocked}
+                    readonly={readonly}
                     isLocked={isLocked}
                     user={user}
                     onSend={handleComment}
@@ -705,7 +714,7 @@ const MessageCard = (props) => {
                     MobileLayout={CommentButton}
                     DesktopLayout={CommentField}
                     isLoading={isLoading}
-                    disabled={isLocked}
+                    readonly={readonly}
                     isLocked={isLocked}
                     user={user}
                     onSend={handleComment}
@@ -747,6 +756,10 @@ MessageCard.propTypes = {
     created: PropTypes.string.isRequired,
     text: PropTypes.string.isRequired,
     linkedEvent: PropTypes.object,
+    lastUpdate: PropTypes.string,
+    isLocked: PropTypes.bool,
+    readonly: PropTypes.bool,
+    requiredMembershipType: PropTypes.number,
   }).isRequired,
   messageURL: PropTypes.string,
   groupURL: PropTypes.string,

@@ -488,3 +488,13 @@ class GroupMessageCommentAPITestCase(APITestCase):
             data={"text": "Lorem"},
         )
         self.assertEqual(res.status_code, 403)
+
+    def test_cannot_send_comments_if_message_is_readonly(self):
+        self.message.readonly = True
+        self.message.save()
+        self.client.force_login(self.member.role)
+        res = self.client.post(
+            f"/api/groupes/messages/{self.message.pk}/comments/",
+            data={"text": "Lorem"},
+        )
+        self.assertEqual(res.status_code, 403)

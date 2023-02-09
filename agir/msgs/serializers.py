@@ -83,6 +83,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
         "commentCount",
         "requiredMembershipType",
         "isLocked",
+        "readonly",
     )
     DETAIL_FIELDS = (
         "id",
@@ -95,6 +96,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
         "lastUpdate",
         "requiredMembershipType",
         "isLocked",
+        "readonly",
     )
 
     lastUpdate = serializers.DateTimeField(read_only=True, source="last_update")
@@ -116,6 +118,12 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
     )
     isLocked = serializers.BooleanField(
         source="is_locked",
+        default=False,
+        allow_null=True,
+        required=False,
+        read_only=True,
+    )
+    readonly = serializers.BooleanField(
         default=False,
         allow_null=True,
         required=False,
@@ -165,6 +173,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
             "lastUpdate",
             "requiredMembershipType",
             "isLocked",
+            "readonly",
         )
 
 
