@@ -254,26 +254,17 @@ def send_rsvp_notification(rsvp_pk):
 # Send notification new-event-participation-mygroups to members of group (not referents)
 def send_group_attendee_notification(group_attendee_pk):
     group_attendee = GroupAttendee.objects.get(pk=group_attendee_pk)
-
-    # Get all organizers (with group organizers)
-    from agir.events.serializers import EventAdvancedSerializer
-
-    organizers = EventAdvancedSerializer().get_organizers(group_attendee.event)
-    organizers_id = [
-        organizer["id"]
-        for organizer in organizers
-        if organizer["id"] != group_attendee.organizer.pk
-    ]
-
-    recipients = Person.objects.filter(pk__in=organizers_id)
+    event = group_attendee.event
+    supportgroup = group_attendee.group
+    recipients = event.get_organizer_people()
 
     Activity.objects.bulk_create(
         [
             Activity(
                 recipient=r,
                 type=Activity.TYPE_NEW_GROUP_ATTENDEE,
-                event=group_attendee.event,
-                supportgroup=group_attendee.group,
+                event=event,
+                supportgroup=supportgroup,
             )
             for r in recipients
         ],
@@ -282,7 +273,7 @@ def send_group_attendee_notification(group_attendee_pk):
 
     # Send notification group_join_event to members
     members = Membership.objects.filter(
-        supportgroup=group_attendee.group,
+        supportgroup=supportgroup,
         membership_type__lt=Membership.MEMBERSHIP_TYPE_REFERENT,
     )
     recipients = [member.person for member in members]
@@ -292,8 +283,8 @@ def send_group_attendee_notification(group_attendee_pk):
             Activity(
                 recipient=r,
                 type=Activity.TYPE_NEW_EVENT_PARTICIPATION_MYGROUPS,
-                event=group_attendee.event,
-                supportgroup=group_attendee.group,
+                event=event,
+                supportgroup=supportgroup,
             )
             for r in recipients
         ],
