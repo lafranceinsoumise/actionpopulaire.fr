@@ -47,5 +47,6 @@ export const FaTwitter = FaIcon("twitter");
 export const FaUsers = FaIcon("users");
 export const FaWhatsapp = FaIcon("whatsapp");
 export const FaYoutube = FaIcon("youtube-play");
+export const FaMicrophone = FaIcon("microphone");
 
 export default FaIcon();

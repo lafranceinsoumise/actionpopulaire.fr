@@ -34,8 +34,14 @@ const EventOrganization = (props) => {
     api.getEventEndpoint("getDetailAdvanced", { eventPk })
   );
 
-  const participants = useMemo(() => event?.participants || [], [event]);
-  const organizers = useMemo(() => event?.organizers || [], [event]);
+  const participants = useMemo(
+    () => event?.participants?.filter((p) => !p.isOrganizer) || [],
+    [event]
+  );
+  const organizers = useMemo(
+    () => event?.participants?.filter((p) => p.isOrganizer) || [],
+    [event]
+  );
   const groups = useMemo(() => event?.groups || [], [event]);
   const groupsInvited = useMemo(() => event?.groupsInvited || [], [event]);
 
