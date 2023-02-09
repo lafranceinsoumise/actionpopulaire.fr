@@ -1,6 +1,6 @@
 /* eslint-disable react/display-name */
 import PropTypes from "prop-types";
-import React, { useState, useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 import { mutate } from "swr";
 import useSWRImmutable from "swr/immutable";
@@ -17,7 +17,11 @@ import { useToast } from "@agir/front/globalContext/hooks";
 
 import { updateMessageLock, getGroupEndpoint } from "@agir/groups/utils/api";
 
-const StyledButton = styled.div`
+const StyledButton = styled.button`
+  background-color: transparent;
+  padding: 0;
+  margin: 0;
+  border: none;
   cursor: pointer;
   ${({ disabled }) => (!disabled ? `opacity: 1;` : `opacity: 0.5;`)}
   ${RawFeatherIcon} {
@@ -37,98 +41,83 @@ const ButtonLockMessage = ({ message }) => {
   const [isLockedLoading, setIsLockedLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { data: isLocked, mutate: mutateLocked } = useSWRImmutable(
-    getGroupEndpoint("messageLocked", { messagePk: message?.id })
-  );
+  const messagePk = message?.id;
+  const {
+    data: isLocked,
+    mutate: mutateLocked,
+    isLoading,
+  } = useSWRImmutable(getGroupEndpoint("messageLocked", { messagePk }), {
+    fallbackData: !!message?.isLocked,
+  });
 
-  const switchLockedMessage = async () => {
+  const switchLockedMessage = useCallback(async () => {
     setIsLockedLoading(true);
-    const { data: locked } = await updateMessageLock(message?.id, !isLocked);
+    const { data: locked } = await updateMessageLock(messagePk, !isLocked);
     setIsLockedLoading(false);
     setIsModalOpen(false);
 
     mutateLocked(() => locked, false);
-    mutate(`/api/groupes/messages/${message?.id}/`);
-
-    const text = locked
-      ? "Le fil de conversation est verrouillé"
-      : "Le fil de conversation est déverrouillé";
-    sendToast(text, "INFO", { autoClose: true });
-  };
-
-  const handleSwitchNotification = () => {
-    if (isLockedLoading) {
-      return;
-    }
-    setIsModalOpen(true);
-  };
-
-  const disabled = typeof isLocked === "undefined" || isLockedLoading;
-
-  const CustomModal = useMemo(
-    () => () =>
-      (
-        <ModalConfirmation
-          title={
-            <>
-              Souhaitez-vous {isLocked ? "dé" : ""}verrouiller cette
-              conversation&nbsp;?
-            </>
-          }
-          confirmationLabel={!isLocked ? "Verrouiller" : "Déverrouiller"}
-          dismissLabel="Annuler"
-          shouldShow={isModalOpen}
-          onConfirm={switchLockedMessage}
-          onClose={() => setIsModalOpen(false)}
-          shouldDismissOnClick={false}
-        >
-          <Spacer size="1rem" />
-          {!isLocked ? (
-            <>
-              Plus personne ne pourra y répondre.
-              <Spacer size="0.5rem" />
-              Les gestionnaires du groupe pourront déverrouiller la conversation
-              n'importe quand.
-            </>
-          ) : (
-            "Les participant·es pourront de nouveau y écrire des réponses"
-          )}
-        </ModalConfirmation>
-      ),
-    [isModalOpen, isLocked]
-  );
-
-  if (!isDesktop) {
-    return (
-      <>
-        <StyledButton
-          isLocked={isLocked}
-          disabled={disabled}
-          onClick={handleSwitchNotification}
-        >
-          <RawFeatherIcon name={`${!isLocked ? "un" : ""}lock`} />
-        </StyledButton>
-        <CustomModal />
-      </>
+    mutate(`/api/groupes/messages/${messagePk}/`);
+    sendToast(
+      locked
+        ? "Le fil de conversation est verrouillé"
+        : "Le fil de conversation est déverrouillé",
+      "INFO",
+      { autoClose: true }
     );
-  }
+  }, [isLocked, messagePk, mutateLocked, sendToast]);
+
+  const loading = isLoading || isLockedLoading;
 
   return (
     <>
-      <Button
-        small
-        color="choose"
-        disabled={disabled}
-        onClick={handleSwitchNotification}
+      {isDesktop ? (
+        <Button
+          small
+          color="choose"
+          disabled={loading}
+          loading={loading}
+          onClick={() => !loading && setIsModalOpen(true)}
+        >
+          <RawFeatherIcon
+            width="1rem"
+            height="1rem"
+            name={`${isLocked ? "un" : ""}lock`}
+          />
+          &nbsp;{isLocked ? "Déverrouiller" : "Verrouiller"}
+        </Button>
+      ) : (
+        <StyledButton
+          isLocked={isLocked}
+          disabled={loading}
+          onClick={() => !loading && setIsModalOpen(true)}
+        >
+          <RawFeatherIcon name={`${!isLocked ? "un" : ""}lock`} />
+        </StyledButton>
+      )}
+
+      <ModalConfirmation
+        title={`Souhaitez-vous ${isLocked ? "dé" : ""}verrouiller cette
+            conversation ?`}
+        confirmationLabel={!isLocked ? "Verrouiller" : "Déverrouiller"}
+        dismissLabel="Annuler"
+        shouldShow={isModalOpen}
+        onConfirm={switchLockedMessage}
+        onClose={() => setIsModalOpen(false)}
+        shouldDismissOnClick={false}
       >
-        <RawFeatherIcon
-          width="1rem"
-          height="1rem"
-          name={`${isLocked ? "un" : ""}lock`}
-        />
-        &nbsp;{isLocked ? "Déverrouiller" : "Verrouiller"}
-      </Button>
-      <CustomModal />
+        <Spacer size="1rem" />
+        {!isLocked ? (
+          <>
+            Plus personne ne pourra y répondre.
+            <Spacer size="0.5rem" />
+            Les gestionnaires du groupe pourront déverrouiller la conversation
+            n'importe quand.
+          </>
+        ) : (
+          "Les participant·es pourront de nouveau y écrire des réponses"
+        )}
+      </ModalConfirmation>
     </>
   );
 };
@@ -136,6 +125,7 @@ const ButtonLockMessage = ({ message }) => {
 ButtonLockMessage.propTypes = {
   message: PropTypes.shape({
     id: PropTypes.string.isRequired,
+    isLocked: PropTypes.bool,
   }).isRequired,
 };
 

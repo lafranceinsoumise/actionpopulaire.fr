@@ -136,6 +136,8 @@ class SupportGroupMessageAdmin(VersionAdmin):
         "linked_event",
         "deleted",
         "required_membership_type",
+        "is_locked",
+        "readonly",
     )
     readonly_fields = (
         "created",

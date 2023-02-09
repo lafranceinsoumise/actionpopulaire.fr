@@ -259,7 +259,7 @@ const CommentField = (props) => {
     comments,
     onSend,
     isLoading,
-    disabled,
+    readonly,
     isLocked,
     placeholder,
     scrollerRef,
@@ -281,12 +281,12 @@ const CommentField = (props) => {
 
   const { height } = useResizeObserver(messageRef);
 
-  const updateScroll = () => {
+  const updateScroll = useCallback(() => {
     const scrollerElement = scrollerRef.current;
     if (!!scrollerElement) {
       scrollerElement.scrollTo(0, scrollerElement.scrollHeight);
     }
-  };
+  }, [scrollerRef]);
 
   const handleFocus = () => {
     setIsFocused(true);
@@ -363,7 +363,7 @@ const CommentField = (props) => {
         hasSubmitted.current = true;
       }
     },
-    [maySend, onSend, value]
+    [blurOnClickOutside, maySend, onSend, value]
   );
 
   useEffect(() => {
@@ -385,11 +385,15 @@ const CommentField = (props) => {
 
   useEffect(() => {
     updateScroll();
-  }, [scrollerRef, id, comments]);
+  }, [scrollerRef, id, comments, updateScroll]);
 
   useEffect(() => {
     scrollerRef.current?.scrollTo(0, scrollerRef.current.scrollHeight);
   }, [scrollerRef, isFocused, height, value]);
+
+  if (readonly) {
+    return null;
+  }
 
   if (isLocked) {
     return (
@@ -402,7 +406,7 @@ const CommentField = (props) => {
   return (
     <StyledWrapper
       $isExpanded={isExpanded}
-      $disabled={disabled || isLoading}
+      $disabled={isLoading}
       onSubmit={handleSend}
       ref={rootElementRef}
     >
@@ -411,8 +415,8 @@ const CommentField = (props) => {
         <Avatar name={user.displayName} image={user.image} />
         <StyledField
           ref={fieldWrapperRef}
-          onClick={!disabled ? handleFocus : undefined}
-          onTouchStart={!disabled ? handleFocus : undefined}
+          onClick={handleFocus}
+          onTouchStart={handleFocus}
         >
           <Suspense fallback={null}>
             <TextField
@@ -424,7 +428,7 @@ const CommentField = (props) => {
               onKeyDown={handleInputKeyDown}
               autoFocus={isFocused}
               label={isFocused && user.displayName}
-              disabled={disabled || isLoading}
+              disabled={isLoading}
               placeholder={placeholder || PLACEHOLDER_MESSAGE}
               maxLength={1000}
               hasCounter={false}
@@ -470,7 +474,7 @@ CommentField.propTypes = {
   comments: PropTypes.array,
   onSend: PropTypes.func.isRequired,
   isLoading: PropTypes.bool,
-  disabled: PropTypes.bool,
+  readonly: PropTypes.bool,
   isLocked: PropTypes.bool,
   placeholder: PropTypes.string,
   scrollerRef: PropTypes.object,
