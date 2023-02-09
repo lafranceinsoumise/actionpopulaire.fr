@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useState, useMemo } from "react";
+import React, { useState, useCallback } from "react";
 import styled from "styled-components";
 import useSWRImmutable from "swr/immutable";
 
@@ -18,7 +18,11 @@ import {
   getGroupEndpoint,
 } from "@agir/groups/utils/api";
 
-const StyledMuteButton = styled.div`
+const StyledMuteButton = styled.button`
+  background-color: transparent;
+  padding: 0;
+  margin: 0;
+  border: none;
   cursor: pointer;
   ${({ disabled }) => (!disabled ? `opacity: 1;` : `opacity: 0.5;`)}
   ${RawFeatherIcon} {
@@ -38,28 +42,36 @@ const ButtonMuteMessage = ({ message }) => {
   const [isMutedLoading, setIsMutedLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { data: isMuted, mutate } = useSWRImmutable(
-    getGroupEndpoint("messageNotification", { messagePk: message?.id })
-  );
+  const messagePk = message?.id;
 
-  const switchNotificationMessage = async () => {
+  const {
+    data: isMuted,
+    isLoading,
+    mutate,
+  } = useSWRImmutable(getGroupEndpoint("messageNotification", { messagePk }), {
+    fallbackData: !!message?.isMuted,
+  });
+
+  const switchNotificationMessage = useCallback(async () => {
     setIsMutedLoading(true);
     const { data: muted } = await updateMessageNotification(
-      message?.id,
+      messagePk,
       !isMuted
     );
     setIsMutedLoading(false);
     setIsModalOpen(false);
-
     mutate(() => muted, false);
-    const text = muted
-      ? "Vous ne recevrez plus de notifications reliées à ce fil de messages"
-      : "Les notifications reliées à ce fil de message sont réactivées";
-    const type = muted ? "INFO" : "SUCCESS";
-    sendToast(text, type, { autoClose: true });
-  };
 
-  const handleSwitchNotification = () => {
+    sendToast(
+      muted
+        ? "Vous ne recevrez plus de notifications reliées à ce fil de messages"
+        : "Les notifications reliées à ce fil de message sont réactivées",
+      "INFO",
+      { autoClose: true }
+    );
+  }, [isMuted, messagePk, mutate, sendToast]);
+
+  const handleSwitchNotification = useCallback(() => {
     if (isMutedLoading) {
       return;
     }
@@ -69,63 +81,51 @@ const ButtonMuteMessage = ({ message }) => {
       return;
     }
     setIsModalOpen(true);
-  };
+  }, [isMuted, isMutedLoading, switchNotificationMessage]);
 
-  const disabled = typeof isMuted === "undefined" || isMutedLoading;
+  const loading = isLoading || isMutedLoading;
 
-  const CustomModal = useMemo(
-    () => () =>
-      (
-        <ModalConfirmation
-          title="Rendre muet cette conversation ?"
-          confirmationLabel="Rendre muet"
-          dismissLabel="Annuler"
-          shouldShow={isModalOpen}
-          onConfirm={switchNotificationMessage}
-          onClose={() => setIsModalOpen(false)}
-          shouldDismissOnClick={false}
+  return (
+    <>
+      {isDesktop ? (
+        <Button
+          small
+          color="choose"
+          disabled={loading}
+          loading={loading}
+          onClick={handleSwitchNotification}
         >
-          <Spacer size="1rem" />
-          Vous ne recevrez plus de notifications et e-mails concernant cette
-          conversation.
-          <Spacer size="0.5rem" />
-          Vous pourrez réactiver les notifications et e-mails à tout moment
-        </ModalConfirmation>
-      ),
-    [isModalOpen]
-  );
-
-  if (!isDesktop) {
-    return (
-      <>
+          <RawFeatherIcon
+            width="1rem"
+            height="1rem"
+            name={`bell${isMuted ? "-off" : ""}`}
+          />
+          &nbsp;{isMuted ? "Réactiver" : "Rendre muet"}
+        </Button>
+      ) : (
         <StyledMuteButton
           isMuted={isMuted}
-          disabled={disabled}
+          disabled={loading}
           onClick={handleSwitchNotification}
         >
           <RawFeatherIcon name={`bell${isMuted ? "-off" : ""}`} />
         </StyledMuteButton>
-        <CustomModal />
-      </>
-    );
-  }
-
-  return (
-    <>
-      <Button
-        small
-        color="choose"
-        disabled={disabled}
-        onClick={handleSwitchNotification}
+      )}
+      <ModalConfirmation
+        title="Rendre muet cette conversation ?"
+        confirmationLabel="Rendre muet"
+        dismissLabel="Annuler"
+        shouldShow={isModalOpen}
+        onConfirm={switchNotificationMessage}
+        onClose={() => setIsModalOpen(false)}
+        shouldDismissOnClick={false}
       >
-        <RawFeatherIcon
-          width="1rem"
-          height="1rem"
-          name={`bell${isMuted ? "-off" : ""}`}
-        />
-        &nbsp;{isMuted ? "Réactiver" : "Rendre muet"}
-      </Button>
-      <CustomModal />
+        <Spacer size="1rem" />
+        Vous ne recevrez plus de notifications et e-mails concernant cette
+        conversation.
+        <Spacer size="0.5rem" />
+        Vous pourrez réactiver les notifications et e-mails à tout moment
+      </ModalConfirmation>
     </>
   );
 };
@@ -133,6 +133,7 @@ const ButtonMuteMessage = ({ message }) => {
 ButtonMuteMessage.propTypes = {
   message: PropTypes.shape({
     id: PropTypes.string.isRequired,
+    isMuted: PropTypes.bool,
   }).isRequired,
 };
 

@@ -47,10 +47,7 @@ const EventParticipants = (props) => {
   );
 
   const participants = useMemo(() => event?.participants || [], [event]);
-  const organizers = useMemo(() => event?.organizers || [], [event]);
-  const allParticipants = participants.concat(organizers);
-
-  const groupsAttendees = event?.groupsAttendees || [];
+  const groupsAttendees = useMemo(() => event?.groupsAttendees || [], [event]);
   const severalGroups = groupsAttendees.length > 1;
 
   const menuRoute = getMenuRoute(
@@ -62,7 +59,7 @@ const EventParticipants = (props) => {
     <>
       <HeaderPanel onBack={onBack} illustration={illustration} />
       <BlockTitle>
-        <h3>{allParticipants.length} Participant·es</h3>
+        <h3>{participants.length} Participant·es</h3>
         {!event?.isPast && (
           <div>
             <StyledLink to={organizationLink} style={{ marginLeft: "10px" }}>
@@ -77,12 +74,12 @@ const EventParticipants = (props) => {
       <ShareLink
         label="Copier les e-mails des participant·es"
         color="primary"
-        url={allParticipants.map(({ email }) => email).join(", ") || ""}
+        url={participants.map(({ email }) => email).join(", ") || ""}
         $wrap
       />
 
       <Spacer size="2.5rem" />
-      <MemberList key={1} members={allParticipants} />
+      <MemberList key={1} members={participants} />
       <Spacer size="1rem" />
 
       {!!groupsAttendees.length && (

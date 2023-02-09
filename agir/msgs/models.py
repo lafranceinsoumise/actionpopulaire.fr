@@ -98,6 +98,11 @@ class SupportGroupMessage(AbstractMessage):
         verbose_name="Message verrouillé",
         default=False,
     )
+    readonly = models.BooleanField(
+        verbose_name="Message en lecture seule",
+        default=False,
+        help_text="Le message s'affichera mais il ne sera pas possible d'y répondre",
+    )
 
     def __str__(self):
         return f"id: {self.pk} | {self.author} --> '{self.text}' | required_membership_type: {str(self.required_membership_type)} | supportgroup: {self.supportgroup}"

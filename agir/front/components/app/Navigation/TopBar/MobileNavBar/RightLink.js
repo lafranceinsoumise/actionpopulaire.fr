@@ -29,18 +29,20 @@ export const RightLink = (props) => {
   }
 
   // Show muted message settings
-  if (settingsLink?.message?.id) {
+  if (
+    settingsLink?.message &&
+    settingsLink.message.id &&
+    !settingsLink.message.readonly
+  ) {
     const { message } = settingsLink;
     const isAuthor = message.author.id === user.id;
     const isManager = message.group?.isManager;
 
     return (
       <>
-        {(isManager || isAuthor) && (
-          <ButtonLockMessage message={{ id: message.id }} />
-        )}
+        {(isManager || isAuthor) && <ButtonLockMessage message={message} />}
         <Spacer size="1rem" style={{ display: "inline-block" }} />
-        <ButtonMuteMessage message={{ id: message.id }} />
+        <ButtonMuteMessage message={message} />
       </>
     );
   }
