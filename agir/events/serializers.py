@@ -390,55 +390,27 @@ class EventAdvancedSerializer(EventSerializer):
     groupsInvited = serializers.SerializerMethodField(method_name="get_groups_invited")
 
     def get_participants(self, obj):
-        organizers = {
-            str(person.id): {
-                "id": person.id,
-                "email": person.email,
-                "displayName": person.display_name,
-                "gender": person.gender,
-                "isOrganizer": True,
-            }
-            for person in obj.organizers.all()
-        }
-        organizer_group_referents = {
-            str(person.id): {
-                "id": person.id,
-                "email": person.email,
-                "displayName": person.display_name,
-                "gender": person.gender,
-                "isOrganizer": True,
-            }
-            for person in sum(
-                [group.referents for group in obj.organizers_groups.distinct()], []
-            )
-        }
+        organizers = obj.get_organizer_people()
+        speaker_person_ids = []
 
-        other_participants = {
+        if hasattr(obj, "event_request"):
+            speaker_person_ids = list(
+                obj.event_request.event_speaker_requests.accepted().values_list(
+                    "event_speaker__person_id", flat=True
+                )
+            )
+
+        participants = {
             str(person.id): {
                 "id": person.id,
                 "email": person.email,
                 "displayName": person.display_name,
                 "gender": person.gender,
+                "isOrganizer": person in organizers,
+                "isEventSpeaker": person.id in speaker_person_ids,
             }
             for person in obj.attendees.all()
         }
-
-        participants = {
-            **other_participants,
-            **organizer_group_referents,
-            **organizers,
-        }
-
-        if hasattr(obj, "event_request"):
-            speaker_person_ids = [
-                str(person_id)
-                for person_id in obj.event_request.event_speaker_requests.accepted().values_list(
-                    "event_speaker__person_id", flat=True
-                )
-                if str(person_id) in participants
-            ]
-            for person_id in speaker_person_ids:
-                participants[person_id]["isEventSpeaker"] = True
 
         return participants.values()
 

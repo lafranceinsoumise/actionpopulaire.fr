@@ -620,6 +620,13 @@ class Event(
 
         return self.confirmed_attendee_count
 
+    def get_organizer_people(self):
+        organizer_people = sum(
+            [group.referents for group in self.organizers_groups.distinct()],
+            list(self.organizers.all()),
+        )
+        return list(set(organizer_people))
+
     @property
     def type(self):
         return self.subtype.type
