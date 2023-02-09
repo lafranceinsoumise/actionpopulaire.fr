@@ -300,13 +300,23 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
     coordinates_value.short_description = _("Coordoonées")
 
     def role_link(self, obj):
+        if not obj or not obj.pk:
+            return "-"
+
         if obj.role_id is not None:
             return format_html(
                 '<a href="{link}">{text}</a>',
                 link=reverse("admin:authentication_role_change", args=[obj.role_id]),
                 text=_("Voir le rôle"),
             )
-        return "Pas de compte associé à cette personne"
+
+        return format_html(
+            'Pas de compte associé à cette personne&emsp;<a href="{}" class="button">Créer un rôle</a>',
+            reverse(
+                "admin:people_person_ensure_role_exists",
+                kwargs={"pk": str(obj.pk)},
+            ),
+        )
 
     role_link.short_description = _("Rôle")
 
@@ -462,6 +472,11 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
                 self.unsubscribe_from_all_newsletter_view,
                 name="people_person_unsubscribe_from_all_newsletters",
             ),
+            path(
+                "<uuid:pk>/ensure-role-exists/",
+                self.ensure_role_exists,
+                name="people_person_ensure_role_exists",
+            ),
         ] + super().get_urls()
 
     def invalidate_link_view(self, request, pk):
@@ -543,6 +558,16 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
             message="Cette personne a été désinscrite de tous les envois d'emails et de notifications push",
         )
 
+        return HttpResponseRedirect(reverse("admin:people_person_change", args=(pk,)))
+
+    def ensure_role_exists(self, request, pk):
+        person = get_object_or_404(Person, pk=pk)
+        person.ensure_role_exists()
+        messages.add_message(
+            request=request,
+            level=messages.SUCCESS,
+            message="Un rôle a été créé pour cette personne",
+        )
         return HttpResponseRedirect(reverse("admin:people_person_change", args=(pk,)))
 
     def has_view_permission(self, request, obj=None):
