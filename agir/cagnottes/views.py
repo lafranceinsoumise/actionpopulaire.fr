@@ -102,10 +102,6 @@ class ProgressView(ReactBaseView):
                     "amountAPI": front_url(
                         "cagnottes:compteur", absolute=True, kwargs=self.kwargs
                     ),
-                    "background": self.request.GET.get("bg", None),
-                    "barColor": self.request.GET.get("bc", None),
-                    "titleColor": self.request.GET.get("tc", None),
-                    "barHeight": self.request.GET.get("bh", None),
                 },
                 "data_script_id": "cagnottes_data",
             }

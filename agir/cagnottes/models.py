@@ -1,5 +1,6 @@
 from django.db import models
 
+from agir.lib.form_fields import CustomJSONEncoder
 from agir.lib.models import DescriptionField
 
 
@@ -38,6 +39,13 @@ class Cagnotte(models.Model):
     remerciements = DescriptionField(
         help_text="Message de remerciement notamment utilisé dans le mail de confirmation.",
         blank=True,
+    )
+
+    meta = models.JSONField(
+        "Paramètres de la cagnotte",
+        default=dict,
+        blank=True,
+        encoder=CustomJSONEncoder,
     )
 
     def __repr__(self):

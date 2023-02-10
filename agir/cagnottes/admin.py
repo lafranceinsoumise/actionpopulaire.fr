@@ -12,6 +12,7 @@ class CagnotteAdmin(admin.ModelAdmin):
         (None, {"fields": ("nom", "slug", "public", "url_remerciement", "compteur")}),
         ("Texte des pages", {"fields": ("titre", "legal", "description")}),
         ("Email de remerciement", {"fields": ("expediteur_email", "remerciements")}),
+        ("Configuration", {"fields": ("meta",)}),
     )
     readonly_fields = ("compteur",)
 
