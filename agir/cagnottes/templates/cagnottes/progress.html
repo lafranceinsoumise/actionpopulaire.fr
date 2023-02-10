@@ -1,0 +1,16 @@
+{% extends "front/react_view.html" %}
+
+{% block additional_headers %}
+  {% if page_schema %}
+    <script type="application/ld+json">
+      {{ page_schema }}
+    </script>
+  {% endif %}
+  <link rel="preconnect" href="https://erreurs.lafranceinsoumise.fr" />
+  <link rel="preload" as="style" href="https://use.typekit.net/teu2xsh.css" />
+  {% for href in api_preloads %}
+    <link rel="preload" href="{{ href }}" as="fetch" type="application/json"></link>
+  {% endfor %}
+{% endblock %}
+
+{% block page_loader %}{% endblock %}

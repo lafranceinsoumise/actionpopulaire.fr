@@ -18,7 +18,9 @@
 {% endblock %}
 
 {% block whole_page %}
-  {% include "front/includes/loader.html" %}
+  {% block page_loader %}
+    {% include "front/includes/loader.html" %}
+  {% endblock %}
   <div id="{{ app_mount_id }}"></div>
   {% if export_data %}
     {{ export_data|json_script:data_script_id }}
