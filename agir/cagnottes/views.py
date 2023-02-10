@@ -2,9 +2,11 @@ from functools import partial
 
 from django.db import transaction
 from django.shortcuts import get_object_or_404
+from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.decorators import cache
 from django.views.generic import RedirectView
+from django.views.generic.detail import BaseDetailView
 from rest_framework.generics import get_object_or_404 as rf_get_object_or_404
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -18,6 +20,8 @@ from .apps import CagnottesConfig
 from .forms import PersonalInformationForm
 from .models import Cagnotte
 from .tasks import envoyer_email_remerciement
+from ..front.view_mixins import ReactBaseView
+from ..lib.utils import front_url
 
 
 class CompteurView(APIView):
@@ -79,3 +83,32 @@ def notification_listener(payment):
                     payment.pk,
                 )
             )
+
+
+class ProgressView(BaseDetailView, ReactBaseView):
+    queryset = Cagnotte.objects.all()
+    app_mount_id = "cagnottes_app"
+    bundle_name = "cagnottes/progress"
+    template_name = "cagnottes/progress.html"
+
+    def get_api_preloads(self):
+        return [
+            reverse_lazy("cagnottes:compteur", kwargs=self.kwargs),
+        ]
+
+    def get_context_data(self, **kwargs):
+        export_data = {
+            "slug": self.kwargs.get("slug"),
+            "amountAPI": front_url(
+                "cagnottes:compteur", absolute=True, kwargs=self.kwargs
+            ),
+        }
+        if self.object and "progress" in self.object.meta:
+            export_data.update({**self.object.meta.get("progress", {})})
+        kwargs.update(
+            {
+                "export_data": export_data,
+                "data_script_id": "cagnottes_data",
+            }
+        )
+        return super().get_context_data(**kwargs)

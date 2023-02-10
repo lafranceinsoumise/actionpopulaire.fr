@@ -110,6 +110,7 @@ const getOtherEntryFiles = (compilation) => {
   }
 
   _cachedOtherEntryFiles = [
+    "cagnottes/progress",
     "donations/donationForm",
     "donations/spendingRequestLib",
     "elus/parrainages",

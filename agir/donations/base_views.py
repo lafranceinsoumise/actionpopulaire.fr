@@ -100,6 +100,9 @@ class BasePersonalInformationView(FormView):
                 k: v for k, v in form.cleaned_data.items() if k in form._meta.fields
             },  # person fields
             "contact_phone": form.cleaned_data["contact_phone"].as_e164,
+            "utm_source": self.request.GET.get("utm_source", ""),
+            "utm_medium": self.request.GET.get("utm_medium", ""),
+            "utm_campaign": self.request.GET.get("utm_campaign", ""),
         }
 
     def form_valid(self, form):
