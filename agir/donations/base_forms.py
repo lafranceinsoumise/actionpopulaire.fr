@@ -109,6 +109,11 @@ class BaseDonorForm(MetaFieldsMixin, LegacySubscribedMixin, forms.ModelForm):
             del self.fields["payment_mode"]
         else:
             self.fields["payment_mode"].payment_modes = payment_modes
+            if len(payment_modes) == 1:
+                self.fields["payment_mode"] = self.fields[
+                    "payment_mode"
+                ].hidden_widget()
+                self.fields["payment_mode"].initial = payment_modes[0]
 
         self.connected = not self.instance._state.adding
 
