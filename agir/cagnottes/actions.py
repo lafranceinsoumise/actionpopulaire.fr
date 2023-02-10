@@ -25,7 +25,7 @@ def montant_cagnotte(cagnotte):
 
     try:
         return int(raw_value)
-    except ValueError:
+    except (ValueError, TypeError):
         return 0
 
 
