@@ -130,6 +130,10 @@ const ProgressBar = (props) => {
   );
 
   const target = useMemo(() => getTarget(amount, steps), [amount, steps]);
+  const title = useMemo(
+    () => `${formatCurrency(amount)} / ${formatCurrency(target)}`,
+    [amount, target]
+  );
 
   const { width, animatedAmount } = useSpring({
     from: { width: "0%", animatedAmount: 1 },
@@ -145,7 +149,7 @@ const ProgressBar = (props) => {
       <StyledTitle $color={titleColor} $height={height}>
         Merci pour les caisses de grève&nbsp;!
       </StyledTitle>
-      <StyledBar $color={barColor} $height={height}>
+      <StyledBar $color={barColor} $height={height} title={title}>
         <animated.div style={{ width }} />
         <animated.p>{animatedAmount.to(formatCurrency)}</animated.p>
       </StyledBar>
@@ -181,9 +185,16 @@ const Progress = (props) => {
 
 Progress.propTypes = {
   amountAPI: PropTypes.string,
+  // The page background color
   background: PropTypes.string,
+  // The progress bar main color
   barColor: PropTypes.string,
+  // The title text color
   titleColor: PropTypes.string,
+  // The progress bar height (in px)
+  barHeight: PropTypes.number,
+  // A list of amounts (in cents) to use as 100% progress based on current amount
+  goals: PropTypes.arrayOf(PropTypes.number),
 };
 
 export default Progress;
