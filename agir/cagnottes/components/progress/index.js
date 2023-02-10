@@ -1,7 +1,6 @@
 import React from "react";
 import onDOMReady from "@agir/lib/utils/onDOMReady";
 
-import "@agir/front/allPages/sentry";
 import "./style.scss";
 
 import { renderReactComponent } from "@agir/lib/utils/react";
