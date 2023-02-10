@@ -99,9 +99,7 @@ class ProgressView(BaseDetailView, ReactBaseView):
     def get_context_data(self, **kwargs):
         export_data = {
             "slug": self.kwargs.get("slug"),
-            "amountAPI": front_url(
-                "cagnottes:compteur", absolute=True, kwargs=self.kwargs
-            ),
+            "amountAPI": front_url("cagnottes:compteur", kwargs=self.kwargs),
         }
         if self.object and "progress" in self.object.meta:
             export_data.update({**self.object.meta.get("progress", {})})
