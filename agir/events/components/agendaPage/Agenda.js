@@ -133,7 +133,7 @@ const Agenda = () => {
             }}
           >
             Bonjour{" "}
-            {user?.displayName.length > 2
+            {user?.displayName?.length > 2
               ? user?.displayName
               : user?.firstName || user?.displayName}{" "}
             👋
