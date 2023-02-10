@@ -30,20 +30,18 @@ def montant_cagnotte(cagnotte):
 
 
 def ajouter_compteur(payment: Payment):
-    if "payment" not in payment.meta:
+    if "cagnotte" not in payment.meta:
         return
     try:
         cagnotte = Cagnotte.objects.get(id=payment.meta["cagnotte"])
     except (Cagnotte.DoesNotExist, ValidationError, ValueError, TypeError):
         return
 
-    key = f"Cagnotte:{cagnotte.slug}:montant"
     client = get_auth_redis_client()
 
-    client.incr(key, payment.price)
+    client.incr(redis_key(cagnotte), payment.price)
 
 
 def rafraichir_compteur(cagnotte):
     montant = recalculer_montant_cagnotte(cagnotte)
-    key = f"Cagnotte:{cagnotte.slug}:montant"
-    get_auth_redis_client().set(key, montant)
+    get_auth_redis_client().set(redis_key(cagnotte), montant)
