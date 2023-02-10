@@ -22,6 +22,10 @@ const StyledTitle = styled.h2`
   color: ${({ $color }) => $color || "#FFFFFF"};
   margin: 0 0 8px;
   padding: 0;
+
+  &:empty {
+    display: none;
+  }
 `;
 
 const StyledBar = styled.div`
@@ -116,7 +120,7 @@ const getTarget = (amount, goals) => {
 };
 
 const ProgressBar = (props) => {
-  const { amount, barColor, titleColor, barHeight, goals } = props;
+  const { amount, title, titleColor, barColor, barHeight, goals } = props;
 
   const steps = useMemo(
     () =>
@@ -130,7 +134,7 @@ const ProgressBar = (props) => {
   );
 
   const target = useMemo(() => getTarget(amount, steps), [amount, steps]);
-  const title = useMemo(
+  const targetTitle = useMemo(
     () => `${formatCurrency(amount)} / ${formatCurrency(target)}`,
     [amount, target]
   );
@@ -147,9 +151,9 @@ const ProgressBar = (props) => {
   return (
     <>
       <StyledTitle $color={titleColor} $height={height}>
-        Merci pour les caisses de grève&nbsp;!
+        {title}
       </StyledTitle>
-      <StyledBar $color={barColor} $height={height} title={title}>
+      <StyledBar $color={barColor} $height={height} title={targetTitle}>
         <animated.div style={{ width }} />
         <animated.p>{animatedAmount.to(formatCurrency)}</animated.p>
       </StyledBar>
@@ -159,8 +163,9 @@ const ProgressBar = (props) => {
 
 ProgressBar.propTypes = {
   amount: PropTypes.number,
-  barColor: PropTypes.string,
+  title: PropTypes.string,
   titleColor: PropTypes.string,
+  barColor: PropTypes.string,
   barHeight: PropTypes.number,
   goals: PropTypes.arrayOf(PropTypes.number),
 };
@@ -193,10 +198,12 @@ Progress.propTypes = {
   apiRefreshInterval: PropTypes.number,
   // The page background color
   background: PropTypes.string,
-  // The progress bar main color
-  barColor: PropTypes.string,
+  // The title text
+  title: PropTypes.string,
   // The title text color
   titleColor: PropTypes.string,
+  // The progress bar main color
+  barColor: PropTypes.string,
   // The progress bar height (in px)
   barHeight: PropTypes.number,
   // A list of amounts (in cents) to use as 100% progress based on current amount
