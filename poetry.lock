@@ -2536,14 +2536,14 @@ files = [
 
 [[package]]
 name = "pyrogram"
-version = "2.0.97"
+version = "2.0.98"
 description = "Elegant, modern and asynchronous Telegram MTProto API framework in Python for users and bots"
 category = "main"
 optional = false
 python-versions = "~=3.7"
 files = [
-    {file = "Pyrogram-2.0.97-py3-none-any.whl", hash = "sha256:9c5dbd323da2b7cba769bdc4a650044d017eba42b52c035d83902a67d5676ce7"},
-    {file = "Pyrogram-2.0.97.tar.gz", hash = "sha256:e1a0d4a1968425c737b552a9f3c1b2ee18187813bf3285175d87b9ec5e8bc110"},
+    {file = "Pyrogram-2.0.98-py3-none-any.whl", hash = "sha256:36f3c09f58e1ca08dbc3a5572a632b636725ef1de63921bf3efb56aa4ff7d00d"},
+    {file = "Pyrogram-2.0.98.tar.gz", hash = "sha256:8e315ad0183cf3e64e6e20e07a1e01bf3c4aff04a3f08f9dcb6ec8b5f24bae26"},
 ]
 
 [package.dependencies]
