@@ -15,13 +15,14 @@ from rest_framework.views import APIView
 from agir.donations import base_views
 from agir.payments.actions.payments import find_or_create_person_from_payment
 from agir.payments.models import Payment
-from .actions import montant_cagnotte
+from .actions import ajouter_compteur, montant_cagnotte
 from .apps import CagnottesConfig
 from .forms import PersonalInformationForm
 from .models import Cagnotte
 from .tasks import envoyer_email_remerciement
 from ..front.view_mixins import ReactBaseView
 from ..lib.utils import front_url
+from ..payments.payment_modes import PAYMENT_MODES
 
 
 class CompteurView(APIView):
@@ -37,7 +38,6 @@ class CompteurView(APIView):
 
 class PersonalInformationView(base_views.BasePersonalInformationView):
     payment_type = CagnottesConfig.PAYMENT_TYPE
-    payment_modes = ["system_pay", "check_donations"]
     session_namespace = "_cagnotte_"
     first_step_url = "https://caissedegreveinsoumise.fr"
     template_name = "cagnottes/personal_information.html"
@@ -55,6 +55,18 @@ class PersonalInformationView(base_views.BasePersonalInformationView):
         if "cagnotte" not in kwargs:
             kwargs["cagnotte"] = self.cagnotte
         return super().get_context_data(**kwargs)
+
+    @property
+    def payment_modes(self):
+        # valeur par défaut si ce n'est pas configuré pour cette cagnotte
+        if "payment_modes" not in self.cagnotte.meta:
+            return ["system_pay", "check_donations"]
+
+        # ne pas introduire de bug dans les cas où des modes de paiement n'existent plus
+        payment_modes = [
+            m for m in self.cagnotte["payment_modes"] if m in PAYMENT_MODES
+        ]
+        return payment_modes
 
 
 class RemerciementView(RedirectView):
@@ -81,6 +93,13 @@ def notification_listener(payment):
                 partial(
                     envoyer_email_remerciement.delay,
                     payment.pk,
+                )
+            )
+
+            transaction.on_commit(
+                partial(
+                    ajouter_compteur,
+                    payment,
                 )
             )
 

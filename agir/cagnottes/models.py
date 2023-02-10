@@ -9,7 +9,9 @@ class Cagnotte(models.Model):
         max_length=100,
         help_text="Utilisé notamment dans le profil sur la page des dons d'une personne.",
     )
-    slug = models.SlugField(help_text="Utilisé dans l'URL pour cette cagnotte")
+    slug = models.SlugField(
+        help_text="Utilisé dans l'URL pour cette cagnotte", unique=True
+    )
     public = models.BooleanField(null=False, default=True)
     titre = models.CharField(
         max_length=100,
