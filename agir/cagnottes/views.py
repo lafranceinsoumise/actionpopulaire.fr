@@ -62,7 +62,7 @@ class PersonalInformationView(base_views.BasePersonalInformationView):
 
         # ne pas introduire de bug dans les cas où des modes de paiement n'existent plus
         payment_modes = [
-            m for m in self.cagnotte["payment_modes"] if m in PAYMENT_MODES
+            m for m in self.cagnotte.meta["payment_modes"] if m in PAYMENT_MODES
         ]
         return payment_modes
 
