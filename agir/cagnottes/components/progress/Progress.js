@@ -90,8 +90,8 @@ const StyledPage = styled.div`
   min-width: 100vw;
   min-height: 100vh;
   font-family: mostra-nuova, Arial, Helvetica, sans-serif;
-  background-color: #04f404;
-  background-color: ${({ $background }) => $background || "#04f404"};
+  background-color: transparent;
+  background-color: ${({ $background }) => $background || "transparent"};
 `;
 
 const formatCurrency = (amount) =>
