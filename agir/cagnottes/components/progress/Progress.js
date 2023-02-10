@@ -14,7 +14,8 @@ const getContrastYIQ = (hexcolor) => {
 
 const StyledTitle = styled.h2`
   font-size: 50px;
-  line-height: 60px;
+  font-size: ${({ $height }) => ($height ? 0.5 * $height : "50")}px;
+  line-height: 1.2;
   font-weight: 500;
   text-shadow: 0px 2px 6px #000a2c;
   color: #ffffff;
@@ -26,6 +27,7 @@ const StyledTitle = styled.h2`
 const StyledBar = styled.div`
   width: 100%;
   height: 100px;
+  height: ${({ $height }) => $height || 100}px;
   position: relative;
   overflow: hidden;
 
@@ -52,12 +54,20 @@ const StyledBar = styled.div`
   }
 
   & > div {
+    --point-width: 55px;
+    --point-width: ${({ $height }) => ($height ? 0.55 * $height : "55")}px;
+
     width: 0%;
     background-color: #ff2e20;
     background-color: ${({ $color }) => $color || "#FF2E20"};
     box-sizing: content-box;
     padding-left: 55px;
-    clip-path: polygon(0% 0%, 100% 0%, calc(100% - 55px) 100%, 0% 100%);
+    clip-path: polygon(
+      0% 0%,
+      100% 0%,
+      calc(100% - var(--point-width)) 100%,
+      0% 100%
+    );
     will-change: width;
   }
 
@@ -68,8 +78,10 @@ const StyledBar = styled.div`
     text-align: left;
     font-weight: 500;
     font-size: 80px;
+    font-size: ${({ $height }) => ($height ? 0.8 * $height : "80")}px;
     line-height: 0;
-    padding: 16px;
+    padding: 0 16px;
+    padding: 0 ${({ $height }) => ($height ? 0.16 * $height : "16")}px;
   }
 `;
 const StyledPage = styled.div`
@@ -96,7 +108,7 @@ const getTarget = (amount) => {
 };
 
 const ProgressBar = (props) => {
-  const { amount, barColor, titleColor } = props;
+  const { amount, barColor, titleColor, barHeight } = props;
   const target = getTarget(amount);
 
   const { width, animatedAmount } = useSpring({
@@ -105,12 +117,15 @@ const ProgressBar = (props) => {
     animatedAmount: amount,
   });
 
+  const height =
+    barHeight && !isNaN(parseInt(barHeight)) ? parseInt(barHeight) : null;
+
   return (
     <>
-      <StyledTitle $color={titleColor}>
+      <StyledTitle $color={titleColor} $height={height}>
         Merci pour les caisses de grève&nbsp;!
       </StyledTitle>
-      <StyledBar $color={barColor}>
+      <StyledBar $color={barColor} $height={height}>
         <animated.div style={{ width }} />
         <animated.p>{animatedAmount.to(formatCurrency)}</animated.p>
       </StyledBar>
@@ -122,6 +137,7 @@ ProgressBar.propTypes = {
   amount: PropTypes.number,
   barColor: PropTypes.string,
   titleColor: PropTypes.string,
+  barHeight: PropTypes.string,
 };
 
 const Progress = (props) => {
