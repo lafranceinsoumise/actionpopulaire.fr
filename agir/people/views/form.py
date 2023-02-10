@@ -123,6 +123,8 @@ class BasePeopleFormView(UpdateView, ObjectOpengraphMixin):
             tasks.send_person_form_confirmation.delay(form.submission.pk)
         if self.person_form_instance.send_answers_to:
             tasks.send_person_form_notification.delay(form.submission.pk)
+        if self.person_form_instance.lien_feuille_externe:
+            tasks.copier_reponse_vers_feuille_externe.delay(form.submission.pk)
 
         if self.person_form_instance.campaign_template:
             data = {}

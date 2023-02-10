@@ -668,6 +668,7 @@ class PersonFormAdmin(FormSubmissionViewsMixin, admin.ModelAdmin):
                     "allow_anonymous",
                     "send_answers_to",
                     "required_tags",
+                    "lien_feuille_externe",
                     "segment",
                 )
             },

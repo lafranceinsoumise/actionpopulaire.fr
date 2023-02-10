@@ -1,3 +1,7 @@
+import logging
+
+import re
+
 from celery import shared_task
 from django.conf import settings
 from django.template.loader import render_to_string
@@ -13,6 +17,7 @@ from agir.authentication.tokens import (
 )
 from agir.lib.celery import emailing_task, post_save_task
 from agir.lib.display import pretty_time_since
+from agir.lib.google_sheet import copy_array_to_sheet, add_row_to_sheet
 from agir.lib.mailing import send_mosaico_email
 from agir.lib.sms import send_sms
 from agir.lib.utils import front_url
@@ -22,7 +27,10 @@ from .actions.subscription import (
     SUBSCRIPTION_TYPE_NSP,
 )
 from .models import Person, PersonFormSubmission, PersonEmail, PersonValidationSMS
-from .person_forms.display import default_person_form_display
+from .person_forms.display import default_person_form_display, PersonFormDisplay
+from .person_forms.models import PersonForm, GOOGLE_SHEET_REGEX
+
+logger = logging.getLogger(__name__)
 
 
 @emailing_task()
@@ -288,3 +296,65 @@ def notify_contact(person_pk, is_new=False):
         recipients=[person],
         bindings=bindings,
     )
+
+
+@shared_task
+def copier_toutes_reponses_vers_feuille_externe(person_form_id):
+    try:
+        form = PersonForm.objects.get(id=person_form_id)
+    except PersonForm.DoesNotExist:
+        return
+
+    m = re.match(GOOGLE_SHEET_REGEX, form.lien_feuille_externe)
+
+    if not m:
+        logger.warning(
+            f"URL de la Google sheet incorrecte pour le formulaire d'id {person_form_id}"
+        )
+        return
+
+    sid = m.group("sid")
+    gid = int(m.group("gid"))
+
+    display = PersonFormDisplay()
+    headers, values = display.get_formatted_submissions(
+        form, html=False, include_admin_fields=True
+    )
+
+    headers = [str(s) for s in headers]
+
+    for row in values:
+        p = row[1]
+        if isinstance(p, Person):
+            row[1] = p.email
+
+    copy_array_to_sheet(sid, gid, [headers, *values])
+
+
+@shared_task
+def copier_reponse_vers_feuille_externe(person_form_submission_id):
+    try:
+        sub = PersonFormSubmission.objects.select_related("form", "person").get(
+            id=person_form_submission_id
+        )
+    except PersonFormSubmission.DoesNotExist:
+        return
+
+    form = sub.form
+    m = re.match(GOOGLE_SHEET_REGEX, form.lien_feuille_externe)
+
+    if not m:
+        logger.warning(
+            f"URL de la Google sheet incorrecte pour le formulaire d'id {form.id}"
+        )
+        return
+
+    sid = m.group("sid")
+    gid = int(m.group("gid"))
+
+    sub.email = sub.person.email
+    display = PersonFormDisplay()
+    res = display.get_formatted_submission(sub, include_admin_fields=True, html=False)
+    values = {d["label"]: d["value"] for fs in res for d in fs["data"]}
+
+    add_row_to_sheet(sid, gid, values)

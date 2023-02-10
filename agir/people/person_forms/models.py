@@ -2,6 +2,7 @@ from collections import OrderedDict
 from itertools import chain
 
 from django.conf import settings
+from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import JSONField
 from django.utils import timezone
@@ -13,6 +14,9 @@ from agir.lib.form_fields import CustomJSONEncoder
 from agir.lib.models import DescriptionField, TimeStampedModel
 
 __all__ = ["PersonForm", "PersonFormSubmission"]
+
+
+GOOGLE_SHEET_REGEX = r"^https://docs.google.com/spreadsheets/d/(?P<sid>[A-Za-z0-9_-]{40,})/.*[?#&]gid=(?P<gid>[0-9]+)"
 
 
 class PersonFormQueryset(models.QuerySet):
@@ -164,6 +168,20 @@ class PersonForm(TimeStampedModel):
         blank=True,
         null=True,
         on_delete=models.PROTECT,
+    )
+
+    lien_feuille_externe = models.URLField(
+        verbose_name="Lien vers une feuille de calcul externe",
+        blank=True,
+        help_text="Une feuille de calcul externe (Google Sheet uniquement pour moment) qui sera mise à jour avec les"
+        " réponses au formulaire. Attention, cette feuille sera écrasée au fur et à mesure.",
+        validators=[
+            RegexValidator(
+                regex=GOOGLE_SHEET_REGEX,
+                message="Indiquez-ici l'URL complète vers la feuille Google sheet à modifier. La feuille doit être"
+                " accessible et modifiable pour toute personne avec le lien.",
+            )
+        ],
     )
 
     @property

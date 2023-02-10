@@ -1,18 +1,17 @@
-﻿from itertools import chain
-from uuid import UUID
-
-from django.db.models import Subquery, OuterRef, QuerySet
-from django.utils.text import capfirst
-from functools import reduce
+﻿from functools import reduce
+from itertools import chain
+from operator import or_
 
 import iso8601
 from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.db.models import Subquery, OuterRef, QuerySet
 from django.urls import reverse
 from django.utils.formats import localize
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+from django.utils.text import capfirst
 from django.utils.timezone import get_current_timezone
-from operator import or_
 from phonenumber_field.phonenumber import PhoneNumber
 from phonenumbers import NumberParseException
 
@@ -32,13 +31,13 @@ class PersonFormDisplay:
         "italic": "<em>{}</em>",
         "normal": "{}",
     }
-    admin_fields_label = ["ID", "Personne", "Date de la réponse"]
+    admin_fields_label = ["ID", "Date de la réponse"]
 
     def get_admin_fields_label(self, form, html=True):
         if html:
-            return ["Actions", *self.admin_fields_label]
+            return ["Actions", *self.admin_fields_label, "Personne"]
 
-        return self.admin_fields_label
+        return [*self.admin_fields_label, "id_personne", "email"]
 
     def _get_form_and_submissions(self, submissions_or_form):
         if isinstance(submissions_or_form, PersonForm):
@@ -115,14 +114,15 @@ class PersonFormDisplay:
             return self._get_choice_label(field, value, html)
         elif field_type == "multiple_choice" and "choices" in field:
             if isinstance(value, list):
-                return [self._get_choice_label(field, v, html) for v in value]
+                return " // ".join(
+                    self._get_choice_label(field, v, html) for v in value
+                )
             else:
                 return value
         elif field_type == "person":
             try:
-                UUID(value)
                 return Person.objects.filter(id=value).first() or value
-            except ValueError:
+            except (ValidationError, ValueError, Person.DoesNotExist):
                 return value
         elif field_type == "datetime":
             date = iso8601.parse_date(value)
@@ -173,14 +173,17 @@ class PersonFormDisplay:
                     details=reverse(
                         "admin:people_personformsubmission_detail",
                         args=(submission.pk,),
+                        urlconf="agir.api.admin_urls",
                     ),
                     edit=reverse(
                         "admin:people_personformsubmission_change",
                         args=(submission.pk,),
+                        urlconf="agir.api.admin_urls",
                     ),
                     delete=reverse(
                         "admin:people_personformsubmission_delete",
                         args=(submission.pk,),
+                        urlconf="agir.api.admin_urls",
                     ),
                 )
                 for submission in submissions
@@ -192,7 +195,9 @@ class PersonFormDisplay:
                     person_field_template,
                     link=settings.API_DOMAIN
                     + reverse(
-                        "admin:people_person_change", args=(submission.person_id,)
+                        "admin:people_person_change",
+                        args=(submission.person_id,),
+                        urlconf="agir.api.admin_urls",
                     ),
                     person=submission.person,
                 )
@@ -209,7 +214,13 @@ class PersonFormDisplay:
                 localize(submission.created.astimezone(get_current_timezone()))
                 for submission in submissions
             ]
-            person_fields = [s.person if s.person else "Anonyme" for s in submissions]
+            person_fields = [
+                (
+                    s.person.id if s.person else "Anonyme",
+                    s.email.email if s.person else "",
+                )
+                for s in submissions
+            ]
             return [list(a) for a in zip(id_fields, person_fields, dates)]
 
     def get_form_field_labels(self, form, fieldsets_titles=False):
@@ -318,7 +329,7 @@ class PersonFormDisplay:
         ]
 
         if include_admin_fields:
-            admin_values = self._get_admin_fields(submissions, html and resolve_values)
+            admin_values = self._get_admin_fields(submissions, html)
             return (
                 self.get_admin_fields_label(form, html=html) + headers,
                 [
@@ -344,7 +355,7 @@ class PersonFormDisplay:
                         {"label": l, "value": v}
                         for l, v in zip(
                             self.get_admin_fields_label(submission.form, html=html),
-                            self._get_admin_fields([submission])[0],
+                            self._get_admin_fields([submission], html=html)[0],
                         )
                     ],
                 }
