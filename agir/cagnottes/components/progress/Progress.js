@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useMemo } from "react";
 import { animated, useSpring } from "@react-spring/web";
 import styled from "styled-components";
 import useSWR from "swr";
@@ -99,17 +99,37 @@ const formatCurrency = (amount) =>
     .toString()
     .replace(/\B(?=(\d{3})+(?!\d))/g, " ")} €`;
 
-const getTarget = (amount) => {
+const getTarget = (amount, goals) => {
+  let target = goals.find((goal) => amount < goal);
+
+  if (target) {
+    return target;
+  }
+
   let targetTenth = 1;
   for (let length = String(amount).length; length--; length) {
     targetTenth *= 10;
   }
-  return Math.ceil(amount / targetTenth) * targetTenth;
+  target = Math.ceil(amount / targetTenth) * targetTenth;
+
+  return target;
 };
 
 const ProgressBar = (props) => {
-  const { amount, barColor, titleColor, barHeight } = props;
-  const target = getTarget(amount);
+  const { amount, barColor, titleColor, barHeight, goals } = props;
+
+  const steps = useMemo(
+    () =>
+      Array.isArray(goals)
+        ? goals
+            .filter((goal) => !isNaN(parseInt(goal)))
+            .map((goal) => parseInt(goal))
+            .sort()
+        : [],
+    [goals]
+  );
+
+  const target = useMemo(() => getTarget(amount, steps), [amount, steps]);
 
   const { width, animatedAmount } = useSpring({
     from: { width: "0%", animatedAmount: 1 },
@@ -137,7 +157,8 @@ ProgressBar.propTypes = {
   amount: PropTypes.number,
   barColor: PropTypes.string,
   titleColor: PropTypes.string,
-  barHeight: PropTypes.string,
+  barHeight: PropTypes.number,
+  goals: PropTypes.arrayOf(PropTypes.number),
 };
 
 const Progress = (props) => {
