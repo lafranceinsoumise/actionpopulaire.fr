@@ -58,8 +58,8 @@ const StyledBar = styled.div`
     --point-width: ${({ $height }) => ($height ? 0.55 * $height : "55")}px;
 
     width: 0%;
-    background-color: #ff2e20;
-    background-color: ${({ $color }) => $color || "#FF2E20"};
+    background: #ff2e20;
+    background: ${({ $color }) => $color || "#FF2E20"};
     box-sizing: content-box;
     padding-left: 55px;
     clip-path: polygon(
@@ -90,8 +90,8 @@ const StyledPage = styled.div`
   min-width: 100vw;
   min-height: 100vh;
   font-family: mostra-nuova, Arial, Helvetica, sans-serif;
-  background-color: transparent;
-  background-color: ${({ $background }) => $background || "transparent"};
+  background: transparent;
+  background: ${({ $background }) => $background || "transparent"};
 `;
 
 const formatCurrency = (amount) =>
