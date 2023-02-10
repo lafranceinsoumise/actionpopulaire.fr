@@ -35,7 +35,6 @@ class PaymentModeField(ChoiceField):
         label=_("Mode de paiement"),
         **kwargs,
     ):
-
         self._payment_modes = [
             PAYMENT_MODES[p] if isinstance(p, str) else p for p in payment_modes
         ]
@@ -87,8 +86,9 @@ class PaymentModeField(ChoiceField):
         if value in self.empty_values:
             return None
 
-        if value in PAYMENT_MODES:
-            return PAYMENT_MODES[value]
+        for mode in self.payment_modes:
+            if value == mode.id:
+                return mode
 
         raise ValidationError(
             self.error_messages["invalid_choice"], code="invalid_choice"
