@@ -179,7 +179,7 @@ const Progress = (props) => {
   const { data, isLoading } = useSWR(amountAPI, { refreshInterval });
 
   const amount =
-    data?.totalAmount && !isNaN(parseInt(data.totalAmount))
+    data && !isNaN(parseInt(data?.totalAmount))
       ? parseInt(data.totalAmount)
       : null;
 
