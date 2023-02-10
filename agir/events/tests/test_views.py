@@ -399,15 +399,15 @@ class RSVPTestCase(TestCase):
 
         self.simple_paying_event = Event.objects.create(
             name="Paying event",
-            start_time=now + 3 * day,
-            end_time=now + 3 * day + 4 * hour,
+            start_time=now + 10 * day,
+            end_time=now + 10 * day + 4 * hour,
             payment_parameters={"price": 1000},
         )
 
         self.form_paying_event = Event.objects.create(
             name="Paying event",
-            start_time=now + 3 * day,
-            end_time=now + 3 * day + 4 * hour,
+            start_time=now + 10 * day,
+            end_time=now + 10 * day + 4 * hour,
             payment_parameters={"price": 1000},
             subscription_form=self.subscription_form2,
         )
