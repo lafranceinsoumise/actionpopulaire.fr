@@ -2,6 +2,7 @@ from functools import partial
 
 from django.db import transaction
 from django.shortcuts import get_object_or_404
+from django.urls import reverse_lazy, reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators import cache
 from django.views.generic import RedirectView
@@ -18,6 +19,8 @@ from .apps import CagnottesConfig
 from .forms import PersonalInformationForm
 from .models import Cagnotte
 from .tasks import envoyer_email_remerciement
+from ..front.view_mixins import ReactBaseView
+from ..lib.utils import front_url
 
 
 class CompteurView(APIView):
@@ -79,3 +82,31 @@ def notification_listener(payment):
                     payment.pk,
                 )
             )
+
+
+class ProgressView(ReactBaseView):
+    app_mount_id = "cagnottes_app"
+    bundle_name = "cagnottes/progress"
+    template_name = "cagnottes/progress.html"
+
+    def get_api_preloads(self):
+        return [
+            reverse_lazy("cagnottes:compteur", kwargs=self.kwargs),
+        ]
+
+    def get_context_data(self, **kwargs):
+        kwargs.update(
+            {
+                "export_data": {
+                    "slug": self.kwargs.get("slug"),
+                    "amountAPI": front_url(
+                        "cagnottes:compteur", absolute=True, kwargs=self.kwargs
+                    ),
+                    "background": self.request.GET.get("bg", None),
+                    "barColor": self.request.GET.get("bc", None),
+                    "titleColor": self.request.GET.get("tc", None),
+                },
+                "data_script_id": "cagnottes_data",
+            }
+        )
+        return super().get_context_data(**kwargs)

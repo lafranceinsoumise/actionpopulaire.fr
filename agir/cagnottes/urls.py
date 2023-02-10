@@ -11,4 +11,5 @@ urlpatterns = [
         name="personal_information",
     ),
     path("<slug:slug>/compteur/", views.CompteurView.as_view(), name="compteur"),
+    path("<slug:slug>/montant/", views.ProgressView.as_view(), name="progress"),
 ]
