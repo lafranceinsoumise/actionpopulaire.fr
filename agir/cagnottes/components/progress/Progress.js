@@ -166,8 +166,12 @@ ProgressBar.propTypes = {
 };
 
 const Progress = (props) => {
-  const { amountAPI = null, background, ...rest } = props;
-  const { data, isLoading } = useSWR(amountAPI, { refreshInterval: 1000 });
+  const { amountAPI = null, background, apiRefreshInterval, ...rest } = props;
+  const refreshInterval =
+    apiRefreshInterval && !isNaN(parseInt(apiRefreshInterval))
+      ? Math.max(Math.abs(parseInt(apiRefreshInterval)), 1000)
+      : 1000;
+  const { data, isLoading } = useSWR(amountAPI, { refreshInterval });
 
   const amount =
     data?.totalAmount && !isNaN(parseInt(data.totalAmount))
@@ -185,6 +189,8 @@ const Progress = (props) => {
 
 Progress.propTypes = {
   amountAPI: PropTypes.string,
+  // The interval (in milliseconds) used to refresh data from the API
+  apiRefreshInterval: PropTypes.number,
   // The page background color
   background: PropTypes.string,
   // The progress bar main color
