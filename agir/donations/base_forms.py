@@ -110,7 +110,7 @@ class BaseDonorForm(MetaFieldsMixin, LegacySubscribedMixin, forms.ModelForm):
         else:
             self.fields["payment_mode"].payment_modes = payment_modes
             if len(payment_modes) == 1:
-                self.fields["payment_mode"] = self.fields[
+                self.fields["payment_mode"].widget = self.fields[
                     "payment_mode"
                 ].hidden_widget()
                 self.fields["payment_mode"].initial = payment_modes[0]
