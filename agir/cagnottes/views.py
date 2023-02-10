@@ -28,8 +28,6 @@ from ..payments.payment_modes import PAYMENT_MODES
 class CompteurView(APIView):
     permission_classes = (AllowAny,)
 
-    @method_decorator(cache.cache_page(60))
-    @method_decorator(cache.cache_control(public=True))
     def get(self, request, slug):
         cagnotte = rf_get_object_or_404(Cagnotte, public=True, slug=slug)
 
