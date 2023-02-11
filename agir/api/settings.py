@@ -718,7 +718,9 @@ CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIAL = False
 # TODO: tous les points API n'ont pas vocation à être accédés depuis n'importe quel site
 # à mon avis il faudrait restreindre
-CORS_URLS_REGEX = r"^(?:/legacy/|/communes/chercher/|/api/|/cagnottes/[^/]+/compteur/$)"
+CORS_URLS_REGEX = (
+    r"^(?:/legacy/|/communes/chercher/|/api/|/cagnottes/[^/]+/(?:compteur|montant)/$)"
+)
 
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True
