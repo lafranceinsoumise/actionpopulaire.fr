@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.decorators import cache
+from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.generic import RedirectView
 from django.views.generic.detail import BaseDetailView
 from rest_framework.generics import get_object_or_404 as rf_get_object_or_404
@@ -102,6 +103,7 @@ def notification_listener(payment):
             )
 
 
+@method_decorator(xframe_options_exempt, name="get")
 class ProgressView(BaseDetailView, ReactBaseView):
     queryset = Cagnotte.objects.all()
     app_mount_id = "cagnottes_app"
