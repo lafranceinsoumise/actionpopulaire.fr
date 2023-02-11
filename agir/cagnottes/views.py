@@ -122,6 +122,10 @@ class ProgressView(BaseDetailView, ReactBaseView):
         }
         if self.object and "progress" in self.object.meta:
             export_data.update({**self.object.meta.get("progress", {})})
+
+        if "height" in self.request.GET:
+            export_data["barHeight"] = self.request.GET["height"]
+
         kwargs.update(
             {
                 "export_data": export_data,
