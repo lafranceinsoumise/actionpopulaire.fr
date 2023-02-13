@@ -91,7 +91,7 @@ lxml = "^4.9.2"
 
 [tool.poetry.dev-dependencies]
 ipython = "*"
-black = "==22.12.0"
+black = "==23.1.0"
 coverage = "*"
 django-debug-toolbar = "*"
 redislite = "*"  # used for testing

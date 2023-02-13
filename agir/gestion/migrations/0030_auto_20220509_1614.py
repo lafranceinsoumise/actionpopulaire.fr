@@ -6,7 +6,6 @@ import re
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("gestion", "0029_alter_depense_quantite"),
     ]

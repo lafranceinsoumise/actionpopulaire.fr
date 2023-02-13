@@ -133,7 +133,6 @@ class FranceGeocodingTestCase(TestCase):
 
     @with_no_request
     def test_geocode_with_citycode(self):
-
         self.person.location_citycode = "00002"
         self.person.save()
         geocode_france(self.person)

@@ -144,7 +144,6 @@ class Command(BaseCommand):
 
             with connection:
                 for e in emails:
-
                     message = EmailMessage(
                         subject=f"Export des abonnements — {month[0].strftime('%m/%Y')}",
                         body=MESSAGE_BODY,

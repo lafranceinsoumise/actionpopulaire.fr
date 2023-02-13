@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("people", "0012_personform_short_description"),
         ("events", "0014_event_suggestion_segment"),

@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("system_pay", "0008_systempaysubscription")]
 
     operations = [

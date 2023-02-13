@@ -122,7 +122,6 @@ def new_message_notifications(message):
 @transaction.atomic()
 # Group comment with required membership type
 def new_comment_restricted_notifications(comment):
-
     message_initial = comment.message
     muted_recipients = message_initial.recipient_mutedlist.values("id")
     allowed_memberships = message_initial.supportgroup.memberships.filter(
@@ -165,7 +164,6 @@ def new_comment_restricted_notifications(comment):
 
 @transaction.atomic()
 def new_comment_notifications(comment):
-
     if comment.message.required_membership_type > Membership.MEMBERSHIP_TYPE_FOLLOWER:
         new_comment_restricted_notifications(comment)
         return

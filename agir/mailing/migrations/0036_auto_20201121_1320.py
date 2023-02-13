@@ -16,7 +16,6 @@ def blankton(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("mailing", "0035_auto_20201112_1156"),
     ]

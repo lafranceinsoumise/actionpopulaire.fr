@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("municipales", "0013_ajout_listes_candidates")]
 
     operations = [

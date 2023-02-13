@@ -9,7 +9,6 @@ def origine_depuis_statut(apps, schema):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("gestion", "0005_document_versions"),
     ]

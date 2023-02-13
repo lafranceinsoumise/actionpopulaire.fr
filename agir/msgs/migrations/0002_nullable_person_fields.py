@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("people", "0004_display_name_and_image"),
         ("msgs", "0001_initial"),

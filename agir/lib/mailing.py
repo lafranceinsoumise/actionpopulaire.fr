@@ -71,7 +71,6 @@ def send_message(
     attachments=None,
     connection=None,
 ):
-
     email = EmailMultiAlternatives(
         subject=subject,
         body=text,
@@ -168,7 +167,6 @@ def send_template_email(
     reply_to=None,
     attachments=None,
 ):
-
     template = get_template(template_name)
 
     if connection is None:

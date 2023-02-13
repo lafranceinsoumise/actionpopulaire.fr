@@ -31,7 +31,6 @@ def remove_basic_scopes(apps, schema):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("clients", "0001_initial")]
 
     operations = [

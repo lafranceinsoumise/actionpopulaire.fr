@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("municipales", "0008_renommer_liste_en_strategy")]
 
     operations = [

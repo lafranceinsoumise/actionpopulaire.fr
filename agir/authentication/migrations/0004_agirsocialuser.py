@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("social_django", "0008_partial_timestamp"),
         ("authentication", "0003_add_view_hidden_events_to_workers"),

@@ -1207,7 +1207,6 @@ class IdentifiedGuest(ExportModelOperationsMixin("identified_guest"), models.Mod
 
 
 class OrganizerConfig(ExportModelOperationsMixin("organizer_config"), models.Model):
-
     is_creator = models.BooleanField(_("Créateur de l'événement"), default=False)
 
     event = models.ForeignKey(
@@ -1321,7 +1320,6 @@ class JitsiMeeting(models.Model):
 
 
 class Invitation(TimeStampedModel):
-
     STATUS_PENDING = "pending"
     STATUS_ACCEPTED = "accepted"
     STATUS_REFUSED = "refused"

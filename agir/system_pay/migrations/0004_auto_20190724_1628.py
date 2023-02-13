@@ -7,7 +7,6 @@ import django_prometheus.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("system_pay", "0003_auto_20190114_1551"),
     ]

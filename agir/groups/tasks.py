@@ -419,7 +419,6 @@ def send_membership_transfer_sender_confirmation(bindings, recipients_pks):
 
 @emailing_task()
 def send_membership_transfer_receiver_confirmation(bindings, recipients_pks):
-
     recipients = Person.objects.filter(
         pk__in=recipients_pks,
         notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
@@ -505,7 +504,6 @@ def create_accepted_invitation_member_activity(new_membership_pk):
 
 @emailing_task(post_save=True)
 def send_message_notification_email(message_pk):
-
     message = SupportGroupMessage.objects.get(pk=message_pk)
 
     memberships = message.supportgroup.memberships.filter(

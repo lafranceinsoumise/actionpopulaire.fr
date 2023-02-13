@@ -26,7 +26,6 @@ def reverse_remove_non_unique_announcement_and_recipient_activities(
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("activity", "0018_add_link_label_field_to_announcement"),
     ]

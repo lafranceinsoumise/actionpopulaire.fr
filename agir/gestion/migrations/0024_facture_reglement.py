@@ -11,7 +11,6 @@ def supprimer_type_facture_accompte(apps, schema):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("gestion", "0023_document_date"),
     ]

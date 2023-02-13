@@ -14,7 +14,6 @@ def backward(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("activity", "0016_auto_20210519_1009"),
     ]

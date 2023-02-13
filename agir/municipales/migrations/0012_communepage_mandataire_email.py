@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("municipales", "0011_communepage_contact_email")]
 
     operations = [

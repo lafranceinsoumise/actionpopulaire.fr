@@ -28,7 +28,6 @@ class ActivityManager(models.Manager.from_queryset(ActivityQuerySet)):
 
 
 class Activity(TimeStampedModel):
-
     TYPE_REFERRAL = "referral-accepted"
 
     # PERSON/EVENT TYPES

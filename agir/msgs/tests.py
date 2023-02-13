@@ -314,7 +314,6 @@ class UserMessagesAPITestCase(APITestCase):
         self.assertFalse(results[0]["isUnread"])
 
     def test_cannot_get_messages_and_comments_from_inactive_people(self):
-
         message = SupportGroupMessage.objects.create(
             author=self.user_referent, supportgroup=self.group, text="Referent message"
         )

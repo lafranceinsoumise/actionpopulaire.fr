@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("voting_proxies", "0004_add_voter_id_field"),
     ]

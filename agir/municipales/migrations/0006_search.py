@@ -15,7 +15,6 @@ DROP INDEX municipales_communepage_search;
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("municipales", "0005_communepage_municipales2020_admins"),
     ]

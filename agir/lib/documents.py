@@ -19,7 +19,6 @@ def html_to_pdf(html_content, dest_path=None):
 
 
 def join_pdf_documents(pdfs, dest_path):
-
     os.makedirs(os.path.dirname(dest_path), exist_ok=True)
 
     # https://stackoverflow.com/questions/2507766/merge-convert-multiple-pdf-files-into-one-pdf

@@ -32,7 +32,6 @@ def remove_reminder_upcoming_event_start_activity_subscriptions(apps, schema_edi
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("notifications", "0016_add-activity-TYPE_REMINDER_REPORT_FORM_FOR_EVENT"),
     ]

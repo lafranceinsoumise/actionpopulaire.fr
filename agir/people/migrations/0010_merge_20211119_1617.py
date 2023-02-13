@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("people", "0009_auto_20211116_1641"),
         ("people", "0009_update_person_trigger_functions"),

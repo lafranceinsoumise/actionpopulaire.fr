@@ -12,7 +12,6 @@ def default_to_lfi(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("mailing", "0032_auto_20201021_1525"),
     ]

@@ -5,7 +5,6 @@ import agir.lib.model_fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("gestion", "0016_auto_20220221_1602"),
     ]

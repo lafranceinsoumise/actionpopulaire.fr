@@ -36,7 +36,6 @@ def reverse_deletion(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("notifications", "0010_migrate_types"),
     ]

@@ -9,6 +9,7 @@ TYPE_NEW_EVENT_MYGROUPS = "new-event-mygroups"
 TYPE_NEW_EVENT_PARTICIPATION_MYGROUPS = "new-event-participation-mygroups"
 MEMBERSHIP_TYPE_REFERENT = 100
 
+
 # Add 2 subscriptions for the new GroupAttendee model
 def add_group_attendee_subscriptions(apps, schema_editor):
     Subscription = apps.get_model("notifications", "Subscription")
@@ -59,7 +60,6 @@ def remove_group_attendee_subscriptions(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("activity", "0028_add-TYPE_REMINDER_UPCOMING_EVENT_START"),
     ]

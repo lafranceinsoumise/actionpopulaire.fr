@@ -7,7 +7,6 @@ import agir.lib.utils
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("gestion", "0003_auto_20210623_1525"),
     ]

@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("notifications", "0017_add-activity-TYPE_REMINDER_UPCOMING_EVENT_START"),
     ]

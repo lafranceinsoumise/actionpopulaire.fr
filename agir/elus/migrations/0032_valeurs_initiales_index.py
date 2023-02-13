@@ -32,7 +32,6 @@ WHERE rp.depute_europeen_id = d.id;
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("elus", "0031_auto_20210727_0031"),
         ("data_france", "0030_indexs_recherche_elus"),

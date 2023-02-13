@@ -21,7 +21,6 @@ def rename_new_comment_restricted_activity_type_to_new_comment(apps, schema_edit
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("activity", "0023_add_new-follower_activity_types"),
     ]

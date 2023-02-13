@@ -15,7 +15,7 @@ class AgirSocialUser(UserSocialAuth):
             )
             person.ensure_role_exists()
             return [person.role]
-        except (Person.DoesNotExist):
+        except Person.DoesNotExist:
             return []
 
     class Meta:

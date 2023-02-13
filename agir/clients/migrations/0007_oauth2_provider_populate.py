@@ -31,7 +31,6 @@ def populate_columns_reverse(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("clients", "0006_oauth2_provider")]
 
     operations = [

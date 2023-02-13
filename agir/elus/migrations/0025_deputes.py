@@ -9,7 +9,6 @@ import psycopg2.extras
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("data_france", "0024_circonscriptionlegislative_depute"),
         ("people", "0005_add_subscriptions"),

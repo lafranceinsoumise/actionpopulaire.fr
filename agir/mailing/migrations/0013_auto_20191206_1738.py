@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("mailing", "0012_segment_exclude_segments")]
 
     operations = [

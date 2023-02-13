@@ -7,7 +7,6 @@ import stdimage.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("events", "0021_auto_20220324_1258"),
     ]

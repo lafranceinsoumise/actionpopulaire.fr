@@ -162,7 +162,6 @@ DROP FUNCTION email_to_tsvector(people_personemail.address%TYPE);
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = []

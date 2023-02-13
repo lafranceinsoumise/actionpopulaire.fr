@@ -22,7 +22,6 @@ def unmigrate_checks(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("checks", "0001_checkpayment"),
     ]

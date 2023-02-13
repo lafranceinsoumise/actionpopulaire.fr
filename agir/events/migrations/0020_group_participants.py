@@ -6,7 +6,6 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("groups", "0009_auto_20220218_1043"),
         ("people", "0015_add_person_created_id_index"),

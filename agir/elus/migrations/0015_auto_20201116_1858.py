@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("data_france", "0013_cantons"),
         ("elus", "0014_auto_20201005_1552"),

@@ -7,7 +7,6 @@ import stdimage.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("people", "0006_add_newsletter_liaison_type"),
     ]

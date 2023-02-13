@@ -7,7 +7,6 @@ import stdimage.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("events", "0009_event_subtype_gestion_fields"),
     ]

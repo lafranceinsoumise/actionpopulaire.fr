@@ -7,7 +7,6 @@ import stdimage.validators
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("activity", "0003_announcements"),
     ]

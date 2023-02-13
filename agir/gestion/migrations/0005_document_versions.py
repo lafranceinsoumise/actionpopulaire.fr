@@ -27,7 +27,6 @@ WHERE v.document_id = d.id;
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("gestion", "0004_instancecherchable_numero"),
     ]

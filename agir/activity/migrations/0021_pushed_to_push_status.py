@@ -14,7 +14,6 @@ def activity_push_status_to_pushed_field(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("activity", "0020_rename_recipient_reverse"),
     ]

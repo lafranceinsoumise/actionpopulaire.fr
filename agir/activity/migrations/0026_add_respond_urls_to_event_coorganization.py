@@ -54,7 +54,6 @@ def reverse_add_respond_urls_to_event_coorganization_activities(apps, schema_edi
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("activity", "0025_auto_20210928_1717"),
         ("events", "0012_auto_20211020_1345"),

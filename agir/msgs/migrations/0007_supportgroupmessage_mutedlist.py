@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("people", "0015_add_person_created_id_index"),
         ("msgs", "0006_supportgroupmessage_required_membership_type"),

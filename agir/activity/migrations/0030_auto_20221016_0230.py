@@ -7,7 +7,6 @@ import stdimage.validators
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("activity", "0029_auto_20220307_1146"),
     ]

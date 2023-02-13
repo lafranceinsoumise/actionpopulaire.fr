@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("nuntius", "0016_indices_and_ordering"),
         ("mailing", "0007_segment_events_organizer"),

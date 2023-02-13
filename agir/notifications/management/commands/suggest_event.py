@@ -19,7 +19,6 @@ class Command(BaseCommand):
         parser.add_argument("-S", "--segment", type=segment_argument)
 
     def handle(self, segment, limit=SUGGEST_LIMIT_METERS, *args, **options):
-
         if segment:
             person_queryset = segment.get_subscribers_queryset()
         else:

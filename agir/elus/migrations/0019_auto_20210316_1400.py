@@ -7,7 +7,6 @@ import dynamic_filenames
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("people", "0004_display_name_and_image"),
         ("data_france", "0019_auto_20210209_0834"),

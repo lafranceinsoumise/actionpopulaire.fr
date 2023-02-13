@@ -22,7 +22,6 @@ def creer_cagnotte_initiale(apps, schema):
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [("payments", "0002_auto_20211027_1611")]

@@ -11,7 +11,6 @@ import stdimage.validators
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.NUNTIUS_SEGMENT_MODEL),
         ("activity", "0002_auto_20201104_1128"),

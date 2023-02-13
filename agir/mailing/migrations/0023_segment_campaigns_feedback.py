@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("mailing", "0022_segment_force_non_insoumis")]
 
     operations = [

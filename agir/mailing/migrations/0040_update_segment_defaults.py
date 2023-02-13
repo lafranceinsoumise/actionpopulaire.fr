@@ -7,7 +7,6 @@ import django_countries.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("mailing", "0039_segment_elu_consulaire"),
     ]

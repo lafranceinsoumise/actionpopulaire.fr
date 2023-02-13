@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("voting_proxies", "0002_blankable_polling_station_number_field"),
     ]

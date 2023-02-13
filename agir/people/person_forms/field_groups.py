@@ -208,7 +208,7 @@ class CrossTable(FieldGroup):
         fake_field = forms.Field(required=False)
         form.fields[self.fake_field_id] = fake_field
 
-        for (row, col) in it:
+        for row, col in it:
             id = self.get_id(row, col)
             field_descriptor = {**self.field_descriptor, "id": id}
             field = get_form_field(field_descriptor, is_edition, form.instance)

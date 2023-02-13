@@ -17,7 +17,6 @@ def remove_sensitive_information(apps, schema):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("system_pay", "0006_systempaytransaction_is_refund")]
 
     operations = [

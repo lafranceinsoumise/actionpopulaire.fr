@@ -65,7 +65,6 @@ def exporter_compte(
 def exporter_reglements(
     reglements: Iterable[Reglement] = None,
 ):
-
     spec = spec_fec.copy()
     spec["ValidDate"] = Val(timezone.now().date())
 
