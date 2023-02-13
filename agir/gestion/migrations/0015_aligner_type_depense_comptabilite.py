@@ -26,7 +26,6 @@ def changer_type_sens_inverse(apps, schema):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("gestion", "0014_fournisseur_type_siren"),
     ]

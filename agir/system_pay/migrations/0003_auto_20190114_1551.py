@@ -5,7 +5,6 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("system_pay", "0002_auto_20190114_1514")]
 
     operations = [

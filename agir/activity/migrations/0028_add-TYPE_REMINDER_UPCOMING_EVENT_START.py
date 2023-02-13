@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("activity", "0027_add-TYPE_REMINDER_REPORT_FORM_FOR_EVENT"),
     ]

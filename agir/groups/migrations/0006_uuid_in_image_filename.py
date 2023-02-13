@@ -7,7 +7,6 @@ import stdimage.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("groups", "0005_supportgroupexternallink"),
     ]

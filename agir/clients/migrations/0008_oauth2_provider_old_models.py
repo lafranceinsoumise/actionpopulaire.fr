@@ -5,7 +5,6 @@ import oauth2_provider.generators
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("clients", "0007_oauth2_provider_populate")]
 
     operations = [

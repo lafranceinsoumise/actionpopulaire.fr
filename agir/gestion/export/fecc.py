@@ -77,7 +77,6 @@ def exporter_reglements(
     reglements: Iterable[Reglement] = None,
     colonnes_supplementaires: bool = True,
 ):
-
     if isinstance(reglements, QuerySet):
         reglements = reglements.select_related(
             "depense__projet__event", "preuve", "facture"

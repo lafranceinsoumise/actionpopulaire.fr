@@ -11,7 +11,6 @@ def create_system_pay_subscription(apps, schema):
     for sp_transaction in SystemPayTransaction.objects.filter(
         subscription__isnull=False, status=1  # STATUS_COMPLETED
     ):
-
         subscription_id = sp_transaction.webhook_calls[-1]["vads_subscription"]
 
         SystemPaySubscription.objects.create(
@@ -22,7 +21,6 @@ def create_system_pay_subscription(apps, schema):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("system_pay", "0007_remove_sensitive_info"),
     ]

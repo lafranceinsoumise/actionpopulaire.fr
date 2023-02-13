@@ -22,7 +22,6 @@ def professional_type_to_subtype(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("groups", "0002_creer_sous_types"),
     ]

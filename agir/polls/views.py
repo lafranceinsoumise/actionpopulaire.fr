@@ -119,7 +119,9 @@ class PollParticipationView(
     def form_valid(self, form):
         try:
             form.make_choice(self.request.user)
-        except IntegrityError:  # there probably has been a race condition when POSTing twice
+        except (
+            IntegrityError
+        ):  # there probably has been a race condition when POSTing twice
             return HttpResponseRedirect(self.get_success_url())
 
         messages.add_message(

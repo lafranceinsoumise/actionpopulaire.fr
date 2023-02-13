@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("municipales", "0007_ajouter_champs")]
 
     operations = [

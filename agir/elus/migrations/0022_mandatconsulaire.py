@@ -7,7 +7,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("data_france", "0022_auto_20210528_0804"),
         ("people", "0004_display_name_and_image"),

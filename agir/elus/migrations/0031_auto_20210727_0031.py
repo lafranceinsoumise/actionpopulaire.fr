@@ -6,7 +6,6 @@ import dynamic_filenames
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("data_france", "0029_deputes_europeens"),
         ("elus", "0030_auto_20210726_1656"),

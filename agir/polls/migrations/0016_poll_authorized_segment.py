@@ -6,7 +6,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.NUNTIUS_SEGMENT_MODEL),
         ("polls", "0015_auto_20200702_1800"),

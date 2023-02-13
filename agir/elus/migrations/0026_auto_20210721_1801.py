@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("people", "0005_add_subscriptions"),
         ("data_france", "0027_eludepartemental"),

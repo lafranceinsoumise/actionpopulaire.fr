@@ -5,7 +5,6 @@ import agir.lib.model_fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("donations", "0010_auto_20190205_1807")]
 
     operations = [

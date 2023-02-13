@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("donations", "0014_monthlyallocation_subscription")]
 
     operations = [

@@ -5,7 +5,6 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("telegram", "0003_telegramgroup_telegram_users"),
     ]

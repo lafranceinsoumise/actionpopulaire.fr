@@ -34,7 +34,6 @@ class APIStatus(Enum):
 
 
 class APIErrorCode(Enum):
-
     MISSING_ALIAS = "INT_030"
     UNKNOWN_ALIAS = "PSP_030"
     UNKNOWN_SUBSCRIPTION = "PSP_032"

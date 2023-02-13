@@ -12,7 +12,6 @@ def related_project_type_null_en_chaine_vide(apps, schema):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("events", "0010_uuid_in_image_filename"),
     ]

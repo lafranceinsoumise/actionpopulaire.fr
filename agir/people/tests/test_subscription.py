@@ -165,7 +165,6 @@ class SubscriptionConfirmationTestCase(TestCase):
         self.assertRegex(mail.outbox[0].body, r"vous êtes déjà avec nous !")
 
     def test_can_subscribe_with_nsp(self):
-
         data = {
             "email": "personne@organisation.pays",
             "location_zip": "20322",
@@ -204,7 +203,6 @@ class SubscriptionConfirmationTestCase(TestCase):
         self.assertTrue(avant <= subscription_time <= apres)
 
     def test_can_subscribe_with_metadata(self):
-
         data = {
             "email": "personne@organisation.pays",
             "location_zip": "20322",

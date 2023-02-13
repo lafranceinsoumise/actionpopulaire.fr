@@ -7,7 +7,6 @@ import psycopg2.extras
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("elus", "0022_mandatconsulaire"),
     ]

@@ -106,7 +106,6 @@ UPDATE people_person SET search = get_people_tsvector(id, first_name, last_name,
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("people", "0008_contact"),
     ]

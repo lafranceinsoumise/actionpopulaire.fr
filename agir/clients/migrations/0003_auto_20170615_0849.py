@@ -7,7 +7,6 @@ import uuid
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("clients", "0002_create_basic_scopes")]
 
     operations = [

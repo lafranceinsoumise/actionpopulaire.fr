@@ -23,7 +23,6 @@ from agir.lib.utils import NUMERO_RE, numero_unique
 
 class SearchableQueryset(models.QuerySet):
     def search(self, query):
-
         if NUMERO_RE.match(query):
             return self.filter(numero__startswith=query)
 

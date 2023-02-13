@@ -6,7 +6,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.NUNTIUS_SEGMENT_MODEL),
         ("events", "0013_rename_legal_meta"),

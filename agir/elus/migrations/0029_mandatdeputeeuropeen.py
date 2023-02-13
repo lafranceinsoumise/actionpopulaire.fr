@@ -11,7 +11,6 @@ import agir.elus.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("data_france", "0029_deputes_europeens"),
         ("people", "0005_add_subscriptions"),

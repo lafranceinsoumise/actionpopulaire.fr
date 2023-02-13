@@ -45,7 +45,6 @@ def remove_new_comment_restricted_subscriptions(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("notifications", "0013_add_new-follower_notification"),
     ]

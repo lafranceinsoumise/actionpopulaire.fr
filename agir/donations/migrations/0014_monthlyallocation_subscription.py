@@ -47,7 +47,6 @@ DROP FUNCTION check_subscription_when_allocations_modified();
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("donations", "0013_monthlyallocation"),
         ("payments", "0001_creer_modeles" ""),

@@ -5,7 +5,6 @@ from django.utils import timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("events", "0007_for_users_all_events"),
     ]

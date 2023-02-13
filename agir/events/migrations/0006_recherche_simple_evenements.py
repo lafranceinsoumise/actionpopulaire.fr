@@ -16,7 +16,6 @@ DROP INDEX events_event_simple_search RESTRICT;
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("events", "0005_facebook_field_max_length"),
     ]

@@ -47,7 +47,6 @@ default_date_range = DateRange(
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("elus", "0007_nettoyage_champs"),
     ]

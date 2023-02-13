@@ -5,7 +5,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("mailing", "0019_segment_countries")]
 
     operations = [

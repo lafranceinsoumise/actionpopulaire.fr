@@ -12,7 +12,6 @@ from django.db import transaction
 
 
 def import_communes_test_data():
-
     with transaction.atomic():
         reg = Region.objects.create(
             code="01",

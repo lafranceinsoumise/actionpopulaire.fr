@@ -9,7 +9,6 @@ import uuid
 
 
 class Migration(migrations.Migration):
-
     replaces = [
         ("polls", "0001_initial"),
         ("polls", "0002_polloption"),

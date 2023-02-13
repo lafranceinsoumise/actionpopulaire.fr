@@ -6,7 +6,6 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("people", "0008_contact"),
         ("groups", "0007_add_fields_to_membership"),

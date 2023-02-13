@@ -555,7 +555,6 @@ class TransferOperation(models.Model):
 
 
 class SupportGroupExternalLink(ExternalLinkMixin):
-
     supportgroup = models.ForeignKey(
         SupportGroup,
         on_delete=models.CASCADE,

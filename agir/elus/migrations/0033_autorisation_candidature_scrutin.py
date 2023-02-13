@@ -23,7 +23,6 @@ DROP FUNCTION prefixes_array (text);
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("people", "0015_add_person_created_id_index"),
         ("contenttypes", "0002_remove_content_type_name"),

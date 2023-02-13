@@ -8,7 +8,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("polls", "0005_poll_tags")]
 
     operations = [

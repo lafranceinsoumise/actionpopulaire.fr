@@ -5,7 +5,6 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("polls", "0010_auto_20181128_1616")]
 
     operations = [

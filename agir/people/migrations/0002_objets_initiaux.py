@@ -109,7 +109,6 @@ def add_basic_tags(apps, schema):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("people", "0001_creer_modeles")]
 
     operations = [

@@ -60,7 +60,6 @@ UPDATE people_person SET _email = get_person_primary_email(id);
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("people", "0012_personform_short_description"),
     ]

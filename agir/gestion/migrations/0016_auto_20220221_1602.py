@@ -8,7 +8,6 @@ import dynamic_filenames
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("gestion", "0015_aligner_type_depense_comptabilite"),
     ]

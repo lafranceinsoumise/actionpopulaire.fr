@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("clients", "0008_oauth2_provider_old_models")]
 
     operations = [

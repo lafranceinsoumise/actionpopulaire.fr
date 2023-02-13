@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("polls", "0016_poll_authorized_segment"),
         ("mailing", "0026_auto_20200701_1804"),

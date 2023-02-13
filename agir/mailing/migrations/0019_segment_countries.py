@@ -5,7 +5,6 @@ import django_countries.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("mailing", "0018_segment_departements")]
 
     operations = [

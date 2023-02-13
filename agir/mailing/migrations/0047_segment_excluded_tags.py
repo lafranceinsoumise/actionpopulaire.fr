@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("people", "0020_person_location_departement_id"),
         ("mailing", "0046_add_segment_person_qualifications"),

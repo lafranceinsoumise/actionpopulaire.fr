@@ -6,7 +6,6 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("people", "0004_display_name_and_image"),
         ("msgs", "0002_nullable_person_fields"),

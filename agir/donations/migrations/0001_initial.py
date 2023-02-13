@@ -45,7 +45,6 @@ DROP FUNCTION check_payment_gt_allocation();
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [

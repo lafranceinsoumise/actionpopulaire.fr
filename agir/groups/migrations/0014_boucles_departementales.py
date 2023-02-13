@@ -22,7 +22,6 @@ def supprimer_sous_type_boucle_departementale(apps, schema):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("groups", "0013_add_supportgroup_editable_field"),
     ]

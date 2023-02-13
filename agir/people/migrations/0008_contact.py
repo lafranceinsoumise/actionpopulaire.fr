@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("people", "0007_add_person_image_filename_cache_key"),
     ]

@@ -50,7 +50,6 @@ def remove_doc_reminder_subscriptions(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("notifications", "0011_delete_subscription"),
     ]

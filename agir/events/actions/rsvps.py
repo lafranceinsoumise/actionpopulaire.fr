@@ -134,7 +134,8 @@ def rsvp_to_paid_event_and_create_payment(
 def validate_payment_for_rsvp(payment):
     """Validate participation for paid event
 
-    This function should be used in payment webhooks, and should try to avoid raising any error."""
+    This function should be used in payment webhooks, and should try to avoid raising any error.
+    """
 
     try:
         rsvp = payment.rsvp

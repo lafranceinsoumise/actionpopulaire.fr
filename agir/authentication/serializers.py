@@ -158,7 +158,6 @@ class SessionSerializer(serializers.Serializer):
 
 
 class SessionDonationSerializer(serializers.Serializer):
-
     donations = serializers.SerializerMethodField(read_only=True)
 
     def get_donations(self, request):

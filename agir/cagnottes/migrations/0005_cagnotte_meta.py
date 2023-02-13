@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("cagnottes", "0004_alter_cagnotte_url_remerciement"),
     ]

@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("people", "0004_display_name_and_image"),
         ("activity", "0019_fix unique_recipient_announcement_activity_constraint"),

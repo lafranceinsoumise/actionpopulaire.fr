@@ -17,7 +17,6 @@ import agir.lib.utils
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [

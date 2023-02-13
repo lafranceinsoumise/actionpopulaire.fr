@@ -9,7 +9,6 @@ import psycopg2.extras
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("people", "0005_add_subscriptions"),
         ("elus", "0023_auto_20210611_1038"),

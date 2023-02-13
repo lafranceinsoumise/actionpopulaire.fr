@@ -5,7 +5,6 @@ import phonenumber_field.modelfields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("elus", "0033_autorisation_candidature_scrutin"),
     ]
