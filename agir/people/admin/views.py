@@ -22,6 +22,7 @@ from agir.people.models import Person
 from agir.people.person_forms.actions import get_people_form_class
 from agir.people.person_forms.display import default_person_form_display
 from agir.people.person_forms.models import PersonForm
+from agir.people.tasks import copier_toutes_reponses_vers_feuille_externe
 
 
 class FormSubmissionViewsMixin:
@@ -89,6 +90,28 @@ class FormSubmissionViewsMixin:
         return HttpResponseRedirect(
             reverse("admin:people_personform_change", args=[pk])
         )
+
+    def reset_feuille_externe(self, request, pk):
+        if not self.has_change_permission(request):
+            raise PermissionDenied()
+
+        form = get_object_or_404(PersonForm, id=pk)
+
+        if form.lien_feuille_externe:
+            copier_toutes_reponses_vers_feuille_externe(form.pk)
+            messages.add_message(
+                request=request,
+                level=messages.SUCCESS,
+                message=f"Les données de la feuille de calcul externe ont été réinitialisées",
+            )
+        else:
+            messages.add_message(
+                request=request,
+                level=messages.WARNING,
+                message=f"Ce formulaire n'a pas de lien vers une feuille de calcul externe",
+            )
+
+        return HttpResponseRedirect(request.path)
 
 
 class AddPersonEmailView(AdminViewMixin, SingleObjectMixin, FormView):

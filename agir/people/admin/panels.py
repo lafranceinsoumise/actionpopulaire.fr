@@ -757,6 +757,11 @@ class PersonFormAdmin(FormSubmissionViewsMixin, admin.ModelAdmin):
                 ),
                 name="people_personform_sandbox",
             ),
+            path(
+                "<int:pk>/reset_feuille_externe/",
+                self.admin_site.admin_view(self.reset_feuille_externe),
+                name="people_personform_reset_feuille_externe",
+            ),
         ] + super().get_urls()
 
     def slug_link(self, object):
@@ -771,20 +776,30 @@ class PersonFormAdmin(FormSubmissionViewsMixin, admin.ModelAdmin):
 
     slug_link.short_description = "Slug"
 
-    def action_buttons(self, object):
-        if object._state.adding:
+    def action_buttons(self, obj):
+        if obj._state.adding:
             return "-"
-        else:
-            return format_html(
-                '<a href="{view_results_link}" class="button">Voir les résultats</a>'
-                ' <a href="{download_results_link}" class="button">Télécharger les résultats</a>',
-                view_results_link=reverse(
-                    "admin:people_personform_view_results", args=(object.pk,)
-                ),
-                download_results_link=reverse(
-                    "admin:people_personform_download_results", args=(object.pk,)
+
+        html = format_html(
+            '<a href="{view_results_link}" class="button">Voir les résultats</a>'
+            ' <a href="{download_results_link}" class="button">Télécharger les résultats</a>',
+            view_results_link=reverse(
+                "admin:people_personform_view_results", args=(obj.pk,)
+            ),
+            download_results_link=reverse(
+                "admin:people_personform_download_results", args=(obj.pk,)
+            ),
+        )
+
+        if obj.lien_feuille_externe:
+            html += format_html(
+                ' <a href="{reset_feuille_externe}" class="button danger">Réinitialiser la feuillez externe</a>',
+                reset_feuille_externe=reverse(
+                    "admin:people_personform_reset_feuille_externe", args=(obj.pk,)
                 ),
             )
+
+        return html
 
     action_buttons.short_description = _("Actions")
 
