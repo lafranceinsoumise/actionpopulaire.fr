@@ -28,7 +28,7 @@ def add_member(model_admin, request, pk):
             messages.success(
                 request,
                 _("{email} a bien été ajouté au groupe").format(
-                    email=membership.person.email
+                    email=membership.person.display_email
                 ),
             )
 

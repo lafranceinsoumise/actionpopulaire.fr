@@ -30,7 +30,7 @@ def someone_joined_notification(membership, membership_count=1):
                 recipient=r,
                 supportgroup=membership.supportgroup,
                 individual=membership.person,
-                meta={"email": membership.person.email},
+                meta={"email": membership.person.display_email},
             )
             for r in recipients
         ],

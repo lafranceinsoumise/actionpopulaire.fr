@@ -125,7 +125,9 @@ class MembershipQuerySet(models.QuerySet):
         )
 
     def with_serializer_prefetch(self):
-        return self.prefetch_related("person", "person__emails", "subscription_set")
+        return self.select_related("person", "person__public_email").prefetch_related(
+            "person__emails", "subscription_set"
+        )
 
 
 class SupportGroup(

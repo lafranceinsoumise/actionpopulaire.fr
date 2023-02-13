@@ -462,7 +462,7 @@ class SupportGroupUpdateSerializer(serializers.ModelSerializer):
 class MembershipSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     displayName = serializers.SerializerMethodField(read_only=True)
-    email = serializers.EmailField(source="person.email", read_only=True)
+    email = serializers.EmailField(source="person.display_email", read_only=True)
     image = serializers.ImageField(source="person.image", read_only=True)
     gender = serializers.CharField(source="person.gender", read_only=True)
     description = serializers.CharField(read_only=True)
@@ -539,7 +539,7 @@ class MemberPersonalInformationSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(
         default=None, source="person.image.thumbnail", read_only=True
     )
-    email = serializers.EmailField(source="person.email", read_only=True)
+    email = serializers.EmailField(source="person.display_email", read_only=True)
     phone = PhoneField(source="person.contact_phone", read_only=True)
     address = serializers.CharField(source="person.short_address", read_only=True)
     is2022 = serializers.BooleanField(source="person.is_2022", read_only=True)

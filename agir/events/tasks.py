@@ -419,7 +419,7 @@ def update_ticket(rsvp_pk, metas=None):
         "uuid": str(rsvp.person.id),
         "numero": str(rsvp.id),
         "full_name": rsvp.person.get_full_name(),
-        "contact_email": rsvp.person.email,
+        "contact_email": rsvp.person.display_email,
         "gender": rsvp.person.gender,
         "metas": metas or {},
     }

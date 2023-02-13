@@ -764,7 +764,7 @@ class GroupMemberUpdatePermission(GlobalOrObjectPermissions):
 
 
 class GroupMemberUpdateAPIView(UpdateAPIView):
-    queryset = Membership.objects.active().all()
+    queryset = Membership.objects.with_serializer_prefetch().active().all()
     permission_classes = (
         IsPersonPermission,
         GroupMemberUpdatePermission,
@@ -897,7 +897,7 @@ class GroupUpdateOwnMembershipPermission(GlobalOrObjectPermissions):
 
 
 class GroupUpdateOwnMembershipAPIView(UpdateAPIView):
-    queryset = Membership.objects.active().all()
+    queryset = Membership.objects.with_serializer_prefetch().active()
     permission_classes = (
         IsPersonPermission,
         GroupUpdateOwnMembershipPermission,
@@ -908,5 +908,5 @@ class GroupUpdateOwnMembershipAPIView(UpdateAPIView):
 
     def get_queryset(self):
         if self.request.user.is_authenticated and self.request.user.person is not None:
-            return Membership.objects.active().filter(person=self.request.user.person)
-        return Membership.objects.none()
+            return self.queryset.filter(person=self.request.user.person)
+        return self.queryset.none()

@@ -44,7 +44,7 @@ def add_organizer(model_admin, request, pk):
                 request,
                 _(
                     "{email} a bien été enregistré comme participant à l'événement"
-                ).format(email=organizer_config.person.email),
+                ).format(email=organizer_config.person.display_email),
             )
 
             return HttpResponseRedirect(

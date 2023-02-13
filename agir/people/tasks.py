@@ -100,7 +100,7 @@ def send_confirmation_merge_account(user_pk_requester, user_pk_merge, **kwargs):
     Si l'un des deux utilisateurs n'existe pas ou que l'utilisateur est le même, l'opération est annulée.
     """
     try:
-        requester_email = Person.objects.get(pk=user_pk_requester).email
+        requester_email = Person.objects.get(pk=user_pk_requester).display_email
         merge_email = Person.objects.get(pk=user_pk_merge).email
     except Person.DoesNotExist:
         return
@@ -208,7 +208,7 @@ def send_person_form_notification(submission_pk):
     pretty_submission = default_person_form_display.get_formatted_submission(submission)
 
     bindings = {
-        "ANSWER_EMAIL": person.email,
+        "ANSWER_EMAIL": person.display_email,
         "FORM_NAME": form.title,
         "INFORMATIONS": mark_safe(
             render_to_string(

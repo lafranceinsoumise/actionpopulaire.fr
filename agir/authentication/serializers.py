@@ -25,6 +25,7 @@ class UserContextSerializer(serializers.Serializer):
     dateOfBirth = serializers.DateField(source="date_of_birth")
     gender = serializers.CharField()
     email = serializers.CharField()
+    display_email = serializers.CharField()
     contactPhone = serializers.CharField(source="contact_phone")
     image = serializers.SerializerMethodField()
     fullName = serializers.SerializerMethodField(method_name="get_full_name")

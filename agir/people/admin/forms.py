@@ -50,6 +50,8 @@ class PersonAdminForm(CoordinatesFormMixin, forms.ModelForm):
             label="Email principal",
         )
 
+        self.fields["public_email"].queryset = self.instance.emails.all()
+
     def clean(self):
         cleaned_data = super().clean()
         if not "primary_email" in cleaned_data or "primary_email" in self.errors:

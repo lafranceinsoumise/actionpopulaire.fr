@@ -537,6 +537,21 @@ class Person(
         help_text=_("L'adresse email principale de la personne"),
     )
 
+    public_email = models.OneToOneField(
+        "people.PersonEmail",
+        on_delete=models.SET_NULL,
+        verbose_name="Adresse email publique",
+        related_name="person_with_public_email",
+        related_query_name="person_with_public_email",
+        null=True,
+        blank=True,
+        default=None,
+        help_text=_(
+            "L'adresse email à afficher publiquement dans l'application pour cette personne. "
+            "Si vide, l'adresse email principale de la personne sera utilisée."
+        ),
+    )
+
     class Meta:
         verbose_name = _("personne")
         verbose_name_plural = _("personnes")
@@ -578,8 +593,8 @@ class Person(
             parts.append(self.last_name)
         if self.display_name:
             parts.append(f"({self.display_name})")
-        if self._email:
-            parts.append(f"<{self._email}>")
+        if self.display_email:
+            parts.append(f"<{self.display_email}>")
 
         if parts:
             return " ".join(parts)
@@ -587,7 +602,7 @@ class Person(
             return "<aucune nom ou email>"
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(pk={self.pk!r}, email={self._email})"
+        return f"{self.__class__.__name__}(pk={self.pk!r}, email={self.display_email})"
 
     @property
     def is_agir(self):
@@ -614,6 +629,22 @@ class Person(
     @cached_property
     def primary_email(self):
         return self.emails.filter(_bounced=False).first() or self.emails.first()
+
+    @property
+    def display_email(self):
+        if self.public_email:
+            return self.public_email.address
+        if self.primary_email:
+            return self.primary_email.address
+        return ""
+
+    @display_email.setter
+    def display_email(self, value):
+        if not value:
+            self.public_email = None
+            self.save(update_fields="public_email")
+        else:
+            self.add_email(value, public=True)
 
     @property
     def bounced(self):
@@ -651,11 +682,11 @@ class Person(
         Returns the first_name plus the last_name, with a space in between.
         """
         full_name = "%s %s" % (self.first_name, self.last_name)
-        return full_name.strip() or self.email
+        return full_name.strip() or self.display_email
 
     def get_short_name(self):
         "Returns the short name for the user."
-        return self.first_name or self.email
+        return self.first_name or self.display_email
 
     @property
     def formule_adresse(self):
@@ -678,9 +709,12 @@ class Person(
 
         return f"{cher} {designation}"
 
-    def add_email(self, email_address, primary=False, **kwargs):
+    def add_email(self, email_address, primary=False, public=False, **kwargs):
         try:
-            email = self.emails.get_by_natural_key(email_address)
+            if isinstance(email_address, PersonEmail):
+                email = email_address
+            else:
+                email = self.emails.get_by_natural_key(email_address)
         except PersonEmail.DoesNotExist:
             email = PersonEmail.objects.create_email(
                 address=email_address, person=self, **kwargs
@@ -695,9 +729,14 @@ class Person(
             email.bounced_date = kwargs.get("bounced_date", email.bounced_date)
             email.save()
 
-        if primary and email.person == self:
+        if primary:
             self.set_primary_email(email)
             self._email = email.address
+
+        if public:
+            self.public_email = email
+
+        self.save(update_fields=("_email", "public_email"))
 
         return email
 
