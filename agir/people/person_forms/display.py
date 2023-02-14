@@ -121,7 +121,7 @@ class PersonFormDisplay:
                 return value
         elif field_type == "person":
             try:
-                return Person.objects.filter(id=value).first() or value
+                return str(Person.objects.get(id=value))
             except (ValidationError, ValueError, Person.DoesNotExist):
                 return value
         elif field_type == "datetime":
@@ -216,7 +216,7 @@ class PersonFormDisplay:
             ]
             person_fields = [
                 (
-                    s.person.id if s.person else "Anonyme",
+                    str(s.person.id) if s.person else "Anonyme",
                     s.person.email if s.person else "",
                 )
                 for s in submissions
