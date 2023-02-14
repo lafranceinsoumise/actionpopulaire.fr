@@ -3,12 +3,18 @@ import traceback
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout
 from django import forms
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 
 from agir.lib.admin.form_fields import AdminJsonWidget
 from agir.lib.form_fields import AdminRichEditorWidget
 from agir.lib.forms import CoordinatesFormMixin
+from agir.lib.google_sheet import (
+    parse_sheet_link,
+    check_sheet_permissions,
+)
 from agir.people.models import Person, PersonEmail
 from agir.people.person_forms.actions import (
     validate_custom_fields,
@@ -151,6 +157,12 @@ class PersonFormForm(forms.ModelForm):
             "custom_fields": AdminJsonWidget(schema=schema),
             "config": AdminJsonWidget(),
         }
+        help_texts = {
+            "lien_feuille_externe": mark_safe(
+                f"Google Sheet uniquement pour le moment. La feuille doit être partagée"
+                f" en écriture avec l'utilisateur <em>{settings.GCE_ACCOUNT_EMAIL}</em>."
+            )
+        }
 
     def clean_custom_fields(self):
         value = self.cleaned_data["custom_fields"]
@@ -161,6 +173,19 @@ class PersonFormForm(forms.ModelForm):
         validate_custom_fields(value)
 
         return value
+
+    def clean_lien_feuille_externe(self):
+        lien = self.cleaned_data["lien_feuille_externe"]
+        id = parse_sheet_link(lien)
+
+        if not id:
+            raise ValidationError(
+                "Il ne s'agit pas de l'URL d'un tableau Google sheet."
+            )
+
+        check_sheet_permissions(id)
+
+        return lien
 
     def _post_clean(self):
         super()._post_clean()

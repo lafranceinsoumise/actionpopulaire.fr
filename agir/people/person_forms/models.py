@@ -16,9 +16,6 @@ from agir.lib.models import DescriptionField, TimeStampedModel
 __all__ = ["PersonForm", "PersonFormSubmission"]
 
 
-GOOGLE_SHEET_REGEX = r"^https://docs.google.com/spreadsheets/d/(?P<sid>[A-Za-z0-9_-]{40,})/.*[?#&]gid=(?P<gid>[0-9]+)"
-
-
 class PersonFormQueryset(models.QuerySet):
     def published(self):
         return self.filter(models.Q(published=True))
@@ -173,15 +170,6 @@ class PersonForm(TimeStampedModel):
     lien_feuille_externe = models.URLField(
         verbose_name="Lien vers une feuille de calcul externe",
         blank=True,
-        help_text="Une feuille de calcul externe (Google Sheet uniquement pour moment) qui sera mise à jour avec les"
-        " réponses au formulaire. Attention, cette feuille sera écrasée au fur et à mesure.",
-        validators=[
-            RegexValidator(
-                regex=GOOGLE_SHEET_REGEX,
-                message="Indiquez-ici l'URL complète vers la feuille Google sheet à modifier. La feuille doit être"
-                " accessible et modifiable pour toute personne avec le lien.",
-            )
-        ],
     )
 
     @property

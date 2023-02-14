@@ -1,10 +1,21 @@
-from typing import Any
+import dataclasses
+import re
+from typing import Any, Optional
 
 import gspread
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from gspread.utils import ValueInputOption, rowcol_to_a1
 
+
+GOOGLE_SHEET_REGEX = r"^https://docs.google.com/spreadsheets/d/(?P<sid>[A-Za-z0-9_-]{40,})/.*[?#&]gid=(?P<gid>[0-9]+)"
 MAX_CHUNK_SIZE = 100_000
+
+
+@dataclasses.dataclass
+class GoogleSheetId:
+    sid: str
+    gid: int
 
 
 def grouper(array: list, n: int):
@@ -12,19 +23,59 @@ def grouper(array: list, n: int):
         yield array[i : i + n]
 
 
-def open_sheet(sid: str, gid: int):
+def parse_sheet_link(link: str) -> Optional[GoogleSheetId]:
+    m = re.match(GOOGLE_SHEET_REGEX, link)
+
+    if not m:
+        return None
+
+    sid = m.group("sid")
+    gid = int(m.group("gid"))
+
+    return GoogleSheetId(sid, gid)
+
+
+def open_sheet(sheet: GoogleSheetId):
     gc = gspread.service_account(settings.GCE_KEY_FILE)
-    spreadsheet = gc.open_by_key(sid)
-    sheet = spreadsheet.get_worksheet_by_id(gid)
+    spreadsheet = gc.open_by_key(sheet.sid)
+    sheet = spreadsheet.get_worksheet_by_id(sheet.gid)
 
     return sheet
 
 
-def copy_array_to_sheet(sid: str, gid: int, headers, values):
+def check_sheet_permissions(sheet: GoogleSheetId):
+    gc = gspread.service_account(settings.GCE_KEY_FILE)
+    try:
+        spreadsheet = gc.open_by_key(sheet.sid)
+    except gspread.exceptions.APIError as e:
+        if e.args[0]["code"] == 404:
+            raise ValidationError("Cette spreadsheet n'existe pas.")
+        elif e.args[0]["code"] == 403:
+            raise ValidationError("Donnez l'accès à cette spreadsheet.")
+        raise
+
+    try:
+        spreadsheet.list_permissions()
+    except gspread.exceptions.APIError as e:
+        if e.args[0]["code"] == 403:
+            raise ValidationError(
+                "Action populaire n'a pas la permission de modifier la feuille Google sheet."
+            )
+        raise
+
+    try:
+        spreadsheet.get_worksheet_by_id(sheet.gid)
+    except gspread.exceptions.WorksheetNotFound:
+        raise ValidationError(
+            "Le tableur existe, mais la feuille n'existe pas ou plus."
+        )
+
+
+def copy_array_to_sheet(sheet_id: GoogleSheetId, headers, values):
     num_rows = len(values) + 1
     num_cols = len(headers)
 
-    sheet = open_sheet(sid, gid)
+    sheet = open_sheet(sheet_id)
     sheet.resize(rows=num_rows, cols=num_cols)
 
     chunk_height = MAX_CHUNK_SIZE // num_cols
@@ -40,8 +91,8 @@ def copy_array_to_sheet(sid: str, gid: int, headers, values):
         )
 
 
-def add_row_to_sheet(sid: str, gid: int, values: dict[str, Any]):
-    sheet = open_sheet(sid, gid)
+def add_row_to_sheet(sheet_id: GoogleSheetId, values: dict[str, Any]):
+    sheet = open_sheet(sheet_id)
 
     sheet_headers = sheet.row_values(1)
 
