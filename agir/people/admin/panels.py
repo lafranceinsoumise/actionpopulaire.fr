@@ -793,7 +793,7 @@ class PersonFormAdmin(FormSubmissionViewsMixin, admin.ModelAdmin):
 
         if obj.lien_feuille_externe:
             html += format_html(
-                ' <a href="{reset_feuille_externe}" class="button danger">Réinitialiser la feuillez externe</a>',
+                ' <a href="{reset_feuille_externe}" class="button danger">Réinitialiser la feuille externe</a>',
                 reset_feuille_externe=reverse(
                     "admin:people_personform_reset_feuille_externe", args=(obj.pk,)
                 ),
