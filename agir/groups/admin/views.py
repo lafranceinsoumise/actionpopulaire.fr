@@ -116,7 +116,7 @@ def maj_membres_boucles_departementales(model_admin, request, pk):
         code = group.location_departement_id
     else:
         code = re.search("^\d\d?|$", group.name).group()
-        code = f"99-{code}" if code else None
+        code = f"99-{int(code):02d}" if code else None
 
     if not code:
         messages.warning(
@@ -126,8 +126,17 @@ def maj_membres_boucles_departementales(model_admin, request, pk):
         return response
 
     result = maj_boucles([code])
+    result = list(result.items())
 
-    lieu, count = list(result.items())[0]
+    if not result:
+        messages.warning(
+            request,
+            "Le département ou la circonscription FE n'ont pas pu être retrouvés pour cette boucle",
+        )
+        return response
+
+    lieu, count = result[0]
+
     if not count:
         messages.warning(
             request,
