@@ -1,6 +1,8 @@
 import csv
 from uuid import uuid4
 
+import gspread
+from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
@@ -97,21 +99,44 @@ class FormSubmissionViewsMixin:
 
         form = get_object_or_404(PersonForm, id=pk)
 
-        if form.lien_feuille_externe:
-            copier_toutes_reponses_vers_feuille_externe(form.pk)
-            messages.add_message(
-                request=request,
-                level=messages.SUCCESS,
-                message=f"Les données de la feuille de calcul externe ont été réinitialisées",
-            )
-        else:
+        if not form.lien_feuille_externe:
             messages.add_message(
                 request=request,
                 level=messages.WARNING,
                 message=f"Ce formulaire n'a pas de lien vers une feuille de calcul externe",
             )
+            return HttpResponseRedirect(
+                reverse("admin:people_personform_change", args=[pk])
+            )
 
-        return HttpResponseRedirect(request.path)
+        try:
+            copier_toutes_reponses_vers_feuille_externe(form.pk)
+        except gspread.exceptions.APIError as e:
+            error = e.args[0]
+            message = "Les données de la feuille de calcul externe n'ont pas pu être réinitialisées."
+
+            if error.get("code") in [401, 403]:
+                message += f" Le compte « {settings.GCE_ACCOUNT_EMAIL} » n'a pas de droit d'édition de la feuille de calcul externe."
+            elif error.get("code") == 404:
+                message += f" La feuille de calcul externe n'a pas été trouvée. Vérifiez son URL et reessayez."
+            else:
+                message += f" Une erreur est survenue : {e}"
+
+            messages.add_message(
+                request=request,
+                level=messages.WARNING,
+                message=message,
+            )
+        else:
+            messages.add_message(
+                request=request,
+                level=messages.SUCCESS,
+                message=f"Les données de la feuille de calcul externe ont été réinitialisées",
+            )
+
+        return HttpResponseRedirect(
+            reverse("admin:people_personform_change", args=[pk])
+        )
 
 
 class AddPersonEmailView(AdminViewMixin, SingleObjectMixin, FormView):

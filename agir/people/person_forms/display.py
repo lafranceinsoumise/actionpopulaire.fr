@@ -217,7 +217,7 @@ class PersonFormDisplay:
             person_fields = [
                 (
                     s.person.id if s.person else "Anonyme",
-                    s.email.email if s.person else "",
+                    s.person.email if s.person else "",
                 )
                 for s in submissions
             ]

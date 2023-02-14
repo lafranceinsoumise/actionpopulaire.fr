@@ -1011,4 +1011,5 @@ JAWG_API_ACCES_TOKEN = os.environ.get(
 CALLHUB_API_DOMAIN = os.environ.get("CALLHUB_API_DOMAIN")
 CALLHUB_API_KEY = os.environ.get("CALLHUB_API_KEY")
 
-GCE_KEY_FILE = os.environ.get("GCE_KEY_FILE")
+GCE_ACCOUNT_EMAIL = os.environ.get("GCE_ACCOUNT_EMAIL", "")
+GCE_KEY_FILE = os.environ.get("GCE_KEY_FILE", "gce.json")
