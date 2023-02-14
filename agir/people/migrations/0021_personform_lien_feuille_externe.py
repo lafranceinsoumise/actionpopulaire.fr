@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
             name="lien_feuille_externe",
             field=models.URLField(
                 blank=True,
-                help_text="Une feuille de calcul externe (Google Sheet uniquement pour moment) qui sera mise à jour avec les réponses au formulaire. Attention, cette feuille sera écrasée au fur et à mesure.",
+                help_text="Une feuille de calcul externe à mettre à jour avec les réponses au formulaire.",
                 validators=[
                     django.core.validators.RegexValidator(
                         message="Indiquez-ici l'URL complète vers la feuille Google sheet à modifier. La feuille doit être accessible et modifiable pour toute personne avec le lien.",

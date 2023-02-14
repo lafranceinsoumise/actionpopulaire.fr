@@ -169,6 +169,7 @@ class PersonForm(TimeStampedModel):
 
     lien_feuille_externe = models.URLField(
         verbose_name="Lien vers une feuille de calcul externe",
+        help_text="Une feuille de calcul externe à mettre à jour avec les réponses au formulaire.",
         blank=True,
     )
 
