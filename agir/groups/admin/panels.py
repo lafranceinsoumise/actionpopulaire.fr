@@ -375,6 +375,9 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
     @admin.display(description="Export des membres")
     def export_buttons(self, obj):
+        if obj._state.adding or not obj.memberships.exists():
+            return "Ce groupe n'a pas encore de membres"
+
         export_buttons = [
             (
                 admin_url(
