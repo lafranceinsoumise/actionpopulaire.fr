@@ -15,7 +15,7 @@ from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.utils.safestring import mark_safe
 from django.views.decorators import cache
-from django.views.generic import View, RedirectView
+from django.views.generic import View, RedirectView, TemplateView
 from django.views.generic.detail import BaseDetailView
 
 from agir.authentication.view_mixins import (
@@ -86,6 +86,17 @@ class ServiceWorker(View):
                 "rb",
             )
         )
+
+
+## TEST_VIEWS
+
+
+class LayoutCssTestView(TemplateView):
+    template_name = "front/layout_css_test.html"
+
+
+class ReactCssTestView(ReactBaseView):
+    template_name = "front/react_view_css_test.html"
 
 
 ## AUTH VIEWS

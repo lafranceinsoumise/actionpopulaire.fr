@@ -21,7 +21,9 @@
   {% block page_loader %}
     {% include "front/includes/loader.html" %}
   {% endblock %}
-  <div id="{{ app_mount_id }}"></div>
+  {% block app_mount_target %}
+    <div id="{{ app_mount_id }}"></div>
+  {% endblock %}
   {% if export_data %}
     {{ export_data|json_script:data_script_id }}
   {% endif %}

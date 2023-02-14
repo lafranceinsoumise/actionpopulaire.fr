@@ -249,8 +249,6 @@ urlpatterns = [
     path("inscription/code/", views.CodeSignupView.as_view(), name="check_code_signup"),
     path("deconnexion/", views.LogoutView.as_view(), name="disconnect"),
     path("bienvenue/", views.BaseAppCachedView.as_view(), name="tell_more"),
-    path("404/", views.NotFoundView.as_view()),
-    path("500/", views.BaseAppCachedView.as_view()),
     path("offline", views.BaseAppCachedView.as_view(), name="offline"),
     path("sw.js", (views.ServiceWorker.as_view()), name="sw.js"),
     path("sitemap.xml", sitemap_index, {"sitemaps": sitemaps}),
@@ -400,7 +398,11 @@ urlpatterns = [
         views.PollingStationOfficerView.as_view(),
         name="new_polling_station_officer",
     ),
+    # TEST VIEWS
     path("404/", views.NotFoundView.as_view()),
+    path("500/", views.BaseAppCachedView.as_view()),
+    path("test/layout", views.LayoutCssTestView.as_view()),
+    path("test/react", views.ReactCssTestView.as_view()),
     ## REDIRECT / EXTERNAL VIEWS
     path("nsp/", views.NSPView.as_view(), name="nsp"),
     path("nsp/referral/", views.NSPReferralView.as_view(), name="nsp_referral"),
