@@ -688,24 +688,19 @@ def maj_boucle_par_animation(filter):
         .filter(type=SupportGroup.TYPE_LOCAL_GROUP)
         .filter(filter)
     )
-    membres_souhaites = []
-    metas = {}
-    for groupe in groupes_eligibles:
-        membres_groupe = list(
-            Person.objects.exclude(role__is_active=False)
-            .filter(
-                memberships__membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
-                memberships__supportgroup__in=groupes_eligibles,
-            )
-            .values_list("id", flat=True)
-        )
-        membres_souhaites += membres_groupe
-        meta = {
+
+    ms = Membership.objects.filter(
+        supportgroup__in=groupes_eligibles,
+        membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+    ).only("person_id", "supportgroup_id")
+    membres_souhaites = [m.person_id for m in ms]
+    metas = {
+        m.person_id: {
             "description": "Animateur·ice de groupe d'action local certifié",
-            "group_id": groupe.id,
+            "group_id": m.supportgroup_id,
         }
-        for person_id in membres_groupe:
-            metas[person_id] = meta
+        for m in ms
+    }
 
     return membres_souhaites, metas
 
