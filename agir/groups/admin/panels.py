@@ -1,3 +1,4 @@
+from copy import deepcopy
 from datetime import timedelta
 from functools import partial, update_wrapper
 
@@ -29,7 +30,8 @@ from . import views
 from .forms import SupportGroupAdminForm
 from .. import models
 from ..actions.promo_codes import get_promo_codes
-from ..models import Membership
+from ..models import Membership, SupportGroup
+from ...lib.admin.utils import admin_url
 
 
 class MembershipInline(admin.TabularInline):
@@ -203,6 +205,10 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                 )
             },
         ),
+        (
+            _("Export des adhésions"),
+            {"permission": "people.export_people", "fields": ("export_buttons",)},
+        ),
     )
     inlines = (MembershipInline, ExternalLinkInline)
     readonly_fields = (
@@ -217,6 +223,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         "allocation",
         "certifiable",
         "certification_criteria",
+        "export_buttons",
     )
     date_hierarchy = "created"
 
@@ -247,6 +254,15 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
     search_fields = ("name", "description", "location_city")
     actions = (actions.export_groups, actions.make_published, actions.unpublish)
+
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = deepcopy(super().get_fieldsets(request, obj))
+        authorized_fieldsets = []
+        for key, props in fieldsets:
+            permission = props.pop("permission", False)
+            if not permission or request.user.has_perm(permission):
+                authorized_fieldsets.append((key, props))
+        return tuple(authorized_fieldsets)
 
     def promo_code(self, object):
         if object.pk and object.tags.filter(label=settings.PROMO_CODE_TAG).exists():
@@ -315,24 +331,70 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
     link.short_description = _("Page sur le site")
 
-    def action_buttons(self, object):
-        if object._state.adding:
+    @admin.display(description="Actions")
+    def action_buttons(self, obj):
+        if obj._state.adding:
             return mark_safe("-")
+
+        action_buttons = []
+
+        if obj.type == SupportGroup.TYPE_BOUCLE_DEPARTEMENTALE:
+            action_buttons.append(
+                (
+                    admin_url(
+                        "admin:groups_supportgroup_maj_membres_boucles_departementales",
+                        args=(obj.pk,),
+                    ),
+                    "Mettre à jour les membres",
+                )
+            )
         else:
-            return format_html(
-                '<a href="{add_member_link}" class="button">Ajouter un membre</a> '
-                '<a href="{add_allocation_link}" class="button">Changer l\'allocation</a>'
-                " <small>Attention : cliquer"
-                " sur ces boutons quitte la page et perd vos modifications courantes.</small>",
-                add_member_link=reverse(
-                    "admin:groups_supportgroup_add_member", args=(object.pk,)
-                ),
-                add_allocation_link=reverse("admin:donations_operation_add")
-                + "?group="
-                + str(object.pk),
+            action_buttons.append(
+                (
+                    admin_url("admin:groups_supportgroup_add_member", args=(obj.pk,)),
+                    "Ajouter un membre",
+                )
             )
 
-    action_buttons.short_description = _("Actions")
+        action_buttons.append(
+            (
+                admin_url("admin:donations_operation_add", query={"group": obj.pk}),
+                "Changer l'allocation",
+            ),
+        )
+
+        html = format_html_join(
+            " ", '<a class="button" href="{}">{}</a>', action_buttons
+        ) + format_html(
+            "<div class='help' style='margin: 0; padding: 0;'>"
+            "Attention : cliquer sur ces boutons quitte la page et perd vos modifications courantes."
+            "</div>"
+        )
+
+        return html
+
+    @admin.display(description="Export des membres")
+    def export_buttons(self, obj):
+        export_buttons = [
+            (
+                admin_url(
+                    "admin:groups_supportgroup_export_memberships",
+                    args=(obj.pk, "csv"),
+                ),
+                "Exporter au format CSV",
+            ),
+            (
+                admin_url(
+                    "admin:groups_supportgroup_export_memberships",
+                    args=(obj.pk, "xlsx"),
+                ),
+                "Exporter au format Excel",
+            ),
+        ]
+
+        return format_html_join(
+            " ", '<a class="button" href="{}" download>{}</a>', export_buttons
+        )
 
     def certifiable(self, object):
         if object.is_certified:
@@ -399,11 +461,31 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                 name="{}_{}_add_member".format(
                     self.opts.app_label, self.opts.model_name
                 ),
-            )
+            ),
+            path(
+                "<uuid:pk>/maj_membres_boucles_departementales/",
+                self.admin_site.admin_view(self.maj_membres_boucles_departementales),
+                name="{}_{}_maj_membres_boucles_departementales".format(
+                    self.opts.app_label, self.opts.model_name
+                ),
+            ),
+            path(
+                "<uuid:pk>/export_memberships/<str:as_format>/",
+                self.admin_site.admin_view(self.export_memberships),
+                name="{}_{}_export_memberships".format(
+                    self.opts.app_label, self.opts.model_name
+                ),
+            ),
         ] + super().get_urls()
 
     def add_member(self, request, pk):
         return views.add_member(self, request, pk)
+
+    def maj_membres_boucles_departementales(self, request, pk):
+        return views.maj_membres_boucles_departementales(self, request, pk)
+
+    def export_memberships(self, request, pk, as_format):
+        return views.export_memberships(self, request, pk, as_format)
 
     def get_changelist_instance(self, request):
         cl = super().get_changelist_instance(request)
