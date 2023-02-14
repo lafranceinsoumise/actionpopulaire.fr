@@ -52,21 +52,12 @@ const StyledContainer = styled.div`
   }
 `;
 
-const SecondaryActions = ({
-  id,
-  contact,
-  isCertified,
-  isMessagingEnabled,
-  routes,
-}) => {
+const ContactButton = (props) => {
+  const { id, isMessagingEnabled, contact } = props;
+
   const user = useSelector(getUser);
   const onSelectMessage = useSelectMessage();
-
-  const [isShareOpen, setIsShareOpen] = useState(false);
   const [messageModalOpen, setMessageModalOpen] = useState(false);
-
-  const handleShareClose = useCallback(() => setIsShareOpen(false), []);
-  const handleShareOpen = useCallback(() => setIsShareOpen(true), []);
 
   const handleMessageClose = useCallback(() => setMessageModalOpen(false), []);
   const handleMessageOpen = useCallback(() => setMessageModalOpen(true), []);
@@ -81,28 +72,11 @@ const SecondaryActions = ({
   };
 
   return (
-    <StyledContainer>
+    <>
       <button type="button" onClick={handleMessageOpen}>
         <RawFeatherIcon name="mail" width="1.5rem" height="1.5rem" />
         <span>Contacter</span>
       </button>
-      {isCertified && (
-        <StyledLink route="contributions" params={{ group: id }}>
-          <RawFeatherIcon name="upload" width="1.5rem" height="1.5rem" />
-          <span>Financer</span>
-        </StyledLink>
-      )}
-      <button type="button" onClick={handleShareOpen}>
-        <RawFeatherIcon name="share-2" width="1.5rem" height="1.5rem" />
-        <span>Partager</span>
-      </button>
-      <ModalConfirmation
-        shouldShow={isShareOpen}
-        onClose={handleShareClose}
-        title="Partager le groupe"
-      >
-        <ShareContentUrl url={routes.details} />
-      </ModalConfirmation>
       {isMessagingEnabled ? (
         <MessageModal
           shouldShow={messageModalOpen}
@@ -129,6 +103,55 @@ const SecondaryActions = ({
           </div>
         </ModalConfirmation>
       )}
+    </>
+  );
+};
+
+ContactButton.propTypes = {
+  id: PropTypes.string.isRequired,
+  isMessagingEnabled: PropTypes.bool,
+  contact: PropTypes.object,
+};
+
+const SecondaryActions = ({
+  id,
+  contact,
+  isCertified,
+  isMessagingEnabled,
+  routes,
+  referents,
+}) => {
+  const [isShareOpen, setIsShareOpen] = useState(false);
+
+  const handleShareClose = useCallback(() => setIsShareOpen(false), []);
+  const handleShareOpen = useCallback(() => setIsShareOpen(true), []);
+
+  return (
+    <StyledContainer>
+      {Array.isArray(referents) && referents.length > 0 && (
+        <ContactButton
+          id={id}
+          contact={contact}
+          isMessagingEnabled={isMessagingEnabled}
+        />
+      )}
+      {isCertified && (
+        <StyledLink route="contributions" params={{ group: id }}>
+          <RawFeatherIcon name="upload" width="1.5rem" height="1.5rem" />
+          <span>Financer</span>
+        </StyledLink>
+      )}
+      <button type="button" onClick={handleShareOpen}>
+        <RawFeatherIcon name="share-2" width="1.5rem" height="1.5rem" />
+        <span>Partager</span>
+      </button>
+      <ModalConfirmation
+        shouldShow={isShareOpen}
+        onClose={handleShareClose}
+        title="Partager le groupe"
+      >
+        <ShareContentUrl url={routes.details} />
+      </ModalConfirmation>
     </StyledContainer>
   );
 };
@@ -139,6 +162,7 @@ SecondaryActions.propTypes = {
   isMessagingEnabled: PropTypes.bool,
   routes: PropTypes.object,
   contact: PropTypes.object,
+  referents: PropTypes.array,
 };
 
 export default SecondaryActions;
