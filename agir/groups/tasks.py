@@ -765,7 +765,9 @@ def maj_boucle_fe(circonscription, dry_run=False):
     membres_animations, metas_animation = maj_boucle_par_animation(
         Q(location_country__in=pays)
     )
-    membres_tag, metas_tag = maj_boucle_par_tag(f"Membre boucle {suffixe}")
+    membres_tag, metas_tag = maj_boucle_par_tag(
+        f"Membre boucle FE {circonscription.code}"
+    )
 
     return effectuer_changements(
         boucle,
