@@ -86,9 +86,9 @@ class Command(BaseCommand):
                 )
 
         if codes:
-            self.log("\nMise à jour de toutes les boucles\n")
+            self.log("\nMise à jour des boucles sélectionnées\n")
         else:
-            self.log(f"\nMise à jour des boucles sélectionnées\n")
+            self.log("\nMise à jour de toutes les boucles\n")
 
         result = maj_boucles(codes=codes, dry_run=dry_run)
 
