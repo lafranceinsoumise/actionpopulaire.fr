@@ -214,14 +214,11 @@ class PersonFormDisplay:
                 localize(submission.created.astimezone(get_current_timezone()))
                 for submission in submissions
             ]
-            person_fields = [
-                (
-                    str(s.person.id) if s.person else "Anonyme",
-                    s.person.email if s.person else "",
-                )
-                for s in submissions
+            id_persons = [
+                (str(s.person.id) if s.person else "Anonyme") for s in submissions
             ]
-            return [list(a) for a in zip(id_fields, person_fields, dates)]
+            emails = [(s.person.email if s.person else "") for s in submissions]
+            return [list(a) for a in zip(id_fields, dates, id_persons, emails)]
 
     def get_form_field_labels(self, form, fieldsets_titles=False):
         """Renvoie un dictionnaire associant id de champs et libellés à présenter

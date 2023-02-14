@@ -355,6 +355,6 @@ def copier_reponse_vers_feuille_externe(person_form_submission_id):
     sub.email = sub.person.email
     display = PersonFormDisplay()
     res = display.get_formatted_submission(sub, include_admin_fields=True, html=False)
-    values = {d["label"]: d["value"] for fs in res for d in fs["data"]}
+    values = {str(d["label"]): d["value"] for fs in res for d in fs["data"]}
 
     add_row_to_sheet(sid, gid, values)
