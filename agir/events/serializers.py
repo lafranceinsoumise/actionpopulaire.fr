@@ -401,7 +401,7 @@ class EventAdvancedSerializer(EventSerializer):
         organizers = {
             str(person.id): {
                 "id": person.id,
-                "email": person.email,
+                "email": person.display_email,
                 "displayName": person.display_name,
                 "gender": person.gender,
                 "isOrganizer": True,
@@ -412,7 +412,7 @@ class EventAdvancedSerializer(EventSerializer):
         participants = {
             str(person.id): {
                 "id": person.id,
-                "email": person.email,
+                "email": person.display_email,
                 "displayName": person.display_name,
                 "gender": person.gender,
                 "isOrganizer": False,
@@ -494,8 +494,8 @@ class EventPropertyOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer
             contact["name"] = self.person.display_name
         if self.person and self.person.contact_phone:
             contact["phone"] = str(self.person.contact_phone)
-        if self.person and self.person.email:
-            contact["email"] = self.person.email
+        if self.person and self.person.display_email:
+            contact["email"] = self.person.display_email
         return contact
 
     def get_onlineUrl(self, request):

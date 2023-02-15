@@ -188,7 +188,7 @@ class CodeValidationForm(Form):
             )
         ]
         logger.warning(
-            f"{self.person.email} SMS code failure : tried {self.cleaned_data['code']} and valid"
+            f"{self.person.display_email} SMS code failure : tried {self.cleaned_data['code']} and valid"
             f" codes were {', '.join(codes)}"
         )
 

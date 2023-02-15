@@ -262,10 +262,10 @@ class RemoveManagerView(BaseSupportGroupAdminView, DetailView):
 
         if person.first_name and person.last_name:
             name = "{} {} <{}>".format(
-                person.first_name, person.last_name, person.email
+                person.first_name, person.last_name, person.display_email
             )
         else:
-            name = person.email
+            name = person.display_email
 
         return super().get_context_data(manager_name=name)
 
@@ -285,7 +285,7 @@ class RemoveManagerView(BaseSupportGroupAdminView, DetailView):
             request,
             messages.SUCCESS,
             _("{} n'est plus un gestionnaire du groupe.").format(
-                self.object.person.email
+                self.object.person.display_email
             ),
         )
 

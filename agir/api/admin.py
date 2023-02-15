@@ -16,7 +16,7 @@ class TOTPDeviceAdmin(BaseTOTPDeviceAdmin):
     list_display = ["email", "name", "confirmed", "qrcode_link"]
 
     def email(self, obj):
-        return obj.user.person.email
+        return obj.user.person.display_email
 
 
 class PushDeviceAdmin(DeviceAdmin):

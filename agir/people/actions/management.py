@@ -79,6 +79,11 @@ def merge_email_addresses(p1, p2, _field):
     # use list to make sure the querysets are evaluated now, before modifying the addresses
     email_order_1 = list(p1.get_personemail_order())
     email_order_2 = list(p2.get_personemail_order())
+
+    if not p1.public_email and p2.public_email:
+        p2.public_email.person = p1
+        p2.public_email.save()
+
     for e2 in p2.emails.all():
         e2.person = p1
         e2.save()
@@ -289,6 +294,7 @@ MERGE_STRATEGIES = {
     "crp": merge_comments,
     "person_qualification": merge_reassign_related,
     "event_speaker": merge_event_speakers,
+    "public_email": None,
 }
 
 

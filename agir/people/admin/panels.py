@@ -176,6 +176,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
                     "last_name",
                     "display_name",
                     "primary_email",
+                    "public_email",
                     "connection_params",
                     "disabled_account",
                     "role_link",
@@ -387,6 +388,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
 
     last_login.short_description = Role._meta.get_field("last_login").verbose_name
 
+    @admin.display(description="Adresse principale")
     def primary_email(self, obj):
         if obj._state.adding:
             return "-"
@@ -402,12 +404,14 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         options = format_html_join("", '<option value="{}"{}>{}</option>', args)
 
         return format_html(
-            '<select name="primary_email">{options}</select> <a class="button" href="{add_email_link}">Ajouter une adresse</a>',
+            '<select name="primary_email">{options}</select>&emsp;'
+            '<a class="button" href="{add_email_link}">Ajouter une adresse</a>'
+            '<div class="help" style="margin: 0; padding: 0;">'
+            "L'adresse email utilisée pour communiquer avec la personne (campagnes, emails automatiques, etc.)"
+            "</div>",
             add_email_link=reverse("admin:people_person_addemail", args=[obj.pk]),
             options=options,
         )
-
-    primary_email.short_description = "Adresse principale"
 
     def mandats(self, obj):
         if obj is None:

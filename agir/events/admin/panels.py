@@ -109,7 +109,7 @@ class OrganizerConfigInline(admin.TabularInline):
             format_html(
                 '<a href="{}">{}</a>',
                 reverse("admin:people_person_change", args=(obj.person.id,)),
-                escape(obj.person.email),
+                escape(obj.person.display_email),
             )
         )
 
@@ -144,7 +144,7 @@ class EventImageInline(admin.TabularInline):
             format_html(
                 '<a href="{}">{}</a>',
                 reverse("admin:people_person_change", args=(obj.author.id,)),
-                escape(obj.author.email),
+                escape(obj.author.display_email),
             )
         )
 
