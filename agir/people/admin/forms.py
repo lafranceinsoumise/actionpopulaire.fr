@@ -178,14 +178,16 @@ class PersonFormForm(forms.ModelForm):
 
     def clean_lien_feuille_externe(self):
         lien = self.cleaned_data["lien_feuille_externe"]
-        id = parse_sheet_link(lien)
 
-        if not id:
-            raise ValidationError(
-                "Il ne s'agit pas de l'URL d'un tableau Google sheet."
-            )
+        if lien:
+            id = parse_sheet_link(lien)
 
-        check_sheet_permissions(id)
+            if not id:
+                raise ValidationError(
+                    "Il ne s'agit pas de l'URL d'un tableau Google sheet."
+                )
+
+            check_sheet_permissions(id)
 
         return lien
 
