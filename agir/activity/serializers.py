@@ -1,7 +1,6 @@
 from rest_framework import serializers
 
 from agir.activity.models import Activity, Announcement
-from agir.events.serializers import EventListSerializer
 from agir.groups.serializers import SupportGroupSerializer
 from agir.lib.serializers import FlexibleFieldsMixin
 from agir.people.serializers import PersonSerializer
