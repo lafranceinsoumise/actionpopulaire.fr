@@ -2,16 +2,30 @@ from django.conf import settings
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.db.models import Prefetch
 from django.utils import formats, timezone
+from django.utils.safestring import mark_safe
 from django_countries.fields import CountryField
 
-from agir.events.models import Event
+from agir.events.models import Event, Calendar
 from agir.lib.form_fields import CustomJSONEncoder
 from agir.lib.models import BaseAPIResource, DescriptionField, SimpleLocationMixin
 
 
+class ModelWithCalendarManager(models.Manager):
+    def create(self, **kwargs):
+        from agir.event_requests.actions import create_calendar_for_object
+
+        with transaction.atomic():
+            obj = super().create(**kwargs)
+            create_calendar_for_object(obj)
+            return obj
+
+
 class EventThemeType(models.Model):
+    objects = ModelWithCalendarManager()
+
     name = models.CharField("nom", blank=False, null=False, max_length=255)
     event_subtype = models.ForeignKey(
         "events.EventSubtype",
@@ -21,9 +35,50 @@ class EventThemeType(models.Model):
         null=False,
         blank=False,
     )
+    calendar = models.OneToOneField(
+        "events.Calendar",
+        on_delete=models.SET_NULL,
+        verbose_name="Agenda",
+        related_name="+",
+        null=True,
+        default=None,
+        editable=False,
+    )
+    event_speaker_request_email_from = models.EmailField(
+        verbose_name="expéditeur de l'e-mail aux intervenant·es",
+        max_length=255,
+        blank=False,
+        null=False,
+        default=settings.EMAIL_SUPPORT,
+        help_text="Cette adresse sera utilisé comme expéditeur de l'e-mail envoyé aux intervenant·es pour demander de renseigner "
+        "leur disponibilité.",
+    )
+    event_speaker_request_email_subject = models.CharField(
+        verbose_name="objet de l'e-mail aux intervenant·es",
+        max_length=255,
+        blank=False,
+        null=False,
+        help_text="Ce texte sera utilisé comme objet de l'e-mail envoyé aux intervenant·es pour demander de renseigner "
+        "leur disponibilité.",
+    )
+    event_speaker_request_email_body = DescriptionField(
+        verbose_name="texte de l'e-mail aux intervenant·es",
+        blank=False,
+        null=False,
+        allowed_tags=settings.ADMIN_ALLOWED_TAGS,
+        help_text="Ce texte sera utilisé comme corps de l'e-mail envoyé aux intervenant·es pour demander de renseigner "
+        "leur disponibilité.",
+    )
 
     def __str__(self):
         return self.name
+
+    def get_event_speaker_request_email_bindings(self):
+        return {
+            "email_from": self.event_speaker_request_email_from,
+            "subject": self.event_speaker_request_email_subject,
+            "body": mark_safe(self.event_speaker_request_email_body),
+        }
 
     class Meta:
         verbose_name = "Type de thème d'événement"
@@ -31,6 +86,8 @@ class EventThemeType(models.Model):
 
 
 class EventTheme(BaseAPIResource):
+    objects = ModelWithCalendarManager()
+
     name = models.CharField("nom", blank=False, null=False, max_length=255)
     description = DescriptionField(
         verbose_name="description",
@@ -46,6 +103,15 @@ class EventTheme(BaseAPIResource):
         related_query_name="event_theme",
         null=False,
         blank=False,
+    )
+    calendar = models.OneToOneField(
+        "events.Calendar",
+        on_delete=models.SET_NULL,
+        verbose_name="Agenda",
+        related_name="+",
+        null=True,
+        default=None,
+        editable=False,
     )
 
     def __str__(self):

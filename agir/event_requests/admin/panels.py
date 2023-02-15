@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib import admin
 from django.urls import reverse, path
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from rangefilter.filters import DateRangeFilter
 
@@ -8,23 +9,63 @@ from agir.event_requests import models
 from agir.event_requests.admin import inlines, views, filter as filters
 from agir.lib.admin.panels import PersonLinkMixin
 from agir.lib.form_fields import MultiDateTimeField
+from agir.lib.utils import front_url
 
 
 @admin.register(models.EventThemeType)
 class EventThemeTypeAdmin(admin.ModelAdmin):
-    list_display = ("name", "event_subtype")
+    fieldsets = (
+        (
+            None,
+            {"fields": ("name", "event_subtype", "calendar_link")},
+        ),
+        (
+            "DEMANDES DE DISPONIBILITÉ",
+            {
+                "fields": (
+                    "event_speaker_request_email_from",
+                    "event_speaker_request_email_subject",
+                    "event_speaker_request_email_body",
+                )
+            },
+        ),
+    )
+    list_display = ("name", "event_subtype", "calendar_link")
     list_filter = ("event_theme",)
-    autocomplete_fields = ("event_subtype",)
-    inlines = (inlines.EventThemeInline,)
     search_fields = ("name",)
+    autocomplete_fields = ("event_subtype",)
+    readonly_fields = ("calendar_link",)
+    inlines = (inlines.EventThemeInline,)
+
+    @admin.display(description="Agenda", empty_value="-")
+    def calendar_link(self, obj):
+        if obj.calendar:
+            return format_html(
+                '<a href="{0}">{0}</a>',
+                front_url(
+                    "view_calendar", kwargs={"slug": obj.calendar.slug}, absolute=True
+                ),
+            )
 
 
 @admin.register(models.EventTheme)
 class EventThemeAdmin(admin.ModelAdmin):
+    list_display = ("name", "event_theme_type", "calendar_link")
     list_filter = ("event_theme_type",)
-    list_display = ("name", "event_theme_type")
-    inlines = (inlines.EventThemeSpeakerInline,)
+    search_fields = ("name", "event_theme_type__name")
     autocomplete_fields = ("event_theme_type",)
+    readonly_fields = ("calendar_link",)
+    inlines = (inlines.EventThemeSpeakerInline,)
+
+    @admin.display(description="Agenda", empty_value="-")
+    def calendar_link(self, obj):
+        if obj.calendar:
+            return format_html(
+                '<a href="{0}">{0}</a>',
+                front_url(
+                    "view_calendar", kwargs={"slug": obj.calendar.slug}, absolute=True
+                ),
+            )
 
 
 @admin.register(models.EventSpeaker)

@@ -2,11 +2,12 @@ import datetime
 from copy import deepcopy
 
 import pytz
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from django.utils import timezone
+from django.utils.text import slugify
 
 from agir.event_requests.models import EventRequest
-from agir.events.models import Event
+from agir.events.models import Event, Calendar
 from agir.events.tasks import (
     send_event_creation_notification,
     geocode_event,
@@ -14,6 +15,33 @@ from agir.events.tasks import (
 from agir.groups.models import SupportGroup
 from agir.groups.tasks import notify_new_group_event, send_new_group_event_email
 from agir.people.models import Person
+
+
+def create_calendar_for_object(obj):
+    if not hasattr(obj, "calendar"):
+        return
+
+    if hasattr(obj, "event_theme_type"):
+        parent_id = obj.event_theme_type.calendar_id
+        name = f"{obj.name} ({obj.event_theme_type.name})"
+        slug = slugify(f"{obj.event_theme_type.calendar.slug}-{obj.name}")
+    else:
+        parent_id = None
+        name = obj.name
+        slug = slugify(f"e-{obj.name}")
+
+    calendar, _ = Calendar.objects.get_or_create(
+        slug=slug,
+        defaults={
+            "name": name,
+            "user_contributed": False,
+            "parent_id": parent_id,
+            "archived": True,
+        },
+    )
+
+    obj.calendar_id = calendar.id
+    obj.save()
 
 
 def schedule_new_event_tasks(event):
@@ -87,6 +115,13 @@ def create_event_from_event_speaker_request(event_speaker_request=None):
     )
 
     event.attendees.add(event_speaker_request.event_speaker.person)
+
+    if event_request.event_theme.event_theme_type.calendar:
+        event_request.event_theme.event_theme_type.calendar.events.add(event)
+
+    if event_request.event_theme.calendar:
+        event_request.event_theme.calendar.events.add(event)
+
     schedule_new_event_tasks(event)
 
     return event

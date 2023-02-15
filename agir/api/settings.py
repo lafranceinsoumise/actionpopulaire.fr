@@ -449,6 +449,7 @@ EMAIL_EQUIPE_FINANCE = os.environ.get(
 EMAIL_ILB = os.environ.get(
     "EMAIL_ILB", "Institut La Boétie <nepasrepondre@institutlaboetie.fr>"
 )
+EMAIL_SUPPORT = os.environ.get("EMAIL_SUPPORT", "support@actionpopulaire.fr")
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators

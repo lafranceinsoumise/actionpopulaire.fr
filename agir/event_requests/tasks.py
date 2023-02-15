@@ -21,10 +21,17 @@ def send_new_event_speaker_request_notification(speaker_pk):
     # Make sure the speaker's person has a role, for the magic link to work
     speaker.person.ensure_role_exists()
 
+    event_theme_type = (
+        speaker.event_speaker_requests.order_by("-created")
+        .first()
+        .event_request.event_theme.event_theme_type
+    )
+    email_bindings = event_theme_type.get_event_speaker_request_email_bindings()
     send_template_email(
-        from_email=settings.EMAIL_ILB,
+        from_email=email_bindings.get("email_from"),
         template_name="event_speaker/new_event_speaker_request_email.html",
         bindings={
+            **email_bindings,
             "event_speaker_page_url": front_url("event_speaker", absolute=True),
             "event_speaker_themes": [
                 f"{theme} ({theme.event_theme_type})"
