@@ -1,14 +1,12 @@
 {% extends email_template %}
 
 {% block subject %}
-Demandes de formations locales sur vos thèmes
+  {{ subject }}
 {% endblock %}
 
 {% block html_content %}
 <p>{{ greetings|safe }}</p>
-<p>
-  Des nouvelles demandes de formations où vous pouvez intervenir ont été faites.
-</p>
+{{ body }}
 <p>
   Vous pouvez dès à présent indiquer vos disponibilités aux dates proposées en cliquant sur le lien ci-dessous.
 </p>
@@ -27,12 +25,15 @@ Demandes de formations locales sur vos thèmes
 </table>
 <br />
 <p>
-  Vous recevez ce message car vous avez été inscrit·e comme intervenant·e potentiel·le pour les thèmes de formation suivants&nbsp;:
+  Vous recevez ce message car vous avez été inscrit·e comme intervenant·e potentiel·le pour les thèmes suivants&nbsp;:
   <ul style="list-style-type: none; margin: 0px; padding: 16px; background:#eeeeee; border-radius:8px;">
     {% for theme in event_speaker_themes %}
       <li>&middot;&nbsp;{{ theme }}</li>
     {% endfor %}
   </ul>
+</p>
+<p>
+  Si vous avez un problème ou une incompréhension, vous pouvez écrire à <a href="mailto:{{ email_from }}">{{ email_from }}</a>.
 </p>
 <br />
 <p>Amitiés<br>L'équipe d'Action Populaire</p>

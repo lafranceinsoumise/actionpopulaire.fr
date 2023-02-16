@@ -199,6 +199,9 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         super().__init__(instance=instance, data=data, fields=fields, **kwargs)
 
     def to_representation(self, instance):
+        if not self.context.get("request", None):
+            return super().to_representation(instance)
+
         user = self.context["request"].user
 
         if not self.is_event_card and user.is_authenticated and user.person:
@@ -338,6 +341,9 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         ).data
 
     def get_groupsAttendees(self, obj):
+        if not self.context.get("request", None):
+            return None
+
         user = self.context["request"].user
         if user.is_anonymous or not hasattr(user, "person") or user.person is None:
             self.person = None
@@ -460,6 +466,9 @@ class EventPropertyOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer
     # onlineUrl = serializers.SerializerMethodField()
 
     def to_representation(self, instance):
+        if not self.context.get("request", None):
+            return super().to_representation(instance)
+
         user = self.context["request"].user
         self.person = None
         if not user.is_anonymous and user.person:
