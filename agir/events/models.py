@@ -60,6 +60,7 @@ __all__ = [
     "EventImage",
     "IdentifiedGuest",
     "JitsiMeeting",
+    "GroupAttendee",
 ]
 
 
