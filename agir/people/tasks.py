@@ -351,7 +351,8 @@ def copier_reponse_vers_feuille_externe(person_form_submission_id):
         )
         return
 
-    sub.email = sub.person.email
+    if sub.person:
+        sub.email = sub.person.email
     display = PersonFormDisplay()
     res = display.get_formatted_submission(sub, include_admin_fields=True, html=False)
     values = {str(d["label"]): d["value"] for fs in res for d in fs["data"]}
