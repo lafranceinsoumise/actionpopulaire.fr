@@ -551,6 +551,7 @@ class MemberPersonalInformationSerializer(serializers.ModelSerializer):
     personalInfoConsent = serializers.BooleanField(
         source="personal_information_sharing_consent", read_only=True
     )
+    meta = serializers.JSONField(read_only=True)
 
     def get_subscriber(self, membership):
         meta = membership.person.meta
@@ -600,6 +601,7 @@ class MemberPersonalInformationSerializer(serializers.ModelSerializer):
             "isLiaison",
             "hasGroupNotifications",
             "personalInfoConsent",
+            "meta",
         )
         restricted_fields = (
             "firstName",

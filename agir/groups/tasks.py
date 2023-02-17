@@ -1,6 +1,8 @@
 from collections import OrderedDict
 
 import ics
+from django.db.models.functions import Coalesce
+
 from agir.events.models import Event, OrganizerConfig
 from agir.groups.display import genrer_membership
 from agir.lib.celery import (
@@ -694,14 +696,15 @@ def maj_boucle_par_animation(filter):
             supportgroup__in=groupes_eligibles,
             membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
         )
-        .annotate(name=F("supportgroup__name"))
-        .only("person_id", "supportgroup_id", "name")
+        .annotate(supportgroup_name=F("supportgroup__name"))
+        .values("person_id", "supportgroup_id", "supportgroup_name")
     )
-    membres_souhaites = [m.person_id for m in ms]
+    membres_souhaites = [m["person_id"] for m in ms]
     metas = {
-        m.person_id: {
-            "description": f"Animateur·ice du groupe d'action « {m.name} »",
-            "group_id": m.supportgroup_id,
+        m["person_id"]: {
+            "description": f"Animateur·ice de groupe d'action",
+            "group_id": m["supportgroup_id"],
+            "group_name": m["supportgroup_name"],
         }
         for m in ms
     }

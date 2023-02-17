@@ -49,7 +49,7 @@ const Template = (args) => <GroupMemberCard {...args} />;
 
 export const Default = Template.bind({});
 Default.args = {
-  id: "12345",
+  id: 12345,
   displayName: "JJJ",
   firstName: "Jane Alice",
   lastName: "Doe",
@@ -61,11 +61,16 @@ Default.args = {
   created: "2020-01-01 00:00:00",
   membershipType: MEMBERSHIP_TYPES.MEMBER,
   subscriber: "John Doe",
+  meta: {
+    description: "Animateur·ice de groupe d'action",
+    group_id: "12345",
+    group_name: "Groupe d'action des îles Kerguelen",
+  },
 };
 
 export const WithoutPersonalDataConsent = Template.bind({});
 WithoutPersonalDataConsent.args = {
-  id: "12345",
+  id: 12345,
   displayName: "LeTigreDu93",
   email: "letigredu93@agir.local",
   created: "2020-01-01 00:00:00",
