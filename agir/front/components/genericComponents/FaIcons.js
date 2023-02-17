@@ -1,10 +1,8 @@
-import fontawesome from "@agir/lib/utils/fontawesome";
 import React from "react";
+import styled from "styled-components";
 
-export default {
-  component: "Fontawesome",
-  title: "Generic/Fontawesome",
-};
+import fontawesome from "@agir/lib/utils/fontawesome";
+import style from "@agir/front/genericComponents/_variables.scss";
 
 const usedIcons = [
   "arrow-left",
@@ -70,29 +68,35 @@ const usedIcons = [
   "warning",
 ];
 
-export const Icons = () => {
+const StyledPage = styled.main`
+  padding: 1.5rem 1rem;
+  margin: 0 auto;
+  max-width: 992px;
+  width: 100%;
+  display: grid;
+  font-size: 0.875rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+
+  figure {
+    display: flex;
+    align-items: stretch;
+    margin: 0;
+    padding: 0;
+
+    figcaption {
+      a {
+        line-height: 32px;
+        color: inherit;
+      }
+    }
+  }
+`;
+
+export const FaIcons = () => {
   return (
-    <div
-      style={{
-        padding: "1rem",
-        margin: 0,
-        maxWidth: "992px",
-        width: "100%",
-        display: "grid",
-        fontSize: "0.875rem",
-        gridTemplateColumns: "repeat( auto-fit, minmax(180px, 1fr))",
-      }}
-    >
+    <StyledPage>
       {usedIcons.sort().map((icon) => (
-        <figure
-          key={icon}
-          style={{
-            display: "flex",
-            alignItems: "stretch",
-            margin: 0,
-            padding: 0,
-          }}
-        >
+        <figure key={icon}>
           <svg
             width="40"
             height="44"
@@ -102,7 +106,7 @@ export const Icons = () => {
           >
             <path
               d="M19.4125 36.53L19.7578 36.8915L20.1032 36.53L29.8864 26.2879C35.4834 20.4284 35.4342 10.8888 29.7907 4.98059C24.1473 -0.927579 15.035 -0.979031 9.43801 4.88049C3.84101 10.74 3.89016 20.2796 9.53364 26.1878L19.4125 36.53Z"
-              fill="#e93a55"
+              fill={style.primary500}
               stroke="white"
               strokeWidth="2px"
             />
@@ -111,7 +115,7 @@ export const Icons = () => {
               y="16"
               dominantBaseline="central"
               textAnchor="middle"
-              fontFamily="FontAwesome"
+              fontFamily="'Font Awesome 6 Free'"
               fontSize="16px"
               fill="#FFFFFF"
             >
@@ -120,16 +124,17 @@ export const Icons = () => {
           </svg>
           <figcaption>
             <a
-              href={`https://fontawesome.com/v4.7/icon/${icon}`}
+              href={`https://fontawesome.com/icons/${icon}`}
               target="_blank"
               rel="noopener noreferrer"
-              style={{ lineHeight: "32px", color: "inherit" }}
             >
               {icon}
             </a>
           </figcaption>
         </figure>
       ))}
-    </div>
+    </StyledPage>
   );
 };
+
+export default FaIcons;

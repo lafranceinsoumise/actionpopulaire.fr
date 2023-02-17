@@ -528,6 +528,15 @@ export const routeConfig = {
     hideFooter: true,
     appOnlyTopBar: true,
   }),
+  faIcons: new RouteConfig({
+    id: "faIcons",
+    path: "/test/fontawesome/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Icônes Font Awesome",
+    Component: RouteComponents.FaIcons,
+    hideFeedbackButton: true,
+  }),
 };
 
 export const getRouteByPathname = (pathname) => {
