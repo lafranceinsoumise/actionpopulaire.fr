@@ -1,4 +1,4 @@
-import fontawesome from "fontawesome";
+import fontawesome from "@agir/lib/utils/fontawesome";
 import React from "react";
 
 export default {
@@ -17,6 +17,7 @@ const usedIcons = [
   "bug",
   "bullhorn",
   "bus",
+  "building",
   "calendar",
   "car",
   "cog",
@@ -41,6 +42,7 @@ const usedIcons = [
   "handshake-o",
   "heart",
   "industry",
+  "info",
   "info-circle",
   "link",
   "long-arrow-right",
@@ -49,6 +51,7 @@ const usedIcons = [
   "pagelines",
   "paint-brush",
   "pencil",
+  "phone",
   "plane",
   "plus",
   "refresh",
@@ -58,6 +61,7 @@ const usedIcons = [
   "tint",
   "trash",
   "truck",
+  "thumb-tack",
   "tv",
   "undo",
   "university",

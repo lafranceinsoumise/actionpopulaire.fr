@@ -14,8 +14,8 @@ import Point from "ol/geom/Point";
 import VectorLayer from "ol/layer/Vector";
 import Attribution from "ol/control/Attribution";
 import Zoom from "ol/control/Zoom";
-import fontawesome from "fontawesome";
 
+import fontawesome from "@agir/lib/utils/fontawesome";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import markerIcon from "./marker.svg";
@@ -128,7 +128,7 @@ export function makeStyle(config, options = {}) {
         text: new Text({
           offsetY: -21,
           text: fontawesome(config.iconName),
-          font: "normal 16px FontAwesome",
+          font: "normal 16px 'Font Awesome 6 Free'",
           fill: new Fill({
             color: "#FFFFFF",
           }),

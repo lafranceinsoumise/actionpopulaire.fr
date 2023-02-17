@@ -1,4 +1,3 @@
-import { fromLonLat } from "ol/proj";
 import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled, { keyframes } from "styled-components";
@@ -141,7 +140,7 @@ const OpenLayersMap = (props) => {
         setIsLoaded(true);
       } else if (mapElement) {
         try {
-          await fontIsLoaded("FontAwesome");
+          await fontIsLoaded("'Font Awesome 6 Free'");
           mapObject.current = createMap(
             center,
             zoom,

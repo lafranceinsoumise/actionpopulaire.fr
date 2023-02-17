@@ -27,7 +27,7 @@ export default async function itemMap(
   });
 
   try {
-    await fontIsLoaded("FontAwesome");
+    await fontIsLoaded("'Font Awesome 6 Free'");
   } catch (e) {
     log.debug("Error loading fonts."); // eslint-disable-line no-console
   }

@@ -9,7 +9,7 @@
   {% endif %}
 
   <link rel="preconnect" href="https://erreurs.lafranceinsoumise.fr" />
-  <link rel="preload" as="style" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+  {% include "front/includes/fontawesome.html" %}
   <link rel="preload" href="{% url "api_session" %}" as="fetch" type="application/json"></link>
   {% for href in api_preloads %}
     <link rel="preload" href="{{ href }}" as="fetch" type="application/json"></link>

@@ -1,7 +1,7 @@
-import fontawesome from "fontawesome";
 import Control from "ol/control/Control";
 
 import { element } from "./utils";
+import fontawesome from "@agir/lib/utils/fontawesome";
 
 export default function makeLayerControl(layersConfig, drawingFunction) {
   const selectors = layersConfig.map(function (layerConfig) {

@@ -1,8 +1,8 @@
-import fontawesome from "fontawesome";
 import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled, { keyframes } from "styled-components";
 
+import fontawesome from "@agir/lib/utils/fontawesome";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import { fontIsLoaded } from "@agir/carte/map/utils";
@@ -132,7 +132,7 @@ const StaticMap = (props) => {
     const image = new Image();
     const handleLoad = async () => {
       try {
-        await fontIsLoaded("FontAwesome");
+        await fontIsLoaded("'Font Awesome 6 Free'");
         isMounted.current && setIsLoaded(true);
       } catch (e) {
         isMounted.current && setIsLoaded(true);
@@ -175,7 +175,7 @@ const StaticMap = (props) => {
             y="16"
             dominantBaseline="central"
             textAnchor="middle"
-            fontFamily="FontAwesome"
+            fontFamily="'Font Awesome 6 Free'"
             fontSize="16px"
             fill="#FFFFFF"
           >
