@@ -36,9 +36,10 @@ from ...lib.admin.utils import admin_url
 
 class MembershipInline(admin.TabularInline):
     model = models.Membership
-    fields = ("person_link", "membership_type", "description")
-    readonly_fields = ("person_link", "description")
+    fields = ("person_link", "membership_type", "description", "group_name")
+    readonly_fields = ("person_link", "description", "group_name")
 
+    @admin.display(description="Personne")
     def person_link(self, obj):
         return mark_safe(
             '<a href="%s">%s</a>'
@@ -48,7 +49,24 @@ class MembershipInline(admin.TabularInline):
             )
         )
 
-    person_link.short_description = _("Personne")
+    @admin.display(description="Groupe d'origine", empty_value="-")
+    def group_name(self, obj):
+        if not obj or not obj.meta or not obj.meta.get("group_id"):
+            return
+
+        group_id = obj.meta.get("group_id")
+        group_name = obj.meta.get("group_name", group_id)
+
+        return mark_safe(
+            '<a href="%s">%s</a>'
+            % (
+                reverse(
+                    "admin:groups_supportgroup_change",
+                    args=(group_id,),
+                ),
+                escape(group_name),
+            )
+        )
 
     def has_add_permission(self, request, obj=None):
         return False

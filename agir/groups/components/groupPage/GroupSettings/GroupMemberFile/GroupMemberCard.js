@@ -4,6 +4,7 @@ import styled from "styled-components";
 
 import Avatar from "@agir/front/genericComponents/Avatar";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
+import Link from "@agir/front/app/Link";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 import { timeAgo } from "@agir/lib/utils/time";
@@ -121,6 +122,7 @@ const GroupMemberCard = (props) => {
     created,
     membershipType,
     subscriber,
+    meta = {},
   } = props;
 
   const [_, handleCopy] = useCopyToClipboard(
@@ -128,10 +130,13 @@ const GroupMemberCard = (props) => {
     2000,
     "L'adresse e-mail a été copié."
   );
+
   const role = useMemo(
     () => getGenderedMembershipType(membershipType, gender),
     [membershipType, gender]
   );
+
+  const { description, group_id, group_name } = meta;
 
   return (
     <StyledCard>
@@ -190,6 +195,31 @@ const GroupMemberCard = (props) => {
                 }`}
           </span>
         </p>
+        {description && (
+          <>
+            <p>
+              <span>
+                <FeatherIcon small name="info" />
+                &ensp;
+                {description}
+              </span>
+            </p>
+            {group_id && group_name ? (
+              <p>
+                <span>
+                  <FeatherIcon small name="users" />
+                  &ensp;
+                  <Link
+                    route="groupDetails"
+                    routeParams={{ groupPk: group_id }}
+                  >
+                    {group_name}
+                  </Link>
+                </span>
+              </p>
+            ) : null}
+          </>
+        )}
       </div>
     </StyledCard>
   );
@@ -208,6 +238,11 @@ GroupMemberCard.propTypes = {
   created: PropTypes.string.isRequired,
   membershipType: PropTypes.oneOf(Object.values(MEMBERSHIP_TYPES)).isRequired,
   subscriber: PropTypes.string,
+  meta: PropTypes.shape({
+    description: PropTypes.string,
+    group_id: PropTypes.string,
+    group_name: PropTypes.string,
+  }),
 };
 
 export default GroupMemberCard;

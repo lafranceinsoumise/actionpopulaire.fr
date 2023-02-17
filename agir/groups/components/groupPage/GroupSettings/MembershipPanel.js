@@ -65,8 +65,34 @@ const MembersSkeleton = (
 export const ReadOnlyMembershipPanel = (props) => {
   const { groupPk, illustration, MainPanel, onBack } = props;
   const group = useGroup(groupPk);
-  const { data: members, isLoading } = useSWR(
+  const { data: members, isLoading: groupIsLoading } = useSWR(
     getGroupEndpoint("getMembers", { groupPk })
+  );
+
+  const [selectedMember, setSelectedMember] = useState(null);
+
+  const { data: selectedMemberData } = useSWR(
+    selectedMember?.id &&
+      getGroupEndpoint("getMemberPersonalInformation", {
+        memberPk: selectedMember?.id,
+      })
+  );
+
+  const selectMember = useCallback(
+    (memberId) => {
+      const member = members.find((member) => member.id === memberId);
+      setSelectedMember(member);
+    },
+    [members]
+  );
+
+  const unselectMember = useCallback(() => {
+    setSelectedMember(null);
+  }, []);
+
+  const memberFileTransition = useTransition(
+    !!selectedMemberData,
+    slideInTransition
   );
 
   return (
@@ -77,8 +103,22 @@ export const ReadOnlyMembershipPanel = (props) => {
           group={group}
           members={members}
           routes={group?.routes}
-          isLoading={isLoading}
+          isLoading={groupIsLoading}
+          onClickMember={selectMember}
         />
+        {memberFileTransition(
+          (style, item) =>
+            item && (
+              <SecondaryPanel style={style}>
+                <GroupMemberFile
+                  isGroupFull={!!group.isFull}
+                  isReferent={group.isReferent}
+                  member={selectedMemberData}
+                  onBack={unselectMember}
+                />
+              </SecondaryPanel>
+            )
+        )}
       </PageFadeIn>
     </>
   );
@@ -162,12 +202,12 @@ const EditableMembershipPanel = (props) => {
     [members]
   );
 
-  const selectMembershipType = useCallback((membershipType) => {
-    setSelectedMembershipType(membershipType);
-  }, []);
-
   const unselectMember = useCallback(() => {
     setSelectedMember(null);
+  }, []);
+
+  const selectMembershipType = useCallback((membershipType) => {
+    setSelectedMembershipType(membershipType);
   }, []);
 
   const unselectMembershipType = useCallback(() => {
