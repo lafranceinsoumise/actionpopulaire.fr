@@ -25,11 +25,11 @@ def create_calendar_for_object(obj):
     if hasattr(obj, "event_theme_type"):
         parent_id = obj.event_theme_type.calendar_id
         name = f"{obj.name} ({obj.event_theme_type.name})"
-        slug = slugify(f"{obj.event_theme_type.calendar.slug}-{obj.name}")
+        slug = slugify(f"e-{obj.event_theme_type.id}-{obj.name}")[:50]
     else:
         parent_id = None
         name = obj.name
-        slug = slugify(f"e-{obj.name}")
+        slug = slugify(f"e-{obj.name}")[:50]
 
     calendar, _ = Calendar.objects.get_or_create(
         slug=slug,
