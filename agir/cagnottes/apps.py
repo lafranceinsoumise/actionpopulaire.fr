@@ -1,5 +1,6 @@
 from django.apps import AppConfig
 
+from agir.payments.actions.payments import default_description_context_generator
 from agir.payments.types import (
     PaymentType,
     register_payment_type,
@@ -17,13 +18,18 @@ class CagnottesConfig(AppConfig):
         from .views import RemerciementView, notification_listener
 
         def recuperer_cagnotte(payment: Payment):
+            context = default_description_context_generator(payment)
+
             if "cagnotte" in payment.meta:
                 try:
-                    return {
-                        "cagnotte": Cagnotte.objects.get(id=payment.meta["cagnotte"])
-                    }
+                    context["cagnotte"] = Cagnotte.objects.get(
+                        id=payment.meta["cagnotte"]
+                    )
+
                 except (Cagnotte.DoesNotExist, ValueError):
-                    return {}
+                    pass
+
+            return context
 
         register_payment_type(
             payment_type=PaymentType(
