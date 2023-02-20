@@ -1,17 +1,150 @@
+import io
+
 from django.conf import settings
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import ArrayField
+from django.core import validators
 from django.core.exceptions import ValidationError
+from django.core.files import File
+from django.db import transaction
 from django.db.models import Prefetch
 from django.utils import formats, timezone
+from django.utils.safestring import mark_safe
+from django.utils.text import slugify
 from django_countries.fields import CountryField
+from dynamic_filenames import FilePattern
 
 from agir.events.models import Event
+from agir.events.models import Event, Calendar
+from agir.lib.documents import render_svg_template, svg_to_pdf
 from agir.lib.form_fields import CustomJSONEncoder
-from agir.lib.models import BaseAPIResource, DescriptionField, SimpleLocationMixin
+from agir.lib.models import BaseAPIResource, SimpleLocationMixin, DescriptionField
+
+ASSET_FILE_PATH = FilePattern(
+    filename_pattern="{app_label}/{model_name}/{instance.id}/{uuid:.8base32}{ext}"
+)
+
+
+class EventAssetTemplate(BaseAPIResource):
+    name = models.CharField("Nom", null=False, blank=False, max_length=200)
+    file = models.FileField(
+        "Fichier",
+        null=False,
+        max_length=255,
+        upload_to=ASSET_FILE_PATH,
+        validators=[validators.FileExtensionValidator(["svg"])],
+        help_text="Le fichier doit être au format SVG et contenir des variables correspondantes "
+        "aux données d'un événement (au format: {{ nom_de_la_variable }})",
+    )
+
+    def __str__(self):
+        return f"{self.name} [{str(self.id)[:8]}]"
+
+    def render(self, data=None):
+        return render_svg_template(self.file, data)
+
+    class Meta:
+        verbose_name = "Template de visuel"
+        verbose_name_plural = "Templates de visuels"
+
+
+class EventAssetManager(models.Manager):
+    def create(self, *args, **kwargs):
+        event_asset = super(EventAssetManager, self).create(*args, **kwargs)
+        event_asset.render()
+        return event_asset
+
+
+class EventAsset(BaseAPIResource):
+    objects = EventAssetManager()
+
+    class EventAssetRenderingException(Exception):
+        pass
+
+    name = models.CharField(
+        "Nom", null=False, blank=False, editable=False, max_length=200
+    )
+    file = models.FileField(
+        "Fichier",
+        null=False,
+        editable=False,
+        max_length=255,
+        upload_to=ASSET_FILE_PATH,
+        validators=[validators.FileExtensionValidator(["pdf"])],
+    )
+    template = models.ForeignKey(
+        "event_requests.EventAssetTemplate",
+        verbose_name="template",
+        on_delete=models.SET_NULL,
+        related_name="+",
+        null=True,
+        blank=False,
+    )
+    event = models.ForeignKey(
+        "events.Event",
+        verbose_name="événement",
+        on_delete=models.SET_NULL,
+        related_name="event_assets",
+        related_query_name="event_asset",
+        null=True,
+        blank=False,
+        editable=False,
+    )
+    extra_data = models.JSONField(
+        "Données supplémentaires",
+        default=dict,
+        blank=True,
+        encoder=CustomJSONEncoder,
+        help_text="Les données qui seront utilisées, en plus de celles de l'événement, pour générer le visuel",
+    )
+
+    def __str__(self):
+        if self.deprecated:
+            return f"{self.name} (obsolète)"
+        return f"{self.name} (événement #{self.event_id})"
+
+    @property
+    def deprecated(self):
+        return self.template_id is None or self.event_id is None
+
+    def render(self):
+        if self.deprecated:
+            raise self.EventAssetRenderingException(
+                "Ce visuel est obsolète : l'événement et/ou le template ont été supprimés"
+            )
+        rendered_svg = self.template.render(
+            data={"event": self.event, **self.extra_data}
+        )
+        self.name = self.template.name
+        self.file = File(
+            io.BytesIO(svg_to_pdf(rendered_svg)), name=f"{slugify(self.name)}.pdf"
+        )
+        self.save()
+
+    class Meta:
+        verbose_name = "Visuel de l'événement"
+        verbose_name_plural = "Visuels des événements"
+        constraints = (
+            models.UniqueConstraint(
+                fields=["event", "template"],
+                name="unique_event_asset_for_event_and_template",
+            ),
+        )
+
+
+class ModelWithCalendarManager(models.Manager):
+    def create(self, **kwargs):
+        from agir.event_requests.actions import create_calendar_for_object
+
+        with transaction.atomic():
+            obj = super().create(**kwargs)
+            create_calendar_for_object(obj)
+            return obj
 
 
 class EventThemeType(models.Model):
+    objects = ModelWithCalendarManager()
+
     name = models.CharField("nom", blank=False, null=False, max_length=255)
     event_subtype = models.ForeignKey(
         "events.EventSubtype",
@@ -21,9 +154,56 @@ class EventThemeType(models.Model):
         null=False,
         blank=False,
     )
+    calendar = models.OneToOneField(
+        "events.Calendar",
+        on_delete=models.SET_NULL,
+        verbose_name="Agenda",
+        related_name="+",
+        null=True,
+        default=None,
+        editable=False,
+    )
+    event_speaker_request_email_from = models.EmailField(
+        verbose_name="expéditeur de l'e-mail aux intervenant·es",
+        max_length=255,
+        blank=False,
+        null=False,
+        default=settings.EMAIL_SUPPORT,
+        help_text="Cette adresse sera utilisé comme expéditeur de l'e-mail envoyé aux intervenant·es pour demander de renseigner "
+        "leur disponibilité.",
+    )
+    event_speaker_request_email_subject = models.CharField(
+        verbose_name="objet de l'e-mail aux intervenant·es",
+        max_length=255,
+        blank=False,
+        null=False,
+        help_text="Ce texte sera utilisé comme objet de l'e-mail envoyé aux intervenant·es pour demander de renseigner "
+        "leur disponibilité.",
+    )
+    event_speaker_request_email_body = DescriptionField(
+        verbose_name="texte de l'e-mail aux intervenant·es",
+        blank=False,
+        null=False,
+        allowed_tags=settings.ADMIN_ALLOWED_TAGS,
+        help_text="Ce texte sera utilisé comme corps de l'e-mail envoyé aux intervenant·es pour demander de renseigner "
+        "leur disponibilité.",
+    )
+    event_asset_templates = models.ManyToManyField(
+        "event_requests.EventAssetTemplate",
+        related_name="event_theme_types",
+        related_query_name="event_theme_type",
+        blank=True,
+    )
 
     def __str__(self):
         return self.name
+
+    def get_event_speaker_request_email_bindings(self):
+        return {
+            "email_from": self.event_speaker_request_email_from,
+            "subject": self.event_speaker_request_email_subject,
+            "body": mark_safe(self.event_speaker_request_email_body),
+        }
 
     class Meta:
         verbose_name = "Type de thème d'événement"
@@ -31,6 +211,8 @@ class EventThemeType(models.Model):
 
 
 class EventTheme(BaseAPIResource):
+    objects = ModelWithCalendarManager()
+
     name = models.CharField("nom", blank=False, null=False, max_length=255)
     description = DescriptionField(
         verbose_name="description",
@@ -48,8 +230,32 @@ class EventTheme(BaseAPIResource):
         blank=False,
     )
 
+    calendar = models.OneToOneField(
+        "events.Calendar",
+        on_delete=models.SET_NULL,
+        verbose_name="Agenda",
+        related_name="+",
+        null=True,
+        default=None,
+        editable=False,
+    )
+
+    event_asset_templates = models.ManyToManyField(
+        "event_requests.EventAssetTemplate",
+        related_name="event_themes",
+        related_query_name="event_theme",
+        blank=True,
+    )
+
     def __str__(self):
         return self.name
+
+    def get_event_asset_templates(self):
+        # Defaults to the event theme type event asset templates
+        # if no asset exists for the particular event theme
+        if not self.event_asset_templates.exists():
+            return self.event_theme_type.event_asset_templates.all()
+        return self.event_asset_templates.all()
 
     class Meta:
         verbose_name = "Thème d'événement"

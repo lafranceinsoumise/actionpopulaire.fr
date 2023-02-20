@@ -11,7 +11,7 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
 
 const GroupMemberMainPanel = (props) => {
-  const { members } = props;
+  const { members, onClickMember } = props;
 
   const emails = useMemo(
     () =>
@@ -41,7 +41,12 @@ const GroupMemberMainPanel = (props) => {
         $wrap
       />
       <Spacer size="1.5rem" />
-      <GroupMemberList sortable searchable members={members} />
+      <GroupMemberList
+        sortable
+        searchable
+        members={members}
+        onClickMember={onClickMember}
+      />
     </>
   );
 };

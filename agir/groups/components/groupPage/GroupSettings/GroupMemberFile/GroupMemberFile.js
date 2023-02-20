@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unknown-property */
 import PropTypes from "prop-types";
 import React from "react";
 
@@ -12,6 +13,7 @@ import GroupMemberActions from "./GroupMemberActions";
 const GroupMemberFile = (props) => {
   const { member, onBack, onChangeMembershipType, isReferent, isGroupFull } =
     props;
+
   return (
     <PageFadeIn
       ready={!!member}
@@ -36,6 +38,7 @@ const GroupMemberFile = (props) => {
         created={member?.created}
         membershipType={member?.membershipType}
         subscriber={member?.subscriber}
+        meta={member?.meta}
       />
       <Spacer size="1.5rem" />
       <GroupMemberFacts
@@ -80,6 +83,7 @@ GroupMemberFile.propTypes = {
     is2022: PropTypes.bool,
     isLiaison: PropTypes.bool,
     hasGroupNotifications: PropTypes.bool,
+    member: PropTypes.object,
   }),
   isReferent: PropTypes.bool,
   isGroupFull: PropTypes.bool,

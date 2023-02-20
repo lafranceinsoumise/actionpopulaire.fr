@@ -11,7 +11,10 @@ from django.utils.html import format_html, escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
+from agir.event_requests.models import EventAsset
+from agir.events import models
 from agir.events.models import Calendar, RSVP
+from agir.events.models import GroupAttendee
 from agir.groups.models import SupportGroup, Membership
 from agir.lib.admin.filters import (
     CountryListFilter,
@@ -22,14 +25,12 @@ from agir.lib.admin.filters import (
 from agir.lib.admin.panels import CenterOnFranceMixin
 from agir.lib.utils import front_url, replace_datetime_timezone
 from agir.people.admin.views import FormSubmissionViewsMixin
-from agir.events.models import GroupAttendee
 from agir.people.models import PersonFormSubmission
 from agir.people.person_forms.display import PersonFormDisplay
 from . import actions
 from . import views
 from .filters import RelatedEventFilter
 from .forms import EventAdminForm, EventSubtypeAdminForm
-from .. import models
 
 
 class EventStatusFilter(admin.SimpleListFilter):
@@ -149,6 +150,19 @@ class EventImageInline(admin.TabularInline):
         )
 
     author_link.short_description = _("Auteur")
+
+
+class EventAssetInline(admin.TabularInline):
+    model = EventAsset
+    fields = readonly_fields = ("name", "file")
+    show_change_link = True
+    extra = 0
+
+    def has_add_permission(self, request, obj):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 class EventRsvpPersonFormDisplay(PersonFormDisplay):
@@ -366,6 +380,12 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
 
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related("calendars")
+
+    def get_inlines(self, request, obj):
+        inlines = super().get_inlines(request, obj)
+        if obj and obj.event_assets.exists():
+            inlines = (*inlines, EventAssetInline)
+        return inlines
 
     def get_search_results(self, request, queryset, search_term):
         if search_term:

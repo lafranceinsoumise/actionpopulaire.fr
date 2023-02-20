@@ -4,8 +4,10 @@ from copy import deepcopy
 import pytz
 from django.db import transaction
 from django.utils import timezone
+from django.utils.text import slugify
 
-from agir.event_requests.models import EventRequest
+from agir.event_requests.models import EventRequest, EventAsset
+from agir.events.models import Calendar
 from agir.events.models import Event
 from agir.events.tasks import (
     send_event_creation_notification,
@@ -14,6 +16,33 @@ from agir.events.tasks import (
 from agir.groups.models import SupportGroup
 from agir.groups.tasks import notify_new_group_event, send_new_group_event_email
 from agir.people.models import Person
+
+
+def create_calendar_for_object(obj):
+    if not hasattr(obj, "calendar"):
+        return
+
+    if hasattr(obj, "event_theme_type"):
+        parent_id = obj.event_theme_type.calendar_id
+        name = f"{obj.name} ({obj.event_theme_type.name})"
+        slug = slugify(f"e-{obj.event_theme_type.id}-{obj.name}")[:50]
+    else:
+        parent_id = None
+        name = obj.name
+        slug = slugify(f"e-{obj.name}")[:50]
+
+    calendar, _ = Calendar.objects.get_or_create(
+        slug=slug,
+        defaults={
+            "name": name,
+            "user_contributed": False,
+            "parent_id": parent_id,
+            "archived": True,
+        },
+    )
+
+    obj.calendar_id = calendar.id
+    obj.save()
 
 
 def schedule_new_event_tasks(event):
@@ -87,7 +116,27 @@ def create_event_from_event_speaker_request(event_speaker_request=None):
     )
 
     event.attendees.add(event_speaker_request.event_speaker.person)
+
+    if event_request.event_theme.event_theme_type.calendar:
+        event_request.event_theme.event_theme_type.calendar.events.add(event)
+
+    if event_request.event_theme.calendar:
+        event_request.event_theme.calendar.events.add(event)
+
     schedule_new_event_tasks(event)
+
+    for event_asset_template in event_request.event_theme.get_event_asset_templates():
+        EventAsset.objects.create(
+            template=event_asset_template,
+            event=event,
+            extra_data={
+                "event_theme": event_request.event_theme.name,
+                "event_theme_type": event_request.event_theme.event_theme_type.name,
+                "speaker_full_name": event_speaker_request.event_speaker.person.get_full_name(),
+                "speaker_first_name": event_speaker_request.event_speaker.person.first_name,
+                "speaker_last_name": event_speaker_request.event_speaker.person.last_name,
+            },
+        )
 
     return event
 

@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib.postgres.search import SearchVector, SearchRank
 from django.db import models
 from django.db.models import Subquery, OuterRef, Count, Q, Exists
+from django.db.models.functions import Coalesce
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
@@ -124,9 +125,25 @@ class MembershipQuerySet(models.QuerySet):
             person__role__isnull=False, person__role__is_active=False
         )
 
+    def with_email(self):
+        from agir.people.models import PersonEmail
+
+        return self.annotate(
+            email=Coalesce(
+                "person__public_email__address",
+                Subquery(
+                    PersonEmail.objects.filter(person_id=OuterRef("person_id"))
+                    .order_by("_bounced", "_order")
+                    .values("address")[:1]
+                ),
+            )
+        )
+
     def with_serializer_prefetch(self):
-        return self.select_related("person", "person__public_email").prefetch_related(
-            "person__emails", "subscription_set"
+        return (
+            self.select_related("person")
+            .prefetch_related("subscription_set")
+            .with_email()
         )
 
 

@@ -449,6 +449,7 @@ EMAIL_EQUIPE_FINANCE = os.environ.get(
 EMAIL_ILB = os.environ.get(
     "EMAIL_ILB", "Institut La Boétie <nepasrepondre@institutlaboetie.fr>"
 )
+EMAIL_SUPPORT = os.environ.get("EMAIL_SUPPORT", "support@actionpopulaire.fr")
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
@@ -665,6 +666,13 @@ if not DEBUG:
     }
 
     def sentry_traces_sampler(ctx):
+        reduced_traces_sample_rate_endpoints = [
+            "/api/ping/",
+            "/api/session/",
+            "/api/user/activities/unread-count/",
+            "/api/user/messages/unread_count/",
+            "/nuntius/open/",
+        ]
         default_traces_sample_rate = os.environ.get("SENTRY_DEFAULT_TRACES_SAMPLE_RATE")
         try:
             default_traces_sample_rate = float(default_traces_sample_rate)
@@ -689,8 +697,9 @@ if not DEBUG:
                 # Get the URL for ASGI requests
                 url = ctx["asgi_scope"].get("path", "")
 
-            if url and "/ping/" in url:
-                return 0.01
+            for endpoint in reduced_traces_sample_rate_endpoints:
+                if url and endpoint in url.lower():
+                    return 0.01
 
         return default_traces_sample_rate
 

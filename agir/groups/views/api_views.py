@@ -28,7 +28,7 @@ from rest_framework.response import Response
 
 from agir.donations.allocations import get_supportgroup_balance
 from agir.donations.models import SpendingRequest
-from agir.events.models import Event, GroupAttendee
+from agir.events.models import Event
 from agir.events.serializers import EventListSerializer
 from agir.groups.actions.notifications import (
     new_message_notifications,
@@ -746,7 +746,7 @@ class MemberPersonalInformationPermission(GlobalOrObjectPermissions):
 
 
 class MemberPersonalInformationAPIView(RetrieveAPIView):
-    queryset = Membership.objects.active().all()
+    queryset = Membership.objects.with_serializer_prefetch().active().all()
     permission_classes = (
         IsPersonPermission,
         MemberPersonalInformationPermission,

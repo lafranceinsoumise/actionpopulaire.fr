@@ -1,6 +1,8 @@
 from collections import OrderedDict
 
 import ics
+from django.db.models.functions import Coalesce
+
 from agir.events.models import Event, OrganizerConfig
 from agir.groups.display import genrer_membership
 from agir.lib.celery import (
@@ -19,7 +21,7 @@ from agir.people.actions.subscription import make_subscription_token
 from agir.people.models import Person, PersonTag
 from data_france.models import CirconscriptionConsulaire, CirconscriptionLegislative
 from django.conf import settings
-from django.db.models import Q
+from django.db.models import Q, F
 from django.template.defaultfilters import date as _date
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -689,15 +691,20 @@ def maj_boucle_par_animation(filter):
         .filter(filter)
     )
 
-    ms = Membership.objects.filter(
-        supportgroup__in=groupes_eligibles,
-        membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
-    ).only("person_id", "supportgroup_id")
-    membres_souhaites = [m.person_id for m in ms]
+    ms = (
+        Membership.objects.filter(
+            supportgroup__in=groupes_eligibles,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
+        .annotate(supportgroup_name=F("supportgroup__name"))
+        .values("person_id", "supportgroup_id", "supportgroup_name")
+    )
+    membres_souhaites = [m["person_id"] for m in ms]
     metas = {
-        m.person_id: {
-            "description": "Animateur·ice de groupe d'action local certifié",
-            "group_id": m.supportgroup_id,
+        m["person_id"]: {
+            "description": f"Animateur·ice de groupe d'action",
+            "group_id": m["supportgroup_id"],
+            "group_name": m["supportgroup_name"],
         }
         for m in ms
     }
