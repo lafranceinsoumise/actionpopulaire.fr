@@ -184,6 +184,11 @@ const Routes = {
       /* webpackChunkName: "r-eventspeakerpage" */ "@agir/event_requests/EventSpeakerPage/EventSpeakerPage"
     )
   ),
+  FaIcons: lazy(() =>
+    import(
+      /* webpackChunkName: "r-faicons" */ "@agir/front/genericComponents/FaIcons"
+    )
+  ),
 };
 
 export default Routes;

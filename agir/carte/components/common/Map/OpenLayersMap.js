@@ -1,4 +1,3 @@
-import { fromLonLat } from "ol/proj";
 import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled, { keyframes } from "styled-components";
@@ -7,7 +6,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 
 import logger from "@agir/lib/utils/logger";
 
-import { fontIsLoaded } from "@agir/carte/map/utils";
+import { fontawesomeIsLoaded } from "@agir/carte/map/utils";
 import { createMap } from "@agir/carte/map/common";
 
 import INFO_ICON from "@agir/carte/common/images/info-copyright-icon.svg";
@@ -141,7 +140,7 @@ const OpenLayersMap = (props) => {
         setIsLoaded(true);
       } else if (mapElement) {
         try {
-          await fontIsLoaded("FontAwesome");
+          await fontawesomeIsLoaded();
           mapObject.current = createMap(
             center,
             zoom,

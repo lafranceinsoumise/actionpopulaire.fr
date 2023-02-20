@@ -175,7 +175,7 @@ class SupportGroup(
         TYPE_LOCAL_GROUP: {"color": "#4a64ac", "icon_name": "users"},
         TYPE_THEMATIC: {"color": "#49b37d", "icon_name": "book"},
         TYPE_FUNCTIONAL: {"color": "#e14b35", "icon_name": "cog"},
-        TYPE_BOUCLE_DEPARTEMENTALE: {"color": "#e4b363", "icon_name": "chart-network"},
+        TYPE_BOUCLE_DEPARTEMENTALE: {"color": "#e4b363", "icon_name": "stroopwafel"},
     }
 
     TYPE_DESCRIPTION = {
