@@ -1,6 +1,5 @@
 from django.apps import AppConfig
 
-from agir.payments.actions.payments import default_description_context_generator
 from agir.payments.types import (
     PaymentType,
     register_payment_type,
@@ -13,8 +12,9 @@ class CagnottesConfig(AppConfig):
     PAYMENT_TYPE = "don_cagnotte"
 
     def ready(self):
-        from agir.payments.models import Payment
         from agir.cagnottes.models import Cagnotte
+        from agir.payments.actions.payments import default_description_context_generator
+        from agir.payments.models import Payment
         from .views import RemerciementView, notification_listener
 
         def recuperer_cagnotte(payment: Payment):
