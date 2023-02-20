@@ -18,6 +18,7 @@ const usedIcons = [
   "building",
   "calendar",
   "car",
+  "chart-network",
   "cog",
   "comment",
   "comments",
@@ -56,6 +57,7 @@ const usedIcons = [
   "search",
   "star-half",
   "star-half-o",
+  "stroopwafel",
   "tint",
   "trash",
   "truck",
@@ -92,46 +94,56 @@ const StyledPage = styled.main`
   }
 `;
 
+const Icon = ({ icon }) => {
+  const iconConfig = fontawesome(icon, true);
+  return (
+    <figure>
+      <svg
+        width="40"
+        height="44"
+        viewBox="0 0 40 44"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M19.4125 36.53L19.7578 36.8915L20.1032 36.53L29.8864 26.2879C35.4834 20.4284 35.4342 10.8888 29.7907 4.98059C24.1473 -0.927579 15.035 -0.979031 9.43801 4.88049C3.84101 10.74 3.89016 20.2796 9.53364 26.1878L19.4125 36.53Z"
+          fill={style.primary500}
+          stroke="white"
+          strokeWidth="2px"
+        />
+        <text
+          x="50%"
+          y="16"
+          dominantBaseline="central"
+          textAnchor="middle"
+          fontFamily={iconConfig?.fontFamily}
+          fontWeight={iconConfig?.fontWeight}
+          fontSize="16px"
+          fill="#FFFFFF"
+        >
+          {iconConfig.text}
+        </text>
+      </svg>
+      <figcaption>
+        <span className={`fa fa-${icon}`} />
+        &ensp;
+        <a
+          href={`https://fontawesome.com/icons/${icon}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {icon}
+        </a>
+      </figcaption>
+    </figure>
+  );
+};
+
 export const FaIcons = () => {
   return (
     <StyledPage>
       {usedIcons.sort().map((icon) => (
-        <figure key={icon}>
-          <svg
-            width="40"
-            height="44"
-            viewBox="0 0 40 44"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M19.4125 36.53L19.7578 36.8915L20.1032 36.53L29.8864 26.2879C35.4834 20.4284 35.4342 10.8888 29.7907 4.98059C24.1473 -0.927579 15.035 -0.979031 9.43801 4.88049C3.84101 10.74 3.89016 20.2796 9.53364 26.1878L19.4125 36.53Z"
-              fill={style.primary500}
-              stroke="white"
-              strokeWidth="2px"
-            />
-            <text
-              x="50%"
-              y="16"
-              dominantBaseline="central"
-              textAnchor="middle"
-              fontFamily="'Font Awesome 6 Free'"
-              fontSize="16px"
-              fill="#FFFFFF"
-            >
-              {fontawesome(icon)}
-            </text>
-          </svg>
-          <figcaption>
-            <a
-              href={`https://fontawesome.com/icons/${icon}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {icon}
-            </a>
-          </figcaption>
-        </figure>
+        <Icon key={icon} icon={icon} />
       ))}
     </StyledPage>
   );

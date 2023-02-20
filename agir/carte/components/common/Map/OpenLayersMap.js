@@ -6,7 +6,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 
 import logger from "@agir/lib/utils/logger";
 
-import { fontIsLoaded } from "@agir/carte/map/utils";
+import { fontawesomeIsLoaded } from "@agir/carte/map/utils";
 import { createMap } from "@agir/carte/map/common";
 
 import INFO_ICON from "@agir/carte/common/images/info-copyright-icon.svg";
@@ -140,7 +140,7 @@ const OpenLayersMap = (props) => {
         setIsLoaded(true);
       } else if (mapElement) {
         try {
-          await fontIsLoaded("'Font Awesome 6 Free'");
+          await fontawesomeIsLoaded();
           mapObject.current = createMap(
             center,
             zoom,

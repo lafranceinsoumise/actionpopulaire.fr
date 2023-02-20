@@ -1,11 +1,17 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import styled, { keyframes } from "styled-components";
 
 import fontawesome from "@agir/lib/utils/fontawesome";
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import { fontIsLoaded } from "@agir/carte/map/utils";
+import { fontawesomeIsLoaded } from "@agir/carte/map/utils";
 
 import INFO_ICON from "@agir/carte/common/images/info-copyright-icon.svg";
 
@@ -132,7 +138,7 @@ const StaticMap = (props) => {
     const image = new Image();
     const handleLoad = async () => {
       try {
-        await fontIsLoaded("'Font Awesome 6 Free'");
+        await fontawesomeIsLoaded();
         isMounted.current && setIsLoaded(true);
       } catch (e) {
         isMounted.current && setIsLoaded(true);
@@ -145,6 +151,11 @@ const StaticMap = (props) => {
       image.removeEventListener("load", handleLoad, false);
     };
   }, [staticMapUrl]);
+
+  const iconConfig = useMemo(
+    () => fontawesome(iconConfiguration.iconName, true),
+    [iconConfiguration]
+  );
 
   return (
     <StyledStaticMapWrapper $isLoaded={isLoaded} {...rest}>
@@ -175,11 +186,12 @@ const StaticMap = (props) => {
             y="16"
             dominantBaseline="central"
             textAnchor="middle"
-            fontFamily="'Font Awesome 6 Free'"
+            fontFamily={iconConfig?.fontFamily}
+            fontWeight={iconConfig?.fontWeight}
             fontSize="16px"
             fill="#FFFFFF"
           >
-            {fontawesome(iconConfiguration.iconName)}
+            {iconConfig?.text}
           </text>
         ) : null}
       </svg>

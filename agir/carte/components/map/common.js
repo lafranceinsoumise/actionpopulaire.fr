@@ -122,13 +122,14 @@ export function makeStyle(config, options = {}) {
   options = Object.assign({ color: true }, options);
 
   if (config.color && config.iconName) {
+    const iconStyle = fontawesome(config.iconName, true);
     return [
       ...getMarkerIcons(options.color ? config.color : style.primary500),
       new Style({
         text: new Text({
+          text: iconStyle?.text,
           offsetY: -21,
-          text: fontawesome(config.iconName),
-          font: "normal 16px 'Font Awesome 6 Free'",
+          font: `normal 16px ${iconStyle.fontFamily}`,
           fill: new Fill({
             color: "#FFFFFF",
           }),

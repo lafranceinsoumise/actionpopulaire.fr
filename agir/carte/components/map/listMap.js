@@ -6,7 +6,7 @@ import GeoJSON from "ol/format/GeoJSON";
 import { Style, Stroke, Fill } from "ol/style";
 import VectorLayer from "ol/layer/Vector";
 
-import { fontIsLoaded, ARROW_SIZE } from "./utils";
+import { fontawesomeIsLoaded, ARROW_SIZE } from "./utils";
 import { makeStyle, setUpMap, setUpPopup, fitBounds } from "./common";
 import makeLayerControl from "./layerControl";
 import makeSearchControl from "./searchControl";
@@ -205,7 +205,7 @@ export default async function listMap(
   }
 
   try {
-    await fontIsLoaded("'Font Awesome 6 Free'");
+    await fontawesomeIsLoaded();
   } catch (e) {
     log.debug("Error loading fonts."); // eslint-disable-line no-console
   }
