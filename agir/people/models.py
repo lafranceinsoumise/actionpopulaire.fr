@@ -42,6 +42,7 @@ from .person_forms.models import *
 from ..elus.models import StatutMandat
 from ..events.models import CustomDateTimeField
 from ..lib.display import genrer
+from ..lib.form_fields import CustomJSONEncoder
 from ..lib.model_fields import ChoiceArrayField
 
 __all__ = [
@@ -500,7 +501,9 @@ class Person(
 
     mandates = MandatesField(_("Mandats électoraux"), default=list, blank=True)
 
-    meta = JSONField(_("Autres données"), default=dict, blank=True)
+    meta = JSONField(
+        _("Autres données"), default=dict, blank=True, encoder=CustomJSONEncoder
+    )
 
     commentaires = models.TextField(
         "Commentaires",
