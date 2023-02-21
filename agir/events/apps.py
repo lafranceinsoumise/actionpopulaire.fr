@@ -25,6 +25,7 @@ def admin_payment_modes(payment):
 
 class EventsConfig(AppConfig):
     name = "agir.events"
+    verbose_name = "Événements"
 
     PAYMENT_TYPE = "evenement"
 
