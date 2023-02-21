@@ -259,11 +259,11 @@ export const ContactForm = (props) => {
       />
       <Spacer data-scroll="newsletters" size="2rem" />
       <h4>
-        &laquo;&nbsp;Souhaitez-vous compter dans les soutiens de l'Union
-        populaire&nbsp;?&nbsp;&raquo;
+        &laquo;&nbsp;Souhaitez-vous rejoindre la France
+        insoumise&nbsp;?&nbsp;&raquo;
       </h4>
       <CheckboxField
-        label="Je veux compter dans les soutiens"
+        label="Je veux rejoindre la France insoumise"
         onChange={handleCheckIs2022}
         value={data.is2022}
         id="is2022"
