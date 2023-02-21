@@ -53,10 +53,11 @@ export function fontIsLoaded(fontName) {
   );
 }
 
-export const fontawesomeIsLoaded = async () => {
-  await fontIsLoaded("Font Awesome 6 Free");
-  await fontIsLoaded("Font Awesome 6 Brands");
-  return true;
+export const fontawesomeIsLoaded = () => {
+  return Promise.any([
+    fontIsLoaded("Font Awesome 6 Free"),
+    fontIsLoaded("Font Awesome 6 Brands"),
+  ]);
 };
 
 export const ARROW_SIZE = 20;
