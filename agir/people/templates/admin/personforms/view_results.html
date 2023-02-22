@@ -113,8 +113,8 @@
         columnDefs: [
           { "targets": 0, "type": "html", "searchable": false, "orderable": false },
           { "targets": 1, "type": "num" },
-          { "targets": 2, "type": "html" },
-          { "targets": 3, "type": "date", render: (data, type) => type === "display" ? new Date(data).toLocaleString() : data }
+          { "targets": 3, "type": "html" },
+          { "targets": 2, "type": "date", render: (data, type) => type === "display" ? new Date(data).toLocaleString() : data }
         ],
       });
     });

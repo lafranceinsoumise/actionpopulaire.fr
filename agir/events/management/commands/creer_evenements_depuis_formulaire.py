@@ -89,13 +89,11 @@ class Command(LoggingCommand):
                 else start_time + timedelta(hours=2)
             )
 
+            organizer_group = None
             if "organizer_group" in values:
-                try:
-                    group = SupportGroup.objects.get(id=s.data.pop("organizer_group"))
-                except SupportGroup.DoesNotExist:
-                    group = None
-            else:
-                group = None
+                organizer_group = SupportGroup.objects.filter(
+                    id=s.data.pop("organizer_group")
+                ).first()
 
             if values.pop("publish_contact_information", False):
                 if "contact_name" not in values:
@@ -114,6 +112,8 @@ class Command(LoggingCommand):
 
             with transaction.atomic():
                 event = Event.objects.create(
+                    organizer_person=s.person,
+                    organizer_group=organizer_group,
                     name=name[: Event._meta.get_field("name").max_length],
                     visibility=Event.VISIBILITY_ADMIN,
                     subtype=event_subtype,
@@ -134,10 +134,6 @@ class Command(LoggingCommand):
                             "contact_hide_phone",
                         ]
                     },
-                )
-
-                OrganizerConfig.objects.create(
-                    event=event, person=s.person, as_group=group
                 )
 
                 s.data["_event_id"] = event.id
