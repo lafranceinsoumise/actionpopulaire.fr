@@ -283,12 +283,24 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         return tuple(authorized_fieldsets)
 
     def promo_code(self, object):
-        if object.pk and object.tags.filter(label=settings.PROMO_CODE_TAG).exists():
-            return ", ".join(code for code, _ in get_promo_codes(object))
-        else:
+        if (
+            not object.pk
+            or not object.tags.filter(label=settings.PROMO_CODE_TAG).exists()
+        ):
             return "-"
+        codes = []
+        for code_data in get_promo_codes(object):
+            code = code_data.get("code")
+            expiration = code_data.get("expiration").strftime("%d/%m/%Y")
+            label = code_data.get("label", "").title()
+            code_string = f"<code>{code}</code> — exp. {expiration}"
+            if code_data.get("label"):
+                code_string += f" ({label})"
+            codes.append((mark_safe(code_string),))
 
-    promo_code.short_description = _("Code promo du mois")
+        return format_html_join("", "<p>{}</p>", codes)
+
+    promo_code.short_description = _("Code promo en cours")
 
     def referents(self, object):
         referents = object.memberships.filter(

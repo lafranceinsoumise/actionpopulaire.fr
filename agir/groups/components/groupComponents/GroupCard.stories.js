@@ -76,11 +76,11 @@ OnMyGroupsPage.args = {
   discountCodes: [
     {
       code: "ZEziAujKIhjBJhjHuhguyuY",
-      expirationDate: today.plus({ days: 11 }).toISODate(),
+      expiration: today.plus({ days: 11 }).toISODate(),
     },
     {
       code: "ZxlOienNQWopwoZuZnAzI",
-      expirationDate: today.plus({ days: 42 }).toISODate(),
+      expiration: today.plus({ days: 42 }).toISODate(),
     },
   ],
 };

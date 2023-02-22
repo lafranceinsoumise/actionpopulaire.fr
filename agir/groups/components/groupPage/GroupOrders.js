@@ -14,6 +14,10 @@ const StyledList = styled.ul`
   padding: 0;
   margin: 0 0 1rem;
 
+  &:empty {
+    display: none;
+  }
+
   li {
     &:first-child {
       margin-bottom: 0.25rem;
@@ -34,23 +38,31 @@ const StyledCard = styled(Card)`
 const GroupOrders = (props) => {
   const { isManager, discountCodes, routes } = props;
   const orderURL = routes && routes.orders;
-  const codes = useMemo(
+  const [codes, specialCodes] = useMemo(
     () => parseDiscountCodes(discountCodes),
     [discountCodes]
   );
 
   return isManager ? (
     <StyledCard title="Commander du matériel" outlined>
-      {Array.isArray(codes) && codes.length > 0 ? (
-        <StyledList>
-          <li>Codes de réduction&nbsp;</li>
-          {codes.map(({ code, expiration }) => (
-            <li key={code}>
-              {code} <span>(exp. {expiration})</span>
-            </li>
-          ))}
-        </StyledList>
-      ) : null}
+      <StyledList>
+        {specialCodes.map(({ label, code, expiration }) => (
+          <li key={code}>
+            <strong>🎟️&nbsp;{label}</strong>
+            <br />
+            {code} <span>(exp. {expiration})</span>
+          </li>
+        ))}
+      </StyledList>
+      <StyledList>
+        {codes.map(({ code, expiration, month }) => (
+          <li key={code}>
+            <strong>Code du mois de {month}</strong>
+            <br />
+            {code} <span>(exp. {expiration})</span>
+          </li>
+        ))}
+      </StyledList>
       {orderURL ? (
         <Button link href={orderURL} color="primary" small>
           Commander du matériel
@@ -64,7 +76,7 @@ GroupOrders.propTypes = {
   discountCodes: PropTypes.arrayOf(
     PropTypes.shape({
       code: PropTypes.string,
-      expirationDate: PropTypes.string,
+      expiration: PropTypes.string,
     })
   ),
   isManager: PropTypes.bool,

@@ -18,25 +18,41 @@ export const getGroupTypeWithLocation = (type, location, commune) => {
 };
 
 export const parseDiscountCodes = (discountCodes) => {
-  if (!Array.isArray(discountCodes)) {
-    return null;
-  }
-  return discountCodes.map((code) => {
-    const expirationDateTime = DateTime.fromJSDate(
-      new Date(code.expirationDate)
-    ).startOf("month");
+  const codes = [];
+  const specialCodes = [];
 
-    let expiration = expirationDateTime.diffNow("days").days;
+  if (!Array.isArray(discountCodes)) {
+    return [codes, specialCodes];
+  }
+
+  discountCodes.forEach((code) => {
+    const expirationDateTime = DateTime.fromJSDate(new Date(code.expiration));
+
+    const expirationMonthStart = expirationDateTime.startOf("month");
+
+    let expiration = expirationMonthStart.diffNow("days").days;
     expiration =
       typeof expiration === "number" ? `${Math.ceil(expiration)} jours` : "";
 
-    const isEarly = expirationDateTime.diffNow("months").months > 1;
-
-    return {
+    const isEarly = expirationMonthStart.diffNow("months").months > 1;
+    const parsedCode = {
       ...code,
       expiration,
-      date: expirationDateTime.setLocale("fr-FR").toFormat("dd MMMM yyyy"),
+      month: expirationDateTime
+        .minus({ months: 1 })
+        .setLocale("fr-FR")
+        .toFormat("LLLL")
+        .toLowerCase(),
+      date: expirationMonthStart.setLocale("fr-FR").toFormat("dd MMMM yyyy"),
+      dateExact: expirationDateTime
+        .minus({ day: 1 })
+        .setLocale("fr-FR")
+        .toFormat("dd MMMM yyyy"),
       isEarly,
     };
+
+    code.label ? specialCodes.push(parsedCode) : codes.push(parsedCode);
   });
+
+  return [codes, specialCodes];
 };

@@ -1,8 +1,9 @@
+import json
 import struct
 import base64
 import hmac
 import hashlib
-from datetime import date
+from datetime import date, datetime
 
 from django.conf import settings
 from django.utils import timezone
@@ -87,7 +88,42 @@ def generate_code_for_group(group, expiration_date):
     return sign_code(msg).decode("ascii")
 
 
-def get_promo_codes(group):
+def parse_special_promo_code(code, group):
+    if not isinstance(code, dict) or not code.get("expiration", None):
+        return None
+
+    try:
+        expiration_date = datetime.strptime(code["expiration"], "%Y-%m-%d").date()
+    except ValueError:
+        return None
+
+    if timezone.now().date() >= expiration_date:
+        return None
+
+    return {
+        "code": generate_code_for_group(group, expiration_date),
+        "expiration": expiration_date,
+        "label": code.get("label", "Offre exceptionnelle"),
+    }
+
+
+def get_special_promo_codes(group):
+    codes = settings.SPECIAL_PROMO_CODES
+    if not codes:
+        return []
+    try:
+        codes = json.loads(codes)
+    except json.JSONDecodeError as e:
+        codes = []
+
+    codes = [parse_special_promo_code(code, group) for code in codes]
+    while None in codes:
+        codes.remove(None)
+
+    return codes
+
+
+def get_default_promo_codes(group):
     today = timezone.now().astimezone(timezone.get_default_timezone())
 
     if today.month == 12:
@@ -101,14 +137,24 @@ def get_promo_codes(group):
         previous_expiration_date = date(today.year, today.month + 1, 1)
 
     return (
+        {
+            "code": generate_code_for_group(group, current_expiration_date),
+            "expiration": current_expiration_date,
+        },
+        {
+            "code": generate_code_for_group(group, previous_expiration_date),
+            "expiration": previous_expiration_date,
+        },
+    )
+
+
+def get_promo_codes(group):
+    return sorted(
         (
-            generate_code_for_group(group, current_expiration_date),
-            current_expiration_date,
+            *get_default_promo_codes(group),
+            *get_special_promo_codes(group),
         ),
-        (
-            generate_code_for_group(group, previous_expiration_date),
-            previous_expiration_date,
-        ),
+        key=lambda c: c["expiration"],
     )
 
 
