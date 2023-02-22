@@ -146,10 +146,7 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
         if not has_promo_codes:
             return []
 
-        return [
-            {"code": code, "expirationDate": date}
-            for code, date in get_promo_codes(obj)
-        ]
+        return get_promo_codes(obj)
 
     def get_eventCount(self, obj):
         return obj.events_count
@@ -350,10 +347,7 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             and self.membership.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER
             and obj.tags.filter(label=settings.PROMO_CODE_TAG).exists()
         ):
-            return [
-                {"code": code, "expirationDate": date}
-                for code, date in get_promo_codes(obj)
-            ]
+            return get_promo_codes(obj)
         return []
 
     def get_commune(self, obj):

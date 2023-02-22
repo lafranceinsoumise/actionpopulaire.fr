@@ -13,13 +13,31 @@ const StyledSection = styled.section`
     color: ${(props) => props.theme.black1000};
     margin: 0.5rem 0;
   }
+`;
 
-  ul {
-    padding: 0;
+const StyledList = styled.ul`
+  margin-bottom: 1rem;
+  padding: ${(props) => (props.$special ? "1rem" : 0)};
+  background-color: ${(props) =>
+    props.$special ? props.theme.primary100 : "transparent"};
+  border-radius: ${(props) => props.theme.borderRadius};
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 1rem;
+
+  &:empty {
+    display: none;
   }
 
-  li {
+  & > li {
     list-style: none;
+    display: flex;
+    flex-flow: column nowrap;
+    gap: 0.25rem;
+
+    strong {
+      font-weight: 600;
+    }
 
     span {
       font-weight: 400;
@@ -27,13 +45,30 @@ const StyledSection = styled.section`
 
     em {
       font-size: 0.875rem;
-      padding-top: 0.25rem;
     }
   }
 `;
 
+const DiscountCode = (props) => {
+  const { dateExact, code, label } = props;
+
+  return (
+    <li key={code}>
+      {label && <strong>🎟️&nbsp;{label}</strong>}
+      <ShareLink color="secondary" url={code} label="Copier" $wrap={400} />
+      <em>Valable jusqu'au {dateExact}</em>
+    </li>
+  );
+};
+
+DiscountCode.propTypes = {
+  dateExact: PropTypes.string,
+  code: PropTypes.string,
+  label: PropTypes.string,
+};
+
 const DiscountCodes = ({ discountCodes, ...rest }) => {
-  const codes = useMemo(
+  const [codes, specialCodes] = useMemo(
     () => parseDiscountCodes(discountCodes),
     [discountCodes]
   );
@@ -45,19 +80,18 @@ const DiscountCodes = ({ discountCodes, ...rest }) => {
   return (
     <StyledSection {...rest}>
       <h5>Codes matériels</h5>
-      <ul>
-        {codes.map(({ code, date }) => (
-          <li key={code}>
-            <ShareLink
-              color="secondary"
-              url={code}
-              label="Copier"
-              $wrap={400}
-            />
-            <em>Expiration&nbsp;: {date}</em>
-          </li>
+      {specialCodes.length > 0 && (
+        <StyledList $special>
+          {specialCodes.map((data) => (
+            <DiscountCode key={data.code} {...data} />
+          ))}
+        </StyledList>
+      )}
+      <StyledList>
+        {codes.map((data) => (
+          <DiscountCode key={data.code} {...data} />
         ))}
-      </ul>
+      </StyledList>
     </StyledSection>
   );
 };

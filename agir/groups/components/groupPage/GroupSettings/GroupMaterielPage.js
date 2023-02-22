@@ -14,6 +14,7 @@ import DiscountCode from "./DiscountCode";
 import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
 
 import { useGroup } from "@agir/groups/groupPage/hooks/group.js";
+import { parseDiscountCodes } from "../utils";
 
 const StyledDiscountCodeList = styled.div`
   display: grid;
@@ -26,11 +27,8 @@ const GroupMaterielPage = (props) => {
   const group = useGroup(groupPk);
 
   const ordersURL = useMemo(() => group?.routes?.orders || "", [group]);
-  const discountCodes = useMemo(
-    () =>
-      Array.isArray(group?.discountCodes)
-        ? _sortBy(group.discountCodes, "expirationDate")
-        : [],
+  const [discountCodes, specialDiscountCodes] = useMemo(
+    () => parseDiscountCodes(group?.discountCodes),
     [group]
   );
 
@@ -66,6 +64,9 @@ const GroupMaterielPage = (props) => {
       )}
       <Spacer size="2rem" />
       <StyledDiscountCodeList>
+        {specialDiscountCodes.map((discountCode) => (
+          <DiscountCode key={discountCode.code} {...discountCode} />
+        ))}
         {discountCodes.map((discountCode) => (
           <DiscountCode key={discountCode.code} {...discountCode} />
         ))}
