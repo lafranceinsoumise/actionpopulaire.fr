@@ -207,7 +207,7 @@ class PersonFormDisplay:
             ]
 
             return [
-                list(a) for a in zip(action_fields, id_fields, person_fields, dates)
+                list(a) for a in zip(action_fields, id_fields, dates, person_fields)
             ]
         else:
             dates = [
