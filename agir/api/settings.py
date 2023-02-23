@@ -771,6 +771,10 @@ if DEBUG:
 # Get the promo
 PROMO_CODE_KEY = os.environb.get(b"PROMO_CODE_KEY", b"prout")
 PROMO_CODE_TAG = os.environ.get("PROMO_CODE_TAG", "Code promo matériel")
+SPECIAL_PROMO_CODES = os.environ.get(
+    "SPECIAL_PROMO_CODES", '[{"expiration": "1970-01-01","label": "Offre spéciale"}]'
+)
+
 CERTIFIED_GROUP_SUBTYPES = os.environ.get(
     "CERTIFIED_GROUP_SUBTYPES", "certifié,thématique certifié"
 ).split(",")

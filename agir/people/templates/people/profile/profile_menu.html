@@ -7,14 +7,12 @@
 <li role="presentation" class="{% if tab_code == "MANDATS" %} active {% endif %}">
   <a href="{% url "mandats" %}">Mandats</a>
 </li>
-{% if request.user.person.is_insoumise %}
-  <li role="presentation" class="{% if tab_code == "SKILLS" %} active {% endif %}">
-    <a href="{% url "skills" %}">Expérience et savoir faire</a>
-  </li>
-  <li role="presentation" class="{% if tab_code == "ACT" %} active {% endif %}">
-    <a href="{% url "volunteer" %}">Engagement</a>
-  </li>
-{% endif %}
+<li role="presentation" class="{% if tab_code == "SKILLS" %} active {% endif %}">
+  <a href="{% url "skills" %}">Expérience et savoir faire</a>
+</li>
+<li role="presentation" class="{% if tab_code == "ACT" %} active {% endif %}">
+  <a href="{% url "volunteer" %}">Engagement</a>
+</li>
 <li role="presentation"
     class="{% if tab_code == "PAYMENTS" %}active{% endif %}">
   <a href="{% url "view_payments" %}">Dons et paiements</a>

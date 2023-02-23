@@ -1,5 +1,10 @@
-@import url("https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css");
+@import url("https://media.actionpopulaire.fr/fontawesome/css/fontawesome.css");
+@import url("https://media.actionpopulaire.fr/fontawesome/css/brands.css");
+@import url("https://media.actionpopulaire.fr/fontawesome/css/solid.css");
+@import url("https://media.actionpopulaire.fr/fontawesome/css/v4-font-face.css");
 @import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700");
+
+
 
 /* fix pour faire marcher la fonctionnalité background de storybook */
 .sb-show-main {

@@ -53,6 +53,13 @@ export function fontIsLoaded(fontName) {
   );
 }
 
+export const fontawesomeIsLoaded = () => {
+  return Promise.any([
+    fontIsLoaded("Font Awesome 6 Free"),
+    fontIsLoaded("Font Awesome 6 Brands"),
+  ]);
+};
+
 export const ARROW_SIZE = 20;
 
 export const OVERSEAS_COUNTRY_CODE_TO_DEPARTEMENT = {

@@ -1,5 +1,4 @@
 /* arrow code from http://www.cssarrowplease.com/ */
-@import url("https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css");
 
 .map_popup {
   position: relative;
@@ -36,7 +35,7 @@
   position: absolute;
   top: 0.5em;
   right: 0.5em;
-  font-family: "FontAwesome";
+  font-family: 'Font Awesome 6 Free', 'Font Awesome 6 Brands';
 }
 
 .layer_selector {

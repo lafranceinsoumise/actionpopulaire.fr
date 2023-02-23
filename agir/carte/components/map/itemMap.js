@@ -6,7 +6,7 @@ import VectorSource from "ol/source/Vector";
 import Point from "ol/geom/Point";
 import VectorLayer from "ol/layer/Vector";
 
-import { fontIsLoaded } from "./utils";
+import { fontawesomeIsLoaded } from "./utils";
 import { makeStyle, setUpMap } from "./common";
 
 import logger from "@agir/lib/utils/logger";
@@ -27,7 +27,7 @@ export default async function itemMap(
   });
 
   try {
-    await fontIsLoaded("FontAwesome");
+    await fontawesomeIsLoaded();
   } catch (e) {
     log.debug("Error loading fonts."); // eslint-disable-line no-console
   }
