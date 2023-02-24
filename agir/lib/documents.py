@@ -1,6 +1,8 @@
+import io
 import os
 import subprocess
 
+from django.core.files import File
 from django.template import engines
 
 
@@ -50,11 +52,24 @@ class TicketGenerationException(Exception):
     pass
 
 
-def svg_to_pdf(svg):
+RSVG_CONVERT_AVAILABLE_FORMATS = ("pdf", "png", "ps", "svg", "xml")
+RSVG_CONVERT_AVAILABLE_FORMAT_CHOICES = ((f, f) for f in RSVG_CONVERT_AVAILABLE_FORMATS)
+
+
+def rsvg_convert(
+    svg, to_format=RSVG_CONVERT_AVAILABLE_FORMATS[0], filename="rsvg-convert"
+):
+    to_format = to_format.lower()
+    if to_format not in RSVG_CONVERT_AVAILABLE_FORMATS:
+        raise TicketGenerationException(
+            f"Unsupported {to_format} format. Should be one of: {RSVG_CONVERT_AVAILABLE_FORMATS}"
+        )
+
     rsvg = subprocess.Popen(
         [
             "rsvg-convert",
-            "--format=pdf",
+            f"--format={to_format}",
+            "--keep-aspect-ratio",
         ],
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
@@ -72,4 +87,4 @@ def svg_to_pdf(svg):
         print(svg[:2000])
         raise TicketGenerationException("Return code: %d" % rsvg.returncode)
 
-    return output
+    return File(io.BytesIO(output), name=f"{filename}.{to_format}")

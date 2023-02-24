@@ -161,6 +161,11 @@ event_settings_patterns = [
         name="view_event_settings_required_documents",
     ),
     path(
+        "gestion/ressources/",
+        views.EventSettingsView.as_view(),
+        name="view_event_settings_assets",
+    ),
+    path(
         "documents/",
         views.EventProjectView.as_view(),
         name="event_project",

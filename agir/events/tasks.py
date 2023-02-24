@@ -64,7 +64,6 @@ def send_event_creation_notification(organizer_config_pk):
 
     event = organizer_config.event
     organizer = organizer_config.person
-    document_deadline = event.end_time + timedelta(days=15)
 
     bindings = {
         "EVENT_NAME": event.name,
@@ -84,9 +83,6 @@ def send_event_creation_notification(organizer_config_pk):
         "EVENT_LINK_ENCODED": front_url(
             "view_event", auto_login=False, kwargs={"pk": event.pk}
         ),
-        # "DOCUMENT_DEADLINE": document_deadline.strftime("%d/%m"),
-        # "REQUIRED_DOCUMENT_TYPES": event.subtype.required_documents,
-        # "NEEDS_DOCUMENTS": len(event.subtype.required_documents) > 0,
     }
 
     send_mosaico_email(

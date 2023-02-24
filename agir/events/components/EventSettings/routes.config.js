@@ -53,6 +53,11 @@ const EventSettingsDocuments = lazy(() =>
     /* webpackChunkName: "r-eventsettingsdocuments" */ "@agir/events/EventSettings/EventDocuments"
   )
 );
+const EventSettingsAssets = lazy(() =>
+  import(
+    /* webpackChunkName: "r-eventsettingsassets" */ "@agir/events/EventSettings/EventAssets"
+  )
+);
 
 export const menuRoute = {
   id: "menu",
@@ -101,7 +106,7 @@ export const routeConfig = {
     label: "Documents",
     icon: "file-text",
     Component: EventSettingsDocuments,
-    isActive: true,
+    isActive: (event) => event.hasProject,
     menuGroup: 1,
   },
   videoConference: {
@@ -142,6 +147,16 @@ export const routeConfig = {
     label: "Compte rendu",
     icon: "image",
     Component: EventSettingsFeedback,
+    isActive: true,
+    menuGroup: 2,
+  },
+  assets: {
+    id: "assets",
+    path: "ressources/",
+    exact: true,
+    label: "Ressources",
+    icon: "more-horizontal",
+    Component: EventSettingsAssets,
     isActive: true,
     menuGroup: 2,
   },

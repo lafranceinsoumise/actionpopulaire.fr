@@ -38,11 +38,11 @@ class EventSpeakerRequestRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
 
 class EventSpeakerEventListAPIView(EventListAPIView):
+    queryset = Event.objects.exclude(visibility=Event.VISIBILITY_ADMIN).upcoming()
+
     def get_queryset(self):
-        queryset = super().get_queryset()
-        event_speaker = self.request.user.person.event_speaker
-        if event_speaker is None:
-            return queryset.none()
-        return event_speaker.get_upcoming_events(queryset=queryset).order_by(
-            "start_time"
+        return (
+            super()
+            .get_queryset()
+            .filter(event_speaker__person_id=self.request.user.person.id)
         )

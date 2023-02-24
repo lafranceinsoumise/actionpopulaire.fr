@@ -334,14 +334,16 @@ class EventManager(models.Manager.from_queryset(EventQuerySet)):
             event.save(using=self._db)
 
             if organizer_person is not None:
-                organizer_config = OrganizerConfig.objects.create(
+                OrganizerConfig.objects.create(
                     person=organizer_person,
                     event=event,
                     as_group=organizer_group,
                 )
-                organizer_config.save()
-                rsvp = RSVP.objects.create(person=organizer_person, event=event)
-                rsvp.save()
+                RSVP.objects.create(person=organizer_person, event=event)
+
+            if "event_speaker" in kwargs:
+                event_speaker = kwargs.get("event_speaker")
+                RSVP.objects.get_or_create(person=event_speaker.person, event=event)
 
             return event
 
@@ -546,6 +548,16 @@ class Event(
         help_text=(
             "Note montrée aux participants à un événements et est envoyé dans l'e-mail de confirmation de participation"
         ),
+    )
+
+    event_speaker = models.ForeignKey(
+        "event_requests.EventSpeaker",
+        on_delete=models.SET_NULL,
+        verbose_name="Intervenant·e",
+        related_name="events",
+        related_query_name="event",
+        null=True,
+        default=None,
     )
 
     class Meta:

@@ -1,10 +1,15 @@
+from functools import partial
+
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import reverse
 
-from agir.event_requests.actions import create_event_from_event_speaker_request
+from agir.event_requests.actions import (
+    create_event_from_event_speaker_request,
+    schedule_new_event_tasks,
+)
 from agir.event_requests.models import EventRequest
 
 
@@ -26,7 +31,7 @@ def validate_event_speaker_request(model_admin, request, pk):
                 EventRequest._meta.app_label,
                 EventRequest._meta.model_name,
             ),
-            args=(event_speaker_request.event_request.pk,),
+            args=(event_speaker_request.event_request_id,),
         )
     )
 
@@ -58,6 +63,10 @@ def validate_event_speaker_request(model_admin, request, pk):
             event_speaker_request.event_request.event = event
             event_speaker_request.event_request.status = EventRequest.Status.DONE
             event_speaker_request.event_request.save()
+
+            transaction.on_commit(
+                partial(schedule_new_event_tasks, event_speaker_request.event_request)
+            )
 
             messages.success(
                 request,
