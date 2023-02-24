@@ -22,10 +22,10 @@ const fontawesome = (iconName, asObject = false) => {
     const content =
       beforeStyle?.content &&
       !beforeStyle.content.includes("none") &&
-      beforeStyle.content.replaceAll('"', "");
+      beforeStyle.content.replace(new RegExp('"', "g"), "");
     BINDINGS[iconName] = {
       fontFamily: spanStyle.fontFamily,
-      fontWeight: spanStyle.fontWeight.replaceAll('"', ""),
+      fontWeight: spanStyle.fontWeight.replace(new RegExp('"', "g"), ""),
       text: content || "",
     };
     document.body.removeChild(span);
