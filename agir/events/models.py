@@ -557,6 +557,7 @@ class Event(
         related_name="events",
         related_query_name="event",
         null=True,
+        blank=True,
         default=None,
     )
 

@@ -12,7 +12,7 @@ class EventAssetTemplateInline(NonrelatedTabularInline):
     verbose_name = "Template de visuel"
     verbose_name_plural = "Templates de visuels"
     model = models.EventAssetTemplate
-    fields = ("name", "file")
+    fields = ("name", "file", "target_format")
     extra = 0
 
     def get_form_queryset(self, obj):

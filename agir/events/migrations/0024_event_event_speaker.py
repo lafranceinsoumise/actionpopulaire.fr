@@ -30,7 +30,7 @@ def set_event_speaker_for_existing_events(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("event_requests", "0004_auto_20230224_1129"),
+        ("event_requests", "0004_auto_20230227_1554"),
         ("events", "0023_event_location_departement_id"),
     ]
 
@@ -39,6 +39,7 @@ class Migration(migrations.Migration):
             model_name="event",
             name="event_speaker",
             field=models.ForeignKey(
+                blank=True,
                 default=None,
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
