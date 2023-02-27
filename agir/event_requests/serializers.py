@@ -1,12 +1,27 @@
+import os
+
+from django.template.defaultfilters import filesizeformat
 from rest_framework import serializers, fields
 
 from agir.event_requests import models
 
 
 class EventAssetSerializer(serializers.ModelSerializer):
+    size = serializers.SerializerMethodField()
+    format = serializers.SerializerMethodField()
+
+    def get_size(self, obj):
+        if obj.file:
+            return filesizeformat(obj.file.size)
+
+    def get_format(self, obj):
+        if obj.file:
+            _, extension = os.path.splitext(obj.file.name)
+            return extension.replace(".", "").upper()
+
     class Meta:
         model = models.EventAsset
-        fields = read_only_fields = ("id", "name", "file")
+        fields = read_only_fields = ("id", "name", "file", "size", "format")
 
 
 class EventThemeSerializer(serializers.ModelSerializer):

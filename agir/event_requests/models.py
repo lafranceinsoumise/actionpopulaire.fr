@@ -616,6 +616,15 @@ class EventRequest(BaseAPIResource):
     class Meta:
         verbose_name = "Demande d'événement"
         verbose_name_plural = "Demandes d'évenement"
+        ordering = ("status", "-created")
+        indexes = (
+            models.Index(
+                fields=(
+                    "status",
+                    "-created",
+                ),
+            ),
+        )
 
 
 class EventSpeakerRequestQueryset(models.QuerySet):
@@ -648,12 +657,12 @@ class EventSpeakerRequest(BaseAPIResource):
         verbose_name="disponible",
         null=True,
         default=None,
-        help_text="L'intervenant·e est disponible ou non",
+        help_text="L'intervenant·e est disponible pour cette date",
     )
     accepted = models.BooleanField(
         verbose_name="confirmé·e",
         default=False,
-        help_text="L'intervenant·e a été confirmé·e ou pas pour cette demande",
+        help_text="L'intervenant·e a été validé·e pour cette demande et cette date",
     )
     event_request = models.ForeignKey(
         "EventRequest",
