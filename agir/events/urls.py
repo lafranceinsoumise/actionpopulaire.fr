@@ -220,4 +220,9 @@ urlpatterns = [
         views.EventReportPersonFormAPIView.as_view(),
         name="api_event_report_personform",
     ),
+    path(
+        "api/evenements/<uuid:pk>/visuels/",
+        views.EventAssetListAPIView.as_view(),
+        name="api_event_assets",
+    ),
 ]

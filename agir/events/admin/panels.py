@@ -11,7 +11,7 @@ from django.utils.html import format_html, escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
-from agir.event_requests.models import EventAsset
+from agir.event_requests.models import EventAsset, EventSpeaker
 from agir.events import models
 from agir.events.models import Calendar, RSVP
 from agir.events.models import GroupAttendee
@@ -31,6 +31,7 @@ from . import actions
 from . import views
 from .filters import RelatedEventFilter
 from .forms import EventAdminForm, EventSubtypeAdminForm
+from ...event_requests.admin.inlines import EventAssetInline
 
 
 class EventStatusFilter(admin.SimpleListFilter):
@@ -99,12 +100,15 @@ class OrganizerConfigInlineAdminForm(forms.ModelForm):
 
 
 class OrganizerConfigInline(admin.TabularInline):
+    verbose_name = "Organisateur·ice de l'événement"
+    verbose_name_plural = "Organisateur·ices de l'événement"
     model = models.OrganizerConfig
     fields = ("person_link", "as_group")
     readonly_fields = ("person_link",)
     extra = 0
     form = OrganizerConfigInlineAdminForm
 
+    @admin.display(description="Personne")
     def person_link(self, obj):
         return mark_safe(
             format_html(
@@ -114,13 +118,13 @@ class OrganizerConfigInline(admin.TabularInline):
             )
         )
 
-    person_link.short_description = _("Personne")
-
     def has_add_permission(self, request, obj=None):
         return False
 
 
 class EventImageInline(admin.TabularInline):
+    verbose_name = "Image de l'événement"
+    verbose_name_plural = "Images de l'événement"
     model = models.EventImage
     fields = ("image_link", "author_link", "legend")
     readonly_fields = ("image_link", "author_link")
@@ -129,6 +133,7 @@ class EventImageInline(admin.TabularInline):
     def has_add_permission(self, request, obj=None):
         return False
 
+    @admin.display(description="Image")
     def image_link(self, obj):
         return mark_safe(
             format_html(
@@ -138,8 +143,7 @@ class EventImageInline(admin.TabularInline):
             )
         )
 
-    image_link.short_description = _("Image")
-
+    @admin.display(description="Auteur·ice")
     def author_link(self, obj):
         return mark_safe(
             format_html(
@@ -148,21 +152,6 @@ class EventImageInline(admin.TabularInline):
                 escape(obj.author.display_email),
             )
         )
-
-    author_link.short_description = _("Auteur")
-
-
-class EventAssetInline(admin.TabularInline):
-    model = EventAsset
-    fields = readonly_fields = ("name", "file")
-    show_change_link = True
-    extra = 0
-
-    def has_add_permission(self, request, obj):
-        return False
-
-    def has_delete_permission(self, request, obj=None):
-        return False
 
 
 class EventRsvpPersonFormDisplay(PersonFormDisplay):
@@ -325,9 +314,13 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
             _("Compte-rendu"),
             {"fields": ("report_content", "report_image", "report_summary_sent")},
         ),
+        (
+            _("Intervenant"),
+            {"fields": ("event_speaker",)},
+        ),
     )
 
-    inlines = (OrganizerConfigInline, EventImageInline)
+    inlines = (OrganizerConfigInline, EventImageInline, EventAssetInline)
 
     readonly_fields = (
         "id",
@@ -376,16 +369,15 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         actions.unpublish,
     )
 
-    autocomplete_fields = ("tags", "subscription_form", "suggestion_segment")
+    autocomplete_fields = (
+        "tags",
+        "subscription_form",
+        "suggestion_segment",
+        "event_speaker",
+    )
 
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related("calendars")
-
-    def get_inlines(self, request, obj):
-        inlines = super().get_inlines(request, obj)
-        if obj and obj.event_assets.exists():
-            inlines = (*inlines, EventAssetInline)
-        return inlines
 
     def get_search_results(self, request, queryset, search_term):
         if search_term:

@@ -3,6 +3,12 @@ from rest_framework import serializers, fields
 from agir.event_requests import models
 
 
+class EventAssetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.EventAsset
+        fields = read_only_fields = ("id", "name", "file")
+
+
 class EventThemeSerializer(serializers.ModelSerializer):
     type = fields.CharField(source="event_theme_type.name")
 

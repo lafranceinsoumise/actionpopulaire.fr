@@ -3,12 +3,14 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse, path
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+from django.utils.translation import ngettext
 from rangefilter.filters import DateRangeFilter
 
-from agir.event_requests import models
+from agir.event_requests import models, actions
 from agir.event_requests.admin import inlines, views, filter as filters
 from agir.event_requests.admin.forms import EventRequestAdminForm
 from agir.lib.admin.panels import PersonLinkMixin
+from agir.lib.admin.utils import admin_url
 from agir.lib.utils import front_url
 
 
@@ -17,10 +19,10 @@ class EventAssetTemplateAdmin(admin.ModelAdmin):
     search_fields = ("name", "file")
     readonly_fields = ("template_preview",)
 
-    @admin.display(description="Aperçu du template", empty_value="-")
+    @admin.display(description="Aperçu du template")
     def template_preview(self, obj):
         if not obj or not obj.file:
-            return
+            return "-"
 
         return format_html(
             f"<img width='400' height='400' "
@@ -34,53 +36,99 @@ class EventAssetTemplateAdmin(admin.ModelAdmin):
 
 @admin.register(models.EventAsset)
 class EventAssetAdmin(admin.ModelAdmin):
-    list_display = ("name", "event_link", "file", "deprecated")
+    list_display = ("name", "event_link", "file", "published")
+    list_filter = ("published",)
     search_fields = ("name", "event__search")
-    readonly_fields = ("event_link", "file", "deprecated", "template_preview", "render")
+    readonly_fields = ("event_link", "published", "render")
+    exclude = ("renderable",)
     autocomplete_fields = ("template",)
 
-    @admin.display(description="Visuel obsolète", boolean=True)
-    def deprecated(self, obj):
-        return obj and obj.deprecated
-
-    @admin.display(description="Événement", empty_value="-")
+    @admin.display(description="Événement")
     def event_link(self, obj):
-        if obj.event:
-            return mark_safe(
-                '<a href="%s">%s</a>'
-                % (
-                    reverse(
-                        "admin:events_event_change",
-                        args=(obj.event.id,),
-                    ),
-                    obj.event.name,
+        if not obj.event:
+            return "-"
+        return mark_safe(
+            '<a href="%s">%s</a>'
+            % (
+                reverse(
+                    "admin:events_event_change",
+                    args=(obj.event.id,),
+                ),
+                obj.event.name,
+            )
+        )
+
+    @admin.display(description="Actions")
+    def render(self, obj):
+        actions = []
+
+        if obj and not obj.published:
+            actions.append(
+                mark_safe(
+                    "<input type='submit' name='_publish' value='Publier le visuel' />"
+                    "<p class='help' style='margin: 0; padding: 0.25rem 0;'>"
+                    "Les organisateur·ices recevront une notification et pourront accèder au visuel "
+                    "dans le volet de gestion de la page de l'événement"
+                    "</p>"
                 )
             )
 
-    @admin.display(description="Aperçu du template", empty_value="-")
-    def template_preview(self, obj):
-        if not obj or obj.deprecated:
-            return
+        if obj and obj.published:
+            actions.append(
+                mark_safe(
+                    "<input type='submit' name='_unpublish' value='Dépublier le visuel' />"
+                )
+            )
 
-        return format_html(
-            f"<img width='400' height='400' "
-            f"style='clear:right; display: block; width:auto; height: auto; max-width: 400px; max-height: 400px;' "
-            f"src={obj.template.file.url} />"
+        if obj and obj.renderable:
+            actions.append(
+                mark_safe(
+                    "<input type='submit' name='_render' value='Régénérer le visuel' />"
+                    "<p class='help' style='margin: 0; padding: 0.25rem 0;'>"
+                    "<strong>⚠ Attention&nbsp;:</strong> le visuel existant sera définitivement supprimé"
+                    "</p>"
+                )
+            )
+
+        if actions:
+            return format_html(
+                "<form style='margin: .5rem 0; padding: 0;'>{}</form>",
+                mark_safe("<br />".join(actions)),
+            )
+
+        return "-"
+
+    @admin.display(description="Publier les visuels sélectionnés")
+    def publish(self, _modeladmin, request, queryset):
+        if isinstance(queryset, self.model):
+            queryset = self.model.objects.filter(pk=queryset.pk)
+        updated_count = actions.publish_event_assets(queryset)
+        self.message_user(
+            request,
+            ngettext(
+                "Le visuel a été publié.",
+                f"{updated_count} visuels ont été publiés",
+                updated_count,
+            ),
         )
 
-    @admin.display(description="Actions", empty_value="-")
-    def render(self, obj):
-        if not obj or obj.deprecated:
-            return
-
-        return format_html(
-            "<form>"
-            "<input type='submit' name='_render' value='Régénérer le visuel' />"
-            "</form>"
-            "<div class='help' style='margin: .5rem 0 0; padding: 0;'>"
-            "<strong>⚠ Attention&nbsp;:</strong> le visuel existant sera définitivement supprimé"
-            "</div>"
+    @admin.display(description="Dépublier les visuels sélectionnés")
+    def unpublish(self, _modeladmin, request, queryset):
+        if isinstance(queryset, self.model):
+            queryset = self.model.objects.filter(pk=queryset.pk)
+        updated_count = actions.unpublish_event_assets(queryset)
+        self.message_user(
+            request,
+            ngettext(
+                "Le visuel a été dépublié.",
+                f"{updated_count} visuels ont été dépubliés",
+                updated_count,
+            ),
         )
+
+    def get_actions(self, request):
+        self.actions = (self.publish, self.unpublish)
+        return super().get_actions(request)
 
     def response_change(self, request, obj):
         if "_render" in request.POST:
@@ -96,6 +144,29 @@ class EventAssetAdmin(admin.ModelAdmin):
                     level=messages.WARNING,
                 )
             return HttpResponseRedirect(".")
+
+        if "_publish" in request.POST:
+            try:
+                self.publish(self, request, obj)
+            except Exception as e:
+                self.message_user(
+                    request,
+                    str(e),
+                    level=messages.WARNING,
+                )
+            return HttpResponseRedirect(".")
+
+        if "_unpublish" in request.POST:
+            try:
+                self.unpublish(self, request, obj)
+            except Exception as e:
+                self.message_user(
+                    request,
+                    str(e),
+                    level=messages.WARNING,
+                )
+            return HttpResponseRedirect(".")
+
         return super().response_change(request, obj)
 
     class Media:
@@ -107,70 +178,182 @@ class EventThemeTypeAdmin(admin.ModelAdmin):
     fieldsets = (
         (
             None,
-            {"fields": ("name", "event_subtype", "calendar_link")},
+            {"fields": ("name", "event_subtype", "calendar_link", "map_link")},
         ),
         (
-            "DEMANDES DE DISPONIBILITÉ",
+            "ADRESSES E-MAIL",
             {
                 "fields": (
-                    "event_speaker_request_email_from",
+                    "email_from",
+                    "email_to",
+                )
+            },
+        ),
+        (
+            "EMAIL DE DEMANDE DE DISPONIBILITÉ",
+            {
+                "fields": (
                     "event_speaker_request_email_subject",
                     "event_speaker_request_email_body",
                 )
             },
         ),
     )
-    list_display = ("name", "event_subtype", "calendar_link")
+    list_display = ("name", "event_subtype", "calendar_link", "map_link")
     list_filter = ("event_theme",)
     search_fields = ("name",)
     autocomplete_fields = ("event_subtype",)
-    readonly_fields = ("calendar_link",)
+    readonly_fields = (
+        "calendar_link",
+        "map_link",
+    )
     inlines = (inlines.EventThemeInline, inlines.EventAssetTemplateInline)
     exclude = ("event_asset_templates",)
 
-    @admin.display(description="Agenda", empty_value="-")
+    @admin.display(description="Agenda")
     def calendar_link(self, obj):
-        if obj.calendar:
-            return format_html(
-                '<a href="{0}">{0}</a>',
-                front_url(
-                    "view_calendar", kwargs={"slug": obj.calendar.slug}, absolute=True
-                ),
-            )
+        if not obj or not obj.calendar:
+            return "-"
+        return format_html(
+            '<a href="{0}">{0}</a>',
+            front_url(
+                "view_calendar", kwargs={"slug": obj.calendar.slug}, absolute=True
+            ),
+        )
+
+    @admin.display(description="Carte")
+    def map_link(self, obj):
+        if not obj:
+            return "-"
+        return format_html(
+            '<a href="{0}">Carte des événements à venir</a>',
+            front_url(
+                "carte:events_map",
+                absolute=True,
+                query={"subtype": obj.event_subtype.label},
+            ),
+        )
 
 
 @admin.register(models.EventTheme)
 class EventThemeAdmin(admin.ModelAdmin):
-    list_display = ("name", "event_theme_type", "calendar_link")
+    fieldsets = (
+        (
+            None,
+            {"fields": ("name", "description", "event_theme_type", "calendar_link")},
+        ),
+        (
+            "NOTIFICATION DE CRÉATION D'ÉVÉNEMENT À L'INTERVENANT·E",
+            {
+                "fields": (
+                    "speaker_event_creation_email_subject",
+                    "speaker_event_creation_email_body",
+                )
+            },
+        ),
+        (
+            "NOTIFICATION DE CRÉATION D'ÉVÉNEMENT À L'ORGANISATEUR·ICE",
+            {
+                "fields": (
+                    "organizer_event_creation_email_subject",
+                    "organizer_event_creation_email_body",
+                )
+            },
+        ),
+        (
+            "NOTIFICATION DE CRÉATION D'ÉVÉNEMENT À L'ADMINISTRATEUR·ICE",
+            {
+                "fields": (
+                    "email_to",
+                    "event_creation_notification_email_subject",
+                    "event_creation_notification_email_body",
+                )
+            },
+        ),
+    )
+    list_display = (
+        "name",
+        "event_theme_type_link",
+        "calendar_link",
+        "speaker_email",
+        "organizer_email",
+        "notification_email",
+        "event_speaker_count",
+    )
     list_filter = ("event_theme_type",)
     search_fields = ("name", "event_theme_type__name")
     autocomplete_fields = ("event_theme_type",)
-    readonly_fields = ("calendar_link",)
+    readonly_fields = ("calendar_link", "email_to")
     inlines = (
         inlines.EventThemeSpeakerInline,
         inlines.EventAssetTemplateInline,
     )
     exclude = ("event_asset_templates",)
 
-    @admin.display(description="Agenda", empty_value="-")
+    def get_queryset(self, request):
+        return super().get_queryset(request).with_admin_prefetch()
+
+    @admin.display(description="Destinataire")
+    def email_to(self, obj):
+        return obj.event_theme_type.email_to
+
+    @admin.display(description="Agenda")
     def calendar_link(self, obj):
-        if obj.calendar:
-            return format_html(
-                '<a href="{0}">{0}</a>',
-                front_url(
-                    "view_calendar", kwargs={"slug": obj.calendar.slug}, absolute=True
-                ),
-            )
+        if not obj or not obj.calendar:
+            return "-"
+        return format_html(
+            '<a href="{0}">{0}</a>',
+            front_url(
+                "view_calendar", kwargs={"slug": obj.calendar.slug}, absolute=True
+            ),
+        )
+
+    @admin.display(description="Type")
+    def event_theme_type_link(self, obj):
+        if not obj:
+            return "-"
+        return format_html(
+            '<a href="{}">{}</a>',
+            admin_url(
+                "admin:event_requests_eventthemetype_change",
+                args=(obj.event_theme_type_id,),
+                absolute=True,
+            ),
+            str(obj.event_theme_type),
+        )
+
+    @admin.display(description="@ intervenant·e", boolean=True)
+    def speaker_email(self, obj):
+        return obj.get_speaker_event_creation_email_bindings() is not None
+
+    @admin.display(description="@ organisateur·ice", boolean=True)
+    def organizer_email(self, obj):
+        return obj.get_organizer_event_creation_email_bindings() is not None
+
+    @admin.display(description="@ administrateur·ice", boolean=True)
+    def notification_email(self, obj):
+        return obj.get_event_creation_notification_email_bindings() is not None
+
+    @admin.display(description="Nb d'intervenant·es", ordering="event_speaker_count")
+    def event_speaker_count(self, obj):
+        if hasattr(obj, "event_speaker_count"):
+            return obj.event_speaker_count
+        return "-"
 
 
 @admin.register(models.EventSpeaker)
 class EventSpeakerAdmin(admin.ModelAdmin, PersonLinkMixin):
-    list_filter = ("available", "event_themes")
-    list_display = ("id", "person_link", "themes", "available")
-    inlines = (inlines.EventSpeakerThemeInline, inlines.EventSpeakerRequestInline)
+    list_display = ("id", "person_link", "description", "themes", "available")
+    list_filter = ("available", "event_themes", "event_themes__event_theme_type")
+    inlines = (
+        inlines.EventSpeakerUpcomingEventInline,
+        inlines.EventSpeakerPastEventInline,
+    )
     search_fields = ("person__search",)
-    exclude = ("event_themes",)
-    autocomplete_fields = ("person",)
+    autocomplete_fields = ("person", "event_themes")
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).with_admin_prefetch()
 
     @admin.display(description="Thèmes", empty_value="-")
     def themes(self, obj):
@@ -191,6 +374,7 @@ class EventRequestAdmin(admin.ModelAdmin):
         "status",
         "answered_count",
         "event_link",
+        "event_speaker_link",
     )
     list_filter = (
         "status",
@@ -201,10 +385,10 @@ class EventRequestAdmin(admin.ModelAdmin):
     inlines = (inlines.EventSpeakerRequestInline,)
     date_hierarchy = "created"
 
-    @admin.display(description="Réponses", empty_value="-")
+    @admin.display(description="Réponses")
     def answered_count(self, obj):
         if obj.status != self.model.Status.PENDING:
-            return
+            return "-"
 
         count = (
             obj.event_speaker_requests.answered()
@@ -214,27 +398,43 @@ class EventRequestAdmin(admin.ModelAdmin):
         )
 
         if count == 0:
-            return
+            return "-"
 
         return count
 
-    @admin.display(description="Dates", empty_value="-")
+    @admin.display(description="Dates")
     def date_list(self, obj):
         return ", ".join(obj.simple_datetimes)
 
-    @admin.display(description="Événement", empty_value="-")
+    @admin.display(description="Événement")
     def event_link(self, obj):
-        if obj.event:
-            return mark_safe(
-                '<a href="%s">%s</a>'
-                % (
-                    reverse(
-                        "admin:events_event_change",
-                        args=(obj.event.id,),
-                    ),
-                    obj.event.name,
-                )
+        if not obj or not obj.event:
+            return "-"
+        return mark_safe(
+            '<a href="%s">%s</a>'
+            % (
+                reverse(
+                    "admin:events_event_change",
+                    args=(obj.event_id,),
+                ),
+                obj.event.name,
             )
+        )
+
+    @admin.display(description="Intervenant·e")
+    def event_speaker_link(self, obj):
+        if not obj or not obj.event or not obj.event.event_speaker:
+            return "-"
+        return mark_safe(
+            '<a href="%s">%s</a>'
+            % (
+                reverse(
+                    "admin:event_requests_eventspeaker_change",
+                    args=(obj.event.event_speaker_id,),
+                ),
+                str(obj.event.event_speaker),
+            )
+        )
 
     class Media:
         pass
@@ -249,9 +449,6 @@ class EventSpeakerRequestAdmin(admin.ModelAdmin):
         "datetime",
         "available",
         "accepted",
-        "created",
-        "modified",
-        "validate",
     )
     list_filter = (
         "available",
@@ -277,33 +474,36 @@ class EventSpeakerRequestAdmin(admin.ModelAdmin):
             return readonly_fields
         return readonly_fields + self.createonly_fields
 
-    @admin.display(description="Demande", empty_value="-")
+    @admin.display(description="Demande")
     def event_request_link(self, obj):
-        if obj.event_request:
-            return mark_safe(
-                '<a href="%s">%s</a>'
-                % (
-                    reverse(
-                        "admin:event_requests_eventrequest_change",
-                        args=(obj.event_request.id,),
-                    ),
-                    obj.event_request,
-                )
+        if not obj or not obj.event_request:
+            return "-"
+        return mark_safe(
+            '<a href="%s">%s</a>'
+            % (
+                reverse(
+                    "admin:event_requests_eventrequest_change",
+                    args=(obj.event_request.id,),
+                ),
+                obj.event_request,
             )
+        )
 
-    @admin.display(description="Intervenant·e", empty_value="-")
+    @admin.display(description="Intervenant·e")
     def event_speaker_link(self, obj):
-        if obj.event_speaker:
-            return mark_safe(
-                '<a href="%s">%s</a>'
-                % (
-                    reverse(
-                        "admin:event_requests_eventspeaker_change",
-                        args=(obj.event_speaker.id,),
-                    ),
-                    obj.event_speaker,
-                )
+        if not obj.event_speaker:
+            return "-"
+
+        return mark_safe(
+            '<a href="%s">%s</a>'
+            % (
+                reverse(
+                    "admin:event_requests_eventspeaker_change",
+                    args=(obj.event_speaker_id,),
+                ),
+                obj.event_speaker,
             )
+        )
 
     def get_urls(self):
         return [
@@ -317,13 +517,13 @@ class EventSpeakerRequestAdmin(admin.ModelAdmin):
     def validate_event_speaker_request(self, request, pk):
         return views.validate_event_speaker_request(self, request, pk)
 
-    @admin.display(description="Validation", empty_value="-")
+    @admin.display(description="Validation")
     def validate(self, obj):
         if (
             not obj.available
             or obj.event_request.status != obj.event_request.Status.PENDING
         ):
-            return
+            return "-"
 
         return mark_safe(
             '<a class="button" href="%s">Valider</a>'

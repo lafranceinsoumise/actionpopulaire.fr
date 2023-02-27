@@ -73,6 +73,7 @@ __all__ = [
     "CancelEventAPIView",
     "EventReportPersonFormAPIView",
     "EventMessagesAPIView",
+    "EventAssetListAPIView",
 ]
 
 from agir.gestion.models import Projet
@@ -90,6 +91,7 @@ from ..tasks import (
     send_group_coorganization_invitation_notification,
     send_group_attendee_notification,
 )
+from ...event_requests.serializers import EventAssetSerializer
 from ...groups.tasks import send_new_group_event_email, notify_new_group_event
 from ...lib.models import LocationMixin
 
@@ -658,6 +660,34 @@ class RSVPEventAsGroupAPIView(CreateAPIView):
 
         send_group_attendee_notification.delay(group_attendee.pk)
         return Response(status=status.HTTP_201_CREATED)
+
+
+class EventAssetsPermissions(GlobalOrObjectPermissions):
+    perms_map = {
+        "GET": [],
+    }
+    object_perms_map = {
+        "GET": ["events.view_event_settings"],
+    }
+
+
+class EventAssetListAPIView(ListAPIView):
+    permission_classes = (IsPersonPermission, EventAssetsPermissions)
+    queryset = Event.objects.exclude(visibility=Event.VISIBILITY_ADMIN)
+    serializer_class = EventAssetSerializer
+
+    def list(self, request, *args, **kwargs):
+        event = self.get_object()
+        queryset = event.event_assets.public()
+        queryset = self.filter_queryset(queryset)
+        page = self.paginate_queryset(queryset)
+
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class EventProjectPermission(GlobalOrObjectPermissions):

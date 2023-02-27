@@ -3,7 +3,11 @@ import uuid
 from unittest.mock import patch
 
 from PIL import Image
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.urls import reverse
 from django.utils import timezone
+
+from agir.event_requests.models import EventAsset
 from agir.msgs.models import SupportGroupMessage
 from rest_framework.test import APITestCase
 
@@ -1271,3 +1275,84 @@ class EventTestMessageAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 200)
         self.assertEqual(len(res.data), 1)
         self.assertEqual(res.data[0]["id"] == self.other_message.pk, False)
+
+
+class EventAssetListAPITestCase(APITestCase):
+    def setUp(self):
+        self.unrelated_person = Person.objects.create_person(
+            email="unrelated_person@example.com",
+            create_role=True,
+        )
+        self.organizer = Person.objects.create_person(
+            email="organizer@example.com",
+            create_role=True,
+        )
+        start_time = timezone.now() + timezone.timedelta(days=3)
+        end_time = timezone.now() + timezone.timedelta(days=3, hours=4)
+        self.a_subtype = EventSubtype.objects.create(
+            visibility=EventSubtype.VISIBILITY_ALL,
+            label="A subtype",
+            type=EventSubtype.TYPE_PUBLIC_ACTION,
+        )
+        self.event = Event.objects.create(
+            name="Event",
+            start_time=start_time,
+            end_time=end_time,
+            timezone=timezone.get_default_timezone_name(),
+            for_users=Event.FOR_USERS_ALL,
+            subtype=self.a_subtype,
+            organizer_person=self.organizer,
+        )
+        self.published_event_asset = EventAsset.objects.create(
+            name="published asset",
+            file=SimpleUploadedFile(
+                "document.png",
+                b"Un faux fichier",
+                content_type="image/png",
+            ),
+            event=self.event,
+            published=True,
+        )
+        self.unpublished_event_asset = EventAsset.objects.create(
+            name="published asset",
+            file=SimpleUploadedFile(
+                "document.png",
+                b"Un faux fichier",
+                content_type="image/png",
+            ),
+            event=self.event,
+            published=False,
+        )
+
+    def get_url(self, event):
+        return reverse("api_event_assets", args=(event.pk,))
+
+    def test_anonymous_person_cannot_retrieve_asset(self):
+        self.client.logout()
+        res = self.client.get(self.get_url(self.event))
+        self.assertEqual(res.status_code, 401)
+
+    def test_non_organizer_person_cannot_retrieve_asset(self):
+        self.client.force_login(self.unrelated_person.role)
+        res = self.client.get(self.get_url(self.event))
+        self.assertEqual(res.status_code, 403)
+
+    def test_organizer_person_cannot_retrieve_asset_if_event_does_not_exist(self):
+        self.client.force_login(self.organizer.role)
+        res = self.client.get(self.get_url(Event()))
+        self.assertEqual(res.status_code, 404)
+
+    def test_organizer_person_can_retrieve_assets(self):
+        self.client.force_login(self.organizer.role)
+        res = self.client.get(self.get_url(self.event))
+        self.assertEqual(res.status_code, 200)
+        self.assertIsInstance(res.data, list)
+
+    def test_organizer_person_can_retrieve_only_published_assets(self):
+        self.client.force_login(self.organizer.role)
+        res = self.client.get(self.get_url(self.event))
+        self.assertEqual(res.status_code, 200)
+        self.assertIn(str(self.published_event_asset.id), [a["id"] for a in res.data])
+        self.assertNotIn(
+            str(self.unpublished_event_asset.id), [a["id"] for a in res.data]
+        )
