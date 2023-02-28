@@ -694,7 +694,6 @@ class PersonFormAdmin(FormSubmissionViewsMixin, admin.ModelAdmin):
             _("Textes"),
             {
                 "fields": (
-                    "short_description",
                     "description",
                     "confirmation_note",
                     "send_confirmation",
@@ -703,6 +702,10 @@ class PersonFormAdmin(FormSubmissionViewsMixin, admin.ModelAdmin):
                     "after_message",
                 )
             },
+        ),
+        (
+            _("Meta"),
+            {"fields": ("short_description", "meta_image")},
         ),
     )
 
