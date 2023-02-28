@@ -1,12 +1,11 @@
 import PropTypes from "prop-types";
 import React, { Fragment } from "react";
-import styled from "styled-components";
 import useSWRImmutable from "swr/immutable";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import Button from "@agir/front/genericComponents/Button";
-import Card from "@agir/front/genericComponents/Card";
+import FileCard from "@agir/front/genericComponents/FileCard";
+import HelpCenterCard from "@agir/front/genericComponents/HelpCenterCard";
 import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
 import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
@@ -14,45 +13,6 @@ import Skeleton from "@agir/front/genericComponents/Skeleton";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 import { getEventEndpoint } from "@agir/events/common/api";
-import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-
-const StyledCard = styled(Card)`
-  display: flex;
-  flex-flow: column nowrap;
-  align-items: flex-start;
-  gap: 0.5rem;
-
-  & > * {
-    flex: 0 0 auto;
-    margin: 0;
-  }
-
-  & > h5 {
-    display: flex;
-    flex-flow: row nowrap;
-    gap: 0.5rem;
-    align-items: flex-start;
-    line-height: 1.5;
-    min-height: 1px;
-    max-width: 100%;
-
-    & > ${RawFeatherIcon} {
-      flex: 0 0 auto;
-    }
-
-    & > span {
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-    }
-  }
-
-  & > p {
-    font-size: 0.875rem;
-    color: ${style.black700};
-    margin-bottom: 0.25rem;
-  }
-`;
 
 const EventAssets = (props) => {
   const { onBack, illustration, eventPk } = props;
@@ -73,30 +33,9 @@ const EventAssets = (props) => {
       <Spacer size="1rem" />
       <StyledTitle>Centre d'aide</StyledTitle>
       <Spacer size=".5rem" />
-      <Card>
-        <p>
-          Un centre d'aide est à votre disposition avec des fiches pratiques et
-          les réponses aux questions le plus fréquemment posées.
-        </p>
-        <p>
-          Un page de contact est également disponible pour des questions plus
-          spécifiques.
-        </p>
-        <Spacer size="0.5rem" />
-        <Button link small route="helpEvents" color="secondary">
-          Acceder au centre d'aide
-        </Button>
-        <Spacer size="0.5rem" />
-        <Button link small route="helpIndex" color="secondary">
-          Voir les fiches pratiques
-        </Button>
-        <Spacer size="0.5rem" />
-        <Button link small route="contact" color="default">
-          Nous contacter
-        </Button>
-      </Card>
+      <HelpCenterCard type="event" />
       <Spacer size="1rem" />
-      <StyledTitle>Visuels et documents</StyledTitle>
+      <StyledTitle>Documents</StyledTitle>
       <Spacer size=".5rem" />
       <PageFadeIn
         ready={!isLoading}
@@ -107,46 +46,23 @@ const EventAssets = (props) => {
         {Array.isArray(eventAssets) &&
           eventAssets.map((eventAsset) => (
             <Fragment key={eventAsset.id}>
-              <StyledCard>
-                <h5>
-                  <RawFeatherIcon name="image" small />
-                  <span>{eventAsset.name}</span>
-                </h5>
-                <p>
-                  Format {eventAsset.format} - {eventAsset.size}
-                </p>
-                <Button
-                  link
-                  small
-                  href={eventAsset.file}
-                  color="primary"
-                  icon="download"
-                >
-                  Télécharger le visuel
-                </Button>
-              </StyledCard>
+              <FileCard
+                title={eventAsset.name}
+                text={`Format ${eventAsset.format} - ${eventAsset.size}`}
+                icon="image"
+                route={eventAsset.file}
+                downloadLabel="Télécharger le visuel"
+              />
               <Spacer size="1rem" />
             </Fragment>
           ))}
-        <StyledCard>
-          <h5>
-            <RawFeatherIcon name="file-text" small />
-            <span>Attestation d'assurance de la France insoumise</span>
-          </h5>
-          <p>
-            Document utile en cas de réservation d'une salle pour les événements
-            publics
-          </p>
-          <Button
-            link
-            small
-            route="attestationAssurance"
-            color="primary"
-            icon="download"
-          >
-            Télécharger l'attestation
-          </Button>
-        </StyledCard>
+        <FileCard
+          title="Attestation d'assurance de la France insoumise"
+          text="Document utile en cas de réservation d'une salle pour les événements publics"
+          icon="file-text"
+          route="attestationAssurance"
+          downloadLabel="Télécharger l'attestation"
+        />
       </PageFadeIn>
       <Spacer size="2rem" />
     </div>
