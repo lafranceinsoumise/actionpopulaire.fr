@@ -10,11 +10,11 @@ const ButtonFacebook = styled(Button)`
   margin-top: 20px;
 `;
 
-const LoginFacebook = () => {
+const LoginFacebook = (props) => {
   const routes = useSelector(getRoutes);
 
   return (
-    <ButtonFacebook link color="choose" href={routes.facebookLogin}>
+    <ButtonFacebook {...props} link color="choose" href={routes.facebookLogin}>
       <img src={facebookImg} width="24" height="24" />
       &nbsp; Connexion avec Facebook
     </ButtonFacebook>

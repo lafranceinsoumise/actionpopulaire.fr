@@ -58,6 +58,7 @@ const Login = () => {
   const [bookmarkedEmails] = useBookmarkedEmails();
 
   const [showMore, setShowMore] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const next = useMemo(() => {
@@ -74,8 +75,12 @@ const Login = () => {
 
   const handleSubmit = useCallback(
     async (email) => {
+      setIsLoading(true);
       setError(null);
+
       const result = await login(email);
+      setIsLoading(false);
+
       if (result.error) {
         setError(result.error);
         return;
@@ -116,6 +121,7 @@ const Login = () => {
                 key={id}
                 color="primary"
                 onClick={() => handleSubmit(email)}
+                disabled={isLoading}
                 block
               >
                 <span>{email}</span>
@@ -149,7 +155,7 @@ const Login = () => {
           )}
           {!isMobileApp && (
             <>
-              <LoginFacebook />
+              <LoginFacebook disabled={isLoading} />
               <div
                 style={{
                   textAlign: "center",
@@ -176,14 +182,22 @@ const Login = () => {
               </InlineBlock>
             </ShowMore>
           ) : (
-            <LoginMailEmpty onSubmit={handleSubmit} error={error} />
+            <LoginMailEmpty
+              onSubmit={handleSubmit}
+              error={error}
+              isLoading={isLoading}
+            />
           )}
         </>
       )}
 
       {bookmarkedEmails.length === 0 && (
         <>
-          <LoginMailEmpty onSubmit={handleSubmit} error={error} />
+          <LoginMailEmpty
+            onSubmit={handleSubmit}
+            error={error}
+            isLoading={isLoading}
+          />
           {!isMobileApp && (
             <>
               <div
