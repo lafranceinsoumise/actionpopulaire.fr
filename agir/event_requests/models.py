@@ -1,13 +1,10 @@
-import io
-
 from django.conf import settings
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.core import validators
 from django.core.exceptions import ValidationError
-from django.core.files import File
 from django.db import transaction
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Count
 from django.utils import formats, timezone
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
@@ -16,12 +13,17 @@ from dynamic_filenames import FilePattern
 
 from agir.events.models import Event
 from agir.events.models import Event, Calendar
-from agir.lib.documents import render_svg_template, svg_to_pdf
+from agir.lib.documents import (
+    render_svg_template,
+    rsvg_convert,
+    RSVG_CONVERT_AVAILABLE_FORMATS,
+    RSVG_CONVERT_AVAILABLE_FORMAT_CHOICES,
+)
 from agir.lib.form_fields import CustomJSONEncoder
 from agir.lib.models import BaseAPIResource, SimpleLocationMixin, DescriptionField
 
 ASSET_FILE_PATH = FilePattern(
-    filename_pattern="{app_label}/{model_name}/{instance.id}/{uuid:.8base32}{ext}"
+    filename_pattern="{app_label}/{model_name}/{instance.id}/{name}_{uuid:.8base32}{ext}"
 )
 
 
@@ -36,6 +38,15 @@ class EventAssetTemplate(BaseAPIResource):
         help_text="Le fichier doit être au format SVG et contenir des variables correspondantes "
         "aux données d'un événement (au format: {{ nom_de_la_variable }})",
     )
+    target_format = models.CharField(
+        "Format de destination",
+        null=False,
+        blank=False,
+        max_length=10,
+        default=RSVG_CONVERT_AVAILABLE_FORMATS[0],
+        choices=RSVG_CONVERT_AVAILABLE_FORMAT_CHOICES,
+        help_text="Le format dans lequel le visuel est destiné à être sauvegardé",
+    )
 
     def __str__(self):
         return f"{self.name} [{str(self.id)[:8]}]"
@@ -48,10 +59,16 @@ class EventAssetTemplate(BaseAPIResource):
         verbose_name_plural = "Templates de visuels"
 
 
-class EventAssetManager(models.Manager):
+class EventAssetQueryset(models.QuerySet):
+    def public(self):
+        return self.filter(published=True)
+
+
+class EventAssetManager(models.Manager.from_queryset(EventAssetQueryset)):
     def create(self, *args, **kwargs):
         event_asset = super(EventAssetManager, self).create(*args, **kwargs)
-        event_asset.render()
+        if event_asset.renderable:
+            event_asset.render()
         return event_asset
 
 
@@ -61,16 +78,18 @@ class EventAsset(BaseAPIResource):
     class EventAssetRenderingException(Exception):
         pass
 
-    name = models.CharField(
-        "Nom", null=False, blank=False, editable=False, max_length=200
+    published = models.BooleanField(
+        "Publié",
+        default=False,
+        help_text="Le visuel a déjà été mis à disposition ou pas des organisateur·ices de l'événement",
     )
+    name = models.CharField("Nom", null=False, blank=False, max_length=200)
     file = models.FileField(
         "Fichier",
         null=False,
-        editable=False,
         max_length=255,
         upload_to=ASSET_FILE_PATH,
-        validators=[validators.FileExtensionValidator(["pdf"])],
+        validators=[validators.FileExtensionValidator(RSVG_CONVERT_AVAILABLE_FORMATS)],
     )
     template = models.ForeignKey(
         "event_requests.EventAssetTemplate",
@@ -78,7 +97,7 @@ class EventAsset(BaseAPIResource):
         on_delete=models.SET_NULL,
         related_name="+",
         null=True,
-        blank=False,
+        blank=True,
     )
     event = models.ForeignKey(
         "events.Event",
@@ -99,35 +118,40 @@ class EventAsset(BaseAPIResource):
     )
 
     def __str__(self):
-        if self.deprecated:
-            return f"{self.name} (obsolète)"
         return f"{self.name} (événement #{self.event_id})"
 
     @property
-    def deprecated(self):
-        return self.template_id is None or self.event_id is None
+    def renderable(self):
+        return self.template_id and self.event_id
 
     def render(self):
-        if self.deprecated:
+        if not self.renderable:
             raise self.EventAssetRenderingException(
-                "Ce visuel est obsolète : l'événement et/ou le template ont été supprimés"
+                "Ce visuel ne peut plus être généré car l'événement et/ou le template ont été supprimés"
             )
         rendered_svg = self.template.render(
             data={"event": self.event, **self.extra_data}
         )
         self.name = self.template.name
-        self.file = File(
-            io.BytesIO(svg_to_pdf(rendered_svg)), name=f"{slugify(self.name)}.pdf"
+        self.file = rsvg_convert(
+            rendered_svg,
+            to_format=self.template.target_format,
+            filename=slugify(self.name),
         )
         self.save()
 
     class Meta:
         verbose_name = "Visuel de l'événement"
         verbose_name_plural = "Visuels des événements"
+        ordering = ("-published", "-created")
+        indexes = (
+            models.Index(fields=("-published", "-created"), name="ordering_index"),
+        )
         constraints = (
             models.UniqueConstraint(
                 fields=["event", "template"],
                 name="unique_event_asset_for_event_and_template",
+                condition=models.Q(template__isnull=False),
             ),
         )
 
@@ -142,8 +166,21 @@ class ModelWithCalendarManager(models.Manager):
             return obj
 
 
+class EventThemeTypeQueryset(models.QuerySet):
+    def with_admin_prefetch(self):
+        return self.select_related(
+            "event_themes", "calendar", "event_subtype"
+        ).prefetch_related("event_asset_templates")
+
+
+class EventThemeTypeManager(
+    ModelWithCalendarManager.from_queryset(EventThemeTypeQueryset)
+):
+    pass
+
+
 class EventThemeType(models.Model):
-    objects = ModelWithCalendarManager()
+    objects = EventThemeTypeManager()
 
     name = models.CharField("nom", blank=False, null=False, max_length=255)
     event_subtype = models.ForeignKey(
@@ -163,14 +200,23 @@ class EventThemeType(models.Model):
         default=None,
         editable=False,
     )
-    event_speaker_request_email_from = models.EmailField(
-        verbose_name="expéditeur de l'e-mail aux intervenant·es",
+    email_to = models.EmailField(
+        verbose_name="destinataire des e-mails",
         max_length=255,
         blank=False,
         null=False,
         default=settings.EMAIL_SUPPORT,
-        help_text="Cette adresse sera utilisé comme expéditeur de l'e-mail envoyé aux intervenant·es pour demander de renseigner "
-        "leur disponibilité.",
+        help_text="Cette adresse sera utilisé comme destinataire de tous les e-mails transactionnels "
+        "pour ce type de thème d'événement",
+    )
+    email_from = models.EmailField(
+        verbose_name="expéditeur des e-mails",
+        max_length=255,
+        blank=False,
+        null=False,
+        default=settings.EMAIL_SUPPORT,
+        help_text="Cette adresse sera utilisé comme expéditeur de tous les e-mails transactionnels "
+        "pour ce type de thème d'événement",
     )
     event_speaker_request_email_subject = models.CharField(
         verbose_name="objet de l'e-mail aux intervenant·es",
@@ -200,7 +246,7 @@ class EventThemeType(models.Model):
 
     def get_event_speaker_request_email_bindings(self):
         return {
-            "email_from": self.event_speaker_request_email_from,
+            "email_from": self.email_from,
             "subject": self.event_speaker_request_email_subject,
             "body": mark_safe(self.event_speaker_request_email_body),
         }
@@ -210,8 +256,21 @@ class EventThemeType(models.Model):
         verbose_name_plural = "Types de thème d'évenement"
 
 
+class EventThemeQuerySet(models.QuerySet):
+    def with_admin_prefetch(self):
+        return (
+            self.select_related("event_theme_type", "calendar")
+            .prefetch_related("event_speakers", "event_asset_templates")
+            .annotate(event_speaker_count=Count("event_speaker", distinct=True))
+        )
+
+
+class EventThemeManager(ModelWithCalendarManager.from_queryset(EventThemeQuerySet)):
+    pass
+
+
 class EventTheme(BaseAPIResource):
-    objects = ModelWithCalendarManager()
+    objects = EventThemeManager()
 
     name = models.CharField("nom", blank=False, null=False, max_length=255)
     description = DescriptionField(
@@ -247,6 +306,66 @@ class EventTheme(BaseAPIResource):
         blank=True,
     )
 
+    speaker_event_creation_email_subject = models.CharField(
+        verbose_name="objet de l'e-mail à l'intervenant·e",
+        max_length=255,
+        default="",
+        blank=True,
+        null=False,
+        help_text="Ce texte sera utilisé comme objet de l'e-mail envoyé à l'intervenant·e "
+        "sélectionné·e lors de la création d'un événement. Si vide, l'e-mail ne sera pas envoyé.",
+    )
+    speaker_event_creation_email_body = DescriptionField(
+        verbose_name="texte de l'e-mail à l'intervenant·e",
+        default="",
+        blank=True,
+        null=False,
+        allowed_tags=settings.ADMIN_ALLOWED_TAGS,
+        help_text="Ce texte sera utilisé comme corps de l'e-mail envoyé à l'intervenant·e "
+        "sélectionné·e lors de la création d'un événement. Le lien vers la page de l'événement et les coordonnées"
+        "de l'organisateur·ice seront automatiquement ajoutés à la fin du message.",
+    )
+
+    organizer_event_creation_email_subject = models.CharField(
+        verbose_name="objet de l'e-mail à l'organisateur·ice",
+        max_length=255,
+        default="",
+        blank=True,
+        null=False,
+        help_text="Ce texte sera utilisé comme objet de l'e-mail envoyé à l'organisateur·ice "
+        "lors de la création d'un événement. Si vide, l'e-mail ne sera pas envoyé.",
+    )
+    organizer_event_creation_email_body = DescriptionField(
+        verbose_name="texte de l'e-mail à l'organisateur·ice",
+        default="",
+        blank=True,
+        null=False,
+        allowed_tags=settings.ADMIN_ALLOWED_TAGS,
+        help_text="Ce texte sera utilisé comme corps de l'e-mail envoyé à l'organisateur·ice "
+        "lors de la création d'un événement. Le lien vers la page de l'événement et les coordonnées"
+        "de l'intervenant·e seront automatiquement ajoutés à la fin du message.",
+    )
+
+    event_creation_notification_email_subject = models.CharField(
+        verbose_name="objet de l'e-mail de notification de validation",
+        max_length=255,
+        default="",
+        blank=True,
+        null=False,
+        help_text="Ce texte sera utilisé comme objet de l'e-mail de notification de validation "
+        "lors de la création d'un événement. Si vide, l'e-mail ne sera pas envoyé.",
+    )
+    event_creation_notification_email_body = DescriptionField(
+        verbose_name="texte de l'e-mail de notification de validation",
+        default="",
+        blank=True,
+        null=False,
+        allowed_tags=settings.ADMIN_ALLOWED_TAGS,
+        help_text="Ce texte sera utilisé comme corps de l'e-mail de notification de validation "
+        "lors de la création d'un événement. Le lien vers la page de l'événement et les coordonnées"
+        "de l'organisateur·ice et de l'intervenant·e seront automatiquement ajoutés à la fin du message.",
+    )
+
     def __str__(self):
         return self.name
 
@@ -257,12 +376,59 @@ class EventTheme(BaseAPIResource):
             return self.event_theme_type.event_asset_templates.all()
         return self.event_asset_templates.all()
 
+    def get_speaker_event_creation_email_bindings(self):
+        if not self.speaker_event_creation_email_subject:
+            return None
+
+        return {
+            "email_from": self.event_theme_type.email_from,
+            "subject": self.speaker_event_creation_email_subject,
+            "body": mark_safe(self.speaker_event_creation_email_body),
+        }
+
+    def get_organizer_event_creation_email_bindings(self):
+        if not self.organizer_event_creation_email_subject:
+            return None
+
+        return {
+            "email_from": self.event_theme_type.email_from,
+            "subject": self.organizer_event_creation_email_subject,
+            "body": mark_safe(self.organizer_event_creation_email_body),
+        }
+
+    def get_event_creation_notification_email_bindings(self):
+        if not self.event_creation_notification_email_subject:
+            return None
+
+        return {
+            "email_to": self.event_theme_type.email_to,
+            "email_from": self.event_theme_type.email_from,
+            "subject": self.event_creation_notification_email_subject,
+            "body": mark_safe(self.event_creation_notification_email_body),
+        }
+
+    def get_event_creation_emails_bindings(self):
+        return {
+            "speaker": self.get_speaker_event_creation_email_bindings(),
+            "organizer": self.get_organizer_event_creation_email_bindings(),
+            "notification": self.get_event_creation_notification_email_bindings(),
+        }
+
     class Meta:
         verbose_name = "Thème d'événement"
         verbose_name_plural = "Thèmes d'évenement"
 
 
 class EventSpeakerQuerySet(models.QuerySet):
+    def with_admin_prefetch(self):
+        event_themes = Prefetch(
+            "event_themes",
+            queryset=EventTheme.objects.select_related("event_theme_type").only(
+                "id", "name", "event_theme_type__name"
+            ),
+        )
+        return self.prefetch_related("events", event_themes).select_related("person")
+
     def with_serializer_prefetch(self):
         event_requests = Prefetch(
             "event_requests",
@@ -300,7 +466,7 @@ class EventSpeakerQuerySet(models.QuerySet):
             ),
         )
         return self.prefetch_related(
-            event_requests, event_speaker_requests, event_themes
+            "events", event_requests, event_speaker_requests, event_themes
         )
 
     def available(self):
@@ -317,6 +483,13 @@ class EventSpeaker(BaseAPIResource):
         related_name="event_speaker",
         null=False,
         blank=False,
+    )
+    description = models.CharField(
+        verbose_name="description",
+        max_length=255,
+        blank=True,
+        null=False,
+        default="",
     )
     event_themes = models.ManyToManyField(
         "EventTheme",
@@ -338,19 +511,20 @@ class EventSpeaker(BaseAPIResource):
 
     def get_upcoming_events(self, queryset=None):
         if queryset is None:
-            queryset = (
-                Event.objects.with_serializer_prefetch(self.person).listed().upcoming()
-            )
-        return queryset.filter(
-            id__in=list(
-                self.event_speaker_requests.filter(
-                    event_request__status=EventRequest.Status.DONE, accepted=True
-                ).values_list("event_request__event_id", flat=True)
-            )
-        )
+            queryset = self.events
+        else:
+            queryset = queryset.filter(event_speaker_id=self.id)
+        return queryset.with_serializer_prefetch(self.person).listed().upcoming()
 
     def __str__(self):
-        return f"{str(self.person.get_full_name())} ({'disponible' if self.available else 'indisponible'})"
+        strg = f"{self.person.get_full_name()}"
+        if self.description:
+            strg += f" · {self.description}"
+        if self.available:
+            strg += " (✔)"
+        else:
+            strg += " (✖)"
+        return strg
 
     class Meta:
         verbose_name = "Intervenant·e"
@@ -442,6 +616,15 @@ class EventRequest(BaseAPIResource):
     class Meta:
         verbose_name = "Demande d'événement"
         verbose_name_plural = "Demandes d'évenement"
+        ordering = ("status", "-created")
+        indexes = (
+            models.Index(
+                fields=(
+                    "status",
+                    "-created",
+                ),
+            ),
+        )
 
 
 class EventSpeakerRequestQueryset(models.QuerySet):
@@ -474,12 +657,12 @@ class EventSpeakerRequest(BaseAPIResource):
         verbose_name="disponible",
         null=True,
         default=None,
-        help_text="L'intervenant·e est disponible ou non",
+        help_text="L'intervenant·e est disponible pour cette date",
     )
     accepted = models.BooleanField(
         verbose_name="confirmé·e",
         default=False,
-        help_text="L'intervenant·e a été confirmé·e ou pas pour cette demande",
+        help_text="L'intervenant·e a été validé·e pour cette demande et cette date",
     )
     event_request = models.ForeignKey(
         "EventRequest",

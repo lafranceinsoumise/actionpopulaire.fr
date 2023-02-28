@@ -7,6 +7,10 @@ from django.utils import timezone
 from django.utils.text import slugify
 
 from agir.event_requests.models import EventRequest, EventAsset
+from agir.event_requests.tasks import (
+    send_event_request_validation_emails,
+    send_new_publish_event_asset_notification,
+)
 from agir.events.models import Calendar
 from agir.events.models import Event
 from agir.events.tasks import (
@@ -45,9 +49,10 @@ def create_calendar_for_object(obj):
     obj.save()
 
 
-def schedule_new_event_tasks(event):
-    organizer_config = event.organizer_configs.first()
-    organizer_group = event.organizers_groups.first()
+def schedule_new_event_tasks(event_request):
+    event = event_request.event
+    organizer_config = event.organizer_configs.only("pk").first()
+    organizer_group = event.organizers_groups.only("pk").first()
 
     geocode_event.delay(event.pk)
 
@@ -58,11 +63,18 @@ def schedule_new_event_tasks(event):
         notify_new_group_event.delay(organizer_group.pk, event.pk)
         send_new_group_event_email.delay(organizer_group.pk, event.pk)
 
+    send_event_request_validation_emails.delay(event_request.pk)
+
 
 def create_event_from_event_speaker_request(event_speaker_request=None):
     event_request = event_speaker_request.event_request
+    event_speaker = event_speaker_request.event_speaker
+    event_theme = event_request.event_theme
+    event_theme_type = event_theme.event_theme_type
+    event_subtype = event_theme_type.event_subtype
+
     start_time = event_speaker_request.datetime
-    data = deepcopy(event_speaker_request.event_request.event_data)
+    data = deepcopy(event_request.event_data)
 
     organizer_person = None
     organizer_group = None
@@ -79,8 +91,6 @@ def create_event_from_event_speaker_request(event_speaker_request=None):
             .first()
         )
 
-    subtype = event_request.event_theme.event_theme_type.event_subtype
-
     tz = data.pop("timezone", None)
     if tz not in pytz.all_timezones:
         tz = timezone.get_default_timezone().zone
@@ -93,48 +103,40 @@ def create_event_from_event_speaker_request(event_speaker_request=None):
     data["location_country"] = str(event_request.location_country)
 
     data["name"] = (
-        f"{event_request.event_theme.event_theme_type.name} "
-        f"sur le thème '{event_request.event_theme.name}' "
-        f"avec {event_speaker_request.event_speaker.person.get_full_name()}"
+        f"{event_theme_type.name} "
+        f"sur le thème '{event_theme.name}' "
+        f"avec {event_speaker.person.get_full_name()}"
     )
 
     data = {
         k: v for k, v in data.items() if k in [f.name for f in Event._meta.get_fields()]
     }
 
-    event = Event.objects.create_event(
+    event = Event.objects.create(
         visibility=Event.VISIBILITY_PUBLIC,
         organizer_person=organizer_person,
         organizer_group=organizer_group,
+        event_speaker=event_speaker,
         start_time=start_time,
         end_time=end_time,
         timezone=tz,
-        subtype=subtype,
-        description=data.pop("description", subtype.default_description),
-        image=data.pop("image", subtype.default_image),
+        subtype=event_subtype,
         **data,
     )
 
-    event.attendees.add(event_speaker_request.event_speaker.person)
+    if event_theme_type.calendar:
+        event_theme_type.calendar.events.add(event)
 
-    if event_request.event_theme.event_theme_type.calendar:
-        event_request.event_theme.event_theme_type.calendar.events.add(event)
+    if event_theme.calendar:
+        event_theme.calendar.events.add(event)
 
-    if event_request.event_theme.calendar:
-        event_request.event_theme.calendar.events.add(event)
-
-    schedule_new_event_tasks(event)
-
-    for event_asset_template in event_request.event_theme.get_event_asset_templates():
+    for event_asset_template in event_theme.get_event_asset_templates():
         EventAsset.objects.create(
             template=event_asset_template,
             event=event,
             extra_data={
-                "event_theme": event_request.event_theme.name,
-                "event_theme_type": event_request.event_theme.event_theme_type.name,
-                "speaker_full_name": event_speaker_request.event_speaker.person.get_full_name(),
-                "speaker_first_name": event_speaker_request.event_speaker.person.first_name,
-                "speaker_last_name": event_speaker_request.event_speaker.person.last_name,
+                "event_theme": event_theme.name,
+                "event_theme_type": event_theme_type.name,
             },
         )
 
@@ -170,3 +172,16 @@ def create_event_request_from_personform_submission(submission, do_not_create=Fa
         submission.save()
 
         return event_request
+
+
+def publish_event_assets(event_assets):
+    event_assets = event_assets.filter(published=False)
+    event_ids = set(event_assets.values_list("event_id", flat=True))
+    result = event_assets.update(published=True)
+    for event_id in event_ids:
+        send_new_publish_event_asset_notification.delay(str(event_id))
+    return result
+
+
+def unpublish_event_assets(event_assets):
+    return event_assets.filter(published=True).update(published=False)

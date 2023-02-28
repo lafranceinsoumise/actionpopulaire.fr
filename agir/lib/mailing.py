@@ -215,10 +215,16 @@ def send_mosaico_email(
     :param fail_silently: whether any error should be raised, or just be ignored; by default it will raise
     :param gen_connection_params_function: a function that takes a recipient and generates connection params
     """
-    try:
-        iter(recipients)
-    except TypeError:
+
+    if hasattr(recipients, "as_email_recipients"):
+        recipients = recipients.as_email_recipients()
+    elif isinstance(recipients, str):
         recipients = [recipients]
+    else:
+        try:
+            iter(recipients)
+        except TypeError:
+            recipients = [recipients]
 
     if bindings is None:
         bindings = {}
@@ -248,11 +254,14 @@ def send_mosaico_email(
                 else generate_plain_text(html_message)
             )
 
+            if hasattr(recipient, "email"):
+                recipient_email = recipient.email
+            else:
+                recipient_email = recipient
+
             send_message(
                 from_email=from_email,
-                recipient=recipient.email
-                if isinstance(recipient, Person)
-                else recipient,
+                recipient=recipient_email,
                 subject=subject,
                 text=text_message,
                 html=html_message,

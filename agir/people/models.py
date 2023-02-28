@@ -11,7 +11,7 @@ from django.contrib.postgres.search import SearchVectorField
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
 from django.db import models, transaction, IntegrityError
-from django.db.models import JSONField, Subquery, OuterRef, DateTimeField
+from django.db.models import JSONField, Subquery, OuterRef, DateTimeField, Prefetch
 from django.db.models import Q
 from django.db.models.fields.json import KeyTextTransform
 from django.db.models.functions import Cast, Coalesce
@@ -63,8 +63,25 @@ person_image_path = FilePattern(
 
 
 class PersonQueryset(models.QuerySet):
+    def with_active_role(self):
+        return self.filter(role__is_active=True)
+
     def with_contact_phone(self):
         return self.exclude(contact_phone="")
+
+    def with_prefetched_email(self):
+        return self.annotate(
+            prefetched_email=PersonEmail.objects.filter(person_id=OuterRef("id"))
+            .order_by("_bounced", "_order")
+            .values("address")[:1],
+        )
+
+    def as_email_recipients(self):
+        return (
+            self.with_active_role()
+            .with_prefetched_email()
+            .values_list("prefetched_email", flat=True)
+        )
 
     def verified(self):
         return self.filter(contact_phone_status=Person.CONTACT_PHONE_VERIFIED)

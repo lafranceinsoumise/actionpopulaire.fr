@@ -26,6 +26,7 @@ export const ENDPOINT = {
   updateLocation: "/evenements/:eventPk/localisation/",
 
   getEventReportForm: "/api/evenements/:eventPk/bilan/",
+  getEventAssets: "/api/evenements/:eventPk/visuels/",
 };
 
 export const getEventEndpoint = (key, params) => {

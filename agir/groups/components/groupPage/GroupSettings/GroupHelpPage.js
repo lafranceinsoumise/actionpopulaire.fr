@@ -3,10 +3,10 @@ import React from "react";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import Button from "@agir/front/genericComponents/Button";
-import Card from "@agir/front/genericComponents/Card";
-import Spacer from "@agir/front/genericComponents/Spacer";
+import FileCard from "@agir/front/genericComponents/FileCard";
+import HelpCenterCard from "@agir/front/genericComponents/HelpCenterCard";
 import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
+import Spacer from "@agir/front/genericComponents/Spacer";
 
 import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
 
@@ -16,7 +16,7 @@ const GroupHelpPage = (props) => {
   return (
     <div>
       <HeaderPanel onBack={onBack} illustration={illustration} />
-      <StyledTitle>Ressources et liens utiles</StyledTitle>
+      <StyledTitle>Ressources</StyledTitle>
       <Spacer size="1rem" />
       <span style={{ color: style.black700 }}>
         Retrouvez ici la liste des ressources qui pourront vous être utiles pour
@@ -25,78 +25,34 @@ const GroupHelpPage = (props) => {
       <Spacer size="1rem" />
       <StyledTitle>Centre d'aide</StyledTitle>
       <Spacer size=".5rem" />
-      <Card>
-        <p>
-          Un centre d'aide est à votre disposition avec des fiches pratiques et
-          les réponses aux questions le plus fréquemment posées.
-        </p>
-        <p>
-          Un page de contact est également disponible pour des questions plus
-          spécifiques.
-        </p>
-        <Spacer size="0.5rem" />
-        <Button link small route="helpGroups" color="secondary">
-          Acceder au centre d'aide
-        </Button>
-        <Spacer size="0.5rem" />
-        <Button link small route="helpIndex" color="secondary">
-          Voir les fiches pratiques
-        </Button>
-        <Spacer size="0.5rem" />
-        <Button link small route="contact" color="default">
-          Nous contacter
-        </Button>
-      </Card>
+      <HelpCenterCard type="group" />
       <Spacer size="1rem" />
       <StyledTitle>Documents</StyledTitle>
       <Spacer size=".5rem" />
-      <Card>
-        <p>
-          <strong>Attestation d'assurance de la France insoumise</strong>
-          <br />
-          Document utile en cas de réservation d'une salle pour les événements
-          publics de votre groupe
-        </p>
-        <Button
-          link
-          small
-          route="attestationAssurance"
-          color="primary"
-          icon="download"
-        >
-          Télécharger l'attestation
-        </Button>
-      </Card>
+      <FileCard
+        title="Attestation d'assurance de la France insoumise"
+        text="Document utile en cas de réservation d'une salle pour les événements publics"
+        icon="file-text"
+        route="attestationAssurance"
+        downloadLabel="Télécharger l'attestation"
+      />
       <Spacer size="1rem" />
-      <Card>
-        <p>
-          <strong>Charte des groupes d'action</strong>
-          <br />
-          La charte que tous les animateurs et toutes les animatrices de groupe
-          s’engagent à respecter.
-        </p>
-        <Button link small route="charteEquipes" color="primary" icon="eye">
-          Voir la charte
-        </Button>
-      </Card>
+      <FileCard
+        title="Charte des groupes d'action"
+        text="La charte que tous les animateurs et toutes les animatrices de groupe s’engagent à respecter."
+        icon="file-text"
+        route="charteEquipe"
+        downloadLabel="Voir la charte"
+        downloadIcon="eye"
+      />
       <Spacer size="1rem" />
-      <Card>
-        <p>
-          <strong>Livret de l’animateur·rice</strong>
-          <br />
-          Un guide pratique qui répond à la plupart des intérrogations concernat
-          l'animation d'un groupe d'action
-        </p>
-        <Button
-          link
-          small
-          route="livretAnimateurice"
-          color="primary"
-          icon="download"
-        >
-          Télécharger le livret
-        </Button>
-      </Card>
+      <FileCard
+        title="Livret de l’animateur·rice"
+        text="Un guide pratique qui répond à la plupart des intérrogations concernant l'animation d'un groupe d'action."
+        icon="file-text"
+        route="livretAnimateurice"
+        downloadLabel="Télécharger le livret"
+      />
       <Spacer size="2rem" />
     </div>
   );
