@@ -80,6 +80,7 @@ const SignUp = () => {
 
   const [rgpdChecked, setRgpdChecked] = useState(false);
   const [formData, setFormData] = useState(defaultData);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState({});
 
   const showCountryField = useCallback(() => {
@@ -112,7 +113,9 @@ const SignUp = () => {
         });
         return;
       }
+      setIsLoading(true);
       const data = await signUp(formData, location?.state?.next);
+      setIsLoading(false);
       if (data.error) {
         setError(data.error);
         return;
@@ -127,6 +130,7 @@ const SignUp = () => {
     <form
       style={{ width: "500px", maxWidth: "100%", paddingBottom: "1.5rem" }}
       onSubmit={handleSubmit}
+      disabled={isLoading}
     >
       {location.state?.from === "event" ? (
         <h1 style={{ fontSize: "26px" }}>
@@ -159,6 +163,7 @@ const SignUp = () => {
             onChange={handleChange}
             value={formData.email}
             type="email"
+            disabled={isLoading}
           />
         </div>
         <div>
@@ -168,9 +173,14 @@ const SignUp = () => {
             error={error && error.postalCode}
             onChange={handleChange}
             value={formData.postalCode}
+            disabled={isLoading}
           />
           {hasCountryField === false ? (
-            <CountryToggle type="button" onClick={showCountryField}>
+            <CountryToggle
+              type="button"
+              onClick={showCountryField}
+              disabled={isLoading}
+            >
               J'habite à l'étranger
             </CountryToggle>
           ) : null}
@@ -184,6 +194,7 @@ const SignUp = () => {
               placeholder=""
               onChange={handleChangeCountry}
               value={formData.country}
+              disabled={isLoading}
             />
           </div>
         )}
@@ -207,13 +218,21 @@ const SignUp = () => {
           }
           value={rgpdChecked}
           onChange={handleRgpdCheck}
+          disabled={isLoading}
         />
       </div>
 
       {error && !!error.rgpd && <StaticToast>{error.rgpd}</StaticToast>}
       {error && !!error.global && <StaticToast>{error.global}</StaticToast>}
 
-      <Button type="submit" color="primary" style={{ marginTop: "2rem" }} block>
+      <Button
+        type="submit"
+        color="primary"
+        style={{ marginTop: "2rem" }}
+        block
+        loading={isLoading}
+        disabled={isLoading}
+      >
         {location.state?.from === "event"
           ? "Je participe !"
           : "Créer mon compte"}
