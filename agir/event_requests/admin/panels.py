@@ -37,8 +37,11 @@ class EventAssetTemplateAdmin(admin.ModelAdmin):
 @admin.register(models.EventAsset)
 class EventAssetAdmin(admin.ModelAdmin):
     list_display = ("name", "event_link", "file", "published")
-    list_filter = ("published",)
-    search_fields = ("name", "event__search")
+    list_filter = (
+        "published",
+        filters.EventAutocompleteFilter,
+    )
+    search_fields = ("name", "event__name")
     readonly_fields = ("event_link", "published", "render")
     exclude = ("renderable",)
     autocomplete_fields = ("template",)
@@ -344,12 +347,19 @@ class EventThemeAdmin(admin.ModelAdmin):
 @admin.register(models.EventSpeaker)
 class EventSpeakerAdmin(admin.ModelAdmin, PersonLinkMixin):
     list_display = ("id", "person_link", "description", "themes", "available")
-    list_filter = ("available", "event_themes", "event_themes__event_theme_type")
+    list_filter = (
+        "available",
+        "event_themes",
+        "event_themes__event_theme_type",
+    )
     inlines = (
         inlines.EventSpeakerUpcomingEventInline,
         inlines.EventSpeakerPastEventInline,
     )
-    search_fields = ("person__search",)
+    search_fields = (
+        "description",
+        "person__search",
+    )
     autocomplete_fields = ("person", "event_themes")
 
     def get_queryset(self, request):
