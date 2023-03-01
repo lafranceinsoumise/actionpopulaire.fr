@@ -1,21 +1,22 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
+import { useHistory } from "react-router-dom";
 
 import { Hide } from "@agir/front/genericComponents/grid";
-import Login from "./Login";
+import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import AutoLogin from "./AutoLogin";
 import LeftBlockDesktop from "./LeftBlockDesktop";
-import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
+import Login from "./Login";
 
-import { MainBlock, Container, BackgroundMobile } from "./styledComponents";
 import AuthenticatedLogin from "./AuthenticatedLogin";
+import { BackgroundMobile, Container, MainBlock } from "./styledComponents";
 
+import { AUTHENTICATION } from "@agir/front/authentication/common";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import {
   getAuthentication,
-  getUser,
   getIsSessionLoaded,
+  getUser,
 } from "@agir/front/globalContext/reducers";
-import { AUTHENTICATION } from "@agir/front/authentication/common";
 
 import logoMobile from "@agir/front/genericComponents/logos/action-populaire_mini.svg";
 
@@ -23,12 +24,21 @@ const LoginPage = () => {
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const user = useSelector(getUser);
   const authentication = useSelector(getAuthentication);
+  const history = useHistory();
 
   const autoLogin = useMemo(
     () =>
       (authentication === AUTHENTICATION.SOFT && user && user.email) || false,
     [authentication, user]
   );
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(history.location.search);
+    searchParams.delete("meta_title");
+    searchParams.delete("meta_description");
+    searchParams.delete("meta_image");
+    history.replace({ search: searchParams.toString() });
+  }, [history]);
 
   return (
     <PageFadeIn ready={isSessionLoaded}>

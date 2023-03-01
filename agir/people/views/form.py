@@ -1,14 +1,14 @@
 import csv
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse, urlunparse
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
 from django.core.files import File
-from django.http import Http404
+from django.http import Http404, QueryDict
 from django.http.response import HttpResponseRedirect, HttpResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, resolve_url
 from django.templatetags.static import static
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -82,7 +82,25 @@ class BasePeopleFormView(UpdateView, ObjectOpengraphMixin):
         if self.person_form_instance.allow_anonymous or request.user.is_authenticated:
             return super().dispatch(request, *args, **kwargs)
 
-        return redirect_to_login(request.get_full_path())
+        meta_tags = {
+            "title": self.get_meta_title(),
+            "description": self.get_meta_description(),
+            "image": self.get_meta_image(),
+        }
+
+        login_url = resolve_url(settings.LOGIN_URL)
+
+        login_url_parts = list(urlparse(login_url))
+        for key, value in meta_tags.items():
+            if not value:
+                continue
+            querystring = QueryDict(login_url_parts[4], mutable=True)
+            querystring[f"meta_{key}"] = value
+            login_url_parts[4] = querystring.urlencode(safe="/")
+
+        return redirect_to_login(
+            request.get_full_path(), login_url=urlunparse(login_url_parts)
+        )
 
     def post(self, request, *args, **kwargs):
         if (
