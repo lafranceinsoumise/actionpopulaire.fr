@@ -82,25 +82,7 @@ class BasePeopleFormView(UpdateView, ObjectOpengraphMixin):
         if self.person_form_instance.allow_anonymous or request.user.is_authenticated:
             return super().dispatch(request, *args, **kwargs)
 
-        meta_tags = {
-            "title": self.get_meta_title(),
-            "description": self.get_meta_description(),
-            "image": self.get_meta_image(),
-        }
-
-        login_url = resolve_url(settings.LOGIN_URL)
-
-        login_url_parts = list(urlparse(login_url))
-        for key, value in meta_tags.items():
-            if not value:
-                continue
-            querystring = QueryDict(login_url_parts[4], mutable=True)
-            querystring[f"meta_{key}"] = value
-            login_url_parts[4] = querystring.urlencode(safe="/")
-
-        return redirect_to_login(
-            request.get_full_path(), login_url=urlunparse(login_url_parts)
-        )
+        return self.redirect_to_login(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         if (

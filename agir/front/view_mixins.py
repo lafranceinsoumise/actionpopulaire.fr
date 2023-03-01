@@ -1,7 +1,8 @@
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlunparse, urlparse
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.views import redirect_to_login
 from django.contrib.gis.db.models.functions import (
     Distance as DistanceFunction,
     DistanceResultMixin,
@@ -9,7 +10,8 @@ from django.contrib.gis.db.models.functions import (
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import Distance as DistanceMeasure
 from django.db.models import Value, FloatField
-from django.shortcuts import reverse
+from django.http import QueryDict
+from django.shortcuts import reverse, resolve_url
 from django.templatetags.static import static
 from django.views.generic import UpdateView, ListView
 from django.views.generic.base import ContextMixin, TemplateView
@@ -41,6 +43,27 @@ class SimpleOpengraphMixin(ContextMixin):
 
     def get_meta_image(self):
         return self.meta_image
+
+    def redirect_to_login(self, request, *args, **kwargs):
+        meta_tags = {
+            "title": self.get_meta_title(),
+            "description": self.get_meta_description(),
+            "image": self.get_meta_image(),
+        }
+
+        login_url = resolve_url(settings.LOGIN_URL)
+
+        login_url_parts = list(urlparse(login_url))
+        for key, value in meta_tags.items():
+            if not value:
+                continue
+            querystring = QueryDict(login_url_parts[4], mutable=True)
+            querystring[f"meta_{key}"] = value
+            login_url_parts[4] = querystring.urlencode(safe="/")
+
+        return redirect_to_login(
+            request.get_full_path(), login_url=urlunparse(login_url_parts)
+        )
 
 
 class ObjectOpengraphMixin(SimpleOpengraphMixin):
