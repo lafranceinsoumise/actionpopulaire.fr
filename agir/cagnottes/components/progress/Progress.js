@@ -22,9 +22,17 @@ const StyledTitle = styled.h2`
   color: ${({ $color }) => $color || "#FFFFFF"};
   margin: 0 0 8px;
   padding: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   &:empty {
     display: none;
+  }
+
+  @media (max-width: 700px) {
+    font-size: 24px;
+    font-size: ${({ $height }) => ($height ? 0.24 * $height : "24")}px;
   }
 `;
 
@@ -86,6 +94,11 @@ const StyledBar = styled.div`
     line-height: 0;
     padding: 0 16px;
     padding: 0 ${({ $height }) => ($height ? 0.16 * $height : "16")}px;
+
+    @media (max-width: 700px) {
+      font-size: 48px;
+      font-size: ${({ $height }) => ($height ? 0.48 * $height : "48")}px;
+    }
   }
 `;
 const StyledPage = styled.div`
