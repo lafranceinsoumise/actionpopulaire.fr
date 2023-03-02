@@ -1,6 +1,8 @@
 from unittest import mock
+from urllib.parse import urljoin, urlsplit
 
 from django.conf import settings
+from django.http import QueryDict
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -371,9 +373,13 @@ class AccessControlTestCase(SetUpPersonFormsMixin, TestCase):
 
         res = self.client.get("/formulaires/formulaire-simple/")
 
-        self.assertRedirects(
-            res, reverse("short_code_login") + "?next=/formulaires/formulaire-simple/"
-        )
+        _scheme, _netloc, path, query, _fragment = urlsplit(res.url)
+        if not path.startswith("/"):
+            path = urljoin(res.request["PATH_INFO"], path)
+        query_dict = QueryDict(query)
+
+        self.assertEqual(path, reverse("short_code_login"))
+        self.assertEqual(query_dict["next"], "/formulaires/formulaire-simple/")
 
     def test_cannot_view_closed_forms(self):
         self.complex_form.end_time = timezone.now() - timezone.timedelta(days=1)

@@ -1,13 +1,16 @@
 from collections import OrderedDict
 from itertools import chain
 
+import dynamic_filenames
 from django.conf import settings
-from django.core.validators import RegexValidator
+from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.db.models import JSONField
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
+from stdimage import StdImageField
+from stdimage.validators import MinSizeValidator
 
 from agir.lib import html
 from agir.lib.form_fields import CustomJSONEncoder
@@ -171,6 +174,21 @@ class PersonForm(TimeStampedModel):
         verbose_name="Lien vers une feuille de calcul externe",
         help_text="Une feuille de calcul externe à mettre à jour avec les réponses au formulaire.",
         blank=True,
+    )
+
+    meta_image = StdImageField(
+        verbose_name="Miniature du formulaire",
+        upload_to=dynamic_filenames.FilePattern(
+            filename_pattern="{app_label}/{model_name}/{instance.slug}/{uuid:.8base32}{ext}"
+        ),
+        null=True,
+        blank=True,
+        help_text="L'image utilisée lors du partage du lien du formulaire sur les réseaux sociaux. "
+        "La taille d'image recommandée est de 1200 x 630 px (ratio de 1.9:1).",
+        validators=(
+            FileExtensionValidator(("png", "jpeg", "jpg")),
+            MinSizeValidator(400, 209),
+        ),
     )
 
     @property

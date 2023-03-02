@@ -364,21 +364,22 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
     campaigns_link.short_description = "Campagnes envoyées"
 
     def connection_params(self, obj):
-        if obj.pk:
-            return format_html(
-                '{params} <a class="button" href="{invalidate_link}">Invalider les liens</a>',
-                params=urlencode(generate_token_params(obj)),
-                invalidate_link=reverse(
-                    "admin:people_person_invalidate_link", args=(obj.pk,)
-                ),
-            )
-        else:
+        if not obj or not obj.pk:
             return "-"
 
+        return format_html(
+            "<pre style='margin: 0; padding: 0;'>?{params}</pre>"
+            '<p style="padding: 8px 0;"><a class="button" href="{invalidate_link}">Invalider les liens</a></p>'
+            "<div style='margin: 0; padding-left: 0;' class='help'>"
+            "À copier/coller à la fin d'une URL pour obtenir un lien qui connecte automatiquement"
+            "</div>",
+            params=urlencode(generate_token_params(obj)),
+            invalidate_link=reverse(
+                "admin:people_person_invalidate_link", args=(obj.pk,)
+            ),
+        )
+
     connection_params.short_description = _("Paramètres de connexion")
-    connection_params.help_text = _(
-        "A copier/coller à la fin d'une url agir pour obtenir un lien qui connecte automatiquement."
-    )
 
     def last_login(self, obj):
         if obj.role_id:
@@ -694,7 +695,6 @@ class PersonFormAdmin(FormSubmissionViewsMixin, admin.ModelAdmin):
             _("Textes"),
             {
                 "fields": (
-                    "short_description",
                     "description",
                     "confirmation_note",
                     "send_confirmation",
@@ -703,6 +703,10 @@ class PersonFormAdmin(FormSubmissionViewsMixin, admin.ModelAdmin):
                     "after_message",
                 )
             },
+        ),
+        (
+            _("Meta"),
+            {"fields": ("short_description", "meta_image")},
         ),
     )
 

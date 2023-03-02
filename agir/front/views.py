@@ -116,6 +116,24 @@ class LoginView(BaseAppCachedView):
     meta_title = "Connexion"
     meta_description = "Connectez-vous à Action Populaire"
 
+    def get_meta_title(self):
+        default = super().get_meta_title()
+        if "meta_title" in self.request.GET:
+            return self.request.GET.get("meta_title", default)
+        return default
+
+    def get_meta_description(self):
+        default = super().get_meta_title()
+        if "meta_description" in self.request.GET:
+            return self.request.GET.get("meta_description", default)
+        return default
+
+    def get_meta_image(self):
+        default = super().get_meta_title()
+        if "meta_image" in self.request.GET:
+            return self.request.GET.get("meta_image", default)
+        return default
+
 
 class CodeLoginView(BaseAppCachedView):
     meta_title = "Connexion"

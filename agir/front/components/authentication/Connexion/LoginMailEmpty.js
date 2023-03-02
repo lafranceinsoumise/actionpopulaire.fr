@@ -35,7 +35,9 @@ const Form = styled.form`
   }
 `;
 
-const LoginMailEmpty = ({ onSubmit, error }) => {
+const LoginMailEmpty = (props) => {
+  const { onSubmit, error, isLoading } = props;
+
   const [email, setEmail] = useState("");
 
   const handleInputChange = useCallback((e) => {
@@ -48,7 +50,7 @@ const LoginMailEmpty = ({ onSubmit, error }) => {
   };
 
   return (
-    <Form onSubmit={handleSubmit}>
+    <Form disabled={isLoading} onSubmit={handleSubmit}>
       <div>
         <TextField
           id="email"
@@ -68,7 +70,12 @@ const LoginMailEmpty = ({ onSubmit, error }) => {
         )}
       </div>
       <div>
-        <Button color="primary" type="submit">
+        <Button
+          color="primary"
+          type="submit"
+          loading={isLoading}
+          disabled={isLoading}
+        >
           Me connecter
         </Button>
       </div>
@@ -82,5 +89,6 @@ LoginMailEmpty.propTypes = {
     email: PropTypes.string,
     detail: PropTypes.string,
   }),
+  isLoading: PropTypes.bool,
 };
 export default LoginMailEmpty;
