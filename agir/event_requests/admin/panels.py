@@ -16,6 +16,8 @@ from agir.lib.utils import front_url
 
 @admin.register(models.EventAssetTemplate)
 class EventAssetTemplateAdmin(admin.ModelAdmin):
+    list_display = ("name", "file", "target_format")
+    list_filter = ("target_format",)
     search_fields = ("name", "file")
     readonly_fields = ("template_preview",)
 
@@ -30,9 +32,6 @@ class EventAssetTemplateAdmin(admin.ModelAdmin):
             f"src={obj.file.url} />"
         )
 
-    def get_model_perms(self, request):
-        return {}
-
 
 @admin.register(models.EventAsset)
 class EventAssetAdmin(admin.ModelAdmin):
@@ -43,8 +42,15 @@ class EventAssetAdmin(admin.ModelAdmin):
     )
     search_fields = ("name", "event__name")
     readonly_fields = ("event_link", "published", "render")
+    create_only_fields = ("event",)
     exclude = ("renderable",)
-    autocomplete_fields = ("template",)
+    autocomplete_fields = ("template", "event")
+
+    def get_readonly_fields(self, request, obj=None):
+        fields = super().get_readonly_fields(request, obj)
+        if obj is None:
+            return fields + self.create_only_fields
+        return fields
 
     @admin.display(description="Événement")
     def event_link(self, obj):
@@ -201,17 +207,24 @@ class EventThemeTypeAdmin(admin.ModelAdmin):
                 )
             },
         ),
+        (
+            "TEMPLATES DE VISUELS",
+            {"fields": ("event_asset_templates",)},
+        ),
     )
     list_display = ("name", "event_subtype", "calendar_link", "map_link")
     list_filter = ("event_theme",)
     search_fields = ("name",)
     autocomplete_fields = ("event_subtype",)
+    filter_horizontal = ("event_asset_templates",)
     readonly_fields = (
         "calendar_link",
         "map_link",
     )
-    inlines = (inlines.EventThemeInline, inlines.EventAssetTemplateInline)
-    exclude = ("event_asset_templates",)
+    inlines = (
+        inlines.EventAssetTemplateInline,
+        inlines.EventThemeInline,
+    )
 
     @admin.display(description="Agenda")
     def calendar_link(self, obj):
@@ -243,7 +256,14 @@ class EventThemeAdmin(admin.ModelAdmin):
     fieldsets = (
         (
             None,
-            {"fields": ("name", "description", "event_theme_type", "calendar_link")},
+            {
+                "fields": (
+                    "name",
+                    "description",
+                    "event_theme_type",
+                    "calendar_link",
+                )
+            },
         ),
         (
             "NOTIFICATION DE CRÉATION D'ÉVÉNEMENT À L'INTERVENANT·E",
@@ -273,6 +293,10 @@ class EventThemeAdmin(admin.ModelAdmin):
                 )
             },
         ),
+        (
+            "TEMPLATES DE VISUELS",
+            {"fields": ("event_asset_templates",)},
+        ),
     )
     list_display = (
         "name",
@@ -287,11 +311,11 @@ class EventThemeAdmin(admin.ModelAdmin):
     search_fields = ("name", "event_theme_type__name")
     autocomplete_fields = ("event_theme_type",)
     readonly_fields = ("calendar_link", "email_to")
+    filter_horizontal = ("event_asset_templates",)
     inlines = (
-        inlines.EventThemeSpeakerInline,
         inlines.EventAssetTemplateInline,
+        inlines.EventThemeSpeakerInline,
     )
-    exclude = ("event_asset_templates",)
 
     def get_queryset(self, request):
         return super().get_queryset(request).with_admin_prefetch()

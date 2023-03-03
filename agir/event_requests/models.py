@@ -63,12 +63,16 @@ class EventAssetQueryset(models.QuerySet):
     def public(self):
         return self.filter(published=True)
 
+    def renderable(self):
+        return self.filter(template_id__isnull=False, event_id__isnull=False)
+
 
 class EventAssetManager(models.Manager.from_queryset(EventAssetQueryset)):
-    def create(self, *args, **kwargs):
+    def create(self, *args, render_after_creation=True, **kwargs):
         event_asset = super(EventAssetManager, self).create(*args, **kwargs)
-        if event_asset.renderable:
+        if render_after_creation and event_asset.renderable:
             event_asset.render()
+
         return event_asset
 
 
@@ -86,8 +90,8 @@ class EventAsset(BaseAPIResource):
     name = models.CharField("Nom", null=False, blank=False, max_length=200)
     file = models.FileField(
         "Fichier",
-        null=False,
-        max_length=255,
+        null=True,
+        blank=True,
         upload_to=ASSET_FILE_PATH,
         validators=[validators.FileExtensionValidator(RSVG_CONVERT_AVAILABLE_FORMATS)],
     )
@@ -106,8 +110,7 @@ class EventAsset(BaseAPIResource):
         related_name="event_assets",
         related_query_name="event_asset",
         null=True,
-        blank=False,
-        editable=False,
+        blank=True,
     )
     extra_data = models.JSONField(
         "Données supplémentaires",
@@ -236,6 +239,7 @@ class EventThemeType(models.Model):
     )
     event_asset_templates = models.ManyToManyField(
         "event_requests.EventAssetTemplate",
+        verbose_name="Templates de visuels",
         related_name="event_theme_types",
         related_query_name="event_theme_type",
         blank=True,
@@ -301,6 +305,7 @@ class EventTheme(BaseAPIResource):
 
     event_asset_templates = models.ManyToManyField(
         "event_requests.EventAssetTemplate",
+        verbose_name="Templates de visuels",
         related_name="event_themes",
         related_query_name="event_theme",
         blank=True,

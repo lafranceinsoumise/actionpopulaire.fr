@@ -9,11 +9,13 @@ from agir.lib.admin.inlines import NonrelatedTabularInline
 
 
 class EventAssetTemplateInline(NonrelatedTabularInline):
-    verbose_name = "Template de visuel"
-    verbose_name_plural = "Templates de visuels"
+    verbose_name = "template de visuel"
+    verbose_name_plural = "templates de visuels"
     model = models.EventAssetTemplate
     fields = ("name", "file", "target_format")
     extra = 0
+    show_change_link = True
+    can_delete = False
 
     def get_form_queryset(self, obj):
         return obj.event_asset_templates.all()
