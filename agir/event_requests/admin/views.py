@@ -63,14 +63,18 @@ def validate_event_speaker_request(model_admin, request, pk):
             event_speaker_request.event_request.event = event
             event_speaker_request.event_request.status = EventRequest.Status.DONE
             event_speaker_request.event_request.save()
-
+            # Schedule post-creation tasks
             transaction.on_commit(
                 partial(schedule_new_event_tasks, event_speaker_request.event_request)
             )
 
-            messages.success(
-                request,
-                f"La demande d'événement a été validée et un événement a été automatiquement créé.",
-            )
+            success_message = "La demande d'événement a été validée et un événement a été automatiquement créé."
+            if event.event_assets.exists():
+                success_message += (
+                    " Les visuels de l'événement sont en cours de génération et seront disponibles "
+                    "dans quelques instants sur la page de l'événement"
+                )
+
+            messages.success(request, success_message)
 
         return response

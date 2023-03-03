@@ -77,14 +77,13 @@ def rsvg_convert(
     )
 
     try:
-        output, error = rsvg.communicate(input=svg.encode("utf8"), timeout=5)
+        output, error = rsvg.communicate(input=svg.encode("utf8"), timeout=30)
     except subprocess.TimeoutExpired:
         rsvg.kill()
         rsvg.communicate()
         raise TicketGenerationException("Timeout")
 
     if rsvg.returncode:
-        print(svg[:2000])
         raise TicketGenerationException("Return code: %d" % rsvg.returncode)
 
     return File(io.BytesIO(output), name=f"{filename}.{to_format}")

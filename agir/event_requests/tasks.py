@@ -1,8 +1,15 @@
 from agir.event_requests import models
 from agir.events.models import Event
-from agir.lib.celery import emailing_task
+from agir.lib.celery import emailing_task, post_save_task
 from agir.lib.mailing import send_template_email
 from agir.lib.utils import front_url
+
+
+@post_save_task()
+def render_event_assets(event_pk):
+    event = Event.objects.get(pk=event_pk)
+    for event_asset in event.event_assets.renderable():
+        event_asset.render()
 
 
 @emailing_task()
