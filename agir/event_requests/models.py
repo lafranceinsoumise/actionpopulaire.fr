@@ -70,8 +70,13 @@ class EventAssetQueryset(models.QuerySet):
 class EventAssetManager(models.Manager.from_queryset(EventAssetQueryset)):
     def create(self, *args, render_after_creation=True, **kwargs):
         event_asset = super(EventAssetManager, self).create(*args, **kwargs)
+
         if render_after_creation and event_asset.renderable:
             event_asset.render()
+
+        if not event_asset.name and event_asset.template:
+            event_asset.name = event_asset.template.name
+            event_asset.save()
 
         return event_asset
 
@@ -90,6 +95,7 @@ class EventAsset(BaseAPIResource):
     name = models.CharField("Nom", null=False, blank=False, max_length=200)
     file = models.FileField(
         "Fichier",
+        max_length=255,
         null=True,
         blank=True,
         upload_to=ASSET_FILE_PATH,
