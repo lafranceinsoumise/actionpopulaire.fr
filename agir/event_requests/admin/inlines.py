@@ -32,6 +32,7 @@ class EventAssetInline(admin.TabularInline):
     fields = ("name", "file", "published")
     readonly_fields = ("published",)
     show_change_link = True
+    can_delete = False
     extra = 0
 
 
