@@ -16,7 +16,7 @@ import FaIcon from "@agir/front/genericComponents/FaIcon";
 const StyledOption = styled.li`
   display: flex;
   flex-flow: row nowrap;
-  min-height: 2.75rem;
+  min-height: 2rem;
   align-items: flex-start;
   font-size: 1rem;
   line-height: 1.5;
