@@ -117,7 +117,8 @@ const BASE_ROUTE = routeConfig.createEvent.getLink();
 const PANEL_ROUTE = BASE_ROUTE + "type/";
 
 const SubtypeField = (props) => {
-  const { onChange, value, name, error, disabled, options } = props;
+  const { onChange, value, name, error, disabled, options, lastUsedIds } =
+    props;
 
   const isPanelOpen = useRouteMatch(PANEL_ROUTE);
   const history = useHistory();
@@ -190,6 +191,7 @@ const SubtypeField = (props) => {
         onChange={handleChange}
         value={value}
         options={subtypes}
+        lastUsedIds={lastUsedIds}
         shouldShow={!!isPanelOpen}
       />
     </StyledField>
@@ -200,6 +202,7 @@ SubtypeField.propTypes = {
   value: PropTypes.object,
   name: PropTypes.string.isRequired,
   options: PropTypes.arrayOf(PropTypes.object),
+  lastUsedIds: PropTypes.arrayOf(PropTypes.number),
   error: PropTypes.string,
   disabled: PropTypes.bool,
   required: PropTypes.bool,

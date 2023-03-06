@@ -26,11 +26,6 @@ export const EVENT_DEFAULT_DURATIONS = [
 ];
 
 export const EVENT_TYPES = {
-  G: {
-    label: "Réunion privée de groupe",
-    description:
-      "Une réunion qui concerne principalement les membres du groupes, et non le public de façon générale. Par exemple, la réunion hebdomadaire du groupe, une réunion de travail, ou l'audition d'une association",
-  },
   M: {
     label: "Événement public",
     description:
@@ -40,6 +35,11 @@ export const EVENT_TYPES = {
     label: "Action publique",
     description:
       "Une action qui se déroulera dans un lieu public et qui aura comme objectif principal  d'aller à la rencontre ou d'atteindre des personnes extérieures à la France insoumise",
+  },
+  G: {
+    label: "Réunion privée de groupe",
+    description:
+      "Une réunion qui concerne principalement les membres du groupes, et non le public de façon générale. Par exemple, la réunion hebdomadaire du groupe, une réunion de travail, ou l'audition d'une association",
   },
   O: {
     label: "Autre",

@@ -247,44 +247,49 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
         method_name="get_is_boucle_departementale", read_only=True
     )
 
-    def to_representation(self, instance):
+    def get_membership(self, obj):
         user = self.context["request"].user
-        self.membership = None
         self.user = user
+        if hasattr(self, "membership"):
+            return self.membership
+
+        self.membership = None
         if (
             not user.is_anonymous
             and hasattr(user, "person")
             and user.person is not None
         ):
             self.membership = (
-                Membership.objects.active()
-                .filter(person=user.person, supportgroup=instance)
-                .first()
+                obj.memberships.active().filter(person_id=user.person.id).first()
             )
-        return super().to_representation(instance)
+        return self.membership
 
     def get_isMember(self, obj):
-        return self.membership is not None
+        membership = self.get_membership(obj)
+        return membership is not None
 
     def get_isActiveMember(self, obj):
-        return self.membership is not None and self.membership.is_active_member
+        membership = self.get_membership(obj)
+        return membership is not None and membership.is_active_member
 
     def get_isManager(self, obj):
+        membership = self.get_membership(obj)
         return (
-            self.membership is not None
-            and self.membership.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER
+            membership is not None
+            and membership.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER
         )
 
     def get_isReferent(self, obj):
+        membership = self.get_membership(obj)
         return (
-            self.membership is not None
-            and self.membership.membership_type >= Membership.MEMBERSHIP_TYPE_REFERENT
+            membership is not None
+            and membership.membership_type >= Membership.MEMBERSHIP_TYPE_REFERENT
         )
 
     def get_personalInfoConsent(self, obj):
+        membership = self.get_membership(obj)
         return (
-            self.membership is not None
-            and self.membership.personal_information_sharing_consent
+            membership is not None and membership.personal_information_sharing_consent
         )
 
     def get_contact(self, instance):
@@ -339,12 +344,14 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             }
 
     def get_routes(self, obj):
-        return get_supportgroup_routes(obj, self.membership, self.user)
+        membership = self.get_membership(obj)
+        return get_supportgroup_routes(obj, membership, self.user)
 
     def get_discountCodes(self, obj):
+        membership = self.get_membership(obj)
         if (
-            self.membership is not None
-            and self.membership.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER
+            membership is not None
+            and membership.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER
             and obj.tags.filter(label=settings.PROMO_CODE_TAG).exists()
         ):
             return get_promo_codes(obj)
@@ -369,9 +376,8 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
         return obj.organized_events.past().exclude(report_content="").exists()
 
     def get_hasMessages(self, obj):
-        return (
-            self.membership is not None and obj.messages.filter(deleted=False).exists()
-        )
+        membership = self.get_membership(obj)
+        return membership is not None and obj.messages.filter(deleted=False).exists()
 
     def get_links(self, obj):
         return obj.links.values("id", "label", "url")
@@ -385,7 +391,11 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
         return obj.check_certification_criteria()
 
     def get_is_certified(self, obj):
-        return obj.type == SupportGroup.TYPE_LOCAL_GROUP and obj.is_certified
+        if obj.type != SupportGroup.TYPE_LOCAL_GROUP:
+            return False
+        if hasattr(obj, "has_certification_subtype"):
+            return obj.has_certification_subtype
+        return obj.is_certified
 
     def get_is_boucle_departementale(self, obj):
         return obj.type == SupportGroup.TYPE_BOUCLE_DEPARTEMENTALE
