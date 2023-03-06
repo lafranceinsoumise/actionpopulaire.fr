@@ -456,6 +456,9 @@ class EventListSerializer(EventSerializer):
 class EventPropertyOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer):
     organizerGroup = serializers.SerializerMethodField()
     subtype = serializers.SerializerMethodField()
+    lastUsedSubtypeIds = serializers.SerializerMethodField(
+        method_name="get_last_used_subtype_ids"
+    )
     defaultContact = serializers.SerializerMethodField()
     # onlineUrl = serializers.SerializerMethodField()
 
@@ -469,18 +472,21 @@ class EventPropertyOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer
             self.person = user.person
         return super().to_representation(instance)
 
-    def get_organizerGroup(self, request):
+    def get_organizerGroup(self, _request):
         return SupportGroupDetailSerializer(
-            SupportGroup.objects.filter(
-                memberships__person=self.person,
+            SupportGroup.objects.with_static_map_image()
+            .with_certification_subtype_exists()
+            .filter(
+                memberships__person_id=self.person.id,
                 memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
-            ).active(),
+            )
+            .active(),
             context=self.context,
             many=True,
             fields=["id", "name", "contact", "location", "isCertified"],
         ).data
 
-    def get_subtype(self, request):
+    def get_subtype(self, _request):
         return EventSubtypeSerializer(
             EventSubtype.objects.filter(
                 visibility=EventSubtype.VISIBILITY_ALL
@@ -489,7 +495,16 @@ class EventPropertyOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer
             many=True,
         ).data
 
-    def get_defaultContact(self, request):
+    def get_last_used_subtype_ids(self, _request):
+        return (
+            Event.objects.exclude(visibility=Event.VISIBILITY_ADMIN)
+            .filter(organizers=self.person)
+            .order_by("subtype_id", "-start_time")
+            .distinct("subtype_id")
+            .values_list("subtype_id", flat=True)[:5]
+        )
+
+    def get_defaultContact(self, _request):
         contact = {
             "hidePhone": False,
         }
@@ -501,7 +516,7 @@ class EventPropertyOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer
             contact["email"] = self.person.display_email
         return contact
 
-    def get_onlineUrl(self, request):
+    def get_onlineUrl(self, _request):
         return "https://" + jitsi_default_domain() + "/" + jitsi_default_room_name()
 
 

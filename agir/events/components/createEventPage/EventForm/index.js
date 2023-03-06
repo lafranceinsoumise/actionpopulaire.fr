@@ -280,6 +280,7 @@ const EventForm = () => {
         name="subtype"
         value={formData.subtype}
         options={options.subtype}
+        lastUsedIds={options.lastUsedSubtypeIds}
         onChange={updateValue}
         error={errors && errors.subtype}
         disabled={isLoading}
