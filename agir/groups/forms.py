@@ -1,14 +1,16 @@
-from django.urls import reverse_lazy
+from functools import reduce, partial
+from operator import or_
+
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Row, Field
 from django import forms
-from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.db.models import Exists, OuterRef
+from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
-from functools import reduce
-from operator import or_
 
+from agir.groups.actions.transfer import (
+    schedule_membership_transfer_tasks,
+)
 from agir.groups.models import (
     SupportGroup,
     Membership,
@@ -18,14 +20,9 @@ from agir.groups.models import (
 from agir.groups.tasks import (
     send_support_group_changed_notification,
     send_support_group_creation_notification,
-    invite_to_group,
     create_group_creation_confirmation_activity,
     create_accepted_invitation_member_activity,
     geocode_support_group,
-)
-from agir.groups.actions.transfer import (
-    send_membership_transfer_email_notifications,
-    create_transfer_membership_activities,
 )
 from agir.lib.form_components import *
 from agir.lib.form_fields import RemoteSelectizeWidget
@@ -348,19 +345,14 @@ class TransferGroupMembersForm(forms.Form):
             Membership.objects.bulk_create(new_memberships, ignore_conflicts=True)
             memberships.delete()
 
-        send_membership_transfer_email_notifications(
-            self.manager.pk,
-            self.former_group.pk,
-            target_group.pk,
-            [membership.person.pk for membership in memberships],
-        )
-        create_transfer_membership_activities(
-            self.former_group,
-            target_group,
-            [membership.person for membership in memberships],
-        )
+            transaction.on_commit(
+                partial(
+                    schedule_membership_transfer_tasks,
+                    transfer_operation,
+                )
+            )
 
         return {
             "target_group": target_group,
-            "transferred_memberships": memberships,
+            "transferred_memberships": transfer_operation.members,
         }
