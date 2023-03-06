@@ -41,7 +41,7 @@ if (process.env.NODE_ENV === "production") {
 
       // Email link Microsoft Outlook crawler compatibility error
       // cf. https://forum.sentry.io/t/unhandledrejection-non-error-promise-rejection-captured-with-value/14062
-      "Non-Error promise rejection captured with value: Object Not Found Matching Id:",
+      "Non-Error promise rejection captured",
 
       // COMMON IGNORE RULES
       // cf. https://docs.sentry.io/clients/javascript/tips/
@@ -68,6 +68,22 @@ if (process.env.NODE_ENV === "production") {
       "EBCallBackMessageReceived",
       // See http://toolbar.conduit.com/Developer/HtmlAndGadget/Methods/JSInjection.aspx
       "conduitPage",
+    ],
+    denyUrls: [
+      // Facebook flakiness
+      /graph\.facebook\.com/i,
+      // Facebook blocked
+      /connect\.facebook\.net\/en_US\/all\.js/i,
+      // Woopra flakiness
+      /eatdifferent\.com\.woopra-ns\.com/i,
+      /static\.woopra\.com\/js\/woopra\.js/i,
+      // Chrome extensions
+      /extensions\//i,
+      /^chrome:\/\//i,
+      // Other plugins
+      /127\.0\.0\.1:4001\/isrunning/i, // Cacaoweb
+      /webappstoolbarba\.texthelp\.com\//i,
+      /metrics\.itunes\.apple\.com\.edgesuite\.net\//i,
     ],
   });
 }

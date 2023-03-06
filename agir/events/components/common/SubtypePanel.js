@@ -10,11 +10,13 @@ import Button from "@agir/front/genericComponents/Button";
 import Panel from "@agir/front/genericComponents/Panel";
 
 import { EVENT_TYPES } from "@agir/events/common/utils";
+import Spacer from "@agir/front/genericComponents/Spacer";
+import FaIcon from "@agir/front/genericComponents/FaIcon";
 
 const StyledOption = styled.li`
   display: flex;
   flex-flow: row nowrap;
-  min-height: 2.75rem;
+  min-height: 2rem;
   align-items: flex-start;
   font-size: 1rem;
   line-height: 1.5;
@@ -31,7 +33,7 @@ const StyledOption = styled.li`
     margin-left: auto;
   }
 
-  & > span {
+  & > :first-child {
     color: ${style.primary500};
     display: inline-block;
     font-size: 1rem;
@@ -39,11 +41,12 @@ const StyledOption = styled.li`
     height: 1rem;
     width: 1rem;
     padding-top: 0.25rem;
+    text-align: center;
   }
 
   & > strong {
     font-weight: 400;
-    padding: 0 0.5rem;
+    padding: 0 0 0 1rem;
   }
 `;
 
@@ -81,7 +84,10 @@ const SubtypeOption = (props) => {
       title={option.description}
       onClick={handleClick}
     >
-      <span className={`fa fa-${option.iconName || "calendar"}`} />
+      <FaIcon
+        icon={option?.iconName || "calendar"}
+        style={{ color: option.color }}
+      />
       <strong>
         {option.description && (
           <>
@@ -117,7 +123,7 @@ export const SubtypeOptions = ({ options, onClick, selected }) => {
           <strong title={category.description}>{category.label}</strong>
           {category.subtypes.map((subtype) => (
             <SubtypeOption
-              key={subtype.id}
+              key={category.label + subtype.id}
               onClick={onClick}
               option={subtype}
               selected={!!selected && selected.id === subtype.id}
@@ -136,31 +142,59 @@ SubtypeOptions.propTypes = {
 };
 
 const SubtypeField = (props) => {
-  const { shouldShow, onChange, onClose, value } = props;
-
+  const { shouldShow, onChange, onClose, value, options, lastUsedIds } = props;
   const panelPosition = useResponsiveMemo("right", "left");
 
-  const subtypes = useMemo(
-    () => (Array.isArray(props.options) ? props.options : []),
-    [props.options]
-  );
+  const optionCategories = useMemo(() => {
+    const categories = Object.entries(EVENT_TYPES).reduce(
+      (result, [type, config]) => ({
+        ...result,
+        [type]: {
+          ...config,
+          subtypes: [],
+        },
+      }),
+      {}
+    );
+    const subtypes = Array.isArray(options) ? options : [];
 
-  const options = useMemo(() => {
-    const categories = {};
     subtypes.forEach((subtype) => {
       const category =
-        subtype.type && EVENT_TYPES[subtype.type] ? subtype.type : "O";
-      categories[category] = categories[category] || {
-        ...EVENT_TYPES[category],
-      };
+        subtype.type && categories[subtype.type] ? subtype.type : "O";
       categories[category].subtypes = categories[category].subtypes || [];
       categories[category].subtypes.push(subtype);
     });
 
-    return Object.values(categories).filter((category) =>
-      Array.isArray(category.subtypes)
+    return Object.values(categories).filter(
+      (category) =>
+        Array.isArray(category.subtypes) && category.subtypes.length > 0
     );
-  }, [subtypes]);
+  }, [options]);
+
+  const lastUsedOptions = useMemo(() => {
+    const subtypes = Array.isArray(options) ? options : [];
+
+    if (!Array.isArray(lastUsedIds)) {
+      return null;
+    }
+
+    const lastUsed = lastUsedIds
+      .map((id) => subtypes.find((subtype) => subtype.id === id))
+      .filter(Boolean);
+
+    if (lastUsed.length === 0) {
+      return null;
+    }
+
+    return [
+      {
+        label: "Derniers types utilisés",
+        description:
+          "Les types choisis pour les derniers événements que vous avez créé",
+        subtypes: lastUsed,
+      },
+    ];
+  }, [options, lastUsedIds]);
 
   return (
     <Panel
@@ -171,7 +205,21 @@ const SubtypeField = (props) => {
       title="Type de l'événement"
       noScroll
     >
-      <SubtypeOptions options={options} onClick={onChange} selected={value} />
+      {lastUsedOptions && (
+        <>
+          <SubtypeOptions
+            options={lastUsedOptions}
+            onClick={onChange}
+            selected={value}
+          />
+          <Spacer size="1rem" />
+        </>
+      )}
+      <SubtypeOptions
+        options={optionCategories}
+        onClick={onChange}
+        selected={value}
+      />
     </Panel>
   );
 };
@@ -180,6 +228,7 @@ SubtypeField.propTypes = {
   onChange: PropTypes.func.isRequired,
   value: PropTypes.object,
   options: PropTypes.arrayOf(PropTypes.object),
+  lastUsedIds: PropTypes.arrayOf(PropTypes.number),
   shouldShow: PropTypes.bool,
 };
 export default SubtypeField;

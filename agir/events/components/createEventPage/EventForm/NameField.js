@@ -1,17 +1,28 @@
 import PropTypes from "prop-types";
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import TextField from "@agir/front/formComponents/TextField";
 
 const NameField = (props) => {
-  const { onChange, value, name, error, required, disabled } = props;
+  const { onChange, value, defaultValue, name, error, required, disabled } =
+    props;
+
+  const [isDefault, setIsDefault] = useState(true);
 
   const handleChange = useCallback(
     (e) => {
+      setIsDefault(false);
       onChange && onChange(name, e.target.value);
     },
     [name, onChange]
   );
+
+  useEffect(() => {
+    if (!onChange || !isDefault || value === defaultValue) {
+      return;
+    }
+    onChange(name, defaultValue);
+  }, [isDefault, name, value, defaultValue, onChange]);
 
   return (
     <TextField
@@ -31,6 +42,7 @@ const NameField = (props) => {
 NameField.propTypes = {
   onChange: PropTypes.func.isRequired,
   value: PropTypes.string,
+  defaultValue: PropTypes.string,
   name: PropTypes.string.isRequired,
   error: PropTypes.string,
   required: PropTypes.bool,

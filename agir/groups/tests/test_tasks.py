@@ -316,7 +316,7 @@ class NotificationTasksTestCase(TestCase):
             supportgroup=target_group,
         ).count()
         create_transfer_membership_activities(
-            original_group, target_group, [transferred_member.person]
+            original_group.pk, target_group.pk, [transferred_member.person.pk]
         )
         new_activity_count = Activity.objects.filter(
             type=Activity.TYPE_TRANSFERRED_GROUP_MEMBER,
@@ -366,7 +366,7 @@ class NotificationTasksTestCase(TestCase):
             supportgroup=target_group,
         ).count()
         create_transfer_membership_activities(
-            original_group, target_group, [transferred_member.person]
+            original_group.pk, target_group.pk, [transferred_member.person.pk]
         )
         new_activity_count = Activity.objects.filter(
             type=Activity.TYPE_NEW_MEMBERS_THROUGH_TRANSFER,

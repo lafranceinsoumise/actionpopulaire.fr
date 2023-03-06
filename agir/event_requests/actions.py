@@ -10,6 +10,7 @@ from agir.event_requests.models import EventRequest, EventAsset
 from agir.event_requests.tasks import (
     send_event_request_validation_emails,
     send_new_publish_event_asset_notification,
+    render_event_assets,
 )
 from agir.events.models import Calendar
 from agir.events.models import Event
@@ -64,6 +65,7 @@ def schedule_new_event_tasks(event_request):
         send_new_group_event_email.delay(organizer_group.pk, event.pk)
 
     send_event_request_validation_emails.delay(event_request.pk)
+    render_event_assets.delay(str(event.pk))
 
 
 def create_event_from_event_speaker_request(event_speaker_request=None):
@@ -132,6 +134,7 @@ def create_event_from_event_speaker_request(event_speaker_request=None):
 
     for event_asset_template in event_theme.get_event_asset_templates():
         EventAsset.objects.create(
+            render_after_creation=False,
             template=event_asset_template,
             event=event,
             extra_data={

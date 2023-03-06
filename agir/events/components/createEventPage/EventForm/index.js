@@ -4,28 +4,28 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
+import { createEvent } from "@agir/events/common/api";
 import {
   DEFAULT_FORM_DATA,
   validateData,
 } from "@agir/events/common/eventForm.config";
-import { routeConfig } from "@agir/front/app/routes.config";
 import { useEventFormOptions } from "@agir/events/common/hooks";
-import { createEvent } from "@agir/events/common/api";
+import { routeConfig } from "@agir/front/app/routes.config";
 
-import Button from "@agir/front/genericComponents/Button";
-import LocationField from "@agir/front/formComponents/LocationField";
-import Spacer from "@agir/front/genericComponents/Spacer";
 import UnloadPrompt from "@agir/front/app/UnloadPrompt";
+import LocationField from "@agir/front/formComponents/LocationField";
+import Button from "@agir/front/genericComponents/Button";
+import Spacer from "@agir/front/genericComponents/Spacer";
 
-import NameField from "./NameField";
 import OrganizerGroupField from "@agir/events/common/OrganizerGroupField";
+import { scrollToError } from "@agir/front/app/utils";
+import ContactField from "./ContactField";
 import DateField from "./DateField";
 import DescriptionField from "./DescriptionField";
 import EventImageField from "./EventImageField";
-import SubtypeField from "./SubtypeField";
-import ContactField from "./ContactField";
+import NameField from "./NameField";
 import OnlineUrlField from "./OnlineUrlField";
-import { scrollToError } from "@agir/front/app/utils";
+import SubtypeField from "./SubtypeField";
 
 const StyledGlobalError = styled.p`
   padding: 0 0 1rem;
@@ -275,9 +275,22 @@ const EventForm = () => {
 
   return (
     <StyledForm onSubmit={handleSubmit} disabled={isLoading} noValidate>
+      <Spacer size="0" data-scroll="subtype" />
+      <SubtypeField
+        name="subtype"
+        value={formData.subtype}
+        options={options.subtype}
+        lastUsedIds={options.lastUsedSubtypeIds}
+        onChange={updateValue}
+        error={errors && errors.subtype}
+        disabled={isLoading}
+        required
+      />
+      <Spacer size="1rem" data-scroll="name" />
       <NameField
         name="name"
         value={formData.name}
+        defaultValue={formData?.subtype?.description || ""}
         onChange={updateValue}
         error={errors && errors.name}
         disabled={isLoading}
@@ -305,16 +318,6 @@ const EventForm = () => {
         }
         onChange={updateDate}
         onChangeTimezone={(timezone) => updateValue("timezone", timezone)}
-        disabled={isLoading}
-        required
-      />
-      <Spacer size="1rem" data-scroll="subtype" />
-      <SubtypeField
-        name="subtype"
-        value={formData.subtype}
-        options={options.subtype}
-        onChange={updateValue}
-        error={errors && errors.subtype}
         disabled={isLoading}
         required
       />

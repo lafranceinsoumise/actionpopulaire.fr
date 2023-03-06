@@ -1,4 +1,8 @@
 export const getScrollableParent = (element) => {
+  if (element === window) {
+    return element;
+  }
+
   const regex = /(auto|scroll)/;
   const parents = (_node, ps) => {
     if (_node.parentNode === null) {
