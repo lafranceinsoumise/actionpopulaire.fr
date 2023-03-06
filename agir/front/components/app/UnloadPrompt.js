@@ -12,7 +12,7 @@ const UnloadPrompt = (props) => {
   const { enabled, message = DEFAULT_MESSAGE, allowedRoutes } = props;
   useBeforeUnload(enabled, message);
   const msg = useCallback(
-    (location, action) => {
+    (location) => {
       if (!allowedRoutes) {
         return message;
       }

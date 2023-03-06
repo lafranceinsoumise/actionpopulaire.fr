@@ -1,23 +1,21 @@
-import React, { useMemo } from "react";
-import { Redirect } from "react-router-dom";
+import React from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import {
-  getIsSessionLoaded,
   getBackLink,
+  getIsSessionLoaded,
 } from "@agir/front/globalContext/reducers";
-import { routeConfig } from "@agir/front/app/routes.config";
 
+import TokTokCard from "@agir/events/TokTok/TokTokCard";
 import Link from "@agir/front/app/Link";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import { Container, Hide } from "@agir/front/genericComponents/grid";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
-import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-import Spacer from "@agir/front/genericComponents/Spacer";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
-import TokTokCard from "@agir/events/TokTok/TokTokCard";
+import Spacer from "@agir/front/genericComponents/Spacer";
 
 import EventForm from "./EventForm";
 
