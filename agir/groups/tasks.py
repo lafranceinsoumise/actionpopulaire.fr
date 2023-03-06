@@ -1,10 +1,20 @@
 from collections import OrderedDict
 
 import ics
-from django.db.models.functions import Coalesce
+from data_france.models import CirconscriptionConsulaire, CirconscriptionLegislative
+from django.conf import settings
+from django.db.models import F
+from django.db.models import Q
+from django.template.defaultfilters import date as _date
+from django.template.loader import render_to_string
+from django.utils import timezone
+from django.utils.html import format_html_join, format_html
+from django.utils.translation import gettext_lazy as _
 
+from agir.activity.models import Activity
 from agir.events.models import Event, OrganizerConfig
 from agir.groups.display import genrer_membership
+from agir.groups.models import SupportGroup, Membership
 from agir.lib.celery import (
     emailing_task,
     post_save_task,
@@ -14,24 +24,15 @@ from agir.lib.data import departements
 from agir.lib.geo import geocode_element
 from agir.lib.html import sanitize_html
 from agir.lib.mailing import send_mosaico_email, send_template_email
-from agir.lib.utils import front_url, clean_subject_email, is_absolute_url
+from agir.lib.utils import clean_subject_email, is_absolute_url
+from agir.lib.utils import front_url
 from agir.msgs.models import SupportGroupMessage, SupportGroupMessageComment
 from agir.notifications.models import Subscription
 from agir.people.actions.subscription import make_subscription_token
-from agir.people.models import Person, PersonTag
-from data_france.models import CirconscriptionConsulaire, CirconscriptionLegislative
-from django.conf import settings
-from django.db.models import Q, F
-from django.template.defaultfilters import date as _date
-from django.template.loader import render_to_string
-from django.utils import timezone
-from django.utils.html import format_html_join, format_html
-from django.utils.translation import gettext_lazy as _
-
+from agir.people.models import Person
+from agir.people.models import PersonTag
 from .actions.invitation import make_abusive_invitation_report_link
-from .models import SupportGroup, Membership
 from .utils import DAYS_SINCE_LAST_EVENT_WARNING
-from ..activity.models import Activity
 
 NOTIFIED_CHANGES = {
     "name": "information",
@@ -808,3 +809,100 @@ def maj_boucles(codes=None, dry_run=False):
             for circonscription in target_circonscriptions
         },
     }
+
+
+@emailing_task(post_save=True)
+def send_membership_transfer_email_notifications(
+    transferer_pk, original_group_pk, target_group_pk, transferred_people_pks
+):
+    if len(transferred_people_pks) == 0:
+        return
+
+    try:
+        transferer = Person.objects.get(pk=transferer_pk)
+        transferred_people = Person.objects.filter(pk__in=transferred_people_pks)
+    except Person.DoesNotExist:
+        return
+
+    try:
+        original_group = SupportGroup.objects.get(pk=original_group_pk)
+        target_group = SupportGroup.objects.get(pk=target_group_pk)
+    except SupportGroup.DoesNotExist:
+        return
+
+    bindings = {
+        "TRANSFERER_NAME": transferer.get_full_name(),
+        "GROUP_SENDER": original_group.name,
+        "GROUP_SENDER_URL": front_url("view_group", args=(original_group_pk,)),
+        "GROUP_DESTINATION": target_group.name,
+        "GROUP_DESTINATION_URL": front_url("view_group", args=(target_group_pk,)),
+        "MANAGE_GROUP_LINK": front_url(
+            "view_group_settings_members", args=(target_group_pk,)
+        ),
+        "MEMBER_LIST": [p.display_name for p in transferred_people],
+        "MEMBER_COUNT": len(transferred_people_pks),
+    }
+
+    send_membership_transfer_sender_confirmation.delay(
+        bindings, [m.pk for m in original_group.managers]
+    )
+    send_membership_transfer_receiver_confirmation.delay(
+        bindings, [m.pk for m in target_group.managers]
+    )
+    for p in transferred_people:
+        send_membership_transfer_alert.delay(bindings, p.pk)
+
+
+@post_save_task()
+def create_transfer_membership_activities(
+    original_group_pk, target_group_pk, transferred_people_pks
+):
+    if len(transferred_people_pks) == 0:
+        return
+
+    try:
+        transferred_people = Person.objects.filter(pk__in=transferred_people_pks)
+    except Person.DoesNotExist:
+        return
+
+    try:
+        original_group = SupportGroup.objects.get(pk=original_group_pk)
+        target_group = SupportGroup.objects.get(pk=target_group_pk)
+    except SupportGroup.DoesNotExist:
+        return
+
+    Activity.objects.bulk_create(
+        [
+            Activity(
+                type=Activity.TYPE_TRANSFERRED_GROUP_MEMBER,
+                status=Activity.STATUS_UNDISPLAYED,
+                recipient=r,
+                supportgroup=target_group,
+                meta={"oldGroup": original_group.name},
+            )
+            for r in transferred_people
+        ],
+        send_post_save_signal=True,
+    )
+
+    # Create activities for target group managers
+    managers_filter = Q(membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER)
+    managing_membership = target_group.memberships.filter(managers_filter)
+    managing_membership_recipients = [
+        membership.person for membership in managing_membership
+    ]
+    Activity.objects.bulk_create(
+        [
+            Activity(
+                type=Activity.TYPE_NEW_MEMBERS_THROUGH_TRANSFER,
+                recipient=r,
+                supportgroup=target_group,
+                meta={
+                    "oldGroup": original_group.name,
+                    "transferredMemberships": len(transferred_people),
+                },
+            )
+            for r in managing_membership_recipients
+        ],
+        send_post_save_signal=True,
+    )
