@@ -135,11 +135,8 @@ export const ActionTools = () => {
               margin-top: 0.25rem;
             `}
           >
-            <Button small link route="contributions">
-              Devenir financeur·euse
-            </Button>
-            <Button small link route="donations">
-              Faire un don ponctuel
+            <Button small link route="donationLandingPage">
+              En savoir plus sur le financement
             </Button>
           </span>
         </span>

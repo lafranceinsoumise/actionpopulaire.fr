@@ -5,20 +5,38 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const ACTIONS = {
-  donations: {
-    key: "donations",
-    route: "donations",
-    label: ["Don", "Faire un don"],
-    icon: "heart",
-    color: style.redNSP,
-  },
-  contributions: {
-    key: "contributions",
-    route: "contributions",
-    label: ["Financer", "Devenir financeur·euse"],
-    icon: "activity",
-    color: style.redLFI,
-  },
+  donations: (user) =>
+    user.hasContribution
+      ? {
+          key: "donations",
+          route: "donations",
+          label: ["Don", "Faire un don"],
+          icon: "heart",
+          color: style.redNSP,
+        }
+      : {
+          key: "donations",
+          route: "donationLanding",
+          label: ["Don", "Faire un don"],
+          icon: "heart",
+          color: style.redNSP,
+        },
+  contributions: (user) =>
+    user.hasContribution
+      ? {
+          key: "contributions",
+          route: "donations",
+          label: ["Don", "Faire un don"],
+          icon: "heart",
+          color: style.redNSP,
+        }
+      : {
+          key: "contributions",
+          route: "contributions",
+          label: ["Financer", "Devenir financeur·euse"],
+          icon: "activity",
+          color: style.redLFI,
+        },
   createEvent: {
     key: "createEvent",
     route: "createEvent",
@@ -179,7 +197,6 @@ const ACTIONS = {
 
 const DEFAULT_ACTION_ORDER = [
   "donations",
-  "contributions",
   "createEvent",
   "materiel",
   "createContact",
@@ -192,7 +209,6 @@ const GROUP_MANAGER_ACTION_ORDER = [
   "materiel",
   "createContact",
   "toktokPreview",
-  "donations",
   "actionTools",
 ];
 
