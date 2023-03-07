@@ -9,7 +9,7 @@ class AbstractCheckPaymentMode(AbstractPaymentMode):
     can_cancel = True
     can_admin = True
 
-    title = "Votre paiement par chèque"
+    title = "Je donne {{ price }} par chèque"
     category = "check"
     label = "Par chèque"
     order = None

@@ -144,7 +144,7 @@ const AmountStep = (props) => {
               loading={isLoading}
             >
               <span>
-                <strong>Suivant</strong>
+                <strong>Continuer</strong>
                 <br />
                 1/3 étapes
               </span>

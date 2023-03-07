@@ -124,7 +124,7 @@ export const Footer = (props) => {
           <div>
             <h3>Action populaire</h3>
             <p>
-              <Link route="donations">Faire un don</Link>
+              <Link route="donationLanding">Faire un don</Link>
               <Link route="eventMap">Carte des événements</Link>
               <Link route="groupMap">Carte des groupes</Link>
               <Link route="materiel" target="_blank">
