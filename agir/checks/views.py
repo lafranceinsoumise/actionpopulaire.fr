@@ -12,9 +12,14 @@ class CheckView(TemplateView):
     warnings = None
 
     def get_context_data(self, **kwargs):
+        payment = kwargs["payment"]
+        title = self.title
+        if isinstance(title, str):
+            title = title.replace("{{ price }}", payment.get_price_display())
+
         return super().get_context_data(
-            payment=kwargs["payment"],
-            title=self.title,
+            payment=payment,
+            title=title,
             order=self.order,
             address=mark_safe(
                 "<br>".join(conditional_escape(part) for part in self.address)

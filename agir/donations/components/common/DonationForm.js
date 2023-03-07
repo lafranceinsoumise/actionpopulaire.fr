@@ -7,7 +7,6 @@ import { scrollToError } from "@agir/front/app/utils";
 import { GENDER_OPTIONS, MONTHLY_PAYMENT } from "./form.config";
 
 import AllocationDetails from "@agir/donations/common/AllocationDetails";
-import Breadcrumb from "@agir/donations/common/Breadcrumb";
 import Button from "@agir/front/genericComponents/Button";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import CountryField from "@agir/front/formComponents/CountryField";
@@ -143,7 +142,6 @@ const DonationForm = ({
         Je donne {displayPrice(formData.amount)}{" "}
         {hasMonthlyPayment && "par mois"}
       </Title>
-      <Breadcrumb onClick={onBack} />
       <Spacer size="1rem" />
       <AllocationDetails
         groupName={groupName}
@@ -355,7 +353,7 @@ const DonationForm = ({
           )}
         <StepButton disabled={isLoading} onClick={handleSubmit(hasCard)}>
           <span>
-            <strong>Continuer</strong>
+            <strong>Payer par carte</strong>
             <br />
             Paiement en ligne sécurisé
           </span>

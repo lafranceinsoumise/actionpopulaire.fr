@@ -2,16 +2,42 @@
 {% load static %}
 
 {% block title %}
-  Votre paiement par chèque
+  {{ title }}
+{% endblock %}
+
+{% block css %}
+  {{ block.super }}
+  <style>
+    .payment-title {
+      font-weight: 700;
+      font-size: 1.75rem;
+      line-height: 1.5;
+    }
+    .payment-info {
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin: 1rem 0;
+      background-color: #FAFAFA;
+    }
+    .payment-warning {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin: 1rem 0;
+      background-color: #FDECEE;
+    }
+  </style>
 {% endblock %}
 
 {% block main %}
   <div class="col-responsive">
-    <h1>{{ title }}</h1>
+    <h1 class="payment-title">{{ title }}</h1>
 
     <div>
       <p>
-        Pour valider votre paiement, il vous faut maintenant envoyer votre chèque.
+        Pour valider le paiement, il faut maintenant envoyer le chèque.
       </p>
 
       <ul>
@@ -19,41 +45,36 @@
         <li>Montant : <strong>{{ payment.get_price_display }}</strong></li>
         <li>Numéro à inscrire au dos du chèque : <strong>{{ payment.id }}</strong></li>
       </ul>
-      <p>
-        Merci d'envoyer votre chèque à l'adresse suivante :
+
+      <p class="margintopmore">
+        Adresse à laquelle envoyer le chèque&nbsp;:
       </p>
-      <div class="well">
+
+      <div class="payment-info">
         {{ address }}
       </div>
-
-      <p>Ces informations vous ont aussi été adressées par email !</p>
 
       <p>
         {{ additional_information }}
       </p>
 
-
       {% if warnings %}
-        <div class="alert alert-warning">
-          <p>
-            Pour permettre le traitement de votre chèque dans de bonnes conditions, merci de respecter
-            {% if warnings|length > 1 %}les éléments suivants :
-            {% else %}la consigne suivante :{% endif %}
-          </p>
-          <ul>
-            {% for warning in warnings %}
-              <li>{{ warning }}</li>
-            {% endfor %}
-          </ul>
-        </div>
+          {% for warning in warnings %}
+            <div class="payment-warning">
+              <span>⚠</span>
+              <span>{{ warning }}</span>
+            </div>
+          {% endfor %}
       {% endif %}
 
-      <div class="alert alert-info">
-        Vous pouvez tout à fait régler plusieurs transactions avec un seul chèque : transmettez votre chèque unique
-        en indiquant bien <em>tous</em> les numéros de commande au dos du chèque.
-      </div>
+      <p>
+        Pour régler plusieurs transactions avec un seul chèque&nbsp;: transmettez le chèque unique en indiquant bien tous les numéros de commande au dos du chèque.
+      </p>
 
-      <a class="btn btn-primary" href="{% url "payment_return" payment.pk %}">Retour</a>
+      <p class="text-center margintopmore">
+        <a class="btn btn-info" href="{% url "payment_return" payment.pk %}">Terminer</a>
+      </p>
+
     </div>
   </div>
 {% endblock %}
