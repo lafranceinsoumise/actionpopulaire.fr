@@ -424,7 +424,7 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
         res = self.client.get(profile_payments_page)
 
         self.assertEqual(res.status_code, 200)
-        self.assertContains(res, "<h5>Don mensuel à l'AFLFI</h5>", html=True)
+        self.assertContains(res, "<h4>Don mensuel à l'AFLFI</h4>", html=True)
         self.assertContains(res, "Vous donnez <strong>10,00\u00A0€</strong>")
         self.assertContains(
             res,
