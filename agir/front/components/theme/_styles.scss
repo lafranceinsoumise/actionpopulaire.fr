@@ -69,3 +69,13 @@ hr {
 .navbar-brand {
   height: auto;
 }
+
+.panel-primary {
+  border-color: #e9e1ff;
+
+  & >.panel-heading {
+    color: #4d26b9;
+    background-color: #e9e1ff;
+    border-color: #e9e1ff;
+  }
+}

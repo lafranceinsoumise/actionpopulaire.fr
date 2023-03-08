@@ -13,6 +13,19 @@
       font-size: 1.75rem;
       line-height: 1.5;
     }
+    .payment-description {
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      margin: 1rem -1.5rem 2rem;
+      background-color: #fcfbd9;
+      display: flex;
+      flex-flow: row wrap;
+      align-items: stretch;
+      gap: 1rem;
+    }
+    .payment-description > * {
+      margin: 0;
+    }
     .payment-info {
       border-radius: 0.5rem;
       padding: 1rem;
@@ -34,6 +47,10 @@
 {% block main %}
   <div class="col-responsive">
     <h1 class="payment-title">{{ title }}</h1>
+
+    <div class="payment-description">
+      {{ payment.description }}
+    </div>
 
     <div>
       <p>
@@ -72,7 +89,9 @@
       </p>
 
       <p class="text-center margintopmore">
-        <a class="btn btn-info" href="{% url "payment_return" payment.pk %}">Terminer</a>
+        <a class="btn btn-info" href="{{ next_url }}">
+          Terminer
+        </a>
       </p>
 
     </div>

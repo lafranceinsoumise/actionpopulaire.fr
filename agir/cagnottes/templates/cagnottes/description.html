@@ -1,11 +1,10 @@
 {% load display_lib %}
+
+<h4>{% if cagnotte %}{{ cagnotte.nom }}{% else %}Don à une cagnotte{% endif %}</h4>
 <div>
-  <h4>{% if cagnotte %}{{ cagnotte.nom }}{% else %}Don à une cagnotte{% endif %}</h4>
-  <div>
-    Vous avez donné <strong>{{ payment.price | display_price_in_cent }}</strong> à l'association de financement de
-    la France insoumise le {{ payment.created | date }}.
-  </div>
-  {% if cagnotte %}
-    {{ cagnotte.description|safe }}
-  {% endif %}
+  Vous avez donné <strong>{{ payment.price | display_price_in_cent }}</strong> à l'association de financement de
+  la France insoumise le {{ payment.created | date }}.
 </div>
+{% if cagnotte %}
+  {{ cagnotte.description|safe }}
+{% endif %}
