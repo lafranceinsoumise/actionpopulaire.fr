@@ -86,7 +86,7 @@ xlsxwriter = "*"
 trio = "^0.22.0"
 asks = "^3.0.0"
 Django = "^3.2"
-pydantic = "^1.10.5"
+pydantic = "^1.10.6"
 lxml = "^4.9.2"
 gspread = "^5.7.0"
 
