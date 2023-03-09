@@ -26,11 +26,16 @@
     .payment-description > * {
       margin: 0;
     }
-    .payment-info {
+    .check-details {
       border-radius: 0.5rem;
       padding: 1rem;
       margin: 1rem 0;
-      background-color: #FAFAFA;
+      background-color: #eeeeee;
+    }
+    .check-details strong {
+      font-size: 1.25rem;
+      font-weight: 600;
+      line-height: 1.5rem;
     }
     .payment-warning {
       display: flex;
@@ -54,24 +59,28 @@
 
     <div>
       <p>
-        Pour valider le paiement, il faut maintenant envoyer le chèque.
+        Pour valider le paiement, il ne vous reste maintenant qu'à <strong>remplir
+        puis envoyer le chèque par courrier</strong>.
       </p>
 
-      <ul>
-        <li>Ordre : <strong>{{ order }}</strong></li>
-        <li>Montant : <strong>{{ payment.get_price_display }}</strong></li>
-        <li>Numéro à inscrire au dos du chèque : <strong>{{ payment.id }}</strong></li>
-      </ul>
+      <div class="check-details">
+        Ordre&nbsp;: <strong>{{ order }}</strong><br />
+        Montant&nbsp;: <strong>{{ payment.get_price_display }}</strong><br />
+        Numéro à inscrire au dos du chèque&nbsp;: <strong style="font-size: 1.5rem;">{{ payment.id }}</strong>
+      </div>
+
+      <div style="margin: 1rem 0;">
+        {% include "checks/includes/check.html" %}
+      </div>
 
       <p class="margintopmore">
-        Adresse à laquelle envoyer le chèque&nbsp;:
+        L'<strong>adresse postale</strong> à laquelle envoyer le chèque est la suivante&nbsp;:
       </p>
-
-      <div class="payment-info">
+      <div class="check-details">
         {{ address }}
       </div>
 
-      <p>
+      <p class="margintopmore">
         {{ additional_information }}
       </p>
 

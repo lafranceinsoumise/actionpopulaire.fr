@@ -1,10 +1,12 @@
 import json
+import math
 
 from django.db import models
 from django.db.models import JSONField
 from django.template.defaultfilters import floatformat
 from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
+from num2words import num2words
 from phonenumber_field.modelfields import PhoneNumberField
 
 from agir.lib.display import display_address, display_price, display_allocations
@@ -100,6 +102,17 @@ class Payment(ExportModelOperationsMixin("payment"), TimeStampedModel, LocationM
         return "{} €".format(floatformat(self.price / 100, 2))
 
     get_price_display.short_description = "Prix"
+
+    def get_price_as_text(self):
+        cents, euros = math.modf(self.price / 100)
+        cents = math.floor(cents * 100)
+        text = num2words(int(euros), lang="fr") + " euros"
+        text = text.capitalize()
+        if cents <= 0:
+            return text
+        return text + f" et {cents} centîmes"
+
+    get_price_display.short_description = "Prix en toutes lettres"
 
     def get_mode_display(self):
         return (
