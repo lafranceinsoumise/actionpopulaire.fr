@@ -293,7 +293,12 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         return queryset, use_distinct
 
     def get_queryset(self, request):
-        return super().get_queryset(request)
+        return (
+            super()
+            .get_queryset(request)
+            .select_related("public_email")
+            .prefetch_related("emails", "form_submissions")
+        )
 
     def coordinates_value(self, obj):
         return f"{obj.coordinates.coords[1]}, {obj.coordinates.coords[0]}"
