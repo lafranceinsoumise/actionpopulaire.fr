@@ -1,20 +1,20 @@
 import { DateTime, Interval } from "luxon";
 import PropTypes from "prop-types";
-import React, { useRef } from "react";
+import React, { useMemo, useRef } from "react";
 import styled from "styled-components";
 
-import { displayIntervalStart, displayIntervalEnd } from "@agir/lib/utils/time";
+import { displayIntervalEnd, displayIntervalStart } from "@agir/lib/utils/time";
 
-import Card from "@agir/front/genericComponents/Card";
-import Link from "@agir/front/app/Link";
 import Map from "@agir/carte/common/Map";
+import Link from "@agir/front/app/Link";
+import Card from "@agir/front/genericComponents/Card";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
-import EventGroupsAttendees from "./EventGroupsAttendees";
 import eventCardDefaultBackground from "@agir/front/genericComponents/images/event-card-default-bg.svg";
+import EventGroupsAttendees from "./EventGroupsAttendees";
 
 const StyledLink = styled(Link)``;
-const Illustration = styled.div`
+const Illustration = styled(Link)`
   background-color: ${({ $img }) => ($img ? "#e5e5e5" : "#fafafa")};
   display: grid;
   isolation: isolate;
@@ -153,11 +153,21 @@ const StyledCard = styled(Card)`
 `;
 
 const EventCardIllustration = (props) => {
-  const { image, coordinates, subtype, staticMapUrl } = props;
+  const { image, coordinates, subtype, staticMapUrl, eventPageLink, eventPk } =
+    props;
 
   const isVisible = useResponsiveMemo(
     !!image || Array.isArray(coordinates),
     true
+  );
+
+  const linkProps = useMemo(
+    () => ({
+      href: eventPageLink || undefined,
+      route: !eventPageLink ? "eventDetails" : undefined,
+      routeParams: !eventPageLink ? { eventPk } : undefined,
+    }),
+    [eventPageLink, eventPk]
   );
 
   if (!isVisible) {
@@ -166,14 +176,14 @@ const EventCardIllustration = (props) => {
 
   if (image) {
     return (
-      <Illustration $img={image}>
+      <Illustration {...linkProps} $img={image}>
         <img src={image} alt="Image d'illustration" />
       </Illustration>
     );
   }
   if (Array.isArray(coordinates)) {
     return (
-      <Illustration>
+      <Illustration {...linkProps}>
         <Map
           zoom={11}
           center={coordinates}
@@ -185,7 +195,7 @@ const EventCardIllustration = (props) => {
     );
   }
   return (
-    <Illustration>
+    <Illustration {...linkProps}>
       <img
         src={eventCardDefaultBackground}
         width="359"
@@ -200,6 +210,8 @@ EventCardIllustration.propTypes = {
   coordinates: PropTypes.array,
   subtype: PropTypes.object,
   staticMapUrl: PropTypes.string,
+  eventPageLink: PropTypes.string,
+  eventPk: PropTypes.string,
 };
 
 const EventCard = (props) => {
@@ -236,6 +248,8 @@ const EventCard = (props) => {
           subtype={subtype}
           coordinates={location?.coordinates?.coordinates}
           staticMapUrl={location?.staticMapUrl}
+          eventPageLink={eventPageLink}
+          eventPk={id}
         />
         <main>
           <h4>
