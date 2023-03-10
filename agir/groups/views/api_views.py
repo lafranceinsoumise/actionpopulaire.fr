@@ -741,7 +741,7 @@ class MemberPersonalInformationPermission(GlobalOrObjectPermissions):
         "GET": [],
     }
     object_perms_map = {
-        "GET": ["groups.change_membership_type"],
+        "GET": ["groups.view_member_personal_information"],
     }
 
 
