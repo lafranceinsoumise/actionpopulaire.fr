@@ -27,12 +27,17 @@ const StyledCard = styled(Card)`
   flex-direction: column;
   padding: 1.5rem;
   gap: 1rem;
-  opacity: ${(props) => (props.$disabled ? 0.8 : 1)};
+  opacity: ${(props) => (props.$disabled ? 0.7 : 1)};
   cursor: ${(props) => (props.$disabled ? "not-allowed" : "pointer")};
 
   @media (max-width: ${(props) => props.theme.collapse}px) {
     min-height: 14rem;
     min-width: unset;
+  }
+
+  &,
+  &:hover,
+  &:focus {
     border-radius: ${(props) => props.theme.borderRadius};
     border: 1px solid ${(props) => props.theme.black500};
     box-shadow: none;
