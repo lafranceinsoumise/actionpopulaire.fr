@@ -99,3 +99,11 @@ LongText.args = {
     "Justo sodales lectus mi ante eu ad eleifend ligula iaculis a porttitor sit a dis suspendisse mollis nunc a dignissim laoreet dictumst habitasse phasellus potenti",
   textArea: true,
 };
+
+export const DarkWithIcon = Template.bind({});
+DarkWithIcon.args = {
+  ...Empty.args,
+  dark: true,
+  icon: "search",
+  placeholder: "Rechercher un événement",
+};

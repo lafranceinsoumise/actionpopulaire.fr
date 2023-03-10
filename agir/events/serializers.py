@@ -490,7 +490,7 @@ class EventPropertyOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer
         return EventSubtypeSerializer(
             EventSubtype.objects.filter(
                 visibility=EventSubtype.VISIBILITY_ALL
-            ).distinct(),
+            ).order_by("-has_priority", "-description"),
             context=self.context,
             many=True,
         ).data

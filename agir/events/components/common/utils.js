@@ -26,15 +26,15 @@ export const EVENT_DEFAULT_DURATIONS = [
 ];
 
 export const EVENT_TYPES = {
-  M: {
-    label: "Événement public",
-    description:
-      "Un événement ouvert à tous les publics, au-delà des membres du groupe, mais qui aura lieu dans un lieu privé. Par exemple, un événement public avec un orateur, une projection ou un concert",
-  },
   A: {
     label: "Action publique",
     description:
       "Une action qui se déroulera dans un lieu public et qui aura comme objectif principal  d'aller à la rencontre ou d'atteindre des personnes extérieures à la France insoumise",
+  },
+  M: {
+    label: "Événement public",
+    description:
+      "Un événement ouvert à tous les publics, au-delà des membres du groupe, mais qui aura lieu dans un lieu privé. Par exemple, un événement public avec un orateur, une projection ou un concert",
   },
   G: {
     label: "Réunion privée de groupe",

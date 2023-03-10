@@ -1,17 +1,17 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
+import { EVENT_TYPES } from "@agir/events/common/utils";
 import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
 
 import Button from "@agir/front/genericComponents/Button";
-import Panel from "@agir/front/genericComponents/Panel";
-
-import { EVENT_TYPES } from "@agir/events/common/utils";
-import Spacer from "@agir/front/genericComponents/Spacer";
 import FaIcon from "@agir/front/genericComponents/FaIcon";
+import TextField from "@agir/front/formComponents/TextField";
+import Panel from "@agir/front/genericComponents/Panel";
+import Spacer from "@agir/front/genericComponents/Spacer";
 
 const StyledOption = styled.li`
   display: flex;
@@ -69,6 +69,11 @@ const StyledOptions = styled.div`
       align-items: center;
     }
   }
+`;
+
+const StyledEmptyMessage = styled.p`
+  color: ${(props) => props.theme.black700};
+  padding: 1rem 0.5rem;
 `;
 
 const SubtypeOption = (props) => {
@@ -145,6 +150,18 @@ const SubtypeField = (props) => {
   const { shouldShow, onChange, onClose, value, options, lastUsedIds } = props;
   const panelPosition = useResponsiveMemo("right", "left");
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const term = searchTerm.trim();
+
+  const subtypes = useMemo(() => {
+    const allSubtypes = Array.isArray(options) ? options : [];
+    if (!term) {
+      return allSubtypes;
+    }
+    const re = new RegExp(term, "i");
+    return allSubtypes.filter((subtype) => re.test(subtype.description));
+  }, [options, term]);
+
   const optionCategories = useMemo(() => {
     const categories = Object.entries(EVENT_TYPES).reduce(
       (result, [type, config]) => ({
@@ -156,7 +173,6 @@ const SubtypeField = (props) => {
       }),
       {}
     );
-    const subtypes = Array.isArray(options) ? options : [];
 
     subtypes.forEach((subtype) => {
       const category =
@@ -169,11 +185,9 @@ const SubtypeField = (props) => {
       (category) =>
         Array.isArray(category.subtypes) && category.subtypes.length > 0
     );
-  }, [options]);
+  }, [subtypes]);
 
   const lastUsedOptions = useMemo(() => {
-    const subtypes = Array.isArray(options) ? options : [];
-
     if (!Array.isArray(lastUsedIds)) {
       return null;
     }
@@ -194,7 +208,7 @@ const SubtypeField = (props) => {
         subtypes: lastUsed,
       },
     ];
-  }, [options, lastUsedIds]);
+  }, [subtypes, lastUsedIds]);
 
   return (
     <Panel
@@ -205,21 +219,42 @@ const SubtypeField = (props) => {
       title="Type de l'événement"
       noScroll
     >
-      {lastUsedOptions && (
+      {options.length > 0 && (
+        <TextField
+          id="ev-st-search"
+          name="ev-st-search"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Rechercher un type d'événement"
+          aria-label="Rechercher un type d'événement"
+          icon="search"
+          label=""
+          dark
+        />
+      )}
+      {subtypes.length > 0 ? (
         <>
+          {!term && lastUsedOptions && (
+            <>
+              <SubtypeOptions
+                options={lastUsedOptions}
+                onClick={onChange}
+                selected={value}
+              />
+              <Spacer size="1rem" />
+            </>
+          )}
           <SubtypeOptions
-            options={lastUsedOptions}
+            options={optionCategories}
             onClick={onChange}
             selected={value}
           />
-          <Spacer size="1rem" />
         </>
+      ) : (
+        <StyledEmptyMessage>
+          Aucun type d'événément n'a été trouvé
+        </StyledEmptyMessage>
       )}
-      <SubtypeOptions
-        options={optionCategories}
-        onClick={onChange}
-        selected={value}
-      />
     </Panel>
   );
 };
