@@ -27,3 +27,12 @@ Default.args = {
   options: subtypes,
   shouldShow: true,
 };
+
+export const WithLastUsed = Template.bind({});
+WithLastUsed.args = {
+  ...Default.args,
+  lastUsedIds: subtypes
+    .slice(0, 3)
+    .map((s) => s.id)
+    .reverse(),
+};

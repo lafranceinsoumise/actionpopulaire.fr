@@ -6,7 +6,9 @@
     "color": "#c2306c",
     "icon": null,
     "iconName": "exclamation",
-    "type": "A"
+    "type": "A",
+    "needsDocuments": false,
+    "isVisible": true
   },
   {
     "id": 7,
@@ -15,16 +17,20 @@
     "color": "#4a64ac",
     "icon": null,
     "iconName": "comments",
-    "type": "G"
+    "type": "G",
+    "needsDocuments": false,
+    "isVisible": true
   },
   {
     "id": 9,
     "label": "porte-a-porte",
     "description": "Porte-à-porte",
-    "color": "#c2306c",
+    "color": "#F53B3B",
     "icon": null,
-    "iconName": "exclamation",
-    "type": "A"
+    "iconName": "building",
+    "type": "A",
+    "needsDocuments": false,
+    "isVisible": true
   },
   {
     "id": 12,
@@ -33,25 +39,31 @@
     "color": "#C9462C",
     "icon": null,
     "iconName": "paint-brush",
-    "type": "A"
+    "type": "A",
+    "needsDocuments": false,
+    "isVisible": true
   },
   {
-    "id": 57,
-    "label": "action-solidarite",
-    "description": "Action de solidarité",
-    "color": "#C9462C",
+    "id": 135,
+    "label": "point-infos-retraites",
+    "description": "Points d'infos retraites",
+    "color": "#390080",
     "icon": null,
-    "iconName": "handshake-o",
-    "type": "A"
+    "iconName": "info",
+    "type": "A",
+    "needsDocuments": false,
+    "isVisible": true
   },
   {
     "id": 4,
     "label": "caravane",
-    "description": "Caravane d'accès aux droits",
+    "description": "Caravane",
     "color": "#c2306c",
     "icon": null,
     "iconName": "truck",
-    "type": "A"
+    "type": "A",
+    "needsDocuments": true,
+    "isVisible": true
   },
   {
     "id": 5,
@@ -60,16 +72,20 @@
     "color": "#0098B6",
     "icon": null,
     "iconName": "edit",
-    "type": "A"
+    "type": "A",
+    "needsDocuments": true,
+    "isVisible": true
   },
   {
     "id": 11,
-    "label": "réunion publique",
+    "label": "reunion-publique",
     "description": "Réunion publique",
     "color": "#e14b35",
     "icon": null,
     "iconName": "bullhorn",
-    "type": "M"
+    "type": "M",
+    "needsDocuments": true,
+    "isVisible": true
   },
   {
     "id": 13,
@@ -78,7 +94,9 @@
     "color": "#49b37d",
     "icon": null,
     "iconName": "calendar",
-    "type": "O"
+    "type": "O",
+    "needsDocuments": true,
+    "isVisible": true
   },
   {
     "id": 14,
@@ -87,7 +105,9 @@
     "color": "#49b37d",
     "icon": null,
     "iconName": "car",
-    "type": "O"
+    "type": "O",
+    "needsDocuments": false,
+    "isVisible": true
   },
   {
     "id": 16,
@@ -96,7 +116,9 @@
     "color": "#c9462c",
     "icon": null,
     "iconName": "calendar",
-    "type": "O"
+    "type": "O",
+    "needsDocuments": true,
+    "isVisible": true
   },
   {
     "id": 22,
@@ -105,16 +127,20 @@
     "color": "#4a64ac",
     "icon": null,
     "iconName": "calendar",
-    "type": "G"
+    "type": "G",
+    "needsDocuments": true,
+    "isVisible": true
   },
   {
     "id": 31,
     "label": "ecoute-collective",
-    "description": "Ecoute collective",
+    "description": "Écoute collective",
     "color": "#0098B6",
     "icon": null,
     "iconName": "desktop",
-    "type": "M"
+    "type": "M",
+    "needsDocuments": true,
+    "isVisible": true
   },
   {
     "id": 37,
@@ -123,7 +149,9 @@
     "color": "#00acee",
     "icon": null,
     "iconName": "book",
-    "type": "A"
+    "type": "A",
+    "needsDocuments": false,
+    "isVisible": true
   },
   {
     "id": 41,
@@ -132,7 +160,20 @@
     "color": "#C9462C",
     "icon": null,
     "iconName": "cutlery",
-    "type": "M"
+    "type": "M",
+    "needsDocuments": true,
+    "isVisible": true
+  },
+  {
+    "id": 43,
+    "label": "soiree-electorale",
+    "description": "Soirée électorale",
+    "color": "#3b5998",
+    "icon": null,
+    "iconName": "envelope-open",
+    "type": "G",
+    "needsDocuments": false,
+    "isVisible": true
   },
   {
     "id": 51,
@@ -141,7 +182,9 @@
     "color": "#0098B6",
     "icon": null,
     "iconName": "star-half-o",
-    "type": "M"
+    "type": "M",
+    "needsDocuments": true,
+    "isVisible": true
   },
   {
     "id": 52,
@@ -150,7 +193,9 @@
     "color": "#3b5998",
     "icon": null,
     "iconName": "book",
-    "type": "O"
+    "type": "O",
+    "needsDocuments": false,
+    "isVisible": true
   },
   {
     "id": 54,
@@ -159,7 +204,9 @@
     "color": "#00b400",
     "icon": null,
     "iconName": "film",
-    "type": "M"
+    "type": "M",
+    "needsDocuments": true,
+    "isVisible": true
   },
   {
     "id": 56,
@@ -168,6 +215,52 @@
     "color": "#0098B6",
     "icon": null,
     "iconName": "paint-brush",
-    "type": "O"
+    "type": "O",
+    "needsDocuments": true,
+    "isVisible": true
+  },
+  {
+    "id": 57,
+    "label": "action-solidarite",
+    "description": "Action de solidarité",
+    "color": "#C9462C",
+    "icon": null,
+    "iconName": "handshake-o",
+    "type": "A",
+    "needsDocuments": false,
+    "isVisible": true
+  },
+  {
+    "id": 131,
+    "label": "session-appels-collective",
+    "description": "Session d’appels collective",
+    "color": "#F4ED0F",
+    "icon": null,
+    "iconName": "phone",
+    "type": "O",
+    "needsDocuments": false,
+    "isVisible": true
+  },
+  {
+    "id": 132,
+    "label": "depart-commun",
+    "description": "Départ commun pour une manifestation/un rassemblement",
+    "color": "#F53B3B",
+    "icon": null,
+    "iconName": "thumb-tack",
+    "type": "O",
+    "needsDocuments": false,
+    "isVisible": true
+  },
+  {
+    "id": 136,
+    "label": "actions-jeunes",
+    "description": "actions jeunes",
+    "color": "#c2306c",
+    "icon": null,
+    "iconName": "exclamation",
+    "type": "A",
+    "needsDocuments": false,
+    "isVisible": true
   }
 ]

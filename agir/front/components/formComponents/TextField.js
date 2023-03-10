@@ -5,13 +5,16 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 import { mergeRefs } from "@agir/lib/utils/react";
 
-import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
+import FeatherIcon, {
+  RawFeatherIcon,
+} from "@agir/front/genericComponents/FeatherIcon";
 
 const StyledLabel = styled.span``;
 const StyledHelpText = styled.span``;
+const StyledIcon = styled(RawFeatherIcon)``;
 const StyledInput = styled.input``;
 const StyledTextArea = styled.textarea``;
-const StyledIcon = styled.span``;
+const StyledErrorIcon = styled.span``;
 const StyledCounter = styled.span`
   color: ${({ $invalid }) => ($invalid ? style.redNSP : "inherit")};
 `;
@@ -39,6 +42,16 @@ const StyledField = styled.label`
     line-height: 1.5;
   }
 
+  ${StyledIcon} {
+    grid-row: 3;
+    grid-column: 1/1;
+    width: 3rem;
+    margin-top: 0.5rem;
+    align-items: start;
+    justify-content: center;
+    color: ${({ $invalid }) => ($invalid ? style.redNSP : style.black500)};
+  }
+
   ${StyledInput}, ${StyledTextArea} {
     grid-row: 3;
     grid-column: 1/3;
@@ -48,12 +61,15 @@ const StyledField = styled.label`
       $invalid ? style.redNSP : style.black100};
     max-width: 100%;
     padding: 0.5rem;
-    padding-right: ${({ $invalid }) => ($invalid ? "3.25rem" : "0.5rem")};
+    padding-left: ${({ $icon }) => ($icon ? "3rem" : "0.5rem")};
+    padding-right: ${({ $invalid }) => ($invalid ? "3rem" : "0.5rem")};
+    background-color: ${({ $dark }) =>
+      $dark ? style.black100 : "transparent"};
 
     &:focus {
       outline: none;
-      border-color: ${({ $invalid }) =>
-        $invalid ? style.redNSP : style.black500};
+      border-color: ${({ $invalid, $dark }) =>
+        $invalid ? style.redNSP : $dark ? style.black200 : style.black500};
     }
   }
   ${StyledInput} {
@@ -64,7 +80,7 @@ const StyledField = styled.label`
     resize: none;
     line-height: 1.5;
   }
-  ${StyledIcon} {
+  ${StyledErrorIcon} {
     display: ${({ $invalid }) => ($invalid ? "flex" : "none")};
     grid-row: 3;
     grid-column: 2/3;
@@ -103,6 +119,8 @@ const TextField = forwardRef((props, ref) => {
     hasCounter,
     autoComplete,
     small,
+    dark,
+    icon,
     ...rest
   } = props;
 
@@ -127,9 +145,12 @@ const TextField = forwardRef((props, ref) => {
       $empty={!!value}
       $hasCounter={!!maxLength && !!hasCounter}
       $small={!!small}
+      $dark={!!dark}
+      $icon={!!icon}
     >
       {label && <StyledLabel>{label}</StyledLabel>}
       {helpText && <StyledHelpText>{helpText}</StyledHelpText>}
+      {icon && <StyledIcon name={icon} />}
       {textArea ? (
         <StyledTextArea
           {...rest}
@@ -151,9 +172,9 @@ const TextField = forwardRef((props, ref) => {
           autoComplete={autoComplete}
         />
       )}
-      <StyledIcon>
+      <StyledErrorIcon>
         <FeatherIcon name="alert-circle" />
-      </StyledIcon>
+      </StyledErrorIcon>
       <StyledError>{error}</StyledError>
       {hasCounter && typeof maxLength === "number" ? (
         <StyledCounter $invalid={!!error || value.length > maxLength}>
@@ -178,6 +199,8 @@ TextField.propTypes = {
   hasCounter: PropTypes.bool,
   autoComplete: PropTypes.string,
   small: PropTypes.bool,
+  dark: PropTypes.bool,
+  icon: PropTypes.string,
 };
 
 TextField.defaultProps = {
