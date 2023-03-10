@@ -135,7 +135,7 @@ export const ActionTools = () => {
               margin-top: 0.25rem;
             `}
           >
-            <Button small link route="donationLandingPage">
+            <Button small link route="donationLanding">
               En savoir plus sur le financement
             </Button>
           </span>

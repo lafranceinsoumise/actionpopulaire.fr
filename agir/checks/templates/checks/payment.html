@@ -51,7 +51,9 @@
 
 {% block main %}
   <div class="col-responsive">
-    <h1 class="payment-title">{{ title }}</h1>
+    <h1 class="payment-title">
+      Je donne {{ payment.get_price_display }} par chèque
+    </h1>
 
     <div class="payment-description">
       {{ payment.description }}
