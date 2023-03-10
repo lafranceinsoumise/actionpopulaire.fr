@@ -342,6 +342,18 @@ export const routeConfig = {
     hideFeedbackButton: true,
     hideFooter: true,
   }),
+  donationLanding: new RouteConfig({
+    id: "donationLanding",
+    path: "/financer/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Financer",
+    Component: RouteComponents.DonationLandingPage,
+    hasLayout: false,
+    hideFeedbackButton: true,
+    hideFooter: true,
+    appOnlyTopBar: true,
+  }),
   donationSuccess: new RouteConfig({
     id: "donationSuccess",
     params: { type: null },

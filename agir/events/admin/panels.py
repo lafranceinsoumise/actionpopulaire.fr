@@ -627,13 +627,31 @@ class EventSubtypeAdmin(admin.ModelAdmin):
         "description",
         "type",
         "visibility",
-        "has_priority",
+        "priority",
+        "certification",
         "related_project_type",
     )
-    list_filter = ("type", "visibility", "has_priority", "related_project_type")
-
+    list_filter = (
+        "type",
+        "visibility",
+        "has_priority",
+        "is_acceptable_for_group_certification",
+        "related_project_type",
+    )
     search_fields = ("label", "description")
     autocomplete_fields = ("report_person_form",)
+
+    @admin.display(description="Prioritaire", boolean=True, ordering="has_priority")
+    def priority(self, obj):
+        return obj.has_priority
+
+    @admin.display(
+        description="Certifiable",
+        boolean=True,
+        ordering="is_acceptable_for_group_certification",
+    )
+    def certification(self, obj):
+        return obj.is_acceptable_for_group_certification
 
 
 @admin.register(models.JitsiMeeting)

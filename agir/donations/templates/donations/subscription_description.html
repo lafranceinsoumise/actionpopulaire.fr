@@ -1,15 +1,17 @@
 {% load display_lib %}
 
-<h5>{{ subscription_type.label }} à l'AFLFI</h5>
-<p>
-  Vous donnez <strong>{{ subscription.price | display_price_in_cent }}</strong> par mois à l'association de financement de la France insoumise.
-</p>
-<p>
-  Ce montant sera prélevé sur votre carte <strong>chaque {{ subscription.day_of_month }} du mois</strong>
-  {% if subscription.end_date %}
-    jusqu'à <strong>{{ subscription.end_date | date:"F Y" }}</strong>
-  {% endif %}.
-</p>
+<h4>{{ subscription_type.label }} à l'AFLFI</h4>
+<div>
+  <p>
+    Vous donnez <strong>{{ subscription.price | display_price_in_cent }}</strong> par mois à l'association de financement de la France insoumise.
+  </p>
+  <p>
+    Ce montant sera prélevé sur votre carte <strong>chaque {{ subscription.day_of_month }} du mois</strong>
+    {% if subscription.end_date %}
+      jusqu'à <strong>{{ subscription.end_date | date:"F Y" }}</strong>
+    {% endif %}.
+  </p>
+</div>
 {% if subscription.allocations.count > 0 %}
   {% include "donations/includes/allocation_description.html" with allocations=subscription.allocations.all national_amount=national_amount only %}
 {% endif %}

@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { forwardRef } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -404,11 +404,15 @@ const variants = {
   link: LinkButton,
 };
 
-const Button = styled((props) => {
-  const { color } = props;
-  const B = color && variants[color] ? variants[color] : variants.default;
-  return <B {...props} />;
-})``;
+const Button = styled(
+  // eslint-disable-next-line react/display-name
+  forwardRef((props, ref) => {
+    // eslint-disable-next-line react/prop-types
+    const { color } = props;
+    const B = color && variants[color] ? variants[color] : variants.default;
+    return <B ref={ref} {...props} />;
+  })
+)``;
 
 Button.icons = Object.keys(ICONS);
 Button.colors = Object.keys(variants);

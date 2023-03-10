@@ -69,7 +69,7 @@ const SelectedGroupWidget = (props) => {
       <StyledWidgetWithGroup>
         <RawFeatherIcon name="arrow-right-circle" />
         <div>
-          <span>Dons alloués vers le groupe</span>
+          <span>Dons alloués au groupe d'action</span>
           {groupChoices.length > 1 && <Spacer size="0.25rem" />}
           {groupChoices.length > 1 ? (
             <SelectField

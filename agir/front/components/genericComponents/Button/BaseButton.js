@@ -104,7 +104,7 @@ export const BaseButton = styled.button
   width: ${({ block }) => (block ? "100%" : "auto")};
 
   padding: ${({ small }) => (small ? "0.5rem 0.75rem" : "0.75rem 1.5rem")};
-  line-height: ${({ small }) => (small ? "1" : "1.5")};
+  line-height: ${({ small }) => (small ? "1.25" : "1.5")};
   font-size: ${({ small }) => (small ? "0.875rem" : "1rem")};
 
   border-radius: ${style.borderRadius};

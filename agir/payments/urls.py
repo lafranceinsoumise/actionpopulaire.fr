@@ -8,6 +8,7 @@ from .views import (
     SubscriptionView,
     TerminateSubscriptionView,
     subscription_return_view,
+    TerminateCheckPaymentView,
 )
 
 urlpatterns = [
@@ -16,6 +17,11 @@ urlpatterns = [
         "paiement/<int:pk>/reessayer/", RetryPaymentView.as_view(), name="payment_retry"
     ),
     path("paiement/<int:pk>/retour/", payment_return_view, name="payment_return"),
+    path(
+        "paiement/<int:pk>/annuler",
+        TerminateCheckPaymentView.as_view(),
+        name="check_payment_terminate",
+    ),
     path("abonnement/<int:pk>", SubscriptionView.as_view(), name="subscription_page"),
     path(
         "abonnement/<int:pk>/retour/",

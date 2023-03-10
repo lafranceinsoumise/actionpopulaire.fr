@@ -2,6 +2,7 @@ import hashlib
 import json
 import random
 import re
+from datetime import timedelta
 from secrets import token_urlsafe
 from urllib.parse import urljoin
 
@@ -92,6 +93,21 @@ class EventQuerySet(models.QuerySet):
         if published_only:
             condition &= models.Q(visibility=Event.VISIBILITY_PUBLIC)
         return self.filter(condition)
+
+    def acceptable_for_group_certification(self, time_ref=None):
+        if time_ref is None:
+            time_ref = timezone.now()
+
+        return (
+            self.public()
+            .filter(subtype__is_acceptable_for_group_certification=True)
+            .filter(
+                start_time__range=(
+                    time_ref - timedelta(days=62),
+                    time_ref + timedelta(days=31),
+                )
+            )
+        )
 
     def with_person_organizer_configs(self, person):
         return self.prefetch_related(
@@ -961,10 +977,17 @@ class EventSubtype(BaseSubtype):
     )
 
     is_editable = models.BooleanField(
-        "Les événements de ce sous-types seront modifiables",
+        "Les événements de ce sous-type seront modifiables",
         default=True,
         help_text="Les événements de ce sous-type pourront être modifiés par les organisateur·ices, "
         "et non seulement par les administrateur·ices",
+    )
+
+    is_acceptable_for_group_certification = models.BooleanField(
+        "Accepté pour la certification",
+        default=True,
+        help_text="Les événements récents de ce sous-type seront pris en compte (ou non) pour ouvrir "
+        "le droit à un groupe d'action à la certification",
     )
 
     class Meta:

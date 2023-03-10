@@ -99,6 +99,11 @@ const Routes = {
       /* webpackChunkName: "r-createcontactpage" */ "@agir/people/contacts/CreateContactPage"
     )
   ),
+  DonationLandingPage: lazy(() =>
+    import(
+      /* webpackChunkName: "r-donationlandingpage" */ "@agir/donations/DonationLandingPage"
+    )
+  ),
   DonationPage: lazy(() =>
     import(
       /* webpackChunkName: "r-donationpage" */ "@agir/donations/donationPage/DonationPage"

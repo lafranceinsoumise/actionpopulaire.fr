@@ -1,19 +1,24 @@
-from django.db.models import JSONField
+import json
+import math
+
 from django.db import models
+from django.db.models import JSONField
 from django.template.defaultfilters import floatformat
 from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
+from num2words import num2words
 from phonenumber_field.modelfields import PhoneNumberField
 
-from agir.lib.models import LocationMixin, TimeStampedModel
 from agir.lib.display import display_address, display_price, display_allocations
+from agir.lib.models import LocationMixin, TimeStampedModel
 from agir.lib.utils import front_url
 from agir.payments.model_fields import AmountField
-from .types import PAYMENT_TYPES
 from .payment_modes import PAYMENT_MODES
-import json
+from .types import PAYMENT_TYPES
 
 __all__ = ["Payment", "Subscription"]
+
+from ..checks import AbstractCheckPaymentMode
 
 
 class PaymentQueryset(models.QuerySet):
@@ -31,6 +36,14 @@ class PaymentQueryset(models.QuerySet):
                 Payment.STATUS_REFUSED,
             ]
         )
+
+    def checks(self):
+        check_modes = [
+            key
+            for key, payment_mode in PAYMENT_MODES.items()
+            if isinstance(payment_mode, AbstractCheckPaymentMode)
+        ]
+        return self.filter(mode__in=check_modes)
 
 
 PaymentManager = models.Manager.from_queryset(
@@ -90,6 +103,17 @@ class Payment(ExportModelOperationsMixin("payment"), TimeStampedModel, LocationM
 
     get_price_display.short_description = "Prix"
 
+    def get_price_as_text(self):
+        cents, euros = math.modf(self.price / 100)
+        cents = math.floor(cents * 100)
+        text = num2words(int(euros), lang="fr") + " euros"
+        text = text.capitalize()
+        if cents <= 0:
+            return text
+        return text + f" et {cents} centîmes"
+
+    get_price_display.short_description = "Prix en toutes lettres"
+
     def get_mode_display(self):
         return (
             PAYMENT_MODES[self.mode].title if self.mode in PAYMENT_MODES else self.mode
@@ -126,6 +150,12 @@ class Payment(ExportModelOperationsMixin("payment"), TimeStampedModel, LocationM
             self.mode in PAYMENT_MODES
             and PAYMENT_MODES[self.mode].can_cancel
             and self.status != self.STATUS_COMPLETED
+        )
+
+    def is_check(self):
+        return (
+            self.mode in PAYMENT_MODES
+            and isinstance(PAYMENT_MODES[self.mode], AbstractCheckPaymentMode),
         )
 
     def html_full_address(self):

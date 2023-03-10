@@ -3,6 +3,37 @@
 
 {% block title %}Dons et paiements{% endblock %}
 
+{% block css %}
+    {{ block.super }}
+  <style>
+    .payment-section-title {
+      margin: 3rem 0 1.5rem;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    .list-group-item.payment-item {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .list-group-item.payment-item > * {
+      margin: 0;
+    }
+    .list-group-item.payment-item > footer {
+      margin-top: 1rem;
+      display: flex;
+      flex-flow: row wrap;
+      align-items: stretch;
+      gap: 1rem;
+    }
+    .list-group-item.payment-item > footer > .btn {
+      margin: 0;
+      flex: 1 1 max-content;
+    }
+  </style>
+{% endblock %}
+
 {% block main %}
   <div class="row">
     <div class="col-xs-12 margintopmore text-right" style="line-height: 45px; margin-bottom: 0;">
@@ -23,30 +54,30 @@
         <p>Cette page vous permet de lister l'ensemble de vos dons, prêts ou participations payantes à des
           événements.</p>
       </div>
-        {% if subscriptions %}
-          <h3>Paiements automatiques actifs</h3>
-          <div class="list-group">
-            {% for subscription in subscriptions %}
-              <div class="list-group-item">
-                {{ subscription.description }}
-                <div class="row">
-                  <div class="col-xs-12 col-md-6">
-                    <a href="{% url "subscription_page" subscription.pk %}" class="btn btn-block btn-sm btn-default margintop">
-                      Changer de carte de paiement
-                    </a>
-                  </div>
-                  <div class="col-xs-12 col-md-6">
-                    <a href="{% url "subscription_terminate" subscription.pk %}" class="btn btn-block btn-sm btn-default margintop">
-                      Mettre fin à ce paiement
-                    </a>
-                  </div>
-                </div>
-              </div>
-            {% endfor %}
-          </div>
-        {% elif can_make_contribution %}
-          <div class="padtopmore padbottommore">
-          <h3>Devenir financeur·euse de la France insoumise</h3>
+      {% if subscriptions %}
+        <h3 class="payment-section-title" id="contributions">
+          Paiements automatiques actifs
+        </h3>
+        <div class="list-group">
+          {% for subscription in subscriptions %}
+            <div class="list-group-item payment-item">
+              {{ subscription.description }}
+              <footer>
+                <a href="{% url "subscription_page" subscription.pk %}" class="btn btn-block btn-sm btn-default">
+                  <i class="fa-solid fa-credit-card"></i>&ensp;Changer de carte de paiement
+                </a>
+                <a href="{% url "subscription_terminate" subscription.pk %}" class="btn btn-block btn-sm btn-danger">
+                  <i class="fa-solid fa-ban"></i>&ensp;Mettre fin à ce paiement
+                </a>
+              </footer>
+            </div>
+          {% endfor %}
+        </div>
+      {% elif can_make_contribution %}
+        <div class="padtopmore padbottommore">
+          <h3 class="payment-section-title" id="contributions">
+            Devenir financeur·euse de la France insoumise
+          </h3>
           <p>
             En devenant financeur·euse de la France insoumise, vous vous engagez à ce que votre contribution soit versée
             automatiquement tous les mois et jusqu'à la fin de l'année.
@@ -59,44 +90,63 @@
           <p>
             <a class="btn btn-primary" href="{% url "contribution_amount" %}">Je deviens financeur·euse</a>
           </p>
-          </div>
-        {% endif %}
+        </div>
+      {% endif %}
 
-      <h3>Paiements passés</h3>
-        {% if is_hard_logged %}
-          <div class="panel-group" id="payments-accordion" role="tablist">
-              {% regroup payments by created.year as payments_years %}
-              {% for year, year_payments in payments_years %}
-                <div class="panel panel-default">
-                  <div class="panel-heading" role="tab" id="payments-accordion-{{ year }}">
-                    <h4 class="panel-title">
-                      <a {% if not forloop.first %}class="collapsed"{% endif %} role="button" data-toggle="collapse"
-                         data-parent="#payments-accordion" href="#payments-year-{{ year }}" aria-expanded="true">
-                        En {{ year }}&nbsp;
-                      </a>
-                    </h4>
-                  </div>
-                  <div id="payments-year-{{ year }}" class="panel-collapse collapse{% if forloop.first %} in{% endif %}"
-                       role="tabpanel">
-                    <div class="list-group">
-                        {% for payment in year_payments %}
-                          <div class="list-group-item">
-                              {{ payment.description }}
-                          </div>
-                        {% endfor %}
-                    </div>
+      {% if pending_payments %}
+        <h3 class="payment-section-title" id="cheques">Chèques en attente de reception</h3>
+        <div class="list-group">
+          {% for payment in pending_payments %}
+            <div class="list-group-item payment-item">
+              {{ payment.description }}
+              <footer>
+                <a href="{% url "payment_page" payment.pk %}?next=profile" class="btn btn-block btn-sm btn-info">
+                  <i class="fa-regular fa-money-check"></i>&ensp;Voir le détail
+                </a>
+                <a href="{% url "check_payment_terminate" payment.pk %}" class="btn btn-block btn-sm btn-danger">
+                  <i class="fa-solid fa-ban"></i>&ensp;Annuler ce chèque
+                </a>
+              </footer>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <h3 class="payment-section-title" id="paiements">Paiements passés</h3>
+      {% if is_hard_logged %}
+        <div class="panel-group" id="payments-accordion" role="tablist">
+            {% regroup payments by created.year as payments_years %}
+            {% for year, year_payments in payments_years %}
+              <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="payments-accordion-{{ year }}">
+                  <h4 class="panel-title">
+                    <a {% if not forloop.first %}class="collapsed"{% endif %} role="button" data-toggle="collapse"
+                       data-parent="#payments-accordion" href="#payments-year-{{ year }}" aria-expanded="true">
+                      En {{ year }}&nbsp;
+                    </a>
+                  </h4>
+                </div>
+                <div id="payments-year-{{ year }}" class="panel-collapse collapse{% if forloop.first %} in{% endif %}"
+                     role="tabpanel">
+                  <div class="list-group">
+                      {% for payment in year_payments %}
+                        <div class="list-group-item payment-item">
+                            {{ payment.description }}
+                        </div>
+                      {% endfor %}
                   </div>
                 </div>
-              {% empty %}
-                <p>
-                  Vous n'avez effectué aucun don ou prêt et n'avez pas participé à un événement payant.
-                </p>
-              {% endfor %}
-          </div>
-        {% else %}
-          <p>Pour voir vos anciens paiements, vous devez <a
-                  href="{% url "short_code_login" %}?next={% url "view_payments" %}">vous authentifier.</a></p>
-        {% endif %}
+              </div>
+            {% empty %}
+              <p>
+                Vous n'avez effectué aucun don ou prêt et n'avez pas participé à un événement payant.
+              </p>
+            {% endfor %}
+        </div>
+      {% else %}
+        <p>Pour voir vos anciens paiements, vous devez <a
+                href="{% url "short_code_login" %}?next={% url "view_payments" %}">vous authentifier.</a></p>
+      {% endif %}
     </div>
   </div>
 {% endblock %}

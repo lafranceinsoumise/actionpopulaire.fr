@@ -310,9 +310,9 @@ class SupportGroup(
         )
 
     def check_certification_criteria(self):
-        n = timezone.now()
+        now = timezone.now()
         criteria = {
-            "creation": n - timedelta(days=31) >= self.created,
+            "creation": now - timedelta(days=31) >= self.created,
             "members": 3 <= self.active_members_count,
         }
 
@@ -321,16 +321,9 @@ class SupportGroup(
             not self.location_country
             or self.location_country.code in FRENCH_COUNTRY_CODES
         ):
-            recent_events = (
-                self.organized_events.public()
-                .filter(
-                    start_time__range=(
-                        n - timedelta(days=62),
-                        n + timedelta(days=31),
-                    )
-                )
-                .count()
-            )
+            recent_events = self.organized_events.acceptable_for_group_certification(
+                time_ref=now
+            ).count()
             criteria["activity"] = 2 <= recent_events
 
         referents = self.memberships.filter(

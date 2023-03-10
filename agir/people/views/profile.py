@@ -21,9 +21,8 @@ from agir.authentication.view_mixins import (
 from agir.donations.actions import can_make_contribution
 from agir.donations.allocations import get_allocation_list
 from agir.donations.forms import AllocationSubscriptionForm
-from agir.donations.models import AllocationModelMixin
 from agir.donations.views import DONATION_SESSION_NAMESPACE, AskAmountView
-from agir.payments.models import Payment, Subscription
+from agir.payments.models import Subscription
 from agir.people.actions.management import merge_persons
 from agir.people.admin.actions import unsubscribe_from_all_newsletters
 from agir.people.forms import (
@@ -328,9 +327,8 @@ class PaymentsView(AskAmountView, ProfileViewMixin, TemplateView):
 
         return super().get_context_data(
             is_hard_logged=is_hard_logged(self.request),
-            payments=self.request.user.person.payments.filter(
-                status=Payment.STATUS_COMPLETED
-            ),
+            pending_payments=self.request.user.person.payments.awaiting().checks(),
+            payments=self.request.user.person.payments.completed(),
             subscriptions=self.subscriptions,
             **kwargs,
         )

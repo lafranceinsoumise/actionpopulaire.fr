@@ -36,8 +36,17 @@ from ...lib.admin.utils import admin_url
 
 class MembershipInline(admin.TabularInline):
     model = models.Membership
-    fields = ("person_link", "membership_type", "description", "group_name")
-    readonly_fields = ("person_link", "description", "group_name")
+    fields = (
+        "person_link",
+        "membership_type",
+        "gender",
+        "description",
+        "group_name",
+    )
+    readonly_fields = ("person_link", "gender", "description", "group_name")
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related("person")
 
     @admin.display(description="Personne")
     def person_link(self, obj):
@@ -48,6 +57,10 @@ class MembershipInline(admin.TabularInline):
                 escape(obj.person),
             )
         )
+
+    @admin.display(description="Genre", empty_value="-")
+    def gender(self, obj):
+        return obj.person.get_gender_display()
 
     @admin.display(description="Groupe d'origine", empty_value="-")
     def group_name(self, obj):
@@ -442,19 +455,47 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
     def certification_criteria(self, object):
         criteria = object.check_certification_criteria()
+        acceptable_event_subtype_link = admin_url(
+            "admin:events_eventsubtype_changelist",
+            query={"is_acceptable_for_group_certification__exact": 1},
+        )
         label = {
-            "gender": "Animation paritaire",
-            "activity": "Au moins trois événements dans les deux derniers mois",
-            "creation": "Au moins un mois d’existence",
-            "members": "Au moins trois membres actifs, animateur·ices et gestionnaires compris",
-            "exclusivity": "Les animateur·ices n'animent pas d'autres groupes locaux certifiés",
+            "gender": {
+                "label": "Animation paritaire",
+                "help": "Le groupe est animé par au moins deux personnes de genre différent",
+            },
+            "activity": {
+                "label": "Trois actions de terrain",
+                "help": mark_safe(
+                    "Le groupe a organisé trois actions de terrain "
+                    "dans les deux derniers mois ou dans le mois à venir "
+                    f'(<a href="{acceptable_event_subtype_link}">'
+                    "voir la liste des types d'événement acceptés"
+                    "</a>)"
+                ),
+            },
+            "creation": {
+                "label": "Un mois d’existence",
+                "help": "Le groupe a été créé il y plus d'un mois",
+            },
+            "members": {
+                "label": "Trois membres actifs",
+                "help": "Le groupe doit compter plus de trois membres actifs, animateur·ices et gestionnaires compris",
+            },
+            "exclusivity": {
+                "label": "Un seul groupe certifié par animateur·ice",
+                "help": "Les animateur·ices du groupe n'animent pas d'autres groupes locaux certifiés",
+            },
         }
         html = [
             f"""
+            <div class="form-row">
               <div class="checkbox-row">
                 <input type="checkbox" disabled="" name="cc-{key}" id="id_cc-{key}" {'checked=''' if criteria[key] else ''}>
-                <label class="vCheckboxLabel" for="id_cc-{key}">{value}</label>
+                <label class="vCheckboxLabel" for="id_cc-{key}">{value["label"]}</label>
+                <div class="help">{value["help"]}</div>
               </div>
+            </div>
             """
             for key, value in label.items()
             if key in criteria.keys()

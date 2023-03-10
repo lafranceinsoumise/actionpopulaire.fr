@@ -8,6 +8,7 @@ from django.views.generic import DetailView
 
 from agir.authentication.view_mixins import HardLoginRequiredMixin
 from agir.payments.actions.subscriptions import terminate_subscription
+from .actions.payments import cancel_payment
 from .models import Payment, Subscription
 from .payment_modes import PAYMENT_MODES
 from .types import PAYMENT_TYPES, SUBSCRIPTION_TYPES
@@ -76,6 +77,28 @@ class SubscriptionView(DetailView):
         return payment_mode.subscription_view(
             request, subscription=self.object, *args, **kwargs
         )
+
+
+@method_decorator(never_cache, name="get")
+class TerminateCheckPaymentView(HardLoginRequiredMixin, DetailView):
+    template_name = "payments/check_payment_terminate.html"
+
+    def get_queryset(self):
+        return (
+            Payment.objects.awaiting().checks().filter(person=self.request.user.person)
+        )
+
+    def post(self, request, pk):
+        payment = self.get_object()
+        cancel_payment(payment)
+
+        messages.add_message(
+            self.request,
+            messages.SUCCESS,
+            "Le paiement par chèque a bien été annulé.",
+        )
+
+        return redirect("view_payments")
 
 
 @method_decorator(never_cache, name="get")

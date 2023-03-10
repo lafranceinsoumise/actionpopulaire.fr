@@ -2,6 +2,8 @@ from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
 from django.views.generic import TemplateView
 
+from agir.lib.utils import front_url
+
 
 class CheckView(TemplateView):
     template_name = "checks/payment.html"
@@ -12,8 +14,15 @@ class CheckView(TemplateView):
     warnings = None
 
     def get_context_data(self, **kwargs):
+        payment = kwargs["payment"]
+
+        if self.request.GET.get("next") == "profile":
+            next_url = front_url("view_payments")
+        else:
+            next_url = front_url("payment_return", args=(payment.pk,))
+
         return super().get_context_data(
-            payment=kwargs["payment"],
+            payment=payment,
             title=self.title,
             order=self.order,
             address=mark_safe(
@@ -21,6 +30,7 @@ class CheckView(TemplateView):
             ),
             additional_information=self.additional_information,
             warnings=self.warnings,
+            next_url=next_url,
         )
 
     def get(self, request, *args, **kwargs):

@@ -1,0 +1,71 @@
+{% extends "front/layout.html" %}
+{% load static %}
+
+{% block title %}
+  Annuler votre paiement par chèque
+{% endblock %}
+
+{% block css %}
+  {{ block.super }}
+  <style>
+    .payment-description {
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      margin: 1rem 0 2rem;
+      background-color: #fcfbd9;
+      display: flex;
+      flex-flow: row wrap;
+      align-items: stretch;
+      gap: 1rem;
+    }
+    .payment-description > * {
+      margin: 0;
+    }
+  </style>%}
+{% endblock %}
+
+{% block main %}
+<div class="row">
+  <div class="col-xs-12 margintopmore text-right" style="line-height: 45px; margin-bottom: 0;">
+    <div class="pull-left">
+      <a class="menu-back-link" href="{% url "view_payments" %}">
+        <i class="fa fa-arrow-left"></i>&emsp;Retour à l'accueil
+      </a>
+    </div>
+    <div class="pull-right">
+    </div>
+    <div class="clearfix"></div>
+    <hr />
+  </div>
+  {% block navbar %} {% include "people/profile/profile_nav.html" with tab_code="PAYMENTS" %} {% endblock %}
+  <div class="col-xs-12 col-md-9 margintopmore">
+    {% include "people/profile/profile_title.html" with tab_code="PAYMENTS" %}
+
+    <h3>
+        Annuler votre paiement par chèque
+    </h3>
+    <div class="payment-description">
+      {{ payment.description }}
+    </div>
+    <p>
+      Voulez-vous vraiment annuler ce paiement par chèque&nbsp;?
+    </p>
+    <form method="post">
+      {% csrf_token %}
+      <div class="row">
+        <div class="padtop col-md-6">
+          <a class="btn btn-block btn-info" href="{% url 'view_payments' %}">
+            Revenir à la liste des paiements
+          </a>
+        </div>
+        <div class="padtop col-md-6">
+          <button type="submit" class="btn btn-block btn-danger">
+            <i class="fa-solid fa-ban"></i>&ensp;Annuler le chèque
+          </button>
+        </div>
+      </div>
+    </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

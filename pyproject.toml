@@ -16,7 +16,7 @@ django-cors-headers = "==3.*"  # configuring CORS Headers
 ## model and form fields
 django-countries = "==7.*"  # country fields
 django-phonenumber-field = "==7.*"  # phone number field
-phonenumbers = "==8.13.6"  # optional requirement of django-phonenumber-field
+phonenumbers = "==8.13.7"  # optional requirement of django-phonenumber-field
 django-stdimage = "==6.*"  # better image field with handling of variations
 django-dynamic-filenames = "==1.*"  # better handling of upload path for file fields
 unicode-slugify = "==0.1.*"  # optional requirement of django-dynamic-filenames
@@ -86,7 +86,7 @@ xlsxwriter = "*"
 trio = "^0.22.0"
 asks = "^3.0.0"
 Django = "^3.2"
-pydantic = "^1.10.5"
+pydantic = "^1.10.6"
 lxml = "^4.9.2"
 gspread = "^5.7.0"
 
