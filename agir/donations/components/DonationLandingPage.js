@@ -27,7 +27,7 @@ const StyledCard = styled(Card)`
   flex-direction: column;
   padding: 1.5rem;
   gap: 1rem;
-  opacity: ${(props) => (props.$disabled ? 0.7 : 1)};
+  opacity: ${(props) => (props.$disabled ? 0.8 : 1)};
   cursor: ${(props) => (props.$disabled ? "not-allowed" : "pointer")};
 
   @media (max-width: ${(props) => props.theme.collapse}px) {
@@ -84,11 +84,12 @@ const DonationLandingPageCard = (props) => {
       {children}
       <Button
         ref={linkRef}
-        color="secondary"
+        color={disabled ? "success" : "secondary"}
         link={!disabled}
         route={route}
         disabled={disabled}
         small
+        wrap
       >
         {linkLabel}
       </Button>
@@ -148,7 +149,11 @@ const DonationLandingPage = () => {
                 <DonationLandingPageCard
                   title="Devenir financeur·euse"
                   route="contributions"
-                  linkLabel="Je deviens financeur·euse"
+                  linkLabel={
+                    user?.hasContribution
+                      ? "Vous avez déjà validé votre contibution !"
+                      : "Je deviens financeur·euse"
+                  }
                   disabled={user?.hasContribution}
                 >
                   <p>
