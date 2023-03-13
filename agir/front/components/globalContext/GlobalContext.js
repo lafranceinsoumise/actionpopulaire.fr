@@ -80,7 +80,7 @@ const DevProvider = (props) => {
   );
 };
 DevProvider.propTypes = ProdProvider.propTypes = {
-  children: PropTypes.element,
+  children: PropTypes.node,
   hasToasts: PropTypes.bool,
   hasRouter: PropTypes.bool,
 };
