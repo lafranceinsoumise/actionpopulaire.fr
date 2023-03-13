@@ -97,17 +97,10 @@ const InlineBlock = styled.span`
   display: inline-block;
 `;
 
-const PushNotificationControls = (props) => {
+const PushNotificationControls = () => {
   const { isMobileApp } = useMobileApp();
 
-  const {
-    ready,
-    available,
-    isSubscribed,
-    subscribe,
-    unsubscribe,
-    errorMessage,
-  } = usePush();
+  const { ready, available, isSubscribed, subscribe } = usePush();
 
   if (isMobileApp && ready && !available) {
     return (

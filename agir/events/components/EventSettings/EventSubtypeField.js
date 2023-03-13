@@ -1,19 +1,17 @@
-import PropTypes from "prop-types";
-import React, { useState, useMemo } from "react";
 import { useTransition } from "@react-spring/web";
+import PropTypes from "prop-types";
+import React, { useMemo, useState } from "react";
 
-import Button from "@agir/front/genericComponents/Button";
-import Spacer from "@agir/front/genericComponents/Spacer";
-import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButton";
-import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
-import { PanelWrapper } from "@agir/front/genericComponents/ObjectManagement/PanelWrapper";
-import { SubtypeOptions } from "@agir/events/common/SubtypePanel";
+import { SubtypePicker } from "@agir/events/common/SubtypePanel";
 import {
   DefaultOption,
   StyledDefaultOptions,
 } from "@agir/events/createEventPage/EventForm/SubtypeField";
-
-import { EVENT_TYPES } from "@agir/events/common/utils";
+import Button from "@agir/front/genericComponents/Button";
+import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButton";
+import { PanelWrapper } from "@agir/front/genericComponents/ObjectManagement/PanelWrapper";
+import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
+import Spacer from "@agir/front/genericComponents/Spacer";
 
 const slideInTransition = {
   from: { transform: "translateX(66%)" },
@@ -22,28 +20,7 @@ const slideInTransition = {
 };
 
 const EventSubtypeField = (props) => {
-  const { name, value, options, onChange, disabled } = props;
-
-  const subtypeOptions = useMemo(() => {
-    if (!Array.isArray(options) || options.length === 0) {
-      return [];
-    }
-
-    const categories = {};
-    options.forEach((subtype) => {
-      const category =
-        subtype.type && EVENT_TYPES[subtype.type] ? subtype.type : "O";
-      categories[category] = categories[category] || {
-        ...EVENT_TYPES[category],
-      };
-      categories[category].subtypes = categories[category].subtypes || [];
-      categories[category].subtypes.push(subtype);
-    });
-
-    return Object.values(categories).filter((category) =>
-      Array.isArray(category.subtypes)
-    );
-  }, [options]);
+  const { name, value, options, lastUsedIds, onChange, disabled } = props;
 
   const selectedSubtype = useMemo(
     () =>
@@ -100,11 +77,12 @@ const EventSubtypeField = (props) => {
               <BackButton onClick={closeMenu} />
               <StyledTitle>Choisir le type de l'événement</StyledTitle>
               <Spacer size="1rem" />
-              <SubtypeOptions
+              <SubtypePicker
+                value={selectedSubtype}
+                onChange={handleChangeSubtype}
+                options={options}
+                lastUsedIds={lastUsedIds}
                 disabled={disabled}
-                options={subtypeOptions}
-                onClick={handleChangeSubtype}
-                selected={selectedSubtype}
               />
             </PanelWrapper>
           )
@@ -117,6 +95,7 @@ EventSubtypeField.propTypes = {
   name: PropTypes.string,
   value: PropTypes.oneOfType([PropTypes.number, PropTypes.object]),
   options: PropTypes.arrayOf(PropTypes.object),
+  lastUsedIds: PropTypes.arrayOf(PropTypes.number),
   onChange: PropTypes.func,
   disabled: PropTypes.bool,
 };

@@ -1,25 +1,25 @@
 import PropTypes from "prop-types";
-import React, { useState, useMemo, useEffect, useCallback } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import useSWR from "swr";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import Button from "@agir/front/genericComponents/Button";
-import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import DateField from "@agir/events/createEventPage/EventForm/DateField";
 import EventSubtypeField from "@agir/events/EventSettings/EventSubtypeField";
-import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
+import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import ImageField from "@agir/front/formComponents/ImageField";
 import RichTextField from "@agir/front/formComponents/RichText/RichTextField";
-import Spacer from "@agir/front/genericComponents/Spacer";
-import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
 import TextField from "@agir/front/formComponents/TextField";
+import Button from "@agir/front/genericComponents/Button";
+import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
+import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
+import Spacer from "@agir/front/genericComponents/Spacer";
 
-import { DEFAULT_FORM_DATA } from "@agir/events/common/eventForm.config";
 import * as api from "@agir/events/common/api";
-import { useToast } from "@agir/front/globalContext/hooks";
+import { DEFAULT_FORM_DATA } from "@agir/events/common/eventForm.config";
 import { useEventFormOptions } from "@agir/events/common/hooks";
+import { useToast } from "@agir/front/globalContext/hooks";
 
 const StyledDateField = styled(DateField)`
   @media (min-width: ${style.collapse}px) {
@@ -244,6 +244,7 @@ const EventGeneral = (props) => {
               name="subtype"
               value={formData.subtype}
               options={options?.subtype}
+              lastUsedIds={options?.lastUsedSubtypeIds}
               onChange={handleChangeValue}
               disabled={isDisabled}
             />

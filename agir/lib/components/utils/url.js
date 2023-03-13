@@ -73,11 +73,15 @@ export const parseQueryStringParams = (url) => {
 };
 
 export const slugify = (string, separator = "-") => {
-  return string
-    .toString()
-    .normalize("NFD")
-    .toLowerCase()
-    .replace(/[^a-z0-9 ]/g, "") // remove all chars not letters, numbers and spaces (to be replaced)
-    .trim()
-    .replace(/\s+/g, separator);
+  separator = separator.trim();
+  return (
+    string
+      .toString()
+      .normalize("NFD")
+      .toLowerCase()
+      // remove all chars not letters, numbers, current separator and spaces (to be replaced)
+      .replace(new RegExp(`[^a-z0-9${separator} ]`, "g"), "")
+      .trim()
+      .replace(/\s+/g, separator)
+  );
 };

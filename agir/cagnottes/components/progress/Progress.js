@@ -4,13 +4,7 @@ import { animated, useSpring } from "@react-spring/web";
 import styled from "styled-components";
 import useSWR from "swr";
 
-const getContrastYIQ = (hexcolor) => {
-  var r = parseInt(hexcolor.substring(1, 3), 16);
-  var g = parseInt(hexcolor.substring(3, 5), 16);
-  var b = parseInt(hexcolor.substring(5, 7), 16);
-  var yiq = (r * 299 + g * 587 + b * 114) / 1000;
-  return yiq >= 128 ? "#000000" : "#FFFFFF";
-};
+import { getContrastYIQ } from "@agir/lib/utils/colors";
 
 const StyledTitle = styled.h2`
   font-size: 50px;

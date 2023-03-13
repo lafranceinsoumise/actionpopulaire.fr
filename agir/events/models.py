@@ -954,7 +954,7 @@ class EventSubtype(BaseSubtype):
     )
 
     required_documents = ArrayField(
-        verbose_name="Attestations requises",
+        verbose_name="Attestations requi" "ses",
         base_field=models.CharField(
             choices=EVENT_SUBTYPE_REQUIRED_DOCUMENT_TYPE_CHOICES,
             max_length=10,

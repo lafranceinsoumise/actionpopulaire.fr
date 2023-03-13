@@ -1,6 +1,7 @@
+/* eslint-disable react/display-name */
+import { a, animated, useSpring } from "@react-spring/web";
 import PropTypes from "prop-types";
 import React, { memo, useEffect, useRef, useState } from "react";
-import { useSpring, a, animated } from "@react-spring/web";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -8,6 +9,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import { useMeasure, usePrevious } from "@agir/lib/utils/hooks";
 
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import CounterBadge from "../app/Navigation/CounterBadge";
 
 const Title = styled.button``;
 const Content = styled(animated.div)``;
@@ -21,17 +23,14 @@ const Frame = styled.div`
   overflow-x: hidden;
 
   ${Title} {
-    & > :nth-child(2) {
-      flex-grow: 1;
-      padding-left: 1.5rem;
-      padding-right: 1.5rem;
-    }
     width: 100%;
     display: flex;
-    padding: 1rem 1.5rem;
+    gap: 1.5rem;
+    padding: ${(props) => (props.$small ? "0.5rem" : "1rem 1.5rem")};
     background-color: ${style.white};
     border: none;
-    border-top: 1px solid ${style.black100};
+    border-top: ${(props) =>
+      props.$small ? "none" : `1px solid ${style.black100}`};
     border-bottom: ${({ $open }) =>
       $open ? `1px solid ${style.black100}` : "none"};
     text-align: left;
@@ -41,10 +40,30 @@ const Frame = styled.div`
       background-color: ${style.black50};
     }
 
+    ${RawFeatherIcon} {
+      width: ${(props) => (props.$small ? 1 : 1.5)}rem;
+      height: ${(props) => (props.$small ? 1 : 1.5)}rem;
+    }
+
     & > strong {
-      font-weight: 500;
-      font-size: 1rem;
+      font-weight: ${(props) => (props.$small ? 600 : 500)};
+      font-size: ${(props) => (props.$small ? 0.875 : 1)}rem;
       white-space: normal;
+      flex-grow: 1;
+      vertical-align: middle;
+      display: flex;
+      align-items: center;
+
+      ${CounterBadge} {
+        width: 1.25rem;
+        height: 1.25rem;
+        margin-left: 0.4rem;
+        fill: ${style.primary100};
+
+        text {
+          fill: ${style.primary500};
+        }
+      }
     }
   }
 
@@ -62,7 +81,14 @@ const Frame = styled.div`
 `;
 
 const Accordion = memo((props) => {
-  const { children, icon, name, isDefaultOpen = false } = props;
+  const {
+    children,
+    icon,
+    name,
+    counter,
+    isDefaultOpen = false,
+    small = false,
+  } = props;
   const [bind, { height: viewHeight }] = useMeasure();
 
   const [isOpen, setOpen] = useState(isDefaultOpen);
@@ -92,12 +118,19 @@ const Accordion = memo((props) => {
   }, [isOpen]);
 
   return (
-    <Frame $open={isOpen}>
-      <Title onClick={() => setOpen((state) => !state)}>
+    <Frame $open={isOpen} $small={small}>
+      <Title type="button" onClick={() => setOpen((state) => !state)}>
         {icon ? (
-          <RawFeatherIcon width="1.5rem" height="1.5rem" name={icon} />
+          <RawFeatherIcon
+            width={small ? "1rem" : "1.5rem"}
+            height={small ? "1rem" : "1.5rem"}
+            name={icon}
+          />
         ) : null}
-        <strong>{name}</strong>
+        <strong>
+          {name}
+          {typeof counter === "number" && <CounterBadge value={counter} />}
+        </strong>
         <RawFeatherIcon
           width="1.5rem"
           height="1.5rem"
@@ -122,9 +155,11 @@ const Accordion = memo((props) => {
 
 Accordion.propTypes = {
   children: PropTypes.node,
-  name: PropTypes.string,
   icon: PropTypes.string,
+  name: PropTypes.string,
+  counter: PropTypes.number,
   isDefaultOpen: PropTypes.bool,
+  small: PropTypes.bool,
 };
 
 export default Accordion;
