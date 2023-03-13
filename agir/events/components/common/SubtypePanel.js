@@ -7,73 +7,87 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import { EVENT_TYPES } from "@agir/events/common/utils";
 import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
 
+import { MapMarker } from "@agir/carte/common/Map/StaticMap";
 import TextField from "@agir/front/formComponents/TextField";
+import Accordion from "@agir/front/genericComponents/Accordion";
 import Button from "@agir/front/genericComponents/Button";
-import FaIcon from "@agir/front/genericComponents/FaIcon";
 import Panel from "@agir/front/genericComponents/Panel";
-import Spacer from "@agir/front/genericComponents/Spacer";
+import { slugify } from "@agir/lib/utils/url";
 
+const StyledMapMarker = styled(MapMarker)``;
 const StyledOption = styled.li`
+  width: 100%;
   display: flex;
   flex-flow: row nowrap;
   min-height: 2rem;
-  align-items: flex-start;
-  font-size: 1rem;
+  align-items: center;
   line-height: 1.5;
   color: ${({ $selected }) => ($selected ? style.primary500 : style.black1000)};
-  font-weight: ${({ $selected }) => ($selected ? 600 : 400)};
   cursor: ${({ $selected }) => ($selected ? "default" : "pointer")};
+  font-size: 1rem;
+  gap: 0.5rem;
+
+  @media (max-width: ${(props) => props.theme.collapse}px) {
+    font-size: 0.875rem;
+  }
 
   & + & {
     padding-top: 0.5rem;
   }
 
   & > ${Button} {
+    flex: 0 0 auto;
     visibility: ${({ $selected }) => ($selected ? "hidden" : "visible")};
     margin-left: auto;
+
+    @media (max-width: ${(props) => props.theme.collapse}px) {
+      font-size: 0.75rem;
+    }
   }
 
-  & > :first-child {
-    color: ${style.primary500};
-    display: inline-block;
-    font-size: 1rem;
-    line-height: 1;
-    height: 1rem;
-    width: 1rem;
-    padding-top: 0.25rem;
-    text-align: center;
+  & > ${StyledMapMarker} {
+    filter: brightness(110%);
+    flex: 0 0 auto;
+    height: 2rem;
+    width: 2rem;
+
+    @media (max-width: ${(props) => props.theme.collapse}px) {
+      height: 1.5rem;
+      width: 1.5rem;
+    }
   }
 
   & > strong {
     font-weight: 400;
-    padding: 0 0 0 1rem;
+    padding: 0;
+    font-weight: ${({ $selected }) => ($selected ? 500 : 400)};
   }
 `;
 
-const StyledOptions = styled.div`
-  display: flex;
-  flex-flow: column nowrap;
-  padding-top: 0.5rem;
+const StyledOptions = styled.ul`
+  padding: 1rem 0.5rem;
+  list-style: none;
 
-  ul {
-    padding: 0;
-    list-style: none;
-
-    & > strong {
-      display: block;
-      height: 2.75rem;
-      font-weight: 600;
-      font-size: 1rem;
-      line-height: 1.5;
-      display: flex;
-      align-items: center;
-    }
+  & > strong {
+    display: block;
+    height: 2.75rem;
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 1.5;
+    display: flex;
+    align-items: center;
   }
 `;
 
 const StyledEmptyMessage = styled.p`
   color: ${(props) => props.theme.black700};
   padding: 1rem 0.5rem;
+`;
+
+const StyledSubtypePicker = styled.div`
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 1rem;
 `;
 
 const SubtypeOption = (props) => {
@@ -89,10 +103,7 @@ const SubtypeOption = (props) => {
       title={option.description}
       onClick={handleClick}
     >
-      <FaIcon
-        icon={option?.iconName || "calendar"}
-        style={{ color: option.color }}
-      />
+      <StyledMapMarker {...option} />
       <strong>
         {option.description && (
           <>
@@ -121,23 +132,26 @@ SubtypeOption.propTypes = {
 };
 
 export const SubtypeOptions = ({ options, onClick, selected }) => {
-  return (
-    <StyledOptions>
-      {options.map((category) => (
-        <ul key={category.label}>
-          <strong title={category.description}>{category.label}</strong>
-          {category.subtypes.map((subtype) => (
-            <SubtypeOption
-              key={category.label + subtype.id}
-              onClick={onClick}
-              option={subtype}
-              selected={!!selected && selected.id === subtype.id}
-            />
-          ))}
-        </ul>
-      ))}
-    </StyledOptions>
-  );
+  return options.map((category) => (
+    <Accordion
+      key={category.label}
+      name={category.label}
+      counter={category.subtypes.length}
+      small
+      isDefaultOpen
+    >
+      <StyledOptions title={category.description}>
+        {category.subtypes.map((subtype) => (
+          <SubtypeOption
+            key={category.label + subtype.id}
+            onClick={onClick}
+            option={subtype}
+            selected={!!selected && selected.id === subtype.id}
+          />
+        ))}
+      </StyledOptions>
+    </Accordion>
+  ));
 };
 
 SubtypeOptions.propTypes = {
@@ -149,15 +163,16 @@ SubtypeOptions.propTypes = {
 export const SubtypePicker = (props) => {
   const { value, onChange, options, lastUsedIds, disabled } = props;
   const [searchTerm, setSearchTerm] = useState("");
-  const term = searchTerm.trim();
+  const term = useMemo(() => slugify(searchTerm), [searchTerm]);
 
   const subtypes = useMemo(() => {
     const allSubtypes = Array.isArray(options) ? options : [];
     if (!term) {
       return allSubtypes;
     }
-    const re = new RegExp(term, "i");
-    return allSubtypes.filter((subtype) => re.test(subtype.description));
+    return allSubtypes.filter((subtype) =>
+      slugify(subtype.description).includes(term)
+    );
   }, [options, term]);
 
   const optionCategories = useMemo(() => {
@@ -172,11 +187,15 @@ export const SubtypePicker = (props) => {
       {}
     );
 
-    subtypes.forEach((subtype) => {
+    [...subtypes].reverse().forEach((subtype) => {
       const category =
         subtype.type && categories[subtype.type] ? subtype.type : "O";
       categories[category].subtypes = categories[category].subtypes || [];
-      categories[category].subtypes.push(subtype);
+      if (/^autre/i.test(subtype.description)) {
+        categories[category].subtypes.push(subtype);
+      } else {
+        categories[category].subtypes.unshift(subtype);
+      }
     });
 
     return Object.values(categories).filter(
@@ -209,7 +228,7 @@ export const SubtypePicker = (props) => {
   }, [subtypes, lastUsedIds]);
 
   return (
-    <Fragment>
+    <StyledSubtypePicker>
       {options.length > 0 && (
         <TextField
           id="ev-st-search"
@@ -223,32 +242,31 @@ export const SubtypePicker = (props) => {
           dark
         />
       )}
-      {subtypes.length > 0 ? (
-        <>
-          {!term && lastUsedOptions && (
-            <>
+      <div>
+        {subtypes.length > 0 ? (
+          <>
+            {!term && lastUsedOptions && (
               <SubtypeOptions
                 options={lastUsedOptions}
                 onClick={onChange}
                 selected={value}
                 disabled={disabled}
               />
-              <Spacer size="1rem" />
-            </>
-          )}
-          <SubtypeOptions
-            options={optionCategories}
-            onClick={onChange}
-            selected={value}
-            disabled={disabled}
-          />
-        </>
-      ) : (
-        <StyledEmptyMessage>
-          Aucun type d'événément n'a été trouvé
-        </StyledEmptyMessage>
-      )}
-    </Fragment>
+            )}
+            <SubtypeOptions
+              options={optionCategories}
+              onClick={onChange}
+              selected={value}
+              disabled={disabled}
+            />
+          </>
+        ) : (
+          <StyledEmptyMessage>
+            Aucun type d'événément n'a été trouvé
+          </StyledEmptyMessage>
+        )}
+      </div>
+    </StyledSubtypePicker>
   );
 };
 SubtypePicker.propTypes = {
