@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { Fragment, useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -7,9 +7,9 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import { EVENT_TYPES } from "@agir/events/common/utils";
 import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
 
+import TextField from "@agir/front/formComponents/TextField";
 import Button from "@agir/front/genericComponents/Button";
 import FaIcon from "@agir/front/genericComponents/FaIcon";
-import TextField from "@agir/front/formComponents/TextField";
 import Panel from "@agir/front/genericComponents/Panel";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
@@ -146,10 +146,8 @@ SubtypeOptions.propTypes = {
   selected: PropTypes.object,
 };
 
-const SubtypeField = (props) => {
-  const { shouldShow, onChange, onClose, value, options, lastUsedIds } = props;
-  const panelPosition = useResponsiveMemo("right", "left");
-
+export const SubtypePicker = (props) => {
+  const { value, onChange, options, lastUsedIds, disabled } = props;
   const [searchTerm, setSearchTerm] = useState("");
   const term = searchTerm.trim();
 
@@ -211,14 +209,7 @@ const SubtypeField = (props) => {
   }, [subtypes, lastUsedIds]);
 
   return (
-    <Panel
-      position={panelPosition}
-      shouldShow={shouldShow}
-      onClose={onClose}
-      onBack={onClose}
-      title="Type de l'événement"
-      noScroll
-    >
+    <Fragment>
       {options.length > 0 && (
         <TextField
           id="ev-st-search"
@@ -240,6 +231,7 @@ const SubtypeField = (props) => {
                 options={lastUsedOptions}
                 onClick={onChange}
                 selected={value}
+                disabled={disabled}
               />
               <Spacer size="1rem" />
             </>
@@ -248,6 +240,7 @@ const SubtypeField = (props) => {
             options={optionCategories}
             onClick={onChange}
             selected={value}
+            disabled={disabled}
           />
         </>
       ) : (
@@ -255,15 +248,37 @@ const SubtypeField = (props) => {
           Aucun type d'événément n'a été trouvé
         </StyledEmptyMessage>
       )}
-    </Panel>
+    </Fragment>
   );
 };
-SubtypeField.propTypes = {
-  onClose: PropTypes.func.isRequired,
+SubtypePicker.propTypes = {
   onChange: PropTypes.func.isRequired,
   value: PropTypes.object,
   options: PropTypes.arrayOf(PropTypes.object),
   lastUsedIds: PropTypes.arrayOf(PropTypes.number),
+  disabled: PropTypes.bool,
+};
+
+const SubtypePanel = (props) => {
+  const { shouldShow, onClose, ...rest } = props;
+  const panelPosition = useResponsiveMemo("right", "left");
+
+  return (
+    <Panel
+      position={panelPosition}
+      shouldShow={shouldShow}
+      onClose={onClose}
+      onBack={onClose}
+      title="Type de l'événement"
+      noScroll
+    >
+      <SubtypePicker {...rest} />
+    </Panel>
+  );
+};
+
+SubtypePanel.propTypes = {
+  onClose: PropTypes.func.isRequired,
   shouldShow: PropTypes.bool,
 };
-export default SubtypeField;
+export default SubtypePanel;
