@@ -76,8 +76,7 @@ const Page = ({ groupPk, messagePk }) => {
                 label: "Voir le groupe",
               }
             : {
-                to: routeConfig.groups.getLink(),
-                label: "Retour à l'accueil",
+                route: "groups",
               }
         )
       );
@@ -132,7 +131,6 @@ const Page = ({ groupPk, messagePk }) => {
       <PageFadeIn wait={PageSkeleton} ready={isSessionLoaded && group}>
         {isSessionLoaded && group ? (
           <CenteredLayout
-            backLink={isSessionLoaded && group ? backLink : undefined}
             $maxWidth="780px"
             title={
               group && !group.isMember

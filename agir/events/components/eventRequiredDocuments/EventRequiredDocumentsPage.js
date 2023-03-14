@@ -1,6 +1,5 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useState } from "react";
-import { Redirect } from "react-router-dom";
 import useSWR from "swr";
 
 import EventRequiredDocuments from "./EventRequiredDocuments";
@@ -9,12 +8,13 @@ import OpenGraphTags from "@agir/front/app/OpenGraphTags";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 
 import {
+  addEventProjectDocument,
   getEventEndpoint,
   updateEvent,
   updateEventProject,
-  addEventProjectDocument,
 } from "@agir/events/common/api";
 import { useEventFormOptions } from "@agir/events/common/hooks";
+import Redirect from "@agir/front/app/Redirect";
 import { routeConfig } from "@agir/front/app/routes.config";
 
 const EventRequiredDocumentsUploadPage = (props) => {

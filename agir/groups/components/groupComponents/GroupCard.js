@@ -71,6 +71,7 @@ const GroupCard = ({
   displayMembership,
   isEmbedded = false,
   isCertified,
+  backLink,
 }) => {
   const history = useHistory();
 
@@ -91,7 +92,9 @@ const GroupCard = ({
           <Column collapse={0}>
             <Link
               aria-label={name}
-              to={routeConfig.groupDetails.getLink({ groupPk: id })}
+              route="groupDetails"
+              routeParams={{ groupPk: id }}
+              backLink={backLink}
             >
               <GroupIcon>
                 <FeatherIcon name="users" />
@@ -106,7 +109,9 @@ const GroupCard = ({
                 color: "inherit",
                 textDecoration: "none",
               }}
-              to={routeConfig.groupDetails.getLink({ groupPk: id })}
+              route="groupDetails"
+              routeParams={{ groupPk: id }}
+              backLink={backLink}
             >
               {name}
             </Link>
@@ -145,7 +150,9 @@ const GroupCard = ({
             key="join"
             color="primary"
             link
-            to={routeConfig.groupDetails.getLink({ groupPk: id })}
+            route="groupDetails"
+            routeParams={{ groupPk: id }}
+            backLink={backLink}
           >
             Rejoindre
             <Hide as="span" under={800}>
@@ -157,7 +164,9 @@ const GroupCard = ({
           link
           key="browse"
           color="default"
-          to={routeConfig.groupDetails.getLink({ groupPk: id })}
+          route="groupDetails"
+          routeParams={{ groupPk: id }}
+          backLink={backLink}
         >
           Voir le groupe
         </Button>
@@ -176,7 +185,9 @@ const GroupCard = ({
           <Button
             key="manage"
             link
-            to={routeConfig.groupSettings.getLink({ groupPk: id })}
+            route="groupSettings"
+            routeParams={{ groupPk: id }}
+            backLink={backLink}
             icon="settings"
           >
             Gestion
@@ -211,6 +222,7 @@ GroupCard.propTypes = {
   displayMembership: PropTypes.bool,
   isEmbedded: PropTypes.bool,
   isCertified: PropTypes.bool,
+  backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
 };
 
 GroupCard.defaultProps = {

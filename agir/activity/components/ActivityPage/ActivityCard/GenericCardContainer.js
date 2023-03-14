@@ -111,7 +111,14 @@ const ActivityCardAction = (props) => {
   }
 
   return (
-    <Button small color="primary" link route={action?.route} to={action?.to}>
+    <Button
+      small
+      color="primary"
+      link
+      route={action?.route}
+      to={action?.to}
+      backLink="activites"
+    >
       {action?.label}
     </Button>
   );
@@ -210,7 +217,13 @@ export const GenericCardContainer = (props) => {
             />
           }
         >
-          {event && <EventCard {...event} schedule={eventSchedule} />}
+          {event && (
+            <EventCard
+              {...event}
+              schedule={eventSchedule}
+              backLink="activities"
+            />
+          )}
         </EventCardContainer>
       ) : null}
     </LowMarginCard>

@@ -29,6 +29,7 @@ import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getUser } from "@agir/front/globalContext/reducers";
 
 import { DOOR2DOOR_EVENT_SUBTYPE_LABEL } from "@agir/events/common/utils";
+import BackLink from "@agir/front/app/Navigation/BackLink";
 
 const CardLikeSection = styled.section``;
 const StyledColumn = styled(Column)`
@@ -57,41 +58,20 @@ const StyledColumn = styled(Column)`
   }
 `;
 
-const IndexLinkAnchor = styled(Link)`
-  font-weight: 600;
-  font-size: 12px;
-  line-height: 1.4;
-  text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  margin: 2.5rem 1rem 1.5rem;
-
-  &,
-  &:hover,
-  &:focus,
-  &:active {
-    text-decoration: none;
-    color: #585858;
-  }
-
-  svg {
-    height: 16px;
-  }
-`;
-
 const DesktopEventPage = (props) => {
   const {
     id,
     logged,
     groups,
-    groupsAttendees,
     contact,
-    participantCount,
     routes,
-    subtype,
     isOrganizer,
     isManager,
     isPast,
+    groupsAttendees,
+    participantCount,
+    subtype,
+    backLink,
   } = props;
 
   const user = useSelector(getUser);
@@ -121,11 +101,7 @@ const DesktopEventPage = (props) => {
       >
         <Row style={{ minHeight: 56 }}>
           <Column grow>
-            {logged && (
-              <IndexLinkAnchor route="events">
-                <FeatherIcon name="arrow-left" /> &nbsp; Liste des événements
-              </IndexLinkAnchor>
-            )}
+            <BackLink />
           </Column>
         </Row>
         <Row gutter={32}>
@@ -156,6 +132,7 @@ const DesktopEventPage = (props) => {
                     eventPk={id}
                     isPast={isPast}
                     isOrganizer={isOrganizer}
+                    backLink={backLink}
                   />
                   <Spacer size="1rem" />
                 </>
@@ -165,6 +142,7 @@ const DesktopEventPage = (props) => {
                 isPast={isPast}
                 groups={groups}
                 groupsAttendees={userGroupsAttendees}
+                backLink={backLink}
               />
 
               <EventMessages eventPk={props.id} />
@@ -230,6 +208,10 @@ DesktopEventPage.propTypes = {
   endTime: PropTypes.instanceOf(DateTime),
   schedule: PropTypes.instanceOf(Interval),
   isPast: PropTypes.bool,
+  groupsAttendees: PropTypes.array,
+  participantCount: PropTypes.number,
+  subtype: PropTypes.object,
+  backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
 };
 
 export default DesktopEventPage;

@@ -5,23 +5,24 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import {
+  setAdminLink,
+  setBackLink,
+  setPageTitle,
+  setTopBarRightLink,
+} from "@agir/front/globalContext/actions";
+import {
   useDispatch,
   useSelector,
 } from "@agir/front/globalContext/GlobalContext";
 import { getIsSessionLoaded } from "@agir/front/globalContext/reducers";
-import {
-  setBackLink,
-  setTopBarRightLink,
-  setAdminLink,
-  setPageTitle,
-} from "@agir/front/globalContext/actions";
 
-import Layout from "@agir/front/app/Layout";
 import FeedbackButton from "@agir/front/allPages/FeedbackButton";
+import Layout from "@agir/front/app/Layout";
 
-import ErrorBoundary from "./ErrorBoundary";
 import logger from "@agir/lib/utils/logger";
+import ErrorBoundary from "./ErrorBoundary";
 import useTracking from "./useTracking";
+import Redirect from "./Redirect";
 
 const log = logger(__filename);
 
@@ -85,6 +86,15 @@ const Page = (props) => {
     }
   }, [routeConfig]);
 
+  if (typeof routeConfig.redirectTo === "function") {
+    const redirectProps = routeConfig.redirectTo(pathname, routeParams);
+    return typeof redirectProps === "string" ? (
+      <Redirect route={redirectProps} />
+    ) : (
+      <Redirect {...redirectProps} />
+    );
+  }
+
   if (routeConfig.isPartial) {
     return (
       <ErrorBoundary>
@@ -124,7 +134,7 @@ const Page = (props) => {
   );
 };
 Page.propTypes = {
-  Component: PropTypes.elementType.isRequired,
+  Component: PropTypes.elementType,
   routeConfig: PropTypes.object.isRequired,
   hasTopBar: PropTypes.bool,
 };

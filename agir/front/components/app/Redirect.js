@@ -1,26 +1,27 @@
 import PropTypes from "prop-types";
 import React, { useMemo } from "react";
-import { Link as RouterLink } from "react-router-dom";
+import { Redirect } from "react-router-dom";
 
 import { routeConfig } from "@agir/front/app/routes.config";
 import { addQueryStringParams } from "@agir/lib/utils/url";
 import { useRoute } from "./hooks";
 
-const ExternalLink = (props) => {
-  const { params, forwardedRef, ...rest } = props;
+const ExternalRedirect = (props) => {
+  const { params, ...rest } = props;
   const href = params ? addQueryStringParams(props.href, params) : props.href;
-  return <a ref={forwardedRef} {...rest} href={href} />;
+
+  return <Redirect {...rest} to={href} />;
 };
-ExternalLink.propTypes = {
+ExternalRedirect.propTypes = {
   href: PropTypes.string.isRequired,
   params: PropTypes.object,
 };
 
-const InternalLink = (props) => {
-  const { to, params, state, backLink, forwardedRef, ...rest } = props;
+const InternalRedirect = (props) => {
+  const { to, params, state, backLink, ...rest } = props;
 
   const next = useMemo(() => {
-    const pathname = params ? addQueryStringParams(to, params, true) : to;
+    const pathname = params ? addQueryStringParams(pathname, params, true) : to;
 
     let nextState = state;
 
@@ -38,48 +39,47 @@ const InternalLink = (props) => {
     return nextState ? { pathname, state: nextState } : pathname;
   }, [to, params, state, backLink]);
 
-  return <RouterLink ref={forwardedRef} {...rest} to={next} />;
+  return <Redirect {...rest} to={next} />;
 };
-InternalLink.propTypes = {
+InternalRedirect.propTypes = {
   to: PropTypes.string.isRequired,
   state: PropTypes.object,
   params: PropTypes.object,
   backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
 };
 
-const RouteLink = (props) => {
+const RouteRedirect = (props) => {
   const { route, routeParams, ...rest } = props;
   const { url, isInternal } = useRoute(route, routeParams);
 
   return isInternal ? (
-    <InternalLink {...rest} to={url} />
+    <InternalRedirect {...rest} to={url} />
   ) : (
-    <ExternalLink {...rest} href={url} />
+    <ExternalRedirect {...rest} href={url} />
   );
 };
-RouteLink.propTypes = {
+RouteRedirect.propTypes = {
   route: PropTypes.string.isRequired,
   routeParams: PropTypes.object,
 };
 
-const Link = (() => {
-  const LinkComponent = (props, ref) => {
-    const { route, href, to } = props;
-    if (route) {
-      return <RouteLink forwardedRef={ref} {...props} />;
-    }
-    if (to) {
-      return <InternalLink forwardedRef={ref} to={to} {...props} />;
-    }
-    if (href) {
-      return <ExternalLink forwardedRef={ref} {...props} />;
-    }
+const AppRedirect = (props) => {
+  const { route, href, to } = props;
+  if (route) {
+    return <RouteRedirect {...props} />;
+  }
+  if (to) {
+    return <InternalRedirect to={to} {...props} />;
+  }
+  if (href) {
+    return <ExternalRedirect {...props} />;
+  }
 
-    return null;
-  };
-  LinkComponent.displayName = "Link";
-
-  return React.forwardRef(LinkComponent);
-})();
-
-export default Link;
+  return null;
+};
+AppRedirect.propTypes = {
+  route: PropTypes.string,
+  href: PropTypes.string,
+  to: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+};
+export default AppRedirect;

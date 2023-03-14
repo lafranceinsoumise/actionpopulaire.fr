@@ -141,6 +141,7 @@ const EventSpeakerPage = () => {
                 <UpcomingEvents
                   orientation={upcomingEventOrientation}
                   events={events}
+                  backLink="eventSpeaker"
                 />
               ) : (
                 <p>Vous n'avez pas d'événements à venir</p>

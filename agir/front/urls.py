@@ -348,6 +348,11 @@ urlpatterns = [
     ),
     ## EVENT VIEWS
     path("evenements/carte/", views.BaseAppCachedView.as_view(), name="event_map_page"),
+    path(
+        "evenements/carte/<uuid:pk>/",
+        views.BaseAppCachedView.as_view(),
+        name="map_event_details",
+    ),
     path("evenements/creer/", views.CreateEventView.as_view(), name="create_event"),
     path(
         "evenements/creer/<path>/",
@@ -367,6 +372,11 @@ urlpatterns = [
         name="list_groups",
     ),
     path("groupes/carte/", views.BaseAppCachedView.as_view(), name="group_map_page"),
+    path(
+        "groupes/carte/<uuid:pk>/",
+        views.BaseAppCachedView.as_view(),
+        name="map_group_details",
+    ),
     path("groupes/<uuid:pk>/", include(supportgroup_patterns)),
     ## CONTACT VIEWS
     path("contacts/creer/", views.BaseAppSoftAuthView.as_view(), name="create_contact"),

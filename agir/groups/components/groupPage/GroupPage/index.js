@@ -8,7 +8,6 @@ import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import {
   getIsSessionLoaded,
   getIsConnected,
-  getBackLink,
   getUser,
 } from "@agir/front/globalContext/reducers";
 
@@ -18,7 +17,6 @@ const GroupPage = (props) => {
   const { groupPk } = props;
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const isConnected = useSelector(getIsConnected);
-  const backLink = useSelector(getBackLink);
   const user = useSelector(getUser);
 
   const {
@@ -37,7 +35,6 @@ const GroupPage = (props) => {
 
   return (
     <GroupPageComponent
-      backLink={backLink}
       isConnected={isSessionLoaded && isConnected}
       isLoading={!isSessionLoaded || group === undefined}
       group={group}

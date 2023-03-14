@@ -10,7 +10,10 @@ const GroupMembershipLimitReminderCard = (props) => {
   const { membershipCount, membershipLimitNotificationStep } = meta;
 
   const SupportGroup = group ? (
-    <Link to={routeConfig.groupDetails.getLink({ groupPk: group.id })}>
+    <Link
+      to={routeConfig.groupDetails.getLink({ groupPk: group.id })}
+      backLink="activities"
+    >
       {group.name}
     </Link>
   ) : null;

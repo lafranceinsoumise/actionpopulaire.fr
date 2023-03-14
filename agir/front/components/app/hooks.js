@@ -2,9 +2,12 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { createGlobalState } from "react-use";
 
-import { parseQueryStringParams } from "@agir/lib/utils/url";
-import { useLocalStorage } from "@agir/lib/utils/hooks";
+import { getRouteByPathname, routeConfig } from "@agir/front/app/routes.config";
 import { useIsDesktop } from "@agir/front/genericComponents/grid";
+import { useSelector } from "@agir/front/globalContext/GlobalContext";
+import { getHasRouter, getRoutes } from "@agir/front/globalContext/reducers";
+import { useLocalStorage } from "@agir/lib/utils/hooks";
+import { parseQueryStringParams } from "@agir/lib/utils/url";
 
 export const useCustomBackNavigation = (callback) => {
   const history = useHistory();
@@ -118,4 +121,37 @@ export const useAppLoader = (isReady = true) => {
 
     setLoader(null);
   }, [loader]);
+};
+
+export const useRoute = (route, routeParams) => {
+  const routes = useSelector(getRoutes);
+  const hasRouter = useSelector(getHasRouter);
+
+  if (!route) {
+    return {
+      route: null,
+      isInternal: false,
+    };
+  }
+
+  if (routes && routes[route]) {
+    return {
+      url: routes[route],
+      isInternal: !!hasRouter && !!getRouteByPathname(routes[route]),
+    };
+  }
+
+  if (routeConfig[route]) {
+    return {
+      url: routeParams
+        ? routeConfig[route].getLink(routeParams)
+        : routeConfig[route].getLink(),
+      isInternal: !!hasRouter,
+    };
+  }
+
+  return {
+    url: route,
+    isInternal: false,
+  };
 };
