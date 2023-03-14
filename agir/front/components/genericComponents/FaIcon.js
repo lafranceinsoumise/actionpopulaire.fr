@@ -25,11 +25,12 @@ const StyledIcon = styled.i.withConfig({
   }};
 `;
 
+// eslint-disable-next-line react/display-name
 const FaIcon = (icon) => (props) => {
   return (
     <StyledIcon
       {...props}
-      className={`fa fa-${(icon || props.icon).toLowerCase()}`}
+      className={`fa fa-${icon || props.icon}`.toLowerCase()}
     />
   );
 };

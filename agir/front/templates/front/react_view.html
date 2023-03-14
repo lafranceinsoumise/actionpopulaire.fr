@@ -27,9 +27,11 @@
   {% if export_data %}
     {{ export_data|json_script:data_script_id }}
   {% endif %}
-  {% include bundle_name|add:".bundle.html" %}
 {% endblock %}
 
+{% block app_bundles %}
+  {% include bundle_name|add:".bundle.html" %}
+{% endblock %}
 
 {% block matomo_extra_tracking %}
   _paq.push(['HeatmapSessionRecording::disable']);

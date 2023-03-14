@@ -14,13 +14,13 @@ const StatoscopeWebpackPlugin = require("@statoscope/webpack-plugin").default;
 const TerserPlugin = require("terser-webpack-plugin");
 const WebpackBar = require("webpackbar");
 
-const package = require(path.resolve(__dirname, "package.json"));
+const packageConfig = require(path.resolve(__dirname, "package.json"));
 const DISTPATH = path.resolve(__dirname, "assets/components");
 
 const isDirectory = (f) => fs.statSync(f).isDirectory();
 const directoryHasFile = (f) => (d) => fs.readdirSync(d).includes(f);
 
-const COREJS_VERSION = package.dependencies["core-js"];
+const COREJS_VERSION = packageConfig.dependencies["core-js"];
 
 const CONFIG_TYPES = {
   ES2015: "es2015+",

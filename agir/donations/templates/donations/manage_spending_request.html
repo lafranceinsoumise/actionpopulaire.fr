@@ -1,9 +1,5 @@
 {% extends 'front/layout.html' %}{% load static %}
 
-{% block extra_scripts %}
-  {% include "donations/spendingRequestLib.bundle.html" %}
-{% endblock %}
-
 {% block title %}
   Gérer l'avancement de votre demande de dépense ou de remboursement
 {% endblock %}
@@ -164,4 +160,9 @@
       </div>
     </div>
   </div>
+{% endblock %}
+
+{% block app_bundles %}
+  {{ block.super }}
+  {% include "donations/spendingRequestLib.bundle.html" %}
 {% endblock %}

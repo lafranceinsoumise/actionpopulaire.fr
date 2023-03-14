@@ -22,5 +22,9 @@
       {{ props | json_script:"react-json-script" }}
     </div>
   </div>
+{% endblock %}
+
+{% block app_bundles %}
+  {{ block.super }}
   {% include "lib/creationForms.bundle.html" %}
 {% endblock %}
