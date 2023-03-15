@@ -6,7 +6,6 @@ import { dateFromISOString, displayShortDate } from "@agir/lib/utils/time";
 
 import Button from "@agir/front/genericComponents/Button";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
-import Link from "@agir/front/app/Link";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 import EventSubtypePicker from "./EventSubtypePicker";
@@ -15,34 +14,8 @@ import RequiredDocumentCard from "./RequiredDocumentCard";
 import RequiredDocumentModal from "./RequiredDocumentModal";
 import SentDocumentsCard from "./SentDocumentsCard";
 
+import BackLink from "@agir/front/app/Navigation/BackLink";
 import { EVENT_DOCUMENT_TYPES } from "./config";
-
-const IndexLinkAnchor = styled(Link)`
-  font-weight: 600;
-  font-size: 12px;
-  line-height: 1.4;
-  text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  margin-bottom: 1.5rem;
-
-  &,
-  &:hover,
-  &:focus,
-  &:active {
-    text-decoration: none;
-    color: #585858;
-  }
-
-  svg {
-    height: 16px;
-    width: 16px;
-  }
-
-  @media (max-width: ${(props) => props.theme.collapse}px) {
-    display: none;
-  }
-`;
 
 const StyledDocumentList = styled.div`
   & + & {
@@ -199,11 +172,7 @@ const EventRequiredDocuments = (props) => {
 
   return (
     <StyledWrapper $embedded={embedded}>
-      {!embedded && (
-        <IndexLinkAnchor route="events">
-          <FeatherIcon name="arrow-left" /> &nbsp; Liste des événements
-        </IndexLinkAnchor>
-      )}
+      {!embedded && <BackLink />}
       {!embedded && (
         <>
           <header>

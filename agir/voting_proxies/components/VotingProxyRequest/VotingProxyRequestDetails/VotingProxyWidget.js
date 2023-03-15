@@ -90,7 +90,7 @@ const VotingProxyWidget = (props) => {
       setIsCancelled(true);
     }
   }, [shouldConfirm, request]);
-  console.log(request);
+
   return (
     <StyledWidget>
       {request?.votingProxy?.firstName && (

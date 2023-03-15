@@ -4,10 +4,7 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
-import {
-  getBackLink,
-  getIsSessionLoaded,
-} from "@agir/front/globalContext/reducers";
+import { getIsSessionLoaded } from "@agir/front/globalContext/reducers";
 
 import TokTokCard from "@agir/events/TokTok/TokTokCard";
 import Link from "@agir/front/app/Link";
@@ -19,21 +16,8 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 
 import EventForm from "./EventForm";
 
+import BackLink from "@agir/front/app/Navigation/BackLink";
 import illustration from "./images/team-spirit.svg";
-
-const IndexLinkAnchor = styled(Link)`
-  font-weight: 600;
-  font-size: 12px;
-  line-height: 1.4;
-  text-transform: uppercase;
-  display: inline-flex;
-  align-items: center;
-  margin: 0;
-
-  @media (max-width: ${style.collapse}px) {
-    display: none;
-  }
-`;
 
 const Illustration = styled.div`
   width: 100%;
@@ -138,23 +122,14 @@ const InfoBlock = (props) => (
 
 const CreateEvent = () => {
   const isSessionLoaded = useSelector(getIsSessionLoaded);
-  const backLink = useSelector(getBackLink);
 
   return (
     <PageFadeIn wait={<CreateEventSkeleton />} ready={isSessionLoaded}>
       <StyledContainer>
         <div>
-          {!!backLink && (
-            <IndexLinkAnchor
-              to={backLink.to}
-              href={backLink.href}
-              route={backLink.route}
-              aria-label={backLink.label || "Retour à l'accueil"}
-              title={backLink.label || "Retour à l'accueil"}
-            >
-              <RawFeatherIcon name="arrow-left" color={style.black1000} />
-            </IndexLinkAnchor>
-          )}
+          <BackLink style={{ margin: 0 }}>
+            <RawFeatherIcon name="arrow-left" color={style.black1000} />
+          </BackLink>
           <Spacer size="1.5rem" />
           <h2>Nouvel événement</h2>
           <InfoBlock over />

@@ -51,7 +51,7 @@ const GreenToast = styled(StaticToast)`
   }
 `;
 
-const Joined = ({ hasPrice, eventPk, group }) => (
+const Joined = ({ hasPrice, eventPk, group, backLink }) => (
   <StyledJoin>
     <RawFeatherIcon
       name="check"
@@ -65,7 +65,11 @@ const Joined = ({ hasPrice, eventPk, group }) => (
         ) : (
           <>
             Votre groupe&nbsp;
-            <Link route="groupDetails" routeParams={{ groupPk: group.id }}>
+            <Link
+              route="groupDetails"
+              routeParams={{ groupPk: group.id }}
+              backLink={backLink}
+            >
               <b>{group.name}</b>
             </Link>
             &nbsp;participe à l'événement
@@ -88,9 +92,10 @@ Joined.propTypes = {
     name: PropTypes.string,
     isManager: PropTypes.bool,
   }),
+  backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
 };
 
-const JoiningDetails = ({ id, hasPrice, rsvped, groups, logged }) => {
+const JoiningDetails = ({ id, hasPrice, rsvped, groups, logged, backLink }) => {
   const user = useSelector(getUser);
   const groupsId = groups?.map((group) => group.id) || [];
 
@@ -107,7 +112,13 @@ const JoiningDetails = ({ id, hasPrice, rsvped, groups, logged }) => {
     <GreenToast $color="green">
       {logged && rsvped && <Joined eventPk={id} hasPrice={hasPrice} />}
       {managingGroupsAttendees.map((group) => (
-        <Joined key={group.id} eventPk={id} hasPrice={hasPrice} group={group} />
+        <Joined
+          key={group.id}
+          eventPk={id}
+          hasPrice={hasPrice}
+          group={group}
+          backLink={backLink}
+        />
       ))}
     </GreenToast>
   );
@@ -124,6 +135,7 @@ JoiningDetails.propTypes = {
     })
   ),
   logged: PropTypes.bool,
+  backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
 };
 
 export default JoiningDetails;

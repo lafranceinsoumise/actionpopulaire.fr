@@ -1,51 +1,45 @@
-import { dateFromISOString, displayHumanDate } from "@agir/lib/utils/time";
+const formatEvent = (types, subtypes) => (event) => {
+  const subtype = subtypes.find((type) => type.id === event.subtype);
+  const type = types.find((type) => type.id === subtype.type);
+  const color = subtype.color ? subtype.color : type.color;
+  const label = subtype.hideLabel ? type.label : subtype.description;
 
-export default function getFormatPopups(types, subtypes) {
-  function formatEvent(event) {
-    var subtype = subtypes.find(function (type) {
-      return type.id === event.subtype;
-    });
-    var type = types.find(function (type) {
-      return type.id === subtype.type;
-    });
-    return (
-      '<a href="/evenements/' +
-      event.id +
-      '/" style="color:' +
-      (subtype.color ? subtype.color : type.color) +
-      ';">' +
-      event.name +
-      "</a><br /><strong>" +
-      (subtype.hideLabel ? type.label : subtype.description) +
-      "</strong><br />" +
-      displayHumanDate(dateFromISOString(event.start_time))
-    );
-  }
+  return `
+    <a target="_top" href="${event.link}" style="color:${color};">
+      ${event.name}
+    </a>
+    <br/>
+    <strong>${label}</strong>
+    <br/>
+    ${event.date}
+  `;
+};
 
-  function formatGroup(group) {
-    var displayableSubtypes = subtypes
-      .filter(function (subtype) {
-        return group.subtypes.indexOf(subtype.id) !== -1 && !subtype.hideLabel;
-      })
-      .map(function (subtype) {
-        return subtype.description;
-      });
-    var type = types.find(function (type) {
-      return type.id === group.type;
-    });
-    return (
-      '<a href="/groupes/' +
-      group.id +
-      '">' +
-      group.name +
-      "</a><br><strong>" +
-      type.label +
-      "</strong>" +
-      (displayableSubtypes.length
-        ? "<br>" + displayableSubtypes.join(" &bull; ")
-        : "")
-    );
-  }
+const formatGroup = (types, subtypes) => (group) => {
+  const type = types.find((type) => type.id === group.type);
+  const displayableSubtypes = subtypes
+    .filter(
+      (subtype) => !subtype.hideLabel && group.subtypes.includes(subtype.id)
+    )
+    .map((subtype) => subtype.description);
 
-  return { groups: formatGroup, events: formatEvent };
-}
+  return `
+    <a target="_top" href="${group.link}">${group.name}</a>
+    <br/>
+    <strong>${type.label}</strong>
+    ${
+      displayableSubtypes.length > 0
+        ? `<br/><small>${displayableSubtypes.map(
+            (subtype) => `· ${subtype}`
+          )}</small>`
+        : ""
+    }
+  `;
+};
+
+const getFormatPopups = (types, subtypes) => ({
+  groups: formatGroup(types, subtypes),
+  events: formatEvent(types, subtypes),
+});
+
+export default getFormatPopups;

@@ -111,13 +111,14 @@ const MobileEventPage = (props) => {
     routes,
     logged,
     groups,
-    groupsAttendees,
     illustration,
     location,
-    subtype,
     isManager,
     isOrganizer,
     isPast,
+    groupsAttendees,
+    subtype,
+    backLink,
   } = props;
 
   const hasMap = Array.isArray(location?.coordinates?.coordinates);
@@ -229,6 +230,7 @@ const MobileEventPage = (props) => {
             eventPk={id}
             isPast={isPast}
             isOrganizer={isOrganizer}
+            backLink={backLink}
           />
         )}
         <GroupsJoiningCard
@@ -236,6 +238,7 @@ const MobileEventPage = (props) => {
           isPast={isPast}
           groups={groups}
           groupsAttendees={userGroupsAttendees}
+          backLink={backLink}
         />
       </StyledMain>
 
@@ -292,6 +295,9 @@ MobileEventPage.propTypes = {
   endTime: PropTypes.instanceOf(DateTime),
   schedule: PropTypes.instanceOf(Interval),
   isPast: PropTypes.bool,
+  groupsAttendees: PropTypes.array,
+  subtype: PropTypes.object,
+  backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
 };
 
 export default MobileEventPage;

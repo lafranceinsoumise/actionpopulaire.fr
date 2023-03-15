@@ -7,6 +7,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import MiniEventCard from "./MiniEventCard";
 
 import "swiper/scss";
+import { rest } from "lodash/fp";
 
 export const SingleSlide = styled(animated.div)`
   margin: 0;
@@ -23,7 +24,7 @@ export const Carousel = styled(animated.div)`
 `;
 
 export const HorizontalLayout = (props) => {
-  const { events } = props;
+  const { events, ...rest } = props;
   const style = useSpring({
     from: {
       opacity: 0,
@@ -38,7 +39,7 @@ export const HorizontalLayout = (props) => {
   if (events.length === 1) {
     return (
       <SingleSlide style={style}>
-        <MiniEventCard {...events[0]} />
+        <MiniEventCard {...rest} {...events[0]} />
       </SingleSlide>
     );
   }
@@ -48,7 +49,7 @@ export const HorizontalLayout = (props) => {
       <Swiper spaceBetween={16} slidesPerView="auto">
         {events.map((event) => (
           <SwiperSlide key={event.id}>
-            <MiniEventCard {...event} />
+            <MiniEventCard {...rest} {...event} />
           </SwiperSlide>
         ))}
       </Swiper>
@@ -57,10 +58,12 @@ export const HorizontalLayout = (props) => {
 };
 
 const VerticalLayout = (props) => {
-  const { events } = props;
+  const { events, ...rest } = props;
 
   return events.length > 0
-    ? events.map((event) => <MiniEventCard key={event.id} {...event} />)
+    ? events.map((event) => (
+        <MiniEventCard key={event.id} {...rest} {...event} />
+      ))
     : null;
 };
 
@@ -69,18 +72,18 @@ HorizontalLayout.propTypes = VerticalLayout.propTypes = {
 };
 
 const UpcomingEvents = (props) => {
-  const { orientation = "horizontal", events } = props;
+  const { orientation = "horizontal", ...rest } = props;
 
-  if (events.length === 0) {
+  if (props.events.length === 0) {
     return null;
   }
 
   if (orientation === "horizontal") {
-    return <HorizontalLayout events={events} />;
+    return <HorizontalLayout {...rest} />;
   }
 
   if (orientation === "vertical") {
-    return <VerticalLayout events={events} />;
+    return <VerticalLayout {...rest} />;
   }
 
   return null;

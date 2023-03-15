@@ -22,12 +22,20 @@ const GenericCard = (props) => {
   const { Event, SupportGroup, Individual } = useMemo(
     () => ({
       Event: event && (
-        <Link route="eventDetails" routeParams={{ eventPk: event.id }}>
+        <Link
+          route="eventDetails"
+          routeParams={{ eventPk: event.id }}
+          backLink="activities"
+        >
           {event.name}
         </Link>
       ),
       SupportGroup: group && (
-        <Link route="groupDetails" routeParams={{ groupPk: group.id }}>
+        <Link
+          route="groupDetails"
+          routeParams={{ groupPk: group.id }}
+          backLink="activities"
+        >
           {group.name}
         </Link>
       ),
@@ -261,7 +269,10 @@ const GenericCard = (props) => {
         <GenericCardContainer {...props}>
           {meta && meta.transferredMemberships} membre
           {meta && meta.transferredMemberships > 0 ? "s" : ""} ont rejoint{" "}
-          <Link to={routeConfig.groupSettings.getLink({ groupPk: group.id })}>
+          <Link
+            to={routeConfig.groupSettings.getLink({ groupPk: group.id })}
+            backLink="activities"
+          >
             {group.name}
           </Link>{" "}
           suite à un transfert depuis &laquo;&nbsp;
@@ -275,7 +286,10 @@ const GenericCard = (props) => {
           En tant qu'animateur·ice, vous pouvez gérer {SupportGroup} à tout
           moment depuis le bouton &laquo;&nbsp;Gestion&nbsp;&raquo; ou bien en
           cliquant sur{" "}
-          <Link to={routeConfig.groupSettings.getLink({ groupPk: group.id })}>
+          <Link
+            to={routeConfig.groupSettings.getLink({ groupPk: group.id })}
+            backLink="activities"
+          >
             ce lien
           </Link>
           .<br />

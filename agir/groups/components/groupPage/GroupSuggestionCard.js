@@ -82,14 +82,17 @@ const GroupSuggestionCard = (props) => {
     name,
     location: { city, zip, coordinates, staticMapUrl },
     iconConfiguration,
+    backLink,
   } = props;
 
   const history = useHistory();
   const handleClick = React.useCallback(() => {
     id &&
       routeConfig.groupDetails &&
-      history.push(routeConfig.groupDetails.getLink({ groupPk: id }));
-  }, [history, id]);
+      history.push(routeConfig.groupDetails.getLink({ groupPk: id }), {
+        backLink,
+      });
+  }, [history, id, backLink]);
 
   return (
     <StyledCard onClick={handleClick}>
@@ -112,7 +115,9 @@ const GroupSuggestionCard = (props) => {
         </p>
         <Button
           link
-          to={routeConfig.groupDetails.getLink({ groupPk: id })}
+          route="groupDetails"
+          routeParams={{ groupPk: id }}
+          backLink={backLink}
           small
           color="secondary"
         >
@@ -135,5 +140,6 @@ GroupSuggestionCard.propTypes = {
     }).isRequired,
     staticMapUrl: PropTypes.string,
   }).isRequired,
+  backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
 };
 export default GroupSuggestionCard;

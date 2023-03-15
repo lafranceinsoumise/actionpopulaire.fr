@@ -7,7 +7,6 @@ import {
   getIsSessionLoaded,
   getUser,
   getPageTitle,
-  getBackLink,
   getTopBarRightLink,
 } from "@agir/front/globalContext/reducers";
 
@@ -20,7 +19,6 @@ const MobileNavBar = (props) => {
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const user = useSelector(getUser);
   const pageTitle = useSelector(getPageTitle);
-  const backLink = useSelector(getBackLink);
   const settingsLink = useSelector(getTopBarRightLink);
 
   const currentRoute = useMemo(() => {
@@ -32,7 +30,6 @@ const MobileNavBar = (props) => {
   return isSecondary ? (
     <SecondaryPageBar
       isLoading={!isSessionLoaded}
-      backLink={backLink}
       settingsLink={user ? settingsLink : null}
       title={pageTitle || currentRoute.label}
       user={user}

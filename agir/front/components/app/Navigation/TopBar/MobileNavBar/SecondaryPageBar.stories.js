@@ -36,19 +36,11 @@ export const Default = Template.bind({});
 Default.args = {
   isLoading: false,
   title: "Page title !",
-  backLink: {
-    to: "/",
-    label: "Home",
-  },
 };
 
 export const WithSettingsLink = Template.bind({});
 WithSettingsLink.args = {
   title: "Page title !",
-  backLink: {
-    to: "/",
-    label: "Home",
-  },
   settingsLink: {
     to: "/",
     label: "Settings",
