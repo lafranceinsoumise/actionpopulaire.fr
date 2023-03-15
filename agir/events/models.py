@@ -104,7 +104,7 @@ class EventQuerySet(models.QuerySet):
             .filter(
                 start_time__range=(
                     time_ref - timedelta(days=62),
-                    time_ref + timedelta(days=31),
+                    time_ref,
                 )
             )
         )
