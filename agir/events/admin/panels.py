@@ -21,6 +21,7 @@ from agir.lib.admin.filters import (
     DepartementListFilter,
     RegionListFilter,
     CirconscriptionLegislativeFilter,
+    ParticipantFilter,
 )
 from agir.lib.admin.panels import CenterOnFranceMixin
 from agir.lib.utils import front_url, replace_datetime_timezone
@@ -349,6 +350,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         EventStatusFilter,
         "visibility",
         EventHasReportFilter,
+        ParticipantFilter,
         CountryListFilter,
         CirconscriptionLegislativeFilter,
         DepartementListFilter,

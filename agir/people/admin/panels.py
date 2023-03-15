@@ -227,6 +227,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
             _("Comité de Respect des Principes"),
             {"permission": "people.crp", "fields": ("crp",)},
         ),
+        (_("ÉVÉNEMENTS"), {"fields": ("rsvp_link", "rsvp_event_link")}),
     )
 
     readonly_fields = (
@@ -247,6 +248,8 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "mandats",
         "location_citycode",
         "form_submissions_link",
+        "rsvp_link",
+        "rsvp_event_link",
     )
 
     list_filter = (
@@ -264,7 +267,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         ("created", DateRangeFilter),
     )
 
-    inlines = (PersonQualificationInline, RSVPInline, MembershipInline, EmailInline)
+    inlines = (PersonQualificationInline, MembershipInline, EmailInline)
 
     autocomplete_fields = ("tags",)
 
@@ -367,6 +370,28 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         )
 
     campaigns_link.short_description = "Campagnes envoyées"
+
+    def rsvp_link(self, obj):
+        if not obj or not obj.pk:
+            return "-"
+
+        return format_html(
+            '<a href="{}" class="button">Voir les participations aux événements</a>',
+            reverse("admin:events_rsvp_changelist") + f"?person_id={str(obj.pk)}",
+        )
+
+    rsvp_link.short_description = "RSVP"
+
+    def rsvp_event_link(self, obj):
+        if not obj or not obj.pk:
+            return "-"
+
+        return format_html(
+            '<a href="{}" class="button">Voir les événements</a>',
+            reverse("admin:events_event_changelist") + f"?participant_id={str(obj.pk)}",
+        )
+
+    rsvp_event_link.short_description = "Événements"
 
     def connection_params(self, obj):
         if not obj or not obj.pk:
