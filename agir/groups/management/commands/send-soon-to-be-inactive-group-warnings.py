@@ -1,7 +1,7 @@
 from django.core.management import BaseCommand
 
 from agir.groups.tasks import send_soon_to_be_inactive_group_warning
-from agir.groups.utils import (
+from agir.groups.utils.supportgroup import (
     DAYS_SINCE_LAST_EVENT_WARNING,
     get_soon_to_be_inactive_groups,
 )

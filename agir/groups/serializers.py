@@ -23,7 +23,11 @@ from . import models
 from .actions import get_promo_codes
 from .actions.notifications import member_to_follower_notification
 from .models import Membership, SupportGroup, SupportGroupExternalLink
-from .utils import get_supportgroup_routes
+from .utils.supportgroup import get_supportgroup_routes
+from .utils.certification import (
+    check_certification_criteria,
+    CERTIFICATION_CRITERIA_LABELS,
+)
 from ..front.serializer_utils import RoutesField
 from ..people.models import Person
 
@@ -160,6 +164,36 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
 
 class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
+    NON_MANAGER_FIELDS = (
+        "id",
+        "isMember",
+        "isActiveMember",
+        "isManager",
+        "isReferent",
+        "personalInfoConsent",
+        "name",
+        "type",
+        "subtypes",
+        "description",
+        "textDescription",
+        "isFull",
+        "isOpen",
+        "isCertified",
+        "contact",
+        "image",
+        "referents",
+        "links",
+        "facts",
+        "iconConfiguration",
+        "routes",
+        "commune",
+        "hasUpcomingEvents",
+        "hasPastEvents",
+        "hasPastEventReports",
+        "hasMessages",
+        "isMessagingEnabled",
+        "isBoucleDepartementale",
+    )
     id = serializers.UUIDField(
         read_only=True,
     )
@@ -194,9 +228,6 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
     certificationCriteria = serializers.SerializerMethodField(read_only=True)
     isCertified = serializers.SerializerMethodField(
         read_only=True, method_name="get_is_certified"
-    )
-    is2022Certified = serializers.BooleanField(
-        read_only=True, source="is_2022_certified"
     )
     location = LocationSerializer(read_only=True, source="*")
     contact = serializers.SerializerMethodField(
@@ -388,7 +419,7 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
         return ""
 
     def get_certificationCriteria(self, obj):
-        return obj.check_certification_criteria()
+        return check_certification_criteria(obj, with_labels=True)
 
     def get_is_certified(self, obj):
         if obj.type != SupportGroup.TYPE_LOCAL_GROUP:

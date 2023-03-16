@@ -1,18 +1,20 @@
 from datetime import timedelta
 
+from django.conf import settings
 from django.test import TestCase
 from django.utils import timezone
 
-from agir.events.models import Event, OrganizerConfig
 from agir.people.models import Person
-from ..models import SupportGroup, Membership
-from ..utils import (
+from ..models import SupportGroup, Membership, SupportGroupSubtype
+from ..utils.supportgroup import (
     DAYS_SINCE_LAST_EVENT_WARNING,
     get_soon_to_be_inactive_groups,
     DAYS_SINCE_GROUP_CREATION_LIMIT,
     DAYS_SINCE_LAST_EVENT_LIMIT,
     is_active_group_filter,
 )
+from ..utils.certification import check_certification_criteria
+from ...events.models import Event, OrganizerConfig
 
 
 class IsActiveGroupFilterTestCase(TestCase):
@@ -151,3 +153,157 @@ class SoonToBeInactiveSupportGroupQuerysetTestCase(TestCase):
         inactive_group = self.create_group(name="Inactive group", is_new=False)
         self.create_group_event(group=inactive_group, start_time=self.exact_limit_date)
         self.assert_group_in_queryset(inactive_group, exact=True)
+
+
+class SupportGroupCertificationCriteriaTestCase(TestCase):
+    def setUp(self):
+        self.person = Person.objects.create("person@agir.test", create_role=True)
+
+    def test_supportgroup_creation(self):
+        group = SupportGroup.objects.create(name="G")
+        criteria = check_certification_criteria(group)
+        self.assertFalse(criteria["creation"])
+        group.created = timezone.now() - timedelta(days=32)
+        group.save()
+        group.refresh_from_db()
+        criteria = check_certification_criteria(group)
+        self.assertTrue(criteria["creation"])
+
+    def test_supportgroup_members(self):
+        group = SupportGroup.objects.create(name="G")
+        criteria = check_certification_criteria(group)
+        self.assertFalse(criteria["members"])
+
+        for i in (1, 2, 3):
+            person = Person.objects.create_person(f"m{i}@agir.local", create_role=True)
+            Membership.objects.create(
+                supportgroup=group,
+                person=person,
+                membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+            )
+            criteria = check_certification_criteria(group)
+            self.assertEqual(criteria["members"], i == 3)
+
+    def test_supportgroup_activity(self):
+        group = SupportGroup.objects.create(name="G", location_country="UK")
+        criteria = check_certification_criteria(group)
+        self.assertNotIn("activity", criteria)
+        group.location_country = "FR"
+        group.save()
+        group.refresh_from_db()
+        criteria = check_certification_criteria(group)
+        self.assertFalse(criteria["activity"])
+
+        too_old_event = Event.objects.create(
+            name="Evenement test",
+            visibility=Event.VISIBILITY_PUBLIC,
+            start_time=timezone.now() - timedelta(days=93),
+            end_time=timezone.now() - timedelta(days=93) + timedelta(minutes=30),
+        )
+        OrganizerConfig.objects.create(
+            event=too_old_event, person=self.person, as_group=group, is_creator=True
+        )
+        criteria = check_certification_criteria(group)
+        self.assertFalse(criteria["activity"])
+
+        for i in (1, 2, 3):
+            start = timezone.now() - timedelta(days=62) + timedelta(days=i)
+            event = Event.objects.create(
+                name="Evenement test",
+                visibility=Event.VISIBILITY_PUBLIC,
+                start_time=start,
+                end_time=start + timedelta(minutes=30),
+            )
+            OrganizerConfig.objects.create(
+                event=event, person=self.person, as_group=group, is_creator=True
+            )
+            criteria = check_certification_criteria(group)
+            self.assertEqual(criteria["activity"], i == 3)
+
+    def test_supportgroup_gender(self):
+        group = SupportGroup.objects.create(name="G")
+        criteria = check_certification_criteria(group)
+        self.assertFalse(criteria["gender"])
+
+        person = Person.objects.create_person(
+            f"f@agir.local", gender=Person.GENDER_FEMALE, create_role=True
+        )
+        Membership.objects.create(
+            supportgroup=group,
+            person=person,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
+        criteria = check_certification_criteria(group)
+        self.assertFalse(criteria["gender"])
+
+        person = Person.objects.create_person(
+            f"ff@agir.local", gender=Person.GENDER_FEMALE, create_role=True
+        )
+        Membership.objects.create(
+            supportgroup=group,
+            person=person,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
+        criteria = check_certification_criteria(group)
+        self.assertFalse(criteria["gender"])
+
+        person = Person.objects.create_person(
+            f"m@agir.local", gender=Person.GENDER_MALE, create_role=True
+        )
+        Membership.objects.create(
+            supportgroup=group,
+            person=person,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+        )
+        criteria = check_certification_criteria(group)
+        self.assertFalse(criteria["gender"])
+
+        person = Person.objects.create_person(
+            f"mm@agir.local", gender=Person.GENDER_MALE, create_role=True
+        )
+        Membership.objects.create(
+            supportgroup=group,
+            person=person,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
+        criteria = check_certification_criteria(group)
+        self.assertTrue(criteria["gender"])
+
+    def test_supportgroup_exclusivity(self):
+        group = SupportGroup.objects.create(name="G")
+        criteria = check_certification_criteria(group)
+        self.assertTrue(criteria["exclusivity"])
+
+        person = Person.objects.create_person(f"f@agir.local", create_role=True)
+        Membership.objects.create(
+            supportgroup=group,
+            person=person,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
+        criteria = check_certification_criteria(group)
+        self.assertTrue(criteria["exclusivity"])
+
+        second_group = SupportGroup.objects.create(name="GG")
+        Membership.objects.create(
+            supportgroup=second_group,
+            person=person,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
+        criteria = check_certification_criteria(group)
+        self.assertTrue(criteria["exclusivity"])
+
+        subtype = SupportGroupSubtype.objects.create(
+            label=settings.CERTIFIED_GROUP_SUBTYPES[0]
+        )
+
+        second_group.type = SupportGroup.TYPE_LOCAL_GROUP
+        second_group.save()
+        criteria = check_certification_criteria(group)
+        self.assertTrue(criteria["exclusivity"])
+
+        second_group.subtypes.add(subtype)
+        second_group.save()
+        second_group.refresh_from_db()
+        self.assertTrue(second_group.is_certified)
+        criteria = check_certification_criteria(group)
+        self.assertFalse(criteria["exclusivity"])

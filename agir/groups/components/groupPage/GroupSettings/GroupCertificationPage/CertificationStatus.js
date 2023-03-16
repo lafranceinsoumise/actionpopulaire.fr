@@ -117,16 +117,20 @@ Progress.propTypes = {
 const CertificationStatus = (props) => {
   const { isCertifiable, isCertified, certificationCriteria, routes } = props;
 
-  if (!isCertifiable) {
-    return null;
-  }
-
   const certificationPanelRoute = routes
     .find((route) => route.id === "certification")
     .getLink();
-  const criteria = Object.keys(certificationCriteria);
-  const checkedCriteria = criteria.filter((key) => certificationCriteria[key]);
-  const hasUncheckedCriteria = checkedCriteria.length !== criteria.length;
+
+  const [checkedCriteria, hasUncheckedCriteria] = useMemo(() => {
+    const checked = Object.values(certificationCriteria).filter(
+      (criterion) => !!criterion.value
+    );
+    return [checked, checked.length !== criteria.length];
+  }, [certificationCriteria]);
+
+  if (!isCertifiable) {
+    return null;
+  }
 
   return (
     <StyledCard>
