@@ -468,7 +468,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                 "label": "Trois actions de terrain",
                 "help": mark_safe(
                     "Le groupe a organisé trois actions de terrain "
-                    "dans les deux derniers mois ou dans le mois à venir "
+                    "dans les deux derniers mois "
                     f'(<a href="{acceptable_event_subtype_link}">'
                     "voir la liste des types d'événement acceptés"
                     "</a>)"

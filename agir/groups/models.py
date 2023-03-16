@@ -321,10 +321,12 @@ class SupportGroup(
             not self.location_country
             or self.location_country.code in FRENCH_COUNTRY_CODES
         ):
-            recent_events = self.organized_events.acceptable_for_group_certification(
-                time_ref=now
-            ).count()
-            criteria["activity"] = 2 <= recent_events
+            recent_event_count = (
+                self.organized_events.acceptable_for_group_certification(
+                    time_ref=now
+                ).count()
+            )
+            criteria["activity"] = 3 <= recent_event_count
 
         referents = self.memberships.filter(
             membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT

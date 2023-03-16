@@ -69,8 +69,8 @@ class SupportGroupCertificationCriteriaTestCase(TestCase):
         criteria = group.check_certification_criteria()
         self.assertFalse(criteria["activity"])
 
-        for i in (1, 2):
-            start = timezone.now() - timedelta(days=62) + timedelta(days=(i * 31))
+        for i in (1, 2, 3):
+            start = timezone.now() - timedelta(days=62) + timedelta(days=i)
             event = Event.objects.create(
                 name="Evenement test",
                 visibility=Event.VISIBILITY_PUBLIC,
@@ -81,7 +81,7 @@ class SupportGroupCertificationCriteriaTestCase(TestCase):
                 event=event, person=self.person, as_group=group, is_creator=True
             )
             criteria = group.check_certification_criteria()
-            self.assertEqual(criteria["activity"], i == 2)
+            self.assertEqual(criteria["activity"], i == 3)
 
     def test_supportgroup_gender(self):
         group = SupportGroup.objects.create(name="G")

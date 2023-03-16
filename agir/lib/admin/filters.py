@@ -6,6 +6,7 @@ from django.db.models import Subquery
 from agir.lib import data
 from agir.lib.admin.autocomplete_filter import AutocompleteSelectModelBaseFilter
 from agir.lib.data import FRANCE_COUNTRY_CODES
+from agir.people.models import Person
 
 
 class CountryListFilter(admin.SimpleListFilter):
@@ -75,5 +76,20 @@ class CirconscriptionLegislativeFilter(AutocompleteSelectModelBaseFilter):
                     )[:1]
                 )
             )
+        else:
+            return queryset
+
+
+class ParticipantFilter(AutocompleteSelectModelBaseFilter):
+    title = "participant·e"
+    filter_model = Person
+    parameter_name = "participant_id"
+
+    def get_queryset_for_field(self):
+        return Person.objects.all()
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(rsvps__person_id=self.value())
         else:
             return queryset
