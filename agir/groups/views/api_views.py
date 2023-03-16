@@ -159,7 +159,7 @@ class UserGroupsView(ListAPIView):
     def get_queryset(self):
         return (
             self.request.user.person.supportgroups.active()
-            .with_serializer_prefetch()
+            .with_serializer_prefetch(person=self.request.user.person)
             .annotate(membership_type=F("memberships__membership_type"))
             .order_by("-membership_type", "name")
         )

@@ -190,12 +190,13 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         read_only=True, method_name="get_is_past"
     )
 
-    hasProject = serializers.SerializerMethodField(
-        read_only=True, method_name="get_has_project"
-    )
+    # hasProject = serializers.SerializerMethodField(
+    #     read_only=True, method_name="get_has_project"
+    # )
 
     def __init__(self, instance=None, data=empty, fields=None, **kwargs):
         self.is_event_card = fields == self.EVENT_CARD_FIELDS
+        self.person = None
         super().__init__(instance=instance, data=data, fields=fields, **kwargs)
 
     def to_representation(self, instance):
@@ -203,12 +204,18 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
             return super().to_representation(instance)
 
         user = self.context["request"].user
+        if (
+            not user.is_anonymous
+            and hasattr(user, "person")
+            and user.person is not None
+        ):
+            self.person = user.person
 
-        if not self.is_event_card and user.is_authenticated and user.person:
+        if not self.is_event_card and self.person:
             # this allow prefetching by queryset annotation for performances
             if not hasattr(instance, "_pf_person_organizer_configs"):
                 self.organizer_config = OrganizerConfig.objects.filter(
-                    event=instance, person=user.person
+                    event=instance, person=self.person
                 ).first()
             else:
                 self.organizer_config = (
@@ -218,7 +225,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
                 )
             if not hasattr(instance, "_pf_person_rsvps"):
                 self.rsvp = RSVP.objects.filter(
-                    event=instance, person=user.person
+                    event=instance, person=self.person
                 ).first()
             else:
                 self.rsvp = (
@@ -241,16 +248,14 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         return bool(obj.subscription_form_id)
 
     def get_isOrganizer(self, obj):
-        user = self.context["request"].user
-
-        if not user.is_authenticated or not user.person:
+        if not self.person:
             return False
 
         if bool(self.organizer_config):
             return True
 
         if obj.organizers_groups.filter(
-            memberships__person=user.person,
+            memberships__person=self.person,
             memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
         ).exists():
             return True
@@ -258,16 +263,14 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         return False
 
     def get_isManager(self, obj):
-        user = self.context["request"].user
-
-        if not user.is_authenticated or not user.person:
+        if not self.person:
             return False
 
         if bool(self.organizer_config):
             return True
 
         if obj.organizers_groups.filter(
-            memberships__person=user.person,
+            memberships__person=self.person,
             memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
         ).exists():
             return True
@@ -322,7 +325,9 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def get_groups(self, obj):
         return SupportGroupSerializer(
-            obj.organizers_groups.distinct().with_serializer_prefetch(),
+            obj.organizers_groups.distinct().with_serializer_prefetch(
+                person=self.person
+            ),
             context=self.context,
             many=True,
             fields=[
@@ -341,19 +346,13 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         ).data
 
     def get_groupsAttendees(self, obj):
-        if not self.context.get("request", None):
-            return None
-
-        user = self.context["request"].user
-        if user.is_anonymous or not hasattr(user, "person") or user.person is None:
-            self.person = None
+        if not self.person:
             return (
                 obj.groups_attendees.all()
                 .annotate(isManager=Value(False))
                 .values("id", "name", "isManager")
             )
 
-        self.person = user.person
         return (
             obj.groups_attendees.all()
             .annotate(
