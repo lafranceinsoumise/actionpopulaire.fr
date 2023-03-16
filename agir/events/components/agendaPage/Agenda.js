@@ -143,8 +143,8 @@ const Agenda = () => {
         <TopBar>
           <LayoutTitle>
             Bonjour{" "}
-            {user?.displayName.length > 2
-              ? user?.displayName
+            {user?.displayName && user?.displayName.length > 2
+              ? user.displayName
               : user?.firstName || user?.displayName}{" "}
             👋
           </LayoutTitle>
