@@ -134,6 +134,14 @@ class EventQuerySet(models.QuerySet):
             )
         )
 
+    def with_group_attendees(self):
+        return self.prefetch_related(
+            Prefetch(
+                "organizers_groups",
+                to_attr="_pf_group_attendees",
+            )
+        )
+
     def with_person_rsvps(self, person):
         return self.prefetch_related(
             Prefetch(
@@ -155,11 +163,21 @@ class EventQuerySet(models.QuerySet):
             )
         )
 
+    def with_event_card_serializer_prefetch(self):
+        return (
+            self.select_related("subtype")
+            .prefetch_related("organizer_configs")
+            .with_organizer_groups()
+            .with_group_attendees()
+            .with_static_map_image()
+        )
+
     def with_serializer_prefetch(self, person):
         qs = (
             self.select_related("subtype")
             .prefetch_related("organizer_configs")
             .with_organizer_groups()
+            .with_group_attendees()
             .with_static_map_image()
         )
         if person:
