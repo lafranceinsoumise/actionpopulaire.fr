@@ -117,6 +117,13 @@ class Segment(BaseSegment, models.Model):
         verbose_name="Limiter aux participant⋅e⋅s à un des événements",
         blank=True,
     )
+    excluded_events = models.ManyToManyField(
+        "events.Event",
+        verbose_name="Exclure les participant⋅e⋅s à un des événements",
+        related_name="+",
+        related_query_name="+",
+        blank=True,
+    )
     events_subtypes = models.ManyToManyField(
         "events.EventSubtype",
         verbose_name="Limiter aux participant⋅e⋅s à un événements de ce type",
@@ -316,6 +323,56 @@ class Segment(BaseSegment, models.Model):
         blank=True,
     )
 
+    def apply_event_filters(self, query):
+        filters = {}
+        excludes = {}
+
+        excluded_event_ids = list(self.excluded_events.values_list("id", flat=True))
+        event_ids = list(self.events.values_list("id", flat=True))
+        subtype_ids = list(self.events_subtypes.values_list("id", flat=True))
+
+        if self.events_organizer:
+            prefix = "organizer_configs__event"
+        else:
+            prefix = "rsvps__event"
+
+        if len(excluded_event_ids) > 0:
+            excludes[f"{prefix}_id__in"] = excluded_event_ids
+
+        if len(event_ids) > 0:
+            filters[f"{prefix}_id__in"] = event_ids
+
+        if len(subtype_ids) > 0:
+            filters[f"{prefix}__subtype_id__in"] = subtype_ids
+
+        if self.events_start_date is not None:
+            filters[f"{prefix}__start_time__gt"] = self.events_start_date
+
+        if self.events_end_date is not None:
+            filters[f"{prefix}__end_time__lt"] = self.events_end_date
+
+        if not filters and not excludes:
+            return query
+
+        if not self.events_organizer:
+            attendee_statuses = (
+                RSVP.STATUS_CONFIRMED,
+                RSVP.STATUS_AWAITING_PAYMENT,
+            )
+            if filters:
+                filters["rsvps__status__in"] = attendee_statuses
+
+            if excludes:
+                excludes["rsvps__status__in"] = attendee_statuses
+
+        if filters:
+            query = query & Q(**filters)
+
+        if excludes:
+            query = query & ~Q(**excludes)
+
+        return query
+
     def apply_supportgroup_filters(self, query):
         supportgroup_ids = self.supportgroups.values_list("id", flat=True)
         subtype_ids = self.supportgroup_subtypes.values_list("id", flat=True)
@@ -422,31 +479,7 @@ class Segment(BaseSegment, models.Model):
 
         q = self.apply_supportgroup_filters(q)
 
-        events_filter = {}
-
-        if self.events.all().count() > 0:
-            events_filter["in"] = self.events.all()
-
-        if self.events_subtypes.all().count() > 0:
-            events_filter["subtype__in"] = self.events_subtypes.all()
-
-        if self.events_start_date is not None:
-            events_filter["start_time__gt"] = self.events_start_date
-
-        if self.events_end_date is not None:
-            events_filter["end_time__lt"] = self.events_end_date
-
-        if events_filter:
-            prefix = "organized_events" if self.events_organizer else "rsvps__event"
-            q = q & Q(**{f"{prefix}__{k}": v for k, v in events_filter.items()})
-
-            if not self.events_organizer:
-                q = q & Q(
-                    rsvps__status__in=[
-                        RSVP.STATUS_CONFIRMED,
-                        RSVP.STATUS_AWAITING_PAYMENT,
-                    ]
-                )
+        q = self.apply_event_filters(q)
 
         if self.draw_status is not None:
             q = q & Q(draw_participation=self.draw_status)
