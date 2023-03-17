@@ -324,47 +324,56 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
             }
 
     def get_groups(self, obj):
+        if self.is_event_card:
+            if hasattr(obj, "_pf_organizer_groups"):
+                return [
+                    {"id": group.id, "name": group.name}
+                    for group in obj._pf_organizer_groups
+                ]
+            return list(obj.organizers_groups.distinct().values("id", "name"))
+
         return SupportGroupSerializer(
-            obj.organizers_groups.distinct().with_serializer_prefetch(
-                person=self.person
+            (
+                obj.organizers_groups.distinct()
+                .with_organized_event_count()
+                .with_membership_count()
+                .with_person_membership_type(person=self.person)
             ),
             context=self.context,
             many=True,
             fields=[
                 "id",
                 "name",
-                "description",
                 "eventCount",
                 "membersCount",
                 "isMember",
                 "isManager",
-                "typeLabel",
-                "labels",
-                "routes",
-                "is2022",
             ],
         ).data
 
     def get_groupsAttendees(self, obj):
-        if not self.person:
-            return (
-                obj.groups_attendees.all()
-                .annotate(isManager=Value(False))
-                .values("id", "name", "isManager")
-            )
+        if hasattr(obj, "_pf_group_attendees"):
+            groups = [
+                {"id": group.id, "name": group.name}
+                for group in obj._pf_group_attendees
+            ]
+        else:
+            groups = list(obj.groups_attendees.distinct().values("id", "name"))
 
-        return (
-            obj.groups_attendees.all()
-            .annotate(
-                isManager=Exists(
-                    self.person.memberships.filter(
-                        supportgroup_id=OuterRef("id"),
-                        membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
-                    )
-                )
-            )
-            .values("id", "name", "isManager")
-        )
+        if self.is_event_card:
+            return groups
+
+        if not self.person:
+            return [{**group, "isManager": False} for group in groups]
+
+        managed_group_ids = self.person.memberships.filter(
+            supportgroup_id__in=[group["id"] for group in groups],
+            membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+        ).values_list("supportgroup_id", flat=True)
+
+        return [
+            {**group, "isManager": group["id"] in managed_group_ids} for group in groups
+        ]
 
     def get_is_past(self, obj):
         return obj.is_past()
