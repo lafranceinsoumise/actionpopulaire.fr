@@ -11,7 +11,6 @@ from django.utils.html import format_html, escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
-from agir.event_requests.models import EventAsset, EventSpeaker
 from agir.events import models
 from agir.events.models import Calendar, RSVP
 from agir.events.models import GroupAttendee
@@ -30,7 +29,12 @@ from agir.people.models import PersonFormSubmission
 from agir.people.person_forms.display import PersonFormDisplay
 from . import actions
 from . import views
-from .filters import RelatedEventFilter
+from .filters import (
+    OrganizerGroupFilter,
+    GroupAttendeeFilter,
+    EventSubtypeFilter,
+    RelatedEventFilter,
+)
 from .forms import EventAdminForm, EventSubtypeAdminForm
 from ...event_requests.admin.inlines import EventAssetInline
 
@@ -350,14 +354,16 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         EventStatusFilter,
         "visibility",
         EventHasReportFilter,
+        OrganizerGroupFilter,
         ParticipantFilter,
+        GroupAttendeeFilter,
         CountryListFilter,
         CirconscriptionLegislativeFilter,
         DepartementListFilter,
         RegionListFilter,
         "coordinates_type",
         "subtype__type",
-        "subtype",
+        EventSubtypeFilter,
         EventCalendarFilter,
         "tags",
     )

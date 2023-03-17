@@ -4,7 +4,11 @@ from django.utils.html import format_html
 from django_filters import filters
 
 from agir.events.models import Calendar, EventSubtype, Event
-from agir.lib.admin.autocomplete_filter import AutocompleteRelatedModelFilter
+from agir.groups.models import SupportGroup
+from agir.lib.admin.autocomplete_filter import (
+    AutocompleteRelatedModelFilter,
+    AutocompleteSelectModelBaseFilter,
+)
 from agir.lib.admin.form_fields import AutocompleteSelectModel
 
 
@@ -66,3 +70,48 @@ class RelatedEventFilter(AutocompleteRelatedModelFilter):
                 pass
 
         return queryset
+
+
+class EventSubtypeFilter(AutocompleteSelectModelBaseFilter):
+    title = "sous-type"
+    filter_model = EventSubtype
+    parameter_name = "subtype_id"
+
+    def get_queryset_for_field(self):
+        return EventSubtype.objects.all()
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(subtype_id=self.value())
+        else:
+            return queryset
+
+
+class OrganizerGroupFilter(AutocompleteSelectModelBaseFilter):
+    title = "groupe organisateur"
+    filter_model = SupportGroup
+    parameter_name = "organizer_group"
+
+    def get_queryset_for_field(self):
+        return SupportGroup.objects.all()
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(organizers_groups__id=self.value())
+        else:
+            return queryset
+
+
+class GroupAttendeeFilter(AutocompleteSelectModelBaseFilter):
+    title = "groupe participant"
+    filter_model = SupportGroup
+    parameter_name = "group_attendee"
+
+    def get_queryset_for_field(self):
+        return SupportGroup.objects.all()
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(groups_attendees__id=self.value())
+        else:
+            return queryset
