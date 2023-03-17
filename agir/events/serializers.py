@@ -173,7 +173,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     groupsAttendees = serializers.SerializerMethodField()
 
-    contact = ContactMixinSerializer(source="*")
+    contact = serializers.SerializerMethodField()
 
     distance = serializers.SerializerMethodField()
 
@@ -311,6 +311,14 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         routes["googleExport"] = obj.get_google_calendar_url()
 
         return routes
+
+    def get_contact(self, obj):
+        # Hide contact information one week after the event end
+        if timezone.now() > obj.end_time + timedelta(days=7):
+            return None
+        return ContactMixinSerializer(
+            source="*", context=self.context
+        ).to_representation(obj)
 
     def get_distance(self, obj):
         if hasattr(obj, "distance") and obj.distance is not None:
