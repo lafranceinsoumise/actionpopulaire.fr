@@ -125,7 +125,7 @@ const Icon = ({ icon }) => {
         </text>
       </svg>
       <figcaption>
-        <span className={`fa fa-${icon}`} />
+        <span className={iconConfig.className} />
         &ensp;
         <a
           href={`https://fontawesome.com/icons/${icon}`}

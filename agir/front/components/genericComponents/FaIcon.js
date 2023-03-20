@@ -1,5 +1,9 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable react/display-name */
 import React from "react";
 import styled from "styled-components";
+
+import fontawesome from "@agir/lib/utils/fontawesome";
 
 const iconProps = ["icon", "color", "size"];
 
@@ -25,15 +29,17 @@ const StyledIcon = styled.i.withConfig({
   }};
 `;
 
-// eslint-disable-next-line react/display-name
-const FaIcon = (icon) => (props) => {
-  return (
-    <StyledIcon
-      {...props}
-      className={`fa fa-${icon || props.icon}`.toLowerCase()}
-    />
-  );
-};
+const FaIcon =
+  (defaultIcon) =>
+  ({ icon, className, ...props }) => {
+    const iconConfig = fontawesome(icon || defaultIcon, true);
+    return (
+      <StyledIcon
+        {...props}
+        className={`${className} ${iconConfig?.className}`.trim()}
+      />
+    );
+  };
 
 export const FaBullhorn = FaIcon("bullhorn");
 export const FaCalendar = FaIcon("calendar");
