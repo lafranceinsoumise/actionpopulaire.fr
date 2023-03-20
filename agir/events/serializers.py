@@ -2,12 +2,13 @@ from datetime import timedelta
 from functools import partial
 from pathlib import PurePath
 
+from dateutil.relativedelta import relativedelta
 from django.db import transaction
 from django.db.models import (
-    OuterRef,
-    Exists,
     Value,
+    Func,
 )
+from django.db.models.functions import Concat, Replace, Lower, MD5
 from django.utils import timezone
 from pytz import utc, InvalidTimeError
 from rest_framework import serializers
@@ -476,6 +477,9 @@ class EventPropertyOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer
         method_name="get_last_used_subtype_ids"
     )
     defaultContact = serializers.SerializerMethodField()
+    recentLocations = serializers.SerializerMethodField(
+        method_name="get_recent_locations"
+    )
     # onlineUrl = serializers.SerializerMethodField()
 
     def to_representation(self, instance):
@@ -534,6 +538,66 @@ class EventPropertyOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer
 
     def get_onlineUrl(self, _request):
         return "https://" + jitsi_default_domain() + "/" + jitsi_default_room_name()
+
+    def get_recent_locations(self, _request):
+        if not self.person:
+            return []
+
+        recent_distinct_location_event_ids = [
+            event["pk"]
+            for event in (
+                self.person.organized_events.public()
+                .filter(
+                    coordinates__isnull=False, coordinates_type=Event.COORDINATES_EXACT
+                )
+                .filter(created__gte=timezone.now() - relativedelta(years=+1))
+                .annotate(
+                    location_hash=MD5(
+                        Func(
+                            Replace(
+                                Lower(
+                                    Concat(
+                                        "location_address1",
+                                        "location_zip",
+                                    )
+                                ),
+                                Value(" "),
+                                Value(""),
+                            ),
+                            function="unaccent",
+                        )
+                    )
+                )
+                .distinct("location_hash")
+                .order_by("location_hash")
+                .values("pk", "location_hash")
+            )
+        ]
+
+        if not recent_distinct_location_event_ids:
+            return []
+
+        recent_locations = (
+            Event.objects.filter(pk__in=recent_distinct_location_event_ids)
+            .values(
+                "subtype_id",
+                "location_name",
+                "location_address1",
+                "location_address2",
+                "location_zip",
+                "location_city",
+                "location_country",
+            )
+            .order_by("-created")[:5]
+        )
+
+        return [
+            {
+                key.replace("location_", ""): value
+                for key, value in recent_location.items()
+            }
+            for recent_location in recent_locations
+        ]
 
 
 class EventOrganizerGroupField(serializers.RelatedField):
