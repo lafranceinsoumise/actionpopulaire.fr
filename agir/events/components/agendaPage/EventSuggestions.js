@@ -235,6 +235,7 @@ const GroupEventTab = (props) => {
             <EventGroupSectionTitle
               route="groupDetails"
               routeParams={{ groupPk, activeTab: "agenda" }}
+              backLink="events"
             >
               {groupNames[groupPk]}
             </EventGroupSectionTitle>

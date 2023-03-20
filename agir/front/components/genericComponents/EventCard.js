@@ -225,6 +225,7 @@ const EventCard = (props) => {
     groups,
     groupsAttendees,
     eventPageLink,
+    backLink,
   } = props;
 
   const now = DateTime.local();
@@ -265,6 +266,7 @@ const EventCard = (props) => {
             href={eventPageLink || undefined}
             route={!eventPageLink ? "eventDetails" : undefined}
             routeParams={!eventPageLink ? { eventPk: id } : undefined}
+            backLink={backLink}
           >
             {name}
           </StyledLink>
@@ -311,6 +313,7 @@ EventCard.propTypes = {
   ),
   subtype: PropTypes.object,
   eventPageLink: PropTypes.string,
+  backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
 };
 
 export default EventCard;

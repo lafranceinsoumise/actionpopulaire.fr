@@ -20,7 +20,7 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
     """Rechercher et lister des groupes et des événéments"""
 
     permission_classes = (IsActionPopulaireClientPermission,)
-    event_queryset = Event.objects.listed().with_serializer_prefetch(None)
+    event_queryset = Event.objects.listed().with_event_card_serializer_prefetch()
     group_queryset = (
         SupportGroup.objects.active()
         .prefetch_related("subtypes")

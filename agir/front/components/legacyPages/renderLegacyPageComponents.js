@@ -8,6 +8,7 @@ import PushModal from "@agir/front/allPages/PushModal";
 import FeedbackButton from "@agir/front/allPages/FeedbackButton";
 import TopBar from "@agir/front/allPages/TopBar";
 import SWRContext from "@agir/front/allPages/SWRContext";
+import { MemoryRouter } from "react-router-dom";
 
 const renderLegacyPageComponents = () => {
   let renderElement = document.getElementById("mainApp");
@@ -23,9 +24,11 @@ const renderLegacyPageComponents = () => {
   renderReactComponent(
     <SWRContext>
       <GlobalContextProvider>
-        <TopBar hideBannerDownload />
-        <PushModal isActive />
-        {hideFeedbackButton ? null : <FeedbackButton />}
+        <MemoryRouter forceRefresh>
+          <TopBar hideBannerDownload />
+          <PushModal isActive />
+          {hideFeedbackButton ? null : <FeedbackButton />}
+        </MemoryRouter>
       </GlobalContextProvider>
     </SWRContext>,
     renderElement

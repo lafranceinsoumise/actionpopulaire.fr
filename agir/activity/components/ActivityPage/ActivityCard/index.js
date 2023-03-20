@@ -60,5 +60,9 @@ const ConnectedActivityCard = (props) => {
     />
   ) : null;
 };
+ConnectedActivityCard.propTypes = {
+  type: PropTypes.oneOf(Object.keys(CONFIG)),
+  event: PropTypes.object,
+};
 
 export default ConnectedActivityCard;

@@ -173,7 +173,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     groupsAttendees = serializers.SerializerMethodField()
 
-    contact = ContactMixinSerializer(source="*")
+    contact = serializers.SerializerMethodField()
 
     distance = serializers.SerializerMethodField()
 
@@ -190,12 +190,13 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         read_only=True, method_name="get_is_past"
     )
 
-    hasProject = serializers.SerializerMethodField(
-        read_only=True, method_name="get_has_project"
-    )
+    # hasProject = serializers.SerializerMethodField(
+    #     read_only=True, method_name="get_has_project"
+    # )
 
     def __init__(self, instance=None, data=empty, fields=None, **kwargs):
         self.is_event_card = fields == self.EVENT_CARD_FIELDS
+        self.person = None
         super().__init__(instance=instance, data=data, fields=fields, **kwargs)
 
     def to_representation(self, instance):
@@ -203,12 +204,18 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
             return super().to_representation(instance)
 
         user = self.context["request"].user
+        if (
+            not user.is_anonymous
+            and hasattr(user, "person")
+            and user.person is not None
+        ):
+            self.person = user.person
 
-        if not self.is_event_card and user.is_authenticated and user.person:
+        if not self.is_event_card and self.person:
             # this allow prefetching by queryset annotation for performances
             if not hasattr(instance, "_pf_person_organizer_configs"):
                 self.organizer_config = OrganizerConfig.objects.filter(
-                    event=instance, person=user.person
+                    event=instance, person=self.person
                 ).first()
             else:
                 self.organizer_config = (
@@ -218,7 +225,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
                 )
             if not hasattr(instance, "_pf_person_rsvps"):
                 self.rsvp = RSVP.objects.filter(
-                    event=instance, person=user.person
+                    event=instance, person=self.person
                 ).first()
             else:
                 self.rsvp = (
@@ -241,16 +248,14 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         return bool(obj.subscription_form_id)
 
     def get_isOrganizer(self, obj):
-        user = self.context["request"].user
-
-        if not user.is_authenticated or not user.person:
+        if not self.person:
             return False
 
         if bool(self.organizer_config):
             return True
 
         if obj.organizers_groups.filter(
-            memberships__person=user.person,
+            memberships__person=self.person,
             memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
         ).exists():
             return True
@@ -258,16 +263,14 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         return False
 
     def get_isManager(self, obj):
-        user = self.context["request"].user
-
-        if not user.is_authenticated or not user.person:
+        if not self.person:
             return False
 
         if bool(self.organizer_config):
             return True
 
         if obj.organizers_groups.filter(
-            memberships__person=user.person,
+            memberships__person=self.person,
             memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
         ).exists():
             return True
@@ -309,6 +312,14 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
         return routes
 
+    def get_contact(self, obj):
+        # Hide contact information one week after the event end
+        if timezone.now() > obj.end_time + timedelta(days=7):
+            return None
+        return ContactMixinSerializer(
+            source="*", context=self.context
+        ).to_representation(obj)
+
     def get_distance(self, obj):
         if hasattr(obj, "distance") and obj.distance is not None:
             return obj.distance.m
@@ -321,51 +332,56 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
             }
 
     def get_groups(self, obj):
+        if self.is_event_card:
+            if hasattr(obj, "_pf_organizer_groups"):
+                return [
+                    {"id": group.id, "name": group.name}
+                    for group in obj._pf_organizer_groups
+                ]
+            return list(obj.organizers_groups.distinct().values("id", "name"))
+
         return SupportGroupSerializer(
-            obj.organizers_groups.distinct().with_serializer_prefetch(),
+            (
+                obj.organizers_groups.distinct()
+                .with_organized_event_count()
+                .with_membership_count()
+                .with_person_membership_type(person=self.person)
+            ),
             context=self.context,
             many=True,
             fields=[
                 "id",
                 "name",
-                "description",
                 "eventCount",
                 "membersCount",
                 "isMember",
                 "isManager",
-                "typeLabel",
-                "labels",
-                "routes",
-                "is2022",
             ],
         ).data
 
     def get_groupsAttendees(self, obj):
-        if not self.context.get("request", None):
-            return None
+        if hasattr(obj, "_pf_group_attendees"):
+            groups = [
+                {"id": group.id, "name": group.name}
+                for group in obj._pf_group_attendees
+            ]
+        else:
+            groups = list(obj.groups_attendees.distinct().values("id", "name"))
 
-        user = self.context["request"].user
-        if user.is_anonymous or not hasattr(user, "person") or user.person is None:
-            self.person = None
-            return (
-                obj.groups_attendees.all()
-                .annotate(isManager=Value(False))
-                .values("id", "name", "isManager")
-            )
+        if self.is_event_card:
+            return groups
 
-        self.person = user.person
-        return (
-            obj.groups_attendees.all()
-            .annotate(
-                isManager=Exists(
-                    self.person.memberships.filter(
-                        supportgroup_id=OuterRef("id"),
-                        membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
-                    )
-                )
-            )
-            .values("id", "name", "isManager")
-        )
+        if not self.person:
+            return [{**group, "isManager": False} for group in groups]
+
+        managed_group_ids = self.person.memberships.filter(
+            supportgroup_id__in=[group["id"] for group in groups],
+            membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+        ).values_list("supportgroup_id", flat=True)
+
+        return [
+            {**group, "isManager": group["id"] in managed_group_ids} for group in groups
+        ]
 
     def get_is_past(self, obj):
         return obj.is_past()

@@ -95,13 +95,24 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def to_representation(self, instance):
         user = self.context["request"].user
-
         self.membership = None
-        if not user.is_anonymous and user.person:
-            for membership in instance.memberships.active():
-                if membership.person_id == user.person.id:
-                    self.membership = membership
-                    break
+        if (
+            hasattr(instance, "person_membership_type")
+            and instance.person_membership_type is not None
+        ):
+            self.membership = Membership(
+                person=user.person,
+                supportgroup=instance,
+                membership_type=instance.person_membership_type,
+            )
+        elif (
+            not user.is_anonymous
+            and hasattr(user, "person")
+            and user.person is not None
+        ):
+            self.membership = (
+                instance.memberships.active().filter(person=user.person).first()
+            )
 
         return super().to_representation(instance)
 

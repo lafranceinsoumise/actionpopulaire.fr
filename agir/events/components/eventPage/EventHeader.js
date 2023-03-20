@@ -101,6 +101,7 @@ const Actions = (props) => {
     hasSubscriptionForm,
     groups,
     groupsAttendees,
+    backLink,
   } = props;
 
   const [isLoading, setIsLoading] = useState(false);
@@ -238,6 +239,7 @@ const Actions = (props) => {
         rsvped={rsvped}
         groups={groupsAttendees}
         logged={logged}
+        backLink={backLink}
       />
     </>
   );
@@ -270,6 +272,7 @@ Actions.propTypes = {
       isManager: PropTypes.bool,
     })
   ),
+  backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
 };
 
 const AdditionalMessage = ({ isOrganizer, logged, rsvped, price }) => {
@@ -339,6 +342,7 @@ const EventHeader = (props) => {
     hasSubscriptionForm,
     groups,
     groupsAttendees,
+    backLink,
   } = props;
 
   const globalRoutes = useSelector(getRoutes);
@@ -371,6 +375,7 @@ const EventHeader = (props) => {
         hasSubscriptionForm={hasSubscriptionForm}
         groups={groups}
         groupsAttendees={groupsAttendees}
+        backLink={backLink}
       />
       {!past && (
         <AdditionalMessage
@@ -396,12 +401,16 @@ EventHeader.propTypes = {
   schedule: PropTypes.instanceOf(Interval),
   hasSubscriptionForm: PropTypes.bool,
   isOrganizer: PropTypes.bool,
+  isManager: PropTypes.bool,
   options: PropTypes.shape({
     price: PropTypes.string,
   }),
   rsvp: PropTypes.string,
   routes: PropTypes.object,
   allowGuests: PropTypes.bool,
+  groups: PropTypes.array,
+  groupsAttendees: PropTypes.array,
+  backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
 };
 
 export default EventHeader;

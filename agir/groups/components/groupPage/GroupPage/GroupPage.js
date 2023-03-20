@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useMemo } from "react";
 
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
@@ -12,6 +12,15 @@ import OpenGraphTags from "@agir/front/app/OpenGraphTags";
 
 export const GroupPage = (props) => {
   const { isLoading, group } = props;
+
+  const backLink = useMemo(
+    () => ({
+      route: "groupDetails",
+      routeParams: { groupPk: group?.id },
+      label: group?.name,
+    }),
+    [group]
+  );
 
   return (
     <PageFadeIn
@@ -43,6 +52,7 @@ export const GroupPage = (props) => {
           {...props}
           MobileLayout={MobileGroupPage}
           DesktopLayout={DesktopGroupPage}
+          backLink={backLink}
         />
       )}
     </PageFadeIn>

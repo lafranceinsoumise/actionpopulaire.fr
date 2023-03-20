@@ -94,7 +94,7 @@ export const StyledWrapper = styled.div`
 `;
 
 export const GroupSuggestionCarousel = (props) => {
-  const { groups } = props;
+  const { groups, backLink } = props;
   const style = useSpring({
     from: {
       opacity: 0,
@@ -115,7 +115,7 @@ export const GroupSuggestionCarousel = (props) => {
       <Swiper spaceBetween={16} slidesPerView="auto">
         {groups.map((group) => (
           <SwiperSlide key={group.id}>
-            <GroupSuggestionCard {...group} />
+            <GroupSuggestionCard {...group} backLink={backLink} />
           </SwiperSlide>
         ))}
       </Swiper>
@@ -124,7 +124,7 @@ export const GroupSuggestionCarousel = (props) => {
 };
 
 export const GroupSuggestionBlock = (props) => {
-  const { groups } = props;
+  const { groups, backLink } = props;
   const style = useSpring({
     from: {
       opacity: 0,
@@ -143,7 +143,7 @@ export const GroupSuggestionBlock = (props) => {
   return (
     <Block style={style}>
       {groups.map((group) => (
-        <GroupSuggestionCard {...group} key={group.id} />
+        <GroupSuggestionCard key={group.id} {...group} backLink={backLink} />
       ))}
     </Block>
   );
@@ -178,6 +178,7 @@ GroupSuggestionCarousel.propTypes =
           id: PropTypes.string.isRequired,
         })
       ),
+      backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
     };
 
 export default GroupSuggestions;

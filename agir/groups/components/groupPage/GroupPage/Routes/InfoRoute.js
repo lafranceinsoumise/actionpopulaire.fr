@@ -30,11 +30,16 @@ const StyledShareCard = styled.div`
 `;
 
 const MobileInfoRoute = (props) => {
-  const { group, groupSuggestions, goToMessagesTab, groupSettingsLinks } =
-    props;
+  const {
+    group,
+    groupSuggestions,
+    goToMessagesTab,
+    groupSettingsLinks,
+    backLink,
+  } = props;
 
   if (!group) {
-    return <></>;
+    return null;
   }
 
   return (
@@ -69,7 +74,7 @@ const MobileInfoRoute = (props) => {
 
       {Array.isArray(groupSuggestions) && groupSuggestions.length > 0 ? (
         <div style={{ paddingTop: "2rem" }}>
-          <GroupSuggestions groups={groupSuggestions} />
+          <GroupSuggestions groups={groupSuggestions} backLink={backLink} />
         </div>
       ) : null}
     </>
@@ -144,6 +149,7 @@ MobileInfoRoute.propTypes = DesktopInfoRoute.propTypes = {
   onClickMessage: PropTypes.func,
   isLoadingMessages: PropTypes.bool,
   groupSettingsLinks: PropTypes.object,
+  backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
 };
 
 const InfoRoute = (props) => (

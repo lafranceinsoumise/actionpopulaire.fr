@@ -72,7 +72,7 @@ export const routeConfig = {
     path: "/",
     exact: true,
     neededAuthentication: AUTHENTICATION.SOFT,
-    label: "Événements",
+    label: "Liste des événements",
     Component: RouteComponents.AgendaPage,
     hasLayout: true,
     layoutProps: {
@@ -96,6 +96,19 @@ export const routeConfig = {
     hideFooter: true,
     hideFeedbackButton: true,
   }),
+  mapEventDetails: new RouteConfig({
+    id: "mapEventDetails",
+    path: "/evenements/carte/:eventPk/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Carte des événements",
+    redirectTo: (_, routeParams) => ({
+      route: "eventDetails",
+      routeParams,
+      backLink: "eventMap",
+      push: false,
+    }),
+  }),
   createEvent: new RouteConfig({
     id: "createEvent",
     path: "/evenements/creer/",
@@ -104,11 +117,6 @@ export const routeConfig = {
     label: "Nouvel événement",
     hideFeedbackButton: true,
     Component: RouteComponents.CreateEvent,
-    backLink: {
-      route: "events",
-      label: "Liste des événements",
-      isProtected: true,
-    },
     hideFooter: true,
   }),
   eventDetails: new RouteConfig({
@@ -116,13 +124,8 @@ export const routeConfig = {
     path: "/evenements/:eventPk/",
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
-    label: "Détails de l'événement",
+    label: "Page de l'événement",
     Component: RouteComponents.EventPage,
-    backLink: {
-      route: "events",
-      label: "Liste des événements",
-      isProtected: true,
-    },
   }),
   eventSettings: new RouteConfig({
     id: "eventSettings",
@@ -138,6 +141,7 @@ export const routeConfig = {
     path: "/evenements/demandes/intervenant-e/",
     exact: true,
     neededAuthentication: AUTHENTICATION.SOFT,
+    label: "Demandes d'événements",
     Component: RouteComponents.EventSpeakerPage,
     hasLayout: false,
     hideFeedbackButton: true,
@@ -147,7 +151,7 @@ export const routeConfig = {
     path: "/mes-groupes/",
     exact: true,
     neededAuthentication: AUTHENTICATION.SOFT,
-    label: "Mes groupes",
+    label: "Liste des groupes",
     Component: RouteComponents.GroupsPage,
     hasLayout: true,
     layoutProps: {
@@ -164,6 +168,18 @@ export const routeConfig = {
     Component: RouteComponents.GroupMap,
     hideFooter: true,
     hideFeedbackButton: true,
+  }),
+  mapGroupDetails: new RouteConfig({
+    id: "mapGroupDetails",
+    path: "/groupes/carte/:groupPk/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    redirectTo: (_, routeParams) => ({
+      route: "groupDetails",
+      routeParams,
+      backLink: "groupMap",
+      push: false,
+    }),
   }),
   fullGroup: new RouteConfig({
     id: "fullGroup",
@@ -197,11 +213,10 @@ export const routeConfig = {
     path: "/groupes/:groupPk/:activeTab?/",
     exact: false,
     neededAuthentication: AUTHENTICATION.NONE,
-    label: "Détails du groupe",
+    label: "Page du groupe",
     Component: RouteComponents.GroupPage,
     backLink: {
       route: "groups",
-      label: "Retour à l'accueil",
       isProtected: true,
     },
   }),

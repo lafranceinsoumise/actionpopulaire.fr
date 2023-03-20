@@ -7,7 +7,9 @@ from django.utils.timezone import now
 # Create your tests here.
 from faker import Faker
 
+from agir.events.models import EventSubtype, Event, RSVP
 from agir.groups.models import SupportGroupSubtype, SupportGroup, Membership
+from agir.lib.tests.mixins import create_event
 from agir.mailing.models import Segment
 from agir.people.models import Person, PersonTag, Qualification, PersonQualification
 
@@ -47,6 +49,224 @@ class SegmentTestCase(TestCase):
         )
         self.assertIn(old_person, s.get_subscribers_queryset())
         self.assertNotIn(new_person, s.get_subscribers_queryset())
+
+
+class SegmentEventFilterTestCase(TestCase):
+    def create_event(self, start_time=None, end_time=None, subtype=None):
+        if start_time is None:
+            start_time = timezone.now()
+        if end_time is None:
+            end_time = start_time + timedelta(minutes=30)
+        if subtype is None:
+            subtype = self.default_subtype
+
+        event = {"start_time": start_time, "end_time": end_time, "subtype": subtype}
+        return Event.objects.create(**event)
+
+    def create_attendee(self, event=None, status=RSVP.STATUS_CONFIRMED):
+        if event is None:
+            event = self.default_event
+        attendee = Person.objects.create_insoumise(
+            email=fake.email(),
+            create_role=True,
+        )
+        RSVP.objects.create(event=event, person=attendee, status=status)
+        return attendee
+
+    def create_organizer(self, event=None):
+        if event is None:
+            event = self.default_event
+        organizer = Person.objects.create_insoumise(
+            email=fake.email(),
+            create_role=True,
+        )
+        event.organizers.add(organizer)
+        return organizer
+
+    def setUp(self):
+        self.default_subtype = EventSubtype.objects.create(label="Default subtype")
+        self.default_event = self.create_event()
+
+    def test_event_participant_filter(self):
+        event = self.create_event()
+        includes = [self.create_attendee(event)]
+        excludes = [
+            Person.objects.create_insoumise(
+                email=fake.email(),
+                create_role=True,
+            ),
+            self.create_attendee(),
+            self.create_organizer(),
+            self.create_organizer(event),
+            self.create_attendee(event, status=RSVP.STATUS_CANCELED),
+        ]
+        s = Segment.objects.create(newsletters=[], is_2022=None, events_organizer=False)
+        s.events.add(event)
+        for person in includes:
+            self.assertIn(person, s.get_subscribers_queryset())
+        for person in excludes:
+            self.assertNotIn(person, s.get_subscribers_queryset())
+
+    def test_event_organizer_filter(self):
+        event = self.create_event()
+        includes = [self.create_organizer(event)]
+        excludes = [
+            Person.objects.create_insoumise(
+                email=fake.email(),
+                create_role=True,
+            ),
+            self.create_attendee(),
+            self.create_organizer(),
+            self.create_attendee(event),
+        ]
+        s = Segment.objects.create(newsletters=[], is_2022=None, events_organizer=True)
+        s.events.add(event)
+        for person in includes:
+            self.assertIn(person, s.get_subscribers_queryset())
+        for person in excludes:
+            self.assertNotIn(person, s.get_subscribers_queryset())
+
+    def test_excluded_event_participant_filter(self):
+        event = self.create_event()
+        includes = [
+            Person.objects.create_insoumise(
+                email=fake.email(),
+                create_role=True,
+            ),
+            self.create_attendee(),
+            self.create_organizer(),
+            self.create_organizer(event),
+            self.create_attendee(event, status=RSVP.STATUS_CANCELED),
+        ]
+        excludes = [self.create_attendee(event)]
+        s = Segment.objects.create(
+            newsletters=[],
+            is_2022=None,
+        )
+        s.excluded_events.add(event)
+        for person in includes:
+            self.assertIn(person, s.get_subscribers_queryset())
+        for person in excludes:
+            self.assertNotIn(person, s.get_subscribers_queryset())
+
+    def test_excluded_event_organizer_filter(self):
+        event = self.create_event()
+        includes = [
+            Person.objects.create_insoumise(
+                email=fake.email(),
+                create_role=True,
+            ),
+            self.create_attendee(),
+            self.create_organizer(),
+            self.create_attendee(event),
+        ]
+        excludes = [self.create_organizer(event)]
+        s = Segment.objects.create(newsletters=[], is_2022=None, events_organizer=True)
+        s.excluded_events.add(event)
+        for person in includes:
+            self.assertIn(person, s.get_subscribers_queryset())
+        for person in excludes:
+            self.assertNotIn(person, s.get_subscribers_queryset())
+
+    def test_event_subtype_participant_filter(self):
+        subtype = EventSubtype.objects.create(label="Sub")
+        event = self.create_event(subtype=subtype)
+        includes = [self.create_attendee(event)]
+        excludes = [
+            Person.objects.create_insoumise(
+                email=fake.email(),
+                create_role=True,
+            ),
+            self.create_attendee(),
+            self.create_organizer(),
+            self.create_organizer(event),
+            self.create_attendee(event, status=RSVP.STATUS_CANCELED),
+        ]
+        s = Segment.objects.create(
+            newsletters=[],
+            is_2022=None,
+        )
+        s.events_subtypes.add(subtype)
+        for person in includes:
+            self.assertIn(person, s.get_subscribers_queryset())
+        for person in excludes:
+            self.assertNotIn(person, s.get_subscribers_queryset())
+
+    def test_event_subtype_organizer_filter(self):
+        subtype = EventSubtype.objects.create(label="Sub")
+        event = self.create_event(subtype=subtype)
+        includes = [
+            self.create_organizer(event),
+        ]
+        excludes = [
+            Person.objects.create_insoumise(
+                email=fake.email(),
+                create_role=True,
+            ),
+            self.create_attendee(),
+            self.create_organizer(),
+            self.create_attendee(event),
+            self.create_attendee(event, status=RSVP.STATUS_CANCELED),
+        ]
+        s = Segment.objects.create(newsletters=[], is_2022=None, events_organizer=True)
+        s.events_subtypes.add(subtype)
+        for person in includes:
+            self.assertIn(person, s.get_subscribers_queryset())
+        for person in excludes:
+            self.assertNotIn(person, s.get_subscribers_queryset())
+
+    def test_event_time_range_participant_filter(self):
+        start_time = timezone.now() - timedelta(days=150)
+        end_time = start_time + timedelta(minutes=30)
+        event = self.create_event(start_time=start_time, end_time=end_time)
+        includes = [self.create_attendee(event)]
+        excludes = [
+            Person.objects.create_insoumise(
+                email=fake.email(),
+                create_role=True,
+            ),
+            self.create_attendee(),
+            self.create_organizer(),
+            self.create_organizer(event),
+            self.create_attendee(event, status=RSVP.STATUS_CANCELED),
+        ]
+        s = Segment.objects.create(
+            newsletters=[],
+            is_2022=None,
+            events_start_date=timezone.now() - timedelta(days=200),
+            events_end_date=timezone.now() - timedelta(days=100),
+        )
+        for person in includes:
+            self.assertIn(person, s.get_subscribers_queryset())
+        for person in excludes:
+            self.assertNotIn(person, s.get_subscribers_queryset())
+
+    def test_event_time_range_organizer_filter(self):
+        start_time = timezone.now() - timedelta(days=150)
+        end_time = start_time + timedelta(minutes=30)
+        event = self.create_event(start_time=start_time, end_time=end_time)
+        includes = [self.create_organizer(event)]
+        excludes = [
+            Person.objects.create_insoumise(
+                email=fake.email(),
+                create_role=True,
+            ),
+            self.create_attendee(),
+            self.create_organizer(),
+            self.create_attendee(event),
+            self.create_attendee(event, status=RSVP.STATUS_CANCELED),
+        ]
+        s = Segment.objects.create(
+            newsletters=[],
+            is_2022=None,
+            events_organizer=True,
+            events_start_date=timezone.now() - timedelta(days=200),
+            events_end_date=timezone.now() - timedelta(days=100),
+        )
+        for person in includes:
+            self.assertIn(person, s.get_subscribers_queryset())
+        for person in excludes:
+            self.assertNotIn(person, s.get_subscribers_queryset())
 
 
 class SegmentSupportgroupFilterTestCase(TestCase):

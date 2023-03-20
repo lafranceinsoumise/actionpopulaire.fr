@@ -51,18 +51,33 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             },
         ),
         (
-            "GA, événements, tirage au sort et formulaires",
+            "Groupes d'action",
             {
                 "fields": (
-                    "draw_status",
                     "supportgroup_status",
                     "supportgroups",
                     "supportgroup_subtypes",
+                )
+            },
+        ),
+        (
+            "Événements",
+            {
+                "fields": (
                     "events",
+                    "excluded_events",
                     "events_start_date",
                     "events_end_date",
                     "events_subtypes",
                     "events_organizer",
+                )
+            },
+        ),
+        (
+            "Tirage au sort et formulaires",
+            {
+                "fields": (
+                    "draw_status",
                     "forms",
                     "polls",
                 )
@@ -126,6 +141,7 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         "supportgroups",
         "supportgroup_subtypes",
         "events",
+        "excluded_events",
         "events_subtypes",
         "campaigns",
         "exclude_segments",

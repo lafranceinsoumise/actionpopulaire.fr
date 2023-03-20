@@ -1,30 +1,29 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useMemo } from "react";
 import { useHistory } from "react-router-dom";
-import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
 import { routeConfig } from "@agir/front/app/routes.config";
+import style from "@agir/front/genericComponents/_variables.scss";
 import { useTabs } from "./routes.config";
 
 import { Column, Container, Row } from "@agir/front/genericComponents/grid";
-import Link from "@agir/front/app/Link";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 
 import GroupBanner from "@agir/groups/groupPage/GroupBanner";
-import GroupUserActions from "@agir/groups/groupPage/GroupUserActions";
 import GroupContactCard from "@agir/groups/groupPage/GroupContactCard";
 import GroupDescription from "@agir/groups/groupPage/GroupDescription";
-import GroupLinks from "@agir/groups/groupPage/GroupLinks";
-import GroupFacts from "@agir/groups/groupPage/GroupFacts";
 import GroupDonation from "@agir/groups/groupPage/GroupDonation";
-import GroupSuggestions from "@agir/groups/groupPage/GroupSuggestions";
-import GroupPageMenu from "@agir/groups/groupPage/GroupPageMenu";
+import GroupFacts from "@agir/groups/groupPage/GroupFacts";
+import GroupLinks from "@agir/groups/groupPage/GroupLinks";
 import GroupOrders from "@agir/groups/groupPage/GroupOrders";
+import GroupPageMenu from "@agir/groups/groupPage/GroupPageMenu";
+import GroupSuggestions from "@agir/groups/groupPage/GroupSuggestions";
+import GroupUserActions from "@agir/groups/groupPage/GroupUserActions";
 
 import GroupSettings from "@agir/groups/groupPage/GroupSettings/GroupSettings";
 import { getGroupSettingLinks } from "@agir/groups/groupPage/GroupSettings/routes.config";
 
+import BackLink from "@agir/front/app/Navigation/BackLink";
 import Routes from "./Routes";
 
 export const DesktopGroupPageSkeleton = () => (
@@ -58,33 +57,8 @@ export const DesktopGroupPageSkeleton = () => (
   </Container>
 );
 
-const IndexLinkAnchor = styled(Link)`
-  font-weight: 600;
-  font-size: 12px;
-  line-height: 1.4;
-  text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  margin: 20px 0;
-  &,
-  &:hover,
-  &:focus,
-  &:active {
-    text-decoration: none;
-    color: #585858;
-  }
-  span {
-    transform: rotate(180deg) translateY(-1.5px);
-    transform-origin: center center;
-  }
-  @media (max-width: ${style.collapse}px) {
-    padding: 0.5rem 1.375rem 0;
-    margin-bottom: -1rem;
-  }
-`;
-
 const DesktopGroupPage = (props) => {
-  const { backLink, group, groupSuggestions, allEvents } = props;
+  const { group, groupSuggestions, allEvents, backLink } = props;
   const { hasTabs, tabs, activeTabId, activePathname, onTabChange } = useTabs(
     props,
     false
@@ -148,16 +122,7 @@ const DesktopGroupPage = (props) => {
       >
         <Row style={{ minHeight: 56 }}>
           <Column grow>
-            {!!backLink && (
-              <IndexLinkAnchor
-                to={backLink.to}
-                href={backLink.href}
-                route={backLink.route}
-              >
-                <span>&#10140;</span>
-                &ensp; {backLink.label || "Retour à l'accueil"}
-              </IndexLinkAnchor>
-            )}
+            <BackLink />
           </Column>
         </Row>
         <Row gutter={32}>
@@ -221,7 +186,10 @@ const DesktopGroupPage = (props) => {
             <Column grow>
               {Array.isArray(groupSuggestions) &&
               groupSuggestions.length > 0 ? (
-                <GroupSuggestions groups={groupSuggestions} />
+                <GroupSuggestions
+                  groups={groupSuggestions}
+                  backLink={backLink}
+                />
               ) : null}
             </Column>
           </Row>
@@ -232,19 +200,12 @@ const DesktopGroupPage = (props) => {
   );
 };
 DesktopGroupPage.propTypes = {
-  backLink: PropTypes.object,
-  group: PropTypes.shape({
-    id: PropTypes.string,
-    isMember: PropTypes.bool,
-    isManager: PropTypes.bool,
-    routes: PropTypes.shape({
-      donations: PropTypes.string,
-    }),
-  }),
+  group: PropTypes.object,
   groupSuggestions: PropTypes.arrayOf(PropTypes.object),
   upcomingEvents: PropTypes.arrayOf(PropTypes.object),
   pastEvents: PropTypes.arrayOf(PropTypes.object),
   allEvents: PropTypes.arrayOf(PropTypes.object),
+  backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
 };
 
 export default DesktopGroupPage;

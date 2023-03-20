@@ -52,11 +52,20 @@ const StyledContainer = styled.div`
   }
 `;
 
-const GroupLine = ({ id, name, eventCount, membersCount, isDetailed }) => (
+const GroupLine = ({
+  id,
+  name,
+  eventCount,
+  membersCount,
+  isDetailed,
+  backLink,
+}) => (
   <StyledGroupLine>
     <Link
       aria-label={name}
-      to={routeConfig.groupDetails.getLink({ groupPk: id })}
+      route="groupDetails"
+      routeParams={{ groupPk: id }}
+      backLink={backLink}
     >
       <GroupIcon>
         <FeatherIcon name="users" />
@@ -64,7 +73,11 @@ const GroupLine = ({ id, name, eventCount, membersCount, isDetailed }) => (
     </Link>
     <div style={{ paddingLeft: "1rem" }}>
       <h3 style={{ marginTop: 2, marginBottom: 2 }}>
-        <Link to={routeConfig.groupDetails.getLink({ groupPk: id })}>
+        <Link
+          route="groupDetails"
+          routeParams={{ groupPk: id }}
+          backLink={backLink}
+        >
           {name}
         </Link>
       </h3>
@@ -83,6 +96,7 @@ GroupLine.propTypes = {
   eventCount: PropTypes.number,
   membersCount: PropTypes.number,
   isDetailed: PropTypes.bool,
+  backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
 };
 
 export const GroupsOrganizingCard = ({
@@ -91,6 +105,7 @@ export const GroupsOrganizingCard = ({
   eventPk,
   isOrganizer,
   isPast,
+  backLink,
 }) => {
   if (!groups?.length) {
     return null;
@@ -107,7 +122,12 @@ export const GroupsOrganizingCard = ({
     <StyledContainer>
       <h3>Organisé par</h3>
       {groups.map((group) => (
-        <GroupLine key={group.id} isDetailed={isDetailed} {...group} />
+        <GroupLine
+          key={group.id}
+          isDetailed={isDetailed}
+          backLink={backLink}
+          {...group}
+        />
       ))}
       {coorganizeLink && !isPast && (
         <Button
@@ -128,6 +148,7 @@ GroupsOrganizingCard.propTypes = {
   eventPk: PropTypes.string,
   isOrganizer: PropTypes.bool,
   isPast: PropTypes.bool,
+  backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
 };
 
 export const GroupsJoiningCard = ({
@@ -135,6 +156,7 @@ export const GroupsJoiningCard = ({
   groupsAttendees,
   eventPk,
   isPast,
+  backLink,
 }) => {
   if (!groupsAttendees?.length) {
     return null;
@@ -146,7 +168,7 @@ export const GroupsJoiningCard = ({
         {!isPast ? "Mes groupes y participent" : "Mes groupes y ont participé"}
       </h3>
       {groupsAttendees.map((group) => (
-        <GroupLine key={group.id} {...group} />
+        <GroupLine key={group.id} backLink={backLink} {...group} />
       ))}
       {eventPk && !isPast && (
         <AddGroupAttendee
@@ -165,4 +187,5 @@ GroupsJoiningCard.propTypes = {
   groupsAttendees: PropTypes.array,
   eventPk: PropTypes.string,
   isPast: PropTypes.bool,
+  backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
 };

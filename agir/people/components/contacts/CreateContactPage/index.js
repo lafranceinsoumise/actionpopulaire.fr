@@ -84,13 +84,7 @@ const CreateContactPage = () => {
   }, [step]);
 
   useEffect(() => {
-    step > 0
-      ? dispatch(
-          setBackLink({
-            to: routeConfig.createContact.getLink({ step: STEPS[0] }),
-          })
-        )
-      : null;
+    step > 0 ? dispatch(setBackLink({ route: "createContact" })) : null;
   }, [dispatch, step]);
 
   return (

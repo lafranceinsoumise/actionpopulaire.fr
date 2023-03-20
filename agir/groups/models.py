@@ -5,7 +5,7 @@ from urllib.parse import urljoin
 from django.conf import settings
 from django.contrib.postgres.search import SearchVector, SearchRank
 from django.db import models
-from django.db.models import Subquery, OuterRef, Count, Q, Exists
+from django.db.models import Subquery, OuterRef, Count, Q, Exists, Max
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -110,13 +110,43 @@ class SupportGroupQuerySet(models.QuerySet):
             )
         )
 
-    def with_serializer_prefetch(self):
-        return (
+    def with_membership_count(self):
+        return self.annotate(
+            membership_count=Count(
+                "memberships",
+                filter=Q(memberships__person__role__is_active=True),
+                distinct=True,
+            )
+        ).annotate(
+            active_membership_count=Count(
+                "memberships",
+                filter=(
+                    Q(
+                        memberships__person__role__is_active=True,
+                        memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MEMBER,
+                    )
+                ),
+                distinct=True,
+            )
+        )
+
+    def with_person_membership_type(self, person=None):
+        return self.annotate(
+            person_membership_type=Max(
+                "memberships__membership_type", filter=Q(memberships__person=person)
+            )
+        )
+
+    def with_serializer_prefetch(self, person=None):
+        qs = (
             self.prefetch_related("memberships", "subtypes")
             .with_promo_code_tag_exists()
             .with_certification_subtype_exists()
             .with_organized_event_count()
+            .with_membership_count()
+            .with_person_membership_type(person)
         )
+        return qs
 
 
 class MembershipQuerySet(models.QuerySet):
@@ -277,14 +307,20 @@ class SupportGroup(
 
     @property
     def events_count(self):
+        if hasattr(self, "organized_event_count"):
+            return self.organized_event_count
         return self.organized_events.public().count()
 
     @property
     def members_count(self):
+        if hasattr(self, "membership_count"):
+            return self.membership_count
         return self.memberships.active().count()
 
     @property
     def active_members_count(self):
+        if hasattr(self, "active_membership_count"):
+            return self.active_membership_count
         return (
             self.memberships.active()
             .filter(membership_type__gte=Membership.MEMBERSHIP_TYPE_MEMBER)
@@ -321,10 +357,12 @@ class SupportGroup(
             not self.location_country
             or self.location_country.code in FRENCH_COUNTRY_CODES
         ):
-            recent_events = self.organized_events.acceptable_for_group_certification(
-                time_ref=now
-            ).count()
-            criteria["activity"] = 2 <= recent_events
+            recent_event_count = (
+                self.organized_events.acceptable_for_group_certification(
+                    time_ref=now
+                ).count()
+            )
+            criteria["activity"] = 3 <= recent_event_count
 
         referents = self.memberships.filter(
             membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT

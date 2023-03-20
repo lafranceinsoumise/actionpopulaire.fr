@@ -117,13 +117,14 @@ const StyledStaticMapWrapper = styled.div`
 `;
 
 export const MapMarker = (props) => {
-  const { color, iconName, ...rest } = props;
+  const { color, iconName } = props;
 
   const iconConfig = useMemo(() => fontawesome(iconName, true), [iconName]);
 
   return (
     <svg
-      {...rest}
+      className={props.className}
+      style={props.style}
       width="40"
       height="44"
       viewBox="0 0 40 44"
@@ -158,8 +159,8 @@ export const MapMarker = (props) => {
 MapMarker.propTypes = {
   iconName: PropTypes.string,
   color: PropTypes.string,
-  iconUrl: PropTypes.string,
-  iconAnchor: PropTypes.string,
+  className: PropTypes.string,
+  style: PropTypes.object,
 };
 
 const StaticMap = (props) => {

@@ -6,6 +6,20 @@ export const relativeToAbsoluteURL = ((a) => (url) => {
   return a.href;
 })(document.createElement("a"));
 
+export const stringifyQueryStringParams = (params = {}) => {
+  if (
+    !params ||
+    typeof params !== "object" ||
+    Object.keys(params).length === 0
+  ) {
+    return "";
+  }
+
+  return new URLSearchParams(
+    Object.entries(params).filter(([_, value]) => typeof value !== "undefined")
+  ).toString();
+};
+
 export const addQueryStringParams = (url, params = {}, relative = false) => {
   if (!url) {
     return "";

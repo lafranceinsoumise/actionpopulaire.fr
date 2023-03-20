@@ -115,12 +115,18 @@ export const ConnectedEventPage = (props) => {
     const schedule = Interval.fromDateTimes(start, end);
     const isPast = end < DateTime.local();
 
+    const backLink = {
+      route: "eventDetails",
+      routeParams: { eventPk: eventData.id },
+    };
+
     return {
       ...eventData,
       startTime: start,
       endTime: end,
       isPast,
       schedule,
+      backLink,
     };
   }, [eventData]);
 
