@@ -7,7 +7,15 @@
     </script>
   {% endif %}
   <link rel="preconnect" href="https://erreurs.lafranceinsoumise.fr" />
-  <link rel="preload" as="style" href="https://use.typekit.net/teu2xsh.css" />
+  {% comment %}
+    Mostra Nuova font (#grevevent)
+    <link rel="preload" as="style" href="https://use.typekit.net/teu2xsh.css" />
+  {% endcomment %}
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap" rel="stylesheet">
+
   {% for href in api_preloads %}
     <link rel="preload" href="{{ href }}" as="fetch" type="application/json"></link>
   {% endfor %}
