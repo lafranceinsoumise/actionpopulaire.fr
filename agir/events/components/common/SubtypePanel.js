@@ -7,14 +7,14 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import { EVENT_TYPES } from "@agir/events/common/utils";
 import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
 
-import { MapMarker } from "@agir/carte/common/Map/StaticMap";
+import FaIcon from "@agir/front/genericComponents/FaIcon";
 import TextField from "@agir/front/formComponents/TextField";
 import Accordion from "@agir/front/genericComponents/Accordion";
 import Button from "@agir/front/genericComponents/Button";
 import Panel from "@agir/front/genericComponents/Panel";
 import { slugify } from "@agir/lib/utils/url";
 
-const StyledMapMarker = styled(MapMarker)``;
+const StyledIcon = styled(FaIcon)``;
 const StyledOption = styled.li`
   width: 100%;
   display: flex;
@@ -45,8 +45,7 @@ const StyledOption = styled.li`
     }
   }
 
-  & > ${StyledMapMarker} {
-    filter: brightness(110%);
+  & > ${StyledIcon} {
     flex: 0 0 auto;
     height: 2rem;
     width: 2rem;
@@ -103,7 +102,7 @@ const SubtypeOption = (props) => {
       title={option.description}
       onClick={handleClick}
     >
-      <StyledMapMarker {...option} />
+      <StyledIcon icon={option.iconName} style={{ color: option.color }} />
       <strong>
         {option.description && (
           <>

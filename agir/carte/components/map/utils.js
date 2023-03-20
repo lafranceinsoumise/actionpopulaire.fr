@@ -55,7 +55,7 @@ export function fontIsLoaded(fontName) {
 
 export const fontawesomeIsLoaded = () => {
   return Promise.any([
-    fontIsLoaded("Font Awesome 6 Free"),
+    fontIsLoaded("Font Awesome 6 Pro"),
     fontIsLoaded("Font Awesome 6 Brands"),
   ]);
 };

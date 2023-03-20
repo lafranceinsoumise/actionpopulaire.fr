@@ -1,22 +1,23 @@
-import Map from "ol/Map";
-import View from "ol/View";
-import TileLayer from "ol/layer/Tile";
-import XYZ from "ol/source/XYZ";
-import Style from "ol/style/Style";
-import Text from "ol/style/Text";
-import Fill from "ol/style/Fill";
-import Icon from "ol/style/Icon";
-import Overlay from "ol/Overlay";
-import { fromLonLat, transformExtent } from "ol/proj";
-import Feature from "ol/Feature";
-import VectorSource from "ol/source/Vector";
-import Point from "ol/geom/Point";
-import VectorLayer from "ol/layer/Vector";
 import Attribution from "ol/control/Attribution";
 import Zoom from "ol/control/Zoom";
+import Feature from "ol/Feature";
+import Point from "ol/geom/Point";
+import TileLayer from "ol/layer/Tile";
+import VectorLayer from "ol/layer/Vector";
+import Map from "ol/Map";
+import Overlay from "ol/Overlay";
+import { fromLonLat, transformExtent } from "ol/proj";
+import VectorSource from "ol/source/Vector";
+import XYZ from "ol/source/XYZ";
+import Fill from "ol/style/Fill";
+import Icon from "ol/style/Icon";
+import Stroke from "ol/style/Stroke";
+import Style from "ol/style/Style";
+import Text from "ol/style/Text";
+import View from "ol/View";
 
-import fontawesome from "@agir/lib/utils/fontawesome";
 import style from "@agir/front/genericComponents/_variables.scss";
+import fontawesome from "@agir/lib/utils/fontawesome";
 
 import markerIcon from "./marker.svg";
 import markerIconBg from "./marker_bg.svg";
@@ -129,11 +130,8 @@ export function makeStyle(config, options = {}) {
         text: new Text({
           text: iconStyle?.text,
           offsetY: -21,
-          font: `normal 16px ${iconStyle.fontFamily}`,
-          fill: new Fill({
-            color: "#FFFFFF",
-          }),
-          scale: 0.75,
+          font: `${iconStyle.fontWeight} 12px ${iconStyle.fontFamily}`,
+          fill: new Fill({ color: "#FFFFFF" }),
         }),
       }),
     ];

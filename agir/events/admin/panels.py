@@ -638,6 +638,7 @@ class EventSubtypeAdmin(admin.ModelAdmin):
         "priority",
         "certification",
         "related_project_type",
+        "icon",
     )
     list_filter = (
         "type",
@@ -648,6 +649,7 @@ class EventSubtypeAdmin(admin.ModelAdmin):
     )
     search_fields = ("label", "description")
     autocomplete_fields = ("report_person_form",)
+    readonly_fields = ("icon",)
 
     @admin.display(description="Prioritaire", boolean=True, ordering="has_priority")
     def priority(self, obj):

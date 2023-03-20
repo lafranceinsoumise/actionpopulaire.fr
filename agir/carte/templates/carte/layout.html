@@ -10,9 +10,8 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}{% endblock %}</title>
-
+  {% include "front/includes/fontawesome.html" %}
   {% include 'theme.bundle.html' %}
-
   <style>
     html, body {
       width: 100%;
@@ -26,8 +25,6 @@
       height: 100%;
     }
   </style>
-
-  {% include "front/includes/fontawesome.html" %}
   {% block additional_headers %}{% endblock %}
 </head>
 <body>
