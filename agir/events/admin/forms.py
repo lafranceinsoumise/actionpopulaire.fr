@@ -394,7 +394,3 @@ class EventSubtypeAdminForm(forms.ModelForm):
             "ex. <code>grill-hot</code>, <code>mustache:light</code> "
             '(cf. <a href="https://fontawesome.com/icons">https://fontawesome.com/icons</a>)'
         )
-
-    class Meta:
-        fields = "__all__"
-        widgets = {"color": forms.TextInput(attrs={"type": "color"})}
