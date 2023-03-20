@@ -6,6 +6,9 @@ import useSWR from "swr";
 
 import { getContrastYIQ } from "@agir/lib/utils/colors";
 
+import lfiNupesLogo from "@agir/front/genericComponents/logos/lfi-nupes.svg";
+
+const StyledTitleLogo = styled.img``;
 const StyledTitle = styled.h2`
   font-size: 50px;
   font-size: ${({ $height }) => ($height ? 0.5 * $height : "50")}px;
@@ -19,6 +22,9 @@ const StyledTitle = styled.h2`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 
   &:empty {
     display: none;
@@ -27,6 +33,19 @@ const StyledTitle = styled.h2`
   @media (max-width: 700px) {
     font-size: 24px;
     font-size: ${({ $height }) => ($height ? 0.24 * $height : "24")}px;
+  }
+
+  ${StyledTitleLogo} {
+    flex: 0 0 auto;
+    height: inherit;
+    width: auto;
+    height: 50px;
+    height: ${({ $height }) => ($height ? 0.5 * $height : "50")}px;
+
+    @media (max-width: 700px) {
+      height: 24px;
+      height: ${({ $height }) => ($height ? 0.24 * $height : "24")}px;
+    }
   }
 `;
 
@@ -68,12 +87,12 @@ const StyledBar = styled.div`
     background: ${({ $color }) => $color || "#FF2E20"};
     box-sizing: content-box;
     padding-left: 55px;
-    clip-path: polygon(
+    /* clip-path: polygon(
       0% 0%,
       100% 0%,
       calc(100% - var(--point-width)) 100%,
       0% 100%
-    );
+    ); */
     will-change: width;
   }
 
@@ -100,7 +119,7 @@ const StyledPage = styled.div`
   margin: 0;
   min-width: 100vw;
   min-height: 100vh;
-  font-family: mostra-nuova, Arial, Helvetica, sans-serif;
+  font-family: Inter, Arial, Helvetica, sans-serif;
   background: transparent;
   background: ${({ $background }) => $background || "transparent"};
 `;
@@ -127,7 +146,15 @@ const getTarget = (amount, goals) => {
 };
 
 const ProgressBar = (props) => {
-  const { amount, title, titleColor, barColor, barHeight, goals } = props;
+  const {
+    amount,
+    title,
+    titleColor,
+    titleLogo = false,
+    barColor,
+    barHeight,
+    goals,
+  } = props;
 
   const steps = useMemo(
     () =>
@@ -158,7 +185,8 @@ const ProgressBar = (props) => {
   return (
     <>
       <StyledTitle $color={titleColor} $height={height}>
-        {title}
+        <span>{title}</span>
+        {!!titleLogo && <StyledTitleLogo src={lfiNupesLogo} />}
       </StyledTitle>
       <StyledBar $color={barColor} $height={height} title={targetTitle}>
         <animated.div style={{ width }} />
@@ -172,6 +200,7 @@ ProgressBar.propTypes = {
   amount: PropTypes.number,
   title: PropTypes.string,
   titleColor: PropTypes.string,
+  titleLogo: PropTypes.bool,
   barColor: PropTypes.string,
   barHeight: PropTypes.number,
   goals: PropTypes.arrayOf(PropTypes.number),
@@ -209,6 +238,8 @@ Progress.propTypes = {
   title: PropTypes.string,
   // The title text color
   titleColor: PropTypes.string,
+  // Show/hide the title logo
+  titleLogo: PropTypes.bool,
   // The progress bar main color
   barColor: PropTypes.string,
   // The progress bar height (in px)
