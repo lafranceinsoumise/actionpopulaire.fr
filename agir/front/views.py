@@ -28,10 +28,13 @@ from .view_mixins import (
     ReactBaseView,
     SimpleOpengraphMixin,
     ObjectOpengraphMixin,
+    ReactSerializerBaseView,
 )
 from ..donations.actions import can_make_contribution
 from ..event_requests.views.public_views import EventSpeakerViewMixin
+from ..events.models import EventSubtype
 from ..events.views.event_views import EventDetailMixin
+from ..groups.models import SupportGroupSubtype
 from ..groups.views.public_views import SupportGroupDetailMixin
 from ..lib.utils import generate_token_params, front_url
 from ..msgs.models import SupportGroupMessage
@@ -95,8 +98,24 @@ class LayoutCssTestView(TemplateView):
     template_name = "front/layout_css_test.html"
 
 
-class ReactCssTestView(ReactBaseView):
+class ReactCssTestView(BaseAppCachedView):
     template_name = "front/react_view_css_test.html"
+
+
+class FontAwesomeTestView(BaseAppCachedView):
+    def get_used_icons(self):
+        event = EventSubtype.objects.filter(icon_name__isnull=False).values_list(
+            "icon_name", flat=True
+        )
+        group = SupportGroupSubtype.objects.filter(icon_name__isnull=False).values_list(
+            "icon_name", flat=True
+        )
+        return list(set(event) | set(group))
+
+    def get_context_data(self, **kwargs):
+        kwargs.setdefault("export_data", self.get_used_icons())
+        kwargs.setdefault("data_script_id", "usedIcons")
+        return super().get_context_data(**kwargs)
 
 
 ## AUTH VIEWS

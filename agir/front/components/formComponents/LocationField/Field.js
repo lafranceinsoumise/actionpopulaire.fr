@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -92,6 +92,10 @@ const LocationField = (props) => {
   const displayAddress2 = useCallback(() => {
     setHasAddress2(true);
   }, []);
+
+  useEffect(() => {
+    !hasAddress2 && address2 && setHasAddress2(true);
+  }, [hasAddress2, address2]);
 
   return (
     <StyledField>

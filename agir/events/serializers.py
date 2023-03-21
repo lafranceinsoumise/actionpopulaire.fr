@@ -4,10 +4,7 @@ from pathlib import PurePath
 
 from dateutil.relativedelta import relativedelta
 from django.db import transaction
-from django.db.models import (
-    Value,
-    Func,
-)
+from django.db.models import Value, Func, F
 from django.db.models.functions import Concat, Replace, Lower, MD5
 from django.utils import timezone
 from pytz import utc, InvalidTimeError
@@ -580,7 +577,7 @@ class EventPropertyOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer
         recent_locations = (
             Event.objects.filter(pk__in=recent_distinct_location_event_ids)
             .values(
-                "subtype_id",
+                "id",
                 "location_name",
                 "location_address1",
                 "location_address2",
@@ -588,7 +585,7 @@ class EventPropertyOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer
                 "location_city",
                 "location_country",
             )
-            .order_by("-created")[:5]
+            .order_by("-created")[:4]
         )
 
         return [
