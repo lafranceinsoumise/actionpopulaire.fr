@@ -26,6 +26,7 @@ import EventImageField from "./EventImageField";
 import NameField from "./NameField";
 import OnlineUrlField from "./OnlineUrlField";
 import SubtypeField from "./SubtypeField";
+import LocationItems from "@agir/front/formComponents/LocationField/LocationItems";
 
 const StyledGlobalError = styled.p`
   padding: 0 0 1rem;
@@ -354,6 +355,17 @@ const EventForm = () => {
           value={formData.onlineUrl}
           placeholder="URL de la visio-conférence (facultatif)"
         />
+        {options?.recentLocations?.length > 0 && (
+          <>
+            <Spacer size="1.5rem" />
+            <LocationItems
+              name="location"
+              locations={options?.recentLocations}
+              disabled={isLoading}
+              onChange={updateValue}
+            />
+          </>
+        )}
         <Spacer size="1.5rem" data-scroll="location" />
         <LocationField
           name="location"
