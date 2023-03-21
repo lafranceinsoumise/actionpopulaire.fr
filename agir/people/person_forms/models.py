@@ -244,7 +244,7 @@ class PersonForm(TimeStampedModel):
         if self.short_description:
             return self.short_description
         if self.description:
-            return html.textify(self.description)
+            return html.textify(self.description, unescape=True)
         return ""
 
     def __str__(self):

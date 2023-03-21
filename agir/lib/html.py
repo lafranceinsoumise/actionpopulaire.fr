@@ -2,7 +2,7 @@ import dataclasses
 import re
 from abc import ABC
 from functools import partial
-from html import unescape
+from html import unescape as html_unescape
 from html.parser import HTMLParser
 from typing import Dict
 
@@ -22,11 +22,14 @@ def sanitize_html(text, tags=None):
     )
 
 
-def textify(html):
+def textify(html, unescape=False):
     # Remove html tags and continuous whitespaces
     text_only = re.sub("[ \t]+", " ", strip_tags(html))
     # Strip single spaces in the beginning of each line
-    return text_only.replace("\n ", "\n").strip()
+    text_only = text_only.replace("\n ", "\n").strip()
+    if unescape:
+        text_only = html_unescape(text_only)
+    return text_only
 
 
 @dataclasses.dataclass
