@@ -34,7 +34,7 @@ const ACTIONS = {
           key: "contributions",
           route: "contributions",
           label: ["Financer", "Devenir financeur·euse"],
-          icon: "activity",
+          icon: "trending-up",
           color: style.redLFI,
         },
   createEvent: {
