@@ -5,6 +5,7 @@ from django.forms import BooleanField
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from agir.events.actions.rsvps import (
@@ -384,3 +385,12 @@ class EventSubtypeAdminForm(forms.ModelForm):
         widget=forms.CheckboxSelectMultiple,
         required=False,
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["icon_name"].help_text = mark_safe(
+            "Le nom de l'icône tout en minuscules et, optionnellement, "
+            "le nom du style souhaité séparés par <code>:</code>&nbsp;: "
+            "ex. <code>grill-hot</code>, <code>mustache:light</code> "
+            '(cf. <a href="https://fontawesome.com/icons">https://fontawesome.com/icons</a>)'
+        )

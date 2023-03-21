@@ -1,21 +1,28 @@
-const BINDINGS = {
-  "chart-network": {
-    fontFamily: "Font Awesome 6 Pro",
-    fontWeight: "900",
-    content: "\f78a",
-  },
+const BINDINGS = {};
+
+const prefixClassName = (className) => {
+  if (!className || typeof className !== "string") {
+    return "fa";
+  }
+  className = className.toLowerCase().trim();
+  if (/^fa-/.test(className)) {
+    return className;
+  }
+  return `fa-${className}`;
 };
 
-const fontawesome = (iconName, asObject = false) => {
-  if (!iconName || typeof iconName !== "string") {
+const fontawesome = (icon, asObject = false) => {
+  if (!icon || typeof icon !== "string") {
     return null;
   }
 
-  iconName = iconName.toLowerCase();
-
-  if (!BINDINGS[iconName]) {
+  if (!BINDINGS[icon]) {
+    const [iconName, iconStyle = ""] = icon.toLowerCase().split(":");
     const span = document.createElement("span");
-    span.className = `fa fa-${iconName}`;
+    span.className = [
+      prefixClassName(iconStyle),
+      prefixClassName(iconName),
+    ].join(" ");
     document.body.appendChild(span);
     const spanStyle = window.getComputedStyle(span);
     const beforeStyle = window.getComputedStyle(span, ":before");
@@ -23,15 +30,16 @@ const fontawesome = (iconName, asObject = false) => {
       beforeStyle?.content &&
       !beforeStyle.content.includes("none") &&
       beforeStyle.content.replace(new RegExp('"', "g"), "");
-    BINDINGS[iconName] = {
+    BINDINGS[icon] = {
       fontFamily: spanStyle.fontFamily,
       fontWeight: spanStyle.fontWeight.replace(new RegExp('"', "g"), ""),
       text: content || "",
+      className: span.className,
     };
     document.body.removeChild(span);
   }
 
-  return asObject ? BINDINGS[iconName] : BINDINGS[iconName].text;
+  return asObject ? BINDINGS[icon] : BINDINGS[icon].text;
 };
 
 export default fontawesome;

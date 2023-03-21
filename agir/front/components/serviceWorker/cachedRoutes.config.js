@@ -10,6 +10,7 @@ const config = [
 
   "/api/elections/circonscription-legislatives/",
 
+  "/api/evenements/options/",
   "/api/evenements/rsvped/",
   "/api/evenements/rsvped/passes/",
   "/api/evenements/rsvped/en-cours/",

@@ -1,3 +1,5 @@
+import re
+import textwrap
 from urllib.parse import urljoin, urlunparse, urlparse
 
 from django.conf import settings
@@ -38,16 +40,21 @@ class SimpleOpengraphMixin(ContextMixin):
     def get_meta_title(self):
         return self.meta_title
 
-    def get_meta_description(self):
+    def get_meta_description(self, max_width=None):
         return self.meta_description
 
     def get_meta_image(self):
         return self.meta_image
 
     def redirect_to_login(self, request, *args, **kwargs):
+        description = self.get_meta_description()
+        if isinstance(description, str) and len(description) > 255:
+            description = re.split("(?<=[.!?])[\n\r\s]+", description)[0]
+            description = textwrap.shorten(description, width=255, placeholder="…")
+
         meta_tags = {
             "title": self.get_meta_title(),
-            "description": self.get_meta_description(),
+            "description": description,
             "image": self.get_meta_image(),
         }
 
