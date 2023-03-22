@@ -121,7 +121,7 @@ export const routeConfig = {
     label: "Certification",
     icon: "check-circle",
     Component: GroupSettingsCertification,
-    isActive: (group) => group.isCertifiable,
+    isActive: (group) => group.isCertifiable || group.isCertified,
     menuGroup: 1,
   },
   materiel: {

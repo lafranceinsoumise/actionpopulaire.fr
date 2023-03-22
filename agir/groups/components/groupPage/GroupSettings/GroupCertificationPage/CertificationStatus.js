@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
@@ -119,14 +119,17 @@ const CertificationStatus = (props) => {
 
   const certificationPanelRoute = routes
     .find((route) => route.id === "certification")
-    .getLink();
+    ?.getLink();
+
+  const criteria = useMemo(
+    () => Object.values(certificationCriteria),
+    [certificationCriteria]
+  );
 
   const [checkedCriteria, hasUncheckedCriteria] = useMemo(() => {
-    const checked = Object.values(certificationCriteria).filter(
-      (criterion) => !!criterion.value
-    );
+    const checked = criteria.filter((criterion) => !!criterion.value);
     return [checked, checked.length !== criteria.length];
-  }, [certificationCriteria]);
+  }, [criteria]);
 
   if (!isCertifiable) {
     return null;
@@ -167,10 +170,10 @@ CertificationStatus.propTypes = {
     }).isRequired
   ).isRequired,
   certificationCriteria: PropTypes.shape({
-    gender: PropTypes.bool,
-    activity: PropTypes.bool,
-    members: PropTypes.bool,
-    creation: PropTypes.bool,
+    gender: PropTypes.shape({ value: PropTypes.bool }),
+    activity: PropTypes.shape({ value: PropTypes.bool }),
+    members: PropTypes.shape({ value: PropTypes.bool }),
+    creation: PropTypes.shape({ value: PropTypes.bool }),
   }),
 };
 export default CertificationStatus;
