@@ -159,6 +159,7 @@ INSTALLED_APPS = [
     "agir.elections",
     "agir.legislatives2022.apps.Legislatives2022Config",
     "agir.cagnottes.apps.CagnottesConfig",
+    "agir.ilb.apps.ILBAppConfig",
     # default contrib apps
     "agir.api.apps.AdminAppConfig",
     "django.contrib.auth",
@@ -885,6 +886,8 @@ PAYMENT_MODES = [
     "agir.pos.TPEPaymentMode",
     "agir.payments.imported.ImportedPaymentMode",
     "agir.events.PayLaterPaymentMode",
+    "agir.ilb.ILBSystemPayPaymentMode",
+    "agir.ilb.ILBCheckPaymentMode",
 ]
 
 # OVH Settings
@@ -1026,3 +1029,18 @@ CALLHUB_API_KEY = os.environ.get("CALLHUB_API_KEY")
 
 GCE_ACCOUNT_EMAIL = os.environ.get("GCE_ACCOUNT_EMAIL", "")
 GCE_KEY_FILE = os.environ.get("GCE_KEY_FILE", "gce.json")
+
+ILB_SYSTEMPAY_SITE_ID = os.environ.get("ILB_SYSTEMPAY_SITE_ID", "0")
+ILB_SYSTEMPAY_PRODUCTION = (
+    os.environ.get("ILB_SYSTEMPAY_PRODUCTION", "false").lower() == "true"
+)
+ILB_SYSTEMPAY_CURRENCY = os.environ.get("ILB_SYSTEMPAY_CURRENCY", 978)
+ILB_SYSTEMPAY_CERTIFICATE = os.environ.get(
+    "ILB_SYSTEMPAY_CERTIFICATE", "arbitrarystring"
+)
+ILB_SYSTEMPAY_API_PASSWORD = os.environ.get(
+    "ILB_SYSTEMPAY_API_PASSWORD", "arbitrarystring"
+)
+ILB_DONS_REMERCIEMENTS = os.environ.get(
+    "ILB_REMERCIEMENTS", "https://institutlaboetie.fr/"
+)

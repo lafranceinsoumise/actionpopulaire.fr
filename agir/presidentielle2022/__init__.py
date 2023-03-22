@@ -14,8 +14,6 @@ class AFCP2022SystemPayPaymentMode(AbstractSystemPayPaymentMode):
         currency=settings.SYSTEMPAY_CURRENCY,
         certificate=settings.SYSTEMPAY_AFCP2022_CERTIFICATE,
     )
-    email_template_code = "DONATION_MESSAGE_2022"
-    email_from = settings.EMAIL_FROM_MELENCHON_2022
 
 
 class AFCPJLMCheckEventPaymentMode(AbstractCheckPaymentMode):

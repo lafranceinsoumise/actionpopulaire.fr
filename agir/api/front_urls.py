@@ -20,6 +20,7 @@ urlpatterns = [
     path("", include("agir.elections.urls")),
     path("", include("agir.event_requests.urls")),
     path("cagnottes/", include("agir.cagnottes.urls")),
+    path("ilb/", include("agir.ilb.urls")),
     path("carte/", include("agir.carte.urls")),
     path("data-france/", include("data_france.urls")),
 ]

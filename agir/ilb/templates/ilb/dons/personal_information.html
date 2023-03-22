@@ -1,0 +1,28 @@
+{% extends 'donations/personal_information.html' %}
+{% load display_lib %}
+
+{% block title %}
+  Votre don à l'Institut La Boétie
+{% endblock %}
+
+{% block donation_headline %}
+  Votre don à l'Institut La Boétie
+{% endblock %}
+
+{% block donation_reminder %}
+  Je souhaite donner <strong>{{  amount | display_price_in_cent }}</strong> à l'Institut La Boétie.
+{% endblock %}
+
+{% block legal %}
+  <div style="font-size: small">
+    <p>L’Institut La Boétie utilise l’intégralité des sommes collectées pour développer et soutenir les activités de l’Institut :</p>
+    <ul>
+      <li>La publication, papier et numérique, de travaux de recherche dans les domaines de l’économie, la sociologie, la géographie, les relations internationales, la philosophie, l’histoire et la planification écologique ;</li>
+      <li>L’organisation d’événements publics et diffusés en ligne réunissant des experts de tous horizons autour des thématiques de recherche de l’institut La Boétie ;</li>
+      <li>La tenue de cours magistraux publics et diffusés en ligne par les titulaires des chaires attribuées par les départements disciplinaires de l’Institut La Boétie ;</li>
+      <li>L’élaboration et la mise à disposition de ressources de formation en ligne gratuites pour le grand public ;</li>
+      <li>L’organisation de jurys et la remise de prix littéraires, cinématographiques et artistiques, ainsi que d’événements culturels ;</li>
+      <li>L’organisation de formations théoriques et pratiques en France et à l’international, en particulier en direction de la jeunesse.</li>
+  </ul>
+  </div>
+{% endblock %}

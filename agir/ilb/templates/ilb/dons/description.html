@@ -1,0 +1,11 @@
+{% load display_lib %}
+
+<h4>
+  Don à l'Institut La Boétie
+</h4>
+<div>
+  Vous avez donné <strong>{{ payment.price | display_price_in_cent }}</strong> à l'Institut La Boétie
+  le {{ payment.created | date }}
+  {% if payment.type == "" %} dans le cadre de votre don  automatique.
+  {% endif %}
+</div>
