@@ -12,7 +12,7 @@ from agir.events.serializers import EventSerializer, EventListSerializer
 from agir.groups.models import SupportGroup
 from agir.groups.serializers import SupportGroupSearchResultSerializer
 
-from agir.groups.utils import is_active_group_filter
+from agir.groups.utils.supportgroup import is_active_group_filter
 from agir.lib.rest_framework_permissions import IsActionPopulaireClientPermission
 
 

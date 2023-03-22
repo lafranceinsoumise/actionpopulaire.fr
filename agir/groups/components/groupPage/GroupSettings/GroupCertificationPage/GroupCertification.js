@@ -10,8 +10,6 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 
 import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
 
-import { CERTIFICATION_CRITERIA } from "@agir/groups/utils/group";
-
 const StyledWarning = styled.div`
   font-size: 0.875rem;
   color: ${(props) => props.theme.black700};
@@ -106,24 +104,13 @@ const GroupCertification = (props) => {
     setHasConsent(e.target.checked);
   };
 
-  const criteria = useMemo(
-    () =>
-      Object.keys(certificationCriteria)
-        .sort(
-          (a, b) =>
-            Object.keys(CERTIFICATION_CRITERIA).indexOf(b) -
-            Object.keys(CERTIFICATION_CRITERIA).indexOf(a)
-        )
-        .map((key) => ({
-          ...(CERTIFICATION_CRITERIA[key] || {}),
-          key,
-          checked: certificationCriteria[key],
-        })),
-    [certificationCriteria]
-  );
+  const [checkedCriteria, isCertifiable] = useMemo(() => {
+    const checked = Object.values(certificationCriteria).filter(
+      (criterion) => criterion.checked
+    );
 
-  const checkedCriteria = criteria.filter((criterion) => criterion.checked);
-  const isCertifiable = checkedCriteria.length === criteria.length;
+    return [checked, checked.length === certificationCriteria.length];
+  }, [certificationCriteria]);
 
   return (
     <>
@@ -141,22 +128,24 @@ const GroupCertification = (props) => {
         {isCertified && !isCertifiable && <MissingCriteriaWarning />}
         <Spacer size="1rem" />
         <ul>
-          {criteria.map(({ key, checked, label, description }) => (
-            <li key={key}>
-              <RawFeatherIcon
-                name={checked ? "check" : "chevron-right"}
-                css={`
-                  background-color: ${({ name, theme }) =>
-                    name === "check" ? theme.green500 : theme.black500};
-                `}
-              />
-              <span>
-                <strong>{label || key}</strong>
-                <br />
-                {description}
-              </span>
-            </li>
-          ))}
+          {Object.entries(certificationCriteria).map(
+            ([key, { value, label, description }]) => (
+              <li key={key}>
+                <RawFeatherIcon
+                  name={value ? "check" : "chevron-right"}
+                  css={`
+                    background-color: ${({ name, theme }) =>
+                      name === "check" ? theme.green500 : theme.black500};
+                  `}
+                />
+                <span>
+                  <strong>{label || key}</strong>
+                  <br />
+                  {description}
+                </span>
+              </li>
+            )
+          )}
           {isCertified && (
             <li key="certified">
               <RawFeatherIcon
@@ -215,7 +204,7 @@ const GroupCertification = (props) => {
             <span>
               {checkedCriteria.length === 0
                 ? "Aucune"
-                : `${checkedCriteria.length}/${criteria.length}`}{" "}
+                : `${checkedCriteria.length}/${certificationCriteria.length}`}{" "}
               {checkedCriteria.length <= 1
                 ? "condition remplie"
                 : "conditions remplies"}{" "}
@@ -233,10 +222,10 @@ GroupCertification.propTypes = {
   }),
   isCertified: PropTypes.bool,
   certificationCriteria: PropTypes.shape({
-    gender: PropTypes.bool,
-    activity: PropTypes.bool,
-    members: PropTypes.bool,
-    creation: PropTypes.bool,
+    gender: PropTypes.object,
+    activity: PropTypes.object,
+    members: PropTypes.object,
+    creation: PropTypes.object,
   }),
 };
 export default GroupCertification;

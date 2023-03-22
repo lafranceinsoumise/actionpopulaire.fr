@@ -31,6 +31,9 @@ from .forms import SupportGroupAdminForm
 from .. import models
 from ..actions.promo_codes import get_promo_codes
 from ..models import Membership, SupportGroup
+from ..utils.certification import (
+    check_certification_criteria,
+)
 from ...lib.admin.utils import admin_url
 
 
@@ -315,14 +318,26 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
     promo_code.short_description = _("Code promo en cours")
 
-    def referents(self, object):
-        referents = object.memberships.filter(
-            membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT
-        ).select_related("person")
-        if referents:
-            return " / ".join(a.person.email for a in referents)
+    def referents(self, obj):
+        referents = obj.referents
 
-        return "-"
+        if not referents:
+            return "-"
+
+        return mark_safe(
+            "<br/>".join(
+                [
+                    '<a style="white-space: nowrap;" href="%s" title="%s">%s %s</a>'
+                    % (
+                        reverse("admin:people_person_change", args=(person.id,)),
+                        escape(person.display_name),
+                        escape(person.email),
+                        f"({person.gender})" if person.gender else "",
+                    )
+                    for person in referents
+                ]
+            )
+        )
 
     referents.short_description = _("Animateur⋅ices")
 
@@ -453,52 +468,28 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
     certifiable.short_description = _("Statut")
 
-    def certification_criteria(self, object):
-        criteria = object.check_certification_criteria()
+    def certification_criteria(self, obj):
         acceptable_event_subtype_link = admin_url(
             "admin:events_eventsubtype_changelist",
             query={"is_acceptable_for_group_certification__exact": 1},
         )
-        label = {
-            "gender": {
-                "label": "Animation paritaire",
-                "help": "Le groupe est animé par au moins deux personnes de genre différent",
-            },
-            "activity": {
-                "label": "Trois actions de terrain",
-                "help": mark_safe(
-                    "Le groupe a organisé trois actions de terrain "
-                    "dans les deux derniers mois "
-                    f'(<a href="{acceptable_event_subtype_link}">'
-                    "voir la liste des types d'événement acceptés"
-                    "</a>)"
-                ),
-            },
-            "creation": {
-                "label": "Un mois d’existence",
-                "help": "Le groupe a été créé il y plus d'un mois",
-            },
-            "members": {
-                "label": "Trois membres actifs",
-                "help": "Le groupe doit compter plus de trois membres actifs, animateur·ices et gestionnaires compris",
-            },
-            "exclusivity": {
-                "label": "Un seul groupe certifié par animateur·ice",
-                "help": "Les animateur·ices du groupe n'animent pas d'autres groupes locaux certifiés",
-            },
-        }
+        criteria = check_certification_criteria(obj, with_labels=True)
         html = [
             f"""
             <div class="form-row">
               <div class="checkbox-row">
-                <input type="checkbox" disabled="" name="cc-{key}" id="id_cc-{key}" {'checked=''' if criteria[key] else ''}>
-                <label class="vCheckboxLabel" for="id_cc-{key}">{value["label"]}</label>
-                <div class="help">{value["help"]}</div>
+                <input type="checkbox" disabled="" name="cc-{key}" id="id_cc-{key}" {'checked=''' if criterion["value"] else ''}>
+                <label class="vCheckboxLabel" for="id_cc-{key}">{criterion["label"]}</label>
+                <div class="help">
+                  {criterion["help"]}
+                  {f' (<a href="{acceptable_event_subtype_link}">'
+                    "voir la liste des types d'événement acceptés"
+                    "</a>)" if key =='activity' else ""}
+                </div>
               </div>
             </div>
             """
-            for key, value in label.items()
-            if key in criteria.keys()
+            for key, criterion in criteria.items()
         ]
         return format_html("".join(html))
 
@@ -586,6 +577,64 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 class ThematicGroupAdmin(SupportGroupAdmin):
     def get_readonly_fields(self, request, obj=None):
         return super().get_readonly_fields(request, obj) + ("type",)
+
+
+@admin.register(proxys.UncertifiableGroup)
+class UncertifiableGroupAdmin(SupportGroupAdmin):
+    list_display_links = None
+    list_display = (
+        "group_link",
+        "location_short",
+        "created__date",
+        "active_member_count",
+        "referents",
+        "recent_event_count",
+        "short_certification_criteria",
+    )
+    list_filter = (
+        CountryListFilter,
+        CirconscriptionLegislativeFilter,
+        DepartementListFilter,
+        RegionListFilter,
+    )
+    date_hierarchy = None
+    show_full_result_count = False
+
+    @admin.display(description="Groupe", ordering="name")
+    def group_link(self, obj):
+        return mark_safe(
+            '<a href="%s">%s</a>'
+            % (
+                reverse("admin:groups_supportgroup_change", args=(obj.id,)),
+                escape(obj.name),
+            )
+        )
+
+    @admin.display(description="Création", ordering="created")
+    def created__date(self, obj):
+        return obj.created.date()
+
+    @admin.display(description="Membres")
+    def active_member_count(self, obj):
+        return obj.active_member_count
+
+    @admin.display(description="Actions")
+    def recent_event_count(self, obj):
+        return obj.recent_event_count
+
+    @admin.display(description="Critères")
+    def short_certification_criteria(self, obj):
+        criteria = check_certification_criteria(obj, with_labels=True)
+        html = [
+            f"""
+            <div style="white-space: nowrap;" title={criterion["help"]}>
+              <img src="/static/admin/img/icon-{'yes' if criterion["value"] else 'no'}.svg" alt="{criterion["value"]}">
+              &nbsp;{criterion["label"]}
+            </div>
+            """
+            for key, criterion in criteria.items()
+        ]
+        return format_html("".join(html))
 
 
 @admin.register(models.SupportGroupTag)

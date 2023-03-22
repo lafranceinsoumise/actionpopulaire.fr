@@ -1,5 +1,4 @@
 import hashlib
-from datetime import timedelta
 from urllib.parse import urljoin
 
 from django.conf import settings
@@ -7,13 +6,11 @@ from django.contrib.postgres.search import SearchVector, SearchRank
 from django.db import models
 from django.db.models import Subquery, OuterRef, Count, Q, Exists, Max
 from django.db.models.functions import Coalesce
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
 
 from agir.carte.models import StaticMapImage
 from agir.lib.form_fields import CustomJSONEncoder
-from agir.lib.geo import FRENCH_COUNTRY_CODES
 from agir.lib.models import (
     BaseAPIResource,
     AbstractLabel,
@@ -294,6 +291,8 @@ class SupportGroup(
             for m in self.memberships.filter(
                 membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER
             )
+            .select_related("person")
+            .with_email()
         ]
 
     @property
@@ -303,6 +302,8 @@ class SupportGroup(
             for m in self.memberships.filter(
                 membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT
             )
+            .select_related("person")
+            .with_email()
         ]
 
     @property
@@ -344,58 +345,6 @@ class SupportGroup(
                 label__in=settings.CERTIFIABLE_GROUP_SUBTYPES
             ).exists()
         )
-
-    def check_certification_criteria(self):
-        now = timezone.now()
-        criteria = {
-            "creation": now - timedelta(days=31) >= self.created,
-            "members": 3 <= self.active_members_count,
-        }
-
-        # At least 3 recent events, except for groups abroad
-        if (
-            not self.location_country
-            or self.location_country.code in FRENCH_COUNTRY_CODES
-        ):
-            recent_event_count = (
-                self.organized_events.acceptable_for_group_certification(
-                    time_ref=now
-                ).count()
-            )
-            criteria["activity"] = 3 <= recent_event_count
-
-        referents = self.memberships.filter(
-            membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT
-        )
-
-        # At least two referents with different gender
-        referent_genders = (
-            referents.exclude(person__gender__exact="")
-            .values("person__gender")
-            .annotate(c=Count("person__gender"))
-            .order_by("person__gender")
-            .count()
-        )
-        criteria["gender"] = 2 <= referent_genders
-
-        # Group referents cannot be referents of another certified local group
-        criteria["exclusivity"] = True
-        for referent in self.referents:
-            if not criteria["exclusivity"]:
-                break
-            criteria["exclusivity"] = (
-                False
-                == referent.memberships.exclude(supportgroup_id=self.id)
-                .filter(
-                    supportgroup__published=True,
-                    membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
-                    supportgroup__type=self.TYPE_LOCAL_GROUP,
-                    supportgroup__subtypes__label__in=settings.CERTIFIED_GROUP_SUBTYPES,
-                )
-                .exists()
-            )
-
-        return criteria
 
     @property
     def is_certified(self):
