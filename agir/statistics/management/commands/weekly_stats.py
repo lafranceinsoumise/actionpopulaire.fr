@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.utils.formats import date_format, time_format
 from nuntius.models import Campaign
 
-from ...stats import *
+from ...actions import *
 
 
 class Command(BaseCommand):
