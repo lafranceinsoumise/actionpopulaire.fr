@@ -174,7 +174,7 @@ const GroupCard = ({
           <Button
             link
             key="fund"
-            icon="activity"
+            icon="trending-up"
             route="contributions"
             params={{ group: id }}
           >

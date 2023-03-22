@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib.admin.widgets import AdminTextareaWidget
 from django.contrib.gis.db import models
 from django.core.validators import RegexValidator, FileExtensionValidator
-from django.db.models import JSONField
+from django.db.models import JSONField, ExpressionWrapper, BooleanField, Q
 from django.utils import timezone
 from django.utils.html import mark_safe, format_html, format_html_join
 from django.utils.translation import gettext_lazy as _
@@ -540,3 +540,7 @@ class ExternalLinkMixin(models.Model):
 
     def __str__(self):
         return f"{self.label} <{self.url}>"
+
+
+def Condition(*args, **kwargs):
+    return ExpressionWrapper(Q(*args, **kwargs), output_field=BooleanField())

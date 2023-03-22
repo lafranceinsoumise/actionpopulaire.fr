@@ -30,7 +30,7 @@ from . import serializers
 from ..events.filters import EventFilter
 from ..events.models import Event, EventSubtype
 from ..groups.models import SupportGroup, SupportGroupSubtype, SupportGroupTag
-from ..groups.utils import is_active_group_filter
+from ..groups.utils.supportgroup import is_active_group_filter
 from ..lib.filters import FixedModelMultipleChoiceFilter
 from ..lib.views import AnonymousAPIView
 

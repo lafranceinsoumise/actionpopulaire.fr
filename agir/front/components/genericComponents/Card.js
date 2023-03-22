@@ -51,10 +51,15 @@ const Card = styled.div`
   }
 
   @media (max-width: ${style.collapse}px) {
-    border: none;
-    box-shadow: ${style.elaborateShadow};
-    border-radius: 0;
     padding: 1rem;
+    ${(props) =>
+      !props.bordered
+        ? `
+      border: none;
+      box-shadow: ${style.elaborateShadow};
+      border-radius: 0;
+    `
+        : ""}
   }
 
   & p {

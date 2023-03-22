@@ -223,7 +223,6 @@ const EventCard = (props) => {
     subtype,
     name,
     groups,
-    groupsAttendees,
     eventPageLink,
     backLink,
   } = props;
@@ -239,6 +238,15 @@ const EventCard = (props) => {
   const handleClick = React.useCallback(() => {
     linkRef.current && linkRef.current.click();
   }, []);
+
+  const groupsAttendees = useMemo(() => {
+    if (!Array.isArray(props.groupsAttendees)) {
+      return [];
+    }
+    return props.groupsAttendees.filter(
+      (group) => !groups.some((g) => g.id === group.id)
+    );
+  }, [groups, props.groupsAttendees]);
 
   return (
     <StyledCard onClick={handleClick} $isPast={isPast}>

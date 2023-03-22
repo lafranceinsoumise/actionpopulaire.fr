@@ -52,7 +52,8 @@ from agir.groups.serializers import (
     SupportGroupExternalLinkSerializer,
     MemberPersonalInformationSerializer,
 )
-from agir.groups.utils import is_active_group_filter
+from agir.groups.utils.certification import add_certification_criteria_to_queryset
+from agir.groups.utils.supportgroup import is_active_group_filter
 from agir.lib.pagination import (
     APIPageNumberPagination,
 )
@@ -211,6 +212,17 @@ class GroupDetailAPIView(RetrieveAPIView):
     )
     serializer_class = SupportGroupDetailSerializer
     queryset = SupportGroup.objects.active()
+
+    def get_serializer(self, *args, **kwargs):
+        is_manager = (
+            hasattr(self.request.user, "person")
+            and self.request.user.person in self.get_object().managers
+        )
+        if not is_manager:
+            return super().get_serializer(
+                *args, fields=SupportGroupDetailSerializer.NON_MANAGER_FIELDS, **kwargs
+            )
+        return super().get_serializer(*args, **kwargs)
 
 
 class NearGroupsAPIView(ListAPIView):

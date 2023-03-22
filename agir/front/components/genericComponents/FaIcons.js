@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import fontawesome from "@agir/lib/utils/fontawesome";
@@ -77,7 +77,8 @@ const StyledPage = styled.main`
   width: 100%;
   display: grid;
   font-size: 0.875rem;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(232px, 1fr));
+  gap: 0.5rem;
 
   figure {
     display: flex;
@@ -140,9 +141,16 @@ const Icon = ({ icon }) => {
 };
 
 export const FaIcons = () => {
+  const icons = useMemo(() => {
+    const dataElement = document.getElementById("usedIcons");
+    return dataElement && dataElement.type === "application/json"
+      ? JSON.parse(dataElement.textContent).filter(Boolean)
+      : usedIcons;
+  }, []);
+
   return (
     <StyledPage>
-      {usedIcons.sort().map((icon) => (
+      {icons.sort().map((icon) => (
         <Icon key={icon} icon={icon} />
       ))}
     </StyledPage>

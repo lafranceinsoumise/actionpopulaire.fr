@@ -77,9 +77,10 @@ export const BaseButton = styled.button
     shouldForwardProp: (prop) =>
       ["loading", "link", "small", "block", "wrap"].includes(prop) === false,
   })
-  .attrs(({ link, as, loading, children, ...rest }) => ({
+  .attrs(({ link, as, loading, children, type, ...rest }) => ({
     ...rest,
     as: link ? Link : as,
+    type: type || "button",
     children: (
       <>
         <ButtonLoader loading={loading} />

@@ -32,7 +32,7 @@ from agir.people.actions.subscription import make_subscription_token
 from agir.people.models import Person
 from agir.people.models import PersonTag
 from .actions.invitation import make_abusive_invitation_report_link
-from .utils import DAYS_SINCE_LAST_EVENT_WARNING
+from .utils.supportgroup import DAYS_SINCE_LAST_EVENT_WARNING
 
 NOTIFIED_CHANGES = {
     "name": "information",

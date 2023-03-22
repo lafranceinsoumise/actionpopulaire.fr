@@ -13,6 +13,7 @@ from ..payments.types import (
 
 class DonsConfig(AppConfig):
     name = "agir.donations"
+    verbose_name = "Dons"
 
     SINGLE_TIME_DONATION_TYPE = "don"
     MONTHLY_DONATION_TYPE = "don_mensuel"

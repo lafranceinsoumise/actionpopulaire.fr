@@ -1,6 +1,11 @@
+from django.conf import settings
 from django.db import models
 
-from agir.groups.models import SupportGroup
+from agir.groups.models import SupportGroup, SupportGroupQuerySet
+from agir.groups.utils.certification import (
+    add_certification_criteria_to_queryset,
+    check_certification_criteria,
+)
 
 
 class ThematicGroupManager(models.Manager):
@@ -15,4 +20,20 @@ class ThematicGroup(SupportGroup):
         default_permissions = ("view", "change")
         verbose_name = "Groupe thématique"
         verbose_name_plural = "Groupes thématiques"
+        proxy = True
+
+
+class UncertifiableGroupManager(models.Manager.from_queryset(SupportGroupQuerySet)):
+    def get_queryset(self):
+        qs = super().get_queryset().active().certified()
+        return add_certification_criteria_to_queryset(qs).filter(certifiable=False)
+
+
+class UncertifiableGroup(SupportGroup):
+    objects = UncertifiableGroupManager()
+
+    class Meta:
+        default_permissions = ("view", "change")
+        verbose_name = "Groupe décertifiable"
+        verbose_name_plural = "Groupes décertifiables"
         proxy = True
