@@ -77,7 +77,8 @@ const StyledPage = styled.main`
   width: 100%;
   display: grid;
   font-size: 0.875rem;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(232px, 1fr));
+  gap: 0.5rem;
 
   figure {
     display: flex;
