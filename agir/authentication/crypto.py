@@ -32,10 +32,7 @@ class SignatureGenerator(PasswordResetTokenGenerator):
         super().__init__()
 
     def _check_params(self, params):
-        if not set(params).issuperset(set(self.token_params)):
-            raise TypeError(
-                f"The following arguments are compulsory: {self.token_params!r}"
-            )
+        return set(params).issuperset(set(self.token_params))
 
     def make_token(self, **params):
         if not self._check_params(params):

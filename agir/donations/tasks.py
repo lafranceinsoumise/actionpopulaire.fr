@@ -87,6 +87,7 @@ def send_monthly_donation_confirmation_email(
     email_template="donations/confirmation_email.html",
     from_email=settings.EMAIL_FROM_LFI,
 ):
+    data = data.copy()
     email = data.pop("email")
 
     query_params = {

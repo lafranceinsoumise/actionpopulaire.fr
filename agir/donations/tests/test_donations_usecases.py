@@ -462,25 +462,25 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
         send_email.delay.assert_called_once()
         expected = {
             "email": "test2@test.com",
-            "confirmation_view_name": "monthly_donation_confirm",
             "amount": 20000,
             "allocations": "[]",
             "payment_mode": payment_modes.DEFAULT_MODE,
-            "nationality": "FR",
             "first_name": "Marc",
             "last_name": "Frank",
+            "gender": "F",
             "location_address1": "4 rue de Chaume",
             "location_address2": "",
-            "location_zip": "33000",
             "location_city": "Bordeaux",
+            "location_zip": "33000",
             "location_country": "FR",
             "contact_phone": "+33645789845",
+            "nationality": "FR",
         }
         for key, value in expected.items():
-            self.assertIn(key, send_email.delay.call_args[1])
-            self.assertEqual(send_email.delay.call_args[1][key], value)
+            self.assertIn(key, send_email.delay.call_args[1]["data"])
+            self.assertEqual(send_email.delay.call_args[1]["data"][key], value)
 
-        send_monthly_donation_confirmation_email(**expected)
+        send_monthly_donation_confirmation_email(data=expected)
 
         self.assertEqual(len(mail.outbox), 1)
         email = mail.outbox[0]
@@ -593,7 +593,6 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
         )
         send_email.delay.assert_called_once()
         expected = {
-            "confirmation_view_name": "monthly_donation_confirm",
             "email": existing_person.email,
             "amount": 500,
             "allocations": json.dumps(allocations),
@@ -609,8 +608,8 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
             "contact_phone": "+33645789845",
         }
         for key, value in expected.items():
-            self.assertIn(key, send_email.delay.call_args[1])
-            self.assertEqual(send_email.delay.call_args[1][key], value)
+            self.assertIn(key, send_email.delay.call_args[1]["data"])
+            self.assertEqual(send_email.delay.call_args[1]["data"][key], value)
 
     def test_correct_email_content_when_not_logged_in(self):
         params = {
@@ -632,7 +631,7 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
         }
 
         send_monthly_donation_confirmation_email(
-            **params, confirmation_view_name="monthly_donation_confirm"
+            data=params, confirmation_view_name="monthly_donation_confirm"
         )
 
         self.assertEqual(len(mail.outbox), 1)
