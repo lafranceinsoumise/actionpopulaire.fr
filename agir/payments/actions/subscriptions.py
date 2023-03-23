@@ -163,6 +163,14 @@ def count_installments(subscription, start_date=None):
     if end_date is None:
         return None
 
-    # compte le nombre de jours entre les deux dates limite dont le jour du mois est égal à la date de prélèvement
-    days = pd.date_range(start=start_date, end=end_date, freq="D")
-    return (days.day == subscription.day_of_month).sum()
+    if subscription.month_of_year is None:
+        # compte le nombre de jours entre les deux dates limite dont le jour du mois est égal à la date de prélèvement
+        days = pd.date_range(start=start_date, end=end_date, freq="D")
+        return (days.day == subscription.day_of_month).sum()
+    else:
+        # dans le cas annuel, c'est la différence entre les années des deux dates plus éventuellement 1 si
+        # le jour dans l'année de la date de fin est strictement supérieur au jour dans l'année de la date de début
+        excedent = int(
+            (end_date.month, end_date.day) > (start_date.month, start_date.day)
+        )
+        return end_date.year - start_date.year + excedent

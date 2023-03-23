@@ -38,7 +38,10 @@ class SignatureGenerator(PasswordResetTokenGenerator):
             )
 
     def make_token(self, **params):
-        self._check_params(params)
+        if not self._check_params(params):
+            raise TypeError(
+                f"The following arguments are compulsory: {self.token_params!r}"
+            )
         return self._make_token_with_timestamp(params, self._num_seconds(self._now()))
 
     def _make_hash_value(self, params: Mapping[str, Any], timestamp):
@@ -72,7 +75,8 @@ class SignatureGenerator(PasswordResetTokenGenerator):
 
     def check_token(self, token, **params):
         """copied from"""
-        self._check_params(params)
+        if not self._check_params(params):
+            return False
         if not token:
             return False
         # Parse the token

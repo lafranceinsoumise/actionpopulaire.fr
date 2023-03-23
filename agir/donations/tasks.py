@@ -9,7 +9,7 @@ from agir.lib.celery import (
     emailing_task,
     http_task,
 )
-from agir.lib.mailing import send_mosaico_email, add_params_to_urls
+from agir.lib.mailing import send_mosaico_email, add_params_to_urls, send_template_email
 from agir.lib.phone_numbers import is_french_number, is_mobile_number
 from agir.lib.sms import send_sms
 from agir.lib.utils import front_url, generate_token_params, shorten_url
@@ -38,13 +38,21 @@ def send_donation_email(person_pk, payment_type):
     ):
         template_code = PAYMENT_TYPES[payment_type].email_template_code
 
-    send_mosaico_email(
-        code=template_code,
-        subject="Merci d'avoir donné !",
-        from_email=email_from,
-        bindings={"PROFILE_LINK": front_url("personal_information")},
-        recipients=[person],
-    )
+    if template_code.endswith("html"):
+        send_template_email(
+            template_name=template_code,
+            from_email=email_from,
+            bindings={"profil": front_url("personal_information")},
+            recipients=[person],
+        )
+    else:
+        send_mosaico_email(
+            code=template_code,
+            subject="Merci d'avoir donné !",
+            from_email=email_from,
+            bindings={"PROFILE_LINK": front_url("personal_information")},
+            recipients=[person],
+        )
 
 
 @emailing_task(post_save=True)
@@ -73,11 +81,17 @@ def send_spending_request_to_review_email(spending_request_pk):
 
 @emailing_task()
 def send_monthly_donation_confirmation_email(
-    email, confirmation_view_name="monthly_donation_confirm", **kwargs
+    *,
+    data,
+    confirmation_view_name="monthly_donation_confirm",
+    email_template="donations/confirmation_email.html",
+    from_email=settings.EMAIL_FROM_LFI,
 ):
+    email = data.pop("email")
+
     query_params = {
         "email": email,
-        **{k: v for k, v in kwargs.items() if v is not None},
+        **{k: v for k, v in data.items() if v is not None},
     }
     query_params["token"] = monthly_donation_confirmation_token_generator.make_token(
         **query_params
@@ -85,11 +99,10 @@ def send_monthly_donation_confirmation_email(
 
     confirmation_link = front_url(confirmation_view_name, query=query_params)
 
-    send_mosaico_email(
-        code="CONFIRM_SUBSCRIPTION_LFI",
-        subject="Finalisez votre don mensuel",
-        from_email=settings.EMAIL_FROM_LFI,
-        bindings={"CONFIRM_SUBSCRIPTION_LINK": confirmation_link},
+    send_template_email(
+        template_name=email_template,
+        from_email=from_email,
+        bindings={"lien_confirmation": confirmation_link},
         recipients=[email],
     )
 

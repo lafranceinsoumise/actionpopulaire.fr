@@ -1,0 +1,33 @@
+{% extends email_template %}
+
+{% block header %}{% endblock %}
+
+{% block subject %}
+  Merci pour votre don à l'Institut La Boétie
+{% endblock %}
+
+{% block html_content %}
+  <p>Bonjour,</p>
+
+  <p>Vous venez de faire un don à l’Institut La Boétie. Nous vous en remercions chaleureusement !</p>
+
+  <p>Votre soutien nous permet de développer nos activités d’éducation populaire et de production intellectuelle et de renforcer les liens entre mondes politique, intellectuel et artistique.</p>
+
+  <p>Grâce à vous, nous allons pouvoir :</p>
+  <ul>
+    <li>continuer de nourrir la pensée critique et le débat public avec nos publications,</li>
+    <li>rendre accessible au plus grand nombre des idées utiles à la pratique politique, à travers nos événements publics,</li>
+    <li>former une génération militante avec nos formations locales, en ligne et notre cursus renforcé</li>
+    <li>développer de nouveaux projets comme une Académie insoumise, une revue et bien d’autres choses !</li>
+  </ul>
+  <p>Merci encore !</p>
+
+  <p>Amitiés,<br>
+    L’équipe de l’Institut La Boétie</p>
+{% endblock %}
+
+{% block html_footer %}
+{% block text_footer %}
+Vous recevez ce message en confirmation de votre don à l'Institut La Boétie. Merci infiniment !
+{% endblock %}
+{% endblock %}

@@ -9,8 +9,19 @@
   Votre don à l'Institut La Boétie
 {% endblock %}
 
+
+
 {% block donation_reminder %}
-  Je souhaite donner <strong>{{  amount | display_price_in_cent }}</strong> à l'Institut La Boétie.
+  <p>
+  Confirmez votre don de <strong>{{  amount | display_price_in_cent }}</strong> {{ frequence }}
+  à l'Institut La Boétie.</p>
+
+  {% if frequence %}
+    <p>
+      Le prélèvement aura lieu tous les <strong>{{ date_prelevement }}</strong>.
+    </p>
+    <p><strong>Les dons réguliers sont réglés par carte bancaire uniquement.</strong></p>
+  {% endif %}
 {% endblock %}
 
 {% block legal %}

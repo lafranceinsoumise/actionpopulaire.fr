@@ -1,0 +1,36 @@
+{% extends email_template %}
+
+{% block header %}{% endblock %}
+
+{% block subject %}
+  Finalisez votre don mensuel !
+{% endblock %}
+
+{% block html_content %}
+<p style="font-size: 24px; font-weight: bold; color: #000a2c;">Finalisez votre don mensuel</p>
+<p>Confirmez votre don mensuel en cliquant sur ce bouton !</p>
+  <a style="font-size: 18px; color: #000a2c; padding: 0 14px;"
+    href="{{ lien_confirmation }}">Je finalise mon don mensuel</a>
+<p>Ou bien en cliquant sur ce lien : {{ lien_confirmation }}</p>
+
+  <p>Dans le cadre d'un don régulier, nous pouvons avoir besoin de vous contacter, notamment pour vous transmettre
+    votre reçu fiscal, ou si la Commission nationale des comptes de campagne et des financements politiques nous
+    demande des informations supplémentaires. Nous devons donc nous assurer que vous avez bien accès à cette adresse
+    email.</p>
+{% endblock %}
+
+{% block text_content %}Finalisez votre don mensuel !
+
+Pour finalisez votre don mensuel, cliquez sur ou copier-coller le lien suivant :
+{{ lien_confirmation }}
+
+Dans le cadre d'un don régulier, nous pouvons avoir besoin de vous contacter, notamment pour vous transmettre
+votre reçu fiscal, ou si la Commission nationale des comptes de campagne et des financements politiques nous
+demande des informations supplémentaires. Nous devons donc nous assurer que vous avez bien accès à cette adresse
+email.{% endblock %}
+
+{% block html_footer %}
+{% block text_footer %}
+Vous n'êtes pas à l'origine de cette opération ? Ignorez simplement ce message.
+{% endblock %}
+{% endblock %}

@@ -1041,6 +1041,7 @@ ILB_SYSTEMPAY_CERTIFICATE = os.environ.get(
 ILB_SYSTEMPAY_API_PASSWORD = os.environ.get(
     "ILB_SYSTEMPAY_API_PASSWORD", "arbitrarystring"
 )
-ILB_DONS_REMERCIEMENTS = os.environ.get(
-    "ILB_REMERCIEMENTS", "https://institutlaboetie.fr/"
+ILB_DONS_URL = os.environ.get("ILB_DONS_URL", "https://institutlaboetie.fr/don/")
+ILB_DONS_REMERCIEMENTS_URL = os.environ.get(
+    "ILB_DONS_REMERCIEMENTS_URL", "https://institutlaboetie.fr/don/merci/"
 )

@@ -1,0 +1,16 @@
+{% load display_lib %}
+
+<h4>Don régulier à l'Institut La Boétie</h4>
+<div>
+  <p>
+    Vous donnez <strong>{{ subscription.price | display_price_in_cent }}</strong> par {{ subscription.frequence.label }}
+    à l'Institut La Boétie.
+  </p>
+  <p>
+    Ce montant sera prélevé sur votre carte <strong>chaque {{ subscription.get_date_prelevement }}</strong>
+    {% if subscription.end_date %}
+      jusqu'à <strong>{{ subscription.end_date | date:"F Y" }}</strong>
+    {% endif %}.
+  </p>
+</div>
+{% if expiry_date %}<p>Votre carte expire le {{ expiry_date }}.</p>{% endif %}

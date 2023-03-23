@@ -43,9 +43,9 @@ class BasePersonalInformationView(FormView):
 
     def dispatch(self, request, *args, **kwargs):
         self.persistent_data = {}
-        form = self.get_form()
+        form_class = self.form_class
         for k in self.persisted_data:
-            field = form.fields[k]
+            field = form_class.declared_fields[k]
 
             if k in request.GET:
                 value = request.GET[k]
@@ -93,11 +93,13 @@ class BasePersonalInformationView(FormView):
         return super().get_context_data(**self.persistent_data, **kwargs)
 
     def get_metas(self, form):
+        ignore_fields = [
+            "payment_mode",
+        ]
+
         return {
-            "nationality": form.cleaned_data["nationality"],
-            "subscribed_lfi": form.cleaned_data.get("subscibed_lfi", False),
             **{
-                k: v for k, v in form.cleaned_data.items() if k in form._meta.fields
+                k: v for k, v in form.cleaned_data.items() if k not in ignore_fields
             },  # person fields
             "contact_phone": form.cleaned_data["contact_phone"].as_e164,
             "utm_source": self.request.GET.get("utm_source", ""),

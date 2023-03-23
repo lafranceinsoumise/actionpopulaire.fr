@@ -40,17 +40,11 @@ class CreateDonationAPIView(UpdateModelMixin, GenericAPIView):
 
         # Confirm email if the user is unknown
         if self.person is None:
-            email = validated_data.pop("email", None)
-
             if not "allocations" in validated_data:
                 validated_data["allocations"] = "[]"
 
-            confirmation_view_name = "monthly_donation_confirm"
-
             send_monthly_donation_confirmation_email.delay(
-                confirmation_view_name=confirmation_view_name,
-                email=email,
-                **validated_data,
+                data=validated_data,
             )
             self.clear_session()
 

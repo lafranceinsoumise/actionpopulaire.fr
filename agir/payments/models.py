@@ -1,8 +1,9 @@
+import calendar
 import json
 import math
 
 from django.db import models
-from django.db.models import JSONField
+from django.db.models import JSONField, TextChoices
 from django.template.defaultfilters import floatformat
 from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
@@ -19,6 +20,17 @@ from .types import PAYMENT_TYPES
 __all__ = ["Payment", "Subscription"]
 
 from ..checks import AbstractCheckPaymentMode
+
+
+class FrequenceDon(TextChoices):
+    MENSUEL = "M", "par mois"
+    ANNUEL = "A", "par an"
+
+
+def display_date_prelevement(day_of_month, month_of_year=None):
+    if month_of_year is None:
+        return f"{day_of_month} du mois"
+    return f"{day_of_month} {calendar.month_name[month_of_year]}"
 
 
 class PaymentQueryset(models.QuerySet):
@@ -215,6 +227,9 @@ class Subscription(ExportModelOperationsMixin("subscription"), TimeStampedModel)
     day_of_month = models.PositiveSmallIntegerField(
         "Jour du mois", blank=True, null=True, editable=False
     )
+    month_of_year = models.PositiveSmallIntegerField(
+        "Mois de l'année", blank=True, null=True, editable=False
+    )
 
     price = models.IntegerField("prix en centimes d'euros", editable=False)
     type = models.CharField("Type", max_length=255)
@@ -259,6 +274,16 @@ class Subscription(ExportModelOperationsMixin("subscription"), TimeStampedModel)
         from agir.payments.actions.subscriptions import description_for_subscription
 
         return description_for_subscription(self)
+
+    @property
+    def frequence(self):
+        if self.month_of_year is None:
+            return FrequenceDon.MENSUEL
+        else:
+            return FrequenceDon.ANNUEL
+
+    def get_date_prelevement(self):
+        return display_date_prelevement(self.day_of_month, self.month_of_year)
 
     def __str__(self):
         return "Abonnement n°" + str(self.id)
