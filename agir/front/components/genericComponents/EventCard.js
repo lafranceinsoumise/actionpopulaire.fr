@@ -23,9 +23,7 @@ const Illustration = styled(Link)`
   max-width: 225px;
 
   @media (max-width: ${(props) => props.theme.collapse}px) {
-    margin: -1rem -1rem 1rem;
-    width: calc(100% + 2rem);
-    max-width: 100vw;
+    max-width: 100%;
   }
 
   & > * {
