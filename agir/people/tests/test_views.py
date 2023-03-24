@@ -367,7 +367,10 @@ class InformationConfidentialityFormTestCases(TestCase):
 
         response = self.client.get(url_form)
 
-        self.assertContains(response, "Attention cette action est irréversible !")
+        self.assertContains(
+            response,
+            "Votre compte Action populaire et toutes vos données seront supprimées.",
+        )
 
 
 class InformationPersonalFormTestCases(TestCase):
