@@ -37,7 +37,6 @@ from agir.people.forms.profile import (
     ActivityAndSkillsForm,
 )
 from agir.people.models import PersonEmail
-from agir.people.views.views_mixin import InsoumiseOnlyMixin
 
 
 class ProfileViewMixin(SoftLoginRequiredMixin):
@@ -244,7 +243,7 @@ class ChangePrimaryEmailView(SoftLoginRequiredMixin, RedirectView):
 
 
 @method_decorator(never_cache, name="get")
-class SkillsView(ProfileViewMixin, InsoumiseOnlyMixin, UpdateView):
+class SkillsView(ProfileViewMixin, UpdateView):
     template_name = "people/profile/profile_default.html"
     form_class = ActivityAndSkillsForm
     success_url = reverse_lazy("skills")
@@ -280,7 +279,7 @@ class PersonalDataView(ProfileViewMixin, FormView):
 
 
 @method_decorator(never_cache, name="get")
-class VolunteerView(ProfileViewMixin, InsoumiseOnlyMixin, UpdateView):
+class VolunteerView(ProfileViewMixin, UpdateView):
     template_name = "people/profile/volunteer.html"
     form_class = VolunteerForm
     success_url = reverse_lazy("volunteer")
