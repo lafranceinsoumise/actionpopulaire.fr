@@ -211,6 +211,11 @@ INSTALLED_APPS = [
     "silk",
 ]
 
+# OTPMiddleware vérifie si l'utilisateur connecté a un Device configuré à chaque requête.
+# Cela a pour effet secondaire désagréable de systématiquement accéder à la session, et donc
+# d'ajouter systématiquement un header Vary: Cookie, quand bien même la vue sous-jacente pourrait
+# ne pas accéder du tout à l'utilisateur connecté. On le désactive donc quand l'admin n'est pas activée.
+
 MIDDLEWARE = [
     "django_prometheus.middleware.PrometheusBeforeMiddleware",
     "corsheaders.middleware.CorsMiddleware",
@@ -218,7 +223,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django_otp.middleware.OTPMiddleware",
+    *(["django_otp.middleware.OTPMiddleware"] if ENABLE_ADMIN else []),
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.contrib.redirects.middleware.RedirectFallbackMiddleware",
