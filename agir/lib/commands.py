@@ -20,7 +20,8 @@ class BaseCommand(management.BaseCommand):
         self.log("\n")
         output = super().execute(*args, **options)
         translation.activate(default_language)
-        self.log("\n👋 Bye!\n\n")
+        if self.language == "en":
+            self.log("\n👋 Bye!\n\n")
         return output
 
     def add_arguments(self, parser):
@@ -40,14 +41,14 @@ class BaseCommand(management.BaseCommand):
             help="Display a progress bar during the script execution",
         )
 
-    def log(self, message):
+    def log(self, message, *args, **kwargs):
         if self.silent:
             return
         if self.tqdm:
             self.tqdm.clear()
         if not isinstance(message, str):
             message = str(message)
-        self.stdout.write(message)
+        self.stdout.write(message, *args, **kwargs)
 
     def info(self, message):
         self.log(self.style.MIGRATE_HEADING(f"{message}"))

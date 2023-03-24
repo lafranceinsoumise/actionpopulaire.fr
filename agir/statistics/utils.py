@@ -46,12 +46,12 @@ def get_statistics_querysets(date=None, as_kwargs=False):
         ),
         # MAILING
         "sent_campaign_count": CampaignSentEvent.objects.filter(
-            open_count__gt=0, datetime__date__lte=date
+            datetime__date__lte=date
         )
         .distinct("campaign_id")
         .order_by("campaign_id"),
         "sent_campaign_email_count": CampaignSentEvent.objects.filter(
-            open_count__gt=0, datetime__date__lte=date
+            datetime__date__lte=date
         ),
     }
 

@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import models
 from nuntius.models import CampaignSentEvent
 
@@ -20,8 +22,66 @@ class AbsoluteStatisticsQueryset(models.QuerySet):
         date = defaults.pop("date")
         return super().update_or_create(date=date, defaults=defaults, **kwargs)
 
+    def aggregate_for_period(self, start=None, end=None):
+        qs = self.order_by("-date")
+
+        if start:
+            qs = qs.filter(date__gte=start)
+
+        if end:
+            qs = qs.filter(date__lte=end)
+
+        first = qs.last()
+        last = qs.first()
+        aggregates = {"period": (first.date, last.date)}
+
+        for key in self.model.AGGREGATABLE_FIELDS:
+            aggregates[key] = getattr(last, key) - getattr(first, key)
+
+        return aggregates
+
+    def aggregate_for_last_week(self):
+        today = datetime.date.today()
+        last_monday = today - datetime.timedelta(days=today.weekday(), weeks=1)
+        last_sunday = last_monday + datetime.timedelta(days=6)
+        return self.aggregate_for_period(last_monday, last_sunday)
+
+    def aggregate_for_last_week_progress(self):
+        last_week = self.aggregate_for_last_week()
+        last_monday, last_sunday = last_week["period"]
+        previous_monday = last_monday - datetime.timedelta(weeks=1)
+        previous_sunday = last_sunday - datetime.timedelta(weeks=1)
+        previous_week = self.aggregate_for_period(previous_monday, previous_sunday)
+        aggregates = {"period": last_week["period"]}
+
+        for key in self.model.AGGREGATABLE_FIELDS:
+            aggregates[key] = last_week[key] - previous_week[key]
+
+        return aggregates
+
+    def aggregate_for_current_month(self):
+        today = datetime.date.today()
+        return self.filter(
+            date__year=today.year, date__month=today.month
+        ).aggregate_for_period()
+
+    def aggregate_for_current_year(self):
+        today = datetime.date.today()
+        return self.filter(date__year=today.year).aggregate_for_period()
+
 
 class AbsoluteStatistics(TimeStampedModel):
+    AGGREGATABLE_FIELDS = (
+        "event_count",
+        "local_supportgroup_count",
+        "local_certified_supportgroup_count",
+        "membership_person_count",
+        "political_support_person_count",
+        "lfi_newsletter_subscriber_count",
+        "sent_campaign_count",
+        "sent_campaign_email_count",
+    )
+
     objects = AbsoluteStatisticsQueryset.as_manager()
 
     date = models.DateField(
@@ -77,4 +137,4 @@ class AbsoluteStatistics(TimeStampedModel):
         verbose_name = "statistique absolue"
         verbose_name_plural = "statistiques absolues"
         ordering = ("-date",)
-        get_latest_by = "-date"
+        get_latest_by = "date"
