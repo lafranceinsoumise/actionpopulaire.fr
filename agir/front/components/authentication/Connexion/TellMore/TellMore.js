@@ -33,7 +33,7 @@ const LeftBlock = styled.div`
   }
 `;
 
-const MainBlock = styled.div`
+const MainBlock = styled.form`
   width: 60%;
   min-height: 100vh;
   display: flex;
@@ -177,18 +177,21 @@ const TellMore = ({ dismiss }) => {
     setFormData((formData) => ({ ...formData, mandat: option.value }));
   }, []);
 
-  const handleSubmit = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    const data = await updateProfile(formData);
-    if (data.error) {
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+      setIsLoading(true);
+      setError(null);
+      const data = await updateProfile(formData);
       setIsLoading(false);
-      setError(data.error);
-      return;
-    }
-    await dismiss();
-    setIsLoading(false);
-  }, [dismiss, formData]);
+      if (data.error) {
+        setError(data.error);
+        return;
+      }
+      await dismiss();
+    },
+    [dismiss, formData]
+  );
 
   useEffect(() => {
     getProfileInfos();
@@ -216,7 +219,7 @@ const TellMore = ({ dismiss }) => {
             style={{ width: "220px", paddingRight: "60px" }}
           />
         </LeftBlock>
-        <MainBlock>
+        <MainBlock onSubmit={handleSubmit}>
           <div style={{ width: "100%", maxWidth: "517px" }}>
             <h1>Je complète mon profil</h1>
             <h2>Complétez les informations vous concernant</h2>
@@ -329,8 +332,8 @@ const TellMore = ({ dismiss }) => {
               </>
             )}
             <Button
+              type="submit"
               color="primary"
-              onClick={handleSubmit}
               disabled={isLoading}
               style={{
                 width: "356px",

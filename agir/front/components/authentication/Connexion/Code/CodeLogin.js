@@ -193,6 +193,7 @@ const CodeConnexion = () => {
           autoFocus
         />
         <Button
+          type="submit"
           block
           color="primary"
           disabled={isLoading}
