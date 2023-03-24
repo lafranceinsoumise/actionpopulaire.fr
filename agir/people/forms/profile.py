@@ -1,5 +1,4 @@
 from functools import partial
-from urllib.parse import urlencode
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Field, Div
@@ -17,7 +16,6 @@ from agir.lib.form_mixins import TagMixin, MetaFieldsMixin, ImageFormMixin
 from agir.lib.forms import MediaInHead
 from agir.lib.models import RE_FRENCH_ZIPCODE
 from agir.lib.tasks import geocode_person
-from agir.lib.utils import generate_token_params
 from agir.people.form_mixins import ContactPhoneNumberMixin
 from agir.people.forms.mixins import LegacySubscribedMixin
 from agir.people.models import PersonTag, Person
@@ -247,27 +245,41 @@ class InformationConfidentialityForm(Form):
     def get_fields(self, fields=None):
         fields = fields or []
 
-        block_template = """
-                    <label class="control-label">{label}</label>
-                    <div class="controls">
-                      <div>{value}</div>
-                      <p class="help-block">{help_text}</a></p>
-                    </div>
-                """
+        title = "<h3>{}</h3>"
+        help_text = '<p class="help-block">{}</p>'
 
-        delete_account_link = format_html(
-            '<a href="{url}" class="btn btn-wrap btn-danger margintop marginbottom">{label}</a>',
-            url=reverse("delete_account"),
-            label="Je veux supprimer mon compte définitivement",
+        unsubscribe_title = HTML(
+            format_html(title, "Se désinscrire des lettres d'information")
+        )
+        unsubscribe_button = Submit(
+            "unsubscribe", "Je veux me désabonner de toutes les lettres d'information"
+        )
+        unsubscribe_help_text = HTML(
+            format_html(
+                help_text,
+                "Vous ne recevrez plus aucune des lettres d'information de la France insoumise. Vous pourrez continuer à utiliser Action populaire normalement.",
+            )
+        )
+        unsubscribe_block = Div(
+            unsubscribe_title, unsubscribe_button, unsubscribe_help_text
         )
 
-        validation_block = HTML(
+        delete_account_title = HTML(format_html(title, "Supprimer votre compte"))
+        delete_account_link = HTML(
             format_html(
-                block_template,
-                label="Suppression de votre compte",
-                value=delete_account_link,
-                help_text="Attention cette action est irréversible !",
+                '<a href="{url}" class="btn btn-wrap btn-danger">{label}</a>',
+                url=reverse("delete_account"),
+                label="Je veux supprimer mon compte définitivement",
             )
+        )
+        delete_account_help_text = HTML(
+            format_html(
+                help_text,
+                "Votre compte Action populaire et toutes vos données seront supprimées. Vous ne recevrez plus aucun mail de notre part.",
+            )
+        )
+        delete_account_block = Div(
+            delete_account_title, delete_account_link, delete_account_help_text
         )
 
         description_block = HTML(
@@ -279,7 +291,7 @@ class InformationConfidentialityForm(Form):
             )
         )
 
-        fields.extend([description_block, validation_block])
+        fields.extend([description_block, unsubscribe_block, delete_account_block])
         return fields
 
     def __init__(self, *args, **kwargs):
