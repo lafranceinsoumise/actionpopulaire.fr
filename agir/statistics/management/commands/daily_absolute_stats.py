@@ -38,56 +38,6 @@ class Command(BaseCommand):
             help="Update the existing instance if one exists",
         )
 
-    def create_event_speaker_requests(self, pending_event_requests):
-        event_speaker_requests = []
-
-        for event_request in pending_event_requests:
-            self.tqdm.update(1)
-            self.log_current_item(f"{event_request}")
-            possible_event_speaker_ids = set(
-                event_request.event_theme.event_speakers.available().values_list(
-                    "id", flat=True
-                )
-            )
-            if len(possible_event_speaker_ids) == 0:
-                self.warning(
-                    f"No speaker found for the event request's theme: “{event_request.event_theme.name}”"
-                )
-                continue
-
-            for datetime in event_request.datetimes:
-                event_speaker_requests += [
-                    EventSpeakerRequest(
-                        event_request=event_request,
-                        event_speaker_id=event_speaker_id,
-                        datetime=datetime,
-                    )
-                    for event_speaker_id in possible_event_speaker_ids
-                ]
-
-        if self.dry_run:
-            return [
-                event_speaker_request
-                for event_speaker_request in event_speaker_requests
-                if not EventSpeakerRequest.objects.filter(
-                    event_request=event_speaker_request.event_request,
-                    event_speaker_id=event_speaker_request.event_speaker_id,
-                    datetime=event_speaker_request.datetime,
-                ).exists()
-            ]
-
-        return EventSpeakerRequest.objects.bulk_create(
-            event_speaker_requests,
-            ignore_conflicts=True,
-            send_post_save_signal=True,
-        )
-
-    def notify_event_speakers(self, event_speaker_ids):
-        for event_speaker_id in event_speaker_ids:
-            if not self.dry_run:
-                send_new_event_speaker_request_notification.delay(event_speaker_id)
-            self.tqdm.update(1)
-
     def create(self, date=None):
         try:
             absolute_stats = AbsoluteStatistics.objects.create(date=date)
@@ -104,7 +54,7 @@ class Command(BaseCommand):
     def update_or_create(self, date=None):
         absolute_stats, created = AbsoluteStatistics.objects.update_or_create(date=date)
         if created:
-            self.success(
+            self.success(c
                 f"An instance for the selected date ({absolute_stats.date}) has been successfully created!"
             )
         else:
@@ -117,8 +67,13 @@ class Command(BaseCommand):
         *args,
         date=None,
         force=False,
+        dry_run=False,
         **kwargs,
     ):
+        if dry_run:
+            self.info(f"Dry-run mode is currently not supported.")
+            return
+
         if date:
             self.info(f"Generating absolute statistics for the selected date: {date}.")
         else:

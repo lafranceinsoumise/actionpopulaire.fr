@@ -104,12 +104,10 @@ const GroupCertification = (props) => {
     setHasConsent(e.target.checked);
   };
 
-  const [checkedCriteria, isCertifiable] = useMemo(() => {
-    const checked = Object.values(certificationCriteria).filter(
-      (criterion) => criterion.checked
-    );
-
-    return [checked, checked.length === certificationCriteria.length];
+  const [criteria, checkedCriteria, isCertifiable] = useMemo(() => {
+    const criteria = Object.values(certificationCriteria);
+    const checked = criteria.filter((criterion) => criterion.value);
+    return [criteria, checked, checked.length === criteria.length];
   }, [certificationCriteria]);
 
   return (
@@ -128,24 +126,22 @@ const GroupCertification = (props) => {
         {isCertified && !isCertifiable && <MissingCriteriaWarning />}
         <Spacer size="1rem" />
         <ul>
-          {Object.entries(certificationCriteria).map(
-            ([key, { value, label, description }]) => (
-              <li key={key}>
-                <RawFeatherIcon
-                  name={value ? "check" : "chevron-right"}
-                  css={`
-                    background-color: ${({ name, theme }) =>
-                      name === "check" ? theme.green500 : theme.black500};
-                  `}
-                />
-                <span>
-                  <strong>{label || key}</strong>
-                  <br />
-                  {description}
-                </span>
-              </li>
-            )
-          )}
+          {criteria.map(({ value, label, description }) => (
+            <li key={description}>
+              <RawFeatherIcon
+                name={value ? "check" : "chevron-right"}
+                css={`
+                  background-color: ${({ name, theme }) =>
+                    name === "check" ? theme.green500 : theme.black500};
+                `}
+              />
+              <span>
+                <strong>{label || key}</strong>
+                <br />
+                {description}
+              </span>
+            </li>
+          ))}
           {isCertified && (
             <li key="certified">
               <RawFeatherIcon
@@ -204,7 +200,7 @@ const GroupCertification = (props) => {
             <span>
               {checkedCriteria.length === 0
                 ? "Aucune"
-                : `${checkedCriteria.length}/${certificationCriteria.length}`}{" "}
+                : `${checkedCriteria.length}/${criteria.length}`}{" "}
               {checkedCriteria.length <= 1
                 ? "condition remplie"
                 : "conditions remplies"}{" "}
