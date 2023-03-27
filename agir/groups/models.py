@@ -111,19 +111,17 @@ class SupportGroupQuerySet(models.QuerySet):
         return self.annotate(
             membership_count=Count(
                 "memberships",
-                filter=Q(memberships__person__role__is_active=True),
                 distinct=True,
+                filter=Q(memberships__person__role__is_active=True),
             )
         ).annotate(
             active_membership_count=Count(
                 "memberships",
-                filter=(
-                    Q(
-                        memberships__person__role__is_active=True,
-                        memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MEMBER,
-                    )
-                ),
                 distinct=True,
+                filter=Q(
+                    memberships__person__role__is_active=True,
+                    memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MEMBER,
+                ),
             )
         )
 
