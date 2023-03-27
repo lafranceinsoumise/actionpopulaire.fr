@@ -117,8 +117,16 @@ const GroupCard = ({
             </Link>
           </h3>
           <small style={{ color: style.black500 }}>
-            {eventCount} événement{eventCount > 1 ? "s" : ""} &bull;{" "}
-            {membersCount} membre{membersCount > 1 ? "s" : ""}
+            {eventCount || membersCount
+              ? [
+                  eventCount &&
+                    `${eventCount} événement${eventCount > 1 ? "s" : ""}`,
+                  membersCount &&
+                    `${membersCount} membre${membersCount > 1 ? "s" : ""}`,
+                ]
+                  .filter(Boolean)
+                  .join(" · ")
+              : null}
           </small>
         </Column>
       </Row>
