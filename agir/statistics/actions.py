@@ -1,9 +1,12 @@
+import datetime
 from datetime import timedelta
 
 from django.conf import settings
+from django.db import IntegrityError
 from django.db.models import Count, Case, When, Q
 from django.utils.timezone import now
 from nuntius.models import CampaignSentEvent, Campaign
+from tqdm import tqdm
 
 from agir.events.models import Event, EventSubtype
 from agir.groups.models import SupportGroup, Membership
@@ -14,6 +17,8 @@ from agir.people.actions.subscription import (
 )
 from agir.people.model_fields import NestableKeyTextTransform
 from agir.people.models import Person
+from agir.statistics.models import AbsoluteStatistics
+from agir.statistics.utils import get_statistics_querysets
 from agir.voting_proxies.models import VotingProxy, VotingProxyRequest
 
 EVENT_SUBTYPES = {"porte-a-porte": 9, "caravane": 4, "inscription-listes": 5}
@@ -291,3 +296,29 @@ def get_largest_campaign_statistics(start, end):
             "open_email_count",
         )
     )
+
+
+def create_statistics_from_date(date=None, silent=False):
+    today = datetime.date.today()
+    if date is None:
+        # defaults to current year start
+        date = today.replace(day=1, month=1)
+
+    progress = tqdm(
+        total=(today - date).days,
+        bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}]",
+        colour="#cbbfec",
+        disable=silent,
+    )
+
+    while date < today:
+        progress.set_description_str(str(date))
+        kwargs = get_statistics_querysets(date=date, as_kwargs=True)
+        try:
+            AbsoluteStatistics.objects.create(**kwargs)
+        except IntegrityError:
+            pass
+        date += datetime.timedelta(days=1)
+        progress.update(1)
+
+    progress.clear()
