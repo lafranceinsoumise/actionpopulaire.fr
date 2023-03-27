@@ -155,14 +155,18 @@ class GroupSubtypesView(ListAPIView):
 class UserGroupsView(ListAPIView):
     serializer_class = SupportGroupSerializer
     permission_classes = (IsPersonPermission,)
-    queryset = SupportGroup.objects.active().with_serializer_prefetch()
+    queryset = SupportGroup.objects.active()
 
     def get_queryset(self):
         return (
-            self.request.user.person.supportgroups.active()
+            SupportGroup.objects.active()
             .with_serializer_prefetch(person=self.request.user.person)
-            .annotate(membership_type=F("memberships__membership_type"))
-            .order_by("-membership_type", "name")
+            .filter(
+                id__in=self.request.user.person.supportgroups.values_list(
+                    "id", flat=True
+                )
+            )
+            .order_by("-person_membership_type", "name")
         )
 
 
