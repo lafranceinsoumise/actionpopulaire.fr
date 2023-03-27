@@ -1,9 +1,9 @@
 from datetime import timedelta
 
 from django.conf import settings
-from django.db.models import Count, Case, When
+from django.db.models import Count, Case, When, Q
 from django.utils.timezone import now
-from nuntius.models import CampaignSentEvent
+from nuntius.models import CampaignSentEvent, Campaign
 
 from agir.events.models import Event, EventSubtype
 from agir.groups.models import SupportGroup, Membership
@@ -271,3 +271,23 @@ def get_instant_stats():
             status=VotingProxyRequest.STATUS_CONFIRMED
         ).count(),
     }
+
+
+def get_largest_campaign_statistics(start, end):
+    return list(
+        Campaign.objects.filter(campaignsentevent__datetime__date__range=(start, end))
+        .annotate(sent_email_count=Count("campaignsentevent__id"))
+        .filter(sent_email_count__gte=10000)
+        .annotate(
+            open_email_count=Count(
+                "campaignsentevent__id",
+                filter=Q(campaignsentevent__open_count__gt=0),
+            )
+        )
+        .values(
+            "id",
+            "name",
+            "sent_email_count",
+            "open_email_count",
+        )
+    )

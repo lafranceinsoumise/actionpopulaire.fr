@@ -63,6 +63,9 @@ person_image_path = FilePattern(
 
 
 class PersonQueryset(models.QuerySet):
+    def is_political_support(self):
+        return self.filter(is_2022=True)
+
     def with_active_role(self):
         return self.filter(role__is_active=True)
 
