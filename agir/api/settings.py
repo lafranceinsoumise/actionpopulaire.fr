@@ -160,6 +160,7 @@ INSTALLED_APPS = [
     "agir.legislatives2022.apps.Legislatives2022Config",
     "agir.cagnottes.apps.CagnottesConfig",
     "agir.ilb.apps.ILBAppConfig",
+    "agir.statistics",
     # default contrib apps
     "agir.api.apps.AdminAppConfig",
     "django.contrib.auth",
