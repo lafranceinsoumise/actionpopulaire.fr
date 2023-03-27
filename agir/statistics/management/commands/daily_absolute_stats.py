@@ -54,7 +54,7 @@ class Command(BaseCommand):
     def update_or_create(self, date=None):
         absolute_stats, created = AbsoluteStatistics.objects.update_or_create(date=date)
         if created:
-            self.success(c
+            self.success(
                 f"An instance for the selected date ({absolute_stats.date}) has been successfully created!"
             )
         else:
