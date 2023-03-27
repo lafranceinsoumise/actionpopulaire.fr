@@ -101,7 +101,7 @@ class Command(BaseCommand):
         largest_campaigns = get_largest_campaign_statistics(start, end)
 
         if not largest_campaigns:
-            self.print_line("Aucun gros envois n'a été fait la semaine dernière.")
+            self.print_line("Aucun gros envoi n'a été fait la semaine dernière.")
             return
 
         for campaign in largest_campaigns:
@@ -141,6 +141,9 @@ class Command(BaseCommand):
 
         self.print_section_title("Membres de groupe d'action locaux")
         self.print_stock("membership_person_count")
+
+        self.print_section_title("Membres des boucles départementales")
+        self.print_stock("boucle_departementale_membership_person_count")
 
         self.print_section_title("E-mails envoyés")
         self.print_stock("lfi_newsletter_subscriber_count")
