@@ -76,6 +76,7 @@ class AbsoluteStatistics(TimeStampedModel):
         "local_supportgroup_count",
         "local_certified_supportgroup_count",
         "membership_person_count",
+        "boucle_departementale_membership_person_count",
         "political_support_person_count",
         "lfi_newsletter_subscriber_count",
         "sent_campaign_count",
@@ -110,6 +111,12 @@ class AbsoluteStatistics(TimeStampedModel):
     )
     membership_person_count = models.IntegerField(
         verbose_name="Membres de groupe d'action",
+        null=False,
+        blank=False,
+        default=0,
+    )
+    boucle_departementale_membership_person_count = models.IntegerField(
+        verbose_name="Membres des boucles départementales",
         null=False,
         blank=False,
         default=0,

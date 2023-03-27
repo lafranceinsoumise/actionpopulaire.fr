@@ -314,10 +314,9 @@ def create_statistics_from_date(date=None, silent=False):
     while date < today:
         progress.set_description_str(str(date))
         kwargs = get_statistics_querysets(date=date, as_kwargs=True)
-        try:
-            AbsoluteStatistics.objects.create(**kwargs)
-        except IntegrityError:
-            pass
+        AbsoluteStatistics.objects.update_or_create(
+            date=kwargs.pop("date"), defaults=kwargs
+        )
         date += datetime.timedelta(days=1)
         progress.update(1)
 

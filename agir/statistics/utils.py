@@ -35,6 +35,13 @@ def get_statistics_querysets(date=None, as_kwargs=False):
             .distinct("person_id")
             .order_by("person_id")
         ),
+        "boucle_departementale_membership_person_count": (
+            Membership.objects.active()
+            .filter(created__date__lte=date)
+            .filter(supportgroup__type=SupportGroup.TYPE_BOUCLE_DEPARTEMENTALE)
+            .distinct("person_id")
+            .order_by("person_id")
+        ),
         # PEOPLE
         "political_support_person_count": Person.objects.with_active_role()
         .is_political_support()

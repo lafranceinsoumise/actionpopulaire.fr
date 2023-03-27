@@ -12,6 +12,7 @@ class AbsoluteStatisticsAdmin(admin.ModelAdmin):
         "local_supportgroup_count",
         "local_certified_supportgroup_count",
         "membership_person_count",
+        "boucle_departementale_membership_person_count",
         "political_support_person_count",
         "lfi_newsletter_subscriber_count",
         "sent_campaign_count",
