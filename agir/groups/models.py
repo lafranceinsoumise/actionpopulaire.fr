@@ -43,6 +43,9 @@ class SupportGroupQuerySet(models.QuerySet):
     def certified(self):
         return self.filter(subtypes__label__in=settings.CERTIFIED_GROUP_SUBTYPES)
 
+    def local_certified(self):
+        return self.active().certified().filter(type=SupportGroup.TYPE_LOCAL_GROUP)
+
     def search(self, query):
         vector = (
             SearchVector(models.F("name"), config="french_unaccented", weight="A")

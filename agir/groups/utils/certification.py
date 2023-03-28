@@ -1,9 +1,8 @@
 from datetime import timedelta
 
 from django.conf import settings
-from django.db.models import IntegerField, Max, Exists
-from django.db.models import Subquery, OuterRef, Count, Q
-from django.db.models.functions import Coalesce
+from django.db.models import Case, When, BooleanField
+from django.db.models import Count, Q
 from django.utils import timezone
 
 from agir.events.models import Event
@@ -69,9 +68,11 @@ def add_certification_criteria_to_queryset(qs):
             )
         )
         .annotate(
-            cc_activity=Condition(
-                ~Q(location_country__in=FRENCH_COUNTRY_CODES)
-                | Q(recent_event_count__gte=3)
+            cc_activity=Case(
+                When(location_country__in=FRENCH_COUNTRY_CODES, then=True),
+                When(recent_event_count__gte=3, then=True),
+                default=False,
+                output_field=BooleanField(),
             )
         )
         .annotate(
@@ -86,26 +87,19 @@ def add_certification_criteria_to_queryset(qs):
         )
         .annotate(cc_gender=Condition(referent_gender_count__gte=2))
         .annotate(
-            non_exclusive_referents=Exists(
-                Membership.objects.filter(
-                    membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
-                    supportgroup_id=OuterRef("id"),
-                )
-                .annotate(
-                    referent_is_referent_of_another_group=Exists(
-                        Membership.objects.filter(
-                            person_id=OuterRef("person_id"),
-                            supportgroup__published=True,
-                            membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
-                            supportgroup__type=SupportGroup.TYPE_LOCAL_GROUP,
-                            supportgroup__subtypes__label__in=settings.CERTIFIED_GROUP_SUBTYPES,
-                        ).exclude(supportgroup_id=OuterRef("supportgroup_id")),
-                    )
-                )
-                .filter(referent_is_referent_of_another_group=True),
+            referent_group_count=Count(
+                "memberships__person__memberships__supportgroup_id",
+                filter=Q(
+                    memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
+                    memberships__person__memberships__supportgroup__published=True,
+                    memberships__person__memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
+                    memberships__person__memberships__supportgroup__type=SupportGroup.TYPE_LOCAL_GROUP,
+                    memberships__person__memberships__supportgroup__subtypes__label__in=settings.CERTIFIED_GROUP_SUBTYPES,
+                ),
+                distinct=True,
             )
         )
-        .annotate(cc_exclusivity=Condition(non_exclusive_referents=False))
+        .annotate(cc_exclusivity=Condition(referent_group_count__exact=1))
         .annotate(
             certifiable=Condition(
                 cc_creation=True,
@@ -170,21 +164,18 @@ def check_certification_criteria(group, with_labels=False):
         criteria["exclusivity"] = group.cc_exclusivity
     else:
         # Group referents cannot be referents of another certified local group
-        criteria["exclusivity"] = True
-        for referent in group.referents:
-            if not criteria["exclusivity"]:
-                break
-            criteria["exclusivity"] = (
-                False
-                == referent.memberships.exclude(supportgroup_id=group.id)
-                .filter(
-                    supportgroup__published=True,
-                    membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
-                    supportgroup__type=group.TYPE_LOCAL_GROUP,
-                    supportgroup__subtypes__label__in=settings.CERTIFIED_GROUP_SUBTYPES,
-                )
-                .exists()
+        criteria["exclusivity"] = (
+            False
+            == Membership.objects.filter(
+                person_id__in=[r.id for r in group.referents],
+                supportgroup__published=True,
+                membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
+                supportgroup__type=SupportGroup.TYPE_LOCAL_GROUP,
+                supportgroup__subtypes__label__in=settings.CERTIFIED_GROUP_SUBTYPES,
             )
+            .exclude(supportgroup_id=group.id)
+            .exists()
+        )
 
     if not with_labels:
         return criteria
