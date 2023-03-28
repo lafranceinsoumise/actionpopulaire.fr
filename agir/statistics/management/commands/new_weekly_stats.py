@@ -42,27 +42,34 @@ class Command(BaseCommand):
     def print_line(self, line, *args, **kwargs):
         self.log(f"   {line}", *args, **kwargs)
 
-    def print_first_line(self, line, *args, **kwargs):
-        return self.print_line(line, self.style.MIGRATE_HEADING)
+    def print_first_line(self, label, value=None):
+        line = f"** {label} **"
+        if isinstance(value, int):
+            line += f" : {value : >n}"
+        underline = "‾" * (len(line) + 2)
+        self.print_line(line, self.style.MIGRATE_HEADING)
+        self.print_line(underline, self.style.MIGRATE_HEADING)
 
     def print_section_title(self, title):
         self.section_count += 1
-        self.log(f"\n{self.section_count}) ** {title} **\n", self.style.WARNING)
+        self.log(
+            f"\n__ {self.section_count}) {title.upper()} __\n\n", self.style.WARNING
+        )
 
     def print_stock(self, key):
         label = AbsoluteStatistics._meta.get_field(key).verbose_name
         week_start, week_end = self.last_week["period"]
-        self.print_first_line(f"{label} : {self.instant[key]}")
+        self.print_first_line(label, self.instant[key])
         self.print_line(
-            f" ├── du {date_format(week_start)} au {date_format(week_end)} : {self.last_week[key] : >+d}"
+            f" ✶ du {date_format(week_start)} au {date_format(week_end)} : {self.last_week[key] : >+n}"
         )
         self.print_line(
-            f" ├── par rapport à la semaine précédente : {self.last_week_progress[key] : >+d}"
+            f" ✷ par rapport à la semaine précédente : {self.last_week_progress[key] : >+n}"
         )
         self.print_line(
-            f" ├── depuis le début du mois de {self.date.strftime('%b')}: {self.current_month[key] : >+d}"
+            f" ✸ depuis début {self.date.strftime('%b')}: {self.current_month[key] : >+n}"
         )
-        self.print_line(f" └── en {self.date.year}: {self.current_year[key] : >+d}")
+        self.print_line(f" ✹ en {self.date.year}: {self.current_year[key] : >+n}")
         self.print_line("\n")
 
     def print_flux(self, key):
@@ -76,22 +83,22 @@ class Command(BaseCommand):
             self.current_year[key] / self.weeks_since_year_start
         )
 
-        self.print_first_line(f"{label} : {self.instant[key]}")
+        self.print_first_line(label, self.instant[key])
         self.print_line(
-            f" ├── du {date_format(week_start)} au {date_format(week_end)} : {self.last_week[key] : >d}"
+            f" ✶ du {date_format(week_start)} au {date_format(week_end)} : {self.last_week[key] : >d}"
         )
         self.print_line(
-            f" ├── par rapport à la semaine précédente : {self.last_week_progress[key] : >+d}"
+            f" ✷ par rapport à la semaine précédente : {self.last_week_progress[key] : >+n}"
         )
         self.print_line(
-            f" ├── depuis le début du mois de {self.date.strftime('%b')}: {self.current_month[key] : >d}"
+            f" ✸ depuis début {self.date.strftime('%b')}: {self.current_month[key] : >d}"
         )
-        self.print_line(f" ├── en {self.date.year}: {self.current_year[key] : >d}")
+        self.print_line(f" ✹ en {self.date.year}: {self.current_year[key] : >d}")
         self.print_line(
-            f" ├── moyenne par semaine depuis le début du mois : {average_per_week_since_month_start  : >.2g}"
+            f" ✺ moyenne par semaine depuis le début du mois : {average_per_week_since_month_start  : >.3n}"
         )
         self.print_line(
-            f" └── moyenne par semaine depuis le début de l'année : {average_per_week_since_year_start  : >.2g}"
+            f" ✺ moyenne par semaine depuis le début de l'année : {average_per_week_since_year_start  : >.3n}"
         )
         self.print_line("\n")
 
@@ -101,20 +108,20 @@ class Command(BaseCommand):
         largest_campaigns = get_largest_campaign_statistics(start, end)
 
         if not largest_campaigns:
-            self.print_line("Aucun gros envoi n'a été fait la semaine dernière.")
+            self.print_line("__ Aucun gros envoi n'a été fait la semaine dernière. __")
             return
 
         for campaign in largest_campaigns:
             self.print_first_line(f"« {campaign['name']} »")
-            self.print_line(f" ├── Envoyés : {campaign['sent_email_count']}")
-            self.print_line(f" ├── Ouverts : {campaign['open_email_count']}")
+            self.print_line(f" ✶ Envoyés : {campaign['sent_email_count']}")
+            self.print_line(f" ✷ Ouverts : {campaign['open_email_count']}")
             if campaign["sent_email_count"] == 0 or campaign["open_email_count"] == 0:
-                self.print_line(" ├── Taux d'ouverture : 0")
+                self.print_line(" ✸ Taux d'ouverture : 0")
             else:
                 open_ratio = campaign["open_email_count"] / campaign["sent_email_count"]
-                self.print_line(f" ├── Taux d'ouverture : {open_ratio : >.2%}")
+                self.print_line(f" ✹ Taux d'ouverture : {open_ratio : >.2%}")
             self.print_line(
-                f" └── {admin_url('admin:nuntius_campaign_change', args=(campaign['id'],), absolute=True)}"
+                f" ➡ {admin_url('admin:nuntius_campaign_change', args=(campaign['id'],), absolute=True)}"
             )
             self.print_line("\n")
 
@@ -129,7 +136,7 @@ class Command(BaseCommand):
         )
         self.log("\n")
 
-        self.print_section_title("Événements déclarées sur Action populaire")
+        self.print_section_title("Événements")
         self.print_flux("event_count")
 
         self.print_section_title("Groupes d'action")
@@ -145,7 +152,7 @@ class Command(BaseCommand):
         self.print_section_title("Membres des boucles départementales")
         self.print_stock("boucle_departementale_membership_person_count")
 
-        self.print_section_title("E-mails envoyés")
+        self.print_section_title("E-mails")
         self.print_stock("lfi_newsletter_subscriber_count")
         self.print_flux("sent_campaign_count")
         self.print_flux("sent_campaign_email_count")
