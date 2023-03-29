@@ -21,7 +21,7 @@ django-stdimage = "==6.*"  # better image field with handling of variations
 django-dynamic-filenames = "==1.*"  # better handling of upload path for file fields
 unicode-slugify = "==0.1.*"  # optional requirement of django-dynamic-filenames
 ## additional features
-django-crispy-forms = "==1.*" # better forms
+django-crispy-forms = "==2.*" # better forms
 django-otp = "==1.*"  # 2FA in admin
 django-filter = "==22.*"  # add useful filters
 django-oauth-toolkit = "==1.*"  # add OAuth server
