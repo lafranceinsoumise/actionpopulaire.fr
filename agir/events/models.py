@@ -1008,6 +1008,12 @@ class EventSubtype(BaseSubtype):
         "le droit à un groupe d'action à la certification",
     )
 
+    for_organizer_group_members_only = models.BooleanField(
+        "Réservé aux membres des groupes organisateurs",
+        default=False,
+        help_text="Seulement les membres des groupes organisateurs pourront rejoindre les événements de ce type",
+    )
+
     class Meta:
         verbose_name = _("Sous-type d'événement")
         verbose_name_plural = _("Sous-types d'événement")
