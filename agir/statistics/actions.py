@@ -2,7 +2,6 @@ import datetime
 from datetime import timedelta
 
 from django.conf import settings
-from django.db import IntegrityError
 from django.db.models import Count, Case, When, Q
 from django.utils.timezone import now
 from nuntius.models import CampaignSentEvent, Campaign

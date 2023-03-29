@@ -128,7 +128,7 @@ const EventLocation = (props) => {
         </p>
       )}
       <Spacer size="1rem" />
-      <Button color="secondary" $wrap disabled={isDisabled}>
+      <Button type="submit" color="secondary" $wrap disabled={isDisabled}>
         Enregistrer
       </Button>
     </form>
