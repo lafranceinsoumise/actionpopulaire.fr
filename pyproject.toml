@@ -43,7 +43,7 @@ hiredis = "==2.*"
 # HTTP
 requests = "==2.*"
 # HTML
-bleach = "==5.*"  # sanitize HTML
+bleach = "==6.*"  # sanitize HTML
 "html2text" = "==2020.*"  # transforms HTML to text (used for plain text versions of HTML emails)
 markdown = "==3.*"  # convert markdown text to HTML (should be deprecated)
 # image handling
