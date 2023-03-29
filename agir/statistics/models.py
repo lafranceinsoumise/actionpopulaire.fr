@@ -59,15 +59,17 @@ class AbsoluteStatisticsQueryset(models.QuerySet):
 
         return aggregates
 
-    def aggregate_for_current_month(self):
-        today = datetime.date.today()
+    def aggregate_for_current_month(self, date=None):
+        if date is None:
+            date = datetime.date.today()
         return self.filter(
-            date__year=today.year, date__month=today.month
+            date__year=date.year, date__month=date.month
         ).aggregate_for_period()
 
-    def aggregate_for_current_year(self):
-        today = datetime.date.today()
-        return self.filter(date__year=today.year).aggregate_for_period()
+    def aggregate_for_current_year(self, date=None):
+        if date is None:
+            date = datetime.date.today()
+        return self.filter(date__year=date.year).aggregate_for_period()
 
 
 class AbsoluteStatistics(TimeStampedModel):
