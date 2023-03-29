@@ -140,7 +140,7 @@ const GroupLocalizationPage = (props) => {
       />
 
       <Spacer size="2rem" />
-      <Button color="secondary" wrap disabled={isLoading}>
+      <Button type="submit" color="secondary" wrap disabled={isLoading}>
         Enregistrer
       </Button>
 

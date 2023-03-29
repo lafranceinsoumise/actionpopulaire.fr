@@ -124,10 +124,6 @@ class Command(BaseCommand):
             self.current_year[key],
         )
         self.print_value_line(
-            "depuis toujours",
-            self.instant[key],
-        )
-        self.print_value_line(
             "moyenne par semaine depuis le début du mois",
             average_per_week_since_month_start,
         )

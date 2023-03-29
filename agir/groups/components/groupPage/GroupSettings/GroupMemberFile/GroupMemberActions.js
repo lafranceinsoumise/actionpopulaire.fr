@@ -113,6 +113,7 @@ GroupMemberActions.propTypes = {
     .isRequired,
   onChangeMembershipType: PropTypes.func,
   isReferent: PropTypes.bool,
+  isGroupFull: PropTypes.bool,
 };
 
 export default GroupMemberActions;
