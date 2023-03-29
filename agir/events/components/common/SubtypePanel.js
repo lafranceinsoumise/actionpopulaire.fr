@@ -4,7 +4,10 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import { EVENT_TYPES } from "@agir/events/common/utils";
+import {
+  EVENT_TYPES,
+  PRIVATE_EVENT_SUBTYPE_INFO,
+} from "@agir/events/common/utils";
 import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
 
 import FaIcon from "@agir/front/genericComponents/FaIcon";
@@ -103,14 +106,14 @@ const SubtypeOption = (props) => {
       onClick={handleClick}
     >
       <StyledIcon icon={option.iconName} style={{ color: option.color }} />
-      <strong>
+      <abbr title={option.isPrivate ? PRIVATE_EVENT_SUBTYPE_INFO : undefined}>
         {option.description && (
           <>
             {option.description[0].toUpperCase()}
             {option.description.slice(1)}
           </>
         )}
-      </strong>
+      </abbr>
       <Button type="button" color="choose" onClick={handleClick} small>
         Choisir
       </Button>
@@ -125,6 +128,7 @@ SubtypeOption.propTypes = {
     iconName: PropTypes.string,
     color: PropTypes.string,
     description: PropTypes.string,
+    isPrivate: PropTypes.bool,
   }),
   onClick: PropTypes.func,
   selected: PropTypes.bool,
@@ -190,7 +194,7 @@ export const SubtypePicker = (props) => {
       const category =
         subtype.type && categories[subtype.type] ? subtype.type : "O";
       categories[category].subtypes = categories[category].subtypes || [];
-      if (/^autre/i.test(subtype.description)) {
+      if (/^(tout )?autre/i.test(subtype.description)) {
         categories[category].subtypes.push(subtype);
       } else {
         categories[category].subtypes.unshift(subtype);

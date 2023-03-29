@@ -5,19 +5,23 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import SubtypePanel from "@agir/events/common/SubtypePanel";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
+import { PRIVATE_EVENT_SUBTYPE_INFO } from "@agir/events/common/utils";
 import { routeConfig } from "@agir/front/app/routes.config";
 
 const StyledDefaultOption = styled.button``;
+const StyledPanelTrigger = styled.button``;
+const StyledHelp = styled.div``;
 
 export const StyledDefaultOptions = styled.div`
   display: flex;
   flex-flow: row wrap;
   gap: 0.5rem;
 
-  button {
+  ${StyledDefaultOption},
+  ${StyledPanelTrigger} {
     border-radius: ${style.borderRadius};
     border: none;
     box-shadow: none;
@@ -53,6 +57,31 @@ export const StyledDefaultOptions = styled.div`
       opacity: 1;
       background-color: transparent;
       cursor: default;
+    }
+  }
+
+  ${StyledPanelTrigger} {
+    font-weight: 500;
+  }
+
+  ${StyledHelp} {
+    flex: 0 0 100%;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: ${style.black500};
+
+    & > * {
+      flex: 1 1 auto;
+      line-height: 1.5;
+    }
+
+    & > ${RawFeatherIcon} {
+      flex: 0 0 auto;
+      line-height: 0;
     }
   }
 `;
@@ -181,9 +210,19 @@ const SubtypeField = (props) => {
           ))
         )}
         {(!!value || (!value && subtypes.length > 4)) && (
-          <button onClick={openPanel} type="button" disabled={disabled}>
-            {value ? "Changer" : "+ d'options"}
-          </button>
+          <StyledPanelTrigger
+            onClick={openPanel}
+            type="button"
+            disabled={disabled}
+          >
+            {value ? "Modifier" : "+ d'options"}
+          </StyledPanelTrigger>
+        )}
+        {!!value && value.isPrivate && (
+          <StyledHelp>
+            <RawFeatherIcon name="info" width="1.5rem" height="1.5rem" />
+            <span>{PRIVATE_EVENT_SUBTYPE_INFO}</span>
+          </StyledHelp>
         )}
       </StyledDefaultOptions>
       <SubtypePanel

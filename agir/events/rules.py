@@ -67,8 +67,13 @@ def has_rsvp_for_event(role, event=None):
 
 
 @rules.predicate
-def has_right_subscription(role, event=None):
+def can_rsvp_event(role, event=None):
     return event is not None and event.can_rsvp(role.person)
+
+
+@rules.predicate
+def can_rsvp_event_as_group(role, event=None):
+    return event is not None and event.can_rsvp_as_group(role.person)
 
 
 @rules.predicate
@@ -132,11 +137,15 @@ rules.add_perm(
 # for RSVP API
 rules.add_perm(
     "events.create_rsvp_for_event",
-    is_public_event & is_authenticated_person & has_right_subscription,
+    is_public_event & is_authenticated_person & can_rsvp_event,
 )
 rules.add_perm(
     "events.delete_rsvp_for_event",
     is_public_event & is_free_event & is_authenticated_person,
+)
+rules.add_perm(
+    "events.create_rsvp_as_group_for_event",
+    is_public_event & is_authenticated_person & can_rsvp_event_as_group,
 )
 
 

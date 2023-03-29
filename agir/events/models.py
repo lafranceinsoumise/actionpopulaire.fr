@@ -818,8 +818,32 @@ class Event(
 
         return f"https://calendar.google.com/calendar/render?{urlencode(query)}&sprop=name:Action%20Populaire"
 
+    def for_organizer_group_members_only(self):
+        return self.subtype.for_organizer_group_members_only
+
     def can_rsvp(self, person):
-        return True
+        if not self.for_organizer_group_members_only():
+            return True
+
+        return (
+            Membership.objects.active()
+            .filter(
+                person=person,
+                supportgroup_id__in=self.organizers_groups.values_list("id", flat=True),
+                membership_type__gte=Membership.MEMBERSHIP_TYPE_MEMBER,
+            )
+            .exists()
+        )
+
+    def can_rsvp_as_group(self, person):
+        if self.for_organizer_group_members_only():
+            return False
+
+        return (
+            person.memberships.active()
+            .filter(membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER)
+            .exists()
+        )
 
     def get_meta_image(self):
         if hasattr(self, "image") and self.image:

@@ -48,6 +48,9 @@ export const EVENT_TYPES = {
   },
 };
 
+export const PRIVATE_EVENT_SUBTYPE_INFO =
+  "Seuls les membres des groupes organisateurs pourront participer à l'événement";
+
 export const formatEvent = (event) => {
   if (!event) {
     return null;
