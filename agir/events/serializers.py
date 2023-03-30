@@ -694,8 +694,8 @@ class CreateEventSerializer(serializers.Serializer):
         if data["subtype"].for_organizer_group_members_only and not organizer_group:
             raise serializers.ValidationError(
                 {
-                    "organizerGroup": "Le type d'événement choisi ne peut pas être utilisé pour les événements"
-                    "organisés à titre individuel"
+                    "organizerGroup": "Le type choisi ne peut pas être utilisé pour "
+                    "un événement organisé à titre individuel"
                 }
             )
 
