@@ -836,7 +836,7 @@ class Event(
         )
 
     def can_rsvp_as_group(self, person):
-        if self.for_organizer_group_members_only():
+        if not person or self.for_organizer_group_members_only():
             return False
 
         return (
