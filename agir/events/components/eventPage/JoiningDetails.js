@@ -29,7 +29,7 @@ const GreenToast = styled(StaticToast)`
   flex-direction: column;
 
   && {
-    margin-top: 0.5rem;
+    margin-top: 1rem;
   }
 
   ${StyledContent} {

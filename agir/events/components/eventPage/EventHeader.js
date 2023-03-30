@@ -66,29 +66,22 @@ const StyledButtonMenu = styled(ButtonMenu)``;
 
 const StyledActions = styled.div`
   display: flex;
-  flex-wrap: wrap;
-  margin-bottom: 1rem;
+  flex-flow: row wrap;
+  gap: 0.5rem;
   margin-top: 1rem;
+  margin-bottom: 0;
 
   &:empty {
     display: none;
     margin: 0;
   }
 
-  > ${Button}, > ${StyledButtonMenu} {
-    margin-right: 0.5rem;
-    margin-bottom: 0.5rem;
+  & > *:empty {
+    display: none;
   }
 
   @media (max-width: ${style.collapse}px) {
-    > ${Button} {
-      width: 100%;
-      margin-bottom: 0.5rem;
-    }
-    ${StyledButtonMenu} {
-      width: 100%;
-      margin-bottom: 0.5rem;
-    }
+    flex-direction: column;
   }
 `;
 

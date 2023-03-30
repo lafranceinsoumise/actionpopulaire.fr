@@ -3,33 +3,31 @@ import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
-import Card from "@agir/front/genericComponents/Card";
-import { Column, Container, Row } from "@agir/front/genericComponents/grid";
-import ContactCard from "@agir/front/genericComponents/ContactCard";
-import EventDescriptionCard from "./EventDescriptionCard";
-import EventFacebookLinkCard from "./EventFacebookLinkCard";
-import ReportFormCard from "./ReportFormCard";
-import EventHeader from "./EventHeader";
-import EventMessages from "./EventMessages";
-import EventInfoCard from "@agir/events/eventPage/EventInfoCard";
-import EventLocationCard from "./EventLocationCard";
-import EventPhotosCard from "./EventPhotosCard";
-import EventReportCard from "./EventReportCard";
-import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
-import {
-  GroupsOrganizingCard,
-  GroupsJoiningCard,
-} from "@agir/groups/groupComponents/GroupsCard";
-import Link from "@agir/front/app/Link";
-import OnlineUrlCard from "./OnlineUrlCard";
-import ShareCard from "@agir/front/genericComponents/ShareCard";
-import Spacer from "@agir/front/genericComponents/Spacer";
-import TokTokCard from "@agir/events/TokTok/TokTokCard";
+import { DOOR2DOOR_EVENT_SUBTYPE_LABEL } from "@agir/events/common/utils";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getUser } from "@agir/front/globalContext/reducers";
 
-import { DOOR2DOOR_EVENT_SUBTYPE_LABEL } from "@agir/events/common/utils";
+import EventInfoCard from "@agir/events/eventPage/EventInfoCard";
+import TokTokCard from "@agir/events/TokTok/TokTokCard";
 import BackLink from "@agir/front/app/Navigation/BackLink";
+import Card from "@agir/front/genericComponents/Card";
+import ContactCard from "@agir/front/genericComponents/ContactCard";
+import { Column, Container, Row } from "@agir/front/genericComponents/grid";
+import ShareCard from "@agir/front/genericComponents/ShareCard";
+import Spacer from "@agir/front/genericComponents/Spacer";
+import {
+  GroupsJoiningCard,
+  GroupsOrganizingCard,
+} from "@agir/groups/groupComponents/GroupsCard";
+import EventDescriptionCard from "./EventDescriptionCard";
+import EventFacebookLinkCard from "./EventFacebookLinkCard";
+import EventHeader from "./EventHeader";
+import EventLocationCard from "./EventLocationCard";
+import EventMessages from "./EventMessages";
+import EventPhotosCard from "./EventPhotosCard";
+import EventReportCard from "./EventReportCard";
+import OnlineUrlCard from "./OnlineUrlCard";
+import ReportFormCard from "./ReportFormCard";
 
 const CardLikeSection = styled.section``;
 const StyledColumn = styled(Column)`
@@ -212,6 +210,7 @@ DesktopEventPage.propTypes = {
   participantCount: PropTypes.number,
   subtype: PropTypes.object,
   backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  youtubeVideoID: PropTypes.string,
 };
 
 export default DesktopEventPage;
