@@ -3,6 +3,7 @@ from agir.events.models import Event
 from agir.lib.celery import emailing_task, post_save_task
 from agir.lib.mailing import send_template_email
 from agir.lib.utils import front_url
+from agir.people.models import Person
 
 
 @post_save_task()
@@ -129,4 +130,25 @@ def send_event_request_validation_emails(event_request_pk):
                 "speaker": event_speaker,
             },
             recipients=(bindings.get("email_to"),),
+        )
+
+    if theme_email_bindings.get("unretained_speakers"):
+        bindings = theme_email_bindings.get("unretained_speakers")
+        recipients = Person.objects.filter(
+            id__in=event_request.event_speaker_requests.unretained()
+            .exclude(event_speaker=event_speaker)
+            .select_related("event_speaker__person_id")
+            .values_list("event_speaker__person_id", flat=True)
+        )
+        send_template_email(
+            from_email=bindings.get("email_from"),
+            template_name="event_request/validation_email.html",
+            bindings={
+                **bindings,
+                "event": event,
+                "event_page_link": front_url(
+                    "view_event", auto_login=True, kwargs={"pk": event.pk}
+                ),
+            },
+            recipients=recipients,
         )

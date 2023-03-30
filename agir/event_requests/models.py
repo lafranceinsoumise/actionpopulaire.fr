@@ -377,6 +377,26 @@ class EventTheme(BaseAPIResource):
         "de l'organisateur·ice et de l'intervenant·e seront automatiquement ajoutés à la fin du message.",
     )
 
+    unretained_speaker_event_creation_email_subject = models.CharField(
+        verbose_name="objet de l'e-mail aux intervenant·es non retenu·es",
+        max_length=255,
+        default="",
+        blank=True,
+        null=False,
+        help_text="Ce texte sera utilisé comme objet de l'e-mail envoyé aux intervenant·es disponibles mais "
+        "non retenu·es lors de la création d'un événement. Si vide, l'e-mail ne sera pas envoyé.",
+    )
+    unretained_speaker_event_creation_email_body = DescriptionField(
+        verbose_name="texte de l'e-mail aux intervenant·es non retenu·es",
+        default="",
+        blank=True,
+        null=False,
+        allowed_tags=settings.ADMIN_ALLOWED_TAGS,
+        help_text="Ce texte sera utilisé comme corps de l'e-mail envoyé aux intervenant·es disponibles mais "
+        "non retenu·es lors de la création d'un événement. Le lien vers la page de l'événement sera automatiquement "
+        "ajouté à la fin du message.",
+    )
+
     def __str__(self):
         return self.name
 
@@ -418,11 +438,22 @@ class EventTheme(BaseAPIResource):
             "body": mark_safe(self.event_creation_notification_email_body),
         }
 
+    def get_unretained_speaker_event_creation_email_bindings(self):
+        if not self.unretained_speaker_event_creation_email_subject:
+            return None
+
+        return {
+            "email_from": self.event_theme_type.email_from,
+            "subject": self.unretained_speaker_event_creation_email_subject,
+            "body": mark_safe(self.unretained_speaker_event_creation_email_body),
+        }
+
     def get_event_creation_emails_bindings(self):
         return {
             "speaker": self.get_speaker_event_creation_email_bindings(),
             "organizer": self.get_organizer_event_creation_email_bindings(),
             "notification": self.get_event_creation_notification_email_bindings(),
+            "unretained_speakers": self.get_unretained_speaker_event_creation_email_bindings(),
         }
 
     class Meta:
@@ -645,6 +676,13 @@ class EventSpeakerRequestQueryset(models.QuerySet):
     def accepted(self):
         return self.filter(
             event_request__status=EventRequest.Status.DONE, accepted=True
+        )
+
+    def unretained(self):
+        return self.filter(
+            event_request__status=EventRequest.Status.DONE,
+            accepted=False,
+            available=True,
         )
 
 

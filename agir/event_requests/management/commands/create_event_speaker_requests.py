@@ -46,6 +46,10 @@ class Command(BaseCommand):
                 continue
 
             for datetime in event_request.datetimes:
+                existing_speaker_ids = EventSpeakerRequest.objects.filter(
+                    event_request=event_request,
+                    datetime=datetime,
+                ).values_list("event_speaker_id", flat=True)
                 event_speaker_requests += [
                     EventSpeakerRequest(
                         event_request=event_request,
@@ -53,18 +57,11 @@ class Command(BaseCommand):
                         datetime=datetime,
                     )
                     for event_speaker_id in possible_event_speaker_ids
+                    if event_speaker_id not in existing_speaker_ids
                 ]
 
         if self.dry_run:
-            return [
-                event_speaker_request
-                for event_speaker_request in event_speaker_requests
-                if not EventSpeakerRequest.objects.filter(
-                    event_request=event_speaker_request.event_request,
-                    event_speaker_id=event_speaker_request.event_speaker_id,
-                    datetime=event_speaker_request.datetime,
-                ).exists()
-            ]
+            return event_speaker_requests
 
         return EventSpeakerRequest.objects.bulk_create(
             event_speaker_requests,
