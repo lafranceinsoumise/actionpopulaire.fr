@@ -30,6 +30,7 @@ const GreenToast = styled(StaticToast)`
 
   && {
     margin-top: 1rem;
+    margin-bottom: 0;
   }
 
   ${StyledContent} {
