@@ -80,6 +80,9 @@ class EventSubtypeSerializer(serializers.ModelSerializer):
     color = serializers.SerializerMethodField(read_only=True)
     needsDocuments = serializers.SerializerMethodField(read_only=True)
     isVisible = serializers.SerializerMethodField(read_only=True)
+    isPrivate = serializers.BooleanField(
+        source="for_organizer_group_members_only", read_only=True
+    )
 
     def get_needsDocuments(self, obj):
         return bool(obj.related_project_type)
@@ -113,6 +116,7 @@ class EventSubtypeSerializer(serializers.ModelSerializer):
             "type",
             "needsDocuments",
             "isVisible",
+            "isPrivate",
         )
 
 
@@ -186,6 +190,11 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     isPast = serializers.SerializerMethodField(
         read_only=True, method_name="get_is_past"
+    )
+
+    canRSVP = serializers.SerializerMethodField(method_name="can_rsvp", read_only=True)
+    canRSVPAsGroup = serializers.SerializerMethodField(
+        method_name="can_rsvp_as_group", read_only=True
     )
 
     # hasProject = serializers.SerializerMethodField(
@@ -402,6 +411,12 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
             except ValueError:
                 pass
         return ""
+
+    def can_rsvp(self, obj):
+        return obj.can_rsvp(self.person)
+
+    def can_rsvp_as_group(self, obj):
+        return obj.can_rsvp_as_group(self.person)
 
 
 class EventAdvancedSerializer(EventSerializer):
@@ -666,16 +681,23 @@ class CreateEventSerializer(serializers.Serializer):
         model = Event
 
     def validate(self, data):
-        if data.get("organizerGroup", None) is not None:
-            if (
-                not data["organizerPerson"] in data["organizerGroup"].referents
-                and not data["organizerPerson"] in data["organizerGroup"].managers
-            ):
-                raise serializers.ValidationError(
-                    {
-                        "organizerGroup": "Veuillez choisir un groupe dont vous êtes animateur·ice"
-                    }
-                )
+        organizer = data.get("organizerPerson", None)
+        organizer_group = data.get("organizerGroup", None)
+
+        if organizer_group and organizer not in organizer_group.managers:
+            raise serializers.ValidationError(
+                {
+                    "organizerGroup": "Veuillez choisir un groupe dont vous êtes animateur·ice"
+                }
+            )
+
+        if data["subtype"].for_organizer_group_members_only and not organizer_group:
+            raise serializers.ValidationError(
+                {
+                    "organizerGroup": "Le type d'événement choisi ne peut pas être utilisé pour les événements"
+                    "organisés à titre individuel"
+                }
+            )
 
         if (
             data.get("end_time")

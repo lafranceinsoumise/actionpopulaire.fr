@@ -637,6 +637,7 @@ class EventSubtypeAdmin(admin.ModelAdmin):
         "visibility",
         "priority",
         "certification",
+        "private",
         "related_project_type",
         "icon",
     )
@@ -646,6 +647,7 @@ class EventSubtypeAdmin(admin.ModelAdmin):
         "has_priority",
         "is_acceptable_for_group_certification",
         "related_project_type",
+        "for_organizer_group_members_only",
     )
     search_fields = ("label", "description")
     autocomplete_fields = ("report_person_form",)
@@ -662,6 +664,14 @@ class EventSubtypeAdmin(admin.ModelAdmin):
     )
     def certification(self, obj):
         return obj.is_acceptable_for_group_certification
+
+    @admin.display(
+        description="Réservé",
+        boolean=True,
+        ordering="for_organizer_group_members_only",
+    )
+    def private(self, obj):
+        return obj.for_organizer_group_members_only
 
 
 @admin.register(models.JitsiMeeting)

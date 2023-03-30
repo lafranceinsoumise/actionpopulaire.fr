@@ -611,11 +611,18 @@ class RSVPEventAPIView(DestroyAPIView, CreateAPIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+class RSVPEventAsGroupPermissions(GlobalOrObjectPermissions):
+    perms_map = {"POST": []}
+    object_perms_map = {
+        "POST": ["events.create_rsvp_as_group_for_event"],
+    }
+
+
 class RSVPEventAsGroupAPIView(CreateAPIView):
     queryset = Event.objects.public()
     permission_classes = (
         IsPersonPermission,
-        RSVPEventPermissions,
+        RSVPEventAsGroupPermissions,
     )
 
     def initial(self, request, *args, **kwargs):
@@ -628,7 +635,6 @@ class RSVPEventAsGroupAPIView(CreateAPIView):
         group = get_object_or_404(
             SupportGroup.objects.active(), pk=request.data.get("groupPk")
         )
-
         if not Membership.objects.filter(
             person=self.request.user.person,
             supportgroup=group,
