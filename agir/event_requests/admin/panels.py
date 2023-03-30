@@ -294,6 +294,15 @@ class EventThemeAdmin(admin.ModelAdmin):
             },
         ),
         (
+            "NOTIFICATION DE CRÉATION D'ÉVÉNEMENT AUX INTERVENANT·ES NON RETENU·ES",
+            {
+                "fields": (
+                    "unretained_speaker_event_creation_email_subject",
+                    "unretained_speaker_event_creation_email_body",
+                )
+            },
+        ),
+        (
             "TEMPLATES DE VISUELS",
             {"fields": ("event_asset_templates",)},
         ),
@@ -305,6 +314,7 @@ class EventThemeAdmin(admin.ModelAdmin):
         "speaker_email",
         "organizer_email",
         "notification_email",
+        "unretained_speaker_email",
         "event_speaker_count",
     )
     list_filter = ("event_theme_type",)
@@ -360,6 +370,10 @@ class EventThemeAdmin(admin.ModelAdmin):
     @admin.display(description="@ administrateur·ice", boolean=True)
     def notification_email(self, obj):
         return obj.get_event_creation_notification_email_bindings() is not None
+
+    @admin.display(description="@ non retenu·es", boolean=True)
+    def unretained_speaker_email(self, obj):
+        return obj.get_unretained_speaker_event_creation_email_bindings() is not None
 
     @admin.display(description="Nb d'intervenant·es", ordering="event_speaker_count")
     def event_speaker_count(self, obj):
