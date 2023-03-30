@@ -26,6 +26,8 @@ from agir.lib.admin.panels import CenterOnFranceMixin
 from agir.lib.display import display_price
 from agir.lib.utils import front_url
 from . import actions
+from . import filters
+from . import inlines
 from . import views
 from .forms import SupportGroupAdminForm
 from .. import models
@@ -35,134 +37,6 @@ from ..utils.certification import (
     check_certification_criteria,
 )
 from ...lib.admin.utils import admin_url
-
-
-class MembershipInline(admin.TabularInline):
-    model = models.Membership
-    fields = (
-        "person_link",
-        "membership_type",
-        "gender",
-        "description",
-        "group_name",
-    )
-    readonly_fields = ("person_link", "gender", "description", "group_name")
-
-    def get_queryset(self, request):
-        return super().get_queryset(request).select_related("person")
-
-    @admin.display(description="Personne")
-    def person_link(self, obj):
-        return mark_safe(
-            '<a href="%s">%s</a>'
-            % (
-                reverse("admin:people_person_change", args=(obj.person.id,)),
-                escape(obj.person),
-            )
-        )
-
-    @admin.display(description="Genre", empty_value="-")
-    def gender(self, obj):
-        return obj.person.get_gender_display()
-
-    @admin.display(description="Groupe d'origine", empty_value="-")
-    def group_name(self, obj):
-        if not obj or not obj.meta or not obj.meta.get("group_id"):
-            return
-
-        group_id = obj.meta.get("group_id")
-        group_name = obj.meta.get("group_name", group_id)
-
-        return mark_safe(
-            '<a href="%s">%s</a>'
-            % (
-                reverse(
-                    "admin:groups_supportgroup_change",
-                    args=(group_id,),
-                ),
-                escape(group_name),
-            )
-        )
-
-    def has_add_permission(self, request, obj=None):
-        return False
-
-
-class ExternalLinkInline(admin.TabularInline):
-    extra = 0
-    model = models.SupportGroupExternalLink
-    fields = ("url", "label")
-
-
-class GroupHasEventsFilter(admin.SimpleListFilter):
-    title = _("Événements organisés dans les 2 mois précédents ou mois à venir")
-
-    parameter_name = "is_active"
-
-    def lookups(self, request, model_admin):
-        return (("yes", _("Oui")), ("no", _("Non")))
-
-    def queryset(self, request, queryset):
-        queryset = queryset.annotate(
-            current_events_count=Count(
-                "organized_events",
-                filter=Q(
-                    organized_events__start_time__range=(
-                        timezone.now() - timedelta(days=62),
-                        timezone.now() + timedelta(days=31),
-                    ),
-                    organized_events__visibility=Event.VISIBILITY_PUBLIC,
-                ),
-            )
-        )
-        if self.value() == "yes":
-            return queryset.exclude(current_events_count=0)
-        if self.value() == "no":
-            return queryset.filter(current_events_count=0)
-
-
-class MembersFilter(admin.SimpleListFilter):
-    title = "Membres"
-    parameter_name = "members"
-
-    def lookups(self, request, model_admin):
-        return (("no_members", "Aucun membre"), ("no_referent", "Aucun animateur"))
-
-    def queryset(self, request, queryset):
-        if self.value() == "no_members":
-            return queryset.filter(members=None)
-
-        if self.value() == "no_referent":
-            return queryset.exclude(
-                memberships__membership_type=Membership.MEMBERSHIP_TYPE_REFERENT
-            )
-
-
-class TooMuchMembersFilter(admin.SimpleListFilter):
-    MEMBERS_LIMIT = models.SupportGroup.MEMBERSHIP_LIMIT
-
-    title = "Groupe d'action avec trop de membres ({} actuellement)".format(
-        MEMBERS_LIMIT
-    )
-    parameter_name = "group with too much members"
-
-    def lookups(self, request, model_admin):
-        return (
-            (
-                "less_than_{}_members".format(self.MEMBERS_LIMIT),
-                "Moins de {} membres".format(self.MEMBERS_LIMIT),
-            ),
-            (
-                "more_than_{}_members".format(self.MEMBERS_LIMIT),
-                "Plus de {} membres".format(self.MEMBERS_LIMIT),
-            ),
-        )
-
-    def queryset(self, request, queryset):
-        if self.value() == "less_than_{}_members".format(self.MEMBERS_LIMIT):
-            return queryset.filter(membership_count__lt=self.MEMBERS_LIMIT)
-        if self.value() == "more_than_{}_members".format(self.MEMBERS_LIMIT):
-            return queryset.filter(membership_count__gte=self.MEMBERS_LIMIT)
 
 
 @admin.register(models.SupportGroup)
@@ -244,7 +118,10 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             {"permission": "people.export_people", "fields": ("export_buttons",)},
         ),
     )
-    inlines = (MembershipInline, ExternalLinkInline)
+    inlines = (
+        inlines.MembershipInline,
+        inlines.ExternalLinkInline,
+    )
     readonly_fields = (
         "id",
         "link",
@@ -273,21 +150,31 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     )
     list_filter = (
         "published",
-        GroupHasEventsFilter,
+        filters.GroupHasEventsFilter,
         CountryListFilter,
         CirconscriptionLegislativeFilter,
         DepartementListFilter,
         RegionListFilter,
         "coordinates_type",
-        MembersFilter,
+        filters.MembersFilter,
         "type",
         "subtypes",
         "tags",
-        TooMuchMembersFilter,
+        filters.TooMuchMembersFilter,
     )
 
     search_fields = ("name", "description", "location_city")
     actions = (actions.export_groups, actions.make_published, actions.unpublish)
+
+    def formfield_for_manytomany(self, *args, **kwargs):
+        # cf. https://code.djangoproject.com/ticket/12203#comment:22
+        # TODO: Remove `auto_created = True` after these issues are fixed:
+        #                   https://code.djangoproject.com/ticket/12203 and
+        #                   https://github.com/django/django/pull/10829
+
+        # We trick Django here to avoid `./manage.py makemigrations` produce unneeded migrations
+        models.SupportGroupSupportGroupSubtype._meta.auto_created = True
+        return super().formfield_for_manytomany(*args, **kwargs)
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = deepcopy(super().get_fieldsets(request, obj))

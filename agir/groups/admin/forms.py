@@ -12,24 +12,23 @@ from ...lib.admin.form_fields import AutocompleteSelectModel
 class SupportGroupAdminForm(CoordinatesFormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.is_creation = self.instance._state.adding
-        if self.is_creation:
-            self.fields[
-                "subtypes"
-            ].label_from_instance = lambda instance: "{} ({})".format(
-                instance.label, dict(SupportGroup.TYPE_CHOICES)[instance.type]
-            )
-        else:
-            self.fields["subtypes"].queryset = SupportGroupSubtype.objects.filter(
-                type=self.instance.type
-            )
+        # self.is_creation = self.instance._state.adding
+        # if self.is_creation:
+        #     self.fields[
+        #         "subtypes"
+        #     ].label_from_instance = lambda instance: "{} ({})".format(
+        #         instance.label, dict(SupportGroup.TYPE_CHOICES)[instance.type]
+        #     )
+        # else:
+        #     self.fields["subtypes"].queryset = SupportGroupSubtype.objects.filter(
+        #         type=self.instance.type
+        #     )
 
     class Meta:
         exclude = ("id", "members")
         widgets = {
             "description": AdminRichEditorWidget(),
             "tags": forms.CheckboxSelectMultiple(),
-            "subtypes": forms.CheckboxSelectMultiple(),
         }
 
 

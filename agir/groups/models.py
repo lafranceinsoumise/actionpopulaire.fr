@@ -6,6 +6,7 @@ from django.contrib.postgres.search import SearchVector, SearchRank
 from django.db import models
 from django.db.models import Subquery, OuterRef, Count, Q, Exists, Max
 from django.db.models.functions import Coalesce
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
 
@@ -241,7 +242,10 @@ class SupportGroup(
     )
 
     subtypes = models.ManyToManyField(
-        "SupportGroupSubtype", related_name="supportgroups", blank=True
+        "SupportGroupSubtype",
+        related_name="supportgroups",
+        through="SupportGroupSupportGroupSubtype",
+        blank=True,
     )
 
     tags = models.ManyToManyField("SupportGroupTag", related_name="groups", blank=True)
@@ -422,6 +426,35 @@ class SupportGroupSubtype(BaseSubtype):
 
     class Meta:
         verbose_name = _("sous-type")
+
+
+class SupportGroupSupportGroupSubtype(models.Model):
+    created = models.DateTimeField(
+        "date de création",
+        auto_now_add=True,
+        null=True,
+        blank=True,
+        editable=False,
+    )
+    supportgroup = models.ForeignKey(to="SupportGroup", on_delete=models.DO_NOTHING)
+    supportgroupsubtype = models.ForeignKey(
+        to="SupportGroupSubtype", on_delete=models.DO_NOTHING
+    )
+
+    class Meta:
+        # cf. https://code.djangoproject.com/ticket/12203#comment:19
+        # TODO: Remove `auto_created = True` after these issues are fixed:
+        #                   https://code.djangoproject.com/ticket/12203 and
+        #                   https://github.com/django/django/pull/10829
+        auto_created = True
+        model_name = "supportgroupsupportgroupsubtype"
+        db_table = "groups_supportgroup_subtypes"
+        constraints = [
+            models.UniqueConstraint(
+                name="groups_supportgroup_subt_supportgroup_id_supportg_f27eecfd_uniq",
+                fields=("supportgroup_id", "supportgroupsubtype_id"),
+            )
+        ]
 
 
 class Membership(ExportModelOperationsMixin("membership"), TimeStampedModel):
