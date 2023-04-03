@@ -406,9 +406,17 @@ class SupportGroupTag(AbstractLabel):
         verbose_name = _("tag")
 
 
+class SupportGroupSubtypeQuerySet(models.QuerySet):
+    def active(self):
+        return self.exclude(label__in=settings.CERTIFIED_GROUP_SUBTYPES)
+
+
 @reversion.register()
 class SupportGroupSubtype(BaseSubtype):
     TYPES_PARAMETERS = SupportGroup.TYPE_PARAMETERS
+
+    objects = SupportGroupSubtypeQuerySet.as_manager()
+
     type = models.CharField(
         _("type de groupe"),
         max_length=1,

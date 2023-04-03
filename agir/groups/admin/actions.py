@@ -1,6 +1,8 @@
+import reversion
+from django.contrib import admin, messages
 from django.http import StreamingHttpResponse
 from django.utils import timezone
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _, ngettext
 
 from ..actions import groups_to_csv_lines
 
@@ -33,3 +35,62 @@ def unpublish(modeladmin, request, queryset):
 
 
 unpublish.short_description = _("Dépublier les groupes")
+
+
+@admin.display(description="Certifier les groupes sélectionnés")
+def certify_supportgroups(modeladmin, request, qs):
+    now = timezone.now()
+    groups = qs.uncertified().select_for_update()
+    with reversion.create_revision():
+        reversion.set_user(request.user)
+        reversion.set_comment("Certification du groupe")
+        updated_count = 0
+        try:
+            for group in groups:
+                group.certification_date = now
+                group.save()
+                updated_count += 1
+        except Exception as e:
+            modeladmin.message_user(
+                request,
+                str(e),
+                level=messages.WARNING,
+            )
+        else:
+            modeladmin.message_user(
+                request,
+                ngettext(
+                    "Le groupe a été certifié.",
+                    f"{updated_count} groupes ont été certifiés",
+                    updated_count,
+                ),
+            )
+
+
+@admin.display(description="Decértifier les groupes sélectionnés")
+def uncertify_supportgroups(modeladmin, request, qs):
+    groups = qs.certified().select_for_update()
+    with reversion.create_revision():
+        reversion.set_user(request.user)
+        reversion.set_comment("Décértification du groupe")
+        updated_count = 0
+        try:
+            for group in groups:
+                group.certification_date = None
+                group.save()
+                updated_count += 1
+        except Exception as e:
+            modeladmin.message_user(
+                request,
+                str(e),
+                level=messages.WARNING,
+            )
+        else:
+            modeladmin.message_user(
+                request,
+                ngettext(
+                    "Le groupe a été decértifié.",
+                    f"{updated_count} groupes ont été decértifiés",
+                    updated_count,
+                ),
+            )

@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from agir.groups.models import SupportGroupSubtype, SupportGroup, Membership
+from agir.groups.models import SupportGroupSubtype, Membership
 from agir.lib.form_fields import AdminRichEditorWidget
 from agir.lib.forms import CoordinatesFormMixin
 from agir.people.models import Person
@@ -13,14 +13,19 @@ class SupportGroupAdminForm(CoordinatesFormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.is_creation = self.instance._state.adding
+
+        self.fields[
+            "subtypes"
+        ].queryset = SupportGroupSubtype.objects.active().order_by("-type")
         if self.is_creation:
             self.fields[
                 "subtypes"
             ].label_from_instance = lambda instance: "{} ({})".format(
-                instance.label, dict(SupportGroup.TYPE_CHOICES)[instance.type]
+                instance.label.capitalize(),
+                instance.get_type_display(),
             )
         else:
-            self.fields["subtypes"].queryset = SupportGroupSubtype.objects.filter(
+            self.fields["subtypes"].queryset = self.fields["subtypes"].queryset.filter(
                 type=self.instance.type
             )
 

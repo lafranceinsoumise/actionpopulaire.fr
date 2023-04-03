@@ -6,6 +6,7 @@ from django.contrib import admin
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.db.models import QuerySet
 from django.db.models.expressions import RawSQL
+from django.http import HttpResponseRedirect
 from django.urls import path
 from django.urls import reverse
 from django.utils.html import format_html, escape, format_html_join
@@ -109,6 +110,7 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
                 "fields": (
                     "certification_status",
                     "certification_criteria",
+                    "certification_actions",
                 )
             },
         ),
@@ -132,6 +134,7 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
         "is_certified",
         "certification_status",
         "certification_criteria",
+        "certification_actions",
         "export_buttons",
     )
     date_hierarchy = "created"
@@ -164,16 +167,13 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
     )
 
     search_fields = ("name", "description", "location_city")
-    actions = (actions.export_groups, actions.make_published, actions.unpublish)
-
-    def get_fieldsets(self, request, obj=None):
-        fieldsets = deepcopy(super().get_fieldsets(request, obj))
-        authorized_fieldsets = []
-        for key, props in fieldsets:
-            permission = props.pop("permission", False)
-            if not permission or request.user.has_perm(permission):
-                authorized_fieldsets.append((key, props))
-        return tuple(authorized_fieldsets)
+    actions = (
+        actions.export_groups,
+        actions.make_published,
+        actions.unpublish,
+        actions.certify_supportgroups,
+        actions.uncertify_supportgroups,
+    )
 
     def promo_code(self, object):
         if (
@@ -352,6 +352,7 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
 
         return "Ce type de groupe n'est pas éligible à la certification"
 
+    @admin.display(description="Critères")
     def certification_criteria(self, obj):
         acceptable_event_subtype_link = admin_url(
             "admin:events_eventsubtype_changelist",
@@ -377,7 +378,57 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
         ]
         return format_html("".join(html))
 
-    certification_criteria.short_description = _("Critères")
+    @admin.display(description="Actions")
+    def certification_actions(self, obj):
+        certification_actions = []
+        if obj and not obj.is_certified:
+            certification_actions.append(
+                mark_safe(
+                    "<input "
+                    "type='submit' "
+                    "name='_certify' "
+                    "style='border-radius:0;background:#078080;' "
+                    "value='✔ Certifier le groupe' />"
+                )
+            )
+        if obj and obj.is_certified:
+            certification_actions.append(
+                mark_safe(
+                    "<input "
+                    "type='submit' "
+                    "name='_uncertify' "
+                    "style='border-radius:0;background:#f45d48;' "
+                    "value='✖ Decértifier le groupe' />"
+                )
+            )
+        if certification_actions:
+            return format_html(
+                "<form style='margin: .5rem 0; padding: 0;'>{}</form>",
+                mark_safe("<br />".join(certification_actions)),
+            )
+        return "-"
+
+    def response_change(self, request, obj):
+        if "_certify" in request.POST:
+            qs = self.model.objects.filter(pk=obj.pk)
+            actions.certify_supportgroups(self, request, qs)
+            return HttpResponseRedirect(".")
+
+        if "_uncertify" in request.POST:
+            qs = self.model.objects.filter(pk=obj.pk)
+            actions.uncertify_supportgroups(self, request, qs)
+            return HttpResponseRedirect(".")
+
+        return super().response_change(request, obj)
+
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = deepcopy(super().get_fieldsets(request, obj))
+        authorized_fieldsets = []
+        for key, props in fieldsets:
+            permission = props.pop("permission", False)
+            if not permission or request.user.has_perm(permission):
+                authorized_fieldsets.append((key, props))
+        return tuple(authorized_fieldsets)
 
     def get_queryset(self, request):
         qs: QuerySet = super().get_queryset(request)
