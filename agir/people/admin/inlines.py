@@ -1,5 +1,3 @@
-from agir.lib.admin.inlines import NonrelatedTabularInline
-from django.conf import settings
 from django.contrib import admin
 from django.db.models import Exists, OuterRef
 from django.urls import reverse
@@ -7,6 +5,7 @@ from django.utils.html import format_html
 
 from agir.events.models import Event
 from agir.groups.models import Membership, SupportGroupSubtype
+from agir.lib.admin.inlines import NonrelatedTabularInline
 from agir.people.models import PersonEmail, PersonQualification
 
 
@@ -56,14 +55,6 @@ class MembershipInline(admin.TabularInline):
             super()
             .get_queryset(request)
             .select_related("supportgroup", "person", "person__public_email")
-            .annotate(
-                is_certified=Exists(
-                    SupportGroupSubtype.objects.filter(
-                        supportgroups__id=OuterRef("supportgroup_id"),
-                        label__in=settings.CERTIFIED_GROUP_SUBTYPES,
-                    )
-                )
-            )
         )
 
     @admin.display(
@@ -82,7 +73,7 @@ class MembershipInline(admin.TabularInline):
 
     @admin.display(description="Certifié", boolean=True)
     def certified(self, obj):
-        return obj.is_certified
+        return obj.supportgroup.is_certified
 
     def has_add_permission(self, request, obj=None):
         return False

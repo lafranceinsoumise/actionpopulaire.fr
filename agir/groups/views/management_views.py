@@ -300,6 +300,13 @@ class ChangeGroupLocationView(BaseSupportGroupAdminView, ChangeLocationBaseView)
     success_view_name = "view_group_settings_location"
     permission_required = ("groups.change_group_location",)
 
+    def get_form_kwargs(self):
+        """Add user person profile to the form kwargs"""
+        kwargs = super().get_form_kwargs()
+        person = self.request.user.person
+        kwargs["person"] = person
+        return kwargs
+
 
 class RedirectToPresseroView(BaseSupportGroupAdminView, DetailView):
     template_name = "groups/pressero_error.html"

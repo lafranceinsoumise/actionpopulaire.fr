@@ -1,11 +1,11 @@
 from datetime import timedelta
 
-from django.conf import settings
 from django.test import TestCase
 from django.utils import timezone
 
 from agir.people.models import Person
-from ..models import SupportGroup, Membership, SupportGroupSubtype
+from ..models import SupportGroup, Membership
+from ..utils.certification import check_certification_criteria
 from ..utils.supportgroup import (
     DAYS_SINCE_LAST_EVENT_WARNING,
     get_soon_to_be_inactive_groups,
@@ -13,7 +13,6 @@ from ..utils.supportgroup import (
     DAYS_SINCE_LAST_EVENT_LIMIT,
     is_active_group_filter,
 )
-from ..utils.certification import check_certification_criteria
 from ...events.models import Event, OrganizerConfig
 
 
@@ -292,16 +291,12 @@ class SupportGroupCertificationCriteriaTestCase(TestCase):
         criteria = check_certification_criteria(group)
         self.assertTrue(criteria["exclusivity"])
 
-        subtype = SupportGroupSubtype.objects.create(
-            label=settings.CERTIFIED_GROUP_SUBTYPES[0]
-        )
-
         second_group.type = SupportGroup.TYPE_LOCAL_GROUP
         second_group.save()
         criteria = check_certification_criteria(group)
         self.assertTrue(criteria["exclusivity"])
 
-        second_group.subtypes.add(subtype)
+        second_group.certification_date = timezone.now()
         second_group.save()
         second_group.refresh_from_db()
         self.assertTrue(second_group.is_certified)

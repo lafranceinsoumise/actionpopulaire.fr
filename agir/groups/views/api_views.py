@@ -5,7 +5,7 @@ from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
 from django.core.validators import validate_email
 from django.db import transaction
-from django.db.models import F, Max, DateTimeField, Q
+from django.db.models import Max, DateTimeField, Q
 from django.db.models.functions import Greatest
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
@@ -52,7 +52,6 @@ from agir.groups.serializers import (
     SupportGroupExternalLinkSerializer,
     MemberPersonalInformationSerializer,
 )
-from agir.groups.utils.certification import add_certification_criteria_to_queryset
 from agir.groups.utils.supportgroup import is_active_group_filter
 from agir.lib.pagination import (
     APIPageNumberPagination,
@@ -711,6 +710,12 @@ class GroupUpdateAPIView(UpdateAPIView):
     queryset = SupportGroup.objects.all()
     serializer_class = SupportGroupUpdateSerializer
 
+    def perform_update(self, serializer):
+        with reversion.create_revision():
+            reversion.set_user(self.request.user)
+            reversion.set_comment("Modification")
+            super().perform_update(serializer)
+
 
 class GroupInvitationAPIView(GenericAPIView):
     queryset = SupportGroup.objects.all()
@@ -876,7 +881,10 @@ class CreateSupportGroupExternalLinkAPIView(CreateAPIView):
         return super().create(request, *args, **kwargs)
 
     def perform_create(self, serializer):
-        serializer.save(supportgroup=self.supportgroup)
+        with reversion.create_revision():
+            reversion.set_user(self.request.user)
+            reversion.set_comment("Création d'un lien externe")
+            serializer.save(supportgroup=self.supportgroup)
 
 
 class RetrieveUpdateDestroySupportGroupExternalLinkPermisns(GlobalOrObjectPermissions):
@@ -901,6 +909,18 @@ class RetrieveUpdateDestroySupportGroupExternalLinkAPIView(
 
     def check_object_permissions(self, request, obj):
         return super().check_object_permissions(request, obj.supportgroup)
+
+    def perform_update(self, serializer):
+        with reversion.create_revision():
+            reversion.set_user(self.request.user)
+            reversion.set_comment("Modification d'un lien externe")
+            return super().perform_update(serializer)
+
+    def perform_destroy(self, instance):
+        with reversion.create_revision():
+            reversion.set_user(self.request.user)
+            reversion.set_comment("Suppression d'un lien externe")
+            return super().perform_destroy(instance)
 
 
 class GroupUpdateOwnMembershipPermission(GlobalOrObjectPermissions):
