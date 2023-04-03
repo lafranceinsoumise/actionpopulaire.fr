@@ -5,7 +5,6 @@ from functools import partial
 from unittest import mock
 from urllib.parse import urlencode
 
-from django.conf import settings
 from django.core import mail
 from django.urls import reverse
 from django.utils import timezone
@@ -18,7 +17,7 @@ from agir.donations.tasks import (
     send_monthly_donation_confirmation_email,
     send_donation_email,
 )
-from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
+from agir.groups.models import SupportGroup, Membership
 from agir.lib.utils import front_url
 from agir.payments import payment_modes
 from agir.payments.actions.payments import (
@@ -59,15 +58,11 @@ class DonationTestMixin:
             "gender": "F",
         }
 
-        certified_subtype = SupportGroupSubtype.objects.create(
-            type=SupportGroup.TYPE_LOCAL_GROUP,
-            label=settings.CERTIFIED_GROUP_SUBTYPES[0],
-        )
-
         self.group = SupportGroup.objects.create(
-            name="Groupe", type=SupportGroup.TYPE_LOCAL_GROUP
+            name="Groupe",
+            type=SupportGroup.TYPE_LOCAL_GROUP,
+            certification_date=timezone.now(),
         )
-        self.group.subtypes.set([certified_subtype])
         Membership.objects.create(
             supportgroup=self.group,
             person=self.p1,
@@ -75,9 +70,10 @@ class DonationTestMixin:
         )
 
         self.other_group = SupportGroup.objects.create(
-            name="Autre groupe", type=SupportGroup.TYPE_LOCAL_GROUP
+            name="Autre groupe",
+            type=SupportGroup.TYPE_LOCAL_GROUP,
+            certification_date=timezone.now(),
         )
-        self.other_group.subtypes.set([certified_subtype])
         Membership.objects.create(
             supportgroup=self.other_group,
             person=self.p1,

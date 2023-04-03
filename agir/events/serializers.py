@@ -507,7 +507,6 @@ class EventPropertyOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer
     def get_organizerGroup(self, _request):
         return SupportGroupDetailSerializer(
             SupportGroup.objects.with_static_map_image()
-            .with_certification_subtype_exists()
             .filter(
                 memberships__person_id=self.person.id,
                 memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,

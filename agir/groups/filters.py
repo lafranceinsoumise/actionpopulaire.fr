@@ -4,7 +4,6 @@ import django_filters
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Div, Submit
 from django import forms
-from django.conf import settings
 from django.forms import CheckboxInput
 
 from agir.groups.models import SupportGroup
@@ -47,7 +46,7 @@ class GroupFilterSet(django_filters.FilterSet):
 
     def filter_certified(self, qs, name, value):
         if value is True:
-            return qs.filter(subtypes__label__in=settings.CERTIFIED_GROUP_SUBTYPES)
+            return qs.certified()
         return qs
 
     @property

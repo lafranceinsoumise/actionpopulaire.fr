@@ -1,21 +1,18 @@
 from copy import deepcopy
-from datetime import timedelta
 from functools import partial, update_wrapper
 
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.gis.admin import OSMGeoAdmin
-from django.db.models import Count, Q, QuerySet
+from django.db.models import QuerySet
 from django.db.models.expressions import RawSQL
 from django.urls import path
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.html import format_html, escape, format_html_join
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from reversion.admin import VersionAdmin
 
-from agir.events.models import Event
 from agir.groups import proxys
 from agir.lib.admin.filters import (
     CountryListFilter,
@@ -27,143 +24,17 @@ from agir.lib.admin.panels import CenterOnFranceMixin
 from agir.lib.display import display_price
 from agir.lib.utils import front_url
 from . import actions
+from . import filters
+from . import inlines
 from . import views
 from .forms import SupportGroupAdminForm
 from .. import models
 from ..actions.promo_codes import get_promo_codes
-from ..models import Membership, SupportGroup
+from ..models import SupportGroup
 from ..utils.certification import (
     check_certification_criteria,
 )
 from ...lib.admin.utils import admin_url
-
-
-class MembershipInline(admin.TabularInline):
-    model = models.Membership
-    fields = (
-        "person_link",
-        "membership_type",
-        "gender",
-        "description",
-        "group_name",
-    )
-    readonly_fields = ("person_link", "gender", "description", "group_name")
-
-    def get_queryset(self, request):
-        return super().get_queryset(request).select_related("person")
-
-    @admin.display(description="Personne")
-    def person_link(self, obj):
-        return mark_safe(
-            '<a href="%s">%s</a>'
-            % (
-                reverse("admin:people_person_change", args=(obj.person.id,)),
-                escape(obj.person),
-            )
-        )
-
-    @admin.display(description="Genre", empty_value="-")
-    def gender(self, obj):
-        return obj.person.get_gender_display()
-
-    @admin.display(description="Groupe d'origine", empty_value="-")
-    def group_name(self, obj):
-        if not obj or not obj.meta or not obj.meta.get("group_id"):
-            return
-
-        group_id = obj.meta.get("group_id")
-        group_name = obj.meta.get("group_name", group_id)
-
-        return mark_safe(
-            '<a href="%s">%s</a>'
-            % (
-                reverse(
-                    "admin:groups_supportgroup_change",
-                    args=(group_id,),
-                ),
-                escape(group_name),
-            )
-        )
-
-    def has_add_permission(self, request, obj=None):
-        return False
-
-
-class ExternalLinkInline(admin.TabularInline):
-    extra = 0
-    model = models.SupportGroupExternalLink
-    fields = ("url", "label")
-
-
-class GroupHasEventsFilter(admin.SimpleListFilter):
-    title = _("Événements organisés dans les 2 mois précédents ou mois à venir")
-
-    parameter_name = "is_active"
-
-    def lookups(self, request, model_admin):
-        return (("yes", _("Oui")), ("no", _("Non")))
-
-    def queryset(self, request, queryset):
-        queryset = queryset.annotate(
-            current_events_count=Count(
-                "organized_events",
-                filter=Q(
-                    organized_events__start_time__range=(
-                        timezone.now() - timedelta(days=62),
-                        timezone.now() + timedelta(days=31),
-                    ),
-                    organized_events__visibility=Event.VISIBILITY_PUBLIC,
-                ),
-            )
-        )
-        if self.value() == "yes":
-            return queryset.exclude(current_events_count=0)
-        if self.value() == "no":
-            return queryset.filter(current_events_count=0)
-
-
-class MembersFilter(admin.SimpleListFilter):
-    title = "Membres"
-    parameter_name = "members"
-
-    def lookups(self, request, model_admin):
-        return (("no_members", "Aucun membre"), ("no_referent", "Aucun animateur"))
-
-    def queryset(self, request, queryset):
-        if self.value() == "no_members":
-            return queryset.filter(members=None)
-
-        if self.value() == "no_referent":
-            return queryset.exclude(
-                memberships__membership_type=Membership.MEMBERSHIP_TYPE_REFERENT
-            )
-
-
-class TooMuchMembersFilter(admin.SimpleListFilter):
-    MEMBERS_LIMIT = models.SupportGroup.MEMBERSHIP_LIMIT
-
-    title = "Groupe d'action avec trop de membres ({} actuellement)".format(
-        MEMBERS_LIMIT
-    )
-    parameter_name = "group with too much members"
-
-    def lookups(self, request, model_admin):
-        return (
-            (
-                "less_than_{}_members".format(self.MEMBERS_LIMIT),
-                "Moins de {} membres".format(self.MEMBERS_LIMIT),
-            ),
-            (
-                "more_than_{}_members".format(self.MEMBERS_LIMIT),
-                "Plus de {} membres".format(self.MEMBERS_LIMIT),
-            ),
-        )
-
-    def queryset(self, request, queryset):
-        if self.value() == "less_than_{}_members".format(self.MEMBERS_LIMIT):
-            return queryset.filter(membership_count__lt=self.MEMBERS_LIMIT)
-        if self.value() == "more_than_{}_members".format(self.MEMBERS_LIMIT):
-            return queryset.filter(membership_count__gte=self.MEMBERS_LIMIT)
 
 
 @admin.register(models.SupportGroup)
@@ -236,7 +107,7 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
             _("Certification"),
             {
                 "fields": (
-                    "certifiable",
+                    "certification_status",
                     "certification_criteria",
                 )
             },
@@ -246,18 +117,20 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
             {"permission": "people.export_people", "fields": ("export_buttons",)},
         ),
     )
-    inlines = (MembershipInline, ExternalLinkInline)
+    inlines = (inlines.MembershipInline, inlines.ExternalLinkInline)
     readonly_fields = (
         "id",
         "link",
         "action_buttons",
         "created",
+        "creation_date",
         "modified",
         "location_departement_id",
         "coordinates_type",
         "promo_code",
         "allocation",
-        "certifiable",
+        "is_certified",
+        "certification_status",
         "certification_criteria",
         "export_buttons",
     )
@@ -267,25 +140,27 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
         "name",
         "type",
         "published",
+        "is_certified",
         "location_short",
         "membership_count",
-        "created",
+        "creation_date",
         "referents",
         "allocation",
     )
     list_filter = (
         "published",
-        GroupHasEventsFilter,
+        filters.CertifiedSupportGroupFilter,
+        filters.GroupHasEventsFilter,
         CountryListFilter,
         CirconscriptionLegislativeFilter,
         DepartementListFilter,
         RegionListFilter,
         "coordinates_type",
-        MembersFilter,
+        filters.MembersFilter,
         "type",
         "subtypes",
         "tags",
-        TooMuchMembersFilter,
+        filters.TooMuchMembersFilter,
     )
 
     search_fields = ("name", "description", "location_city")
@@ -459,16 +334,23 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
             " ", '<a class="button" href="{}" download>{}</a>', export_buttons
         )
 
-    def certifiable(self, object):
-        if object.is_certified:
-            return "Certifié"
+    @admin.display(description="Création", ordering="created")
+    def creation_date(self, obj):
+        return obj.created.strftime("%d/%m/%Y")
 
-        if object.is_certifiable:
+    @admin.display(description="Certifié", boolean=True, ordering="certification_date")
+    def is_certified(self, obj):
+        return obj.is_certified
+
+    @admin.display(description="Statut")
+    def certification_status(self, obj):
+        if obj.is_certified:
+            return f"Certifié depuis le {obj.certification_date.strftime('%d %B %Y')}"
+
+        if obj.is_certifiable:
             return "Éligible à la certification"
 
         return "Ce type de groupe n'est pas éligible à la certification"
-
-    certifiable.short_description = _("Statut")
 
     def certification_criteria(self, obj):
         acceptable_event_subtype_link = admin_url(

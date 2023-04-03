@@ -1,7 +1,6 @@
 import datetime
 from datetime import timedelta
 
-from django.conf import settings
 from django.db.models import Count, Case, When, Q
 from django.utils.timezone import now
 from nuntius.models import CampaignSentEvent, Campaign
@@ -190,7 +189,7 @@ def get_instant_stats():
         .count(),
         "membres_ga_certifies": Person.objects.filter(
             supportgroups__type=SupportGroup.TYPE_LOCAL_GROUP,
-            supportgroups__subtypes__label__in=settings.CERTIFIED_GROUP_SUBTYPES,
+            supportgroups__certification_date__isnull=False,
             supportgroups__published=True,
         )
         .distinct()
@@ -204,7 +203,7 @@ def get_instant_stats():
         .count(),
         "membres_ga_certifies_actifs": Person.objects.filter(
             memberships__supportgroup__type=SupportGroup.TYPE_LOCAL_GROUP,
-            supportgroups__subtypes__label__in=settings.CERTIFIED_GROUP_SUBTYPES,
+            supportgroups__certification_date__isnull=False,
             memberships__supportgroup__published=True,
             memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MEMBER,
         )
@@ -220,7 +219,7 @@ def get_instant_stats():
         "membres_ga_certifies_contacts": Person.objects.filter(
             memberships__supportgroup__type=SupportGroup.TYPE_LOCAL_GROUP,
             memberships__supportgroup__published=True,
-            supportgroups__subtypes__label__in=settings.CERTIFIED_GROUP_SUBTYPES,
+            supportgroups__certification_date__isnull=False,
             memberships__membership_type=Membership.MEMBERSHIP_TYPE_FOLLOWER,
         )
         .distinct()

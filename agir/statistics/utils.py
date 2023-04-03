@@ -26,7 +26,7 @@ def get_statistics_querysets(date=None, as_kwargs=False):
             SupportGroup.objects.active()
             .filter(type=SupportGroup.TYPE_LOCAL_GROUP)
             .certified()
-            .filter(created__date__lte=date)
+            .filter(certification_date__date__lte=date)
         ),
         "membership_person_count": (
             Membership.objects.active()
