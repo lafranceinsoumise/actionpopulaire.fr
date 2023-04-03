@@ -346,6 +346,21 @@ class CreateEventAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 422)
         self.assertIn("endTime", res.data)
 
+    @patch("agir.events.serializers.is_forbidden_during_treve_event", return_value=True)
+    def test_for_organizer_group_members_only_subtype_event_is_not_created_without_organizer_group(
+        self, is_forbidden_during_treve_event
+    ):
+        subtype = get_random_object(EventSubtype)
+        subtype.for_organizer_group_members_only = True
+        subtype.save()
+        self.client.force_login(self.person.role)
+        res = self.client.post(
+            "/api/evenements/creer/",
+            data={**self.valid_data, "subtype": subtype.id, "organizerGroup": None},
+        )
+        self.assertEqual(res.status_code, 422)
+        self.assertIn("organizerGroup", res.data)
+
 
 class RSVPEventAPITestCase(APITestCase):
     def setUp(self):
@@ -355,14 +370,28 @@ class RSVPEventAPITestCase(APITestCase):
             is_insoumise=True,
             is_2022=True,
         )
+        self.organizer = Person.objects.create_person(
+            email="organizer@example.com",
+            create_role=True,
+            is_insoumise=True,
+            is_2022=True,
+        )
         self.start_time = timezone.now()
         self.end_time = self.start_time + timezone.timedelta(hours=2)
 
+    def create_event(self, **kwargs):
+        defaults = {
+            "name": "Event",
+            "start_time": self.start_time,
+            "end_time": self.end_time,
+            "organizer_person": self.organizer,
+        }
+        kwargs = {**defaults, **kwargs}
+        return Event.objects.create(**kwargs)
+
     def test_anonymous_person_cannot_rsvp(self):
         self.client.logout()
-        event = Event.objects.create(
-            name="Event", start_time=self.start_time, end_time=self.end_time
-        )
+        event = self.create_event()
         res = self.client.post(f"/api/evenements/{event.pk}/inscription/")
         self.assertEqual(res.status_code, 401)
 
@@ -373,12 +402,7 @@ class RSVPEventAPITestCase(APITestCase):
             is_insoumise=False,
             is_2022=True,
         )
-        event = Event.objects.create(
-            name="Event",
-            start_time=self.start_time,
-            end_time=self.end_time,
-            for_users=Event.FOR_USERS_INSOUMIS,
-        )
+        event = self.create_event(for_users=Event.FOR_USERS_INSOUMIS)
         self.client.force_login(person_2022.role)
         res = self.client.post(f"/api/evenements/{event.pk}/inscription/")
         self.assertEqual(res.status_code, 201)
@@ -390,22 +414,14 @@ class RSVPEventAPITestCase(APITestCase):
             is_insoumise=True,
             is_2022=False,
         )
-        event = Event.objects.create(
-            name="Event",
-            start_time=self.start_time,
-            end_time=self.end_time,
-            for_users=Event.FOR_USERS_2022,
-        )
+        event = self.create_event(for_users=Event.FOR_USERS_2022)
         self.client.force_login(person_insoumise.role)
         res = self.client.post(f"/api/evenements/{event.pk}/inscription/")
         self.assertEqual(res.status_code, 201)
 
     def test_person_cannot_rsvp_event_with_subscription_form(self):
         subscription_form = PersonForm.objects.create()
-        event = Event.objects.create(
-            name="Event",
-            start_time=self.start_time,
-            end_time=self.end_time,
+        event = self.create_event(
             subscription_form_id=subscription_form.pk,
         )
         self.client.force_login(self.person.role)
@@ -414,11 +430,7 @@ class RSVPEventAPITestCase(APITestCase):
         self.assertIn("redirectTo", res.data)
 
     def test_person_cannot_rsvp_if_already_participant(self):
-        event = Event.objects.create(
-            name="Event",
-            start_time=self.start_time,
-            end_time=self.end_time,
-        )
+        event = self.create_event()
         RSVP.objects.create(
             event=event,
             person=self.person,
@@ -430,10 +442,7 @@ class RSVPEventAPITestCase(APITestCase):
         self.assertIn("redirectTo", res.data)
 
     def test_person_cannot_rsvp_if_event_is_not_free(self):
-        event = Event.objects.create(
-            name="Event",
-            start_time=self.start_time,
-            end_time=self.end_time,
+        event = self.create_event(
             payment_parameters='{"price":10}',
         )
         RSVP.objects.create(
@@ -446,23 +455,44 @@ class RSVPEventAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 405)
         self.assertIn("redirectTo", res.data)
 
-    def test_authenticated_person_can_rsvp_available_event(self):
-        event = Event.objects.create(
-            name="Event",
-            start_time=self.start_time,
-            end_time=self.end_time,
+    def test_person_can_rsvp_for_organizer_group_members_only_if_person_is_group_member(
+        self,
+    ):
+        subtype = get_random_object(EventSubtype)
+        subtype.for_organizer_group_members_only = True
+        subtype.save()
+        group = SupportGroup.objects.create(name="Group")
+        event = self.create_event(
+            subtype=subtype,
+            organizer_group=group,
         )
+        RSVP.objects.create(
+            event=event,
+            person=self.person,
+            status=RSVP.STATUS_CONFIRMED,
+        )
+        self.client.force_login(self.person.role)
+        res = self.client.post(f"/api/evenements/{event.pk}/inscription/")
+        self.assertEqual(res.status_code, 403)
+        member = Person.objects.create_person("member@agir.test", create_role=True)
+        Membership.objects.create(
+            supportgroup=group,
+            person=member,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+        )
+        self.client.force_login(member.role)
+        res = self.client.post(f"/api/evenements/{event.pk}/inscription/")
+        self.assertEqual(res.status_code, 201)
+
+    def test_authenticated_person_can_rsvp_available_event(self):
+        event = self.create_event()
         self.client.force_login(self.person.role)
         res = self.client.post(f"/api/evenements/{event.pk}/inscription/")
         self.assertEqual(res.status_code, 201)
 
     @patch("agir.events.views.api_views.rsvp_to_free_event")
     def test_rsvp_to_free_event_is_called_upon_joining(self, rsvp_to_free_event):
-        event = Event.objects.create(
-            name="Event",
-            start_time=self.start_time,
-            end_time=self.end_time,
-        )
+        event = self.create_event()
         self.client.force_login(self.person.role)
         rsvp_to_free_event.assert_not_called()
         res = self.client.post(f"/api/evenements/{event.pk}/inscription/")
@@ -470,11 +500,7 @@ class RSVPEventAPITestCase(APITestCase):
         rsvp_to_free_event.assert_called()
 
     def test_rsvp_is_created_upon_rsvping(self):
-        event = Event.objects.create(
-            name="Event",
-            start_time=self.start_time,
-            end_time=self.end_time,
-        )
+        event = self.create_event()
         self.client.force_login(self.person.role)
         self.assertFalse(
             RSVP.objects.filter(
@@ -491,12 +517,23 @@ class RSVPEventAPITestCase(APITestCase):
             ).exists()
         )
 
+
+class RSVPEventAsGroupAPITestCase(APITestCase):
+    def setUp(self):
+        self.person = Person.objects.create_person(
+            email="person@example.com",
+            create_role=True,
+            is_insoumise=True,
+            is_2022=True,
+        )
+        self.start_time = timezone.now()
+        self.end_time = self.start_time + timezone.timedelta(hours=2)
+
     def test_person_can_rsvp_as_a_group(self):
         group = SupportGroup.objects.create()
         event = Event.objects.create(
             name="Event", start_time=self.start_time, end_time=self.end_time
         )
-
         referent = Person.objects.create_person(
             email="referent@agir.local", create_role=True
         )
@@ -505,7 +542,6 @@ class RSVPEventAPITestCase(APITestCase):
             person=referent,
             membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
         )
-
         self.client.force_login(referent.role)
         res = self.client.post(
             f"/api/evenements/{event.pk}/inscription-groupe/",
@@ -532,7 +568,34 @@ class RSVPEventAPITestCase(APITestCase):
             f"/api/evenements/{event.pk}/inscription-groupe/",
             data={"groupPk": group.id},
         )
-        self.assertEqual(res.status_code, 405)
+        self.assertEqual(res.status_code, 403)
+
+    def test_cannot_rsvp_for_organizer_group_members_only_event_as_group(self):
+        subtype = get_random_object(EventSubtype)
+        subtype.for_organizer_group_members_only = True
+        subtype.save()
+        group = SupportGroup.objects.create()
+        event = Event.objects.create(
+            name="Event",
+            start_time=self.start_time,
+            end_time=self.end_time,
+            subtype=subtype,
+        )
+        member = Person.objects.create_person(
+            email="member@agir.local", create_role=True
+        )
+        Membership.objects.create(
+            supportgroup=group,
+            person=member,
+            membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
+        )
+
+        self.client.force_login(member.role)
+        res = self.client.post(
+            f"/api/evenements/{event.pk}/inscription-groupe/",
+            data={"groupPk": group.id},
+        )
+        self.assertEqual(res.status_code, 403)
 
     def test_person_can_quit_event_as_group(self):
         group = SupportGroup.objects.create()

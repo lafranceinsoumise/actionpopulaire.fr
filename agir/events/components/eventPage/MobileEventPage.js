@@ -26,7 +26,6 @@ import OnlineUrlCard from "./OnlineUrlCard";
 import RenderIfVisible from "@agir/front/genericComponents/RenderIfVisible";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
 import EventMessages from "./EventMessages";
-import Spacer from "@agir/front/genericComponents/Spacer";
 import TokTokCard from "@agir/events/TokTok/TokTokCard";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getUser } from "@agir/front/globalContext/reducers";
@@ -172,19 +171,17 @@ const MobileEventPage = (props) => {
       </StyledMap>
 
       <StyledMain once style={{ overflow: "hidden" }}>
-        <Card>
+        <Card
+          css={`
+            display: flex;
+            flex-flow: column nowrap;
+            gap: 1rem;
+          `}
+        >
           <EventHeader {...props} />
-          {isManager && (
-            <>
-              <Spacer size="1rem" />
-              <ReportFormCard eventPk={id} />
-            </>
-          )}
+          {isManager && <ReportFormCard eventPk={id} />}
           {logged && subtype.label === DOOR2DOOR_EVENT_SUBTYPE_LABEL && (
-            <>
-              <Spacer size="1rem" />
-              <TokTokCard />
-            </>
+            <TokTokCard />
           )}
         </Card>
       </StyledMain>
@@ -275,19 +272,7 @@ MobileEventPage.propTypes = {
   contact: PropTypes.shape(ContactCard.propTypes),
   options: PropTypes.shape({ price: PropTypes.string }),
   groups: PropTypes.array,
-  routes: PropTypes.shape({
-    page: PropTypes.string,
-    map: PropTypes.string,
-    join: PropTypes.string,
-    cancel: PropTypes.string,
-    manage: PropTypes.string,
-    manageMobile: PropTypes.string,
-    calendarExport: PropTypes.string,
-    googleExport: PropTypes.string,
-    facebook: PropTypes.string,
-    addPhoto: PropTypes.string,
-    compteRendu: PropTypes.string,
-  }),
+  routes: PropTypes.object,
   appRoutes: PropTypes.object,
   logged: PropTypes.bool,
   onlineUrl: PropTypes.string,
@@ -298,6 +283,8 @@ MobileEventPage.propTypes = {
   groupsAttendees: PropTypes.array,
   subtype: PropTypes.object,
   backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  youtubeVideoID: PropTypes.string,
+  timezone: PropTypes.string,
 };
 
 export default MobileEventPage;
