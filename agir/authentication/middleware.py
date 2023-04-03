@@ -49,17 +49,15 @@ class MailLinkMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        if not ("p" in request.GET and "code" in request.GET):
+        if not (("p" in request.GET or "_p" in request.GET) and "code" in request.GET):
             return self.get_response(request)
 
         # preserve other query params than p and code when we redirect
         other_params = request.GET.copy()
-        del other_params["p"]
-        del other_params["code"]
-        if "force_login" in other_params:
-            del other_params["force_login"]
-        if "from_message" in other_params:
-            del other_params["from_message"]
+
+        for p in ["p", "_p", "code", "force_login", "from_message"]:
+            if p in other_params:
+                del other_params[p]
 
         url = (
             "{}?{}".format(request.path, other_params.urlencode(safe="/"))
@@ -67,9 +65,10 @@ class MailLinkMiddleware:
             else request.path
         )
 
-        link_user = authenticate(
-            request, user_pk=request.GET["p"], token=request.GET["code"]
-        )
+        user_pk = request.GET.get("p", request.GET.get("_p"))
+        token = request.GET["code"]
+
+        link_user = authenticate(request, user_pk=user_pk, token=token)
 
         force_login = request.GET.get("force_login")
         no_session = request.GET.get("no_session")
