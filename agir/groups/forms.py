@@ -1,6 +1,7 @@
 from functools import reduce, partial
 from operator import or_
 
+import reversion
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Row, Field
 from django import forms
@@ -59,7 +60,7 @@ class SupportGroupForm(
     )
 
     def __init__(self, *args, person, **kwargs):
-        super(SupportGroupForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.person = person
         self.is_creation = self.instance._state.adding
@@ -139,12 +140,18 @@ class SupportGroupForm(
         remove_excluded_field_from_layout(self.helper.layout, excluded_fields)
 
     def save(self, commit=True):
-        res = super().save(commit=commit)
+        with reversion.create_revision():
+            reversion.set_user(self.person.role)
+            if self.is_creation:
+                reversion.set_comment("Création du groupe")
+            else:
+                reversion.set_comment("Modification")
+            res = super().save(commit=commit)
 
-        if commit:
-            self.schedule_tasks()
+            if commit:
+                self.schedule_tasks()
 
-        return res
+            return res
 
     def _save_m2m(self):
         super()._save_m2m()
@@ -213,6 +220,17 @@ class GroupGeocodingForm(GeocodingBaseForm):
             " minutes pour la voir apparaître sur la carte."
         ),
     }
+
+    def __init__(self, *args, person, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.person = person
+
+    def save(self, commit=True):
+        with reversion.create_revision():
+            reversion.set_user(self.person.role)
+            reversion.set_comment("Modification de la localisation")
+            res = super().save(commit=commit)
+            return res
 
     class Meta:
         model = SupportGroup

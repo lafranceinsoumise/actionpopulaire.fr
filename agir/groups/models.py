@@ -1,6 +1,7 @@
 import hashlib
 from urllib.parse import urljoin
 
+import reversion
 from django.conf import settings
 from django.contrib.postgres.search import SearchVector, SearchRank
 from django.db import models
@@ -172,6 +173,7 @@ class MembershipQuerySet(models.QuerySet):
         )
 
 
+@reversion.register(for_concrete_model=True, follow=("subtypes", "links"))
 class SupportGroup(
     ExportModelOperationsMixin("support_group"),
     BaseAPIResource,
@@ -408,6 +410,7 @@ class SupportGroupTag(AbstractLabel):
         verbose_name = _("tag")
 
 
+@reversion.register()
 class SupportGroupSubtype(BaseSubtype):
     TYPES_PARAMETERS = SupportGroup.TYPE_PARAMETERS
     type = models.CharField(
@@ -551,6 +554,7 @@ class TransferOperation(models.Model):
         ordering = ("timestamp", "former_group")
 
 
+@reversion.register(follow=("supportgroup",))
 class SupportGroupExternalLink(ExternalLinkMixin):
     supportgroup = models.ForeignKey(
         SupportGroup,

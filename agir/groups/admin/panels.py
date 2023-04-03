@@ -13,6 +13,7 @@ from django.utils import timezone
 from django.utils.html import format_html, escape, format_html_join
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+from reversion.admin import VersionAdmin
 
 from agir.events.models import Event
 from agir.groups import proxys
@@ -166,7 +167,8 @@ class TooMuchMembersFilter(admin.SimpleListFilter):
 
 
 @admin.register(models.SupportGroup)
-class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
+class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
+    history_latest_first = True
     form = SupportGroupAdminForm
     fieldsets = (
         (
@@ -643,7 +645,8 @@ class SupportGroupTagAdmin(admin.ModelAdmin):
 
 
 @admin.register(models.SupportGroupSubtype)
-class SupportGroupSubtypeAdmin(admin.ModelAdmin):
+class SupportGroupSubtypeAdmin(VersionAdmin):
+    history_latest_first = True
     search_fields = ("label", "description")
     list_display = ("label", "description", "type", "visibility")
     list_filter = ("type", "visibility")
