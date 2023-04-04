@@ -1,9 +1,9 @@
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
+from django.utils import timezone
 from rest_framework.test import APITestCase
 
-from agir.api import settings
-from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
+from agir.groups.models import SupportGroup, Membership
 from agir.payments.models import Payment, Subscription
 from agir.people.models import Person
 from agir.presidentielle2022 import (
@@ -113,14 +113,12 @@ class DonationAggregatesAPITestCase(APITestCase):
 
 class TokTokAPITestCase(APITestCase):
     def setUp(self):
-        certification_subtype = SupportGroupSubtype.objects.create(
-            label=settings.CERTIFIED_GROUP_SUBTYPES[0]
-        )
         self.certified_group = SupportGroup.objects.create(
-            name="Certified",
+            name="Certified", certification_date=timezone.now()
         )
-        self.certified_group.subtypes.add(certification_subtype)
-        self.uncertified_group = SupportGroup.objects.create(name="Uncertified")
+        self.uncertified_group = SupportGroup.objects.create(
+            name="Uncertified", certification_date=None
+        )
 
     def test_anonymous_cannot_access_data(self):
         self.client.logout()

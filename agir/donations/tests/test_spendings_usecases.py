@@ -1,11 +1,11 @@
-from django.conf import settings
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
 from agir.donations.models import Operation, SpendingRequest, Document
-from agir.groups.models import SupportGroupSubtype, SupportGroup, Membership
+from agir.groups.models import SupportGroup, Membership
 from agir.payments.models import Payment
 from agir.people.models import Person
 
@@ -22,16 +22,11 @@ class SpendingRequestTestCase(TestCase):
             "treasurer@example.com", "huhuihui"
         )
 
-        self.certified_subtype = SupportGroupSubtype.objects.create(
-            label=settings.CERTIFIED_GROUP_SUBTYPES[0],
-            description="Groupe certifié",
-            type=SupportGroup.TYPE_LOCAL_GROUP,
-        )
-
         self.group1 = SupportGroup.objects.create(
-            name="Groupe 1", type=SupportGroup.TYPE_LOCAL_GROUP
+            name="Groupe 1",
+            type=SupportGroup.TYPE_LOCAL_GROUP,
+            certification_date=timezone.now(),
         )
-        self.group1.subtypes.add(self.certified_subtype)
 
         self.membership1 = Membership.objects.create(
             person=self.p1,

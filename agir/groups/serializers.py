@@ -23,11 +23,10 @@ from . import models
 from .actions import get_promo_codes
 from .actions.notifications import member_to_follower_notification
 from .models import Membership, SupportGroup, SupportGroupExternalLink
-from .utils.supportgroup import get_supportgroup_routes
 from .utils.certification import (
     check_certification_criteria,
-    CERTIFICATION_CRITERIA_LABELS,
 )
+from .utils.supportgroup import get_supportgroup_routes
 from ..front.serializer_utils import RoutesField
 from ..people.models import Person
 
@@ -349,7 +348,7 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
     def get_subtypes(self, obj):
         return (
             obj.subtypes.filter(description__isnull=False, hide_text_label=False)
-            .exclude(label__in=settings.CERTIFIED_GROUP_SUBTYPES)
+            .active()
             .values_list("description", flat=True)
         )
 

@@ -182,18 +182,15 @@ def merge_event_speakers(p1, p2, _field):
     try:
         es1 = p1.event_speaker
     except ObjectDoesNotExist:
-        es2.person = p2
+        es2.person_id = p1.id
         es2.save()
         return
 
     # If both people have a related event_speaker, combine es2 and es1 themes
-    es1_themes = es1.event_themes.all()
-    for theme in es2.event_themes.all():
-        if theme not in es1_themes:
-            es1.event_themes.add(theme)
-    with transaction.atomic():
-        es1.save()
-        es2.delete()
+    es1_themes = es1.event_themes.values_list("id", flat=True)
+    for theme in es2.event_themes.exclude(id__in=es1_themes):
+        es1.event_themes.add(theme)
+    es2.delete()
 
 
 MERGE_STRATEGIES = {

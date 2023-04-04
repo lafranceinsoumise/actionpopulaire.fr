@@ -1,10 +1,8 @@
 import json
 
-from django.conf import settings
 from django.db import transaction
 from django.db.models import Sum
 
-from agir.donations.apps import DonsConfig
 from agir.donations.models import (
     Operation,
     MonthlyAllocation,
@@ -33,7 +31,7 @@ def get_cns_balance():
 
 
 def group_can_handle_allocation(group):
-    return group.subtypes.filter(label__in=settings.CERTIFIED_GROUP_SUBTYPES).exists()
+    return group.is_certified
 
 
 def get_allocation_list(allocations, limit_to_type=None, with_labels=False):

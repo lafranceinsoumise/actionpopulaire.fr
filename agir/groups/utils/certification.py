@@ -1,9 +1,7 @@
 from datetime import timedelta
 
-from django.conf import settings
-from django.db.models import IntegerField, Max, Exists
-from django.db.models import Subquery, OuterRef, Count, Q
-from django.db.models.functions import Coalesce
+from django.db.models import Exists
+from django.db.models import OuterRef, Count, Q
 from django.utils import timezone
 
 from agir.events.models import Event
@@ -98,7 +96,7 @@ def add_certification_criteria_to_queryset(qs):
                             supportgroup__published=True,
                             membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
                             supportgroup__type=SupportGroup.TYPE_LOCAL_GROUP,
-                            supportgroup__subtypes__label__in=settings.CERTIFIED_GROUP_SUBTYPES,
+                            supportgroup__certification_date__isnull=False,
                         ).exclude(supportgroup_id=OuterRef("supportgroup_id")),
                     )
                 )
@@ -181,7 +179,7 @@ def check_certification_criteria(group, with_labels=False):
                     supportgroup__published=True,
                     membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
                     supportgroup__type=group.TYPE_LOCAL_GROUP,
-                    supportgroup__subtypes__label__in=settings.CERTIFIED_GROUP_SUBTYPES,
+                    supportgroup__certification_date__isnull=False,
                 )
                 .exists()
             )

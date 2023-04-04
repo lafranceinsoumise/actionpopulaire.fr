@@ -1,7 +1,3 @@
-import json
-
-from django.conf import settings
-from django.utils import timezone
 from rest_framework.generics import (
     ListAPIView,
 )
@@ -11,7 +7,6 @@ from agir.events.models import Event
 from agir.events.serializers import EventSerializer, EventListSerializer
 from agir.groups.models import SupportGroup
 from agir.groups.serializers import SupportGroupSearchResultSerializer
-
 from agir.groups.utils.supportgroup import is_active_group_filter
 from agir.lib.rest_framework_permissions import IsActionPopulaireClientPermission
 
@@ -64,13 +59,9 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
 
         if group_type:
             if group_type == self.GROUP_FILTER_CERTIFIED:
-                groups = groups.filter(
-                    subtypes__label__in=settings.CERTIFIED_GROUP_SUBTYPES
-                )
+                groups = groups.certified()
             elif group_type == self.GROUP_FILTER_NOT_CERTIFIED:
-                groups = groups.exclude(
-                    subtypes__label__in=settings.CERTIFIED_GROUP_SUBTYPES
-                )
+                groups = groups.uncertified()
             else:
                 groups = groups.filter(type=group_type)
 

@@ -1,7 +1,6 @@
 import statistics
 from datetime import timedelta
 
-from django.conf import settings
 from django.utils import timezone
 from push_notifications.models import GCMDevice, APNSDevice
 
@@ -118,9 +117,7 @@ def get_statistics_for_queryset(original_queryset):
     stats["group_referents"] = len(stats["group_referents"])
     stats["person_groups"] = len(stats["person_groups"])
     stats["certified_group_members"] = (
-        memberships.filter(
-            supportgroup__subtypes__label__in=settings.CERTIFIED_GROUP_SUBTYPES,
-        )
+        memberships.filter(supportgroup__certification_date__isnull=False)
         .values("person_id")
         .distinct()
         .count()

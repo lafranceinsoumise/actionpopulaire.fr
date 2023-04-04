@@ -782,12 +782,11 @@ SPECIAL_PROMO_CODES = os.environ.get(
     "SPECIAL_PROMO_CODES", '[{"expiration": "1970-01-01","label": "Offre spéciale"}]'
 )
 
+# Legacy group subtypes used for certification (migrated to SupportGroup certification_date field
 CERTIFIED_GROUP_SUBTYPES = os.environ.get(
     "CERTIFIED_GROUP_SUBTYPES", "certifié,thématique certifié"
 ).split(",")
-CERTIFIED_2022_GROUP_SUBTYPES = os.environ.get(
-    "CERTIFIED_GROUP_SUBTYPES", "certifié 2022,thématique certifié 2022"
-).split(",")
+
 if os.environ.get("PROMO_CODE_DELAY") is not None:
     year, month, day = (
         int(value) for value in os.environ.get("PROMO_CODE_DELAY").split("-")

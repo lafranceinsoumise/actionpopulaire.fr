@@ -1,6 +1,7 @@
 import hashlib
 from urllib.parse import urljoin
 
+import reversion
 from django.conf import settings
 from django.contrib.postgres.search import SearchVector, SearchRank
 from django.db import models
@@ -41,7 +42,10 @@ class SupportGroupQuerySet(models.QuerySet):
         return self.filter(published=True)
 
     def certified(self):
-        return self.filter(subtypes__label__in=settings.CERTIFIED_GROUP_SUBTYPES)
+        return self.filter(certification_date__isnull=False)
+
+    def uncertified(self):
+        return self.filter(certification_date__isnull=True)
 
     def search(self, query):
         vector = (
@@ -97,16 +101,6 @@ class SupportGroupQuerySet(models.QuerySet):
             )
         )
 
-    def with_certification_subtype_exists(self):
-        return self.annotate(
-            has_certification_subtype=Exists(
-                SupportGroupSubtype.objects.filter(
-                    supportgroups__id=OuterRef("id"),
-                    label__in=settings.CERTIFIED_GROUP_SUBTYPES,
-                )
-            )
-        )
-
     def with_membership_count(self):
         return self.annotate(
             membership_count=Count(
@@ -136,7 +130,6 @@ class SupportGroupQuerySet(models.QuerySet):
         qs = (
             self.prefetch_related("memberships", "subtypes")
             .with_promo_code_tag_exists()
-            .with_certification_subtype_exists()
             .with_organized_event_count()
             .with_membership_count()
             .with_person_membership_type(person)
@@ -172,6 +165,7 @@ class MembershipQuerySet(models.QuerySet):
         )
 
 
+@reversion.register(for_concrete_model=True, follow=("subtypes", "links"))
 class SupportGroup(
     ExportModelOperationsMixin("support_group"),
     BaseAPIResource,
@@ -282,6 +276,16 @@ class SupportGroup(
         help_text=_("La messagerie privée est activée pour le groupe"),
     )
 
+    certification_date = models.DateTimeField(
+        verbose_name=_("date de certification"),
+        default=None,
+        null=True,
+        blank=True,
+        help_text=_(
+            "La date à laquelle le groupe a été certifié, vide pour les groupes non certifiés"
+        ),
+    )
+
     @property
     def managers(self):
         return [
@@ -346,16 +350,10 @@ class SupportGroup(
 
     @property
     def is_certified(self):
-        return self.subtypes.filter(
-            label__in=settings.CERTIFIED_GROUP_SUBTYPES
-        ).exists()
-
-    @property
-    def is_2022_certified(self):
-        return self.subtypes.filter(
-            label__in=settings.CERTIFIED_2022_GROUP_SUBTYPES
-            + settings.CERTIFIED_GROUP_SUBTYPES
-        ).exists()
+        return self.certification_date is not None
+        # return self.subtypes.filter(
+        #     label__in=settings.CERTIFIED_GROUP_SUBTYPES
+        # ).exists()
 
     @property
     def allow_external(self):
@@ -408,8 +406,17 @@ class SupportGroupTag(AbstractLabel):
         verbose_name = _("tag")
 
 
+class SupportGroupSubtypeQuerySet(models.QuerySet):
+    def active(self):
+        return self.exclude(label__in=settings.CERTIFIED_GROUP_SUBTYPES)
+
+
+@reversion.register()
 class SupportGroupSubtype(BaseSubtype):
     TYPES_PARAMETERS = SupportGroup.TYPE_PARAMETERS
+
+    objects = SupportGroupSubtypeQuerySet.as_manager()
+
     type = models.CharField(
         _("type de groupe"),
         max_length=1,
@@ -551,6 +558,7 @@ class TransferOperation(models.Model):
         ordering = ("timestamp", "former_group")
 
 
+@reversion.register(follow=("supportgroup",))
 class SupportGroupExternalLink(ExternalLinkMixin):
     supportgroup = models.ForeignKey(
         SupportGroup,
