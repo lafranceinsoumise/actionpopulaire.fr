@@ -31,13 +31,16 @@ def create_subscription(person, mode, amount, allocations=None, **kwargs):
 
     subscription_type_id = kwargs.pop("type", DonsConfig.MONTHLY_DONATION_TYPE)
     subscription_type = SUBSCRIPTION_TYPES.get(subscription_type_id, None)
-    day_of_month = kwargs.pop("day_of_month", settings.MONTHLY_DONATION_DAY)
-    if (
-        subscription_type
-        and hasattr(subscription_type, "day_of_month")
-        and isinstance(subscription_type.day_of_month, int)
-    ):
-        day_of_month = subscription_type.day_of_month
+    day_of_month = kwargs.pop("day_of_month", None)
+    if not day_of_month:
+        if (
+            subscription_type
+            and hasattr(subscription_type, "day_of_month")
+            and isinstance(subscription_type.day_of_month, int)
+        ):
+            day_of_month = subscription_type.day_of_month
+        else:
+            day_of_month = settings.MONTHLY_DONATION_DAY
 
     subscription = Subscription.objects.create(
         person=person,

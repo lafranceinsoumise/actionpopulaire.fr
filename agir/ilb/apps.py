@@ -39,7 +39,6 @@ class ILBAppConfig(AppConfig):
             success_view=RedirectView.as_view(url=settings.ILB_DONS_REMERCIEMENTS_URL),
             status_listener=subscription_notification_listener,
             description_template="ilb/dons/subscription_description.html",
-            day_of_month=12,
         )
 
         register_subscription_type(ilb_subscription_type)
