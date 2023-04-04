@@ -28,10 +28,9 @@ def date_prelevement(regularite):
 class PersonalInformationForm(BaseDonorForm):
     show_subscribed = False
 
-    # Désactivation temporaire des modes de paiement mensuels et annuels
     regularite = forms.ChoiceField(
         required=True,
-        choices=[(Regularite.PONCTUEL, "Ponctuel")],
+        choices=Regularite.choices,
         widget=forms.HiddenInput,
     )
 
