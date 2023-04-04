@@ -13,6 +13,7 @@ class ILBSystemPayPaymentMode(AbstractSystemPayPaymentMode):
         production=settings.ILB_SYSTEMPAY_PRODUCTION,
         currency=settings.ILB_SYSTEMPAY_CURRENCY,
         certificate=settings.ILB_SYSTEMPAY_CERTIFICATE,
+        api_password=settings.ILB_SYSTEMPAY_API_PASSWORD,
     )
 
 
