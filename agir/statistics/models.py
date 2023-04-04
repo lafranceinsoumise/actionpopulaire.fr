@@ -1,44 +1,32 @@
 import datetime
 
 from django.db import models
+from django.db.models import Sum
 from nuntius.models import CampaignSentEvent
 
 from agir.events.models import Event
 from agir.groups.models import SupportGroup, Membership
 from agir.lib.models import TimeStampedModel
 from agir.people.models import Person
-from agir.statistics.utils import get_statistics_querysets
+from agir.statistics.utils import (
+    get_absolute_statistics,
+    get_materiel_statistics,
+    MATERIEL_SALES_REPORT_FIELDS,
+)
 
 
-class AbsoluteStatisticsQueryset(models.QuerySet):
+class StatisticsQuerysetMixin:
     def create(self, date=None, **kwargs):
-        values = get_statistics_querysets(date, as_kwargs=True)
+        values = self.get_data(date)
         kwargs.update(values)
         return super().create(**kwargs)
 
     def update_or_create(self, defaults=None, **kwargs):
         date = kwargs.pop("date", None)
-        defaults = get_statistics_querysets(date, as_kwargs=True)
-        date = defaults.pop("date")
+        if defaults is None:
+            defaults = self.get_data(date)
+            date = defaults.pop("date")
         return super().update_or_create(date=date, defaults=defaults, **kwargs)
-
-    def aggregate_for_period(self, start=None, end=None):
-        qs = self.order_by("-date")
-
-        if start:
-            qs = qs.filter(date__gte=start)
-
-        if end:
-            qs = qs.filter(date__lte=end)
-
-        first = qs.last()
-        last = qs.first()
-        aggregates = {"period": (first.date, last.date)}
-
-        for key in self.model.AGGREGATABLE_FIELDS:
-            aggregates[key] = getattr(last, key) - getattr(first, key)
-
-        return aggregates
 
     def aggregate_for_last_week(self):
         today = datetime.date.today()
@@ -70,6 +58,29 @@ class AbsoluteStatisticsQueryset(models.QuerySet):
         if date is None:
             date = datetime.date.today()
         return self.filter(date__year=date.year).aggregate_for_period()
+
+
+class AbsoluteStatisticsQueryset(models.QuerySet, StatisticsQuerysetMixin):
+    def get_data(self, date):
+        return get_absolute_statistics(date, as_kwargs=True)
+
+    def aggregate_for_period(self, start=None, end=None):
+        qs = self.order_by("-date")
+
+        if start:
+            qs = qs.filter(date__gte=start)
+
+        if end:
+            qs = qs.filter(date__lte=end)
+
+        first = qs.last()
+        last = qs.first()
+        aggregates = {"period": (first.date, last.date)}
+
+        for key in self.model.AGGREGATABLE_FIELDS:
+            aggregates[key] = getattr(last, key) - getattr(first, key)
+
+        return aggregates
 
 
 class AbsoluteStatistics(TimeStampedModel):
@@ -145,5 +156,128 @@ class AbsoluteStatistics(TimeStampedModel):
     class Meta:
         verbose_name = "statistique absolue"
         verbose_name_plural = "statistiques absolues"
+        ordering = ("-date",)
+        get_latest_by = "date"
+
+
+class MaterielStatiticsQueryset(models.QuerySet, StatisticsQuerysetMixin):
+    def get_data(self, date):
+        return get_materiel_statistics(date)
+
+    def aggregate_for_period(self, start=None, end=None):
+        qs = self
+
+        if start:
+            qs = qs.filter(date__gte=start)
+
+        if end:
+            qs = qs.filter(date__lte=end)
+
+        first = qs.last()
+        last = qs.first()
+
+        aggregates = qs.aggregate(
+            **{field: Sum(field) for field in self.model.AGGREGATABLE_FIELDS}
+        )
+        aggregates["period"] = first.date, last.date
+
+        return aggregates
+
+
+class MaterielStatistics(TimeStampedModel):
+    AGGREGATABLE_FIELDS = MATERIEL_SALES_REPORT_FIELDS
+    CURRENCY_FIELDS = (
+        "total_sales",
+        "net_sales",
+        "average_sales",
+        "total_tax",
+        "total_shipping",
+        "total_refunds",
+        "total_discount",
+    )
+
+    objects = MaterielStatiticsQueryset.as_manager()
+
+    date = models.DateField(
+        verbose_name="Date",
+        editable=False,
+        unique=True,
+        db_index=True,
+    )
+
+    total_orders = models.IntegerField(
+        verbose_name="Commandes passées",
+        null=False,
+        blank=False,
+        default=0,
+    )
+    total_items = models.IntegerField(
+        verbose_name="Produits vendus",
+        null=False,
+        blank=False,
+        default=0,
+    )
+    total_customer = models.IntegerField(
+        verbose_name="Clients",
+        null=False,
+        blank=False,
+        default=0,
+    )
+    total_sales = models.IntegerField(
+        verbose_name="Ventes brutes",
+        null=False,
+        blank=False,
+        default=0,
+        help_text="Montant indiqué en centîmes d'euros",
+    )
+    net_sales = models.IntegerField(
+        verbose_name="Ventes nettes",
+        null=False,
+        blank=False,
+        default=0,
+        help_text="Montant indiqué en centîmes d'euros",
+    )
+    average_sales = models.IntegerField(
+        verbose_name="Moyenne des ventes nettes par jour",
+        null=False,
+        blank=False,
+        default=0,
+        help_text="Montant indiqué en centîmes d'euros",
+    )
+    total_tax = models.IntegerField(
+        verbose_name="Montant total des taxes",
+        null=False,
+        blank=False,
+        default=0,
+        help_text="Montant indiqué en centîmes d'euros",
+    )
+    total_shipping = models.IntegerField(
+        verbose_name="Montant total des frais de livraison",
+        null=False,
+        blank=False,
+        default=0,
+        help_text="Montant indiqué en centîmes d'euros",
+    )
+    total_refunds = models.IntegerField(
+        verbose_name="Montant total des remboursements",
+        null=False,
+        blank=False,
+        default=0,
+        help_text="Montant indiqué en centîmes d'euros",
+    )
+    total_discount = models.IntegerField(
+        verbose_name="Montant total des code promo utilisés",
+        null=False,
+        blank=False,
+        default=0,
+        help_text="Montant indiqué en centîmes d'euros",
+    )
+
+    def __str__(self):
+        return f"Statistiques du site matériel du {self.date}"
+
+    class Meta:
+        verbose_name = "statistique du site matériel"
+        verbose_name_plural = "statistiques du site matériel"
         ordering = ("-date",)
         get_latest_by = "date"

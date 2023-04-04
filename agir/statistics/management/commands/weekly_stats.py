@@ -17,34 +17,43 @@ class Command(BaseCommand):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.date = AbsoluteStatistics.objects.latest().date
-        self.instant = AbsoluteStatistics.objects.values(
-            *AbsoluteStatistics.AGGREGATABLE_FIELDS
-        ).latest()
-        self.last_week = AbsoluteStatistics.objects.aggregate_for_last_week()
-        week_start, _ = self.last_week["period"]
-        self.last_week_progress = (
-            AbsoluteStatistics.objects.aggregate_for_last_week_progress()
-        )
-        self.current_month = AbsoluteStatistics.objects.aggregate_for_current_month(
-            date=week_start
-        )
-        self.weeks_since_month_start = round(
-            (
-                np.datetime64(self.current_month["period"][1])
-                - np.datetime64(self.current_month["period"][0])
-            )
-            / np.timedelta64(1, "W")
-        )
-        self.current_year = AbsoluteStatistics.objects.aggregate_for_current_year(
-            date=week_start
-        )
-        self.weeks_since_year_start = round(
-            (
-                np.datetime64(self.current_year["period"][1])
-                - np.datetime64(self.current_year["period"][0])
-            )
-            / np.timedelta64(1, "W")
-        )
+        week_start = self.date - datetime.timedelta(days=self.date.weekday(), weeks=1)
+        week_end = week_start + datetime.timedelta(days=6)
+        self.week = week_start, week_end
+
+        self.absolute_statistics = {
+            "model": AbsoluteStatistics,
+            "instant": AbsoluteStatistics.objects.values(
+                *AbsoluteStatistics.AGGREGATABLE_FIELDS
+            ).latest(),
+            "last_week": AbsoluteStatistics.objects.aggregate_for_last_week(),
+            "last_week_progress": (
+                AbsoluteStatistics.objects.aggregate_for_last_week_progress()
+            ),
+            "current_month": AbsoluteStatistics.objects.aggregate_for_current_month(
+                date=week_start
+            ),
+            "current_year": AbsoluteStatistics.objects.aggregate_for_current_year(
+                date=week_start
+            ),
+        }
+
+        self.materiel_statistics = {
+            "model": MaterielStatistics,
+            "instant": MaterielStatistics.objects.values(
+                *MaterielStatistics.AGGREGATABLE_FIELDS
+            ).latest(),
+            "last_week": MaterielStatistics.objects.aggregate_for_last_week(),
+            "last_week_progress": (
+                MaterielStatistics.objects.aggregate_for_last_week_progress()
+            ),
+            "current_month": MaterielStatistics.objects.aggregate_for_current_month(
+                date=week_start
+            ),
+            "current_year": MaterielStatistics.objects.aggregate_for_current_year(
+                date=week_start
+            ),
+        }
 
     def start_section(self, label, value=None):
         self.section_item_count = 0
@@ -63,79 +72,119 @@ class Command(BaseCommand):
         self.log(f"<b>{self.section_count}) {title.upper()}</b>", self.style.WARNING)
         self.log("\n")
 
-    def print_value_line(self, label, value, relative=False):
+    def print_value_line(self, label, value, relative=False, currency=False):
         if self.section_item_count < len(self.bullets):
             bullet = self.bullets[self.section_item_count]
         else:
             bullet = self.bullets[-1]
 
-        if isinstance(value, str):
-            self.log(f" {bullet} {label} : <b>{value}</b>")
-        elif relative:
-            self.log(f" {bullet} {label} : <b>{value : >+n}</b>")
-        else:
-            self.log(f" {bullet} {label} : <b>{value : >n}</b>")
         self.section_item_count += 1
 
-    def print_stock(self, key):
-        label = AbsoluteStatistics._meta.get_field(key).verbose_name
-        self.start_section(label, self.instant[key])
-        self.print_value_line(f"cette semaine", self.last_week[key], relative=True)
+        if isinstance(value, str):
+            self.log(f" {bullet} {label} : <b>{value}</b>")
+            return
+
+        unit = ""
+        if currency:
+            value = round(value / 100)
+            unit = " €"
+
+        if relative:
+            self.log(f" {bullet} {label} : <b>{value : >+n}{unit}</b>")
+            return
+
+        self.log(f" {bullet} {label} : <b>{value : >n}{unit}</b>")
+
+    def print_stock(self, key, stats=None, currency=False):
+        if stats is None:
+            stats = self.absolute_statistics
+
+        label = stats["model"]._meta.get_field(key).verbose_name
+
+        self.start_section(label, stats["instant"][key])
+        self.print_value_line(
+            f"cette semaine", stats["last_week"][key], relative=True, currency=currency
+        )
         self.print_value_line(
             f"par rapport à la semaine précédente",
-            self.last_week_progress[key],
+            stats["last_week_progress"][key],
             relative=True,
+            currency=currency,
         )
         self.print_value_line(
             f"depuis début {self.date.strftime('%b')}",
-            self.current_month[key],
+            stats["current_month"][key],
             relative=True,
+            currency=currency,
         )
         self.print_value_line(
-            f"en {self.date.year}", self.current_year[key], relative=True
+            f"en {self.date.year}",
+            stats["current_year"][key],
+            relative=True,
+            currency=currency,
         )
         self.end_section()
 
-    def print_flux(self, key):
-        label = AbsoluteStatistics._meta.get_field(key).verbose_name
+    def print_flux(self, key, stats=None, currency=False):
+        if stats is None:
+            stats = self.absolute_statistics
+
+        label = stats["model"]._meta.get_field(key).verbose_name
+
+        weeks_since_month_start = round(
+            (
+                np.datetime64(stats["current_month"]["period"][1])
+                - np.datetime64(stats["current_month"]["period"][0])
+            )
+            / np.timedelta64(1, "W")
+        )
+
+        weeks_since_year_start = round(
+            (
+                np.datetime64(stats["current_year"]["period"][1])
+                - np.datetime64(stats["current_year"]["period"][0])
+            )
+            / np.timedelta64(1, "W")
+        )
+
         average_per_week_since_month_start = (
-            self.current_month[key] / self.weeks_since_month_start
+            stats["current_month"][key] / weeks_since_month_start
         )
         average_per_week_since_year_start = (
-            self.current_year[key] / self.weeks_since_year_start
+            stats["current_year"][key] / weeks_since_year_start
         )
 
         self.start_section(label)
         self.print_value_line(
-            "cette semaine",
-            self.last_week[key],
+            "cette semaine", stats["last_week"][key], currency=currency
         )
         self.print_value_line(
             "par rapport à la semaine précédente",
-            self.last_week_progress[key],
+            stats["last_week_progress"][key],
             relative=True,
+            currency=currency,
         )
         self.print_value_line(
             f"depuis début {self.date.strftime('%b')}",
-            self.current_month[key],
+            stats["current_month"][key],
+            currency=currency,
         )
         self.print_value_line(
-            f"en {self.date.year}",
-            self.current_year[key],
+            f"en {self.date.year}", stats["current_year"][key], currency=currency
         )
         self.print_value_line(
             "moyenne par semaine depuis le début du mois",
             average_per_week_since_month_start,
+            currency=currency,
         )
         self.print_value_line(
             "moyenne par semaine depuis le début de l'année",
             average_per_week_since_year_start,
+            currency=currency,
         )
         self.end_section()
 
-    def print_largest_campaigns(self):
-        start, end = self.last_week["period"]
-
+    def print_largest_campaigns(self, start, end):
         largest_campaigns = get_largest_campaign_statistics(start, end)
 
         if not largest_campaigns:
@@ -157,7 +206,7 @@ class Command(BaseCommand):
             self.end_section()
 
     def handle(self, *args, **options):
-        week_start, week_end = self.last_week["period"]
+        week_start, week_end = self.week
         self.log(
             f"<b>ACTION POPULAIRE · Statistiques hébdomadaires</b>", self.style.WARNING
         )
@@ -184,4 +233,10 @@ class Command(BaseCommand):
         self.print_flux("sent_campaign_email_count")
 
         self.print_section_title("Gros envois d'emails ( >10000 personnes )")
-        self.print_largest_campaigns()
+        self.print_largest_campaigns(week_start, week_end)
+
+        self.print_section_title("Site matériel")
+        self.print_flux("total_orders", stats=self.materiel_statistics)
+        self.print_flux("total_items", stats=self.materiel_statistics)
+        self.print_flux("total_sales", stats=self.materiel_statistics, currency=True)
+        self.print_flux("total_discount", stats=self.materiel_statistics, currency=True)
