@@ -37,7 +37,7 @@ def get_recurrence_rule(subscription, end_date=None):
     if subscription.month_of_year is None:
         rule = f"RRULE:FREQ=MONTHLY;BYMONTHDAY={subscription.day_of_month}"
     else:
-        rule = f"RRULE;FREQ=YEARLY;BYMONTH={subscription.month_of_year};BYMONTHDAY={subscription.day_of_month}"
+        rule = f"RRULE:FREQ=YEARLY;BYMONTH={subscription.month_of_year};BYMONTHDAY={subscription.day_of_month}"
 
     if end_date or subscription.end_date:
         installments = count_installments(subscription, end_date)
