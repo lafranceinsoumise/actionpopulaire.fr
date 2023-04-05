@@ -580,6 +580,61 @@ class SegmentSupportgroupFilterTestCase(TestCase):
         for person in excludes:
             self.assertNotIn(person, s.get_subscribers_queryset())
 
+    def test_supportgroup_types_filter(self):
+        local_group = self.create_group(type=SupportGroup.TYPE_LOCAL_GROUP)
+        thematic_group = self.create_group(type=SupportGroup.TYPE_THEMATIC)
+        includes = [self.create_member(supportgroup=local_group)]
+        excludes = [
+            self.create_member(supportgroup=thematic_group),
+            Person.objects.create_insoumise(
+                email=fake.email(),
+                create_role=True,
+            ),
+        ]
+        s = Segment.objects.create(
+            newsletters=[],
+            is_2022=None,
+            supportgroup_types=[SupportGroup.TYPE_LOCAL_GROUP],
+        )
+        for person in includes:
+            self.assertIn(person, s.get_subscribers_queryset())
+        for person in excludes:
+            self.assertNotIn(person, s.get_subscribers_queryset())
+
+    def test_supportgroup_types_and_supportgroups_filter_combo(self):
+        subtype = SupportGroupSubtype.objects.create(
+            label="filtered", type=SupportGroup.TYPE_LOCAL_GROUP
+        )
+        local_group = self.create_group(
+            type=SupportGroup.TYPE_LOCAL_GROUP, subtype=subtype
+        )
+        thematic_group = self.create_group(type=SupportGroup.TYPE_THEMATIC)
+        another_local_group = self.create_group(type=SupportGroup.TYPE_LOCAL_GROUP)
+        includes = [
+            self.create_member(supportgroup=local_group),
+            self.create_referent(supportgroup=local_group),
+        ]
+        excludes = [
+            self.create_member(supportgroup=another_local_group),
+            self.create_manager(supportgroup=another_local_group),
+            self.create_member(supportgroup=thematic_group),
+            self.create_manager(supportgroup=thematic_group),
+            Person.objects.create_insoumise(
+                email=fake.email(),
+                create_role=True,
+            ),
+        ]
+        s = Segment.objects.create(
+            newsletters=[],
+            is_2022=None,
+            supportgroup_types=[SupportGroup.TYPE_LOCAL_GROUP],
+        )
+        s.supportgroup_subtypes.add(subtype)
+        for person in includes:
+            self.assertIn(person, s.get_subscribers_queryset())
+        for person in excludes:
+            self.assertNotIn(person, s.get_subscribers_queryset())
+
 
 class SegmentTagFilterTestCase(TestCase):
     def create_tag(self, **kwargs):
