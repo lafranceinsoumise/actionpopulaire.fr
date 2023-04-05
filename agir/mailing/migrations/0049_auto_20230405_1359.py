@@ -33,7 +33,7 @@ class Migration(migrations.Migration):
                         ("F", "Groupe fonctionnel"),
                         ("D", "Boucle départementale"),
                     ],
-                    max_length=3,
+                    max_length=4,
                 ),
                 blank=True,
                 default=list,

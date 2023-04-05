@@ -110,7 +110,9 @@ class Segment(BaseSegment, models.Model):
         blank=True,
     )
     supportgroup_types = ChoiceArrayField(
-        models.CharField(choices=SupportGroup.TYPE_CHOICES, max_length=3),
+        models.CharField(
+            choices=SupportGroup.TYPE_CHOICES, max_length=len(SupportGroup.TYPE_CHOICES)
+        ),
         verbose_name="Limiter aux membres des groupes d'un ces types",
         default=list,
         blank=True,
