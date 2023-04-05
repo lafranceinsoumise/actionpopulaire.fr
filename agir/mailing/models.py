@@ -105,6 +105,10 @@ class Segment(BaseSegment, models.Model):
         verbose_name="Limiter aux membres d'un de ces groupes",
         blank=True,
     )
+    supportgroup_is_certified = models.BooleanField(
+        verbose_name="Limiter aux membres de groupes certifiés",
+        default=False,
+    )
     supportgroup_subtypes = models.ManyToManyField(
         "groups.SupportGroupSubtype",
         verbose_name="Limiter aux membres de groupes d'un de ces sous-types",
@@ -379,6 +383,7 @@ class Segment(BaseSegment, models.Model):
 
         if (
             not self.supportgroup_status
+            and not self.supportgroup_is_certified
             and len(subtype_ids) == 0
             and len(supportgroup_ids) == 0
         ):
@@ -386,23 +391,32 @@ class Segment(BaseSegment, models.Model):
 
         # Simplify queries for supportgroup_status only filtering
         if len(subtype_ids) == 0 and len(supportgroup_ids) == 0:
-            if self.supportgroup_status == self.GA_STATUS_NOT_MEMBER:
-                return query & ~Q(memberships__supportgroup__published=True)
-            if self.supportgroup_status == self.GA_STATUS_MEMBER:
-                return query & Q(memberships__supportgroup__published=True)
+            filter_kwargs = {"memberships__supportgroup__published": True}
+            if self.supportgroup_is_certified:
+                filter_kwargs[
+                    "memberships__supportgroup__certification_date__isnull"
+                ] = False
             if self.supportgroup_status == self.GA_STATUS_REFERENT:
-                return query & Q(
-                    memberships__supportgroup__published=True,
-                    memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
-                )
+                filter_kwargs[
+                    "memberships__membership_type__gte"
+                ] = Membership.MEMBERSHIP_TYPE_REFERENT
             if self.supportgroup_status == self.GA_STATUS_MANAGER:
-                return query & Q(
-                    memberships__supportgroup__published=True,
-                    memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
-                )
+                filter_kwargs[
+                    "memberships__membership_type__gte"
+                ] = Membership.MEMBERSHIP_TYPE_MANAGER
+
+            if self.supportgroup_status == self.GA_STATUS_NOT_MEMBER:
+                return query & ~Q(**filter_kwargs)
+
+            return query & Q(**filter_kwargs)
 
         # Use membership subquery for multi-field supportgroup filtering
         memberships = Membership.objects.filter(supportgroup__published=True)
+
+        if self.supportgroup_is_certified:
+            memberships = memberships.filter(
+                supportgroup__certification_date__isnull=False
+            )
 
         if len(supportgroup_ids) > 0:
             memberships = memberships.filter(supportgroup_id__in=supportgroup_ids)
