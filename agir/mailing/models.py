@@ -9,7 +9,7 @@ from django_countries.fields import CountryField
 from nuntius.models import BaseSegment, CampaignSentStatusType
 
 from agir.events.models import RSVP
-from agir.groups.models import Membership
+from agir.groups.models import Membership, SupportGroup
 from agir.lib import data
 from agir.lib.model_fields import ChoiceArrayField
 from agir.payments.model_fields import AmountField
@@ -100,18 +100,24 @@ class Segment(BaseSegment, models.Model):
         choices=GA_STATUS_CHOICES,
         blank=True,
     )
+    supportgroup_is_certified = models.BooleanField(
+        verbose_name="Limiter aux membres de groupes certifiés",
+        default=False,
+    )
     supportgroups = models.ManyToManyField(
         "groups.SupportGroup",
         verbose_name="Limiter aux membres d'un de ces groupes",
         blank=True,
     )
-    supportgroup_is_certified = models.BooleanField(
-        verbose_name="Limiter aux membres de groupes certifiés",
-        default=False,
+    supportgroup_types = ChoiceArrayField(
+        models.CharField(choices=SupportGroup.TYPE_CHOICES, max_length=3),
+        verbose_name="Limiter aux membres des groupes d'un ces types",
+        default=list,
+        blank=True,
     )
     supportgroup_subtypes = models.ManyToManyField(
         "groups.SupportGroupSubtype",
-        verbose_name="Limiter aux membres de groupes d'un de ces sous-types",
+        verbose_name="Limiter aux membres des groupes d'un de ces sous-types",
         blank=True,
         help_text="Ce filtre ne sera pas appliqué lorsque le filtre "
         "'Limiter aux membres d'un de ces groupes' est actif",
@@ -384,6 +390,7 @@ class Segment(BaseSegment, models.Model):
         if (
             not self.supportgroup_status
             and not self.supportgroup_is_certified
+            and not self.supportgroup_types
             and len(subtype_ids) == 0
             and len(supportgroup_ids) == 0
         ):
@@ -396,6 +403,10 @@ class Segment(BaseSegment, models.Model):
                 filter_kwargs[
                     "memberships__supportgroup__certification_date__isnull"
                 ] = False
+            if self.supportgroup_types:
+                filter_kwargs[
+                    "memberships__supportgroup__type__in"
+                ] = self.supportgroup_types
             if self.supportgroup_status == self.GA_STATUS_REFERENT:
                 filter_kwargs[
                     "memberships__membership_type__gte"
@@ -416,6 +427,11 @@ class Segment(BaseSegment, models.Model):
         if self.supportgroup_is_certified:
             memberships = memberships.filter(
                 supportgroup__certification_date__isnull=False
+            )
+
+        if self.supportgroup_types:
+            memberships = memberships.filter(
+                supportgroup__type__in=self.supportgroup_types
             )
 
         if len(supportgroup_ids) > 0:
