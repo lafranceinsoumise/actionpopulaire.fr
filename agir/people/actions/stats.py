@@ -87,7 +87,7 @@ def get_statistics_for_queryset(original_queryset):
             code_departement = code_postal_vers_code_departement(person.location_zip)
             if code_departement:
                 departement = departements_par_code[code_departement]
-                departement = f'{departement.get("id")} - {departement.get("nom")}'
+                departement = f"{departement.id} - {departement.nom}"
                 if departement not in stats["departements"]:
                     stats["departements"][departement] = 0
                 stats["departements"][departement] += 1
