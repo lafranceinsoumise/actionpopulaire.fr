@@ -309,8 +309,12 @@ class SegmentSupportgroupFilterTestCase(TestCase):
         self.default_group = self.create_group(subtype=self.default_subtype)
 
     def test_default_segment_include_anyone(self):
+        certified_group = self.create_group(certification_date=timezone.now())
+        uncertified_group = self.create_group(certification_date=None)
         includes = [
             self.create_member(),
+            self.create_member(supportgroup=certified_group),
+            self.create_member(supportgroup=uncertified_group),
             Person.objects.create_insoumise(
                 email=fake.email(),
                 create_role=True,
@@ -522,6 +526,54 @@ class SegmentSupportgroupFilterTestCase(TestCase):
         excludes = [self.create_member(supportgroup=subtype_supportgroup)]
         s = Segment.objects.create(newsletters=[], is_2022=None)
         s.supportgroups.add(another_supportgroup)
+        s.supportgroup_subtypes.add(subtype)
+        for person in includes:
+            self.assertIn(person, s.get_subscribers_queryset())
+        for person in excludes:
+            self.assertNotIn(person, s.get_subscribers_queryset())
+
+    def test_supportgroup_is_certified_filter(self):
+        certified_supportgroup = self.create_group(certification_date=timezone.now())
+        uncertified_supportgroup = self.create_group(certification_date=None)
+        includes = [self.create_member(supportgroup=certified_supportgroup)]
+        excludes = [
+            self.create_member(),
+            self.create_member(supportgroup=uncertified_supportgroup),
+            Person.objects.create_insoumise(
+                email=fake.email(),
+                create_role=True,
+            ),
+        ]
+        s = Segment.objects.create(
+            newsletters=[], is_2022=None, supportgroup_is_certified=True
+        )
+        for person in includes:
+            self.assertIn(person, s.get_subscribers_queryset())
+        for person in excludes:
+            self.assertNotIn(person, s.get_subscribers_queryset())
+
+    def test_supportgroup_status_and_supportgroup_subtypes_filter_combo(self):
+        subtype = SupportGroupSubtype.objects.create(label="filtered")
+        supportgroup = self.create_group(subtype=subtype)
+        includes = [
+            self.create_referent(supportgroup=supportgroup),
+        ]
+        excludes = [
+            self.create_referent(),
+            self.create_member(),
+            self.create_member(supportgroup=supportgroup),
+            self.create_manager(),
+            self.create_manager(supportgroup=supportgroup),
+            Person.objects.create_insoumise(
+                email=fake.email(),
+                create_role=True,
+            ),
+        ]
+        s = Segment.objects.create(
+            newsletters=[],
+            is_2022=None,
+            supportgroup_status=Segment.GA_STATUS_REFERENT,
+        )
         s.supportgroup_subtypes.add(subtype)
         for person in includes:
             self.assertIn(person, s.get_subscribers_queryset())

@@ -55,6 +55,7 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             {
                 "fields": (
                     "supportgroup_status",
+                    "supportgroup_is_certified",
                     "supportgroups",
                     "supportgroup_subtypes",
                 )
