@@ -5,7 +5,6 @@ from django.db import transaction
 from django.http import (
     HttpResponseRedirect,
     HttpResponseBadRequest,
-    HttpResponseForbidden,
 )
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -402,6 +401,9 @@ class EventPaidView(RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         payment = self.kwargs["payment"]
         event = Event.objects.get(pk=self.kwargs["payment"].meta["event_id"])
+
+        if url := event.meta.get("payment_success_url"):
+            return url
 
         messages.add_message(
             request=self.request,
