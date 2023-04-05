@@ -193,6 +193,7 @@ const StyledField = styled.label`
   }
 
   ${StyledError} {
+    line-height: 1.3;
     display: ${({ $invalid }) => ($invalid ? "flex" : "none")};
     color: ${style.redNSP};
   }

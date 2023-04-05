@@ -4,7 +4,7 @@ from pathlib import PurePath
 
 from dateutil.relativedelta import relativedelta
 from django.db import transaction
-from django.db.models import Value, Func, F
+from django.db.models import Value, Func, F, Q
 from django.db.models.functions import Concat, Replace, Lower, MD5
 from django.utils import timezone
 from pytz import utc, InvalidTimeError
@@ -83,6 +83,9 @@ class EventSubtypeSerializer(serializers.ModelSerializer):
     isPrivate = serializers.BooleanField(
         source="for_organizer_group_members_only", read_only=True
     )
+    forGroupType = serializers.CharField(
+        read_only=True, source="get_for_supportgroup_type_display"
+    )
 
     def get_needsDocuments(self, obj):
         return bool(obj.related_project_type)
@@ -117,6 +120,7 @@ class EventSubtypeSerializer(serializers.ModelSerializer):
             "needsDocuments",
             "isVisible",
             "isPrivate",
+            "forGroupType",
         )
 
 
@@ -500,28 +504,43 @@ class EventPropertyOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer
 
         user = self.context["request"].user
         self.person = None
+        self.managed_groups = []
         if not user.is_anonymous and user.person:
             self.person = user.person
+            self.managed_groups = list(
+                SupportGroup.objects.with_static_map_image()
+                .filter(
+                    memberships__person_id=self.person.id,
+                    memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+                )
+                .active()
+            )
         return super().to_representation(instance)
 
     def get_organizerGroup(self, _request):
         return SupportGroupDetailSerializer(
-            SupportGroup.objects.with_static_map_image()
-            .filter(
-                memberships__person_id=self.person.id,
-                memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
-            )
-            .active(),
+            self.managed_groups,
             context=self.context,
             many=True,
             fields=["id", "name", "contact", "location", "isCertified"],
         ).data
 
     def get_subtype(self, _request):
+        subtypes = (
+            EventSubtype.objects.filter(visibility=EventSubtype.VISIBILITY_ALL)
+            .filter(
+                Q(for_supportgroup_type__isnull=True)
+                | Q(
+                    for_supportgroup_type__in=[
+                        group.type for group in self.managed_groups
+                    ]
+                )
+            )
+            .order_by("-has_priority", "description")
+        )
+
         return EventSubtypeSerializer(
-            EventSubtype.objects.filter(
-                visibility=EventSubtype.VISIBILITY_ALL
-            ).order_by("-has_priority", "description"),
+            subtypes,
             context=self.context,
             many=True,
         ).data
@@ -529,6 +548,7 @@ class EventPropertyOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer
     def get_last_used_subtype_ids(self, _request):
         return (
             Event.objects.exclude(visibility=Event.VISIBILITY_ADMIN)
+            .filter(subtype__visibility=EventSubtype.VISIBILITY_ALL)
             .filter(organizers=self.person)
             .order_by("subtype_id", "-start_time")
             .distinct("subtype_id")
@@ -694,6 +714,24 @@ class CreateEventSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 {
                     "organizerGroup": "Ce type d'événement ne peut pas être organisé à titre individuel"
+                }
+            )
+
+        if data["subtype"].for_supportgroup_type and not organizer_group:
+            raise serializers.ValidationError(
+                {
+                    "organizerGroup": "Ce type d'événement ne peut pas être organisé à titre individuel"
+                }
+            )
+
+        if (
+            data["subtype"].for_supportgroup_type
+            and organizer_group.type != data["subtype"].for_supportgroup_type
+        ):
+            raise serializers.ValidationError(
+                {
+                    "organizerGroup": f"Ce type d'événement peut être organisé uniquement "
+                    f"par des groupes du type « {data['subtype'].get_for_supportgroup_type_display()} »"
                 }
             )
 

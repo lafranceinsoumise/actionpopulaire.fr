@@ -49,7 +49,27 @@ export const EVENT_TYPES = {
 };
 
 export const PRIVATE_EVENT_SUBTYPE_INFO =
-  "Seuls les membres des groupes organisateurs pourront participer à l'événement";
+  "Seuls les membres des groupes organisateurs pourront participer à l'événement.";
+
+export const FOR_GROUP_TYPE_EVENT_SUBTYPE_INFO =
+  "Reservé aux groupes du type « :type ».";
+
+export const getEventSubtypeInfo = (subtype) => {
+  let info = "";
+  if (!subtype) {
+    return info;
+  }
+  if (subtype.isPrivate) {
+    info += PRIVATE_EVENT_SUBTYPE_INFO;
+  }
+  if (subtype.forGroupType) {
+    info += `\n${FOR_GROUP_TYPE_EVENT_SUBTYPE_INFO.replace(
+      ":type",
+      subtype.forGroupType
+    )}`;
+  }
+  return info.trim();
+};
 
 export const formatEvent = (event) => {
   if (!event) {

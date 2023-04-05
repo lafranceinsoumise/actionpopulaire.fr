@@ -7,6 +7,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import {
   EVENT_TYPES,
   PRIVATE_EVENT_SUBTYPE_INFO,
+  getEventSubtypeInfo,
 } from "@agir/events/common/utils";
 import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
 
@@ -99,6 +100,8 @@ const SubtypeOption = (props) => {
     onClick(option);
   }, [option, onClick]);
 
+  const title = getEventSubtypeInfo(option);
+
   return (
     <StyledOption
       $selected={selected}
@@ -106,7 +109,7 @@ const SubtypeOption = (props) => {
       onClick={handleClick}
     >
       <StyledIcon icon={option.iconName} style={{ color: option.color }} />
-      <abbr title={option.isPrivate ? PRIVATE_EVENT_SUBTYPE_INFO : undefined}>
+      <abbr title={title || undefined}>
         {option.description && (
           <>
             {option.description[0].toUpperCase()}
@@ -129,6 +132,7 @@ SubtypeOption.propTypes = {
     color: PropTypes.string,
     description: PropTypes.string,
     isPrivate: PropTypes.bool,
+    forGroupType: PropTypes.string,
   }),
   onClick: PropTypes.func,
   selected: PropTypes.bool,

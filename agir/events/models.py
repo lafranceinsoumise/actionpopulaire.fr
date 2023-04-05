@@ -31,7 +31,7 @@ from stdimage.models import StdImageField
 
 from agir.carte.models import StaticMapImage
 from agir.gestion.typologies import TypeProjet, TypeDocument
-from agir.groups.models import Membership
+from agir.groups.models import Membership, SupportGroup
 from agir.lib import html
 from agir.lib.form_fields import CustomJSONEncoder, DateTimePickerWidget
 from agir.lib.html import textify, sanitize_html
@@ -1036,6 +1036,17 @@ class EventSubtype(BaseSubtype):
         "Réservé aux membres des groupes organisateurs",
         default=False,
         help_text="Seulement les membres des groupes organisateurs pourront rejoindre les événements de ce type",
+    )
+
+    for_supportgroup_type = models.CharField(
+        "Organisation réservé au type de groupe",
+        max_length=1,
+        null=True,
+        blank=True,
+        default=None,
+        choices=SupportGroup.TYPE_CHOICES,
+        help_text="Seulement les gestionnaires et animateur·ices des groupes du type sélectionné "
+        "pourront créer des événements de ce type.",
     )
 
     class Meta:
