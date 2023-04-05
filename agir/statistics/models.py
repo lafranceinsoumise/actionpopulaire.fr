@@ -15,7 +15,7 @@ from agir.statistics.utils import (
 )
 
 
-class StatisticsQuerysetMixin:
+class StatisticsQuerysetMixin(models.QuerySet):
     def create(self, date=None, **kwargs):
         values = self.get_data(date)
         kwargs.update(values)
@@ -60,7 +60,7 @@ class StatisticsQuerysetMixin:
         return self.filter(date__year=date.year).aggregate_for_period()
 
 
-class AbsoluteStatisticsQueryset(models.QuerySet, StatisticsQuerysetMixin):
+class AbsoluteStatisticsQueryset(StatisticsQuerysetMixin):
     def get_data(self, date):
         return get_absolute_statistics(date, as_kwargs=True)
 
@@ -160,7 +160,7 @@ class AbsoluteStatistics(TimeStampedModel):
         get_latest_by = "date"
 
 
-class MaterielStatiticsQueryset(models.QuerySet, StatisticsQuerysetMixin):
+class MaterielStatiticsQueryset(StatisticsQuerysetMixin):
     def get_data(self, date):
         return get_materiel_statistics(date)
 

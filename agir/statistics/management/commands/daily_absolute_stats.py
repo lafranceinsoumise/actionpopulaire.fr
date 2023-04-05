@@ -1,12 +1,7 @@
 import datetime
-import uuid
 
-from django.contrib.humanize.templatetags.humanize import apnumber
 from django.db import IntegrityError
-from django.utils.translation import ngettext
 
-from agir.event_requests.models import EventSpeakerRequest, EventRequest
-from agir.event_requests.tasks import send_new_event_speaker_request_notification
 from agir.lib.commands import BaseCommand
 from agir.statistics.models import AbsoluteStatistics, MaterielStatistics
 
