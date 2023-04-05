@@ -346,9 +346,8 @@ class CreateEventAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 422)
         self.assertIn("endTime", res.data)
 
-    @patch("agir.events.serializers.is_forbidden_during_treve_event", return_value=True)
     def test_for_organizer_group_members_only_subtype_event_is_not_created_without_organizer_group(
-        self, is_forbidden_during_treve_event
+        self,
     ):
         subtype = get_random_object(EventSubtype)
         subtype.for_organizer_group_members_only = True
@@ -360,6 +359,59 @@ class CreateEventAPITestCase(APITestCase):
         )
         self.assertEqual(res.status_code, 422)
         self.assertIn("organizerGroup", res.data)
+
+    def test_for_supportgroup_type_subtype_event_is_not_created_without_organizer_group(
+        self,
+    ):
+        subtype = get_random_object(EventSubtype)
+        subtype.for_supportgroup_type = SupportGroup.TYPE_LOCAL_GROUP
+        subtype.save()
+        self.client.force_login(self.person.role)
+        res = self.client.post(
+            "/api/evenements/creer/",
+            data={**self.valid_data, "subtype": subtype.id, "organizerGroup": None},
+        )
+        self.assertEqual(res.status_code, 422)
+        self.assertIn("organizerGroup", res.data)
+
+    def test_for_supportgroup_type_subtype_event_is_not_created_for_different_type_group(
+        self,
+    ):
+        local_group = SupportGroup.objects.create(type=SupportGroup.TYPE_LOCAL_GROUP)
+        thematic_group = SupportGroup.objects.create(type=SupportGroup.TYPE_THEMATIC)
+        Membership.objects.create(
+            supportgroup=local_group,
+            person=self.person,
+            membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
+        )
+        Membership.objects.create(
+            supportgroup=thematic_group,
+            person=self.person,
+            membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
+        )
+        subtype = get_random_object(EventSubtype)
+        subtype.for_supportgroup_type = SupportGroup.TYPE_LOCAL_GROUP
+        subtype.save()
+        self.client.force_login(self.person.role)
+        res = self.client.post(
+            "/api/evenements/creer/",
+            data={
+                **self.valid_data,
+                "subtype": subtype.id,
+                "organizerGroup": str(thematic_group.id),
+            },
+        )
+        self.assertEqual(res.status_code, 422)
+        self.assertIn("organizerGroup", res.data)
+        res = self.client.post(
+            "/api/evenements/creer/",
+            data={
+                **self.valid_data,
+                "subtype": subtype.id,
+                "organizerGroup": str(local_group.id),
+            },
+        )
+        self.assertEqual(res.status_code, 201)
 
 
 class RSVPEventAPITestCase(APITestCase):

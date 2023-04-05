@@ -8,7 +8,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import SubtypePanel from "@agir/events/common/SubtypePanel";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
-import { PRIVATE_EVENT_SUBTYPE_INFO } from "@agir/events/common/utils";
+import { getEventSubtypeInfo } from "@agir/events/common/utils";
 import { routeConfig } from "@agir/front/app/routes.config";
 
 const StyledDefaultOption = styled.button``;
@@ -177,6 +177,7 @@ const SubtypeField = (props) => {
   }, [options]);
 
   const defaultOptions = useMemo(() => subtypes.slice(0, 5), [subtypes]);
+  const info = getEventSubtypeInfo(value);
 
   return (
     <StyledField>
@@ -218,10 +219,14 @@ const SubtypeField = (props) => {
             {value ? "Modifier" : "+ d'options"}
           </StyledPanelTrigger>
         )}
-        {!!value && value.isPrivate && (
+        {!!info && (
           <StyledHelp>
             <RawFeatherIcon name="info" width="1.5rem" height="1.5rem" />
-            <span>{PRIVATE_EVENT_SUBTYPE_INFO}</span>
+            <span>
+              {info
+                .split("\n")
+                .reduce((all, cur) => [...all, <br key={cur} />, cur])}
+            </span>
           </StyledHelp>
         )}
       </StyledDefaultOptions>
