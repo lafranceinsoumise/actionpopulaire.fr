@@ -630,16 +630,79 @@ class EventTagAdmin(admin.ModelAdmin):
 @admin.register(models.EventSubtype)
 class EventSubtypeAdmin(admin.ModelAdmin):
     form = EventSubtypeAdminForm
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    "label",
+                    "type",
+                    "description",
+                    "hide_text_label",
+                    "has_priority",
+                )
+            },
+        ),
+        (
+            "Autorisations",
+            {
+                "fields": (
+                    "visibility",
+                    "for_supportgroup_type",
+                    "for_organizer_group_members_only",
+                    "is_editable",
+                    "is_acceptable_for_group_certification",
+                    "allow_external",
+                    "external_help_text",
+                    "config",
+                )
+            },
+        ),
+        (
+            "Icône",
+            {
+                "fields": (
+                    "icon_name",
+                    "color",
+                    "icon",
+                    "icon_anchor_x",
+                    "icon_anchor_y",
+                    "popup_anchor_y",
+                )
+            },
+        ),
+        (
+            "Valeurs par défaut",
+            {
+                "fields": (
+                    "default_description",
+                    "default_image",
+                )
+            },
+        ),
+        (
+            "Bilan",
+            {"fields": ("report_person_form",)},
+        ),
+        (
+            "Gestion",
+            {
+                "fields": (
+                    "related_project_type",
+                    "required_documents",
+                )
+            },
+        ),
+    )
     list_display = (
         "label",
         "description",
         "type",
         "visibility",
+        "for_group_type",
         "priority",
         "certification",
         "private",
-        "related_project_type",
-        "icon",
     )
     list_filter = (
         "type",
@@ -672,6 +735,13 @@ class EventSubtypeAdmin(admin.ModelAdmin):
     )
     def private(self, obj):
         return obj.for_organizer_group_members_only
+
+    @admin.display(
+        description="Type de groupe",
+        ordering="for_supportgroup_type",
+    )
+    def for_group_type(self, obj):
+        return obj.get_for_supportgroup_type_display()
 
 
 @admin.register(models.JitsiMeeting)
