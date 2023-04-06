@@ -75,6 +75,7 @@ class AbsoluteStatisticsQueryset(StatisticsQuerysetMixin):
 
         first = qs.last()
         last = qs.first()
+
         aggregates = {"period": (first.date, last.date)}
 
         for key in self.model.AGGREGATABLE_FIELDS:
