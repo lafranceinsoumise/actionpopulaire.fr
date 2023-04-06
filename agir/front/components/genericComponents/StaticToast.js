@@ -12,7 +12,13 @@ const StaticToast = styled.div`
   margin-top: 2rem;
   background: linear-gradient(
     90deg,
-    ${(props) => props.$color || props.theme.redNSP} 6px,
+    ${(props) => {
+        if (!props.$color) {
+          return props.theme.redNSP;
+        }
+        return props.theme[props.$color] || props.$color;
+      }}
+      6px,
     transparent 6px,
     transparent
   );

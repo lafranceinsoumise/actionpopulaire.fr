@@ -650,6 +650,7 @@ class EventSubtypeAdmin(admin.ModelAdmin):
                     "visibility",
                     "for_supportgroup_type",
                     "for_organizer_group_members_only",
+                    "unauthorized_message",
                     "is_editable",
                     "is_acceptable_for_group_certification",
                     "allow_external",
