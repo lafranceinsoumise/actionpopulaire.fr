@@ -24,6 +24,10 @@ import ButtonMenu from "@agir/front/genericComponents/ButtonMenu";
 import QuitEventButton from "./QuitEventButton";
 
 import logger from "@agir/lib/utils/logger";
+import StaticToast from "@agir/front/genericComponents/StaticToast";
+import FeatherIcon, {
+  RawFeatherIcon,
+} from "@agir/front/genericComponents/FeatherIcon";
 
 const log = logger(__filename);
 
@@ -82,6 +86,30 @@ const StyledActions = styled.div`
 
   @media (max-width: ${style.collapse}px) {
     flex-direction: column;
+  }
+`;
+
+const StyledUnauthorizedMessage = styled(StaticToast)`
+  position: static;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+
+  @media (max-width: ${(props) => props.theme.collapse}px) {
+    padding: 1rem 1.5rem;
+  }
+
+  & > * {
+    flex: 1 1 auto;
+  }
+
+  ${RawFeatherIcon} {
+    flex: 0 0 auto;
+
+    @media (max-width: ${(props) => props.theme.collapse}px) {
+      display: none;
+    }
   }
 `;
 
@@ -277,7 +305,10 @@ Actions.propTypes = {
   backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
 };
 
-const AdditionalMessage = ({ isOrganizer, logged, rsvped, price, canRSVP }) => {
+const AdditionalMessage = (props) => {
+  const { isOrganizer, logged, rsvped, price, canRSVP, unauthorizedMessage } =
+    props;
+
   const location = useLocation();
 
   if (!logged) {
@@ -301,8 +332,19 @@ const AdditionalMessage = ({ isOrganizer, logged, rsvped, price, canRSVP }) => {
     );
   }
 
-  if (!canRSVP) {
-    return null;
+  if (!canRSVP && unauthorizedMessage) {
+    return (
+      <StyledUnauthorizedMessage $color="secondary600">
+        <RawFeatherIcon
+          name="info"
+          width="1.25rem"
+          height="1.25rem"
+          color="currentColor"
+          strokeWidth={2}
+        />
+        <span>{unauthorizedMessage}</span>
+      </StyledUnauthorizedMessage>
+    );
   }
 
   if (price) {
@@ -320,7 +362,7 @@ const AdditionalMessage = ({ isOrganizer, logged, rsvped, price, canRSVP }) => {
     );
   }
 
-  return <></>;
+  return null;
 };
 AdditionalMessage.propTypes = {
   id: PropTypes.string,
@@ -333,6 +375,7 @@ AdditionalMessage.propTypes = {
   price: PropTypes.string,
   routes: PropTypes.object,
   canRSVP: PropTypes.bool,
+  unauthorizedMessage: PropTypes.string,
 };
 
 const EventHeader = (props) => {
@@ -352,6 +395,7 @@ const EventHeader = (props) => {
     backLink,
     canRSVP,
     canRSVPAsGroup,
+    unauthorizedMessage,
   } = props;
 
   const globalRoutes = useSelector(getRoutes);
@@ -399,6 +443,7 @@ const EventHeader = (props) => {
           price={options.price}
           routes={{ ...routes, ...globalRoutes }}
           canRSVP={canRSVP}
+          unauthorizedMessage={unauthorizedMessage}
         />
       )}
     </EventHeaderContainer>
@@ -425,6 +470,7 @@ EventHeader.propTypes = {
   backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   canRSVP: PropTypes.bool,
   canRSVPAsGroup: PropTypes.bool,
+  unauthorizedMessage: PropTypes.string,
 };
 
 export default EventHeader;

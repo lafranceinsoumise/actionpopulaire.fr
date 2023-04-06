@@ -822,6 +822,9 @@ class Event(
         return self.subtype.for_organizer_group_members_only
 
     def can_rsvp(self, person):
+        if not person:
+            return False
+
         if not self.for_organizer_group_members_only():
             return True
 
@@ -1036,6 +1039,15 @@ class EventSubtype(BaseSubtype):
         "Réservé aux membres des groupes organisateurs",
         default=False,
         help_text="Seulement les membres des groupes organisateurs pourront rejoindre les événements de ce type",
+    )
+
+    unauthorized_message = models.TextField(
+        "Note pour les personnes non autorisées",
+        blank=True,
+        null=False,
+        default="",
+        help_text="Cette note sera affichée sur la page de l'événement aux personnes qui n'ont pas le droit "
+        "de participer à un événement de ce type",
     )
 
     for_supportgroup_type = models.CharField(
