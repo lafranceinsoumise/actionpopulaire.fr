@@ -1,11 +1,8 @@
-import datetime
-
 from django.core.management import BaseCommand
 from django.utils import timezone
 from django.utils.formats import date_format, time_format
-from nuntius.models import Campaign
 
-from ...actions import *
+from ...legacy_actions import *
 
 
 class Command(BaseCommand):

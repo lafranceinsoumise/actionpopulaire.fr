@@ -200,6 +200,9 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     canRSVPAsGroup = serializers.SerializerMethodField(
         method_name="can_rsvp_as_group", read_only=True
     )
+    unauthorizedMessage = serializers.CharField(
+        source="subtype.unauthorized_message", read_only=True
+    )
 
     # hasProject = serializers.SerializerMethodField(
     #     read_only=True, method_name="get_has_project"

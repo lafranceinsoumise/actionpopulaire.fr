@@ -4,10 +4,11 @@ from nuntius.models import CampaignSentEvent
 
 from agir.events.models import Event
 from agir.groups.models import SupportGroup, Membership
+from agir.lib.materiel import MaterielRestAPI
 from agir.people.models import Person
 
 
-def get_statistics_querysets(date=None, as_kwargs=False):
+def get_absolute_statistics(date=None, as_kwargs=False):
     if date is None:
         date = datetime.date.today() - datetime.timedelta(days=1)
 
@@ -67,3 +68,33 @@ def get_statistics_querysets(date=None, as_kwargs=False):
         querysets["date"] = date
 
     return querysets
+
+
+MATERIEL_SALES_REPORT_FIELDS = (
+    "total_orders",
+    "total_items",
+    "total_customer",
+    "total_sales",
+    "net_sales",
+    "average_sales",
+    "total_tax",
+    "total_shipping",
+    "total_refunds",
+    "total_discount",
+)
+
+
+def get_materiel_statistics(date=None):
+    if date is None:
+        date = datetime.date.today() - datetime.timedelta(days=1)
+
+    api = MaterielRestAPI()
+    data = api.retrieve_sales_report(date_min=date, date_max=date)
+    data = {
+        key: round(float(value) * 100) if isinstance(value, str) else value
+        for key, value in data.items()
+        if key in MATERIEL_SALES_REPORT_FIELDS
+    }
+    data["date"] = date
+
+    return data
