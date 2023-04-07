@@ -14,7 +14,7 @@ class StatisticsModelAdmin(admin.ModelAdmin):
     date_hierarchy = "date"
     list_per_page = 15
     show_full_result_count = False
-    relative_aggregates = True
+    relative_aggregates = False
 
     def has_add_permission(self, request):
         return False
