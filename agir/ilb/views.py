@@ -61,35 +61,40 @@ class PersonalInformationView(base_views.BasePersonalInformationView):
 
             return redirect_to_payment(payment)
 
-        else:
-            if person is None:
-                send_monthly_donation_confirmation_email.delay(
-                    data=form.cleaned_data,
-                    confirmation_view_name="ilb_dons_confirmer",
-                    email_template="ilb/dons/confirmation_email.html",
-                )
-                self.clear_session()
-
-                return HttpResponseRedirect(
-                    reverse("monthly_donation_confirmation_email_sent")
-                )
-
-            with transaction.atomic():
-                day_of_month = form.cleaned_data.get("day_of_month")
-                month_of_year = form.cleaned_data.get("month_of_year")
-
-                subscription = create_subscription(
-                    person=person,
-                    type=self.subscription_type,
-                    mode=payment_mode,
-                    amount=amount,
-                    meta=meta,
-                    day_of_month=day_of_month,
-                    month_of_year=month_of_year,
-                )
-
+        elif person is None:
+            contact_phone = ""
+            if form.cleaned_data.get("contact_phone"):
+                contact_phone = form.cleaned_data.pop("contact_phone").as_international
+            send_monthly_donation_confirmation_email.delay(
+                data={
+                    **form.cleaned_data,
+                    "contact_phone": contact_phone,
+                },
+                confirmation_view_name="ilb_dons_confirmer",
+                email_template="ilb/dons/confirmation_email.html",
+            )
             self.clear_session()
-            return redirect_to_subscribe(subscription)
+
+            return HttpResponseRedirect(
+                reverse("monthly_donation_confirmation_email_sent")
+            )
+
+        with transaction.atomic():
+            day_of_month = form.cleaned_data.get("day_of_month")
+            month_of_year = form.cleaned_data.get("month_of_year")
+
+            subscription = create_subscription(
+                person=person,
+                type=self.subscription_type,
+                mode=payment_mode,
+                amount=amount,
+                meta=meta,
+                day_of_month=day_of_month,
+                month_of_year=month_of_year,
+            )
+
+        self.clear_session()
+        return redirect_to_subscribe(subscription)
 
     def get_context_data(self, **kwargs):
         kwargs = super().get_context_data(**kwargs)
