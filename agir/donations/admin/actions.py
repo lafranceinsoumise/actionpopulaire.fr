@@ -3,10 +3,12 @@ from io import BytesIO
 import pandas as pd
 from django.http import HttpResponse
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
+from glom import glom, T, Coalesce
 
 from agir.donations.apps import DonsConfig
+from agir.donations.models import SpendingRequest
 from agir.payments.models import Payment
-from glom import glom, T, Coalesce
 
 
 def convert_to_donation(
@@ -113,3 +115,12 @@ def export_spending_requests_to_csv(modeladmin, request, queryset):
 export_spending_requests_to_csv.short_description = f"Exporter les demandes (CSV)"
 export_spending_requests_to_csv.allowed_permissions = ["view"]
 export_spending_requests_to_csv.select_across = True
+
+
+def mark_spending_request_as_paid(model_admin, request, queryset):
+    queryset.update(status=SpendingRequest.STATUS_PAID)
+
+
+mark_spending_request_as_paid.short_description = _(
+    "Indiquer ces demandes comme payées"
+)
