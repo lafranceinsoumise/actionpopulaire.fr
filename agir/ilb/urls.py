@@ -10,4 +10,9 @@ urlpatterns = [
         views.PersonalInformationView.as_view(),
         name="personal_information",
     ),
+    path(
+        "dons-mensuels/confirmer/",
+        views.MonthlyDonationEmailConfirmationView.as_view(),
+        name="monthly_donation_confirm",
+    ),
 ]

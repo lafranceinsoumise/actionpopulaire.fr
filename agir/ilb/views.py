@@ -60,17 +60,17 @@ class PersonalInformationView(base_views.BasePersonalInformationView):
             )
 
             return redirect_to_payment(payment)
-
         elif person is None:
             contact_phone = ""
             if form.cleaned_data.get("contact_phone"):
-                contact_phone = form.cleaned_data.pop("contact_phone").as_international
+                contact_phone = form.cleaned_data.pop("contact_phone").as_e164
             send_monthly_donation_confirmation_email.delay(
                 data={
                     **form.cleaned_data,
+                    "payment_mode": payment_mode,
                     "contact_phone": contact_phone,
                 },
-                confirmation_view_name="ilb_dons_confirmer",
+                confirmation_view_name="ilb:monthly_donation_confirm",
                 email_template="ilb/dons/confirmation_email.html",
             )
             self.clear_session()
@@ -154,7 +154,7 @@ class MonthlyDonationEmailConfirmationView(VerifyLinkSignatureMixin, View):
         subscription = create_subscription(
             person=person,
             type=self.payment_type,
-            mode=self.payment_mode,
+            mode=self.payment_mode.id,
             amount=amount,
             meta=params,
             day_of_month=day_of_month,
