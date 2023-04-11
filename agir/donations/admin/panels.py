@@ -75,6 +75,7 @@ class SpendingRequestAdmin(admin.ModelAdmin):
                     "explanation",
                     "provider",
                     "iban",
+                    "payer_name",
                 )
             },
         ),
