@@ -19,10 +19,11 @@ import Skeleton from "@agir/front/genericComponents/Skeleton";
 const StyledChildrenWrapper = styled.div`
   margin-bottom: 0;
   color: ${(props) => (props.$isUnread ? style.black1000 : style.black700)};
+  font-weight: ${(props) => (props.$isUnread ? 600 : 500)};
 
   strong,
   a {
-    font-weight: 600;
+    font-weight: ${(props) => (props.$isUnread ? 700 : 600)};
     text-decoration: none;
     color: inherit;
   }
@@ -45,13 +46,16 @@ const StyledChildrenWrapper = styled.div`
 `;
 
 const LowMarginCard = styled(Card)`
-  @media only screen and (min-width: ${style.collapse}px) {
-    padding: 0;
-    border: none;
-  }
+  background-color: ${(props) =>
+    props.$isUnread ? style.primary50 : "transparent"};
+  transition: background-color 100ms ease-out;
+  border-left: none;
+  border-right: none;
+  border-radius: 0;
+  margin: -1px 0 0 0;
 
   ${Button} {
-    margin: 0.5rem 0 1rem;
+    margin: 1rem 0 0;
     align-self: flex-start;
     width: auto;
     max-width: 100%;
@@ -69,7 +73,7 @@ const EventCardContainer = styled(PageFadeIn)`
 
   @media only screen and (min-width: ${style.collapse}px) {
     padding-left: 2.5rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.5rem;
   }
 
   & ${Card} {
@@ -176,7 +180,7 @@ export const GenericCardContainer = (props) => {
       : undefined;
 
   return (
-    <LowMarginCard onClick={handleClick}>
+    <LowMarginCard onClick={handleClick} $isUnread={isUnread} bordered>
       <Row gutter="8" align="flex-start">
         <Column width="1rem" collapse={0} style={{ paddingTop: "2px" }}>
           <FeatherIcon
@@ -192,9 +196,9 @@ export const GenericCardContainer = (props) => {
             <p
               style={{
                 margin: "0.125rem 0 0",
-                fontSize: "13px",
+                fontSize: ".875rem",
                 color: style.black500,
-                fontWeight: 400,
+                fontWeight: isUnread ? 600 : 400,
               }}
             >
               {date}
