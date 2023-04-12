@@ -102,15 +102,23 @@ class PersonQueryset(models.QuerySet):
         else:
             return self.filter(q | Q(contact_phone__icontains=query[1:]))
 
-    def annotate_elus(self, current=True):
+    def annotate_elus(self, current=True, status=None):
         from agir.elus.models import types_elus
 
         annotations = {
-            f"elu_{label}": klass.objects.filter(
-                person_id=models.OuterRef("id")
-            ).exclude(statut=StatutMandat.FAUX)
+            f"elu_{label}": klass.objects.filter(person_id=models.OuterRef("id"))
             for label, klass in types_elus.items()
         }
+
+        if status:
+            annotations = {
+                label: subq.filter(statut=status) for label, subq in annotations.items()
+            }
+        else:
+            annotations = {
+                label: subq.exclude(statut=StatutMandat.FAUX)
+                for label, subq in annotations.items()
+            }
 
         if current:
             today = timezone.now().date()

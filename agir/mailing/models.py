@@ -8,6 +8,7 @@ from django.utils.timezone import now
 from django_countries.fields import CountryField
 from nuntius.models import BaseSegment, CampaignSentStatusType
 
+from agir.elus.models import StatutMandat
 from agir.events.models import RSVP
 from agir.groups.models import Membership, SupportGroup
 from agir.lib import data
@@ -298,15 +299,28 @@ class Segment(BaseSegment, models.Model):
     ELUS_SAUF_EXCLUS = "E"
     ELUS_CHOICES = (
         ("", "Peu importe"),
-        (ELUS_MEMBRE_RESEAU, "Uniquement les membres du réseau des élus"),
-        (ELUS_SAUF_EXCLUS, "Tous les élus, sauf les exclus du réseau"),
+        (ELUS_MEMBRE_RESEAU, "Uniquement les membres du réseau des élu·es"),
+        (ELUS_SAUF_EXCLUS, "Tous les élu·es, sauf les exclus du réseau"),
         (
             ELUS_REFERENCE,
             "Les membres du réseau plus tout ceux à qui on a pas encore demandé",
         ),
     )
 
-    elu = models.CharField("Est un élu", max_length=1, choices=ELUS_CHOICES, blank=True)
+    elu = models.CharField(
+        "Est un·e élu·e", max_length=1, choices=ELUS_CHOICES, blank=True
+    )
+    elu_status = models.CharField(
+        "Statut",
+        max_length=3,
+        choices=StatutMandat.choices,
+        default=None,
+        null=True,
+        blank=True,
+        help_text="Indique la qualité de l'information d'un·e élu⋅e, indépendamment des questions politiques et de"
+        " son appartenance au réseau des élus. Une valeur « Vérifié » signifie que : 1) il a été vérifié que le mandat"
+        " existe réellement et 2) le compte éventuellement associé appartient bien à la personne élue.",
+    )
 
     elu_municipal = models.BooleanField("Avec un mandat municipal", default=True)
     elu_departemental = models.BooleanField(
@@ -491,6 +505,46 @@ class Segment(BaseSegment, models.Model):
 
         return query
 
+    def apply_mandat_filters(self, query):
+        if not self.elu:
+            return query
+
+        if self.elu == Segment.ELUS_MEMBRE_RESEAU:
+            query &= Q(membre_reseau_elus=Person.MEMBRE_RESEAU_OUI)
+        elif self.elu == Segment.ELUS_SAUF_EXCLUS:
+            query &= ~Q(membre_reseau_elus=Person.MEMBRE_RESEAU_EXCLUS)
+        elif self.elu == Segment.ELUS_REFERENCE:
+            query &= ~Q(
+                membre_reseau_elus__in=[
+                    Person.MEMBRE_RESEAU_EXCLUS,
+                    Person.MEMBRE_RESEAU_NON,
+                ]
+            )
+
+        elu_filters = [
+            Q(**{elu_filter: True})
+            for elu_filter in [
+                "elu_municipal",
+                "elu_departemental",
+                "elu_regional",
+                "elu_consulaire",
+                "elu_depute",
+                "elu_depute_europeen",
+            ]
+            if getattr(self, elu_filter)
+        ]
+
+        if not elu_filters:
+            return query
+
+        q_mandats = Q()
+        for elu_filter in elu_filters:
+            q_mandats |= elu_filter
+
+        query &= q_mandats
+
+        return query
+
     def get_subscribers_q(self):
         # ne pas inclure les rôles inactifs dans les envois de mail
         q = ~Q(role__is_active=False)
@@ -629,31 +683,7 @@ class Segment(BaseSegment, models.Model):
             else:
                 q = q & ~Q(subscriptions__status=Subscription.STATUS_ACTIVE)
 
-        if self.elu:
-            if self.elu == Segment.ELUS_MEMBRE_RESEAU:
-                q &= Q(membre_reseau_elus=Person.MEMBRE_RESEAU_OUI)
-            elif self.elu == Segment.ELUS_SAUF_EXCLUS:
-                q &= ~Q(membre_reseau_elus=Person.MEMBRE_RESEAU_EXCLUS)
-            elif self.elu == Segment.ELUS_REFERENCE:
-                q &= ~Q(
-                    membre_reseau_elus__in=[
-                        Person.MEMBRE_RESEAU_EXCLUS,
-                        Person.MEMBRE_RESEAU_NON,
-                    ]
-                )
-
-            q_mandats = Q()
-            for t in [
-                "elu_municipal",
-                "elu_departemental",
-                "elu_regional",
-                "elu_consulaire",
-                "elu_depute",
-                "elu_depute_europeen",
-            ]:
-                if getattr(self, t):
-                    q_mandats |= Q(**{t: True})
-            q &= q_mandats
+        q = self.apply_mandat_filters(q)
 
         return q
 
@@ -661,7 +691,7 @@ class Segment(BaseSegment, models.Model):
         qs = Person.objects.all()
 
         if self.elu:
-            qs = qs.annotate_elus()
+            qs = qs.annotate_elus(status=self.elu_status)
 
         return qs.filter(self.get_subscribers_q()).filter(emails___bounced=False)
 

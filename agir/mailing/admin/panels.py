@@ -123,6 +123,7 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             {
                 "fields": (
                     "elu",
+                    "elu_status",
                     "elu_municipal",
                     "elu_departemental",
                     "elu_regional",
@@ -160,6 +161,7 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         list_filters.TagListFilter,
         list_filters.ExcludedTagListFilter,
         list_filters.QualificationListFilter,
+        ("elu", admin.EmptyFieldListFilter),
     )
     list_display = (
         "name",
@@ -167,13 +169,14 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         "supportgroup_subtypes_list",
         "tags_list",
         "subscriber_list_link",
+        "has_elu",
     )
 
+    @admin.display(description="Types de groupe")
     def supportgroup_subtypes_list(self, instance):
         return ", ".join(str(s) for s in instance.supportgroup_subtypes.all())
 
-    supportgroup_subtypes_list.short_description = "Types de groupe"
-
+    @admin.display(description="Tags")
     def tags_list(self, instance):
         tags = [str(t) for t in instance.tags.all()] + [
             f"<span style='text-decoration: line-through rgba(0,0,0,0.5);'>&ensp;{t}&ensp;</span>"
@@ -184,8 +187,7 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
         return format_html(", ".join(tags))
 
-    tags_list.short_description = "Tags"
-
+    @admin.display(description="Nombre d'abonné·es")
     def subscribers_count(self, instance):
         if not instance:
             return "-"
@@ -203,8 +205,7 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             str(instance.pk),
         )
 
-    subscribers_count.short_description = "Nombre d'abonnés"
-
+    @admin.display(description="Abonné·es")
     def subscriber_list_link(self, instance):
         if not instance:
             return "-"
@@ -215,7 +216,9 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             str(instance.pk),
         )
 
-    subscriber_list_link.short_description = "Abonné·es"
+    @admin.display(description="Elu·es", boolean=True)
+    def has_elu(self, instance):
+        return bool(instance.elu)
 
     class Media:
         pass
