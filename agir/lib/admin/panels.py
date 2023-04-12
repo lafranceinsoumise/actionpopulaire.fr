@@ -171,8 +171,6 @@ class AddRelatedLinkMixin(BaseModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = super().get_readonly_fields(request, obj)
-        if not obj or not obj.id:
-            return readonly_fields
         return readonly_fields + tuple(self._additional_related_fields)
 
     def _get_link(self, obj, *, attr_name, view_name):
