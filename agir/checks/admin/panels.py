@@ -1,83 +1,35 @@
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
-from django import forms
 from django.contrib import admin, messages
 from django.db import transaction
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import path, reverse
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _, gettext, ngettext
+from django.utils.translation import gettext_lazy as _, ngettext
+from rangefilter.filters import DateRangeFilter
 
-from agir.donations.form_fields import MoneyField
+from agir.checks.admin import actions, forms, filters
+from agir.checks.models import CheckPayment
 from agir.lib.admin.panels import AddRelatedLinkMixin
 from agir.payments.actions.payments import notify_status_change
 from agir.payments.admin import PaymentManagementAdminMixin
-from .models import CheckPayment
-
-
-class CheckPaymentSearchForm(forms.Form):
-    numbers = forms.CharField(
-        label="Numéro(s) de chèque",
-        required=True,
-        help_text=_(
-            "Saisissez les numéros de transaction du chèque, séparés par des espaces"
-        ),
-    )
-    amount = MoneyField(label="Montant du chèque", min_value=0, required=True)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.helper = FormHelper()
-        self.helper.add_input(Submit("submit", "Rechercher"))
-
-    def clean_numbers(self):
-        numbers = self.cleaned_data["numbers"].split()
-
-        try:
-            numbers = [int(n) for n in numbers]
-        except ValueError:
-            raise forms.ValidationError(
-                _("Entrez les numéros de chèque séparés par des espace")
-            )
-
-        missing_checks = []
-        for n in numbers:
-            try:
-                CheckPayment.objects.get(pk=n)
-            except CheckPayment.DoesNotExist:
-                missing_checks.append(n)
-
-        if len(missing_checks) == 1:
-            raise forms.ValidationError(
-                gettext("Le chèque n°{n} n'existe pas.").format(n=missing_checks[0])
-            )
-        elif missing_checks:
-            raise forms.ValidationError(
-                gettext("Les paiements de numéros {numeros} n'existent pas.").format(
-                    numeros=", ".join([str(i) for i in missing_checks])
-                )
-            )
-
-        return numbers
 
 
 @admin.register(CheckPayment)
 class CheckPaymentAdmin(
     PaymentManagementAdminMixin, AddRelatedLinkMixin, admin.ModelAdmin
 ):
+    form = forms.CheckPaymentForm
     list_display = (
         "id",
         "person",
         "get_type_display",
         "status",
         "created",
+        "modified",
         "get_price_display",
         "email",
         "nom_facturation",
     )
-
     fieldsets = (
         (
             None,
@@ -110,21 +62,63 @@ class CheckPaymentAdmin(
         ),
         ("Informations techniques", {"fields": ("meta", "events", "status_buttons")}),
     )
-
+    add_fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    "price",
+                    "type",
+                    "mode",
+                    "status",
+                    "person",
+                )
+            },
+        ),
+        (
+            "Facturation",
+            {
+                "fields": (
+                    "first_name",
+                    "last_name",
+                    "email",
+                    "phone_number",
+                    "location_address1",
+                    "location_address2",
+                    "location_zip",
+                    "location_city",
+                    "location_country",
+                )
+            },
+        ),
+    )
     readonly_fields = (
+        "id",
+        "created",
         "person_link",
         "get_type_display",
         "get_price_display",
         "status_buttons",
         "nom_facturation",
     )
-
-    list_filter = ("price", "status")
+    autocomplete_fields = ("person",)
+    list_filter = (
+        "status",
+        ("price", filters.PriceRangeListFilter),
+        ("created", admin.DateFieldListFilter),
+        ("created", DateRangeFilter),
+    )
     search_fields = ("id", "email", "first_name", "last_name")
+    actions = (
+        actions.export_check_payments_to_csv,
+        actions.export_check_payments_to_xlsx,
+    )
 
-    def has_add_permission(self, request):
-        """Forbidden to add checkpayment through this model admin"""
-        return False
+    def get_fieldsets(self, request, obj=None):
+        if obj and obj.id:
+            return self.fieldsets
+
+        return self.add_fieldsets
 
     def has_change_permission(self, request, obj=None):
         """Cette admin ne permet pas la modification"""
@@ -150,7 +144,7 @@ class CheckPaymentAdmin(
 
     def search_check_view(self, request):
         if request.method == "POST":
-            form = CheckPaymentSearchForm(data=request.POST)
+            form = forms.CheckPaymentSearchForm(data=request.POST)
 
             if form.is_valid():
                 return HttpResponseRedirect(
@@ -160,7 +154,7 @@ class CheckPaymentAdmin(
                     )
                 )
         else:
-            form = CheckPaymentSearchForm()
+            form = forms.CheckPaymentSearchForm()
 
         return TemplateResponse(
             request,
@@ -169,7 +163,7 @@ class CheckPaymentAdmin(
         )
 
     def validate_check_view(self, request):
-        get_form = CheckPaymentSearchForm(data=request.GET)
+        get_form = forms.CheckPaymentSearchForm(data=request.GET)
         return_response = HttpResponseRedirect(
             reverse("admin:checks_checkpayment_search")
         )

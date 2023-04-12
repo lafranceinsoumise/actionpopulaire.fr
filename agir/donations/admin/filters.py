@@ -1,5 +1,13 @@
+from django.contrib import admin
+from django.utils.translation import gettext_lazy as _
+
+from agir.donations.models import SpendingRequest
 from agir.groups.models import SupportGroup
-from agir.lib.admin.autocomplete_filter import AutocompleteRelatedModelFilter
+from agir.lib.admin.autocomplete_filter import (
+    AutocompleteRelatedModelFilter,
+    AutocompleteSelectModelBaseFilter,
+)
+from agir.lib.admin.filters import DepartementListFilter
 from agir.lib.admin.form_fields import AutocompleteSelectModel
 from agir.people.models import Person
 
@@ -38,3 +46,53 @@ class MonthlyAllocationGroupFilter(AutocompleteRelatedModelFilter):
 
     def get_queryset_for_field(self):
         return SupportGroup.objects.all()
+
+
+class RequestStatusFilter(admin.SimpleListFilter):
+    title = _("Statut")
+
+    parameter_name = "status"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("group", _("En attente du groupe")),
+            ("review", _("À revoir")),
+            ("to_pay", _("À payer")),
+            ("finished", _("Terminées")),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == "group":
+            return queryset.filter(status__in=SpendingRequest.STATUS_NEED_ACTION)
+        elif self.value() == "review":
+            return queryset.filter(status=SpendingRequest.STATUS_AWAITING_REVIEW)
+        elif self.value() == "to_pay":
+            return queryset.filter(status=SpendingRequest.STATUS_TO_PAY)
+        elif self.value() == "finished":
+            return queryset.filter(
+                status__in=[SpendingRequest.STATUS_PAID, SpendingRequest.STATUS_REFUSED]
+            )
+        else:
+            return queryset.filter()
+
+
+class SupportGroupFilter(AutocompleteSelectModelBaseFilter):
+    title = "groupe"
+    filter_model = SupportGroup
+    parameter_name = "group"
+
+    def get_queryset_for_field(self):
+        return SupportGroup.objects.all()
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(group_id=self.value())
+        else:
+            return queryset
+
+
+class DepartementFilter(DepartementListFilter):
+    def queryset(self, request, queryset):
+        if self.value() is None:
+            return queryset
+        return queryset.filter(departement=self.value())

@@ -1,0 +1,10 @@
+{% extends "admin/change_list.html" %}
+{% load display_lib %}
+
+{% block result_list %}
+  {{ block.super }}
+  <h3 style="text-align: right;">
+    Total des opérations sélectionnées&nbsp;:
+    <strong>{{ cl.sum | display_price_in_cent }}</strong>
+  </h3>
+{% endblock %}
