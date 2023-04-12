@@ -5,7 +5,7 @@ from django.template.response import TemplateResponse
 from django.urls import path, reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _, ngettext
-from rangefilter.filters import DateRangeFilter, NumericRangeFilter
+from rangefilter.filters import DateRangeFilter
 
 from agir.checks.admin import actions, forms, filters
 from agir.checks.models import CheckPayment
@@ -18,6 +18,7 @@ from agir.payments.admin import PaymentManagementAdminMixin
 class CheckPaymentAdmin(
     PaymentManagementAdminMixin, AddRelatedLinkMixin, admin.ModelAdmin
 ):
+    form = forms.CheckPaymentForm
     list_display = (
         "id",
         "person",
@@ -29,7 +30,6 @@ class CheckPaymentAdmin(
         "email",
         "nom_facturation",
     )
-
     fieldsets = (
         (
             None,
@@ -62,14 +62,46 @@ class CheckPaymentAdmin(
         ),
         ("Informations techniques", {"fields": ("meta", "events", "status_buttons")}),
     )
-
+    add_fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    "price",
+                    "type",
+                    "mode",
+                    "status",
+                    "person",
+                )
+            },
+        ),
+        (
+            "Facturation",
+            {
+                "fields": (
+                    "first_name",
+                    "last_name",
+                    "email",
+                    "phone_number",
+                    "location_address1",
+                    "location_address2",
+                    "location_zip",
+                    "location_city",
+                    "location_country",
+                )
+            },
+        ),
+    )
     readonly_fields = (
+        "id",
+        "created",
         "person_link",
         "get_type_display",
         "get_price_display",
         "status_buttons",
         "nom_facturation",
     )
+    autocomplete_fields = ("person",)
     list_filter = (
         "status",
         ("price", filters.PriceRangeListFilter),
@@ -82,9 +114,11 @@ class CheckPaymentAdmin(
         actions.export_check_payments_to_xlsx,
     )
 
-    def has_add_permission(self, request):
-        """Forbidden to add checkpayment through this model admin"""
-        return False
+    def get_fieldsets(self, request, obj=None):
+        if obj and obj.id:
+            return self.fieldsets
+
+        return self.add_fieldsets
 
     def has_change_permission(self, request, obj=None):
         """Cette admin ne permet pas la modification"""

@@ -71,7 +71,11 @@ def change_payments_status_action(status, description):
 
 
 class PaymentManagementAdminMixin:
+    @admin.display(description="Statut du paiement")
     def status_buttons(self, payment):
+        if not payment or not payment.id:
+            return "-"
+
         if payment.status not in [
             Payment.STATUS_WAITING,
             Payment.STATUS_REFUSED,
@@ -103,9 +107,11 @@ class PaymentManagementAdminMixin:
             ),
         )
 
-    status_buttons.short_description = "Statut du paiement"
-
+    @admin.display(description="Mode de paiement")
     def change_mode_buttons(self, payment):
+        if not payment or not payment.id:
+            return "-"
+
         if (
             payment.status == Payment.STATUS_COMPLETED
             or payment.status == Payment.STATUS_CANCELED
@@ -132,8 +138,6 @@ class PaymentManagementAdminMixin:
                 for id, mode in payment_modes.items()
             ),
         )
-
-    change_mode_buttons.short_description = "Mode de paiement"
 
     def save_form(self, request, form, change):
         with transaction.atomic():

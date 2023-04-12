@@ -3,8 +3,11 @@ from crispy_forms.layout import Submit
 from django import forms
 from django.utils.translation import gettext_lazy as _, gettext
 
+from agir.checks import DonationCheckPaymentMode
 from agir.checks.models import CheckPayment
+from agir.donations.apps import DonsConfig
 from agir.donations.form_fields import MoneyField
+from agir.payments.types import get_payment_choices
 
 
 class CheckPaymentSearchForm(forms.Form):
@@ -52,3 +55,26 @@ class CheckPaymentSearchForm(forms.Form):
             )
 
         return numbers
+
+
+class CheckPaymentForm(forms.ModelForm):
+    status = forms.ChoiceField(
+        label="Statut",
+        initial=CheckPayment.STATUS_COMPLETED,
+        choices=CheckPayment.STATUS_CHOICES,
+        required=True,
+        disabled=True,
+    )
+    mode = forms.CharField(
+        label="Mode de paiement",
+        initial=DonationCheckPaymentMode.id,
+        required=True,
+        disabled=True,
+    )
+    type = forms.ChoiceField(
+        label="Type de paiement",
+        initial=DonsConfig.SINGLE_TIME_DONATION_TYPE,
+        choices=get_payment_choices(),
+        required=True,
+        disabled=True,
+    )
