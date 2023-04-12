@@ -20,6 +20,8 @@ from agir.payments.model_fields import AmountField
 __all__ = [
     "AllocationModelMixin",
     "Operation",
+    "DepartementOperation",
+    "CNSOperation",
     "Spending",
     "SpendingRequest",
     "Document",
@@ -81,10 +83,7 @@ class AllocationModelMixin(models.Model):
         abstract = True
 
 
-class OperationModelMixin(models.Model):
-    created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now=True)
-
+class OperationModelMixin(TimeStampedModel):
     amount = BalanceField(
         _("montant net"),
         null=False,
@@ -100,6 +99,7 @@ class OperationModelMixin(models.Model):
         blank=True,
         on_delete=models.PROTECT,
     )
+    comment = models.TextField("Commentaire", blank=True, null=False)
 
     def validate_balance(self, errors):
         return errors
@@ -123,6 +123,7 @@ class OperationModelMixin(models.Model):
 
 class Operation(OperationModelMixin):
     group = models.ForeignKey(
+        verbose_name="Groupe d'action",
         to="groups.SupportGroup",
         null=False,
         blank=False,
@@ -155,7 +156,7 @@ class Operation(OperationModelMixin):
 
 class DepartementOperation(OperationModelMixin):
     departement = models.CharField(
-        "département",
+        "Département",
         null=False,
         blank=False,
         choices=departements_choices,

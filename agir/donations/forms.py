@@ -195,6 +195,7 @@ class SpendingRequestFormMixin(forms.Form):
             ),
             "provider",
             "iban",
+            "payer_name",
         )
 
 
