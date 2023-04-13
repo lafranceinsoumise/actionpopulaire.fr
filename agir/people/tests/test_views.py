@@ -279,6 +279,7 @@ class ProfileFormTestCase(TestCase):
             "location_zip": "75013",
             "location_country": "FR",
             "location_city": "Paris",
+            "action_radius": 10,
         }
 
         response = self.client.post(
@@ -314,6 +315,7 @@ class ProfileFormTestCase(TestCase):
         self.sample_data["location_city"] = "Berlin"
         self.sample_data["location_zip"] = ""
         self.sample_data["location_country"] = "DE"
+        self.sample_data["action_radius"] = 10
 
         response = self.client.post(
             reverse("personal_information"), data=self.sample_data
@@ -322,6 +324,7 @@ class ProfileFormTestCase(TestCase):
 
     def test_cannot_validate_form_without_zip_code_when_in_france(self):
         self.sample_data["location_zip"] = ""
+        self.sample_data["action_radius"] = 10
 
         response = self.client.post(
             reverse("personal_information"), data=self.sample_data
@@ -394,6 +397,7 @@ class InformationPersonalFormTestCases(TestCase):
                 "location_city": "",
                 "location_zip": "00000",
                 "location_country": "FR",
+                "action_radius": 10,
             },
             follow=True,
         )

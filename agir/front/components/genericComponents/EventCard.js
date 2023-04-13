@@ -218,6 +218,7 @@ const EventCard = (props) => {
     illustration,
     schedule,
     location,
+    distance,
     subtype,
     name,
     groups,
@@ -265,7 +266,11 @@ const EventCard = (props) => {
                 location && location.shortLocation
                   ? " • " + location.shortLocation
                   : ""
-              }`.trim()}
+              }${
+              location && distance && !isNaN(distance)
+                ? " — " + Math.round(distance) / 1000 + " Km"
+                : ""
+            }`.trim()}
           </h4>
           <StyledLink
             ref={linkRef}
@@ -305,6 +310,7 @@ EventCard.propTypes = {
     }),
     staticMapUrl: PropTypes.string,
   }),
+  distance: PropTypes.number,
   groups: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string,
