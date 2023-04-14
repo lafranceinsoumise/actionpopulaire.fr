@@ -1,149 +1,160 @@
 import PropTypes from "prop-types";
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 
 const StyledLabel = styled.div``;
-const StyledRange = styled.input`
-  color: ${(props) => props.theme.primary500};
-  --brightness-hover: 110%;
-  --brightness-down: 90%;
+const StyledRangeInput = styled.div`
+  height: 100%;
+  padding: 0 11px;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: stretch;
+  border: 1px solid;
+  border-color: ${(props) =>
+    props.$invalid
+      ? props.theme.redNSP
+      : props.$focused
+      ? props.theme.black500
+      : props.theme.black100};
+  outline-style: solid;
+  outline-color: ${(props) =>
+    props.$focused && props.$invalid
+      ? props.theme.redNSP
+      : props.theme.black500};
+  outline-width: ${(props) => (props.$focused && props.$invalid ? 1 : 0)}px;
 
-  /* === range commons === */
-  box-sizing: border-box;
-  height: 2.5rem;
-  padding: 0.6875rem;
-  -webkit-appearance: none;
-  margin: 0 auto;
-  width: 100%;
-  background: transparent;
-  overflow: hidden;
-
-  &:active {
-    cursor: grabbing;
-  }
-
-  /* === WebKit specific styles === */
-  &,
-  &::-webkit-slider-runnable-track,
-  &::-webkit-slider-thumb {
+  input {
+    color: ${(props) => props.theme.primary500};
+    /* === range commons === */
+    box-sizing: border-box;
+    appearance: none;
     -webkit-appearance: none;
-    transition: all ease 100ms;
-    height: 1rem;
-  }
-
-  &::-webkit-slider-runnable-track,
-  &::-webkit-slider-thumb {
-    position: relative;
-  }
-
-  &::-webkit-slider-thumb {
-    --thumb-radius: 0.5rem - 0.0625rem;
-    --clip-top: calc((1rem - 0.125rem) * 0.5 - 0.0313rem);
-    --clip-bottom: calc(1rem - var(--clip-top));
-    --clip-further: calc(100% + 0.0625rem);
-    --box-fill: calc(-100vmax - 1rem) 0 0 100vmax currentColor;
-
-    width: 1rem;
-    background: linear-gradient(currentColor 0 0) scroll no-repeat left center /
-      50% 0.1875rem;
-    background-color: currentColor;
-    box-shadow: var(--box-fill);
-    border-radius: 1rem;
-    filter: brightness(100%);
-    clip-path: polygon(
-      100% -0.0625rem,
-      0.125em -0.0625rem,
-      0 var(--clip-top),
-      -100vmax var(--clip-top),
-      -100vmax var(--clip-bottom),
-      0 var(--clip-bottom),
-      0.125em 100%,
-      var(--clip-further) var(--clip-further)
-    );
-  }
-
-  &:hover::-webkit-slider-thumb {
-    filter: brightness(var(--brightness-hover));
-    cursor: grab;
-  }
-
-  &:active::-webkit-slider-thumb {
-    filter: brightness(var(--brightness-down));
-    cursor: grabbing;
-  }
-
-  &::-webkit-slider-runnable-track {
-    border-radius: 0.5rem;
-    background: linear-gradient(${(props) => props.theme.black200} 0 0) scroll
-      no-repeat center / 100% calc(0.125rem + 0.0625rem);
-  }
-
-  &:disabled::-webkit-slider-thumb {
-    cursor: not-allowed;
-  }
-
-  /* === Firefox specific styles === */
-  &,
-  &::-moz-range-track,
-  &::-moz-range-thumb {
-    appearance: none;
-    transition: all ease 100ms;
-    height: 1rem;
-  }
-
-  &::-moz-range-track,
-  &::-moz-range-thumb,
-  &::-moz-range-progress {
-    background: #fff0;
-  }
-
-  &::-moz-range-thumb {
-    background: currentColor;
-    border: 0;
-    width: 1rem;
-    border-radius: 1rem;
-    cursor: grab;
-  }
-
-  &:active::-moz-range-thumb {
-    cursor: grabbing;
-  }
-
-  &::-moz-range-track {
-    border-radius: 0.5rem;
+    margin: 0 auto;
     width: 100%;
-    background: ${(props) => props.theme.black200};
-  }
+    background: transparent;
+    overflow: hidden;
 
-  &::-moz-range-progress {
-    appearance: none;
-    background: currentColor;
-    transition-delay: 30ms;
-  }
+    &:active {
+      cursor: grabbing;
+    }
 
-  &::-moz-range-track,
-  &::-moz-range-progress {
-    height: calc(0.125rem + 0.0625rem);
-    border-radius: 0.125rem;
-  }
+    &,
+    &:focus {
+      border: none;
+      outline: none;
+      box-shadow: none;
+    }
 
-  &::-moz-range-thumb,
-  &::-moz-range-progress {
-    filter: brightness(100%);
-  }
+    &:disabled {
+      color: ${(props) => props.theme.black500};
+    }
 
-  &:hover::-moz-range-thumb,
-  &:hover::-moz-range-progress {
-    filter: brightness(var(--brightness-hover));
-  }
+    /* === WebKit specific styles === */
+    &,
+    &::-webkit-slider-runnable-track,
+    &::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      transition: all ease 100ms;
+      height: 1rem;
+    }
 
-  &:active::-moz-range-thumb,
-  &:active::-moz-range-progress {
-    filter: brightness(var(--brightness-down));
-  }
+    &::-webkit-slider-runnable-track,
+    &::-webkit-slider-thumb {
+      position: relative;
+    }
 
-  &:disabled::-moz-range-thumb {
-    cursor: not-allowed;
+    &::-webkit-slider-thumb {
+      --thumb-radius: 0.5rem - 1px;
+      --clip-top: calc((1rem - 0.125rem) * 0.5 - 0.0313rem);
+      --clip-bottom: calc(1rem - var(--clip-top));
+      --clip-further: calc(100% + 1px);
+      --box-fill: calc(-100vmax - 1rem) 0 0 100vmax currentColor;
+
+      width: 1rem;
+      background: linear-gradient(currentColor 0 0) scroll no-repeat left center /
+        50% 0.1875rem;
+      background-color: currentColor;
+      box-shadow: var(--box-fill);
+      border-radius: 1rem;
+      clip-path: polygon(
+        100% -1px,
+        0.125em -1px,
+        0 var(--clip-top),
+        -100vmax var(--clip-top),
+        -100vmax var(--clip-bottom),
+        0 var(--clip-bottom),
+        0.125em 100%,
+        var(--clip-further) var(--clip-further)
+      );
+    }
+
+    &:hover::-webkit-slider-thumb {
+      cursor: grab;
+    }
+
+    &:active::-webkit-slider-thumb {
+      cursor: grabbing;
+    }
+
+    &::-webkit-slider-runnable-track {
+      border-radius: 0.5rem;
+      background: linear-gradient(${(props) => props.theme.black200} 0 0) scroll
+        no-repeat center / 100% calc(0.125rem + 1px);
+    }
+
+    &:disabled::-webkit-slider-thumb {
+      cursor: not-allowed;
+    }
+
+    /* === Firefox specific styles === */
+    &,
+    &::-moz-range-track,
+    &::-moz-range-thumb {
+      appearance: none;
+      transition: all ease 100ms;
+      height: 1rem;
+    }
+
+    &::-moz-range-track,
+    &::-moz-range-thumb,
+    &::-moz-range-progress {
+      background: #fff0;
+    }
+
+    &::-moz-range-thumb {
+      background: currentColor;
+      border: 0;
+      width: 1rem;
+      border-radius: 1rem;
+      cursor: grab;
+    }
+
+    &:active::-moz-range-thumb {
+      cursor: grabbing;
+    }
+
+    &::-moz-range-track {
+      border-radius: 0.5rem;
+      width: 100%;
+      background: ${(props) => props.theme.black200};
+    }
+
+    &::-moz-range-progress {
+      appearance: none;
+      background: currentColor;
+      transition-delay: 30ms;
+    }
+
+    &::-moz-range-track,
+    &::-moz-range-progress {
+      height: calc(0.125rem + 1px);
+      border-radius: 0.125rem;
+    }
+
+    &:disabled::-moz-range-thumb {
+      cursor: not-allowed;
+    }
   }
 `;
 const StyledNumberInput = styled.div`
@@ -154,14 +165,26 @@ const StyledNumberInput = styled.div`
 
   input {
     display: block;
+    background-color: transparent;
     color: inherit;
     text-align: right;
     height: 100%;
     width: 100%;
-    padding: 0.5rem;
-    padding-right: 2.8rem;
+    padding: 0.1rem 2.8rem 0rem 0.5rem;
     outline: none;
     -moz-appearance: textfield;
+    border: 1px solid;
+    border-color: ${(props) =>
+      props.$invalid ? props.theme.redNSP : props.theme.black100};
+    outline-color: ${(props) =>
+      props.$invalid ? props.theme.redNSP : props.theme.black500};
+
+    &:focus {
+      outline-style: solid;
+      outline-width: ${(props) => (props.$invalid ? 1 : 0)}px;
+      border-color: ${(props) =>
+        props.$invalid ? props.theme.redNSP : props.theme.black500};
+    }
 
     &::-webkit-outer-spin-button,
     &::-webkit-inner-spin-button {
@@ -176,6 +199,7 @@ const StyledNumberInput = styled.div`
     top: 50%;
     right: 1rem;
     transform: translateY(-50%);
+    pointer-events: none;
   }
 `;
 const StyledHelpText = styled.div``;
@@ -201,35 +225,30 @@ const StyledField = styled.div`
     font-weight: 400;
     font-size: 0.875rem;
     line-height: 1.5;
+    margin-bottom: 0.25rem;
   }
 
   ${StyledHelpText} {
     line-height: 1.5;
   }
 
-  ${StyledRange}, ${StyledNumberInput} {
+  ${StyledRangeInput}, ${StyledNumberInput} {
     grid-column: span 1;
     height: 100%;
     ${(props) => (props.$disabled ? `color: ${props.theme.black500};` : "")}
   }
 
-  input {
+  ${StyledRangeInput}, ${StyledNumberInput} input {
     border-radius: ${(props) => props.theme.softBorderRadius};
-    border: 1px solid
-      ${(props) => (props.$invalid ? props.theme.redNSP : props.theme.black100)};
-    outline: none;
-
-    &:focus {
-      outline: none;
-      border: ${(props) => (props.$invalid ? 2 : 1)}px solid
-        ${(props) =>
-          props.$invalid ? props.theme.redNSP : props.theme.black500};
-    }
   }
 
   ${StyledError} {
-    display: ${({ $invalid }) => ($invalid ? "flex" : "none")};
+    display: flex;
     color: ${(props) => props.theme.redNSP};
+
+    &:empty {
+      display: none;
+    }
   }
 `;
 
@@ -240,14 +259,23 @@ const RangeField = (props) => {
     value,
     min = 0,
     max = 100,
-    step = 1,
+    step,
     label,
     error,
     helpText,
     disabled,
+    className,
+    style,
     ...rest
   } = props;
 
+  const [rangeFocused, setRangeFocused] = useState(false);
+  const handleRangeFocus = useCallback(() => {
+    setRangeFocused(true);
+  }, []);
+  const handleRangeBlur = useCallback(() => {
+    setRangeFocused(false);
+  }, []);
   const handleChange = useCallback(
     (e) => {
       onChange(e.target.value);
@@ -257,28 +285,35 @@ const RangeField = (props) => {
 
   return (
     <StyledField
-      $valid={!error}
-      $invalid={!!error}
-      $empty={!!value}
-      $disabled={!!disabled}
       tabIndex="1"
       title={`Veuillez choisir une valeur entre ${min} et ${max}`}
+      className={className}
+      style={style}
     >
       {label && <StyledLabel htmlForm={id}>{label}</StyledLabel>}
-      <StyledRange
-        {...rest}
-        type="range"
-        onChange={handleChange}
-        value={value || min}
-        min={min}
-        max={max}
-        step={step}
-        disabled={disabled}
-        aria-hidden={true}
-        title={value}
-      />
-      <StyledNumberInput>
+      <StyledRangeInput
+        $invalid={!!error}
+        $disabled={!!disabled}
+        $focused={!!rangeFocused}
+        onClick={handleRangeFocus}
+      >
         <input
+          type="range"
+          onChange={handleChange}
+          onFocus={handleRangeFocus}
+          onBlur={handleRangeBlur}
+          value={value || min}
+          min={min}
+          max={max}
+          step={step}
+          disabled={disabled}
+          aria-hidden={true}
+          title={value}
+        />
+      </StyledRangeInput>
+      <StyledNumberInput $invalid={!!error}>
+        <input
+          {...rest}
           id={id}
           type="number"
           onChange={handleChange}
@@ -307,6 +342,8 @@ RangeField.propTypes = {
   disabled: PropTypes.bool,
   error: PropTypes.string,
   helpText: PropTypes.string,
+  className: PropTypes.string,
+  style: PropTypes.object,
 };
 
 export default RangeField;
