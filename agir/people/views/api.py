@@ -101,6 +101,8 @@ class PersonProfileAPIView(RetrieveUpdateAPIView):
                 "is2022",
                 "mandat",
                 "newsletters",
+                "actionRadius",
+                "hasLocation",
             ],
             **kwargs,
         )

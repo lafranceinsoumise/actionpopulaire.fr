@@ -3,6 +3,8 @@ from urllib.parse import urljoin
 
 import reversion
 from django.conf import settings
+from django.contrib.gis.db.models.functions import Distance
+from django.contrib.gis.measure import D
 from django.contrib.postgres.search import SearchVector, SearchRank
 from django.db import models
 from django.db.models import Subquery, OuterRef, Count, Q, Exists, Max
@@ -162,6 +164,21 @@ class MembershipQuerySet(models.QuerySet):
             self.select_related("person")
             .prefetch_related("subscription_set")
             .with_email()
+        )
+
+    def near(self, coordinates=None, radius=None):
+        if not coordinates:
+            return self
+
+        if radius is None:
+            from agir.people.models import Person
+
+            radius = Person.DEFAULT_ACTION_RADIUS
+
+        return (
+            self.exclude(coordinates__isnull=True)
+            .filter(coordinates__dwithin=(coordinates, D(km=radius)))
+            .annotate(distance=Distance("coordinates", coordinates))
         )
 
 

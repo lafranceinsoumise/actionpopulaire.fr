@@ -4,7 +4,7 @@ from pathlib import PurePath
 
 from dateutil.relativedelta import relativedelta
 from django.db import transaction
-from django.db.models import Value, Func, F, Q
+from django.db.models import Value, Func, Q
 from django.db.models.functions import Concat, Replace, Lower, MD5
 from django.utils import timezone
 from pytz import utc, InvalidTimeError
@@ -143,6 +143,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         "groups",
         "subtype",
         "groupsAttendees",
+        "distance",
     ]
 
     id = serializers.UUIDField()

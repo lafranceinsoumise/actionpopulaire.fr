@@ -138,6 +138,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
                     "location_state",
                     "location_country",
                     "location_citycode",
+                    "action_radius",
                     "coordinates",
                     "coordinates_type",
                     "coordinates_value",

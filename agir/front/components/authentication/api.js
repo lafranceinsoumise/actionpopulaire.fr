@@ -10,6 +10,16 @@ export const ENDPOINT = {
   updateProfile: "/api/user/profile/",
 };
 
+export const getAuthenticationEndpoint = (key, params) => {
+  let endpoint = ENDPOINT[key] || "";
+  if (params) {
+    Object.entries(params).forEach(([key, value]) => {
+      endpoint = endpoint.replace(`:${key}`, value);
+    });
+  }
+  return endpoint;
+};
+
 export const login = async (email) => {
   const result = {
     success: false,

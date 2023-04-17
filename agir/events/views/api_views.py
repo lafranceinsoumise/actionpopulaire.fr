@@ -1,8 +1,6 @@
 from datetime import timedelta
 
 from django.contrib import messages
-from django.contrib.gis.db.models.functions import Distance
-from django.contrib.gis.measure import D
 from django.db import transaction, IntegrityError
 from django.db.models import Q, Value, CharField
 from django.http.response import JsonResponse
@@ -234,15 +232,12 @@ class EventSuggestionsAPIView(EventListAPIView):
         from_groups_attendees_pks = from_groups_attendees.values_list("pk", flat=True)
 
         if person.coordinates is not None:
-            national = national.filter(
-                coordinates__dwithin=(person.coordinates, D(km=100))
-            )
+            national = national.near(coordinates=person.coordinates, radius=100)
             near = (
                 events.exclude(pk__in=national_pks)
                 .exclude(pk__in=from_groups_attendees_pks)
                 .filter(start_time__lt=timezone.now() + timedelta(days=30))
-                .filter(coordinates__dwithin=(person.coordinates, D(km=100)))
-                .annotate(distance=Distance("coordinates", person.coordinates))
+                .near(coordinates=person.coordinates, radius=person.action_radius)
                 .order_by("distance")
             )[: (10 - len(from_groups_attendees_pks))]
 

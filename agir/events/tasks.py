@@ -8,7 +8,6 @@ from django.template.defaultfilters import date as _date
 from django.template.loader import render_to_string
 from django.utils.html import format_html
 from django.utils.http import urlencode
-from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
 from agir.authentication.tokens import subscription_confirmation_token_generator

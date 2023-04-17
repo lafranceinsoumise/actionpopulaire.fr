@@ -40,6 +40,7 @@ class UserContextSerializer(serializers.Serializer):
     departement = serializers.SerializerMethodField(read_only=True)
     country = CountryField(source="location_country")
     hasContribution = serializers.SerializerMethodField(method_name="has_contribution")
+    actionRadius = serializers.IntegerField(source="action_radius")
 
     def get_full_name(self, obj):
         return obj.get_full_name()
