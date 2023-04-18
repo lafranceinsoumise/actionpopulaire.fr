@@ -4,7 +4,8 @@ from django.contrib.postgres.fields import ArrayField
 from django.core import validators
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.db.models import Prefetch, Count
+from django.db.models import Prefetch, Count, Subquery, OuterRef
+from django.db.models.functions import Coalesce
 from django.utils import formats, timezone
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
@@ -491,6 +492,20 @@ class EventSpeakerQuerySet(models.QuerySet):
         )
         return self.prefetch_related("events", event_themes).select_related("person")
 
+    def with_email(self):
+        from agir.people.models import PersonEmail
+
+        return self.select_related("person").annotate(
+            email=Coalesce(
+                "person__public_email__address",
+                Subquery(
+                    PersonEmail.objects.filter(person_id=OuterRef("person_id"))
+                    .order_by("_bounced", "_order")
+                    .values("address")[:1]
+                ),
+            )
+        )
+
     def with_serializer_prefetch(self):
         event_requests = Prefetch(
             "event_requests",
@@ -575,7 +590,7 @@ class EventSpeaker(BaseAPIResource):
         if queryset is None:
             queryset = self.events
         else:
-            queryset = queryset.filter(event_speaker_id=self.id)
+            queryset = queryset.filter(event_speakers__id=self.id)
         return queryset.with_serializer_prefetch(self.person).listed().upcoming()
 
     def __str__(self):

@@ -47,26 +47,31 @@
     </table>
   </div>
 
-  {% if speaker %}
+  {% if speakers %}
     <div bgcolor="#EEEEEE" style="margin: 16px 0; padding: 24px; background:#EEEEEE; border-radius:8px;">
       <table cellpadding="0" border="0" align="center" cellspacing="0" class="mobile-full">
         <tbody>
           <tr>
             <td width="auto" valign="middle" align="center"  style="font-size: 16px; font-family: Arial, Helvetica, sans-serif; color: #000A2C; font-weight: bold; padding-left: 14px; padding-right: 14px; border-radius: 5px;">
               <h3 style="text-align:center;margin:0 0 0.5rem;">
-                Coordonnées de l'intervenant·e
+              {% with speaker_count=speakers|length %}
+                  Coordonnées {{ speaker_count|pluralize:"de l'intervenant·e,des intervenant·es" }}
+              {% endwith %}
               </h3>
-              <p style="margin:0;text-align:center;font-weight:500;">
-                <strong>{{ speaker.person.get_full_name }}</strong>
-                {% if speaker.description %}
+              {% for speaker in speakers %}
+                <p style="margin:0;text-align:center;font-weight:500;">
+                  <strong>{{ speaker.person.get_full_name }}</strong>
+                  {% if speaker.description %}
+                    <br>
+                    {{ speaker.description|capfirst }}
+                  {% endif %}
                   <br>
-                  {{ speaker.description }}
-                {% endif %}
-                <br>
-                <a href="mailto:{{ speaker.person.display_email }}">
-                  {{ speaker.person.display_email }}
-                </a>
-              </p>
+                  <a href="mailto:{{ speaker.person.display_email }}">
+                    {{ speaker.person.display_email }}
+                  </a>
+                </p>
+                {% if not forloop.last %}<br />{% endif %}
+              {% endfor %}
             </td>
           </tr>
         </tbody>

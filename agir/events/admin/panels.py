@@ -320,8 +320,8 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
             {"fields": ("report_content", "report_image", "report_summary_sent")},
         ),
         (
-            _("Intervenant"),
-            {"fields": ("event_speaker",)},
+            _("Intervenant·es"),
+            {"fields": ("event_speakers",)},
         ),
     )
 
@@ -381,7 +381,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "tags",
         "subscription_form",
         "suggestion_segment",
-        "event_speaker",
+        "event_speakers",
     )
 
     def get_queryset(self, request):

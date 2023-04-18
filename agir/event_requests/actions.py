@@ -104,11 +104,7 @@ def create_event_from_event_speaker_request(event_speaker_request=None):
     data["location_city"] = event_request.location_city
     data["location_country"] = str(event_request.location_country)
 
-    data["name"] = (
-        f"{event_theme_type.name} "
-        f"sur le thème '{event_theme.name}' "
-        f"avec {event_speaker.person.get_full_name()}"
-    )
+    data["name"] = f"{event_theme_type.name} sur le thème “{event_theme.name}”"
 
     data = {
         k: v for k, v in data.items() if k in [f.name for f in Event._meta.get_fields()]

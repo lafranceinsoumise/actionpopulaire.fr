@@ -10,7 +10,7 @@ from agir.event_requests import models, actions
 from agir.event_requests.admin import inlines, views, filter as filters
 from agir.event_requests.admin.forms import EventRequestAdminForm
 from agir.lib.admin.panels import PersonLinkMixin
-from agir.lib.admin.utils import admin_url
+from agir.lib.admin.utils import admin_url, display_list_of_links
 from agir.lib.utils import front_url
 
 
@@ -470,19 +470,17 @@ class EventRequestAdmin(admin.ModelAdmin):
             )
         )
 
-    @admin.display(description="Intervenant·e")
+    @admin.display(description="Intervenant·es")
     def event_speaker_link(self, obj):
-        if not obj or not obj.event or not obj.event.event_speaker:
+        if not obj or not obj.event:
             return "-"
-        return mark_safe(
-            '<a href="%s">%s</a>'
-            % (
-                reverse(
-                    "admin:event_requests_eventspeaker_change",
-                    args=(obj.event.event_speaker_id,),
-                ),
-                str(obj.event.event_speaker),
-            )
+
+        event_speakers = list(obj.event.event_speakers.all())
+        if not event_speakers:
+            return "-"
+
+        return display_list_of_links(
+            [(event_speaker, str(event_speaker)) for event_speaker in event_speakers]
         )
 
     class Media:

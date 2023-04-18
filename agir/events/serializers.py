@@ -433,6 +433,9 @@ class EventAdvancedSerializer(EventSerializer):
     groupsInvited = serializers.SerializerMethodField(method_name="get_groups_invited")
 
     def get_participants(self, obj):
+        speaker_person_ids = list(
+            obj.event_speakers.values_list("person_id", flat=True)
+        )
         organizers = {
             str(person.id): {
                 "id": person.id,
@@ -440,8 +443,7 @@ class EventAdvancedSerializer(EventSerializer):
                 "displayName": person.display_name,
                 "gender": person.gender,
                 "isOrganizer": True,
-                "isEventSpeaker": obj.event_speaker is not None
-                and obj.event_speaker.person_id == person.id,
+                "isEventSpeaker": person.id in speaker_person_ids,
             }
             for person in obj.get_organizer_people()
         }
@@ -452,8 +454,7 @@ class EventAdvancedSerializer(EventSerializer):
                 "displayName": person.display_name,
                 "gender": person.gender,
                 "isOrganizer": False,
-                "isEventSpeaker": obj.event_speaker is not None
-                and obj.event_speaker.person_id == person.id,
+                "isEventSpeaker": person.id in speaker_person_ids,
             }
             for person in obj.attendees.exclude(id__in=organizers.keys())
         }

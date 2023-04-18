@@ -125,7 +125,7 @@ class EventSpeakerRequestInline(admin.TabularInline):
         )
 
 
-class EventSpeakerEventInline(admin.TabularInline):
+class EventSpeakerEventInline(NonrelatedTabularInline):
     verbose_name = "événement"
     verbose_name_plural = "événements"
     model = Event
@@ -141,6 +141,13 @@ class EventSpeakerEventInline(admin.TabularInline):
         "created",
     )
 
+    def get_form_queryset(self, obj):
+        return obj.events.all()
+
+    def save_new_instance(self, parent, instance):
+        instance.save()
+        parent.events.add(instance)
+
     def has_add_permission(self, request, obj):
         return False
 
@@ -154,8 +161,8 @@ class EventSpeakerUpcomingEventInline(EventSpeakerEventInline):
     verbose_name_plural = "événements à venir"
     ordering = ("start_time",)
 
-    def get_queryset(self, request):
-        return super().get_queryset(request).upcoming()
+    def get_form_queryset(self, obj):
+        return obj.events.upcoming()
 
 
 class EventSpeakerPastEventInline(EventSpeakerEventInline):
@@ -164,5 +171,5 @@ class EventSpeakerPastEventInline(EventSpeakerEventInline):
     ordering = ("-start_time",)
     max_num = 10
 
-    def get_queryset(self, request):
-        return super().get_queryset(request).past()
+    def get_form_queryset(self, obj):
+        return obj.events.past()

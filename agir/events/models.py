@@ -378,7 +378,12 @@ class EventManager(models.Manager.from_queryset(EventQuerySet)):
         return self.create_event(*args, **kwargs)
 
     def create_event(
-        self, organizer_person=None, organizer_group=None, *args, **kwargs
+        self,
+        organizer_person=None,
+        organizer_group=None,
+        event_speakers=None,
+        event_speaker=None,
+        **kwargs,
     ):
         with transaction.atomic():
             event = self.model(**kwargs)
@@ -386,15 +391,26 @@ class EventManager(models.Manager.from_queryset(EventQuerySet)):
 
             if organizer_person is not None:
                 OrganizerConfig.objects.create(
-                    person=organizer_person,
                     event=event,
+                    person=organizer_person,
                     as_group=organizer_group,
                 )
-                RSVP.objects.create(person=organizer_person, event=event)
+                RSVP.objects.create(event=event, person=organizer_person)
 
-            if "event_speaker" in kwargs:
-                event_speaker = kwargs.get("event_speaker")
-                RSVP.objects.get_or_create(person=event_speaker.person, event=event)
+            event_speakers = event_speakers or []
+
+            if event_speaker is not None:
+                event_speakers.append(event_speaker)
+
+            if event_speakers:
+                event.event_speakers.add(*event_speakers)
+                RSVP.objects.bulk_create(
+                    [
+                        RSVP(person_id=es.person_id, event=event)
+                        for es in event_speakers
+                    ],
+                    ignore_conflicts=True,
+                )
 
             return event
 
@@ -601,15 +617,12 @@ class Event(
         ),
     )
 
-    event_speaker = models.ForeignKey(
+    event_speakers = models.ManyToManyField(
         "event_requests.EventSpeaker",
-        on_delete=models.SET_NULL,
-        verbose_name="Intervenant·e",
+        verbose_name="Intervenant·es",
         related_name="events",
         related_query_name="event",
-        null=True,
         blank=True,
-        default=None,
     )
 
     class Meta:
@@ -670,6 +683,11 @@ class Event(
             .values_list("all_attendee_count", "confirmed_attendee_count")
             .get(id=self.id)
         )
+
+    @property
+    def event_speaker(self):
+        """Deprecated single event_speaker property used for retro-compatibilty only"""
+        return self.event_speakers.first()
 
     @property
     def participants(self):

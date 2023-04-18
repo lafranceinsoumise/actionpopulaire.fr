@@ -67,16 +67,18 @@ def send_new_publish_event_asset_notification(event_pk):
 
 @emailing_task(post_save=True)
 def send_event_request_validation_emails(event_request_pk):
-    event_request = models.EventRequest.objects.select_related(
-        "event",
-        "event__event_speaker",
-        "event__event_speaker__person",
-        "event_theme",
-        "event_theme__event_theme_type",
-    ).get(pk=event_request_pk)
+    event_request = (
+        models.EventRequest.objects.select_related(
+            "event",
+            "event_theme",
+            "event_theme__event_theme_type",
+        )
+        .prefetch_related("event__event_speakers", "event__event_speakers__person")
+        .get(pk=event_request_pk)
+    )
 
     event = event_request.event
-    event_speaker = event.event_speaker
+    event_speakers = list(event.event_speakers.all().select_related("person"))
     organizers = event.organizer_configs.select_related("person", "as_group")
 
     theme_email_bindings = (
@@ -96,7 +98,7 @@ def send_event_request_validation_emails(event_request_pk):
                 ),
                 "organizer": organizers.first(),
             },
-            recipients=[event_speaker.person],
+            recipients=[event_speaker.person for event_speaker in event_speakers],
         )
 
     if theme_email_bindings.get("organizer"):
@@ -110,7 +112,7 @@ def send_event_request_validation_emails(event_request_pk):
                 "event_page_link": front_url(
                     "view_event", auto_login=True, kwargs={"pk": event.pk}
                 ),
-                "speaker": event_speaker,
+                "speakers": event_speakers,
             },
             recipients=[o.person for o in organizers],
         )
@@ -127,7 +129,7 @@ def send_event_request_validation_emails(event_request_pk):
                     "view_event", auto_login=False, kwargs={"pk": event.pk}
                 ),
                 "organizer": organizers.first(),
-                "speaker": event_speaker,
+                "speakers": event_speakers,
             },
             recipients=(bindings.get("email_to"),),
         )
@@ -136,7 +138,7 @@ def send_event_request_validation_emails(event_request_pk):
         bindings = theme_email_bindings.get("unretained_speakers")
         recipients = Person.objects.filter(
             id__in=event_request.event_speaker_requests.unretained()
-            .exclude(event_speaker=event_speaker)
+            .exclude(event_speaker__in=event_speakers)
             .select_related("event_speaker__person_id")
             .values_list("event_speaker__person_id", flat=True)
         )
