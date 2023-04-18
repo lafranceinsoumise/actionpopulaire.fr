@@ -215,8 +215,11 @@ class CommuneMixin:
 class AbstractListMapView(MapViewMixin, TemplateView):
     subtype_model = None
 
+    def get_subtypes(self):
+        return self.subtype_model.objects.all()
+
     def get_context_data(self, **kwargs):
-        subtypes = self.subtype_model.objects.all()
+        subtypes = self.get_subtypes()
 
         params = QueryDict(mutable=True)
 
@@ -305,6 +308,9 @@ class EventMapView(EventMapMixin, AbstractListMapView):
 
 class GroupMapView(GroupMapMixin, AbstractListMapView):
     template_name = "carte/groups.html"
+
+    def get_subtypes(self):
+        return self.subtype_model.objects.active()
 
 
 class CommuneEventMapView(CommuneMixin, EventMapView):

@@ -368,9 +368,6 @@ class SupportGroup(
     @property
     def is_certified(self):
         return self.certification_date is not None
-        # return self.subtypes.filter(
-        #     label__in=settings.CERTIFIED_GROUP_SUBTYPES
-        # ).exists()
 
     @property
     def allow_external(self):
