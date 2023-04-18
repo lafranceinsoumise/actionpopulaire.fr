@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.db.models import TextField
+from django.forms import Textarea
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 
@@ -76,7 +78,7 @@ class EventSpeakerRequestInline(admin.TabularInline):
     model = models.EventSpeakerRequest
     extra = 0
     can_delete = False
-    show_change_link = True
+    show_change_link = False
     fields = (
         "event_speaker",
         "datetime",
@@ -86,16 +88,26 @@ class EventSpeakerRequestInline(admin.TabularInline):
         "validate",
     )
     readonly_fields = (
+        "event_speaker",
+        "datetime",
         "accepted",
         "validate",
     )
     ordering = ("-accepted", "-available")
+    formfield_overrides = {
+        TextField: {"widget": Textarea(attrs={"rows": 1})},
+    }
 
     def has_add_permission(self, request, obj):
         return False
 
     def has_change_permission(self, request, obj=None):
-        return False
+        has_change_permission = super().has_change_permission(request, obj)
+        if not has_change_permission:
+            return False
+        return False == (
+            obj.event_theme.event_theme_type.has_event_speaker_request_emails
+        )
 
     @admin.display(description="Validation")
     def validate(self, obj):

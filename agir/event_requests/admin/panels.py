@@ -202,6 +202,7 @@ class EventThemeTypeAdmin(admin.ModelAdmin):
             "EMAIL DE DEMANDE DE DISPONIBILITÉ",
             {
                 "fields": (
+                    "has_event_speaker_request_emails",
                     "event_speaker_request_email_subject",
                     "event_speaker_request_email_body",
                 )

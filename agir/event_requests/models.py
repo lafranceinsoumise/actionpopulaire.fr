@@ -227,18 +227,29 @@ class EventThemeType(models.Model):
         help_text="Cette adresse sera utilisé comme expéditeur de tous les e-mails transactionnels "
         "pour ce type de thème d'événement",
     )
+    has_event_speaker_request_emails = models.BooleanField(
+        verbose_name="demander leur disponibilité aux intervenant·es",
+        default=True,
+        blank=False,
+        null=False,
+        help_text="Cocher la case pour qu'un e-mail de demande de disponibilité soit envoyé automatiquement aux "
+        "intervenant·es lorsqu'une demande est créé pour l'un de leurs thèmes. Ne pas cocher pour pouvoir "
+        "renseigner leurs disponibilités directement via l'admin",
+    )
     event_speaker_request_email_subject = models.CharField(
         verbose_name="objet de l'e-mail aux intervenant·es",
         max_length=255,
-        blank=False,
+        blank=True,
         null=False,
+        default="",
         help_text="Ce texte sera utilisé comme objet de l'e-mail envoyé aux intervenant·es pour demander de renseigner "
         "leur disponibilité.",
     )
     event_speaker_request_email_body = DescriptionField(
         verbose_name="texte de l'e-mail aux intervenant·es",
-        blank=False,
+        blank=True,
         null=False,
+        default="",
         allowed_tags=settings.ADMIN_ALLOWED_TAGS,
         help_text="Ce texte sera utilisé comme corps de l'e-mail envoyé aux intervenant·es pour demander de renseigner "
         "leur disponibilité.",
@@ -255,10 +266,19 @@ class EventThemeType(models.Model):
         return self.name
 
     def get_event_speaker_request_email_bindings(self):
+        subject = self.event_speaker_request_email_subject
+        if not subject:
+            subject = f"Nouvelles demandes de {self.name.lower()} sur vos thèmes"
+        body = self.event_speaker_request_email_body
+        if not body:
+            body = (
+                f"<p>De nouvelles demandes de {self.name.lower()} sur l'un des thèmes pour lesquels vous "
+                f"avez été indiqué comme intervenant·e ont été faites.</p>"
+            )
         return {
             "email_from": self.email_from,
-            "subject": self.event_speaker_request_email_subject,
-            "body": mark_safe(self.event_speaker_request_email_body),
+            "subject": subject,
+            "body": mark_safe(body),
         }
 
     class Meta:
