@@ -13,7 +13,7 @@ const StyledField = styled.div`
 `;
 
 const ActionRadiusField = (props) => {
-  const { value = null, onChange, disabled } = props;
+  const { value = null, onChange, disabled, min, max } = props;
 
   return (
     <PageFadeIn ready={value !== null}>
@@ -29,9 +29,8 @@ const ActionRadiusField = (props) => {
               <Link route="personalInformation">Vérifiez ici</Link>
             </p>
           }
-          min={1}
-          max={500}
-          step={1}
+          min={min}
+          max={max}
         />
       </StyledField>
     </PageFadeIn>
@@ -42,6 +41,8 @@ ActionRadiusField.propTypes = {
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   onChange: PropTypes.func,
   disabled: PropTypes.bool,
+  min: PropTypes.number,
+  max: PropTypes.number,
 };
 
 export default ActionRadiusField;

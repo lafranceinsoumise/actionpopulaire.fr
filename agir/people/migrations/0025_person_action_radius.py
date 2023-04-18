@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
                     django.core.validators.MinValueValidator(1),
                     django.core.validators.MaxValueValidator(500),
                 ],
-                verbose_name="Rayon d'action (Km)",
+                verbose_name="Zone d'action (Km)",
             ),
         ),
     ]

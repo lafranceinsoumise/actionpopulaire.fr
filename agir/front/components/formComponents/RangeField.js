@@ -270,12 +270,15 @@ const RangeField = (props) => {
   } = props;
 
   const [rangeFocused, setRangeFocused] = useState(false);
+
   const handleRangeFocus = useCallback(() => {
     setRangeFocused(true);
   }, []);
+
   const handleRangeBlur = useCallback(() => {
     setRangeFocused(false);
   }, []);
+
   const handleChange = useCallback(
     (e) => {
       onChange(e.target.value);
@@ -317,7 +320,7 @@ const RangeField = (props) => {
           id={id}
           type="number"
           onChange={handleChange}
-          value={value || min}
+          value={value}
           min={min}
           max={max}
           step={step}

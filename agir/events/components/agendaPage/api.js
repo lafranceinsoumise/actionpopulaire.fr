@@ -40,6 +40,9 @@ export const getAgendaEndpoint = (key, params) => {
   return endpoint;
 };
 
+const ACTION_RADIUS_MIN = 1;
+const ACTION_RADIUS_MAX = 500;
+
 const useActionRadius = (initialValue) => {
   const { data, mutate, isLoading } = useSWRImmutable(
     getAuthenticationEndpoint("getProfile")
@@ -52,7 +55,11 @@ const useActionRadius = (initialValue) => {
     () => {
       let radius = parseInt(localValue);
       radius = radius && !isNaN(radius) ? parseInt(radius) : null;
-      if (radius) {
+      if (
+        radius &&
+        radius >= ACTION_RADIUS_MIN &&
+        radius <= ACTION_RADIUS_MAX
+      ) {
         setDebouncedLocalValue(localValue);
       }
     },
@@ -66,6 +73,8 @@ const useActionRadius = (initialValue) => {
       onChange: setLocalValue,
       disabled: isLoading,
       remoteValue,
+      min: ACTION_RADIUS_MIN,
+      max: ACTION_RADIUS_MAX,
     }),
     [hasLocation, localValue, setLocalValue, isLoading, remoteValue]
   );

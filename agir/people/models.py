@@ -589,7 +589,7 @@ class Person(
 
     DEFAULT_ACTION_RADIUS = 100  # Km
     action_radius = models.PositiveIntegerField(
-        verbose_name="Rayon d'action (Km)",
+        verbose_name="Zone d'action (Km)",
         null=False,
         blank=False,
         default=DEFAULT_ACTION_RADIUS,
