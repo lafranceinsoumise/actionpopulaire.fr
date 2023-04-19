@@ -2,12 +2,11 @@ from django.contrib import admin
 from django.db.models import TextField
 from django.forms import Textarea
 from django.urls import reverse
-from django.utils.safestring import mark_safe
 
 from agir.event_requests import models
-from agir.event_requests.models import EventRequest
 from agir.events.models import Event
 from agir.lib.admin.inlines import NonrelatedTabularInline
+from agir.lib.admin.utils import display_link
 
 
 class EventAssetTemplateInline(NonrelatedTabularInline):
@@ -85,13 +84,13 @@ class EventSpeakerRequestInline(admin.TabularInline):
         "available",
         "comment",
         "accepted",
-        "validate",
+        "validation",
     )
     readonly_fields = (
         "event_speaker",
         "datetime",
         "accepted",
-        "validate",
+        "validation",
     )
     ordering = ("-accepted", "-available")
     formfield_overrides = {
@@ -110,19 +109,28 @@ class EventSpeakerRequestInline(admin.TabularInline):
         )
 
     @admin.display(description="Validation")
-    def validate(self, obj):
-        if not obj.available or obj.event_request.status != EventRequest.Status.PENDING:
-            return "-"
-
-        return mark_safe(
-            '<a class="button" href="%s">Valider</a>'
-            % (
+    def validation(self, obj):
+        if obj.is_acceptable:
+            return display_link(
                 reverse(
-                    "admin:event_requests_eventspeakerrequest_validate",
+                    "admin:event_requests_eventspeakerrequest_accept",
                     args=(obj.pk,),
-                )
+                ),
+                "Valider",
+                button=True,
             )
-        )
+
+        if obj.is_unacceptable:
+            return display_link(
+                reverse(
+                    "admin:event_requests_eventspeakerrequest_unaccept",
+                    args=(obj.pk,),
+                ),
+                "Annuler",
+                button=True,
+            )
+
+        return "-"
 
 
 class EventSpeakerEventInline(NonrelatedTabularInline):

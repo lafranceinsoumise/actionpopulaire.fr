@@ -1,5 +1,6 @@
 import datetime
 from copy import deepcopy
+from functools import partial
 
 import pytz
 from django.db import transaction
@@ -21,6 +22,14 @@ from agir.events.tasks import (
 from agir.groups.models import SupportGroup
 from agir.groups.tasks import notify_new_group_event, send_new_group_event_email
 from agir.people.models import Person
+
+
+class EventRequestValidationError(Exception):
+    pass
+
+
+class EventSpeakerRequestValidationError(Exception):
+    pass
 
 
 def create_calendar_for_object(obj):
@@ -68,14 +77,11 @@ def schedule_new_event_tasks(event_request):
     render_event_assets.delay(str(event.pk))
 
 
-def create_event_from_event_speaker_request(event_speaker_request=None):
-    event_request = event_speaker_request.event_request
-    event_speaker = event_speaker_request.event_speaker
+def create_event_for_event_request(event_request, event_speakers, start_time):
     event_theme = event_request.event_theme
     event_theme_type = event_theme.event_theme_type
     event_subtype = event_theme_type.event_subtype
 
-    start_time = event_speaker_request.datetime
     data = deepcopy(event_request.event_data)
 
     organizer_person = None
@@ -114,11 +120,15 @@ def create_event_from_event_speaker_request(event_speaker_request=None):
         visibility=Event.VISIBILITY_PUBLIC,
         organizer_person=organizer_person,
         organizer_group=organizer_group,
-        event_speaker=event_speaker,
+        event_speakers=event_speakers,
         start_time=start_time,
         end_time=end_time,
         timezone=tz,
         subtype=event_subtype,
+        meta={
+            "event_theme": event_theme.name,
+            "event_theme_type": event_theme_type.name,
+        },
         **data,
     )
 
@@ -184,3 +194,100 @@ def publish_event_assets(event_assets):
 
 def unpublish_event_assets(event_assets):
     return event_assets.filter(published=True).update(published=False)
+
+
+def accept_event_request(event_request):
+    event_speaker_requests = event_request.event_speaker_requests.filter(accepted=True)
+    if event_speaker_requests.values("datetime").distinct().count() != 1:
+        raise EventRequestValidationError(
+            "Une seule date doit être sélectionnée pour valider la demande."
+        )
+
+    event_speakers = [esr.event_speaker for esr in event_speaker_requests]
+    if not event_speakers:
+        raise EventRequestValidationError(
+            "Au moins un·e intervenant·e doit être sélectionné·e pour valider la demande."
+        )
+    start_time = event_speaker_requests.first().datetime
+
+    with transaction.atomic():
+        # Create the event
+        event = create_event_for_event_request(
+            event_request, event_speakers, start_time
+        )
+
+        # Change the event request event and status
+        event_request.event = event
+        event_request.status = EventRequest.Status.DONE
+        event_request.save()
+
+        # Schedule post-creation tasks
+        transaction.on_commit(partial(schedule_new_event_tasks, event_request))
+
+
+def accept_event_speaker_request(event_speaker_request):
+    if event_speaker_request.accepted:
+        raise EventSpeakerRequestValidationError(
+            "L'intervenant·e choisi·e a déjà été validé·e pour la date indiquée."
+        )
+
+    event_request = event_speaker_request.event_request
+
+    if not event_request.is_pending:
+        raise EventSpeakerRequestValidationError(
+            "Cette demande d'événement ne peut plus être validée."
+        )
+
+    if event_speaker_request.event_request.event is not None:
+        raise EventSpeakerRequestValidationError(
+            "Un événement a déjà été validé pour cette demande. Veuillez le supprimer avant d'en créer un autre."
+        )
+
+    if not event_speaker_request.available:
+        raise EventSpeakerRequestValidationError(
+            "L'intervenant·e choisi·e n'est pas disponible pour cette événement pour la date indiquée."
+        )
+
+    if (
+        event_request.event_speaker_requests.filter(accepted=True)
+        .exclude(datetime=event_speaker_request.datetime)
+        .exists()
+    ):
+        raise EventSpeakerRequestValidationError(
+            "Une date différente de celle choisie a déjà été validée pour cette demande."
+        )
+
+    with transaction.atomic():
+        # Mark the event speaker request as accepted
+        event_speaker_request.accepted = True
+        event_speaker_request.save()
+
+        if event_request.has_manual_validation:
+            return
+
+        # Mark all other event_speaker_requests as not accepted
+        event_request.event_speaker_requests.exclude(
+            pk=event_speaker_request.pk
+        ).update(accepted=False)
+
+        try:
+            # accept the event_request
+            accept_event_request(event_request)
+        except EventRequestValidationError as e:
+            raise EventSpeakerRequestValidationError(str(e))
+
+
+def unaccept_event_speaker_request(event_speaker_request):
+    if not event_speaker_request.accepted:
+        raise EventSpeakerRequestValidationError(
+            "L'intervenant·e choisi·e n'est validé·e pour la date indiquée."
+        )
+
+    if not event_speaker_request.is_unacceptable:
+        raise EventSpeakerRequestValidationError(
+            "Il n'est plus possible de valider l'intervenant·e choisi·e pour la date indiquée."
+        )
+
+    # Mark the event speaker request as unaccepted
+    event_speaker_request.accepted = False
+    event_speaker_request.save()

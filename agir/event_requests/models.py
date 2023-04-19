@@ -189,6 +189,17 @@ class EventThemeTypeManager(
     pass
 
 
+class EventThemeTypeEventRequestValidationMode(models.TextChoices):
+    SINGLE_EVENT_SPEAKER_REQUEST = (
+        "S",
+        "Validation automatique à la sélection d'un·e intervenant·e",
+    )
+    MULTIPLE_EVENT_SPEAKER_REQUESTS = (
+        "M",
+        "Validation manuelle après sélection des intervenant·es",
+    )
+
+
 class EventThemeType(models.Model):
     objects = EventThemeTypeManager()
 
@@ -227,6 +238,15 @@ class EventThemeType(models.Model):
         default=settings.EMAIL_SUPPORT,
         help_text="Cette adresse sera utilisé comme expéditeur de tous les e-mails transactionnels "
         "pour ce type de thème d'événement",
+    )
+    EventRequestValidationMode = EventThemeTypeEventRequestValidationMode
+    event_request_validation_mode = models.CharField(
+        verbose_name="mode de validation des demandes d'évenements",
+        choices=EventThemeTypeEventRequestValidationMode.choices,
+        default=EventThemeTypeEventRequestValidationMode.SINGLE_EVENT_SPEAKER_REQUEST,
+        null=False,
+        blank=False,
+        max_length=1,
     )
     has_event_speaker_request_emails = models.BooleanField(
         verbose_name="demander leur disponibilité aux intervenant·es",
@@ -683,6 +703,19 @@ class EventRequest(BaseAPIResource):
             for dt in self.datetimes
         ]
 
+    @property
+    def is_pending(self):
+        return self.status == self.Status.PENDING and self.event is None
+
+    @property
+    def has_manual_validation(self):
+        return (
+            self.is_pending
+            and self.event_theme.event_theme_type.event_request_validation_mode
+            == EventThemeType.EventRequestValidationMode.MULTIPLE_EVENT_SPEAKER_REQUESTS
+            and self.event_speaker_requests.filter(accepted=True).exists()
+        )
+
     def __str__(self):
         return (
             f"{str(self.pk)[:8]} "
@@ -767,7 +800,24 @@ class EventSpeakerRequest(BaseAPIResource):
 
     @property
     def is_answerable(self):
-        return self.event_request.status == EventRequest.Status.PENDING
+        return self.event_request.is_pending
+
+    @property
+    def is_unacceptable(self):
+        return self.accepted and self.is_answerable
+
+    @property
+    def is_acceptable(self):
+        return (
+            self.available
+            and not self.accepted
+            and self.is_answerable
+            and not self.event_request.event_speaker_requests.exclude(
+                datetime=self.datetime
+            )
+            .filter(accepted=True)
+            .exists()
+        )
 
     @property
     def simple_datetime(self):

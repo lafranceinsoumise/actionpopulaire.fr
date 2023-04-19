@@ -10,7 +10,7 @@ from agir.event_requests import models, actions
 from agir.event_requests.admin import inlines, views, filter as filters
 from agir.event_requests.admin.forms import EventRequestAdminForm
 from agir.lib.admin.panels import PersonLinkMixin
-from agir.lib.admin.utils import admin_url, display_list_of_links
+from agir.lib.admin.utils import display_list_of_links, display_link
 from agir.lib.utils import front_url
 
 
@@ -54,18 +54,7 @@ class EventAssetAdmin(admin.ModelAdmin):
 
     @admin.display(description="Événement")
     def event_link(self, obj):
-        if not obj.event:
-            return "-"
-        return mark_safe(
-            '<a href="%s">%s</a>'
-            % (
-                reverse(
-                    "admin:events_event_change",
-                    args=(obj.event.id,),
-                ),
-                obj.event.name,
-            )
-        )
+        return display_link(obj.event)
 
     @admin.display(description="Actions")
     def render(self, obj):
@@ -187,7 +176,15 @@ class EventThemeTypeAdmin(admin.ModelAdmin):
     fieldsets = (
         (
             None,
-            {"fields": ("name", "event_subtype", "calendar_link", "map_link")},
+            {
+                "fields": (
+                    "name",
+                    "event_subtype",
+                    "event_request_validation_mode",
+                    "calendar_link",
+                    "map_link",
+                )
+            },
         ),
         (
             "ADRESSES E-MAIL",
@@ -348,17 +345,7 @@ class EventThemeAdmin(admin.ModelAdmin):
 
     @admin.display(description="Type")
     def event_theme_type_link(self, obj):
-        if not obj:
-            return "-"
-        return format_html(
-            '<a href="{}">{}</a>',
-            admin_url(
-                "admin:event_requests_eventthemetype_change",
-                args=(obj.event_theme_type_id,),
-                absolute=True,
-            ),
-            str(obj.event_theme_type),
-        )
+        return display_link(obj.event_theme_type_id)
 
     @admin.display(description="@ intervenant·e", boolean=True)
     def speaker_email(self, obj):
@@ -415,7 +402,30 @@ class EventSpeakerAdmin(admin.ModelAdmin, PersonLinkMixin):
 @admin.register(models.EventRequest)
 class EventRequestAdmin(admin.ModelAdmin):
     form = EventRequestAdminForm
-    readonly_fields = ("event",)
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    "status",
+                    "event_theme_type",
+                    "event_theme",
+                    "location_zip",
+                    "location_city",
+                    "location_country",
+                    "datetimes",
+                    "event_data",
+                    "comment",
+                    "event_field",
+                )
+            },
+        ),
+    )
+    readonly_fields = (
+        "event_theme_type",
+        "event_theme",
+        "event_field",
+    )
     list_display = (
         "__str__",
         "created",
@@ -436,7 +446,7 @@ class EventRequestAdmin(admin.ModelAdmin):
 
     @admin.display(description="Réponses")
     def answered_count(self, obj):
-        if obj.status != self.model.Status.PENDING:
+        if not obj.is_pending:
             return "-"
 
         count = (
@@ -457,18 +467,7 @@ class EventRequestAdmin(admin.ModelAdmin):
 
     @admin.display(description="Événement")
     def event_link(self, obj):
-        if not obj or not obj.event:
-            return "-"
-        return mark_safe(
-            '<a href="%s">%s</a>'
-            % (
-                reverse(
-                    "admin:events_event_change",
-                    args=(obj.event_id,),
-                ),
-                obj.event.name,
-            )
-        )
+        display_link(obj.event)
 
     @admin.display(description="Intervenant·es")
     def event_speaker_link(self, obj):
@@ -482,6 +481,48 @@ class EventRequestAdmin(admin.ModelAdmin):
         return display_list_of_links(
             [(event_speaker, str(event_speaker)) for event_speaker in event_speakers]
         )
+
+    @admin.display(description="Type de thème d'événement")
+    def event_theme_type(self, obj):
+        if not obj:
+            return "-"
+
+        return display_link(obj.event_theme.event_theme_type)
+
+    @admin.display(description="Événement")
+    def event_field(self, obj):
+        if obj and obj.event is not None:
+            return display_link(obj.event)
+
+        if obj and obj.has_manual_validation:
+            return display_link(
+                reverse(
+                    f"admin:{self.opts.app_label}_{self.opts.model_name}_accept",
+                    args=(obj.pk,),
+                ),
+                "Valider et créer l'événement",
+                button=True,
+            )
+
+        return "-"
+
+    def has_change_permission(self, request, obj=None):
+        if obj and obj.event is not None:
+            return False
+
+        return super().has_change_permission(request, obj=obj)
+
+    def get_urls(self):
+        return [
+            path(
+                "<uuid:pk>/accept/",
+                self.admin_site.admin_view(self.accept),
+                name=f"{self.opts.app_label}_{self.opts.model_name}_accept",
+            )
+        ] + super().get_urls()
+
+    def accept(self, request, pk):
+        return views.accept_event_request(self, request, pk)
 
     class Media:
         pass
@@ -509,10 +550,7 @@ class EventSpeakerRequestAdmin(admin.ModelAdmin):
         "event_speaker",
         "datetime",
     )
-    readonly_fields = (
-        "accepted",
-        "validate",
-    )
+    readonly_fields = ("accepted",)
     date_hierarchy = "datetime"
 
     def get_readonly_fields(self, request, obj=None):
@@ -523,64 +561,55 @@ class EventSpeakerRequestAdmin(admin.ModelAdmin):
 
     @admin.display(description="Demande")
     def event_request_link(self, obj):
-        if not obj or not obj.event_request:
-            return "-"
-        return mark_safe(
-            '<a href="%s">%s</a>'
-            % (
-                reverse(
-                    "admin:event_requests_eventrequest_change",
-                    args=(obj.event_request.id,),
-                ),
-                obj.event_request,
-            )
-        )
+        display_link(obj.event_request)
 
     @admin.display(description="Intervenant·e")
     def event_speaker_link(self, obj):
-        if not obj.event_speaker:
-            return "-"
-
-        return mark_safe(
-            '<a href="%s">%s</a>'
-            % (
-                reverse(
-                    "admin:event_requests_eventspeaker_change",
-                    args=(obj.event_speaker_id,),
-                ),
-                obj.event_speaker,
-            )
-        )
+        display_link(obj.event_speaker)
 
     def get_urls(self):
         return [
             path(
-                "<uuid:pk>/validate/",
-                self.admin_site.admin_view(self.validate_event_speaker_request),
-                name="{}_{}_validate".format(self.opts.app_label, self.opts.model_name),
-            )
+                "<uuid:pk>/accept/",
+                self.admin_site.admin_view(self.accept_event_speaker_request),
+                name=f"{self.opts.app_label}_{self.opts.model_name}_accept",
+            ),
+            path(
+                "<uuid:pk>/unaccept/",
+                self.admin_site.admin_view(self.unaccept_event_speaker_request),
+                name=f"{self.opts.app_label}_{self.opts.model_name}_unaccept",
+            ),
         ] + super().get_urls()
 
-    def validate_event_speaker_request(self, request, pk):
-        return views.validate_event_speaker_request(self, request, pk)
+    def accept_event_speaker_request(self, request, pk):
+        return views.accept_event_speaker_request(self, request, pk)
+
+    def unaccept_event_speaker_request(self, request, pk):
+        return views.unaccept_event_speaker_request(self, request, pk)
 
     @admin.display(description="Validation")
-    def validate(self, obj):
-        if (
-            not obj.available
-            or obj.event_request.status != obj.event_request.Status.PENDING
-        ):
-            return "-"
-
-        return mark_safe(
-            '<a class="button" href="%s">Valider</a>'
-            % (
+    def validation(self, obj):
+        if obj.is_acceptable:
+            return display_link(
                 reverse(
-                    "admin:event_requests_eventspeakerrequest_validate",
+                    "admin:event_requests_eventspeakerrequest_accept",
                     args=(obj.pk,),
-                )
+                ),
+                "Valider",
+                button=True,
             )
-        )
+
+        if obj.is_unacceptable:
+            return display_link(
+                reverse(
+                    "admin:event_requests_eventspeakerrequest_unaccept",
+                    args=(obj.pk,),
+                ),
+                "Annuler la validation",
+                button=True,
+            )
+
+        return "-"
 
     class Media:
         pass

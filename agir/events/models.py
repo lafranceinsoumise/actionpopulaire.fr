@@ -382,7 +382,6 @@ class EventManager(models.Manager.from_queryset(EventQuerySet)):
         organizer_person=None,
         organizer_group=None,
         event_speakers=None,
-        event_speaker=None,
         **kwargs,
     ):
         with transaction.atomic():
@@ -398,9 +397,6 @@ class EventManager(models.Manager.from_queryset(EventQuerySet)):
                 RSVP.objects.create(event=event, person=organizer_person)
 
             event_speakers = event_speakers or []
-
-            if event_speaker is not None:
-                event_speakers.append(event_speaker)
 
             if event_speakers:
                 event.event_speakers.add(*event_speakers)
