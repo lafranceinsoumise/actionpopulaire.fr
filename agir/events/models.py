@@ -621,6 +621,16 @@ class Event(
         blank=True,
     )
 
+    email_campaign = models.OneToOneField(
+        "nuntius.Campaign",
+        verbose_name="Campagne e-mail",
+        related_name="event",
+        related_query_name="event",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
+
     class Meta:
         verbose_name = _("événement")
         verbose_name_plural = _("événements")
@@ -1090,6 +1100,18 @@ class EventSubtype(BaseSubtype):
         choices=SupportGroup.TYPE_CHOICES,
         help_text="Seulement les gestionnaires et animateur·ices des groupes du type sélectionné "
         "pourront créer des événements de ce type.",
+    )
+
+    campaign_template = models.ForeignKey(
+        "nuntius.Campaign",
+        verbose_name="Modèle de campagne e-mail",
+        related_name="event_subtypes",
+        related_query_name="event_subytpe",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        help_text="Si une campagne a été sélectionné, celle-ci pourra être utilisée comme modèle pour créer "
+        "automatiquement une campagne pour un événement de ce type.",
     )
 
     class Meta:

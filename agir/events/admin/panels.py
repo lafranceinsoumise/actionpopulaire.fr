@@ -323,6 +323,10 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
             _("Intervenant·es"),
             {"fields": ("event_speakers",)},
         ),
+        (
+            _("Mailing"),
+            {"fields": ("email_campaign",)},
+        ),
     )
 
     inlines = (OrganizerConfigInline, EventImageInline, EventAssetInline)
@@ -382,6 +386,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "subscription_form",
         "suggestion_segment",
         "event_speakers",
+        "email_campaign",
     )
 
     def get_queryset(self, request):
@@ -678,6 +683,7 @@ class EventSubtypeAdmin(admin.ModelAdmin):
                 "fields": (
                     "default_description",
                     "default_image",
+                    "campaign_template",
                 )
             },
         ),
@@ -714,7 +720,7 @@ class EventSubtypeAdmin(admin.ModelAdmin):
         "for_organizer_group_members_only",
     )
     search_fields = ("label", "description")
-    autocomplete_fields = ("report_person_form",)
+    autocomplete_fields = ("report_person_form", "campaign_template")
     readonly_fields = ("icon",)
 
     @admin.display(description="Prioritaire", boolean=True, ordering="has_priority")
