@@ -51,7 +51,7 @@ from agir.lib.models import (
     banner_image_file_path,
 )
 from agir.lib.search import PrefixSearchQuery
-from agir.lib.utils import front_url, resize_and_autorotate
+from agir.lib.utils import front_url, resize_and_autorotate, is_absolute_url
 
 __all__ = [
     "Event",
@@ -730,34 +730,44 @@ class Event(
         tz = pytz.timezone(self.timezone)
         return self.end_time.astimezone(tz)
 
-    def get_display_date(self):
+    def get_datestring(self):
+        return formats.date_format(self.local_start_time, "DATE_FORMAT")
+
+    def get_timestring(self, hide_default_tz=False):
+        timestring = formats.time_format(self.local_start_time, "TIME_FORMAT")
+        if not hide_default_tz or self.timezone != timezone.get_default_timezone_name():
+            timestring += f" ({self.timezone})"
+        return timestring
+
+    def get_display_date(self, hide_default_tz=False):
         start_time = self.local_start_time
         end_time = self.local_end_time
 
         if start_time.date() == end_time.date():
-            date = formats.date_format(start_time, "DATE_FORMAT")
-            return _("le {date}, de {start_hour} à {end_hour} ({tz})").format(
-                date=date,
+            timestring = _("le {date}, de {start_hour} à {end_hour}").format(
+                date=formats.date_format(start_time, "DATE_FORMAT"),
                 start_hour=formats.time_format(start_time, "TIME_FORMAT"),
                 end_hour=formats.time_format(end_time, "TIME_FORMAT"),
-                tz=self.timezone,
+            )
+        else:
+            timestring = _(
+                "du {start_date}, {start_time} au {end_date}, {end_time}"
+            ).format(
+                start_date=formats.date_format(start_time, "DATE_FORMAT"),
+                start_time=formats.date_format(start_time, "TIME_FORMAT"),
+                end_date=formats.date_format(end_time, "DATE_FORMAT"),
+                end_time=formats.date_format(end_time, "TIME_FORMAT"),
             )
 
-        return _(
-            "du {start_date}, {start_time} au {end_date}, {end_time} ({tz})"
-        ).format(
-            start_date=formats.date_format(start_time, "DATE_FORMAT"),
-            start_time=formats.date_format(start_time, "TIME_FORMAT"),
-            end_date=formats.date_format(end_time, "DATE_FORMAT"),
-            end_time=formats.date_format(end_time, "TIME_FORMAT"),
-            tz=self.timezone,
-        )
+        if not hide_default_tz or self.timezone != timezone.get_default_timezone_name():
+            timestring += f" ({self.timezone})"
 
-    def get_simple_display_date(self):
-        return _("le {date} à {time} ({tz})").format(
-            date=formats.date_format(self.local_start_time, "DATE_FORMAT"),
-            time=formats.time_format(self.local_start_time, "TIME_FORMAT"),
-            tz=self.timezone,
+        return timestring
+
+    def get_simple_display_date(self, hide_default_tz=False):
+        return _("le {date} à {time}").format(
+            date=self.get_datestring(),
+            time=self.get_timestring(hide_default_tz=hide_default_tz),
         )
 
     def is_past(self):
@@ -910,6 +920,18 @@ class Event(
             kwargs={"pk": self.pk, "cache_key": content_hash},
             absolute=True,
         )
+
+    def get_absolute_image_url(self, variation="banner"):
+        if self.image is None or not hasattr(self.image, variation):
+            return None
+
+        image = getattr(self.image, variation)
+        event_image = self.image.storage.url(image.name)
+
+        if not is_absolute_url(event_image):
+            event_image = settings.FRONT_DOMAIN + event_image
+
+        return event_image
 
     def get_page_schema(self):
         schema = {

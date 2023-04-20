@@ -613,6 +613,12 @@ class EventSpeaker(BaseAPIResource):
             queryset = queryset.filter(event_speakers__id=self.id)
         return queryset.with_serializer_prefetch(self.person).listed().upcoming()
 
+    def get_title(self):
+        strg = f"{self.person.get_full_name().title()}"
+        if self.description:
+            strg += f" · {self.description.lower()}"
+        return strg
+
     def __str__(self):
         strg = f"{self.person.get_full_name()}"
         if self.description:

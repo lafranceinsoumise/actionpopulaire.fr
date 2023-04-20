@@ -366,11 +366,7 @@ def send_new_group_event_email(group_pk, event_pk):
     now = timezone.now()
     start_time = event.local_start_time
     simple_date = _date(start_time, "l j F").capitalize()
-    event_image = None
-    if event.image:
-        event_image = event.image.storage.url(event.image.banner.name)
-        if not is_absolute_url(event_image):
-            event_image = settings.FRONT_DOMAIN + event_image
+    event_image = event.get_absolute_image_url()
 
     bindings = {
         "GROUP": group.name.capitalize(),

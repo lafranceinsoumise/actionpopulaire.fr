@@ -34,14 +34,17 @@ def display_link(link_or_instance, text=None, empty_text="-", button=False):
     return format_html('<a class="{}" href="{}">{}</a>', classname, link, text)
 
 
-def display_list_of_links(links):
+def display_list_of_links(links, button=False):
     """Retourne une liste de liens à afficher dans l'admin Django
 
     :param links: un itérateur de tuples (link_target, link_text) ou (model_instance, link_text)
+    :param button: display as a button instead as a link
     :return: le code html de la liste de liens
     """
+    classname = "button" if button else ""
     links = (
         (
+            classname,
             get_admin_link(link_or_instance)
             if isinstance(link_or_instance, Model)
             else link_or_instance,
@@ -49,7 +52,8 @@ def display_list_of_links(links):
         )
         for link_or_instance, text in links
     )
-    return format_html_join(mark_safe("<br>"), '<a href="{}">{}</a>', links)
+    sep = "<br><br>" if button else "<br>"
+    return format_html_join(mark_safe(sep), '<a class="{}" href="{}">{}</a>', links)
 
 
 def admin_url(viewname, args=None, kwargs=None, query=None, absolute=True):
