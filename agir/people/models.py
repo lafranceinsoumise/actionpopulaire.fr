@@ -9,9 +9,13 @@ from django.conf import settings
 from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import SearchVectorField
 from django.core.exceptions import ValidationError
-from django.core.validators import FileExtensionValidator
+from django.core.validators import (
+    FileExtensionValidator,
+    MinValueValidator,
+    MaxValueValidator,
+)
 from django.db import models, transaction, IntegrityError
-from django.db.models import JSONField, Subquery, OuterRef, DateTimeField, Prefetch
+from django.db.models import JSONField, Subquery, OuterRef, DateTimeField
 from django.db.models import Q
 from django.db.models.fields.json import KeyTextTransform
 from django.db.models.functions import Cast, Coalesce
@@ -102,15 +106,23 @@ class PersonQueryset(models.QuerySet):
         else:
             return self.filter(q | Q(contact_phone__icontains=query[1:]))
 
-    def annotate_elus(self, current=True):
+    def annotate_elus(self, current=True, status=None):
         from agir.elus.models import types_elus
 
         annotations = {
-            f"elu_{label}": klass.objects.filter(
-                person_id=models.OuterRef("id")
-            ).exclude(statut=StatutMandat.FAUX)
+            f"elu_{label}": klass.objects.filter(person_id=models.OuterRef("id"))
             for label, klass in types_elus.items()
         }
+
+        if status:
+            annotations = {
+                label: subq.filter(statut=status) for label, subq in annotations.items()
+            }
+        else:
+            annotations = {
+                label: subq.exclude(statut=StatutMandat.FAUX)
+                for label, subq in annotations.items()
+            }
 
         if current:
             today = timezone.now().date()
@@ -573,6 +585,19 @@ class Person(
             "L'adresse email à afficher publiquement dans l'application pour cette personne. "
             "Si vide, l'adresse email principale de la personne sera utilisée."
         ),
+    )
+
+    DEFAULT_ACTION_RADIUS = 100  # Km
+    action_radius = models.PositiveIntegerField(
+        verbose_name="Zone d'action (Km)",
+        null=False,
+        blank=False,
+        default=DEFAULT_ACTION_RADIUS,
+        help_text="Le rayon en km utilisé pour suggérer des actions autour de la position géographique de la personne",
+        validators=[
+            MinValueValidator(1),
+            MaxValueValidator(500),
+        ],
     )
 
     class Meta:

@@ -52,6 +52,11 @@ class PersonalInformationsForm(ImageFormMixin, forms.ModelForm):
         self.fields["location_address2"].label = False
         self.fields["location_country"].required = True
         self.fields["display_name"].required = True
+        self.fields["action_radius"].help_text = (
+            "Le rayon (en Km) autour de l'adresse indiquée qui sera utilisé pour "
+            "vous suggérer des actions près de vous (ex. suggestions d'événements "
+            "sur la page d'accueil)"
+        )
 
         description_gender = HTML(
             format_html(
@@ -127,6 +132,10 @@ class PersonalInformationsForm(ImageFormMixin, forms.ModelForm):
                             description_address,
                             css_class="field-with-help",
                         ),
+                        FullCol(
+                            Field("action_radius", min=1, max=500, step=1),
+                            css_class="field-with-help",
+                        ),
                     ),
                 ),
                 HalfCol(
@@ -179,6 +188,7 @@ class PersonalInformationsForm(ImageFormMixin, forms.ModelForm):
             "location_city",
             "location_zip",
             "location_country",
+            "action_radius",
         )
 
 

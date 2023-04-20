@@ -1,18 +1,17 @@
+import RenderIfVisible from "@agir/front/genericComponents/RenderIfVisible";
 import { Interval } from "luxon";
 import PropTypes from "prop-types";
 import React, { useMemo } from "react";
-import RenderIfVisible from "@agir/front/genericComponents/RenderIfVisible";
 import styled from "styled-components";
-import useSWR from "swr";
 
+import Link from "@agir/front/app/Link";
 import EventCard from "@agir/front/genericComponents/EventCard";
 import FilterTabs from "@agir/front/genericComponents/FilterTabs";
-import Link from "@agir/front/app/Link";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
+import ActionRadiusField from "./ActionRadiusField";
 
 import { dateFromISOString, displayHumanDay } from "@agir/lib/utils/time";
-
-import { getAgendaEndpoint, useEventSuggestions } from "./api";
+import { useEventSuggestions } from "./api";
 
 const Bone = styled.div`
   border-radius: ${(props) => props.theme.borderRadius};
@@ -146,49 +145,51 @@ const GenericTab = (props) => {
 };
 
 const NearEventTab = (props) => {
-  const { tabEvents, grandEvents } = props;
+  const { tabEvents } = props;
 
   return (
-    <>
-      {/* GRAND EVENTS */}
-      <PageFadeIn ready={Array.isArray(grandEvents)} wait={<Skeleton />}>
-        {Array.isArray(grandEvents) && grandEvents.length > 0 && (
-          <div key={`near-events__grand`}>
-            <EventSectionTitle>Grands événements</EventSectionTitle>
-            {grandEvents.map((event, i) => (
-              <RenderIfVisible
-                key={`near-events__${event.id}`}
-                style={{ marginTop: i && "1rem" }}
-              >
-                <EventCard
-                  {...event}
-                  schedule={Interval.fromDateTimes(
-                    dateFromISOString(event.startTime),
-                    dateFromISOString(event.endTime)
-                  )}
-                />
-              </RenderIfVisible>
-            ))}
-          </div>
-        )}
-      </PageFadeIn>
-      {/* NEAR EVENTS */}
-      <PageFadeIn ready={Array.isArray(tabEvents)} wait={<Skeleton />}>
-        {Array.isArray(tabEvents) && tabEvents.length === 0 ? (
-          <EmptyAgenda>
-            <p>
-              Zut ! Il n'y a pas d'événement prévu à proximité ?{" "}
-              <Link route="personalInformation">
-                Vérifiez votre adresse et code postal
-              </Link>
-              .
-            </p>
-          </EmptyAgenda>
-        ) : (
-          <EventList events={tabEvents} />
-        )}
-      </PageFadeIn>
-    </>
+    <PageFadeIn ready={Array.isArray(tabEvents)} wait={<Skeleton />}>
+      {Array.isArray(tabEvents) && tabEvents.length === 0 ? (
+        <EmptyAgenda>
+          <p>
+            Zut ! Il n'y a pas d'événement prévu à proximité ?{" "}
+            <Link route="personalInformation">
+              Vérifiez votre adresse et code postal
+            </Link>
+            .
+          </p>
+        </EmptyAgenda>
+      ) : (
+        <EventList events={tabEvents} />
+      )}
+    </PageFadeIn>
+  );
+};
+
+const GrandEvents = (props) => {
+  const { events } = props;
+  return (
+    <PageFadeIn ready={Array.isArray(events)} wait={<Skeleton />}>
+      {Array.isArray(events) && events.length > 0 && (
+        <div key="grand-events">
+          <EventSectionTitle>Grands événements</EventSectionTitle>
+          {events.map((event, i) => (
+            <RenderIfVisible
+              key={`grand-events__${event.id}`}
+              style={{ marginTop: i && "1rem" }}
+            >
+              <EventCard
+                {...event}
+                schedule={Interval.fromDateTimes(
+                  dateFromISOString(event.startTime),
+                  dateFromISOString(event.endTime)
+                )}
+              />
+            </RenderIfVisible>
+          ))}
+        </div>
+      )}
+    </PageFadeIn>
   );
 };
 
@@ -248,35 +249,43 @@ const GroupEventTab = (props) => {
 };
 
 const TABS = {
-  default: GenericTab,
-  nearEvents: NearEventTab,
-  groupEvents: GroupEventTab,
+  default: { Component: GenericTab },
+  nearEvents: {
+    Component: NearEventTab,
+    hasActionRadius: true,
+    hasGrandEvents: true,
+  },
+  groupEvents: { Component: GroupEventTab },
 };
 
 const EventSuggestions = ({ isPaused }) => {
-  const { data: grandEvents } = useSWR(getAgendaEndpoint("grandEvents"), {
-    revalidateIfStale: false,
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-  });
+  const [
+    tabs,
+    activeKey,
+    activeTabIndex,
+    setActiveTabIndex,
+    events,
+    grandEvents,
+    actionRadiusRangeProps,
+  ] = useEventSuggestions(isPaused);
 
-  const [tabs, activeTab, setActiveTab, events, activeKey] =
-    useEventSuggestions(isPaused);
-
-  const ActiveTab = TABS[activeKey] || TABS.default;
+  const activeTab = TABS[activeKey] || TABS.default;
 
   return (
     <>
       <FilterTabs
         tabs={tabs}
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
+        activeTab={activeTabIndex}
+        onTabChange={setActiveTabIndex}
       />
-      <ActiveTab
-        activeTab={tabs[activeTab]}
+      {activeTab.hasActionRadius && (
+        <ActionRadiusField {...actionRadiusRangeProps} />
+      )}
+      {activeTab.hasGrandEvents && <GrandEvents events={grandEvents} />}
+      <activeTab.Component
+        activeTab={tabs[activeTabIndex]}
         tabKey={activeKey}
         tabEvents={events}
-        grandEvents={grandEvents}
       />
     </>
   );

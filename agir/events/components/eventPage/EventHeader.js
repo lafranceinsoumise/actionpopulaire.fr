@@ -358,7 +358,9 @@ const AdditionalMessage = (props) => {
 
   if (!isOrganizer && !rsvped) {
     return (
-      <SmallText>Votre email sera communiqué à l'organisateur·ice</SmallText>
+      <SmallText>
+        Votre adresse e-mail sera communiquée à l'organisateur·ice
+      </SmallText>
     );
   }
 

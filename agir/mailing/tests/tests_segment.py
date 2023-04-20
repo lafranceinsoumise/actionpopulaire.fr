@@ -7,9 +7,9 @@ from django.utils.timezone import now
 # Create your tests here.
 from faker import Faker
 
+from agir.elus.models import MandatMunicipal, StatutMandat
 from agir.events.models import EventSubtype, Event, RSVP
 from agir.groups.models import SupportGroupSubtype, SupportGroup, Membership
-from agir.lib.tests.mixins import create_event
 from agir.mailing.models import Segment
 from agir.people.models import Person, PersonTag, Qualification, PersonQualification
 
@@ -967,6 +967,121 @@ class SegmentQualificationFilterTestCase(TestCase):
         )
         s.qualifications.add(ok_qualification)
 
+        subs = s.get_subscribers_queryset()
+        for person in includes:
+            self.assertIn(person, subs)
+        for person in excludes:
+            self.assertNotIn(person, subs)
+
+
+class SegmentMandatFilterTestCase(TestCase):
+    def create_person(self, **kwargs):
+        person = Person.objects.create_insoumise(
+            email=fake.email(), create_role=True, **kwargs
+        )
+        return person
+
+    def create_mandat(
+        self,
+        model=MandatMunicipal,
+        person=None,
+        membre_reseau_elus=Person.MEMBRE_RESEAU_INCONNU,
+        **kwargs,
+    ):
+        if person is None:
+            person = self.create_person(membre_reseau_elus=membre_reseau_elus)
+
+        model.objects.create(person=person, **kwargs)
+
+        return person
+
+    def setUp(self):
+        self.unelected_person = self.create_person()
+        self.elected_person = self.create_mandat()
+
+    def test_default_segment_include_anyone(self):
+        includes = [
+            self.unelected_person,
+            self.elected_person,
+        ]
+        s = Segment.objects.create(newsletters=[], is_2022=None)
+        for person in includes:
+            self.assertIn(person, s.get_subscribers_queryset())
+
+    def test_elu_ELUS_MEMBRE_RESEAU_segment(self):
+        includes = [self.create_mandat(membre_reseau_elus=Person.MEMBRE_RESEAU_OUI)]
+        excludes = [
+            self.unelected_person,
+            self.create_mandat(membre_reseau_elus=Person.MEMBRE_RESEAU_NON),
+            self.create_mandat(
+                membre_reseau_elus=Person.MEMBRE_RESEAU_OUI, statut=StatutMandat.FAUX
+            ),
+        ]
+        s = Segment.objects.create(
+            newsletters=[], is_2022=None, elu=Segment.ELUS_MEMBRE_RESEAU
+        )
+        subs = s.get_subscribers_queryset()
+        for person in includes:
+            self.assertIn(person, subs)
+        for person in excludes:
+            self.assertNotIn(person, subs)
+
+    def test_elu_ELUS_REFERENCE_segment(self):
+        includes = [
+            self.create_mandat(membre_reseau_elus=Person.MEMBRE_RESEAU_OUI),
+        ]
+        excludes = [
+            self.unelected_person,
+            self.create_mandat(membre_reseau_elus=Person.MEMBRE_RESEAU_NON),
+            self.create_mandat(membre_reseau_elus=Person.MEMBRE_RESEAU_EXCLUS),
+        ]
+        s = Segment.objects.create(
+            newsletters=[], is_2022=None, elu=Segment.ELUS_REFERENCE
+        )
+        subs = s.get_subscribers_queryset()
+        for person in includes:
+            self.assertIn(person, subs)
+        for person in excludes:
+            self.assertNotIn(person, subs)
+
+    def test_elu_ELUS_SAUF_EXCLUS_segment(self):
+        includes = [
+            self.create_mandat(membre_reseau_elus=Person.MEMBRE_RESEAU_OUI),
+            self.create_mandat(membre_reseau_elus=Person.MEMBRE_RESEAU_NON),
+        ]
+        excludes = [
+            self.unelected_person,
+            self.create_mandat(membre_reseau_elus=Person.MEMBRE_RESEAU_EXCLUS),
+        ]
+        s = Segment.objects.create(
+            newsletters=[], is_2022=None, elu=Segment.ELUS_SAUF_EXCLUS
+        )
+        subs = s.get_subscribers_queryset()
+        for person in includes:
+            self.assertIn(person, subs)
+        for person in excludes:
+            self.assertNotIn(person, subs)
+
+    def test_elu_status_segment(self):
+        includes = [
+            self.create_mandat(
+                membre_reseau_elus=Person.MEMBRE_RESEAU_OUI,
+                statut=StatutMandat.CONFIRME,
+            )
+        ]
+        excludes = [
+            self.unelected_person,
+            self.create_mandat(
+                membre_reseau_elus=Person.MEMBRE_RESEAU_OUI,
+                statut=StatutMandat.IMPORT_AUTOMATIQUE,
+            ),
+        ]
+        s = Segment.objects.create(
+            newsletters=[],
+            is_2022=None,
+            elu=Segment.ELUS_MEMBRE_RESEAU,
+            elu_status=StatutMandat.CONFIRME,
+        )
         subs = s.get_subscribers_queryset()
         for person in includes:
             self.assertIn(person, subs)

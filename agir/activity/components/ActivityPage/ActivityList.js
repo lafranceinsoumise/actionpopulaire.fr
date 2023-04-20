@@ -49,7 +49,6 @@ const Page = styled.article`
 
     li {
       margin: 0;
-      margin-bottom: 16px;
     }
   }
 `;

@@ -332,6 +332,10 @@ class PersonSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
         required=False, allow_blank=True, source="location_city"
     )
     country = CountryField(required=False, allow_blank=False, default="FR")
+    actionRadius = serializers.IntegerField(
+        source="action_radius", required=False, min_value=1, max_value=500
+    )
+    hasLocation = serializers.BooleanField(source="has_location", read_only=True)
 
     def update(self, instance, validated_data):
         instance = super().update(instance, validated_data)
@@ -360,6 +364,8 @@ class PersonSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
             "city",
             "country",
             "mandat",
+            "actionRadius",
+            "hasLocation",
         )
 
 

@@ -2,7 +2,6 @@ import re
 
 import reversion
 from django.contrib.gis.db.models.functions import Distance
-from django.contrib.gis.measure import D
 from django.core.validators import validate_email
 from django.db import transaction
 from django.db.models import Max, DateTimeField, Q
@@ -176,6 +175,7 @@ class UserGroupSuggestionsView(ListAPIView):
 
     def get_queryset(self):
         person = self.request.user.person
+
         if person.coordinates is None:
             return self.queryset.none()
 
@@ -185,12 +185,10 @@ class UserGroupSuggestionsView(ListAPIView):
             .with_serializer_prefetch()
         )
 
-        # Try to find groups within 100km distance first
-        near_groups = (
-            base_queryset.filter(coordinates__dwithin=(person.coordinates, D(km=100)))
-            .annotate(distance=Distance("coordinates", person.coordinates))
-            .order_by("distance")[:3]
-        )
+        # Try to find groups in person action radius first
+        near_groups = base_queryset.near(
+            coordinates=person.coordinates, radius=person.action_radius
+        ).order_by("distance")[:3]
 
         if len(near_groups) > 0:
             return near_groups

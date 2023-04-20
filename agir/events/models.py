@@ -10,6 +10,8 @@ import ics
 import pytz
 from django import forms
 from django.conf import settings
+from django.contrib.gis.db.models.functions import Distance
+from django.contrib.gis.measure import D
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.search import SearchVector, SearchRank
 from django.core.exceptions import ValidationError
@@ -253,6 +255,21 @@ class EventQuerySet(models.QuerySet):
             .filter(search=query)
             .annotate(rank=SearchRank(vector, query))
             .order_by("-rank")
+        )
+
+    def near(self, coordinates=None, radius=None):
+        if not coordinates:
+            return self
+
+        if radius is None:
+            from agir.people.models import Person
+
+            radius = Person.DEFAULT_ACTION_RADIUS
+
+        return (
+            self.exclude(coordinates__isnull=True)
+            .filter(coordinates__dwithin=(coordinates, D(km=radius)))
+            .annotate(distance=Distance("coordinates", coordinates))
         )
 
     def simple_search(self, query):

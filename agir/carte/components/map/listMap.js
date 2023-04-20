@@ -45,7 +45,7 @@ function disambiguate(points) {
 class Display {
   constructor(types, subtypes, listType) {
     this.types = types;
-    this.formatPopup = getFormatPopups(types, subtypes)[listType];
+    this.formatPopup = getFormatPopups(listType, types, subtypes);
     this.sources = {};
     this.layers = {};
     this.typeStyles = {};

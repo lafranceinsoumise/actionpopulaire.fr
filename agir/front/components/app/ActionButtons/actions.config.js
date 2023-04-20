@@ -6,7 +6,7 @@ import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const ACTIONS = {
   donations: (user) =>
-    user.hasContribution
+    user?.hasContribution
       ? {
           key: "donations",
           route: "donations",
@@ -22,7 +22,7 @@ const ACTIONS = {
           color: style.redNSP,
         },
   contributions: (user) =>
-    user.hasContribution
+    user?.hasContribution
       ? {
           key: "contributions",
           route: "donations",
@@ -123,7 +123,7 @@ const ACTIONS = {
     color: style.primary500,
   },
   votingProxy: (user) =>
-    user.votingProxyId
+    user?.votingProxyId
       ? {
           key: "votingProxy",
           route: "acceptedVotingProxyRequests",

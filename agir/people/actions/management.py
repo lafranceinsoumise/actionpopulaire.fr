@@ -292,6 +292,7 @@ MERGE_STRATEGIES = {
     "person_qualification": merge_reassign_related,
     "event_speaker": merge_event_speakers,
     "public_email": None,
+    "action_radius": None,
 }
 
 

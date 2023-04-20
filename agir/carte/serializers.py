@@ -30,14 +30,18 @@ class MapEventSerializer(serializers.ModelSerializer):
 class MapGroupSerializer(CountryFieldMixin, serializers.ModelSerializer):
     subtype = serializers.SerializerMethodField("get_first_subtype")
     is_active = serializers.BooleanField()
-    link = serializers.SerializerMethodField(read_only=True)
+    is_certified = serializers.BooleanField()
+    link = serializers.SerializerMethodField()
 
     def get_link(self, obj):
         return front_url("map_group_details", args=(obj.pk,), absolute=True)
 
+    def get_first_subtype(self, obj):
+        return obj.subtypes.active().values_list("id", flat=True).first()
+
     class Meta:
         model = SupportGroup
-        fields = (
+        fields = read_only_fields = (
             "id",
             "name",
             "coordinates",
@@ -45,10 +49,7 @@ class MapGroupSerializer(CountryFieldMixin, serializers.ModelSerializer):
             "subtype",
             "subtypes",
             "is_active",
+            "is_certified",
             "location_country",
             "link",
         )
-        read_only_fields = fields
-
-    def get_first_subtype(self, obj):
-        return obj.subtypes.all()[0].id if obj.subtypes.all() else None

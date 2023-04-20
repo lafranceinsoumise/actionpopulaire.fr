@@ -1,8 +1,8 @@
 const formatEvent = (types, subtypes) => (event) => {
-  const subtype = subtypes.find((type) => type.id === event.subtype);
-  const type = types.find((type) => type.id === subtype.type);
-  const color = subtype.color ? subtype.color : type.color;
-  const label = subtype.hideLabel ? type.label : subtype.description;
+  const subtype = subtypes[event.subtype];
+  const type = types[subtype.type];
+  const color = subtype.color || type.color;
+  const label = !subtype.hideLabel ? subtype.description : type.label;
 
   return `
     <a target="_top" href="${event.link}" style="color:${color};">
@@ -15,31 +15,40 @@ const formatEvent = (types, subtypes) => (event) => {
   `;
 };
 
-const formatGroup = (types, subtypes) => (group) => {
-  const type = types.find((type) => type.id === group.type);
-  const displayableSubtypes = subtypes
-    .filter(
-      (subtype) => !subtype.hideLabel && group.subtypes.includes(subtype.id)
-    )
-    .map((subtype) => subtype.description);
-
-  return `
+const formatGroup = (types, subtypes) => (group) =>
+  `
     <a target="_top" href="${group.link}">${group.name}</a>
     <br/>
-    <strong>${type.label}</strong>
-    ${
-      displayableSubtypes.length > 0
-        ? `<br/><small>${displayableSubtypes.map(
-            (subtype) => `· ${subtype}`
-          )}</small>`
-        : ""
-    }
+    <strong>
+      ${types[group.type].label}${group.is_certified ? " certifié" : ""}
+    </strong>
+    ${group.subtypes
+      .map((subtype) =>
+        subtypes[subtype] && !subtypes[subtype].hideLabel
+          ? `<small style='display:block;'>${subtypes[subtype].description}</small>`
+          : ""
+      )
+      .join("")}
   `;
-};
 
-const getFormatPopups = (types, subtypes) => ({
-  groups: formatGroup(types, subtypes),
-  events: formatEvent(types, subtypes),
-});
+const getFormatPopups = (itemType, types, subtypes) => {
+  types = types.reduce(
+    (o, type) => ({
+      ...o,
+      [type.id]: type,
+    }),
+    {}
+  );
+  subtypes = subtypes.reduce(
+    (o, subtype) => ({
+      ...o,
+      [subtype.id]: subtype,
+    }),
+    {}
+  );
+  return itemType === "groups"
+    ? formatGroup(types, subtypes)
+    : formatEvent(types, subtypes);
+};
 
 export default getFormatPopups;
