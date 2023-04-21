@@ -148,6 +148,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         "subtype",
         "groupsAttendees",
         "distance",
+        "eventSpeakers",
     ]
 
     id = serializers.UUIDField()
@@ -207,6 +208,9 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     )
     unauthorizedMessage = serializers.CharField(
         source="subtype.unauthorized_message", read_only=True
+    )
+    eventSpeakers = serializers.SerializerMethodField(
+        method_name="get_event_speakers", read_only=True
     )
 
     # hasProject = serializers.SerializerMethodField(
@@ -429,6 +433,20 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def can_rsvp_as_group(self, obj):
         return obj.can_rsvp_as_group(self.person)
+
+    def get_event_speakers(self, obj):
+        event_speakers = list(obj.event_speakers.all())
+        return [
+            {
+                "id": event_speaker.id,
+                "name": event_speaker.person.display_name,
+                "image": event_speaker.person.image.thumbnail.url
+                if event_speaker.person.image
+                else None,
+                "description": event_speaker.description,
+            }
+            for event_speaker in event_speakers
+        ]
 
 
 class EventAdvancedSerializer(EventSerializer):

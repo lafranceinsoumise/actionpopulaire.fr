@@ -7,6 +7,7 @@ from agir.event_requests import models
 from agir.events.models import Event
 from agir.lib.admin.inlines import NonrelatedTabularInline
 from agir.lib.admin.utils import display_link
+from agir.people.models import Person
 
 
 class EventAssetTemplateInline(NonrelatedTabularInline):
@@ -185,3 +186,35 @@ class EventSpeakerPastEventInline(EventSpeakerEventInline):
 
     def get_form_queryset(self, obj):
         return obj.events.past()
+
+
+class EventSpeakerPersonInline(NonrelatedTabularInline):
+    model = Person
+    verbose_name = "personne"
+    verbose_name_plural = "personne"
+    extra = 0
+    can_add = False
+    can_delete = False
+    show_change_link = False
+    readonly_fields = ("display_email",)
+    fields = (
+        "display_email",
+        "display_name",
+        "image",
+    )
+
+    def has_add_permission(self, request, obj):
+        return False
+
+    def has_delete_permission(self, request, obj):
+        return False
+
+    def get_form_queryset(self, obj):
+        return self.model.objects.filter(id=obj.person_id)
+
+    def save_new_instance(self, parent, instance):
+        instance.save()
+
+    @admin.display(description="E-mail d'affichage")
+    def display_email(self, obj):
+        return obj.display_email

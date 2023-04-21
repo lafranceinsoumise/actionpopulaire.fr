@@ -51,20 +51,21 @@ const StyledCard = styled(Card)`
 
   h5 {
     font-size: 1rem;
+    line-height: 1.5;
     font-weight: 700;
     color: ${(props) => props.theme.black500};
     margin: 0;
   }
 `;
 
-const EventSpeakers = ({ eventSpeakers }) => {
+const EventSpeakers = ({ eventSpeakers, ...rest }) => {
   if (!Array.isArray(eventSpeakers) || eventSpeakers.length === 0) {
     return null;
   }
 
   return (
-    <StyledCard>
-      <h5>Intervenant·e{eventSpeakers.length > 1 && "s"}</h5>
+    <StyledCard {...rest}>
+      <h5>Intervenant·e{eventSpeakers.length > 1 && "s"}&nbsp;:</h5>
       {eventSpeakers.map((speaker) => (
         <StyledEventSpeaker key={speaker.id}>
           <Avatar displayName={speaker.name} image={speaker.image} />

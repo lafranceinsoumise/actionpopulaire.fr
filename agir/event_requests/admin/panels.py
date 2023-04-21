@@ -389,6 +389,7 @@ class EventSpeakerAdmin(admin.ModelAdmin, PersonLinkMixin):
         "event_themes__event_theme_type",
     )
     inlines = (
+        inlines.EventSpeakerPersonInline,
         inlines.EventSpeakerUpcomingEventInline,
         inlines.EventSpeakerPastEventInline,
     )
