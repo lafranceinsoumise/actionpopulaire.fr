@@ -30,10 +30,14 @@ class EventAssetInline(admin.TabularInline):
     verbose_name = "visuel de l'événement"
     verbose_name_plural = "visuels de l'événement"
     model = models.EventAsset
-    fields = ("name", "file", "published")
-    readonly_fields = ("published",)
+    fields = ("name", "file", "published", "is_image")
+    readonly_fields = ("published", "is_image")
     show_change_link = True
     extra = 0
+
+    @admin.display(description="Image de l'événement", boolean=True)
+    def is_image(self, obj):
+        return obj.is_event_image
 
 
 class EventThemeInline(admin.TabularInline):

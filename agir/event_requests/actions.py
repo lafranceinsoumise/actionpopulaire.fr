@@ -111,6 +111,10 @@ def create_event_for_event_request(event_request, event_speakers, start_time):
     data["location_country"] = str(event_request.location_country)
 
     data["name"] = f"{event_theme_type.name} sur le thème “{event_theme.name}”"
+    data["meta"] = {
+        "event_theme": event_theme.name,
+        "event_theme_type": event_theme_type.name,
+    }
 
     data = {
         k: v for k, v in data.items() if k in [f.name for f in Event._meta.get_fields()]
@@ -125,10 +129,6 @@ def create_event_for_event_request(event_request, event_speakers, start_time):
         end_time=end_time,
         timezone=tz,
         subtype=event_subtype,
-        meta={
-            "event_theme": event_theme.name,
-            "event_theme_type": event_theme_type.name,
-        },
         **data,
     )
 
@@ -138,15 +138,21 @@ def create_event_for_event_request(event_request, event_speakers, start_time):
     if event_theme.calendar:
         event_theme.calendar.events.add(event)
 
-    for event_asset_template in event_theme.get_event_asset_templates():
+    if event_image_template_id := event_theme.get_event_image_template_id():
         EventAsset.objects.create(
             render_after_creation=False,
-            template=event_asset_template,
+            template_id=event_image_template_id,
             event=event,
-            extra_data={
-                "event_theme": event_theme.name,
-                "event_theme_type": event_theme_type.name,
-            },
+            extra_data=event.meta,
+            is_event_image=True,
+        )
+
+    for event_asset_template_id in event_theme.get_event_asset_template_ids():
+        EventAsset.objects.create(
+            render_after_creation=True,
+            template_id=event_asset_template_id,
+            event=event,
+            extra_data=event.meta,
         )
 
     return event

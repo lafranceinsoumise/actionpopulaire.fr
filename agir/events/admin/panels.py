@@ -645,10 +645,10 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
             return "-"
 
         return format_html(
-            "<details style='cursor:pointer;'>"
-            "<summary>Variables et valeurs par défaut</summary>"
+            "<details>"
+            "<summary style='cursor:pointer;'>Variables et valeurs par défaut</summary>"
             "<p style='font-size:11px;color:var(--body-quiet-color);'>"
-            "Les variables ci-dessous commençant par le préfixe <code>campaign_</code> seront utilisées comme paramètres de la "
+            "Les variables commençant par le préfixe <code>campaign_</code> seront utilisées comme paramètres de la "
             "campagne.<br/>Les autres pourront être utilisées pour la personnalisation du corps du message à envoyer, "
             "lorsque le modèle utilisé le prévoit."
             "</p>"

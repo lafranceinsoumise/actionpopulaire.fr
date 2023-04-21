@@ -207,13 +207,18 @@ class EventThemeTypeAdmin(admin.ModelAdmin):
         ),
         (
             "TEMPLATES DE VISUELS",
-            {"fields": ("event_asset_templates",)},
+            {
+                "fields": (
+                    "event_image_template",
+                    "event_asset_templates",
+                )
+            },
         ),
     )
     list_display = ("name", "event_subtype", "calendar_link", "map_link")
     list_filter = ("event_theme",)
     search_fields = ("name",)
-    autocomplete_fields = ("event_subtype",)
+    autocomplete_fields = ("event_subtype", "event_image_template")
     filter_horizontal = ("event_asset_templates",)
     readonly_fields = (
         "calendar_link",
@@ -302,7 +307,12 @@ class EventThemeAdmin(admin.ModelAdmin):
         ),
         (
             "TEMPLATES DE VISUELS",
-            {"fields": ("event_asset_templates",)},
+            {
+                "fields": (
+                    "event_image_template",
+                    "event_asset_templates",
+                )
+            },
         ),
     )
     list_display = (
@@ -317,7 +327,7 @@ class EventThemeAdmin(admin.ModelAdmin):
     )
     list_filter = ("event_theme_type",)
     search_fields = ("name", "event_theme_type__name")
-    autocomplete_fields = ("event_theme_type",)
+    autocomplete_fields = ("event_theme_type", "event_image_template")
     readonly_fields = ("calendar_link", "email_to")
     filter_horizontal = ("event_asset_templates",)
     inlines = (

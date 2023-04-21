@@ -3,6 +3,7 @@ from django.contrib.gis.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.core import validators
 from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
 from django.db import transaction
 from django.db.models import Prefetch, Count, Subquery, OuterRef
 from django.db.models.functions import Coalesce
@@ -70,9 +71,9 @@ class EventAssetQueryset(models.QuerySet):
 
 class EventAssetManager(models.Manager.from_queryset(EventAssetQueryset)):
     def create(self, *args, render_after_creation=True, **kwargs):
-        event_asset = super(EventAssetManager, self).create(*args, **kwargs)
+        event_asset = super().create(*args, **kwargs)
 
-        if render_after_creation and event_asset.renderable:
+        if not render_after_creation and event_asset.renderable:
             event_asset.render()
 
         if not event_asset.name and event_asset.template:
@@ -126,6 +127,11 @@ class EventAsset(BaseAPIResource):
         encoder=CustomJSONEncoder,
         help_text="Les données qui seront utilisées, en plus de celles de l'événement, pour générer le visuel",
     )
+    is_event_image = models.BooleanField(
+        verbose_name="Utiliser ce visuel comme image de bannière de l'événement",
+        default=False,
+        editable=False,
+    )
 
     def __str__(self):
         return f"{self.name} (événement #{self.event_id})"
@@ -139,16 +145,22 @@ class EventAsset(BaseAPIResource):
             raise self.EventAssetRenderingException(
                 "Ce visuel ne peut plus être généré car l'événement et/ou le template ont été supprimés"
             )
-        rendered_svg = self.template.render(
-            data={"event": self.event, **self.extra_data}
-        )
-        self.name = self.template.name
-        self.file = rsvg_convert(
-            rendered_svg,
-            to_format=self.template.target_format,
-            filename=slugify(self.name),
-        )
-        self.save()
+        with transaction.atomic():
+            rendered_svg = self.template.render(
+                data={"event": self.event, **self.extra_data}
+            )
+            self.name = self.template.name
+            file = rsvg_convert(
+                rendered_svg,
+                to_format=self.template.target_format,
+                filename=slugify(self.name),
+            )
+            self.file = file
+            if self.is_event_image:
+                self.event.image = file
+                self.event.save()
+                self.published = True
+            self.save()
 
     class Meta:
         verbose_name = "Visuel de l'événement"
@@ -282,6 +294,16 @@ class EventThemeType(models.Model):
         related_query_name="event_theme_type",
         blank=True,
     )
+    event_image_template = models.ForeignKey(
+        "event_requests.EventAssetTemplate",
+        limit_choices_to={"target_format": "png"},
+        on_delete=models.SET_NULL,
+        verbose_name="Template de l'image de bannière",
+        related_name="+",
+        related_query_name="+",
+        blank=True,
+        null=True,
+    )
 
     def __str__(self):
         return self.name
@@ -356,6 +378,17 @@ class EventTheme(BaseAPIResource):
         related_name="event_themes",
         related_query_name="event_theme",
         blank=True,
+    )
+
+    event_image_template = models.ForeignKey(
+        "event_requests.EventAssetTemplate",
+        limit_choices_to={"target_format": "png"},
+        on_delete=models.SET_NULL,
+        verbose_name="Template de l'image de bannière",
+        related_name="+",
+        related_query_name="+",
+        blank=True,
+        null=True,
     )
 
     speaker_event_creation_email_subject = models.CharField(
@@ -441,12 +474,26 @@ class EventTheme(BaseAPIResource):
     def __str__(self):
         return self.name
 
-    def get_event_asset_templates(self):
+    def get_event_image_template_id(self):
+        # Defaults to the event theme type event image template
+        # if none exists for the particular event theme
+        if not self.event_image_template_id:
+            return self.event_theme_type.event_image_template_id
+        return self.event_image_template_id
+
+    def get_event_asset_template_ids(self):
         # Defaults to the event theme type event asset templates
         # if no asset exists for the particular event theme
+        event_image_template_id = self.get_event_image_template_id()
+        event_asset_templates = self.event_asset_templates.exclude(
+            id=event_image_template_id
+        )
         if not self.event_asset_templates.exists():
-            return self.event_theme_type.event_asset_templates.all()
-        return self.event_asset_templates.all()
+            event_asset_templates = self.event_theme_type.event_asset_templates.exclude(
+                id=event_image_template_id
+            )
+
+        return list(event_asset_templates.values_list("id", flat=True))
 
     def get_speaker_event_creation_email_bindings(self):
         if not self.speaker_event_creation_email_subject:
