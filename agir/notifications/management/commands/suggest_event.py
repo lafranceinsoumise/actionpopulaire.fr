@@ -42,9 +42,8 @@ class Command(BaseCommand):
 
     def get_event_for_person(self, person):
         return (
-            self.queryset.filter(
-                start_time__lt=timezone.now() + timezone.timedelta(days=7)
-            )
+            self.queryset.upcoming()
+            .filter(start_time__lt=timezone.now() + timezone.timedelta(days=7))
             .exclude(attendees=person)
             .near(coordinates=person.coordinates, radius=person.action_radius)
             .order_by("distance")
