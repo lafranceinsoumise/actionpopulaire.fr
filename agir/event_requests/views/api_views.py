@@ -44,5 +44,5 @@ class EventSpeakerEventListAPIView(EventListAPIView):
         return (
             super()
             .get_queryset()
-            .filter(event_speaker__person_id=self.request.user.person.id)
+            .filter(event_speakers__person_id=self.request.user.person.id)
         )

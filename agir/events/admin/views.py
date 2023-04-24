@@ -1,5 +1,6 @@
 from itertools import groupby
 
+from agir.events import actions
 from django.contrib import admin, messages
 from django.contrib.admin.widgets import AutocompleteSelectMultiple
 from django.core.exceptions import PermissionDenied
@@ -156,7 +157,7 @@ class EventSummaryView(AdminViewMixin, FilterView):
             show_close=False,
             events_by_region=self.get_grouped_events(),
             **self.get_admin_helpers(self.filterset.form, self.filterset.base_filters),
-            **kwargs
+            **kwargs,
         )
 
     def get(self, request, *args, **kwargs):
@@ -295,3 +296,41 @@ class AddParticipantView(SingleObjectMixin, FormView):
             return HttpResponseRedirect(self.request.path)
 
         return form.redirect_to_payment()
+
+
+def generate_mailing_campaign(model_admin, request, pk):
+    if not model_admin.has_change_permission(request):
+        raise PermissionDenied
+
+    event = model_admin.get_object(request, pk)
+
+    if event is None:
+        raise Http404("La demande d'événement n'a pas pu être retrouvée.")
+
+    response = HttpResponseRedirect(
+        reverse(
+            "%s:%s_%s_change"
+            % (
+                model_admin.admin_site.name,
+                Event._meta.app_label,
+                Event._meta.model_name,
+            ),
+            args=(event.id,),
+        )
+    )
+
+    try:
+        campaign, created = actions.generate_mailing_campaign(event)
+    except actions.EventGenerateMailingCampaignError as e:
+        messages.warning(request, str(e))
+    else:
+        if created:
+            success_message = (
+                f"Une campagne a bien été créée pour cet événement : « {campaign} »."
+            )
+        else:
+            success_message = f"La campagne « {campaign} » a bien été réinitialisée."
+
+        messages.success(request, success_message)
+
+    return response

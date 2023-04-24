@@ -51,7 +51,7 @@ from agir.lib.models import (
     banner_image_file_path,
 )
 from agir.lib.search import PrefixSearchQuery
-from agir.lib.utils import front_url, resize_and_autorotate
+from agir.lib.utils import front_url, resize_and_autorotate, is_absolute_url
 
 __all__ = [
     "Event",
@@ -177,7 +177,9 @@ class EventQuerySet(models.QuerySet):
     def with_serializer_prefetch(self, person):
         qs = (
             self.select_related("subtype")
-            .prefetch_related("organizer_configs")
+            .prefetch_related(
+                "organizer_configs", "event_speakers", "event_speakers__person"
+            )
             .with_organizer_groups()
             .with_group_attendees()
             .with_static_map_image()
@@ -378,7 +380,11 @@ class EventManager(models.Manager.from_queryset(EventQuerySet)):
         return self.create_event(*args, **kwargs)
 
     def create_event(
-        self, organizer_person=None, organizer_group=None, *args, **kwargs
+        self,
+        organizer_person=None,
+        organizer_group=None,
+        event_speakers=None,
+        **kwargs,
     ):
         with transaction.atomic():
             event = self.model(**kwargs)
@@ -386,15 +392,23 @@ class EventManager(models.Manager.from_queryset(EventQuerySet)):
 
             if organizer_person is not None:
                 OrganizerConfig.objects.create(
-                    person=organizer_person,
                     event=event,
+                    person=organizer_person,
                     as_group=organizer_group,
                 )
-                RSVP.objects.create(person=organizer_person, event=event)
+                RSVP.objects.create(event=event, person=organizer_person)
 
-            if "event_speaker" in kwargs:
-                event_speaker = kwargs.get("event_speaker")
-                RSVP.objects.get_or_create(person=event_speaker.person, event=event)
+            event_speakers = event_speakers or []
+
+            if event_speakers:
+                event.event_speakers.add(*event_speakers)
+                RSVP.objects.bulk_create(
+                    [
+                        RSVP(person_id=es.person_id, event=event)
+                        for es in event_speakers
+                    ],
+                    ignore_conflicts=True,
+                )
 
             return event
 
@@ -601,15 +615,22 @@ class Event(
         ),
     )
 
-    event_speaker = models.ForeignKey(
+    event_speakers = models.ManyToManyField(
         "event_requests.EventSpeaker",
-        on_delete=models.SET_NULL,
-        verbose_name="Intervenant·e",
+        verbose_name="Intervenant·es",
         related_name="events",
         related_query_name="event",
-        null=True,
         blank=True,
-        default=None,
+    )
+
+    email_campaign = models.OneToOneField(
+        "nuntius.Campaign",
+        verbose_name="Campagne e-mail",
+        related_name="event",
+        related_query_name="event",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
     )
 
     class Meta:
@@ -672,6 +693,11 @@ class Event(
         )
 
     @property
+    def event_speaker(self):
+        """Deprecated single event_speaker property used for retro-compatibilty only"""
+        return self.event_speakers.first()
+
+    @property
     def participants(self):
         if not hasattr(self, "all_attendee_count"):
             self._get_participants_counts()
@@ -706,34 +732,44 @@ class Event(
         tz = pytz.timezone(self.timezone)
         return self.end_time.astimezone(tz)
 
-    def get_display_date(self):
+    def get_datestring(self):
+        return formats.date_format(self.local_start_time, "DATE_FORMAT")
+
+    def get_timestring(self, hide_default_tz=False):
+        timestring = formats.time_format(self.local_start_time, "TIME_FORMAT")
+        if not hide_default_tz or self.timezone != timezone.get_default_timezone_name():
+            timestring += f" ({self.timezone})"
+        return timestring
+
+    def get_display_date(self, hide_default_tz=False):
         start_time = self.local_start_time
         end_time = self.local_end_time
 
         if start_time.date() == end_time.date():
-            date = formats.date_format(start_time, "DATE_FORMAT")
-            return _("le {date}, de {start_hour} à {end_hour} ({tz})").format(
-                date=date,
+            timestring = _("le {date}, de {start_hour} à {end_hour}").format(
+                date=formats.date_format(start_time, "DATE_FORMAT"),
                 start_hour=formats.time_format(start_time, "TIME_FORMAT"),
                 end_hour=formats.time_format(end_time, "TIME_FORMAT"),
-                tz=self.timezone,
+            )
+        else:
+            timestring = _(
+                "du {start_date}, {start_time} au {end_date}, {end_time}"
+            ).format(
+                start_date=formats.date_format(start_time, "DATE_FORMAT"),
+                start_time=formats.date_format(start_time, "TIME_FORMAT"),
+                end_date=formats.date_format(end_time, "DATE_FORMAT"),
+                end_time=formats.date_format(end_time, "TIME_FORMAT"),
             )
 
-        return _(
-            "du {start_date}, {start_time} au {end_date}, {end_time} ({tz})"
-        ).format(
-            start_date=formats.date_format(start_time, "DATE_FORMAT"),
-            start_time=formats.date_format(start_time, "TIME_FORMAT"),
-            end_date=formats.date_format(end_time, "DATE_FORMAT"),
-            end_time=formats.date_format(end_time, "TIME_FORMAT"),
-            tz=self.timezone,
-        )
+        if not hide_default_tz or self.timezone != timezone.get_default_timezone_name():
+            timestring += f" ({self.timezone})"
 
-    def get_simple_display_date(self):
-        return _("le {date} à {time} ({tz})").format(
-            date=formats.date_format(self.local_start_time, "DATE_FORMAT"),
-            time=formats.time_format(self.local_start_time, "TIME_FORMAT"),
-            tz=self.timezone,
+        return timestring
+
+    def get_simple_display_date(self, hide_default_tz=False):
+        return _("le {date} à {time}").format(
+            date=self.get_datestring(),
+            time=self.get_timestring(hide_default_tz=hide_default_tz),
         )
 
     def is_past(self):
@@ -886,6 +922,18 @@ class Event(
             kwargs={"pk": self.pk, "cache_key": content_hash},
             absolute=True,
         )
+
+    def get_absolute_image_url(self, variation="banner"):
+        if self.image is None or not hasattr(self.image, variation):
+            return None
+
+        image = getattr(self.image, variation)
+        event_image = self.image.storage.url(image.name)
+
+        if not is_absolute_url(event_image):
+            event_image = settings.FRONT_DOMAIN + event_image
+
+        return event_image
 
     def get_page_schema(self):
         schema = {
@@ -1076,6 +1124,18 @@ class EventSubtype(BaseSubtype):
         choices=SupportGroup.TYPE_CHOICES,
         help_text="Seulement les gestionnaires et animateur·ices des groupes du type sélectionné "
         "pourront créer des événements de ce type.",
+    )
+
+    campaign_template = models.ForeignKey(
+        "nuntius.Campaign",
+        verbose_name="Modèle de campagne e-mail",
+        related_name="event_subtypes",
+        related_query_name="event_subytpe",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        help_text="Si une campagne a été sélectionné, celle-ci pourra être utilisée comme modèle pour créer "
+        "automatiquement une campagne pour un événement de ce type.",
     )
 
     class Meta:

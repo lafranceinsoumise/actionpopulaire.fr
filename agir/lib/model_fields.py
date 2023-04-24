@@ -1,5 +1,6 @@
 import re
 
+from agir.lib import form_fields
 from django import forms
 from django.contrib.postgres.fields import ArrayField
 from django.core import checks, exceptions

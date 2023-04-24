@@ -1,11 +1,13 @@
 from django.contrib import admin
+from django.db.models import TextField
+from django.forms import Textarea
 from django.urls import reverse
-from django.utils.safestring import mark_safe
 
 from agir.event_requests import models
-from agir.event_requests.models import EventRequest
 from agir.events.models import Event
 from agir.lib.admin.inlines import NonrelatedTabularInline
+from agir.lib.admin.utils import display_link
+from agir.people.models import Person
 
 
 class EventAssetTemplateInline(NonrelatedTabularInline):
@@ -29,10 +31,14 @@ class EventAssetInline(admin.TabularInline):
     verbose_name = "visuel de l'événement"
     verbose_name_plural = "visuels de l'événement"
     model = models.EventAsset
-    fields = ("name", "file", "published")
-    readonly_fields = ("published",)
+    fields = ("name", "file", "published", "is_image")
+    readonly_fields = ("published", "is_image")
     show_change_link = True
     extra = 0
+
+    @admin.display(description="Image de l'événement", boolean=True)
+    def is_image(self, obj):
+        return obj.is_event_image
 
 
 class EventThemeInline(admin.TabularInline):
@@ -76,44 +82,63 @@ class EventSpeakerRequestInline(admin.TabularInline):
     model = models.EventSpeakerRequest
     extra = 0
     can_delete = False
-    show_change_link = True
+    show_change_link = False
     fields = (
         "event_speaker",
         "datetime",
         "available",
         "comment",
         "accepted",
-        "validate",
+        "validation",
     )
     readonly_fields = (
+        "event_speaker",
+        "datetime",
         "accepted",
-        "validate",
+        "validation",
     )
     ordering = ("-accepted", "-available")
+    formfield_overrides = {
+        TextField: {"widget": Textarea(attrs={"rows": 1})},
+    }
 
     def has_add_permission(self, request, obj):
         return False
 
     def has_change_permission(self, request, obj=None):
-        return False
-
-    @admin.display(description="Validation")
-    def validate(self, obj):
-        if not obj.available or obj.event_request.status != EventRequest.Status.PENDING:
-            return "-"
-
-        return mark_safe(
-            '<a class="button" href="%s">Valider</a>'
-            % (
-                reverse(
-                    "admin:event_requests_eventspeakerrequest_validate",
-                    args=(obj.pk,),
-                )
-            )
+        has_change_permission = super().has_change_permission(request, obj)
+        if not has_change_permission:
+            return False
+        return False == (
+            obj.event_theme.event_theme_type.has_event_speaker_request_emails
         )
 
+    @admin.display(description="Validation")
+    def validation(self, obj):
+        if obj.is_acceptable:
+            return display_link(
+                reverse(
+                    "admin:event_requests_eventspeakerrequest_accept",
+                    args=(obj.pk,),
+                ),
+                "Valider",
+                button=True,
+            )
 
-class EventSpeakerEventInline(admin.TabularInline):
+        if obj.is_unacceptable:
+            return display_link(
+                reverse(
+                    "admin:event_requests_eventspeakerrequest_unaccept",
+                    args=(obj.pk,),
+                ),
+                "Annuler",
+                button=True,
+            )
+
+        return "-"
+
+
+class EventSpeakerEventInline(NonrelatedTabularInline):
     verbose_name = "événement"
     verbose_name_plural = "événements"
     model = Event
@@ -129,6 +154,13 @@ class EventSpeakerEventInline(admin.TabularInline):
         "created",
     )
 
+    def get_form_queryset(self, obj):
+        return obj.events.all()
+
+    def save_new_instance(self, parent, instance):
+        instance.save()
+        parent.events.add(instance)
+
     def has_add_permission(self, request, obj):
         return False
 
@@ -142,8 +174,8 @@ class EventSpeakerUpcomingEventInline(EventSpeakerEventInline):
     verbose_name_plural = "événements à venir"
     ordering = ("start_time",)
 
-    def get_queryset(self, request):
-        return super().get_queryset(request).upcoming()
+    def get_form_queryset(self, obj):
+        return obj.events.upcoming()
 
 
 class EventSpeakerPastEventInline(EventSpeakerEventInline):
@@ -152,5 +184,37 @@ class EventSpeakerPastEventInline(EventSpeakerEventInline):
     ordering = ("-start_time",)
     max_num = 10
 
-    def get_queryset(self, request):
-        return super().get_queryset(request).past()
+    def get_form_queryset(self, obj):
+        return obj.events.past()
+
+
+class EventSpeakerPersonInline(NonrelatedTabularInline):
+    model = Person
+    verbose_name = "personne"
+    verbose_name_plural = "personne"
+    extra = 0
+    can_add = False
+    can_delete = False
+    show_change_link = False
+    readonly_fields = ("display_email",)
+    fields = (
+        "display_email",
+        "display_name",
+        "image",
+    )
+
+    def has_add_permission(self, request, obj):
+        return False
+
+    def has_delete_permission(self, request, obj):
+        return False
+
+    def get_form_queryset(self, obj):
+        return self.model.objects.filter(id=obj.person_id)
+
+    def save_new_instance(self, parent, instance):
+        instance.save()
+
+    @admin.display(description="E-mail d'affichage")
+    def display_email(self, obj):
+        return obj.display_email

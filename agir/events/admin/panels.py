@@ -1,13 +1,16 @@
+import json
+
 from django import forms
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin.views.autocomplete import AutocompleteJsonView
 from django.contrib.gis.admin import OSMGeoAdmin
+from django.contrib.humanize.templatetags import humanize
 from django.db.models import Q
 from django.urls import path
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.html import format_html, escape
+from django.utils.html import format_html, escape, format_html_join
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
@@ -36,7 +39,9 @@ from .filters import (
     RelatedEventFilter,
 )
 from .forms import EventAdminForm, EventSubtypeAdminForm
+from ..serializers import EventEmailCampaignSerializer
 from ...event_requests.admin.inlines import EventAssetInline
+from ...lib.admin.utils import display_link, display_list_of_links
 
 
 class EventStatusFilter(admin.SimpleListFilter):
@@ -320,8 +325,20 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
             {"fields": ("report_content", "report_image", "report_summary_sent")},
         ),
         (
-            _("Intervenant"),
-            {"fields": ("event_speaker",)},
+            _("Intervenant·es"),
+            {"fields": ("event_speakers",)},
+        ),
+        (
+            _("Mailing"),
+            {
+                "fields": (
+                    "campaign_template",
+                    "email_campaign",
+                    "email_campaign_modified",
+                    "mailing_actions",
+                    "email_data_preview",
+                )
+            },
         ),
     )
 
@@ -339,6 +356,10 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "rsvps_buttons",
         "participants_display",
         "group_participants_display",
+        "campaign_template",
+        "mailing_actions",
+        "email_campaign_modified",
+        "email_data_preview",
     )
     date_hierarchy = "start_time"
 
@@ -381,7 +402,8 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "tags",
         "subscription_form",
         "suggestion_segment",
-        "event_speaker",
+        "event_speakers",
+        "email_campaign",
     )
 
     def get_queryset(self, request):
@@ -548,6 +570,11 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
                 self.admin_site.admin_view(self.export_summary),
                 name="events_event_export_summary",
             ),
+            path(
+                "<uuid:pk>/generate-mailing-campaign/",
+                self.admin_site.admin_view(self.generate_mailing_campaign),
+                name="events_event_generate_mailing_campaign",
+            ),
         ] + super().get_urls()
 
     def event_rsvp_changelist_link(self, obj):
@@ -591,6 +618,95 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
 
     def save_form(self, request, form, change):
         return form.save(commit=False, request=request)
+
+    @admin.display(description="Modèle de campagne")
+    def campaign_template(self, obj):
+        if not obj:
+            return "-"
+
+        return display_link(
+            obj.subtype.campaign_template,
+            empty_text="Aucun modèle de campagne e-mail n'a été défini pour ce sous-type d'événement",
+        )
+
+    @admin.display(description="Dernière modification")
+    def email_campaign_modified(self, obj):
+        if not obj or not obj.email_campaign:
+            return "-"
+
+        return humanize.naturaltime(obj.email_campaign.updated)
+
+    def generate_mailing_campaign(self, request, pk):
+        return views.generate_mailing_campaign(self, request, pk)
+
+    @admin.display(description="Données")
+    def email_data_preview(self, obj):
+        if not obj or not obj.subtype.campaign_template:
+            return "-"
+
+        return format_html(
+            "<details>"
+            "<summary style='cursor:pointer;'>Variables et valeurs par défaut</summary>"
+            "<p style='font-size:11px;color:var(--body-quiet-color);'>"
+            "Les variables commençant par le préfixe <code>campaign_</code> seront utilisées comme paramètres de la "
+            "campagne.<br/>Les autres pourront être utilisées pour la personnalisation du corps du message à envoyer, "
+            "lorsque le modèle utilisé le prévoit."
+            "</p>"
+            "<p><dl>{}</dl></p>"
+            "</details>",
+            format_html_join(
+                "",
+                "<dt style='display:inline;margin:.2em 0;'><code style='padding:.4em;background:#FCF7E3;'>[{}]</code></dt>"
+                "&ensp;"
+                "<dd style='display:inline;margin:.2em 0;'><code>{}</code></dd>"
+                "<div style='height:.5em'></div>",
+                [
+                    (key, value)
+                    for key, value in EventEmailCampaignSerializer(obj).data.items()
+                ],
+            ),
+        )
+
+    @admin.display(description="Actions")
+    def mailing_actions(self, obj):
+        if not obj or not obj.subtype.campaign_template:
+            return "-"
+
+        if obj.email_campaign:
+            return display_list_of_links(
+                (
+                    (obj.email_campaign, "Voir la campagne"),
+                    (
+                        reverse(
+                            "admin:nuntius_campaign_mosaico_preview",
+                            args=[obj.email_campaign.pk],
+                        ),
+                        "Aperçu du message",
+                    ),
+                    (
+                        reverse(
+                            "admin:events_event_generate_mailing_campaign",
+                            args=[obj.pk],
+                        ),
+                        "Réinitialiser la campagne",
+                    ),
+                ),
+                button=True,
+            ) + mark_safe(
+                "<p class='help' style='margin: 10px 0 0; padding: 0;'>"
+                "⚠&nbsp;En cliquant sur « Réinitialiser la campagne » les données "
+                "existantes de la campagne seront écrasées."
+                "</p>"
+            )
+
+        return display_link(
+            reverse(
+                "admin:events_event_generate_mailing_campaign",
+                args=[obj.pk],
+            ),
+            "Créer une campagne à partir du modèle",
+            button=True,
+        )
 
 
 @admin.register(models.Calendar)
@@ -678,6 +794,7 @@ class EventSubtypeAdmin(admin.ModelAdmin):
                 "fields": (
                     "default_description",
                     "default_image",
+                    "campaign_template",
                 )
             },
         ),
@@ -714,7 +831,7 @@ class EventSubtypeAdmin(admin.ModelAdmin):
         "for_organizer_group_members_only",
     )
     search_fields = ("label", "description")
-    autocomplete_fields = ("report_person_form",)
+    autocomplete_fields = ("report_person_form", "campaign_template")
     readonly_fields = ("icon",)
 
     @admin.display(description="Prioritaire", boolean=True, ordering="has_priority")

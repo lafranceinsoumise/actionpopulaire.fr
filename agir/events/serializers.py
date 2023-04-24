@@ -1,3 +1,4 @@
+import datetime
 from datetime import timedelta
 from functools import partial
 from pathlib import PurePath
@@ -7,6 +8,8 @@ from django.db import transaction
 from django.db.models import Value, Func, Q
 from django.db.models.functions import Concat, Replace, Lower, MD5
 from django.utils import timezone
+from django.utils.text import slugify
+from django_countries.serializer_fields import CountryField
 from pytz import utc, InvalidTimeError
 from rest_framework import serializers
 from rest_framework.fields import empty
@@ -60,6 +63,7 @@ from ..groups.models import Membership, SupportGroup
 from ..groups.serializers import SupportGroupSerializer, SupportGroupDetailSerializer
 from ..groups.tasks import notify_new_group_event, send_new_group_event_email
 from ..lib.data import french_zipcode_to_country_code, FRANCE_COUNTRY_CODES
+from ..lib.display import display_liststring
 
 EVENT_ROUTES = {
     "details": "view_event",
@@ -144,6 +148,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         "subtype",
         "groupsAttendees",
         "distance",
+        "eventSpeakers",
     ]
 
     id = serializers.UUIDField()
@@ -203,6 +208,9 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     )
     unauthorizedMessage = serializers.CharField(
         source="subtype.unauthorized_message", read_only=True
+    )
+    eventSpeakers = serializers.SerializerMethodField(
+        method_name="get_event_speakers", read_only=True
     )
 
     # hasProject = serializers.SerializerMethodField(
@@ -426,6 +434,20 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     def can_rsvp_as_group(self, obj):
         return obj.can_rsvp_as_group(self.person)
 
+    def get_event_speakers(self, obj):
+        event_speakers = list(obj.event_speakers.all())
+        return [
+            {
+                "id": event_speaker.id,
+                "name": event_speaker.person.display_name,
+                "image": event_speaker.person.image.thumbnail.url
+                if event_speaker.person.image
+                else None,
+                "description": event_speaker.description,
+            }
+            for event_speaker in event_speakers
+        ]
+
 
 class EventAdvancedSerializer(EventSerializer):
     participants = serializers.SerializerMethodField()
@@ -433,6 +455,9 @@ class EventAdvancedSerializer(EventSerializer):
     groupsInvited = serializers.SerializerMethodField(method_name="get_groups_invited")
 
     def get_participants(self, obj):
+        speaker_person_ids = list(
+            obj.event_speakers.values_list("person_id", flat=True)
+        )
         organizers = {
             str(person.id): {
                 "id": person.id,
@@ -440,8 +465,7 @@ class EventAdvancedSerializer(EventSerializer):
                 "displayName": person.display_name,
                 "gender": person.gender,
                 "isOrganizer": True,
-                "isEventSpeaker": obj.event_speaker is not None
-                and obj.event_speaker.person_id == person.id,
+                "isEventSpeaker": person.id in speaker_person_ids,
             }
             for person in obj.get_organizer_people()
         }
@@ -452,8 +476,7 @@ class EventAdvancedSerializer(EventSerializer):
                 "displayName": person.display_name,
                 "gender": person.gender,
                 "isOrganizer": False,
-                "isEventSpeaker": obj.event_speaker is not None
-                and obj.event_speaker.person_id == person.id,
+                "isEventSpeaker": person.id in speaker_person_ids,
             }
             for person in obj.attendees.exclude(id__in=organizers.keys())
         }
@@ -1226,3 +1249,117 @@ class EventReportPersonFormSerializer(serializers.ModelSerializer):
     class Meta:
         model = PersonForm
         fields = ["title", "description", "url", "submitted"]
+
+
+class EventEmailCampaignSerializer(serializers.ModelSerializer):
+    FIELD_FORMATTING = (
+        ("datetime", "capitalize"),
+        ("simple_datetime", "capitalize"),
+        ("location_name", "title"),
+        ("location_city", "title"),
+    )
+
+    campaign_message_subject = serializers.CharField(default="")
+    campaign_name = serializers.SerializerMethodField()
+    campaign_utm_name = serializers.SerializerMethodField()
+    campaign_start_date = serializers.SerializerMethodField()
+    campaign_end_date = serializers.SerializerMethodField()
+
+    theme = serializers.CharField(source="meta.event_theme", default="")
+    theme_type = serializers.CharField(source="meta.event_theme_type", default="")
+    image = serializers.URLField(source="get_absolute_image_url", default="")
+    page_url = serializers.URLField(source="get_absolute_url", default="")
+    facebook_url = serializers.URLField(source="facebook", default="")
+    date = serializers.CharField(source="get_datestring")
+    location_country = CountryField(name_only=True)
+
+    time = serializers.SerializerMethodField()
+    datetime = serializers.SerializerMethodField()
+    simple_datetime = serializers.SerializerMethodField()
+    speaker_names = serializers.SerializerMethodField()
+    speaker_list = serializers.SerializerMethodField()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.event_speakers = []
+        if self.instance:
+            self.event_speakers = list(
+                self.instance.event_speakers.select_related("person").all()
+            )
+
+    def get_speaker_names(self, _event):
+        return display_liststring(
+            [s.person.get_full_name().title() for s in self.event_speakers]
+        )
+
+    def get_speaker_list(self, _event):
+        return display_liststring([s.get_title() for s in self.event_speakers])
+
+    def get_campaign_name(self, event):
+        return str(event)
+
+    def get_campaign_utm_name(self, event):
+        return slugify(str(event))
+
+    def get_campaign_start_date(self, event):
+        return event.start_time - datetime.timedelta(days=7)
+
+    def get_campaign_end_date(self, event):
+        return event.start_time
+
+    def get_time(self, event):
+        return event.get_timestring(hide_default_tz=True)
+
+    def get_datetime(self, event):
+        return event.get_display_date(hide_default_tz=True)
+
+    def get_simple_datetime(self, event):
+        return event.get_simple_display_date(hide_default_tz=True)
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        for field, format_fn in self.FIELD_FORMATTING:
+            value = data[field]
+            if value and hasattr(value, format_fn):
+                if callable(getattr(value, format_fn)):
+                    data[field] = getattr(value, format_fn)()
+                else:
+                    data[field] = getattr(value, format_fn)
+
+        if template := instance.subtype.campaign_template:
+            data["campaign_message_subject"] = template.message_subject
+            for field in data:
+                substitute = str(data[field]).replace("{", "")
+                data["campaign_message_subject"] = data[
+                    "campaign_message_subject"
+                ].replace(f"[{field}]", substitute)
+
+        return data
+
+    class Meta:
+        model = Event
+        fields = read_only_fields = (
+            "campaign_name",
+            "campaign_utm_name",
+            "campaign_start_date",
+            "campaign_end_date",
+            "campaign_message_subject",
+            "name",
+            "theme",
+            "theme_type",
+            "image",
+            "page_url",
+            "facebook_url",
+            "date",
+            "time",
+            "datetime",
+            "simple_datetime",
+            "location_name",
+            "location_address1",
+            "location_address2",
+            "location_zip",
+            "location_city",
+            "location_country",
+            "speaker_names",
+            "speaker_list",
+        )

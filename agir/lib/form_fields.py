@@ -497,6 +497,9 @@ class MultiDateField(MultiTemporaFieldMixin, forms.DateField):
             return None
         return datetime.date()
 
+    def __str__(self):
+        return "MultiDateField"
+
 
 class MultiDateTimeField(MultiTemporaFieldMixin, forms.DateTimeField):
     input_formats = ("%Y-%m-%dT%H:%M:%S%z",)
@@ -504,3 +507,6 @@ class MultiDateTimeField(MultiTemporaFieldMixin, forms.DateTimeField):
 
     def clean(self, value):
         return super().clean(value)
+
+    def __str__(self):
+        return "MultiDateTimeField"

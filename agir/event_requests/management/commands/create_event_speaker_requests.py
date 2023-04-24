@@ -46,10 +46,12 @@ class Command(BaseCommand):
                 continue
 
             for datetime in event_request.datetimes:
-                existing_speaker_ids = EventSpeakerRequest.objects.filter(
-                    event_request=event_request,
-                    datetime=datetime,
-                ).values_list("event_speaker_id", flat=True)
+                existing_speaker_ids = set(
+                    EventSpeakerRequest.objects.filter(
+                        event_request=event_request,
+                        datetime=datetime,
+                    ).values_list("event_speaker_id", flat=True)
+                )
                 event_speaker_requests += [
                     EventSpeakerRequest(
                         event_request=event_request,
@@ -102,8 +104,8 @@ class Command(BaseCommand):
             )
         )
 
-        new_event_speaker_requests = self.create_event_speaker_requests(
-            pending_event_requests
+        new_event_speaker_requests = list(
+            self.create_event_speaker_requests(pending_event_requests)
         )
         self.log_current_item("")
         self.tqdm.close()
@@ -125,11 +127,16 @@ class Command(BaseCommand):
 
         event_speaker_ids = set(
             [
-                new_event_speaker_request.event_speaker_id
-                for new_event_speaker_request in new_event_speaker_requests
+                event_speaker_request.event_speaker_id
+                for event_speaker_request in new_event_speaker_requests
+                if event_speaker_request.event_request.event_theme.event_theme_type.has_event_speaker_request_emails
             ]
         )
         event_speaker_count = len(event_speaker_ids)
+
+        if event_speaker_count == 0:
+            self.success("No event speaker notification needs to be sent.")
+            return
 
         self.log("\n")
         self.init_tqdm(total=event_speaker_count)
