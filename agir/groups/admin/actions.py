@@ -67,7 +67,7 @@ def certify_supportgroups(modeladmin, request, qs):
             )
 
 
-@admin.display(description="Decértifier les groupes sélectionnés")
+@admin.display(description="Décertifier les groupes sélectionnés")
 def uncertify_supportgroups(modeladmin, request, qs):
     groups = qs.certified().select_for_update()
     with reversion.create_revision():
@@ -89,8 +89,8 @@ def uncertify_supportgroups(modeladmin, request, qs):
             modeladmin.message_user(
                 request,
                 ngettext(
-                    "Le groupe a été decértifié.",
-                    f"{updated_count} groupes ont été decértifiés",
+                    "Le groupe a été décertifié.",
+                    f"{updated_count} groupes ont été décertifiés",
                     updated_count,
                 ),
             )
