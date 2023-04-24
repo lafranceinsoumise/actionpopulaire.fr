@@ -19,6 +19,7 @@ class Command(BaseCommand):
     )
 
     def add_arguments(self, parser):
+        super().add_arguments(parser)
         parser.add_argument("-S", "--segment", type=segment_argument)
 
     def get_recipients(self, segment=None):
