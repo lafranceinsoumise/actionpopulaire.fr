@@ -41,7 +41,7 @@ const GroupHelpPage = (props) => {
         title="Charte des groupes d'action"
         text="La charte que tous les animateurs et toutes les animatrices de groupe s’engagent à respecter."
         icon="file-text"
-        route="charteEquipe"
+        route="charteEquipes"
         downloadLabel="Voir la charte"
         downloadIcon="eye"
       />
