@@ -439,7 +439,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         return [
             {
                 "id": event_speaker.id,
-                "name": event_speaker.person.display_name,
+                "name": event_speaker.person.get_full_name(),
                 "image": event_speaker.person.image.thumbnail.url
                 if event_speaker.person.image
                 else None,
@@ -462,7 +462,9 @@ class EventAdvancedSerializer(EventSerializer):
             str(person.id): {
                 "id": person.id,
                 "email": person.display_email,
-                "displayName": person.display_name,
+                "displayName": person.get_full_name()
+                if person.id in speaker_person_ids
+                else person.display_name,
                 "gender": person.gender,
                 "isOrganizer": True,
                 "isEventSpeaker": person.id in speaker_person_ids,
@@ -473,7 +475,9 @@ class EventAdvancedSerializer(EventSerializer):
             str(person.id): {
                 "id": person.id,
                 "email": person.display_email,
-                "displayName": person.display_name,
+                "displayName": person.get_full_name()
+                if person.id in speaker_person_ids
+                else person.display_name,
                 "gender": person.gender,
                 "isOrganizer": False,
                 "isEventSpeaker": person.id in speaker_person_ids,

@@ -199,14 +199,15 @@ class EventSpeakerPersonInline(NonrelatedTabularInline):
     readonly_fields = ("display_email",)
     fields = (
         "display_email",
-        "display_name",
+        "first_name",
+        "last_name",
         "image",
     )
 
     def has_add_permission(self, request, obj):
         return False
 
-    def has_delete_permission(self, request, obj):
+    def has_delete_permission(self, request, obj=None):
         return False
 
     def get_form_queryset(self, obj):
