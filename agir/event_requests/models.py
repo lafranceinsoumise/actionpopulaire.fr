@@ -160,6 +160,7 @@ class EventAsset(BaseAPIResource):
                 self.event.image = file
                 self.event.save()
                 self.published = True
+                self.file = self.event.image
             self.save()
 
     class Meta:
