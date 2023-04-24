@@ -97,7 +97,7 @@ class EventSpeakerRequestInline(admin.TabularInline):
         "accepted",
         "validation",
     )
-    ordering = ("-accepted", "-available")
+    ordering = ("datetime", "-accepted", "-available")
     formfield_overrides = {
         TextField: {"widget": Textarea(attrs={"rows": 1})},
     }
