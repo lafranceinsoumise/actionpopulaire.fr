@@ -123,7 +123,10 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
             _("Paramètres de participation"),
             {"fields": ("is_insoumise", "is_2022", "draw_participation")},
         ),
-        (_("Profil"), {"fields": ("gender", "date_of_birth", "tags", "mandats")}),
+        (
+            _("Profil"),
+            {"fields": ("gender", "date_of_birth", "tags", "mandats", "image")},
+        ),
         (
             _("Contact et adresse"),
             {

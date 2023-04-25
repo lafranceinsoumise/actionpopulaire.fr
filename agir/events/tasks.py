@@ -602,11 +602,7 @@ def send_event_suggestion_email(event_pk, recipient_pk):
 
     start_time = event.local_start_time
     simple_date = _date(start_time, "l j F").capitalize()
-    event_image = None
-    if event.image:
-        event_image = event.image.storage.url(event.image.banner.name)
-        if not is_absolute_url(event_image):
-            event_image = settings.FRONT_DOMAIN + event_image
+    event_image = event.get_absolute_image_url()
 
     bindings = {
         "TITLE": subject,

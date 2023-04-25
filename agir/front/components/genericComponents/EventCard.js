@@ -14,6 +14,7 @@ import eventCardDefaultBackground from "@agir/front/genericComponents/images/eve
 import EventGroupsAttendees from "./EventGroupsAttendees";
 
 const StyledLink = styled(Link)``;
+const StyledInfo = styled.div``;
 const Illustration = styled(Link)`
   background-color: ${({ $img }) => ($img ? "#e5e5e5" : "#fafafa")};
   display: grid;
@@ -138,14 +139,30 @@ const StyledCard = styled(Card)`
       }
     }
 
-    p {
-      font-weight: 400;
-      font-size: 0.875rem;
-      line-height: 1.5;
-      color: ${(props) => props.theme.black700};
+    ${StyledInfo} {
       display: flex;
-      align-items: center;
-      margin: 0;
+      flex-direction: column;
+      gap: 0.25rem;
+
+      p {
+        font-weight: 400;
+        font-size: 0.875rem;
+        color: ${(props) => props.theme.black700};
+        margin: 0 1.5rem 0;
+        text-indent: -1.8rem;
+
+        span:first-child {
+          vertical-align: sub;
+        }
+
+        span + span::before {
+          content: ", ";
+        }
+
+        span:first-child + span::before {
+          content: " ";
+        }
+      }
     }
   }
 `;
@@ -224,6 +241,7 @@ const EventCard = (props) => {
     groups,
     eventPageLink,
     backLink,
+    eventSpeakers,
   } = props;
 
   const now = DateTime.local();
@@ -281,13 +299,30 @@ const EventCard = (props) => {
           >
             {name}
           </StyledLink>
-          {Array.isArray(groups) && groups.length > 0 ? (
-            <p>
-              <RawFeatherIcon widht="1rem" height="1rem" name="users" />
-              &nbsp;
-              {groups.map((group) => group.name).join(", ")}
-            </p>
-          ) : null}
+          <StyledInfo>
+            {Array.isArray(eventSpeakers) && eventSpeakers.length > 0 ? (
+              <p title="Intervenant·es">
+                <RawFeatherIcon widht="1rem" height="1rem" name="mic" />
+                &nbsp;avec{" "}
+                {eventSpeakers
+                  .map((speaker, i) => {
+                    if (i === 0) {
+                      return speaker.name;
+                    }
+                    return `${eventSpeakers[i] ? "," : " et"} ${speaker.name}`;
+                  })
+                  .join("")}
+              </p>
+            ) : null}
+            {Array.isArray(groups) && groups.length > 0 ? (
+              <p title="Groupes organisateurs">
+                <RawFeatherIcon widht="1rem" height="1rem" name="users" />
+                {groups.map((group) => (
+                  <span key={group.id}>{group.name}</span>
+                ))}
+              </p>
+            ) : null}
+          </StyledInfo>
         </main>
       </StyledContainer>
     </StyledCard>
@@ -326,6 +361,7 @@ EventCard.propTypes = {
   subtype: PropTypes.object,
   eventPageLink: PropTypes.string,
   backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  eventSpeakers: PropTypes.array,
 };
 
 export default EventCard;

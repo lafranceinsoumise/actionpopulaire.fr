@@ -398,7 +398,7 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
                     "type='submit' "
                     "name='_uncertify' "
                     "style='border-radius:0;background:#f45d48;' "
-                    "value='✖ Decértifier le groupe' />"
+                    "value='✖ Décertifier le groupe' />"
                 )
             )
         if certification_actions:

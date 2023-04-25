@@ -19,6 +19,7 @@ class Command(BaseCommand):
     )
 
     def add_arguments(self, parser):
+        super().add_arguments(parser)
         parser.add_argument("-S", "--segment", type=segment_argument)
 
     def get_recipients(self, segment=None):
@@ -42,9 +43,8 @@ class Command(BaseCommand):
 
     def get_event_for_person(self, person):
         return (
-            self.queryset.filter(
-                start_time__lt=timezone.now() + timezone.timedelta(days=7)
-            )
+            self.queryset.upcoming()
+            .filter(start_time__lt=timezone.now() + timezone.timedelta(days=7))
             .exclude(attendees=person)
             .near(coordinates=person.coordinates, radius=person.action_radius)
             .order_by("distance")

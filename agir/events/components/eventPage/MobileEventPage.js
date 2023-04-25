@@ -31,6 +31,7 @@ import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getUser } from "@agir/front/globalContext/reducers";
 
 import { DOOR2DOOR_EVENT_SUBTYPE_LABEL } from "@agir/events/common/utils";
+import EventSpeakers from "./EventSpeakers";
 
 const CardLikeSection = styled.section``;
 const StyledMain = styled(RenderIfVisible)`
@@ -118,6 +119,7 @@ const MobileEventPage = (props) => {
     groupsAttendees,
     subtype,
     backLink,
+    eventSpeakers,
   } = props;
 
   const hasMap = Array.isArray(location?.coordinates?.coordinates);
@@ -187,6 +189,9 @@ const MobileEventPage = (props) => {
       </StyledMain>
 
       <StyledMain once>
+        <Card style={{ padding: 0 }}>
+          <EventSpeakers eventSpeakers={eventSpeakers} />
+        </Card>
         <Card style={{ padding: 0 }}>
           <OnlineUrlCard
             onlineUrl={props.onlineUrl}
@@ -285,6 +290,7 @@ MobileEventPage.propTypes = {
   backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   youtubeVideoID: PropTypes.string,
   timezone: PropTypes.string,
+  eventSpeakers: PropTypes.array,
 };
 
 export default MobileEventPage;

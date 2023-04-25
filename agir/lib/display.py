@@ -8,6 +8,19 @@ from django.utils.timezone import utc, is_aware
 from django.utils.translation import gettext as _, ngettext
 
 
+def display_liststring(strings, sep=", ", last_sep=" et "):
+    if len(strings) == 0:
+        return ""
+
+    return ngettext(
+        _(strings[0]),
+        _("{items} {last_sep} {last_item}").format(
+            items=sep.join(strings[:-1]), last_item=strings[-1], last_sep=last_sep
+        ),
+        len(strings),
+    )
+
+
 def display_address(object):
     parts = []
     if getattr(object, "location_name", None):
@@ -68,12 +81,7 @@ def display_allocations(allocations):
         elif allocation_type == AllocationModelMixin.TYPE_CNS:
             strings.append(f"{amount / 100}€ vers la caisse nationale de solidarité")
 
-    if not strings:
-        return "-"
-
-    if len(strings) == 1:
-        return strings[0]
-    return "{} et {}".format(", ".join(strings[:-1]), strings[-1])
+    return display_liststring(strings)
 
 
 def pretty_time_since(d, relative_to=None):

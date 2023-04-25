@@ -28,6 +28,7 @@ import EventPhotosCard from "./EventPhotosCard";
 import EventReportCard from "./EventReportCard";
 import OnlineUrlCard from "./OnlineUrlCard";
 import ReportFormCard from "./ReportFormCard";
+import EventSpeakers from "./EventSpeakers";
 
 const CardLikeSection = styled.section``;
 const StyledColumn = styled(Column)`
@@ -70,6 +71,7 @@ const DesktopEventPage = (props) => {
     participantCount,
     subtype,
     backLink,
+    eventSpeakers,
   } = props;
 
   const user = useSelector(getUser);
@@ -106,6 +108,10 @@ const DesktopEventPage = (props) => {
           <Column grow>
             <div>
               <EventHeader {...props} />
+              <EventSpeakers
+                style={{ margin: "2rem 0" }}
+                eventSpeakers={eventSpeakers}
+              />
               {isManager && <ReportFormCard eventPk={id} />}
               {logged && subtype.label === DOOR2DOOR_EVENT_SUBTYPE_LABEL && (
                 <>
@@ -211,6 +217,7 @@ DesktopEventPage.propTypes = {
   subtype: PropTypes.object,
   backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   youtubeVideoID: PropTypes.string,
+  eventSpeakers: PropTypes.array,
 };
 
 export default DesktopEventPage;
