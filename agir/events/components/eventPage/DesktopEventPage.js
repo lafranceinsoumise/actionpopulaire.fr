@@ -127,20 +127,14 @@ const DesktopEventPage = (props) => {
               <EventPhotosCard {...props} />
               <EventReportCard {...props} />
               <EventDescriptionCard {...props} />
-
-              {Array.isArray(groups) && groups.length > 0 && (
-                <>
-                  <GroupsOrganizingCard
-                    groups={groups}
-                    isDetailed
-                    eventPk={id}
-                    isPast={isPast}
-                    isOrganizer={isOrganizer}
-                    backLink={backLink}
-                  />
-                  <Spacer size="1rem" />
-                </>
-              )}
+              <GroupsOrganizingCard
+                groups={groups}
+                isDetailed
+                eventPk={id}
+                isPast={isPast}
+                isOrganizer={isOrganizer}
+                backLink={backLink}
+              />
               <GroupsJoiningCard
                 eventPk={id}
                 isPast={isPast}
@@ -148,7 +142,6 @@ const DesktopEventPage = (props) => {
                 groupsAttendees={userGroupsAttendees}
                 backLink={backLink}
               />
-
               <EventMessages eventPk={props.id} />
             </div>
           </Column>

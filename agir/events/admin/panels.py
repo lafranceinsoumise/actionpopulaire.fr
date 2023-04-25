@@ -765,6 +765,7 @@ class EventSubtypeAdmin(admin.ModelAdmin):
                 "fields": (
                     "visibility",
                     "for_supportgroup_type",
+                    "is_coorganizable",
                     "for_organizer_group_members_only",
                     "unauthorized_message",
                     "is_editable",
@@ -821,14 +822,16 @@ class EventSubtypeAdmin(admin.ModelAdmin):
         "priority",
         "certification",
         "private",
+        "coorganization_allowed",
     )
     list_filter = (
         "type",
         "visibility",
         "has_priority",
         "is_acceptable_for_group_certification",
-        "related_project_type",
         "for_organizer_group_members_only",
+        "is_coorganizable",
+        "related_project_type",
     )
     search_fields = ("label", "description")
     autocomplete_fields = ("report_person_form", "campaign_template")
@@ -853,6 +856,14 @@ class EventSubtypeAdmin(admin.ModelAdmin):
     )
     def private(self, obj):
         return obj.for_organizer_group_members_only
+
+    @admin.display(
+        description="Co-organisation",
+        boolean=True,
+        ordering="is_coorganizable",
+    )
+    def coorganization_allowed(self, obj):
+        return obj.is_coorganizable
 
     @admin.display(
         description="Type de groupe",

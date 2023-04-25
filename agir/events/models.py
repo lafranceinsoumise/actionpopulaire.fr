@@ -1126,6 +1126,13 @@ class EventSubtype(BaseSubtype):
         "pourront créer des événements de ce type.",
     )
 
+    is_coorganizable = models.BooleanField(
+        "Co-organisation avec d'autres groupes d'action autorisée",
+        default=True,
+        help_text="Les organisateur·ices pourront inviter d'autres groupes d'action à co-organiser les "
+        "événements de ce type.",
+    )
+
     campaign_template = models.ForeignKey(
         "nuntius.Campaign",
         verbose_name="Modèle de campagne e-mail",
