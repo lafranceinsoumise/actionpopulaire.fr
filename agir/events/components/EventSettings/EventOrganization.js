@@ -34,14 +34,21 @@ const EventOrganization = (props) => {
     api.getEventEndpoint("getDetailAdvanced", { eventPk })
   );
 
-  const participants = useMemo(
-    () => event?.participants?.filter((p) => !p.isOrganizer) || [],
-    [event]
-  );
-  const organizers = useMemo(
-    () => event?.participants?.filter((p) => p.isOrganizer) || [],
-    [event]
-  );
+  const [participants, organizers] = useMemo(() => {
+    const participants = [];
+    const organizers = [];
+    if (Array.isArray(event?.participants)) {
+      event.participants.forEach((p) => {
+        if (p.isOrganizer) {
+          organizers.push(p);
+        } else {
+          participants.push(p);
+        }
+      });
+    }
+    return [participants, organizers];
+  }, [event]);
+
   const groups = useMemo(() => event?.groups || [], [event]);
   const groupsInvited = useMemo(() => event?.groupsInvited || [], [event]);
 
@@ -49,28 +56,42 @@ const EventOrganization = (props) => {
 
   const transition = useTransition(!!submenuOpen, slideInTransition);
 
+  const canAddOrganizers = event && !event.isPast;
+  const canInviteOrganizerGroups = canAddOrganizers && event.isCoorganizable;
+
   return (
     <>
       <HeaderPanel onBack={onBack} illustration={illustration} />
+      {!canInviteOrganizerGroups &&
+      groups.length + groupsInvited.length === 1 ? (
+        <>
+          <StyledTitle>Groupe organisateur</StyledTitle>
+          <span style={{ color: style.black700 }}>
+            Les animateur·ices du groupe peuvent accéder à la gestion de
+            l'événement et la liste des participant·es.
+          </span>
+        </>
+      ) : (
+        <>
+          <StyledTitle>Groupes organisateurs</StyledTitle>
+          <span style={{ color: style.black700 }}>
+            Les animateur·ices de ces groupes peuvent accéder à la gestion de
+            l'événement et la liste des participant·es.
+          </span>
+        </>
+      )}
 
-      <StyledTitle>Groupes organisateurs</StyledTitle>
-      <span style={{ color: style.black700 }}>
-        Les groupes organisateurs de l'événement.
-      </span>
-      <Spacer size=".5rem" />
-      <span style={{ color: style.black700 }}>
-        Tous les animateur·ices de ces groupes peuvent accéder à la gestion de
-        l'événement et la liste des participant·es.
-      </span>
       <Spacer size="1rem" />
 
       <GroupList
         groups={groups}
         addButtonLabel={
-          event && !event.isPast ? "Ajouter un groupe co-organisateur" : ""
+          canInviteOrganizerGroups ? "Ajouter un groupe co-organisateur" : ""
         }
         onAdd={
-          event && !event.isPast ? () => setSubmenuOpen(MENU_GROUP) : undefined
+          canInviteOrganizerGroups
+            ? () => setSubmenuOpen(MENU_GROUP)
+            : undefined
         }
       >
         {groupsInvited?.map((group) => (
@@ -95,12 +116,10 @@ const EventOrganization = (props) => {
       <MemberList
         members={organizers}
         addButtonLabel={
-          event && !event.isPast ? "Ajouter un·e autre organisateur·ice" : ""
+          canAddOrganizers ? "Ajouter un·e autre organisateur·ice" : ""
         }
         onAdd={
-          event && !event.isPast
-            ? () => setSubmenuOpen(MENU_ORGANIZER)
-            : undefined
+          canAddOrganizers ? () => setSubmenuOpen(MENU_ORGANIZER) : undefined
         }
       />
 

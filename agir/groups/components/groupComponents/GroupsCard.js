@@ -9,8 +9,9 @@ import style from "@agir/front/genericComponents/_variables.scss";
 
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import Link from "@agir/front/app/Link";
-import Button from "@agir/front/genericComponents/Button";
 import AddGroupAttendee from "@agir/events/eventPage/AddGroupAttendee";
+import GroupPageCard from "@agir/groups/groupPage/GroupPageCard";
+import Spacer from "@agir/front/genericComponents/Spacer";
 
 const GroupIcon = styled.div`
   display: flex;
@@ -32,23 +33,27 @@ const StyledGroupLine = styled.div`
   padding-bottom: 10px;
 `;
 
-const StyledContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 24px;
-  border: 1px solid ${style.black100};
+const StyledCard = styled(GroupPageCard)`
+  && {
+    display: flex;
+    flex-direction: column;
+    box-shadow: none;
+    padding: 1.5rem;
 
-  @media (min-width: ${style.collapse}px) {
-    border-radius: ${style.borderRadius};
-  }
+    h4 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      line-height: 1.5;
 
-  a {
-    color: inherit;
-  }
+      @media (max-width: ${(props) => props.theme.collapse}px) {
+        font-size: 0.875rem;
+        font-weight: 700;
+      }
+    }
 
-  h3 {
-    margin-top: 0;
-    margin-bottom: 1rem;
+    a {
+      color: inherit;
+    }
   }
 `;
 
@@ -104,23 +109,21 @@ export const GroupsOrganizingCard = ({
   isDetailed,
   eventPk,
   isOrganizer,
-  isPast,
   backLink,
 }) => {
-  if (!groups?.length) {
+  if (!Array.isArray(groups) || groups.length === 0) {
     return null;
   }
 
-  const coorganizeLink =
+  const editLink =
     !!eventPk && isOrganizer
       ? `${routeConfig.eventSettings.getLink({
           eventPk,
         })}${eventRouteConfig.organisation.path}`
-      : false;
+      : "";
 
   return (
-    <StyledContainer>
-      <h3>Organisé par</h3>
+    <StyledCard outlined title="Organisé par" editLinkTo={editLink}>
       {groups.map((group) => (
         <GroupLine
           key={group.id}
@@ -129,16 +132,7 @@ export const GroupsOrganizingCard = ({
           {...group}
         />
       ))}
-      {coorganizeLink && !isPast && (
-        <Button
-          link
-          to={coorganizeLink}
-          style={{ width: "fit-content", marginTop: "1rem" }}
-        >
-          Inviter à co-organiser
-        </Button>
-      )}
-    </StyledContainer>
+    </StyledCard>
   );
 };
 
@@ -163,13 +157,16 @@ export const GroupsJoiningCard = ({
   }
 
   return (
-    <StyledContainer>
-      <h3>
-        {!isPast ? "Mes groupes y participent" : "Mes groupes y ont participé"}
-      </h3>
+    <StyledCard
+      outlined
+      title={
+        !isPast ? "Mes groupes y participent" : "Mes groupes y ont participé"
+      }
+    >
       {groupsAttendees.map((group) => (
         <GroupLine key={group.id} backLink={backLink} {...group} />
       ))}
+      <Spacer size="1rem" />
       {eventPk && !isPast && (
         <AddGroupAttendee
           id={eventPk}
@@ -178,7 +175,7 @@ export const GroupsJoiningCard = ({
           style={{ width: "fit-content", marginTop: "1rem" }}
         />
       )}
-    </StyledContainer>
+    </StyledCard>
   );
 };
 

@@ -453,6 +453,9 @@ class EventAdvancedSerializer(EventSerializer):
     participants = serializers.SerializerMethodField()
     contact = NestedContactSerializer(source="*")
     groupsInvited = serializers.SerializerMethodField(method_name="get_groups_invited")
+    isCoorganizable = serializers.BooleanField(
+        source="subtype.is_coorganizable", read_only=True
+    )
 
     def get_participants(self, obj):
         speaker_person_ids = list(
