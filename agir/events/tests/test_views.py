@@ -1,3 +1,4 @@
+import datetime
 from datetime import timedelta
 from functools import partial
 from unittest import mock
@@ -1397,8 +1398,8 @@ class AcceptCoorganizationInvitationTestCase(TestCase):
         )
         self.event = Event.objects.create(
             name="Événement multi-groupe",
-            start_time=timezone.now(),
-            end_time=timezone.now(),
+            start_time=timezone.now() + datetime.timedelta(days=4),
+            end_time=timezone.now() + datetime.timedelta(days=4, hours=2),
             visibility=Event.VISIBILITY_PUBLIC,
         )
         OrganizerConfig.objects.create(
@@ -1436,7 +1437,7 @@ class AcceptCoorganizationInvitationTestCase(TestCase):
             ).exists()
         )
 
-    def test_non_group_referent_cannot_accept_invitation(self):
+    def test_group_manager_cannot_accept_invitation(self):
         self.invitation.status = Invitation.STATUS_PENDING
         self.invitation.save()
         person = Person.objects.create_person("manager@agir.test", create_role=True)
@@ -1447,7 +1448,7 @@ class AcceptCoorganizationInvitationTestCase(TestCase):
         )
         self.client.force_login(person.role)
         response = self.client.get(self.url)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 403)
         self.invitation.refresh_from_db()
         self.assertEqual(self.invitation.status, Invitation.STATUS_PENDING)
         self.assertFalse(
@@ -1456,7 +1457,7 @@ class AcceptCoorganizationInvitationTestCase(TestCase):
             ).exists()
         )
 
-    def test_cannot_accept_invitation_unexisting_invitation(self):
+    def test_cannot_accept_unexisting_invitation(self):
         self.invitation.status = Invitation.STATUS_PENDING
         self.invitation.save()
         self.client.force_login(self.person.role)
@@ -1475,7 +1476,36 @@ class AcceptCoorganizationInvitationTestCase(TestCase):
             ).exists()
         )
 
-    def test_group_manager_can_accept_invitation(self):
+    def test_cannot_accept_an_invitation_for_a_past_event(self):
+        past_event = Event.objects.create(
+            name="Événement passé",
+            start_time=timezone.now() - datetime.timedelta(days=4, hours=1),
+            end_time=timezone.now() - datetime.timedelta(days=4),
+            visibility=Event.VISIBILITY_PUBLIC,
+        )
+        invitation = Invitation.objects.create(
+            status=Invitation.STATUS_PENDING,
+            person_sender=self.event.organizers.first(),
+            group=self.invited_group,
+            event=past_event,
+        )
+        self.client.force_login(self.person.role)
+        response = self.client.get(
+            reverse(
+                "accept_event_group_coorganization",
+                kwargs={"pk": invitation.id},
+            )
+        )
+        self.assertEqual(response.status_code, 302)
+        invitation.refresh_from_db()
+        self.assertEqual(invitation.status, Invitation.STATUS_PENDING)
+        self.assertFalse(
+            OrganizerConfig.objects.filter(
+                event=past_event, as_group=self.invited_group
+            ).exists()
+        )
+
+    def test_group_referent_can_accept_invitation(self):
         self.invitation.status = Invitation.STATUS_PENDING
         self.invitation.save()
         self.client.force_login(self.person.role)
@@ -1502,8 +1532,8 @@ class RefuseCoorganizationInvitationTestCase(TestCase):
         )
         self.event = Event.objects.create(
             name="Événement multi-groupe",
-            start_time=timezone.now(),
-            end_time=timezone.now(),
+            start_time=timezone.now() + datetime.timedelta(days=4),
+            end_time=timezone.now() + datetime.timedelta(days=4, hours=2),
             visibility=Event.VISIBILITY_PUBLIC,
         )
         OrganizerConfig.objects.create(
@@ -1547,7 +1577,7 @@ class RefuseCoorganizationInvitationTestCase(TestCase):
         )
         self.client.force_login(person.role)
         response = self.client.get(self.url)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 403)
         self.invitation.refresh_from_db()
         self.assertEqual(self.invitation.status, Invitation.STATUS_PENDING)
 
@@ -1570,11 +1600,40 @@ class RefuseCoorganizationInvitationTestCase(TestCase):
         self.invitation.save()
         self.client.force_login(self.person.role)
         response = self.client.get(self.url)
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 302)
         self.invitation.refresh_from_db()
         self.assertEqual(self.invitation.status, Invitation.STATUS_ACCEPTED)
 
-    def test_group_manager_can_refuse_invitation(self):
+    def test_cannot_refuse_an_invitation_for_a_past_event(self):
+        past_event = Event.objects.create(
+            name="Événement passé",
+            start_time=timezone.now() - datetime.timedelta(days=4, hours=1),
+            end_time=timezone.now() - datetime.timedelta(days=4),
+            visibility=Event.VISIBILITY_PUBLIC,
+        )
+        invitation = Invitation.objects.create(
+            status=Invitation.STATUS_PENDING,
+            person_sender=self.event.organizers.first(),
+            group=self.invited_group,
+            event=past_event,
+        )
+        self.client.force_login(self.person.role)
+        response = self.client.get(
+            reverse(
+                "refuse_event_group_coorganization",
+                kwargs={"pk": invitation.id},
+            )
+        )
+        self.assertEqual(response.status_code, 302)
+        invitation.refresh_from_db()
+        self.assertEqual(invitation.status, Invitation.STATUS_PENDING)
+        self.assertFalse(
+            OrganizerConfig.objects.filter(
+                event=past_event, as_group=self.invited_group
+            ).exists()
+        )
+
+    def test_group_manager_can_refuse_pending_invitation(self):
         self.invitation.status = Invitation.STATUS_PENDING
         self.invitation.save()
         self.client.force_login(self.person.role)
