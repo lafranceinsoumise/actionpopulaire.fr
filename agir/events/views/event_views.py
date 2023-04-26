@@ -3,12 +3,10 @@ import os
 import textwrap
 
 import ics
-import pytz
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
-from django.db import transaction
 from django.http import (
     Http404,
     HttpResponseRedirect,
@@ -30,15 +28,15 @@ from django.views.generic import (
     RedirectView,
     CreateView,
 )
-from django.views.generic.detail import SingleObjectMixin
+from django.views.generic.detail import SingleObjectMixin, BaseDetailView
 from rest_framework import status
 
-from agir.activity.models import Activity
 from agir.authentication.view_mixins import (
     HardLoginRequiredMixin,
     GlobalOrObjectPermissionRequiredMixin,
     SoftLoginRequiredMixin,
 )
+from agir.events import actions
 from agir.events.actions.rsvps import assign_jitsi_meeting
 from agir.front.view_mixins import (
     ChangeLocationBaseView,
@@ -51,11 +49,9 @@ from ..forms import (
     UploadEventImageForm,
     AuthorForm,
 )
-from ..models import Event, RSVP, Invitation, OrganizerConfig
+from ..models import Event, RSVP, Invitation
 from ..tasks import (
     send_event_report,
-    send_accepted_group_coorganization_invitation_notification,
-    send_refused_group_coorganization_invitation_notification,
 )
 from ...api import settings
 from ...carte.models import StaticMapImage
@@ -80,7 +76,6 @@ __all__ = [
 
 # PUBLIC VIEWS
 # ============
-from ...groups.tasks import send_new_group_event_email, notify_new_group_event
 
 
 class EventOGImageView(DetailView):
@@ -467,107 +462,43 @@ class ChangeEventLocationView(
 
 @method_decorator(never_cache, name="get")
 class AcceptEventCoorganizationInvitationView(
-    HardLoginRequiredMixin,
-    GlobalOrObjectPermissionRequiredMixin,
-    SingleObjectMixin,
-    View,
+    HardLoginRequiredMixin, GlobalOrObjectPermissionRequiredMixin, BaseDetailView
 ):
     permission_required = ("events.respond_to_coorganization_invitation",)
-    target_status = Invitation.STATUS_ACCEPTED
     queryset = Invitation.objects.exclude(
-        event__visibility=Event.VISIBILITY_ADMIN
+        event__visibility=Event.VISIBILITY_ADMIN,
     ).exclude(group__published=False)
 
-    def post_save(self, invitation):
-        # Delete the invitation activity
-        (
-            Activity.objects.filter(
-                event=invitation.event,
-                supportgroup=invitation.group,
-                type=Activity.TYPE_GROUP_COORGANIZATION_INVITE,
-            ).delete()
-        )
+    def get_success_message(self):
+        return "Votre groupe est maintenant coorganisateur de l'événement"
 
-        current_organizer_ids = list(
-            invitation.event.organizers.all().values_list("id", flat=True)
-        )
+    def reply_to_invitation(self, invitation, person):
+        actions.respond_to_coorganization_invitation(invitation, person, accepted=True)
 
-        # Create a new organizer config object if none exists
-        (_, created) = OrganizerConfig.objects.get_or_create(
-            event=invitation.event,
-            as_group=invitation.group,
-            defaults={"person": self.request.user.person, "is_creator": False},
-        )
-
-        if created:
-            # Notify the event organizers
-            send_accepted_group_coorganization_invitation_notification.delay(
-                invitation.id, current_organizer_ids
-            )
-            # Notify the group members
-            send_new_group_event_email.delay(invitation.group_id, invitation.event_id)
-            notify_new_group_event.delay(invitation.group_id, invitation.event_id)
-            # Add a success flash message
-            messages.add_message(
-                self.request,
-                messages.SUCCESS,
-                "Votre groupe est maintenant coorganisateur de l'événement",
-            )
-        else:
-            messages.add_message(
-                self.request,
-                messages.INFO,
-                "Votre groupe est déjà coorganisateur de l'événement",
-            )
-
-    def handle_no_permission(self):
-        messages.add_message(
-            self.request,
-            messages.ERROR,
-            "Le lien d'invitation n'est pas ou plus valide.",
-        )
-        return HttpResponseRedirect(reverse("dashboard"))
-
-    def get(self, request, pk, *args, **kwargs):
+    def render_to_response(self, _context):
         try:
-            invitation = self.get_queryset().get(pk=pk)
-        except Invitation.DoesNotExist:
-            return self.handle_no_permission()
+            self.reply_to_invitation(self.object, self.request.user.person)
+        except actions.CoorganizationResponseException as e:
+            level = messages.ERROR
+            message = str(e)
+        else:
+            level = messages.SUCCESS
+            message = self.get_success_message()
 
-        with transaction.atomic():
-            invitation.status = self.target_status
-            invitation.person_recipient = self.request.user.person
-            invitation.save()
-            self.post_save(invitation)
+        messages.add_message(self.request, level, message)
 
-            return HttpResponseRedirect(
-                reverse("view_event", kwargs={"pk": invitation.event.pk})
-            )
+        return HttpResponseRedirect(
+            reverse("view_event", kwargs={"pk": self.object.event_id})
+        )
 
 
 @method_decorator(never_cache, name="get")
 class RefuseEventCoorganizationInvitationView(AcceptEventCoorganizationInvitationView):
-    permission_required = ("events.respond_to_coorganization_invitation",)
-    target_status = Invitation.STATUS_REFUSED
+    def get_success_message(self):
+        return "L'invitation à coorganiser l'événement a bien été refusée"
 
-    def get_queryset(self):
-        # Only allow refusing pending invitations
-        return self.queryset.filter(status=Invitation.STATUS_PENDING)
-
-    def post_save(self, invitation):
-        # Notify the event organizers
-        current_organizer_ids = list(
-            invitation.event.organizers.all().values_list("id", flat=True)
-        )
-        send_refused_group_coorganization_invitation_notification.delay(
-            invitation.id, current_organizer_ids
-        )
-        # Add a success flash message
-        messages.add_message(
-            self.request,
-            messages.SUCCESS,
-            "L'invitation a coorganiser l'événement a été refusée",
-        )
+    def reply_to_invitation(self, invitation, person):
+        actions.respond_to_coorganization_invitation(invitation, person, accepted=False)
 
 
 class SendEventReportView(

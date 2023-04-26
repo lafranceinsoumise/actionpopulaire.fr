@@ -21,7 +21,7 @@ from agir.lib.display import str_summary
 from agir.lib.geo import geocode_element
 from agir.lib.html import sanitize_html
 from agir.lib.mailing import send_mosaico_email
-from agir.lib.utils import front_url, is_absolute_url
+from agir.lib.utils import front_url
 from agir.people.models import Person
 from .models import Event, RSVP, GroupAttendee, Invitation, OrganizerConfig
 from ..activity.models import Activity
@@ -708,15 +708,16 @@ def send_group_coorganization_invitation_notification(invitation_pk):
 
 
 @emailing_task(post_save=True)
-def send_accepted_group_coorganization_invitation_notification(
-    invitation_id, recipient_ids
-):
+def send_accepted_group_coorganization_invitation_notification(invitation_id):
     invitation = Invitation.objects.get(pk=invitation_id)
     event = invitation.event
     group = invitation.group
-
-    # Notify current event referents
-    recipients = event.organizers.filter(pk__in=recipient_ids)
+    group_member_ids = group.members.values_list("id", flat=True)
+    recipients = [
+        person
+        for person in event.get_organizer_people()
+        if person.id not in group_member_ids
+    ]
 
     # Add activity to current organizers
     Activity.objects.bulk_create(
@@ -766,15 +767,16 @@ def send_accepted_group_coorganization_invitation_notification(
 
 
 @emailing_task(post_save=True)
-def send_refused_group_coorganization_invitation_notification(
-    invitation_id, recipient_ids
-):
+def send_refused_group_coorganization_invitation_notification(invitation_id):
     invitation = Invitation.objects.get(pk=invitation_id)
     event = invitation.event
     group = invitation.group
-
-    # Notify current event referents
-    recipients = event.organizers.filter(pk__in=recipient_ids)
+    group_member_ids = group.members.values_list("id", flat=True)
+    recipients = [
+        person
+        for person in event.get_organizer_people()
+        if person.id not in group_member_ids
+    ]
 
     subject = f"{group.name} a refusé de co-organiser {event.name}"
 
