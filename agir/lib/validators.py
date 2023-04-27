@@ -48,3 +48,26 @@ class MaxDaysDeltaValidator(DaysDeltaValidatorMixin, validators.MaxValueValidato
         "limit_value",
     )
     code = "max_delta"
+
+
+@deconstructible
+class FileSizeValidator:
+    message = _(
+        "Ce fichier est trop gros. Seuls les fichiers de moins de %(max_size) sont acceptés."
+    )
+    code = "file_too_big"
+
+    def __init__(self, max_size, message=None, code=None):
+        if message is not None:
+            self.message = message
+        if code is not None:
+            self.code = code
+        self.max_size = max_size
+
+    def __call__(self, value):
+        if value.size > self.max_size:
+            raise ValidationError(
+                self.message,
+                code=self.code,
+                params={"max_size": filesizeformat(self.max_size)},
+            )

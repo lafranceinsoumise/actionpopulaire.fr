@@ -16,7 +16,7 @@ from agir.activity.actions import (
     get_non_custom_announcements,
     get_custom_announcements,
 )
-from agir.activity.models import Activity, Announcement
+from agir.activity.models import Activity, Announcement, PushAnnouncement
 from agir.activity.serializers import (
     ActivitySerializer,
     ActivityStatusUpdateRequest,
@@ -119,7 +119,6 @@ class AnnouncementLinkView(DetailView):
                 "type": Activity.TYPE_ANNOUNCEMENT,
                 "status": Activity.STATUS_INTERACTED,
             }
-
             activity = Activity.objects.filter(
                 recipient=user.person, announcement=announcement
             ).first()
@@ -133,6 +132,31 @@ class AnnouncementLinkView(DetailView):
                 )
 
         return HttpResponseRedirect(announcement.link)
+
+
+class PushAnnouncementLinkView(DetailView):
+    model = PushAnnouncement
+    queryset = PushAnnouncement.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        push_announcement = self.get_object()
+        user = request.user
+
+        if (
+            user.is_authenticated
+            and hasattr(user, "person")
+            and user.person is not None
+        ):
+            Activity.objects.update_or_create(
+                type=Activity.TYPE_PUSH_ANNOUNCEMENT,
+                recipient=user.person,
+                push_announcement=push_announcement,
+                defaults={
+                    "push_status": Activity.STATUS_INTERACTED,
+                },
+            )
+
+        return HttpResponseRedirect(push_announcement.link)
 
 
 class ActivityStatusUpdateView(GenericAPIView):
