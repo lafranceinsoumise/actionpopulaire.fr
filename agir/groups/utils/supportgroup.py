@@ -100,6 +100,7 @@ MANAGER_ONLY_ROUTES = [
     "followers",
     "membershipTransfer",
     "geolocate",
+    "downloadMemberList",
 ]
 REFERENT_ONLY_ROUTES = [
     "animation",
@@ -153,6 +154,9 @@ def get_supportgroup_routes(supportgroup, membership=None, user=None):
         "quit": front_url("quit_group", kwargs={"pk": supportgroup.pk}),
         "referentResignmentRequest": "https://infos.actionpopulaire.fr/contact/",
         "settings": front_url("view_group_settings", kwargs={"pk": supportgroup.pk}),
+        "downloadMemberList": front_url(
+            "download_member_list", kwargs={"pk": supportgroup.pk}
+        ),
     }
 
     if membership and not supportgroup.is_certified and supportgroup.is_certifiable:
