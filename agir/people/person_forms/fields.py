@@ -14,9 +14,7 @@ from django.core.validators import (
     MaxValueValidator,
 )
 from django.forms.models import ModelChoiceIterator
-from django.template.defaultfilters import filesizeformat
 from django.utils import timezone
-from django.utils.deconstruct import deconstructible
 from django.utils.formats import localize_input
 from django.utils.translation import gettext as _
 from phonenumber_field.formfields import PhoneNumberField
@@ -38,6 +36,7 @@ from agir.lib.form_fields import (
 from ..models import Person
 from ...event_requests.models import EventTheme, EventThemeType
 from ...groups.models import SupportGroup, Membership
+from ...lib.validators import FileSizeValidator
 from ...municipales.models import CommunePage
 
 logger = logging.getLogger(__name__)
@@ -136,29 +135,6 @@ class AutocompleteMultipleChoiceField(MultipleChoiceField):
 
 class BooleanField(NotRequiredByDefaultMixin, forms.BooleanField):
     pass
-
-
-@deconstructible
-class FileSizeValidator:
-    message = _(
-        "Ce fichier est trop gros. Seuls les fichiers de moins de %(max_size) sont acceptés."
-    )
-    code = "file_too_big"
-
-    def __init__(self, max_size, message=None, code=None):
-        if message is not None:
-            self.message = message
-        if code is not None:
-            self.code = code
-        self.max_size = max_size
-
-    def __call__(self, value):
-        if value.size > self.max_size:
-            raise ValidationError(
-                self.message,
-                code=self.code,
-                params={"max_size": filesizeformat(self.max_size)},
-            )
 
 
 class FileField(forms.FileField):

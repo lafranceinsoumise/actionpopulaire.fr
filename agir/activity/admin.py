@@ -1,7 +1,12 @@
-from django.contrib import admin
-from django.utils.html import format_html
+import json
 
-from agir.activity.models import Activity, Announcement
+from django.contrib import admin, messages
+from django.http import HttpResponseRedirect
+from django.utils.html import format_html, format_html_join
+from django.utils.safestring import mark_safe
+from django.utils.translation import ngettext
+
+from agir.activity.models import Activity, Announcement, PushAnnouncement
 from agir.lib.search import PrefixSearchQuery
 
 
@@ -115,3 +120,119 @@ class AnnouncementAdmin(admin.ModelAdmin):
             return obj.activities.filter(status=Activity.STATUS_INTERACTED).count()
 
     clics.short_description = "Nombre de clics uniques"
+
+
+@admin.register(PushAnnouncement)
+class PushAnnouncementAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (
+            "Paramètres du message",
+            {
+                "fields": (
+                    "title",
+                    "subtitle",
+                    "message",
+                    "link",
+                    "image",
+                    "thread_id",
+                    "ttl",
+                    "notification_data",
+                )
+            },
+        ),
+        (
+            "Paramètres d'envoi",
+            {
+                "fields": (
+                    "segment",
+                    "has_ios",
+                    "has_android",
+                    "action_buttons",
+                )
+            },
+        ),
+        (
+            "Statistiques d'envoi",
+            {
+                "fields": (
+                    "sending_date",
+                    "sending_meta",
+                    "recipient_count",
+                    "clicked_count",
+                )
+            },
+        ),
+    )
+
+    readonly_fields = [
+        "notification_data",
+        "sending_date",
+        "sending_meta",
+        "recipient_count",
+        "clicked_count",
+        "action_buttons",
+    ]
+    autocomplete_fields = ("segment",)
+
+    @admin.display(description="Nombre de destinataires")
+    def recipient_count(self, obj):
+        if obj.id:
+            return obj.recipient_count()
+        return "-"
+
+    @admin.display(description="Nombre de clics")
+    def clicked_count(self, obj):
+        if obj.id:
+            return obj.clicked_count()
+        return "-"
+
+    @admin.display(description="Données")
+    def notification_data(self, obj):
+        if not obj:
+            return "-"
+        android, ios = obj.get_notification_kwargs()
+        return format_html(
+            "<details>"
+            "<summary style='cursor:pointer;'>Données de notification</summary>"
+            "<pre>{}</pre>"
+            "</details>",
+            mark_safe(json.dumps({"android": android, "ios": ios}, indent=2)),
+        )
+
+    @admin.display(description="Actions")
+    def action_buttons(self, obj):
+        if not obj.id or not obj.can_send():
+            return "-"
+
+        return format_html(
+            "<input type='submit' "
+            "name='_send' "
+            "style='border-radius:0;background:#078080;font-weight:bold;' "
+            "value='{}' />",
+            "📨 Envoyer l'annonce",
+        )
+
+    def response_change(self, request, obj):
+        if "_send" in request.POST:
+            try:
+                recipient_count = obj.send()
+                self.message_user(
+                    request,
+                    ngettext(
+                        "L'annonce push a été envoyée à une personne !",
+                        f"L'annonce push a été envoyée à {recipient_count} personnes !",
+                        recipient_count,
+                    ),
+                )
+            except Exception as e:
+                self.message_user(
+                    request,
+                    str(e),
+                    level=messages.WARNING,
+                )
+            return HttpResponseRedirect(".")
+
+        return super().response_change(request, obj)
+
+    class Media:
+        pass

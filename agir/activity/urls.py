@@ -48,4 +48,9 @@ urlpatterns = [
         views.follow_activity_link,
         name="activity_link",
     ),
+    path(
+        "push/<uuid:pk>/lien/",
+        views.PushAnnouncementLinkView.as_view(),
+        name="push_announcement_link",
+    ),
 ]
