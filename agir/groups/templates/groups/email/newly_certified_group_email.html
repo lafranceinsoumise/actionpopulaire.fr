@@ -1,0 +1,99 @@
+{% extends email_template %}
+
+{% block header %}{% endblock %}
+
+{% block subject %}
+  {{ group.name }} a été certifié !
+{% endblock %}
+
+{% block html_content %}
+  <p>{{ greetings }}</p>
+  <p>
+    Votre groupe d'action <a href="{{ url.group_page }}"><strong>{{ group.name }}</strong></a> est désormais certifié.
+  </p>
+  <p>
+    <strong>La certification vous engage</strong> solennellement à respecter les orientations politiques, stratégiques
+    et programmatiques de notre mouvement, ainsi que la <a
+    href="https://lafranceinsoumise.fr/groupes-action/charte-groupes-dappui-de-france-insoumise/">Charte des groupes
+    d'action</a> et <a href="https://lafranceinsoumise.fr/principes/">les principes de La France insoumise</a>. Tout
+    manquement pourra conduire à une décertification.
+  </p>
+  <p>
+    <strong>Une fois certifié, le groupe d’action bénéficie&nbsp;:</strong>
+  </p>
+  <ul>
+    <li>
+      <strong>D’un code promotionnel mensuel</strong> d'une valeur de 30 € qui donne droit à la commande gratuite de
+      matériel ainsi qu’à
+      la prise en charge des frais de livraison. Vous trouverez votre code promotionnel mensuel sur <a
+      href="{{ url.view_group_settings_materiel }}">la page de gestion
+      de votre groupe d'action</a> sur Action Populaire. Attention, ce code n'est utilisable qu'une fois par mois et en
+      une
+      fois&nbsp;!
+    </li>
+    <li>
+      <strong>De la possibilité de faire des <a href="https://infos.actionpopulaire.fr/dons/#donsfleches">dons
+        fléchés</a></strong> sur votre groupe d'action certifié afin d'en financer les actions.
+    </li>
+  </ul>
+  <p>
+    <strong>Votre binôme de co-animateur·rices sera automatiquement ajouté à la boucle départementale de votre
+      département</strong>. La mise à jour des membres de la boucle s'effectuera cette nuit. Pour rappel, cette
+    boucle est régie par une <a href="https://lafranceinsoumise.fr/charte-des-boucles-departementales/">Charte</a> que
+    vous vous engagez à respecter.
+  </p>
+  <p>
+    <em>Sur le financement des actions</em>
+    <br/>
+    Votre groupe peut maintenant recevoir des dons (ponctuels et mensuels) déductibles d'impôt qui vous permettront de
+    financer vos actions. Ces dons constitueront une cagnotte que vous pourrez utiliser pour financer vos actions. Pour
+    l'utiliser, vous devez vous rendre dans l'onglet "Financement" sur la page de gestion de votre groupe et cliquer sur
+    "Créer une demande de dépenses". Avec ce formulaire, vous pouvez vous faire rembourser vos achats (comme les paquets
+    de colle, un barnum, etc.) Merci de bien suivre la procédure pour que l'équipe qui s'occupe des finances puisse
+    faire les virements le plus rapidement possible&nbsp;! La demande doit être validé par les deux co-animateur·rices.
+  </p>
+  <p><em>Attention&nbsp;:</em> ces dépenses doivent&nbsp;:</p>
+  <ol>
+    <li>être conformes aux règles de financement de la vie politique</li>
+    <li>respecter les orientations politiques, stratégiques et programmatiques de La France insoumise</li>
+    <li>être d'un montant inférieur ou égal au solde de votre cagnotte</li>
+  </ol>
+  <p>
+    N'hésitez pas à solliciter les membres de votre groupe pour qu'ils et elles financent votre groupe&nbsp;! Il y a un
+    enjeu à ce qu'un maximum de personnes <a href="{{ url.contribution_amount }}">devienne
+    financeur·euse</a>
+    de notre mouvement&nbsp;!
+  </p>
+  <p>
+    <em>Groupes inactifs et décertification</em>
+    <br/>
+    N'oubliez pas de <a href="{{ url.create_event }}">déclarer les actions de votre groupe
+    d'action</a> sur Action populaire&nbsp;! En effet, les groupes d'action qui n'ont
+    pas organisé dans les 45 jours un événements n'apparaissent plus sur <a
+    href="{{ url.group_map_page }}">la carte des groupes</a> parmi les "Groupes les plus actifs". Pour
+    les voir ré-apparaître, il suffit de décocher en haut à droite de la carte sur "Groupes les plus actifs" ou
+    d'indiquer les événements de votre groupe.
+  </p>
+  <p>
+    Dans le cas où votre groupe d'action ne respecteraient plus les critères de la certification (tels que définis dans
+    la <a
+    href="https://lafranceinsoumise.fr/groupes-action/charte-groupes-dappui-de-france-insoumise">Charte des groupes
+    d'action</a>, <a href="https://lafranceinsoumise.fr/principes/">les principes de La France insoumise</a> ou les
+    orientations politiques,
+    stratégiques et programmatiques de notre mouvement, celui-ci pourrait être décertifié.
+  </p>
+  <p>
+    Amitiés,
+    <br/>
+    <br/>
+    Alexandra et Clément
+    <br/>
+    pour le Pôle des groupes d’action
+    <br/>
+    <a href="mailto:groupes@actionpopulaire.fr">
+      <em>groupes@actionpopulaire.fr</em>
+    </a>
+  </p>
+{% endblock %}
+
+{% block html_footer %}{% endblock %}
