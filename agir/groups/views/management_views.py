@@ -527,7 +527,7 @@ class DownloadMemberListView(BaseSupportGroupAdminView, DetailView):
                     {
                         "Nom": membership.person.last_name.upper(),
                         "Prénom": membership.person.first_name.title(),
-                        "Téléphone": membership.person.contact_phone.as_e164,
+                        "Téléphone": membership.person.contact_phone,
                         "Adresse": membership.person.short_address,
                     }
                 )
