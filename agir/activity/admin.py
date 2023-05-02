@@ -176,20 +176,23 @@ class PushAnnouncementAdmin(admin.ModelAdmin):
 
     @admin.display(description="Nombre de destinataires")
     def recipient_count(self, obj):
-        if obj.id:
-            return obj.recipient_count()
-        return "-"
+        if not obj.id:
+            return "-"
+
+        return obj.recipient_count()
 
     @admin.display(description="Nombre de clics")
     def clicked_count(self, obj):
-        if obj.id:
-            return obj.clicked_count()
-        return "-"
+        if not obj.id:
+            return "-"
+
+        return obj.clicked_count()
 
     @admin.display(description="Données")
     def notification_data(self, obj):
-        if not obj:
+        if not obj.id:
             return "-"
+
         android, ios = obj.get_notification_kwargs()
         return format_html(
             "<details>"
