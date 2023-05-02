@@ -176,21 +176,21 @@ class PushAnnouncementAdmin(admin.ModelAdmin):
 
     @admin.display(description="Nombre de destinataires")
     def recipient_count(self, obj):
-        if self._state.adding:
+        if obj._state.adding:
             return "-"
 
         return obj.recipient_count()
 
     @admin.display(description="Nombre de clics")
     def clicked_count(self, obj):
-        if self._state.adding:
+        if obj._state.adding:
             return "-"
 
         return obj.clicked_count()
 
     @admin.display(description="Données")
     def notification_data(self, obj):
-        if self._state.adding:
+        if obj._state.adding:
             return "-"
 
         android, ios = obj.get_notification_kwargs()
@@ -204,7 +204,7 @@ class PushAnnouncementAdmin(admin.ModelAdmin):
 
     @admin.display(description="Actions")
     def action_buttons(self, obj):
-        if self._state.adding or not obj.can_send():
+        if obj._state.adding or not obj.can_send():
             return "-"
 
         return format_html(
