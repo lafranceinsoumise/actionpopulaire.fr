@@ -935,5 +935,5 @@ def send_newly_certified_group_notifications(supportgroup_pk):
                 "group_map_page": front_url("group_map_page", absolute=True),
             },
         },
-        recipients=recipients,
+        recipients=[*recipients, settings.EMAIL_SUPPORT],
     )
