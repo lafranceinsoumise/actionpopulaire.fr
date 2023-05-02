@@ -508,7 +508,7 @@ class DownloadMemberListView(BaseSupportGroupAdminView, DetailView):
                 "Statut": genrer(
                     membership.person.gender, membership.get_membership_type_display()
                 ),
-                "E-mail": membership.person.email,
+                "E-mail": membership.person.email.lower(),
                 "Membre depuis le": membership.created.astimezone(
                     timezone.get_current_timezone()
                 )
@@ -527,7 +527,7 @@ class DownloadMemberListView(BaseSupportGroupAdminView, DetailView):
                     {
                         "Nom": membership.person.last_name.upper(),
                         "Prénom": membership.person.first_name.title(),
-                        "Téléphone": membership.person.contact_phone,
+                        "Téléphone": str(membership.person.contact_phone),
                         "Adresse": membership.person.short_address,
                     }
                 )
