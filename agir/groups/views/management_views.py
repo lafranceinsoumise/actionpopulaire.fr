@@ -52,6 +52,7 @@ from agir.groups.tasks import (
     send_abuse_report_message,
     create_accepted_invitation_member_activity,
 )
+from agir.lib.display import genrer
 from agir.lib.export import dict_to_camelcase
 from agir.lib.http import add_query_params_to_url
 from agir.people.models import Person
@@ -486,6 +487,7 @@ class DownloadMemberListView(BaseSupportGroupAdminView, DetailView):
     permission_required = ("groups.download_member_list",)
     serializer = MemberPersonalInformationSerializer
     columns = [
+        "Statut",
         "Pseudo",
         "Nom",
         "Prénom",
@@ -494,7 +496,7 @@ class DownloadMemberListView(BaseSupportGroupAdminView, DetailView):
         "Téléphone",
         "Adresse",
         "Membre depuis le",
-        "Abonné·e à l’actualité du groupe",
+        "Abonnement à l’actualité du groupe",
     ]
 
     def get_data(self, supportgroup):
@@ -503,14 +505,16 @@ class DownloadMemberListView(BaseSupportGroupAdminView, DetailView):
         for membership in memberships:
             m = {
                 "Pseudo": membership.person.display_name,
-                "Statut": membership.get_membership_type_display(),
+                "Statut": genrer(
+                    membership.person.gender, membership.get_membership_type_display()
+                ),
                 "E-mail": membership.person.email,
                 "Membre depuis le": membership.created.astimezone(
                     timezone.get_current_timezone()
                 )
                 .replace(microsecond=0)
                 .isoformat(),
-                "Abonné·e à l’actualité du groupe": membership.subscription_set.exists(),
+                "Abonnement à l’actualité du groupe": membership.subscription_set.exists(),
             }
             if supportgroup.type == SupportGroup.TYPE_BOUCLE_DEPARTEMENTALE:
                 m.update(
