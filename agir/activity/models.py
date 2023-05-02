@@ -539,7 +539,7 @@ class PushAnnouncement(BaseAPIResource):
         return self.activities.filter(push_status=Activity.STATUS_INTERACTED).count()
 
     def get_absolute_image_url(self):
-        if self.image is None:
+        if not self.image:
             return None
 
         image_url = self.image.storage.url(self.image.name)

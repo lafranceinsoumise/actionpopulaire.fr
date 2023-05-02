@@ -924,7 +924,7 @@ class Event(
         )
 
     def get_absolute_image_url(self, variation="banner"):
-        if self.image is None or not hasattr(self.image, variation):
+        if not self.image or not hasattr(self.image, variation):
             return None
 
         image = getattr(self.image, variation)
