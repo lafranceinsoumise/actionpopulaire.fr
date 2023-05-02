@@ -107,7 +107,7 @@ class AnnouncementAdmin(admin.ModelAdmin):
     miniatures.short_description = "Affichage de l'image selon l'environnement"
 
     def affichages(self, obj):
-        if obj.id:
+        if obj.pk:
             return obj.activities.filter(
                 status__in=(Activity.STATUS_DISPLAYED, Activity.STATUS_INTERACTED)
             ).count()
@@ -116,7 +116,7 @@ class AnnouncementAdmin(admin.ModelAdmin):
     affichages.short_description = "Nombre d'affichages uniques"
 
     def clics(self, obj):
-        if obj.id:
+        if obj.pk:
             return obj.activities.filter(status=Activity.STATUS_INTERACTED).count()
 
     clics.short_description = "Nombre de clics uniques"
@@ -176,21 +176,21 @@ class PushAnnouncementAdmin(admin.ModelAdmin):
 
     @admin.display(description="Nombre de destinataires")
     def recipient_count(self, obj):
-        if not obj.id:
+        if self._state.adding:
             return "-"
 
         return obj.recipient_count()
 
     @admin.display(description="Nombre de clics")
     def clicked_count(self, obj):
-        if not obj.id:
+        if self._state.adding:
             return "-"
 
         return obj.clicked_count()
 
     @admin.display(description="Données")
     def notification_data(self, obj):
-        if not obj.id:
+        if self._state.adding:
             return "-"
 
         android, ios = obj.get_notification_kwargs()
@@ -204,7 +204,7 @@ class PushAnnouncementAdmin(admin.ModelAdmin):
 
     @admin.display(description="Actions")
     def action_buttons(self, obj):
-        if not obj.id or not obj.can_send():
+        if self._state.adding or not obj.can_send():
             return "-"
 
         return format_html(
