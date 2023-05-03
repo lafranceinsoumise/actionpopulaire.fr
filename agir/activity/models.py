@@ -495,7 +495,7 @@ class PushAnnouncement(BaseAPIResource):
     @cached_property
     def ios_subscriber_devices(self):
         if not self.has_ios:
-            return GCMDevice.objects.none()
+            return APNSDevice.objects.none()
         subscribers = self.segment.get_subscribers_queryset()
         return APNSDevice.objects.filter(
             active=True, user__is_active=True, user__person__in=subscribers
@@ -519,7 +519,7 @@ class PushAnnouncement(BaseAPIResource):
             set(
                 self.android_subscriber_devices.values_list(
                     "user__person__id", flat=True
-                ).intersection(
+                ).union(
                     self.ios_subscriber_devices.values_list(
                         "user__person__id", flat=True
                     )
