@@ -1,12 +1,10 @@
 import os
-from pathlib import Path
 
 from django.conf import settings
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.core import validators
 from django.core.exceptions import ValidationError
-from django.core.files.base import ContentFile
 from django.db import transaction
 from django.db.models import Prefetch, Count, Subquery, OuterRef
 from django.db.models.functions import Coalesce
@@ -18,7 +16,6 @@ from dynamic_filenames import FilePattern
 
 from agir.events.models import Event
 from agir.events.models import Event, Calendar
-from agir.lib.admin.utils import admin_url
 from agir.lib.documents import (
     render_svg_template,
     rsvg_convert,

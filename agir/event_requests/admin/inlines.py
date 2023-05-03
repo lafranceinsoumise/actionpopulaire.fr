@@ -77,7 +77,7 @@ class EventAssetInline(admin.TabularInline):
 
     def get_fields(self, request, obj=None):
         fields = super().get_fields(request, obj)
-        if not obj._state.adding:
+        if obj and not obj._state.adding:
             for asset in obj.event_assets.all():
                 if asset.is_event_image_candidate:
                     return "thumbnail", *fields
