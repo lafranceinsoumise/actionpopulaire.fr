@@ -2,11 +2,12 @@ import json
 
 from django.contrib import admin, messages
 from django.http import HttpResponseRedirect
-from django.utils.html import format_html, format_html_join
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import ngettext
 
 from agir.activity.models import Activity, Announcement, PushAnnouncement
+from agir.lib.admin.utils import display_link
 from agir.lib.search import PrefixSearchQuery
 
 
@@ -125,8 +126,8 @@ class AnnouncementAdmin(admin.ModelAdmin):
 @admin.register(PushAnnouncement)
 class PushAnnouncementAdmin(admin.ModelAdmin):
     save_as = True
-    save_as_continue = True
     save_on_top = True
+
     fieldsets = (
         (
             "Paramètres du message",
@@ -176,6 +177,14 @@ class PushAnnouncementAdmin(admin.ModelAdmin):
         "action_buttons",
     ]
     autocomplete_fields = ("segment",)
+    list_display = ("__str__", "segment_link", "has_android", "has_ios", "sending_date")
+
+    @admin.display(description="Segment", ordering="segment")
+    def segment_link(self, obj):
+        if not obj:
+            return "-"
+
+        return display_link(obj.segment)
 
     @admin.display(description="Nombre de destinataires")
     def recipient_count(self, obj):
