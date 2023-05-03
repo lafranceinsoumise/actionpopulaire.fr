@@ -9,16 +9,17 @@ import {
 } from "react-router-dom";
 import ScrollMemory from "react-router-scroll-memory";
 
-import routes, { BASE_PATH, routeConfig } from "./routes.config";
-import { useAuthentication } from "@agir/front/authentication/hooks";
 import { useAppLoader, useMobileApp } from "@agir/front/app/hooks";
+import { useAuthentication } from "@agir/front/authentication/hooks";
+import routes, { BASE_PATH, routeConfig } from "./routes.config";
+import useTracking from "./useTracking";
 
 import ConnectivityWarning from "@agir/front/app/ConnectivityWarning";
 import Footer from "@agir/front/app/Footer";
-import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage";
-import OpenGraphTags from "@agir/front/app/OpenGraphTags";
-import Page from "./Page";
 import TopBar from "@agir/front/app/Navigation/TopBar";
+import OpenGraphTags from "@agir/front/app/OpenGraphTags";
+import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage";
+import Page from "./Page";
 
 import logger from "@agir/lib/utils/logger";
 
@@ -83,11 +84,15 @@ ProtectedComponent.propTypes = {
   route: PropTypes.object.isRequired,
 };
 
+const TrackingComponent = () => {
+  useTracking();
+  return null;
+};
 const Router = ({ children }) => {
   const { isMobileApp } = useMobileApp();
-
   return (
     <BrowserRouter basename={BASE_PATH}>
+      <TrackingComponent />
       <ScrollMemory />
       <TopBar />
       <Switch>
