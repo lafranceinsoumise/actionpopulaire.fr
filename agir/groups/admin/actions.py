@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.utils.translation import gettext as _, ngettext
 
 from ..actions import groups_to_csv_lines
+from ..tasks import send_newly_certified_group_notifications
 
 
 def export_groups(modeladmin, request, queryset):
@@ -49,6 +50,7 @@ def certify_supportgroups(modeladmin, request, qs):
             for group in groups:
                 group.certification_date = now
                 group.save()
+                send_newly_certified_group_notifications.delay(group.pk)
                 updated_count += 1
         except Exception as e:
             modeladmin.message_user(

@@ -264,4 +264,9 @@ urlpatterns = [
         views.SuppportGroupOGImageView.as_view(),
         name="view_og_image_supportgroup",
     ),
+    path(
+        "groupes/<uuid:pk>/gestion/membres/liste.csv",
+        views.DownloadMemberListView.as_view(),
+        name="download_member_list",
+    ),
 ]

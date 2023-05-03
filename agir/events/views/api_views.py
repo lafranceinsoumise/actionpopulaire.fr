@@ -455,6 +455,14 @@ class EventGroupsOrganizersAPIView(ListCreateAPIView):
         member = self.request.user.person
 
         # Check if group is already organizing the event
+        if not event.subtype.is_coorganizable:
+            raise exceptions.PermissionDenied(
+                detail={
+                    "detail": "La coorganisation n'est pas autorisée pour ce type d'événement"
+                },
+            )
+
+        # Check if group is already organizing the event
         if OrganizerConfig.objects.filter(event=event, as_group=group).exists():
             raise exceptions.ValidationError(
                 detail={"detail": "Ce groupe coorganise déjà l'événement"},

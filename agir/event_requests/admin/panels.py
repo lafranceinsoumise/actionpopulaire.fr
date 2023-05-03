@@ -35,13 +35,13 @@ class EventAssetTemplateAdmin(admin.ModelAdmin):
 
 @admin.register(models.EventAsset)
 class EventAssetAdmin(admin.ModelAdmin):
-    list_display = ("name", "event_link", "file", "published")
+    list_display = ("name", "event_link", "file", "published", "is_image")
     list_filter = (
         "published",
         filters.EventAutocompleteFilter,
     )
     search_fields = ("name", "event__name")
-    readonly_fields = ("event_link", "published", "render")
+    readonly_fields = ("event_link", "is_event_image", "published", "render")
     create_only_fields = ("event",)
     exclude = ("renderable",)
     autocomplete_fields = ("template", "event")
@@ -55,6 +55,10 @@ class EventAssetAdmin(admin.ModelAdmin):
     @admin.display(description="Événement")
     def event_link(self, obj):
         return display_link(obj.event)
+
+    @admin.display(description="Image de l'événement", boolean=True)
+    def is_image(self, obj):
+        return obj.is_event_image
 
     @admin.display(description="Actions")
     def render(self, obj):
@@ -166,6 +170,18 @@ class EventAssetAdmin(admin.ModelAdmin):
             return HttpResponseRedirect(".")
 
         return super().response_change(request, obj)
+
+    def get_urls(self):
+        return [
+            path(
+                "<uuid:pk>/set-as-event-image/",
+                self.admin_site.admin_view(self.set_as_event_image),
+                name=f"{self.opts.app_label}_{self.opts.model_name}_set_as_event_image",
+            ),
+        ] + super().get_urls()
+
+    def set_as_event_image(self, request, pk):
+        return views.set_event_asset_as_event_image(self, request, pk)
 
     class Media:
         pass

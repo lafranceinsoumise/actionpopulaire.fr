@@ -640,6 +640,7 @@ class PersonFormAdmin(FormSubmissionViewsMixin, admin.ModelAdmin):
             {
                 "fields": (
                     "submissions_number",
+                    "person_count",
                     "simple_link",
                     "action_buttons",
                     "result_url",
@@ -669,6 +670,7 @@ class PersonFormAdmin(FormSubmissionViewsMixin, admin.ModelAdmin):
 
     readonly_fields = (
         "submissions_number",
+        "person_count",
         "simple_link",
         "action_buttons",
         "last_submission",
@@ -689,7 +691,8 @@ class PersonFormAdmin(FormSubmissionViewsMixin, admin.ModelAdmin):
         qs = super().get_queryset(request)
 
         return qs.annotate(
-            submissions_number=Count("submissions"),
+            submissions_number=Count("submissions", distinct=True),
+            person_count=Count("submissions__person_id", distinct=True),
             last_submission=Max("submissions__created"),
         )
 
@@ -811,10 +814,13 @@ class PersonFormAdmin(FormSubmissionViewsMixin, admin.ModelAdmin):
         " Faites bien attention en le transmettant à des personnes tierces."
     )
 
+    @admin.display(description="Nombre de réponses")
     def submissions_number(self, object):
         return object.submissions_number
 
-    submissions_number.short_description = "Nombre de réponses"
+    @admin.display(description="Nombre de personnes")
+    def person_count(self, object):
+        return object.person_count
 
 
 @admin.register(PersonFormSubmission)

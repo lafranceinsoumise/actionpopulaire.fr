@@ -924,7 +924,7 @@ class Event(
         )
 
     def get_absolute_image_url(self, variation="banner"):
-        if self.image is None or not hasattr(self.image, variation):
+        if not self.image or not hasattr(self.image, variation):
             return None
 
         image = getattr(self.image, variation)
@@ -1124,6 +1124,13 @@ class EventSubtype(BaseSubtype):
         choices=SupportGroup.TYPE_CHOICES,
         help_text="Seulement les gestionnaires et animateur·ices des groupes du type sélectionné "
         "pourront créer des événements de ce type.",
+    )
+
+    is_coorganizable = models.BooleanField(
+        "Co-organisation avec d'autres groupes d'action autorisée",
+        default=True,
+        help_text="Les organisateur·ices pourront inviter d'autres groupes d'action à co-organiser les "
+        "événements de ce type.",
     )
 
     campaign_template = models.ForeignKey(

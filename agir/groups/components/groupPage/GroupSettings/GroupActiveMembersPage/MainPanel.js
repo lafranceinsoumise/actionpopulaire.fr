@@ -74,7 +74,7 @@ const GroupMemberMainPanel = (props) => {
       </p>
       <Spacer size="1rem" />
       <ShareLink
-        label="Copier les e-mails des membres"
+        label="Copier les e-mails"
         color="primary"
         url={emails}
         $wrap
@@ -89,6 +89,20 @@ const GroupMemberMainPanel = (props) => {
         onClickMember={onClickMember}
       />
       <Spacer size="2.5rem" />
+      <Link
+        href={routes?.downloadMemberList}
+        style={{ display: "flex", alignItems: "flex-start" }}
+      >
+        <RawFeatherIcon
+          name="download"
+          width="1rem"
+          height="1rem"
+          style={{ paddingTop: "3px" }}
+        />
+        <Spacer size="0.5rem" />
+        Télécharger la liste des membres et contacts au format CSV
+      </Link>
+      <Spacer size="0.5rem" />
       <Link
         href={routes?.membershipTransfer}
         style={{ display: "flex", alignItems: "flex-start" }}

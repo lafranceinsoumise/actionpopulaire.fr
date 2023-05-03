@@ -1,13 +1,17 @@
+import hashlib
+import json
 import logging
 from uuid import UUID
 
+import pandas as pd
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
-from django.http import HttpResponseRedirect, JsonResponse, Http404
+from django.http import HttpResponseRedirect, JsonResponse, Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import reverse, reverse_lazy
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.html import format_html
 from django.utils.translation import gettext as _
@@ -21,6 +25,7 @@ from django.views.generic import (
 )
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import FormMixin, ProcessFormView
+from slugify import slugify
 
 from agir.authentication.tokens import (
     invitation_confirmation_token_generator,
@@ -42,10 +47,12 @@ from agir.groups.forms import (
     TransferGroupMembersForm,
 )
 from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
+from agir.groups.serializers import MemberPersonalInformationSerializer
 from agir.groups.tasks import (
     send_abuse_report_message,
     create_accepted_invitation_member_activity,
 )
+from agir.lib.display import genrer
 from agir.lib.export import dict_to_camelcase
 from agir.lib.http import add_query_params_to_url
 from agir.people.models import Person
@@ -61,6 +68,7 @@ __all__ = [
     "InvitationWithSubscriptionView",
     "InvitationAbuseReportingView",
     "TransferSupportGroupMembersView",
+    "DownloadMemberListView",
 ]
 
 
@@ -473,3 +481,77 @@ class InvitationAbuseReportingView(VerifyLinkSignatureMixin, View):
         )
 
         return TemplateResponse(request, template=self.confirmed_template_name)
+
+
+class DownloadMemberListView(BaseSupportGroupAdminView, DetailView):
+    permission_required = ("groups.download_member_list",)
+    serializer = MemberPersonalInformationSerializer
+    columns = [
+        "Statut",
+        "Pseudo",
+        "Nom",
+        "Prénom",
+        "Description",
+        "E-mail",
+        "Téléphone",
+        "Adresse",
+        "Membre depuis le",
+        "Abonnement à l’actualité du groupe",
+    ]
+
+    def get_data(self, supportgroup):
+        memberships = supportgroup.memberships.with_serializer_prefetch().active().all()
+        data = []
+        for membership in memberships:
+            m = {
+                "Pseudo": membership.person.display_name,
+                "Statut": genrer(
+                    membership.person.gender, membership.get_membership_type_display()
+                ),
+                "E-mail": membership.person.email.lower(),
+                "Membre depuis le": membership.created.astimezone(
+                    timezone.get_current_timezone()
+                )
+                .replace(microsecond=0)
+                .isoformat(),
+                "Abonnement à l’actualité du groupe": membership.subscription_set.exists(),
+            }
+            if supportgroup.type == SupportGroup.TYPE_BOUCLE_DEPARTEMENTALE:
+                m.update(
+                    {
+                        "Description": membership.description,
+                    }
+                )
+            if membership.personal_information_sharing_consent:
+                m.update(
+                    {
+                        "Nom": membership.person.last_name.upper(),
+                        "Prénom": membership.person.first_name.title(),
+                        "Téléphone": str(membership.person.contact_phone),
+                        "Adresse": membership.person.short_address,
+                    }
+                )
+            data.append(m)
+
+        return data
+
+    def get_filename(self, supportgroup, data):
+        dhash = hashlib.md5()
+        encoded = json.dumps(data, sort_keys=True).encode()
+        dhash.update(encoded)
+
+        return f"{slugify(supportgroup.name)}_{dhash.hexdigest()[:8]}.csv"
+
+    def get(self, request, *args, **kwargs):
+        supportgroup = self.get_object()
+        data = self.get_data(supportgroup)
+        filename = self.get_filename(supportgroup, data)
+        res = pd.DataFrame(data)
+        res = res.fillna("").replace({True: "Oui", False: "Non"})
+        cols = [col for col in self.columns if col in res.columns.tolist()]
+        res = res[cols]
+        response = HttpResponse(content_type="text/csv")
+        response["Content-Disposition"] = f"attachment; filename={filename}"
+        res.to_csv(path_or_buf=response, index=False)
+
+        return response

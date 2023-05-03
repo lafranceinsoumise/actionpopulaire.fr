@@ -1,14 +1,20 @@
 import dynamic_filenames
-from django.db import models
+from django.conf import settings
+from django.core import validators
+from django.core.validators import FileExtensionValidator
+from django.db import models, transaction
 from django.utils import timezone
+from django.utils.functional import cached_property
+from push_notifications.models import GCMDevice, APNSDevice
 from stdimage import StdImageField
 from stdimage.validators import MinSizeValidator
 
 from agir.lib.models import TimeStampedModel, DescriptionField, BaseAPIResource
+from agir.lib.utils import front_url, is_absolute_url
 
-#
+__all__ = ["Activity", "Announcement", "PushAnnouncement"]
 
-__all__ = ["Activity", "Announcement"]
+from agir.lib.validators import FileSizeValidator
 
 
 class ActivityQuerySet(models.QuerySet):
@@ -28,6 +34,7 @@ class ActivityManager(models.Manager.from_queryset(ActivityQuerySet)):
 
 
 class Activity(TimeStampedModel):
+    TYPE_PUSH_ANNOUNCEMENT = "push-announcement"
     TYPE_REFERRAL = "referral-accepted"
 
     # PERSON/EVENT TYPES
@@ -249,6 +256,13 @@ class Activity(TimeStampedModel):
         related_query_name="activity",
         null=True,
     )
+    push_announcement = models.ForeignKey(
+        "PushAnnouncement",
+        on_delete=models.CASCADE,
+        related_name="activities",
+        related_query_name="activity",
+        null=True,
+    )
 
     meta = models.JSONField("Autres données", blank=True, default=dict)
 
@@ -272,6 +286,11 @@ class Activity(TimeStampedModel):
                 fields=["recipient", "announcement"],
                 condition=models.Q(type="announcement"),
                 name="unique_for_recipient_and_announcement",
+            ),
+            models.UniqueConstraint(
+                fields=["recipient", "push_announcement"],
+                condition=models.Q(type="push_announcement"),
+                name="unique_for_recipient_and_push_announcement",
             ),
         ]
 
@@ -365,3 +384,259 @@ class Announcement(BaseAPIResource):
             ),
         )
         ordering = ("-start_date", "end_date")
+
+
+class PushAnnouncement(BaseAPIResource):
+    title = models.CharField(
+        verbose_name="Titre",
+        max_length=50,
+        blank=True,
+        default="",
+        help_text="Max. 50 caractères.",
+    )
+
+    subtitle = models.CharField(
+        verbose_name="Sous-titre",
+        max_length=60,
+        blank=True,
+        default="",
+        help_text="Max. 60 caractères. Le sous-titre s'affichera uniquement sur iOS.",
+    )
+
+    message = models.TextField(
+        verbose_name="Message",
+        blank=False,
+        help_text="Longueur max. conséillée env. 150 caractères sur iOS et 240 sur Android.",
+    )
+
+    link = models.URLField(
+        verbose_name="Lien",
+        blank=False,
+        help_text="Le lien à ouvrir lors du clic sur la notification.",
+    )
+
+    image = StdImageField(
+        verbose_name="Image",
+        validators=[
+            FileSizeValidator(5 * 1024 * 1024),
+            FileExtensionValidator(["jpg", "jpeg", "png"]),
+        ],
+        upload_to=dynamic_filenames.FilePattern(
+            filename_pattern="activity/pushannouncements/image/{uuid:.2base32}/{uuid:s}{ext}"
+        ),
+        null=True,
+        blank=True,
+        help_text="Utiliser une image avec un ratio de 2:1 et de maximum 5 MB.",
+    )
+
+    thread_id = models.CharField(
+        verbose_name="Idéntifiant de groupe",
+        max_length=64,
+        blank=True,
+        default="",
+        help_text="Max. 64 caractères. Si indiqué, permet de regrouper les notifications avec le même "
+        "identifiant de groupe ensemble.",
+    )
+
+    ttl = models.IntegerField(
+        verbose_name="Durée de vie (en secondes)",
+        validators=[
+            validators.MinValueValidator(1),
+            validators.MaxValueValidator(2419200),  # 28 days
+        ],
+        blank=False,
+        default=259200,  # 3 days
+        help_text="Max. 28 jours. La notification ne sera pas reçue si l'appareil n'est "
+        "pas connecté au réseau pendant le temps indiqué.",
+    )
+
+    segment = models.ForeignKey(
+        to="mailing.Segment",
+        verbose_name="Segment",
+        on_delete=models.CASCADE,
+        related_name="push_notifications",
+        related_query_name="push_notification",
+        null=False,
+        blank=False,
+        help_text="Segment des personnes auquel ce message sera envoyé.",
+    )
+
+    has_ios = models.BooleanField(
+        verbose_name="Envoyer aux appareils iOS", default=True, blank=False
+    )
+
+    has_android = models.BooleanField(
+        verbose_name="Envoyer aux appareils Android", default=True, blank=False
+    )
+
+    sending_meta = models.JSONField(
+        "Résultats de l'envoi", blank=True, default=dict, editable=False
+    )
+    sending_date = models.DateTimeField(
+        "Date d'envoi",
+        null=True,
+        default=None,
+        editable=False,
+    )
+
+    @cached_property
+    def subscribers(self):
+        return self.segment.get_subscribers_queryset()
+
+    @cached_property
+    def android_subscriber_devices(self):
+        if not self.has_android:
+            return GCMDevice.objects.none()
+        subscribers = self.segment.get_subscribers_queryset()
+        return GCMDevice.objects.filter(
+            active=True, user__is_active=True, user__person__in=subscribers
+        )
+
+    @cached_property
+    def ios_subscriber_devices(self):
+        if not self.has_ios:
+            return APNSDevice.objects.none()
+        subscribers = self.segment.get_subscribers_queryset()
+        return APNSDevice.objects.filter(
+            active=True, user__is_active=True, user__person__in=subscribers
+        )
+
+    @cached_property
+    def android_recipient_device_count(self):
+        return self.android_subscriber_devices.count()
+
+    @cached_property
+    def ios_recipient_device_count(self):
+        return self.ios_subscriber_devices.count()
+
+    @cached_property
+    def recipient_device_count(self):
+        return self.android_recipient_device_count + self.ios_recipient_device_count
+
+    @cached_property
+    def recipient_ids(self):
+        return list(
+            set(
+                self.android_subscriber_devices.values_list(
+                    "user__person__id", flat=True
+                ).union(
+                    self.ios_subscriber_devices.values_list(
+                        "user__person__id", flat=True
+                    )
+                )
+            )
+        )
+
+    def recipient_count(self):
+        return len(self.recipient_ids)
+
+    def displayed_count(self):
+        return self.activities.filter(
+            push_status__in=(Activity.STATUS_DISPLAYED, Activity.STATUS_INTERACTED)
+        ).count()
+
+    def clicked_count(self):
+        return self.activities.filter(push_status=Activity.STATUS_INTERACTED).count()
+
+    def get_absolute_image_url(self):
+        if not self.image:
+            return None
+
+        image_url = self.image.storage.url(self.image.name)
+        if not is_absolute_url(image_url):
+            image_url = settings.FRONT_DOMAIN + image_url
+
+        return image_url
+
+    def get_link_url(self):
+        return front_url(
+            "activity:push_announcement_link", args=[self.pk], absolute=True
+        )
+
+    def get_notification_kwargs(self):
+        base_notification = {
+            "title": self.title,
+            "body": self.message,
+            "image": self.get_absolute_image_url(),
+        }
+        android_kwargs = {
+            "message": None,
+            "time_to_live": self.ttl,
+            "extra": {
+                **base_notification,
+                "collapse_id": str(self.id),
+                "url": self.get_link_url(),
+                "android_group": self.thread_id,
+            },
+        }
+        ios_kwargs = {
+            "message": {
+                **base_notification,
+                "subtitle": self.subtitle,
+                "thread_id": self.thread_id,
+            },
+            "expiration": self.ttl,
+            "collapse_id": str(self.id),
+            "extra": {"url": self.get_link_url()},
+        }
+
+        return android_kwargs, ios_kwargs
+
+    def can_send(self):
+        return self.sending_date is None
+
+    def send(self):
+        recipient_count = self.recipient_count()
+
+        if not self.can_send():
+            raise Exception("Cette annonce a déjà été envoyée")
+
+        if recipient_count == 0:
+            raise Exception(
+                "Aucun destinataire n'a été trouvé pour le segment spécifié"
+            )
+
+        # Get notification payloads
+        android_kwargs, ios_kwargs = self.get_notification_kwargs()
+
+        # Send messages
+        try:
+            android_response = self.android_subscriber_devices.send_message(
+                **android_kwargs
+            )
+        except Exception as e:
+            android_response = f"Exception: {str(e)}"
+
+        try:
+            ios_response = self.ios_subscriber_devices.send_message(**ios_kwargs)
+        except Exception as e:
+            ios_response = f"Exception: {str(e)}"
+
+        with transaction.atomic():
+            # Create activities
+            Activity.objects.bulk_create(
+                [
+                    Activity(
+                        type=Activity.TYPE_PUSH_ANNOUNCEMENT,
+                        recipient_id=recipient_id,
+                        push_announcement_id=self.id,
+                        status=Activity.STATUS_UNDISPLAYED,
+                        push_status=Activity.STATUS_DISPLAYED,
+                    )
+                    for recipient_id in self.recipient_ids
+                ],
+                ignore_conflicts=True,
+            )
+
+            # Update sending data
+            self.sending_date = timezone.now()
+            self.sending_meta = {"android": android_response, "ios": ios_response}
+            self.save()
+
+    def __str__(self):
+        return f"Annonce push « {self.title} »"
+
+    class Meta:
+        verbose_name = "Annonce push"
+        verbose_name_plural = "Annonces push"
+        ordering = ("-created",)

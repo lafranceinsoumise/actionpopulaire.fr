@@ -902,3 +902,38 @@ def create_transfer_membership_activities(
         ],
         send_post_save_signal=True,
     )
+
+
+@emailing_task()
+def send_newly_certified_group_notifications(supportgroup_pk):
+    supportgroup = SupportGroup.objects.get(pk=supportgroup_pk)
+    recipients = supportgroup.referents
+    send_template_email(
+        template_name="groups/email/newly_certified_group_email.html",
+        from_email=settings.EMAIL_FROM,
+        bindings={
+            "group": supportgroup,
+            "url": {
+                "group_page": front_url(
+                    "view_group",
+                    args=[supportgroup_pk],
+                    absolute=True,
+                ),
+                "view_group_settings_materiel": front_url(
+                    "view_group_settings_materiel",
+                    args=[supportgroup_pk],
+                    absolute=True,
+                ),
+                "contribution_amount": front_url(
+                    "contribution_amount",
+                    absolute=True,
+                    query={"group": supportgroup_pk},
+                ),
+                "create_event": front_url(
+                    "create_event", absolute=True, query={"group": supportgroup_pk}
+                ),
+                "group_map_page": front_url("group_map_page", absolute=True),
+            },
+        },
+        recipients=[*recipients, settings.EMAIL_SUPPORT],
+    )

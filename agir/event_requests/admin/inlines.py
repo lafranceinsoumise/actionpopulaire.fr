@@ -1,12 +1,16 @@
+import os
+
 from django.contrib import admin
 from django.db.models import TextField
 from django.forms import Textarea
 from django.urls import reverse
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 
 from agir.event_requests import models
 from agir.events.models import Event
 from agir.lib.admin.inlines import NonrelatedTabularInline
-from agir.lib.admin.utils import display_link
+from agir.lib.admin.utils import display_link, admin_url
 from agir.people.models import Person
 
 
@@ -31,14 +35,53 @@ class EventAssetInline(admin.TabularInline):
     verbose_name = "visuel de l'événement"
     verbose_name_plural = "visuels de l'événement"
     model = models.EventAsset
-    fields = ("name", "file", "published", "is_image")
-    readonly_fields = ("published", "is_image")
+    fields = ("name", "file", "published", "image")
+    readonly_fields = ("thumbnail", "published", "image")
     show_change_link = True
     extra = 0
 
-    @admin.display(description="Image de l'événement", boolean=True)
-    def is_image(self, obj):
-        return obj.is_event_image
+    @admin.display(description="Image de bannière")
+    def image(self, obj):
+        if obj.is_event_image:
+            return mark_safe('<img src="/static/admin/img/icon-yes.svg" alt="True">')
+
+        if obj.is_event_image_candidate:
+            return format_html(
+                '<a href="{}" class="button" title="Utiliser comme image de bannière">✔ Sélectionner</a>',
+                admin_url(
+                    f"{self.opts.app_label}_{self.opts.model_name}_set_as_event_image",
+                    args=[obj.id],
+                ),
+            )
+        return mark_safe('<img src="/static/admin/img/icon-no.svg" alt="False">')
+
+    @admin.display(description="Aperçu")
+    def thumbnail(self, obj):
+        if obj.is_event_image or obj.is_event_image_candidate:
+            src = obj.file.url
+        else:
+            src = (
+                "https://placehold.co/160x160/e9e1ff/cbbfec?font=playfair-display&text="
+            )
+            if obj.file.name:
+                _, ext = os.path.splitext(obj.file.name)
+                src += ext.lower().replace(".", "")
+            else:
+                src += "…"
+
+        return format_html(
+            '<img style="max-height:85px;width:100%;height:auto;" src="{}" alt={} />',
+            src,
+            obj.name,
+        )
+
+    def get_fields(self, request, obj=None):
+        fields = super().get_fields(request, obj)
+        if obj and not obj._state.adding:
+            for asset in obj.event_assets.all():
+                if asset.is_event_image_candidate:
+                    return "thumbnail", *fields
+        return fields
 
 
 class EventThemeInline(admin.TabularInline):
@@ -107,8 +150,10 @@ class EventSpeakerRequestInline(admin.TabularInline):
 
     def has_change_permission(self, request, obj=None):
         has_change_permission = super().has_change_permission(request, obj)
-        if not has_change_permission:
+
+        if not obj or not has_change_permission:
             return False
+
         return False == (
             obj.event_theme.event_theme_type.has_event_speaker_request_emails
         )
