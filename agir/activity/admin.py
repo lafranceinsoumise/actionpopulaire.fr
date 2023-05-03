@@ -124,6 +124,9 @@ class AnnouncementAdmin(admin.ModelAdmin):
 
 @admin.register(PushAnnouncement)
 class PushAnnouncementAdmin(admin.ModelAdmin):
+    save_as = True
+    save_as_continue = True
+    save_on_top = True
     fieldsets = (
         (
             "Paramètres du message",
