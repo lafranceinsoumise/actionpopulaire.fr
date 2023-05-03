@@ -9,6 +9,7 @@ from agir.event_requests.actions import (
     EventRequestValidationError,
 )
 from agir.event_requests.models import EventRequest
+from agir.events.models import Event
 
 
 def accept_event_speaker_request(model_admin, request, pk):
@@ -113,5 +114,37 @@ def accept_event_request(model_admin, request, pk):
         minutes sur la page d'administration de l'événement.
         """
         messages.success(request, success_message)
+
+    return response
+
+
+def set_event_asset_as_event_image(model_admin, request, pk):
+    if not model_admin.has_change_permission(request):
+        raise PermissionDenied
+
+    event_asset = model_admin.get_object(request, pk)
+
+    if event_asset is None:
+        raise Http404("Le visuel n'a pas pu être retrouvé.")
+
+    response = HttpResponseRedirect(
+        reverse(
+            "%s:%s_%s_change"
+            % (
+                model_admin.admin_site.name,
+                Event._meta.app_label,
+                Event._meta.model_name,
+            ),
+            args=(event_asset.event.id,),
+        )
+    )
+
+    if event_asset.is_event_image_candidate:
+        event_asset.set_as_event_image(event_asset.file)
+        messages.success(request, "L'image de l'événement a bien été mise à jour")
+    else:
+        messages.warning(
+            request, "Ce visuel ne peut pas être utilisé comme image d'événement"
+        )
 
     return response
