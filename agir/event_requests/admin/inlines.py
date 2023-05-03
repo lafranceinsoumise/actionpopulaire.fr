@@ -150,8 +150,10 @@ class EventSpeakerRequestInline(admin.TabularInline):
 
     def has_change_permission(self, request, obj=None):
         has_change_permission = super().has_change_permission(request, obj)
-        if not has_change_permission:
+
+        if not obj or not has_change_permission:
             return False
+
         return False == (
             obj.event_theme.event_theme_type.has_event_speaker_request_emails
         )
