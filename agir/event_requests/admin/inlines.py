@@ -40,14 +40,14 @@ class EventAssetInline(admin.TabularInline):
     show_change_link = True
     extra = 0
 
-    @admin.display(description="Image de l'événement")
+    @admin.display(description="Image de bannière")
     def image(self, obj):
         if obj.is_event_image:
             return mark_safe('<img src="/static/admin/img/icon-yes.svg" alt="True">')
 
         if obj.is_event_image_candidate:
             return format_html(
-                '<a href="{}" class="button">Utiliser comme image</a>',
+                '<a href="{}" class="button" title="Utiliser comme image de bannière">✔ Sélectionner</a>',
                 admin_url(
                     f"{self.opts.app_label}_{self.opts.model_name}_set_as_event_image",
                     args=[obj.id],
