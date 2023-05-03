@@ -1,5 +1,9 @@
-import { init, reactRouterV5Instrumentation } from "@sentry/react";
-import { Integrations } from "@sentry/tracing";
+import {
+  init,
+  reactRouterV5Instrumentation,
+  Replay,
+  BrowserTracing,
+} from "@sentry/react";
 import { isMatchingPattern } from "@sentry/utils";
 
 import { createBrowserHistory } from "history";
@@ -16,7 +20,7 @@ if (process.env.NODE_ENV === "production") {
     autoSessionTracking: true,
     release: process.env.SENTRY_RELEASE,
     integrations: [
-      new Integrations.BrowserTracing({
+      new BrowserTracing({
         shouldCreateSpanForRequest: (url) => {
           if (isMatchingPattern(url, "/api/session/")) {
             return false;
@@ -30,11 +34,19 @@ if (process.env.NODE_ENV === "production") {
           matchPath
         ),
       }),
+      new Replay(),
     ],
 
     // We recommend adjusting this value in production, or using tracesSampler
     // for finer control
     tracesSampleRate: 0.1,
+
+    // This sets the sample rate to be 0.5%. You may want this to be 100% while
+    // in development and sample at a lower rate in production
+    replaysSessionSampleRate: 0.005,
+    // If the entire session is not sampled, use the below sample rate to sample
+    // sessions when an error occurs.
+    replaysOnErrorSampleRate: 1.0,
 
     ignoreErrors: [
       // CUSTOM IGNORE RULES

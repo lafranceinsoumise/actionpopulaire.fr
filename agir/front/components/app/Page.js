@@ -21,7 +21,7 @@ import Layout from "@agir/front/app/Layout";
 
 import logger from "@agir/lib/utils/logger";
 import ErrorBoundary from "./ErrorBoundary";
-import useTracking from "./useTracking";
+
 import Redirect from "./Redirect";
 
 const log = logger(__filename);
@@ -44,8 +44,6 @@ const Page = (props) => {
   const history = useHistory();
   const routeParams = useParams();
   const { pathname } = useLocation();
-
-  useTracking();
 
   useMemo(() => {
     if (!routeConfig.isPartial) {
