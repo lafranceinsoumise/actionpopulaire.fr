@@ -1,3 +1,6 @@
+import os
+from pathlib import Path
+
 from django.conf import settings
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import ArrayField
@@ -15,6 +18,7 @@ from dynamic_filenames import FilePattern
 
 from agir.events.models import Event
 from agir.events.models import Event, Calendar
+from agir.lib.admin.utils import admin_url
 from agir.lib.documents import (
     render_svg_template,
     rsvg_convert,
@@ -140,6 +144,36 @@ class EventAsset(BaseAPIResource):
     def renderable(self):
         return self.template_id and self.event_id
 
+    @property
+    def is_event_image_candidate(self):
+        return (
+            self.event_id and not self.is_event_image and self.file.name.endswith("png")
+        )
+
+    def get_filename(self, from_template=False):
+        if from_template:
+            return f"{slugify(self.template.name)}.{self.template.target_format}"
+
+        if self.file:
+            return os.path.basename(self.file.name)
+
+        return ""
+
+    def set_as_event_image(self, save=True):
+        with transaction.atomic():
+            # Reset event's assets
+            self.event.event_assets.filter(is_event_image=True).update(
+                published=False, is_event_image=False
+            )
+            # Add image file to event
+            self.event.image.save(self.get_filename(), self.file)
+            self.event.save()
+            # Update event asset
+            self.published = True
+            self.is_event_image = True
+            if save:
+                self.save()
+
     def render(self):
         if not self.renderable:
             raise self.EventAssetRenderingException(
@@ -153,14 +187,11 @@ class EventAsset(BaseAPIResource):
             file = rsvg_convert(
                 rendered_svg,
                 to_format=self.template.target_format,
-                filename=slugify(self.name),
+                filename=self.get_filename(from_template=True),
             )
             self.file = file
             if self.is_event_image:
-                self.event.image = file
-                self.event.save()
-                self.published = True
-                self.file = self.event.image
+                self.set_as_event_image(save=False)
             self.save()
 
     class Meta:

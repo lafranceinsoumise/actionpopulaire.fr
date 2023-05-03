@@ -86,4 +86,4 @@ def rsvg_convert(
     if rsvg.returncode:
         raise TicketGenerationException("Return code: %d" % rsvg.returncode)
 
-    return File(io.BytesIO(output), name=f"{filename}.{to_format}")
+    return File(io.BytesIO(output), name=filename)
