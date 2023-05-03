@@ -419,14 +419,14 @@ class PushAnnouncement(BaseAPIResource):
         verbose_name="Image",
         validators=[
             FileSizeValidator(5 * 1024 * 1024),
-            FileExtensionValidator(["jpg", "jpeg", "png"]),
+            FileExtensionValidator(["jpg", "jpeg"]),
         ],
         upload_to=dynamic_filenames.FilePattern(
             filename_pattern="activity/pushannouncements/image/{uuid:.2base32}/{uuid:s}{ext}"
         ),
         null=True,
         blank=True,
-        help_text="Utiliser une image avec un ratio de 2:1 et de maximum 5 MB.",
+        help_text="Utiliser une image au format JPEG avec un ratio de 2:1 et de maximum 5 MB.",
     )
 
     thread_id = models.CharField(
@@ -630,8 +630,20 @@ class PushAnnouncement(BaseAPIResource):
 
             # Update sending data
             self.sending_date = timezone.now()
-            self.sending_meta = {"android": android_response, "ios": ios_response}
+            self.sending_meta = {
+                "recipients": recipient_count,
+                "android": {
+                    "recipients": self.android_subscriber_devices.count(),
+                    "result": android_response,
+                },
+                "ios": {
+                    "recipients": self.ios_subscriber_devices.count(),
+                    "result": ios_response,
+                },
+            }
             self.save()
+
+            return recipient_count
 
     def __str__(self):
         return f"Annonce push « {self.title} »"
