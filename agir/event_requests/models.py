@@ -186,7 +186,7 @@ class EventAsset(BaseAPIResource):
                 to_format=self.template.target_format,
                 filename=self.get_filename(from_template=True),
             )
-            self.file = file
+            self.file.save(file.name, file)
             if self.is_event_image:
                 self.set_as_event_image(save=False)
             self.save()
