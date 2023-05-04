@@ -208,27 +208,11 @@ class EventAsset(BaseAPIResource):
         )
 
 
-class ModelWithCalendarManager(models.Manager):
-    def create(self, **kwargs):
-        from agir.event_requests.actions import create_calendar_for_object
-
-        with transaction.atomic():
-            obj = super().create(**kwargs)
-            create_calendar_for_object(obj)
-            return obj
-
-
-class EventThemeTypeQueryset(models.QuerySet):
+class EventThemeTypeQuerySet(models.QuerySet):
     def with_admin_prefetch(self):
         return self.select_related(
             "event_themes", "calendar", "event_subtype"
         ).prefetch_related("event_asset_templates")
-
-
-class EventThemeTypeManager(
-    ModelWithCalendarManager.from_queryset(EventThemeTypeQueryset)
-):
-    pass
 
 
 class EventThemeTypeEventRequestValidationMode(models.TextChoices):
@@ -243,7 +227,7 @@ class EventThemeTypeEventRequestValidationMode(models.TextChoices):
 
 
 class EventThemeType(models.Model):
-    objects = EventThemeTypeManager()
+    objects = EventThemeTypeQuerySet.as_manager()
 
     name = models.CharField("nom", blank=False, null=False, max_length=255)
     event_subtype = models.ForeignKey(
@@ -338,6 +322,14 @@ class EventThemeType(models.Model):
     def __str__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        if not self.calendar_id:
+            from agir.event_requests.actions import create_calendar_for_object
+
+            create_calendar_for_object(self, save=False)
+
+        super().save(*args, **kwargs)
+
     def get_event_speaker_request_email_bindings(self):
         subject = self.event_speaker_request_email_subject
         if not subject:
@@ -368,12 +360,8 @@ class EventThemeQuerySet(models.QuerySet):
         )
 
 
-class EventThemeManager(ModelWithCalendarManager.from_queryset(EventThemeQuerySet)):
-    pass
-
-
 class EventTheme(BaseAPIResource):
-    objects = EventThemeManager()
+    objects = EventThemeQuerySet.as_manager()
 
     name = models.CharField("nom", blank=False, null=False, max_length=255)
     description = DescriptionField(
@@ -503,6 +491,14 @@ class EventTheme(BaseAPIResource):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.calendar_id:
+            from agir.event_requests.actions import create_calendar_for_object
+
+            create_calendar_for_object(self, save=False)
+
+        super().save(*args, **kwargs)
 
     def get_event_image_template_id(self):
         # Defaults to the event theme type event image template
