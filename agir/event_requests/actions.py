@@ -32,7 +32,7 @@ class EventSpeakerRequestValidationError(Exception):
     pass
 
 
-def create_calendar_for_object(obj):
+def create_calendar_for_object(obj, save=True):
     if not hasattr(obj, "calendar"):
         return
 
@@ -56,7 +56,9 @@ def create_calendar_for_object(obj):
     )
 
     obj.calendar_id = calendar.id
-    obj.save()
+
+    if save:
+        obj.save()
 
 
 def schedule_new_event_tasks(event_request):
