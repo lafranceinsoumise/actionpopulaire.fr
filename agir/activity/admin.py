@@ -7,7 +7,6 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ngettext
 
 from agir.activity.models import Activity, Announcement, PushAnnouncement
-from agir.lib.admin.utils import display_link
 from agir.lib.search import PrefixSearchQuery
 
 
@@ -126,8 +125,8 @@ class AnnouncementAdmin(admin.ModelAdmin):
 @admin.register(PushAnnouncement)
 class PushAnnouncementAdmin(admin.ModelAdmin):
     save_as = True
+    save_as_continue = True
     save_on_top = True
-
     fieldsets = (
         (
             "Paramètres du message",
@@ -140,7 +139,19 @@ class PushAnnouncementAdmin(admin.ModelAdmin):
                     "image",
                     "thread_id",
                     "ttl",
+                    "has_ios",
+                    "has_android",
                     "notification_data",
+                )
+            },
+        ),
+        (
+            "Paramètres de test",
+            {
+                "fields": (
+                    "test_segment",
+                    "test_recipient_count",
+                    "test_action_buttons",
                 )
             },
         ),
@@ -149,8 +160,6 @@ class PushAnnouncementAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     "segment",
-                    "has_ios",
-                    "has_android",
                     "action_buttons",
                 )
             },
@@ -160,9 +169,9 @@ class PushAnnouncementAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     "sending_date",
-                    "sending_meta",
                     "recipient_count",
                     "clicked_count",
+                    "sending_data",
                 )
             },
         ),
@@ -170,35 +179,15 @@ class PushAnnouncementAdmin(admin.ModelAdmin):
 
     readonly_fields = [
         "notification_data",
+        "test_recipient_count",
         "sending_date",
-        "sending_meta",
+        "sending_data",
         "recipient_count",
         "clicked_count",
+        "test_action_buttons",
         "action_buttons",
     ]
     autocomplete_fields = ("segment",)
-    list_display = ("__str__", "segment_link", "has_android", "has_ios", "sending_date")
-
-    @admin.display(description="Segment", ordering="segment")
-    def segment_link(self, obj):
-        if not obj:
-            return "-"
-
-        return display_link(obj.segment)
-
-    @admin.display(description="Nombre de destinataires")
-    def recipient_count(self, obj):
-        if obj._state.adding:
-            return "-"
-
-        return obj.recipient_count()
-
-    @admin.display(description="Nombre de clics")
-    def clicked_count(self, obj):
-        if obj._state.adding:
-            return "-"
-
-        return obj.clicked_count()
 
     @admin.display(description="Données")
     def notification_data(self, obj):
@@ -214,6 +203,63 @@ class PushAnnouncementAdmin(admin.ModelAdmin):
             mark_safe(json.dumps({"android": android, "ios": ios}, indent=2)),
         )
 
+    @admin.display(description="Nombre de destinataires de test")
+    def test_recipient_count(self, obj):
+        if obj._state.adding or not obj.test_segment:
+            return "-"
+
+        return obj.test_recipient_count()
+
+    @admin.display(description="Nombre de destinataires")
+    def recipient_count(self, obj):
+        if obj._state.adding:
+            return "-"
+
+        if obj.can_send():
+            return obj.recipient_count()
+
+        return obj.displayed_count()
+
+    @admin.display(description="Nombre de clics")
+    def clicked_count(self, obj):
+        if obj._state.adding:
+            return "-"
+
+        return obj.clicked_count()
+
+    @admin.display(description="Données")
+    def sending_data(self, obj):
+        if obj._state.adding or not obj.sending_meta:
+            return "-"
+
+        return format_html(
+            "<details>"
+            "<summary style='cursor:pointer;'>Données de l'envoi</summary>"
+            "<pre>{}</pre>"
+            "</details>",
+            mark_safe(json.dumps(obj.sending_meta, indent=2)),
+        )
+
+    @admin.display(description="Actions")
+    def test_action_buttons(self, obj):
+        if obj._state.adding or not obj.test_segment:
+            return "-"
+
+        return format_html(
+            "<input type='submit' "
+            "name='_test' "
+            "style='border-radius:8px;background:#f4ed0f;color:#000a2c;font-weight:bold;' "
+            "value='📲&ensp;{}' />",
+            "ENVOYER AU SEGMENT DE TEST",
+        ) + format_html(
+            "<div class='help' style='margin: 4px 0 0; padding: 0;'>"
+            "Attention : cliquer sur ce bouton recharge la page sans sauvegarder vos modifications courantes."
+            "<br />"
+            "Les notifications seront envoyées aux appareils des personnes du segment de test spécifié. Aucune notice "
+            "d'activité sera créée.<br />Vous pouvez envoyer des notifications de test autant de fois que vous voulez."
+            "</div>"
+        )
+
     @admin.display(description="Actions")
     def action_buttons(self, obj):
         if obj._state.adding or not obj.can_send():
@@ -222,15 +268,24 @@ class PushAnnouncementAdmin(admin.ModelAdmin):
         return format_html(
             "<input type='submit' "
             "name='_send' "
-            "style='border-radius:0;background:#078080;font-weight:bold;' "
-            "value='{}' />",
-            "📨 Envoyer l'annonce",
+            "style='border-radius:8px;background:#571aff;font-weight:bold;' "
+            "value='🚀&ensp;{}' />",
+            "ENVOYER L'ANNONCE",
+        ) + format_html(
+            "<div class='help' style='margin: 4px 0 0; padding: 0;'>"
+            "Attention : cliquer sur ce bouton recharge la page sans sauvegarder vos modifications courantes."
+            "<br />"
+            "Les notifications seront envoyées aux appareils des personnes du segment spécifié et des notices "
+            "d'activité seront créés pour pouvoir compter le nombre de clics.<br />Une fois l'annonce envoyée il ne sera "
+            "plus possible de la renvoyer."
+            "</div>"
         )
 
     def response_change(self, request, obj):
         if "_send" in request.POST:
             try:
-                recipient_count = obj.send()
+                obj.send()
+                recipient_count = obj.sending_meta.get("recipients")
                 self.message_user(
                     request,
                     ngettext(
@@ -238,6 +293,22 @@ class PushAnnouncementAdmin(admin.ModelAdmin):
                         f"L'annonce push a été envoyée à {recipient_count} personnes !",
                         recipient_count,
                     ),
+                )
+            except Exception as e:
+                self.message_user(
+                    request,
+                    str(e),
+                    level=messages.WARNING,
+                )
+            return HttpResponseRedirect(".")
+
+        if "_test" in request.POST:
+            try:
+                result = obj.test()
+                result = json.dumps(result, sort_keys=True, indent=2)
+                self.message_user(
+                    request,
+                    mark_safe(f"Résultat de l'envoi de test :<pre>{result}</pre>"),
                 )
             except Exception as e:
                 self.message_user(
