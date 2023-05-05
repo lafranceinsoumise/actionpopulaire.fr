@@ -24,7 +24,7 @@ from agir.lib.data import departements
 from agir.lib.geo import geocode_element
 from agir.lib.html import sanitize_html
 from agir.lib.mailing import send_mosaico_email, send_template_email
-from agir.lib.utils import clean_subject_email, is_absolute_url
+from agir.lib.utils import clean_subject_email
 from agir.lib.utils import front_url
 from agir.msgs.models import SupportGroupMessage, SupportGroupMessageComment
 from agir.notifications.models import Subscription
@@ -32,7 +32,7 @@ from agir.people.actions.subscription import make_subscription_token
 from agir.people.models import Person
 from agir.people.models import PersonTag
 from .actions.invitation import make_abusive_invitation_report_link
-from .utils.supportgroup import DAYS_SINCE_LAST_EVENT_WARNING
+from .utils.certification import check_certification_criteria
 
 NOTIFIED_CHANGES = {
     "name": "information",
@@ -631,22 +631,6 @@ def send_comment_notification_email(comment_pk):
     )
 
 
-@emailing_task()
-def send_soon_to_be_inactive_group_warning(supportgroup_pk):
-    supportgroup = SupportGroup.objects.get(pk=supportgroup_pk)
-    recipients = supportgroup.referents
-    send_template_email(
-        template_name="groups/email/soon_to_be_inactive_group_warning_email.html",
-        from_email=settings.EMAIL_FROM,
-        bindings={
-            "GROUP_NAME": supportgroup.name,
-            "GROUP_PAGE_URL": front_url("view_group", kwargs={"pk": supportgroup_pk}),
-            "DAYS_SINCE_LAST_EVENT_WARNING": DAYS_SINCE_LAST_EVENT_WARNING,
-        },
-        recipients=recipients,
-    )
-
-
 def effectuer_changements(boucle, membres_souhaites, metas, dry_run=False):
     membres_actuels = set(boucle.members.values_list("id", flat=True))
 
@@ -936,4 +920,47 @@ def send_newly_certified_group_notifications(supportgroup_pk):
             },
         },
         recipients=[*recipients, settings.EMAIL_SUPPORT],
+    )
+
+
+@emailing_task()
+def send_uncertifiable_group_warning(supportgroup_pk, expiration_in_days):
+    supportgroup = SupportGroup.objects.get(pk=supportgroup_pk)
+    recipients = supportgroup.referents
+    certification_criteria = check_certification_criteria(supportgroup)
+    Activity.objects.bulk_create(
+        [
+            Activity(
+                type=Activity.TYPE_UNCERTIFIABLE_GROUP_WARNING,
+                recipient=r,
+                supportgroup_id=supportgroup_pk,
+                meta={
+                    "criteria": certification_criteria,
+                    "expiration": expiration_in_days,
+                },
+            )
+            for r in recipients
+        ],
+        send_post_save_signal=True,
+    )
+    send_template_email(
+        template_name="groups/email/uncertifiable_group_warning.html",
+        from_email=settings.EMAIL_FROM,
+        bindings={
+            "group": supportgroup,
+            "expiration_in_days": expiration_in_days,
+            "certification_criteria": certification_criteria,
+        },
+        recipients=recipients,
+    )
+
+
+@emailing_task()
+def send_uncertifiable_group_list(supportgroup_pks, expiration_in_days):
+    supportgroups = SupportGroup.objects.filter(pk__in=supportgroup_pks)
+    send_template_email(
+        template_name="groups/email/uncertifiable_group_list.html",
+        from_email=settings.EMAIL_FROM,
+        bindings={"groups": supportgroups, "expiration_in_days": expiration_in_days},
+        recipients=[settings.EMAIL_FROM],
     )
