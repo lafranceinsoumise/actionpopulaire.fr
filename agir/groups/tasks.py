@@ -1,6 +1,7 @@
 from collections import OrderedDict
 
 import ics
+import reversion
 from data_france.models import CirconscriptionConsulaire, CirconscriptionLegislative
 from django.conf import settings
 from django.db.models import F
@@ -953,6 +954,12 @@ def send_uncertifiable_group_warning(supportgroup_pk, expiration_in_days):
         },
         recipients=recipients,
     )
+    with reversion.create_revision():
+        reversion.set_comment(
+            "Avertissement envoyé pour non-respect des critères de certification"
+        )
+        reversion.set_date_created(timezone.now())
+        reversion.add_to_revision(supportgroup)
 
 
 @emailing_task()
