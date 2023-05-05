@@ -393,6 +393,7 @@ urlpatterns = [
     # DONATION VIEWS
     path("financer/", views.BaseAppCachedView.as_view(), name="donation_landing_page"),
     path("dons/", include(donation_patterns)),
+    path("n/dons/", include(donation_patterns)),
     path("contributions/", include(contribution_patterns)),
     path(
         "dons-mensuels/informations/",

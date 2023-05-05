@@ -11,6 +11,7 @@ export const TYPE_LABEL = {
 };
 
 export const formatAllocations = (data) =>
+  data?.allocations &&
   data.allocations
     .filter(
       (allocation) => allocation.type !== TYPE_NATIONAL && allocation.value
