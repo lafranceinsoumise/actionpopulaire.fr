@@ -9,10 +9,13 @@ from django.contrib.postgres.search import SearchVector, SearchRank
 from django.db import models
 from django.db.models import Subquery, OuterRef, Count, Q, Exists, Max
 from django.db.models.functions import Coalesce
+from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
 
+from agir.activity.models import Activity
 from agir.carte.models import StaticMapImage
+from agir.lib.admin.utils import admin_url
 from agir.lib.form_fields import CustomJSONEncoder
 from agir.lib.models import (
     BaseAPIResource,
@@ -365,9 +368,28 @@ class SupportGroup(
             ).exists()
         )
 
-    @property
+    @cached_property
     def is_certified(self):
         return self.certification_date is not None
+
+    @cached_property
+    def uncertifiable_warning_date(self):
+        if self.certification_date is not None:
+            warning = (
+                self.notifications.filter(
+                    type=Activity.TYPE_UNCERTIFIABLE_GROUP_WARNING,
+                    supportgroup=self,
+                )
+                .filter(timestamp__gte=self.certification_date)
+                .only("timestamp")
+                .order_by("-timestamp")
+                .first()
+            )
+
+            if warning is not None:
+                return warning.timestamp
+
+        return None
 
     @property
     def allow_external(self):
@@ -398,6 +420,14 @@ class SupportGroup(
             "view_og_image_supportgroup",
             kwargs={"pk": self.pk, "cache_key": content_hash},
             absolute=True,
+        )
+
+    def front_url(self):
+        return front_url("view_group", args=(self.pk,), absolute=True)
+
+    def admin_url(self):
+        return admin_url(
+            "admin:groups_supportgroup_change", args=(self.pk,), absolute=True
         )
 
     class Meta:

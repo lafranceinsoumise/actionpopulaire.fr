@@ -25,7 +25,13 @@ class ThematicGroup(SupportGroup):
 
 class UncertifiableGroupManager(models.Manager.from_queryset(SupportGroupQuerySet)):
     def get_queryset(self):
-        qs = super().get_queryset().active().certified()
+        qs = (
+            super()
+            .get_queryset()
+            .active()
+            .certified()
+            .filter(type=SupportGroup.TYPE_LOCAL_GROUP)
+        )
         return add_certification_criteria_to_queryset(qs).filter(certifiable=False)
 
 

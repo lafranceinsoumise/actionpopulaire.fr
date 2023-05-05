@@ -69,6 +69,7 @@ class Activity(TimeStampedModel):
     TYPE_ACCEPTED_INVITATION_MEMBER = "accepted-invitation-member"
     TYPE_TRANSFERRED_GROUP_MEMBER = "transferred-group-member"
     TYPE_NEW_MEMBERS_THROUGH_TRANSFER = "new-members-through-transfer"
+    TYPE_UNCERTIFIABLE_GROUP_WARNING = "uncertifiable-group-warning"
 
     # TODO
     TYPE_GROUP_COORGANIZATION_INFO = "group-coorganization-info"
@@ -187,6 +188,10 @@ class Activity(TimeStampedModel):
             TYPE_REMINDER_UPCOMING_EVENT_START,
             "Rappel du début imminent d'un événement pour les participants",
         ),
+        (
+            TYPE_UNCERTIFIABLE_GROUP_WARNING,
+            "Avertissement aux animateur·ices d'un groupe certifié qui ne respecte plus les critères de certification",
+        ),
     )
 
     STATUS_UNDISPLAYED = "U"
@@ -235,6 +240,7 @@ class Activity(TimeStampedModel):
         related_name="notifications",
         related_query_name="notification",
         null=True,
+        blank=True,
     )
 
     supportgroup = models.ForeignKey(
@@ -243,10 +249,15 @@ class Activity(TimeStampedModel):
         related_name="notifications",
         related_query_name="notification",
         null=True,
+        blank=True,
     )
 
     individual = models.ForeignKey(
-        "people.Person", on_delete=models.CASCADE, related_name="+", null=True
+        "people.Person",
+        on_delete=models.CASCADE,
+        related_name="+",
+        null=True,
+        blank=True,
     )
 
     announcement = models.ForeignKey(
@@ -255,6 +266,7 @@ class Activity(TimeStampedModel):
         related_name="activities",
         related_query_name="activity",
         null=True,
+        blank=True,
     )
     push_announcement = models.ForeignKey(
         "PushAnnouncement",
@@ -262,6 +274,7 @@ class Activity(TimeStampedModel):
         related_name="activities",
         related_query_name="activity",
         null=True,
+        blank=True,
     )
 
     meta = models.JSONField("Autres données", blank=True, default=dict)

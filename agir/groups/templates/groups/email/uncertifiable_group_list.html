@@ -1,0 +1,37 @@
+{% extends email_template %}
+
+{% block header %}{% endblock %}
+
+{% block subject %}
+  Liste des groupes décertifiables
+{% endblock %}
+
+{% block html_content %}
+  <p>Bonjour,</p>
+  <p>
+    Veuillez trouver ci-dessous la liste des groupes d'actions locaux certifiés qui ne respectent plus les critères
+    de certification et dont les animateur·ices ont reçu un avertissement depuis plus de {{ expiration_in_days }} jours.
+  </p>
+  <dl bgcolor="#EEEEEE" style="margin: 16px 0; padding: 24px; background:#EEEEEE; border-radius:8px;">
+  {% for group in groups %}
+    <dt>
+      <a href="{{ group.admin_url }}">
+        {{ group.name }}
+      </a>
+    </dt>
+    <dd style="font-size:0.875em;margin:2px 0 8px;">
+      &mdash; avertissement reçu le <strong>{{  group.uncertifiable_warning_date|date:"j F Y" }}</strong>
+    </dd>
+  {% endfor %}
+  </dl>
+  <p>
+    Amitiés,
+    <br/>
+    <br/>
+    L'équipe d'Action populaire
+    <br/>
+    <a href="mailto:support@actionpopulaire.fr">support@actionpopulaire.fr</a>
+  </p>
+{% endblock %}
+
+{% block html_footer %}{% endblock %}

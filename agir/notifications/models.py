@@ -25,8 +25,10 @@ class Subscription(UUIDIdentified, TimeStampedModel):
         Activity.TYPE_TRANSFERRED_GROUP_MEMBER,
         Activity.TYPE_GROUP_INVITATION,
         Activity.TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
+        Activity.TYPE_UNCERTIFIABLE_GROUP_WARNING,
     )
     MANDATORY_PUSH_TYPES = (
+        Activity.TYPE_PUSH_ANNOUNCEMENT,
         Activity.TYPE_WAITING_PAYMENT,
         # EVENT
         Activity.TYPE_CANCELLED_EVENT,

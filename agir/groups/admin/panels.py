@@ -345,7 +345,15 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
     @admin.display(description="Statut")
     def certification_status(self, obj):
         if obj.is_certified:
-            return f"Certifié depuis le {obj.certification_date.strftime('%d %B %Y')}"
+            status = f"Certifié depuis le {obj.certification_date.strftime('%d %B %Y')}"
+            if obj.uncertifiable_warning_date:
+                status = mark_safe(
+                    f"{status}"
+                    "<br />"
+                    f"— <em>Avertissement de décertification envoyé "
+                    f"le {obj.uncertifiable_warning_date.strftime('%d %B %Y')}</em>"
+                )
+            return status
 
         if obj.is_certifiable:
             return "Éligible à la certification"
