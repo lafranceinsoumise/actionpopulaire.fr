@@ -101,7 +101,7 @@ class Command(BaseCommand):
             self.success(
                 ngettext(
                     f"One warning has been sent.",
-                    f"{str(apnumber(warned)).capitalize()} warning have been sent",
+                    f"{str(apnumber(warned)).capitalize()} warnings have been sent",
                     warned,
                 )
             )
@@ -111,7 +111,7 @@ class Command(BaseCommand):
         else:
             self.success(
                 ngettext(
-                    f"One uncertifiable group have been found and sent to the admin.",
+                    f"One uncertifiable group has been found and sent to the admin.",
                     f"{str(apnumber(uncertifiable)).capitalize()} uncertifiable groups have been found and sent to the admin.",
                     uncertifiable,
                 )
