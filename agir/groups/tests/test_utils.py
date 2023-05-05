@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.utils import timezone
 
 from agir.people.models import Person
-from ..models import SupportGroup, Membership
+from ..models import SupportGroup, Membership, SupportGroupSubtype
 from ..utils.certification import check_certification_criteria
 from ..utils.supportgroup import (
     DAYS_SINCE_GROUP_CREATION_LIMIT,
@@ -196,36 +196,49 @@ class SupportGroupCertificationCriteriaTestCase(TestCase):
         self.assertTrue(criteria["gender"])
 
     def test_supportgroup_exclusivity(self):
-        group = SupportGroup.objects.create(name="G")
-        criteria = check_certification_criteria(group)
+        local_subtype = SupportGroupSubtype.objects.create(
+            type=SupportGroup.TYPE_LOCAL_GROUP, label="local"
+        )
+        local_group = SupportGroup.objects.create(name="G")
+        local_group.subtypes.add(local_subtype)
+
+        criteria = check_certification_criteria(local_group)
         self.assertTrue(criteria["exclusivity"])
 
         person = Person.objects.create_person(f"f@agir.local", create_role=True)
         Membership.objects.create(
-            supportgroup=group,
+            supportgroup=local_group,
             person=person,
             membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
         )
-        criteria = check_certification_criteria(group)
+        criteria = check_certification_criteria(local_group)
         self.assertTrue(criteria["exclusivity"])
 
+        pro_subtype = SupportGroupSubtype.objects.create(
+            type=SupportGroup.TYPE_LOCAL_GROUP, label="pro"
+        )
         second_group = SupportGroup.objects.create(name="GG")
+        second_group.subtypes.add(pro_subtype)
         Membership.objects.create(
             supportgroup=second_group,
             person=person,
             membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
         )
-        criteria = check_certification_criteria(group)
+        criteria = check_certification_criteria(local_group)
         self.assertTrue(criteria["exclusivity"])
 
         second_group.type = SupportGroup.TYPE_LOCAL_GROUP
         second_group.save()
-        criteria = check_certification_criteria(group)
+        criteria = check_certification_criteria(local_group)
         self.assertTrue(criteria["exclusivity"])
 
         second_group.certification_date = timezone.now()
         second_group.save()
         second_group.refresh_from_db()
         self.assertTrue(second_group.is_certified)
-        criteria = check_certification_criteria(group)
+        criteria = check_certification_criteria(local_group)
+        self.assertTrue(criteria["exclusivity"])
+
+        second_group.subtypes.add(local_subtype)
+        criteria = check_certification_criteria(local_group)
         self.assertFalse(criteria["exclusivity"])

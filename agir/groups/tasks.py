@@ -964,3 +964,15 @@ def send_uncertifiable_group_list(supportgroup_pks, expiration_in_days):
         bindings={"groups": supportgroups, "expiration_in_days": expiration_in_days},
         recipients=[settings.EMAIL_FROM],
     )
+
+
+@emailing_task()
+def send_uncertified_group_notifications(supportgroup_pk):
+    supportgroup = SupportGroup.objects.get(pk=supportgroup_pk)
+    recipients = supportgroup.referents
+    send_template_email(
+        template_name="groups/email/uncertified_group_email.html",
+        from_email=settings.EMAIL_FROM,
+        bindings={"group": supportgroup},
+        recipients=[*recipients, settings.EMAIL_SUPPORT],
+    )
