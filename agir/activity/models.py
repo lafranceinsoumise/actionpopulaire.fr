@@ -419,14 +419,14 @@ class PushAnnouncement(BaseAPIResource):
         verbose_name="Image",
         validators=[
             FileSizeValidator(5 * 1024 * 1024),
-            FileExtensionValidator(["jpg", "jpeg", "png"]),
+            FileExtensionValidator(["jpg", "jpeg"]),
         ],
         upload_to=dynamic_filenames.FilePattern(
             filename_pattern="activity/pushannouncements/image/{uuid:.2base32}/{uuid:s}{ext}"
         ),
         null=True,
         blank=True,
-        help_text="Utiliser une image avec un ratio de 2:1 et de maximum 5 MB.",
+        help_text="Utiliser une image au format JPEG avec un ratio de 2:1 et de maximum 5 MB.",
     )
 
     thread_id = models.CharField(
@@ -461,6 +461,17 @@ class PushAnnouncement(BaseAPIResource):
         help_text="Segment des personnes auquel ce message sera envoyé.",
     )
 
+    test_segment = models.ForeignKey(
+        to="mailing.Segment",
+        verbose_name="Segment",
+        on_delete=models.SET_NULL,
+        related_name="+",
+        related_query_name="+",
+        null=True,
+        blank=True,
+        help_text="Segment des personnes auxquelles envoyer des notifications de test",
+    )
+
     has_ios = models.BooleanField(
         verbose_name="Envoyer aux appareils iOS", default=True, blank=False
     )
@@ -484,30 +495,12 @@ class PushAnnouncement(BaseAPIResource):
         return self.segment.get_subscribers_queryset()
 
     @cached_property
-    def android_subscriber_devices(self):
-        if not self.has_android:
-            return GCMDevice.objects.none()
-        subscribers = self.segment.get_subscribers_queryset()
-        return GCMDevice.objects.filter(
-            active=True, user__is_active=True, user__person__in=subscribers
-        )
-
-    @cached_property
-    def ios_subscriber_devices(self):
-        if not self.has_ios:
-            return APNSDevice.objects.none()
-        subscribers = self.segment.get_subscribers_queryset()
-        return APNSDevice.objects.filter(
-            active=True, user__is_active=True, user__person__in=subscribers
-        )
-
-    @cached_property
     def android_recipient_device_count(self):
-        return self.android_subscriber_devices.count()
+        return self.get_android_subscriber_devices(self.segment).count()
 
     @cached_property
     def ios_recipient_device_count(self):
-        return self.ios_subscriber_devices.count()
+        return self.get_ios_subscriber_devices(self.segment).count()
 
     @cached_property
     def recipient_device_count(self):
@@ -517,18 +510,54 @@ class PushAnnouncement(BaseAPIResource):
     def recipient_ids(self):
         return list(
             set(
-                self.android_subscriber_devices.values_list(
-                    "user__person__id", flat=True
-                ).union(
-                    self.ios_subscriber_devices.values_list(
+                self.get_android_subscriber_devices(self.segment)
+                .values_list("user__person__id", flat=True)
+                .union(
+                    self.get_ios_subscriber_devices(self.segment).values_list(
                         "user__person__id", flat=True
                     )
                 )
             )
         )
 
+    @cached_property
+    def test_recipient_ids(self):
+        if not self.test_segment:
+            return []
+
+        return list(
+            set(
+                self.get_android_subscriber_devices(self.test_segment)
+                .values_list("user__person__id", flat=True)
+                .union(
+                    self.get_ios_subscriber_devices(self.test_segment).values_list(
+                        "user__person__id", flat=True
+                    )
+                )
+            )
+        )
+
+    def get_android_subscriber_devices(self, segment):
+        if not self.has_android:
+            return GCMDevice.objects.none()
+        subscribers = segment.get_subscribers_queryset()
+        return GCMDevice.objects.filter(
+            active=True, user__is_active=True, user__person__in=subscribers
+        )
+
+    def get_ios_subscriber_devices(self, segment):
+        if not self.has_ios:
+            return APNSDevice.objects.none()
+        subscribers = segment.get_subscribers_queryset()
+        return APNSDevice.objects.filter(
+            active=True, user__is_active=True, user__person__in=subscribers
+        )
+
     def recipient_count(self):
         return len(self.recipient_ids)
+
+    def test_recipient_count(self):
+        return len(self.test_recipient_ids)
 
     def displayed_count(self):
         return self.activities.filter(
@@ -585,32 +614,56 @@ class PushAnnouncement(BaseAPIResource):
     def can_send(self):
         return self.sending_date is None
 
-    def send(self):
-        recipient_count = self.recipient_count()
+    def push(self, segment=None):
+        if segment is None:
+            segment = self.segment
 
+        # Get notification payloads
+        android_kwargs, ios_kwargs = self.get_notification_kwargs()
+
+        # Send messages
+        android_devices = self.get_android_subscriber_devices(segment)
+
+        try:
+            android_response = android_devices.send_message(**android_kwargs)
+        except Exception as e:
+            android_response = f"Exception: {str(e)}"
+
+        ios_devices = self.get_ios_subscriber_devices(segment)
+        try:
+            ios_response = ios_devices.send_message(**ios_kwargs)
+        except Exception as e:
+            ios_response = f"Exception: {str(e)}"
+
+        android_count = android_devices.count()
+        ios_count = ios_devices.count()
+        recipient_count = android_count + ios_count
+
+        return {
+            "segment": f"{segment.name} [#{segment.id}]",
+            "recipients": recipient_count,
+            "android": {
+                "recipients": android_count,
+                "result": android_response,
+            },
+            "ios": {
+                "recipients": ios_count,
+                "result": ios_response,
+            },
+        }
+
+    def send(self):
         if not self.can_send():
             raise Exception("Cette annonce a déjà été envoyée")
+
+        recipient_count = self.recipient_count()
 
         if recipient_count == 0:
             raise Exception(
                 "Aucun destinataire n'a été trouvé pour le segment spécifié"
             )
 
-        # Get notification payloads
-        android_kwargs, ios_kwargs = self.get_notification_kwargs()
-
-        # Send messages
-        try:
-            android_response = self.android_subscriber_devices.send_message(
-                **android_kwargs
-            )
-        except Exception as e:
-            android_response = f"Exception: {str(e)}"
-
-        try:
-            ios_response = self.ios_subscriber_devices.send_message(**ios_kwargs)
-        except Exception as e:
-            ios_response = f"Exception: {str(e)}"
+        sending_result = self.push()
 
         with transaction.atomic():
             # Create activities
@@ -630,11 +683,20 @@ class PushAnnouncement(BaseAPIResource):
 
             # Update sending data
             self.sending_date = timezone.now()
-            self.sending_meta = {"android": android_response, "ios": ios_response}
+            self.sending_meta = sending_result
             self.save()
 
+    def test(self):
+        if not self.test_segment:
+            raise Exception("Aucun segment de test n'a été défini.")
+
+        return self.push(self.test_segment)
+
     def __str__(self):
-        return f"Annonce push « {self.title} »"
+        if self.title:
+            return f"Annonce push « {self.title} »"
+
+        return f"Annonce push #{self.id}"
 
     class Meta:
         verbose_name = "Annonce push"

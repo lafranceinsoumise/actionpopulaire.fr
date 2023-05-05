@@ -11,13 +11,14 @@ import {
   validateDonationData,
 } from "@agir/donations/common/form.config";
 
-export const useGroupDonation = (initialGroupPk) => {
+export const useGroupDonation = (initialGroupPk, isActive = true) => {
   const [isReady, setIsReady] = useState(false);
   const { data: initialGroup, isValidating: isGroupLoading } = useSWRImmutable(
-    initialGroupPk && `/api/groupes/${initialGroupPk}/`
+    isActive && initialGroupPk && `/api/groupes/${initialGroupPk}/`
   );
-  const { data: groups, isValidating: areGroupsLoading } =
-    useSWRImmutable(`/api/groupes/`);
+  const { data: groups, isValidating: areGroupsLoading } = useSWRImmutable(
+    isActive && `/api/groupes/`
+  );
 
   const [selectedGroup, setSelectedGroup] = useState(null);
 
@@ -70,14 +71,16 @@ export const useDonations = (
   const [formData, setFormData] = useState({
     ...INITIAL_DATA,
     ...defaults,
-    to: type,
+    to: config.type,
     paymentTiming: Object.keys(config.allowedPaymentModes)[0],
     endDate:
       typeof config.getEndDate === "function" ? config.getEndDate() : null,
   });
 
-  const { group, groups, isGroupReady, selectGroup } =
-    useGroupDonation(initialGroupPk);
+  const { group, groups, isGroupReady, selectGroup } = useGroupDonation(
+    initialGroupPk,
+    config.hasAllocations
+  );
 
   const [formErrors, setFormErrors] = useState({});
 

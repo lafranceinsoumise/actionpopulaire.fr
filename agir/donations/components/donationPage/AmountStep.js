@@ -65,6 +65,7 @@ const AmountStep = (props) => {
     maxAmountWarning,
     initialAmount = 0,
     initialPaymentTiming,
+    hasAllocations = true,
   } = props;
 
   const [amount, setAmount] = useState(initialAmount);
@@ -98,12 +99,14 @@ const AmountStep = (props) => {
           />
           <h2>Faire un don</h2>
           <h4>à {beneficiary}</h4>
-          <SelectedGroupWidget
-            group={group}
-            groups={groups}
-            onChange={selectGroup}
-          />
-          {group?.id ? (
+          {hasAllocations && (
+            <SelectedGroupWidget
+              group={group}
+              groups={groups}
+              onChange={selectGroup}
+            />
+          )}
+          {hasAllocations && group?.id ? (
             <p>
               Pour financer ses actions, le groupe d’action certifié a la
               possibilité de se constituer une enveloppe par l’intermédiaire de
@@ -133,6 +136,7 @@ const AmountStep = (props) => {
               onChangePaymentTiming={setPaymentTiming}
               onChangeAllocations={setAllocations}
               allowedPaymentTimings={allowedPaymentTimings}
+              hasAllocations={hasAllocations}
             />
             {!isLoading && error ? (
               <StyledErrorMessage>{error}</StyledErrorMessage>
@@ -186,6 +190,7 @@ AmountStep.propTypes = {
   initialAmount: PropTypes.number,
   initialPaymentTiming: PropTypes.string,
   allowedPaymentModes: PropTypes.object.isRequired,
+  hasAllocations: PropTypes.bool,
 };
 
 export default AmountStep;

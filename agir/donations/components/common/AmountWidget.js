@@ -76,6 +76,7 @@ const AmountWidget = (props) => {
     onChangeAllocations,
     onChangePaymentTiming,
     disabled,
+    hasAllocations = true,
   } = props;
 
   const [customAmount, setCustomAmount] = useState(
@@ -164,7 +165,7 @@ const AmountWidget = (props) => {
           </span>
         </StyledTaxReduction>
       ) : null}
-      {!!amount && (
+      {hasAllocations && !!amount && (
         <AllocationWidget
           totalAmount={amount}
           value={allocations}
@@ -196,6 +197,7 @@ AmountWidget.propTypes = {
   paymentTiming: PropTypes.string,
   allowedPaymentTimings: PropTypes.array,
   disabled: PropTypes.bool,
+  hasAllocations: PropTypes.bool,
   onChangeAmount: PropTypes.func.isRequired,
   onChangeAllocations: PropTypes.func.isRequired,
   onChangePaymentTiming: PropTypes.func.isRequired,
