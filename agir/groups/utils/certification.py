@@ -179,6 +179,7 @@ def check_certification_criteria(group, with_labels=False):
                     supportgroup__published=True,
                     membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
                     supportgroup__type=SupportGroup.TYPE_LOCAL_GROUP,
+                    supportgroup__subtypes__in=group.subtypes.active(),
                     supportgroup__certification_date__isnull=False,
                 )
                 .exists()
