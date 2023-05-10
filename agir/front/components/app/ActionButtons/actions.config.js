@@ -195,7 +195,7 @@ const ACTIONS = {
   },
   help: {
     key: "help",
-    route: "helpIndex",
+    route: "help",
     label: ["Aide", "Centre d'aide"],
     icon: "help-circle",
     color: style.referralPink,
