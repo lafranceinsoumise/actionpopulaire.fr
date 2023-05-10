@@ -5,6 +5,9 @@ import { ActionButtons } from "./ActionButtons";
 export default {
   component: ActionButtons,
   title: "app/ActionButtons",
+  parameters: {
+    layout: "padded",
+  },
 };
 
 const Template = (args) => (
