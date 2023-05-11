@@ -1,12 +1,10 @@
-from django.contrib import admin, messages
-from django.http import HttpResponseRedirect
+from django.contrib import admin
 from django.urls import reverse, path
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from django.utils.translation import ngettext
 from rangefilter.filters import DateRangeFilter
 
-from agir.event_requests import models, actions
+from agir.event_requests import models
 from agir.event_requests.admin import inlines, views, filter as filters
 from agir.event_requests.admin.forms import EventRequestAdminForm
 from agir.lib.admin.panels import PersonLinkMixin
@@ -46,7 +44,8 @@ class EventAssetAdmin(admin.ModelAdmin):
         "is_event_image",
         "published",
         "preview_image",
-        "render",
+        "rendering",
+        "publishing",
     )
     create_only_fields = ("event",)
     exclude = ("renderable",)
@@ -90,113 +89,71 @@ class EventAssetAdmin(admin.ModelAdmin):
         )
 
     @admin.display(description="Actions")
-    def render(self, obj):
-        actions = []
-
+    def rendering(self, obj):
         if obj and obj.renderable:
-            actions.append(
-                mark_safe(
-                    "<input type='submit' name='_render' value='Régénérer le visuel' />"
-                    "<p class='help' style='margin:0;padding: 0.5rem 0;font-size:0.875rem;'>"
-                    "<strong>⚠ Attention&nbsp;:</strong> le visuel existant sera définitivement supprimé"
-                    "</p>"
-                )
-            )
-
-        if obj and not obj.published:
-            actions.append(
-                mark_safe(
-                    "<input type='submit' name='_publish' value='Publier le visuel' />"
-                    "<p class='help' style='margin:0;padding: 0.5rem 0;font-size:0.875rem;'>"
-                    "Les organisateur·ices recevront une notification et pourront accèder au visuel "
-                    "dans le volet de gestion de la page de l'événement"
-                    "</p>"
-                )
-            )
-
-        if obj and obj.published:
-            actions.append(
-                mark_safe(
-                    "<input type='submit' name='_unpublish' value='Dépublier le visuel' />"
-                )
-            )
-
-        if actions:
-            return format_html(
-                "<form style='margin: .5rem 0; padding: 0;'>{}</form>",
-                mark_safe("<br />".join(actions)),
+            return mark_safe(
+                "<input type='submit' name='_render' value='⟳ Régénérer le visuel' />"
+                "<p class='help' style='margin:0;padding: 0.5rem 0;font-size:0.875rem;'>"
+                "<strong>⚠ Attention&nbsp;:</strong> le visuel existant sera définitivement supprimé"
+                "</p>"
             )
 
         return "-"
 
+    @admin.display(description="Publication")
+    def publishing(self, obj):
+        if obj and not obj.published:
+            return mark_safe(
+                "<input type='submit' name='_publish' value='✔ Publier le visuel' />"
+                "<p class='help' style='margin:0;padding: 0.5rem 0;font-size:0.875rem;'>"
+                "Les organisateur·ices recevront une notification et pourront accèder au visuel "
+                "dans le volet de gestion de la page de l'événement"
+                "</p>"
+            )
+
+        if obj and obj.published:
+            return mark_safe(
+                "<input type='submit' name='_unpublish' value='✖ Dépublier le visuel' />"
+            )
+
+        return "-"
+
+    def set_as_event_image(self, request, pk):
+        return views.set_event_asset_as_event_image(self, request, pk)
+
+    def preview(self, request, pk):
+        return views.preview_event_asset(self, request, pk)
+
+    def render(self, request, pk):
+        return views.render_event_asset(self, request, pk)
+
+    def publish(self, request, pk):
+        return views.publish_event_assets(self, request, pk)
+
+    def unpublish(self, request, pk):
+        return views.unpublish_event_assets(self, request, pk)
+
     @admin.display(description="Publier les visuels sélectionnés")
-    def publish(self, _modeladmin, request, queryset):
-        if isinstance(queryset, self.model):
-            queryset = self.model.objects.filter(pk=queryset.pk)
-        updated_count = actions.publish_event_assets(queryset)
-        self.message_user(
-            request,
-            ngettext(
-                "Le visuel a été publié.",
-                f"{updated_count} visuels ont été publiés",
-                updated_count,
-            ),
-        )
+    def publish_action(self, _modeladmin, request, queryset):
+        return self.publish(request, queryset)
 
     @admin.display(description="Dépublier les visuels sélectionnés")
-    def unpublish(self, _modeladmin, request, queryset):
-        if isinstance(queryset, self.model):
-            queryset = self.model.objects.filter(pk=queryset.pk)
-        updated_count = actions.unpublish_event_assets(queryset)
-        self.message_user(
-            request,
-            ngettext(
-                "Le visuel a été dépublié.",
-                f"{updated_count} visuels ont été dépubliés",
-                updated_count,
-            ),
-        )
+    def unpublish_action(self, _modeladmin, request, queryset):
+        return self.unpublish(request, queryset)
 
     def get_actions(self, request):
-        self.actions = (self.publish, self.unpublish)
+        self.actions = (self.publish_action, self.unpublish_action)
         return super().get_actions(request)
 
     def response_change(self, request, obj):
         if "_render" in request.POST:
-            try:
-                obj.render()
-                self.message_user(
-                    request, "Un nouveau visuel a été régénéré à partir du template."
-                )
-            except Exception as e:
-                self.message_user(
-                    request,
-                    str(e),
-                    level=messages.WARNING,
-                )
-            return HttpResponseRedirect(".")
+            return self.render(request, obj)
 
         if "_publish" in request.POST:
-            try:
-                self.publish(self, request, obj)
-            except Exception as e:
-                self.message_user(
-                    request,
-                    str(e),
-                    level=messages.WARNING,
-                )
-            return HttpResponseRedirect(".")
+            return self.publish(request, obj)
 
         if "_unpublish" in request.POST:
-            try:
-                self.unpublish(self, request, obj)
-            except Exception as e:
-                self.message_user(
-                    request,
-                    str(e),
-                    level=messages.WARNING,
-                )
-            return HttpResponseRedirect(".")
+            return self.unpublish(request, obj)
 
         return super().response_change(request, obj)
 
@@ -212,13 +169,22 @@ class EventAssetAdmin(admin.ModelAdmin):
                 self.admin_site.admin_view(self.preview),
                 name=f"{self.opts.app_label}_{self.opts.model_name}_preview",
             ),
+            path(
+                "<uuid:pk>/render/",
+                self.admin_site.admin_view(self.render),
+                name=f"{self.opts.app_label}_{self.opts.model_name}_render",
+            ),
+            path(
+                "<uuid:pk>/publish/",
+                self.admin_site.admin_view(self.publish),
+                name=f"{self.opts.app_label}_{self.opts.model_name}_publish",
+            ),
+            path(
+                "<uuid:pk>/unpublish/",
+                self.admin_site.admin_view(self.unpublish),
+                name=f"{self.opts.app_label}_{self.opts.model_name}_unpublish",
+            ),
         ] + super().get_urls()
-
-    def set_as_event_image(self, request, pk):
-        return views.set_event_asset_as_event_image(self, request, pk)
-
-    def preview(self, request, pk):
-        return views.preview_event_asset(self, request, pk)
 
     class Media:
         pass

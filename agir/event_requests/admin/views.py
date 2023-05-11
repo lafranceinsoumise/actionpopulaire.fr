@@ -1,7 +1,10 @@
+from uuid import UUID
+
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect, Http404, FileResponse
 from django.shortcuts import reverse
+from django.utils.translation import ngettext
 
 from agir.event_requests import actions
 from agir.event_requests.actions import (
@@ -162,3 +165,154 @@ def preview_event_asset(model_admin, request, pk):
     file = event_asset.render_preview()
 
     return FileResponse(file)
+
+
+def render_event_asset(model_admin, request, event_asset):
+    if not model_admin.has_change_permission(request):
+        raise PermissionDenied
+
+    if not isinstance(event_asset, model_admin.model):
+        event_asset = model_admin.get_object(request, event_asset)
+
+        if event_asset is None:
+            raise Http404("Le visuel n'a pas pu être retrouvé.")
+
+        redirect_to = reverse(
+            "%s:%s_%s_change"
+            % (
+                model_admin.admin_site.name,
+                Event._meta.app_label,
+                Event._meta.model_name,
+            ),
+            args=(event_asset.event_id,),
+        )
+    else:
+        redirect_to = reverse(
+            "%s:%s_%s_change"
+            % (
+                model_admin.admin_site.name,
+                model_admin.model._meta.app_label,
+                model_admin.model._meta.model_name,
+            ),
+            args=(event_asset.id,),
+        )
+
+    try:
+        event_asset.render()
+        model_admin.message_user(
+            request, "Un nouveau visuel a été régénéré à partir du template."
+        )
+    except Exception as e:
+        model_admin.message_user(
+            request,
+            str(e),
+            level=messages.WARNING,
+        )
+    return HttpResponseRedirect(redirect_to + f"?{request.GET.urlencode()}")
+
+
+def publish_event_assets(model_admin, request, target):
+    if not model_admin.has_change_permission(request):
+        raise PermissionDenied
+
+    queryset = target
+    redirect_to = "."
+
+    if isinstance(target, str) or isinstance(target, UUID):
+        queryset = model_admin.model.objects.filter(pk=target)
+
+        if not queryset.first():
+            raise Http404("Le visuel n'a pas pu être retrouvé.")
+
+        redirect_to = reverse(
+            "%s:%s_%s_change"
+            % (
+                model_admin.admin_site.name,
+                Event._meta.app_label,
+                Event._meta.model_name,
+            ),
+            args=(queryset.first().event_id,),
+        )
+    elif isinstance(target, model_admin.model):
+        queryset = model_admin.model.objects.filter(pk=target.pk)
+        redirect_to = reverse(
+            "%s:%s_%s_change"
+            % (
+                model_admin.admin_site.name,
+                model_admin.model._meta.app_label,
+                model_admin.model._meta.model_name,
+            ),
+            args=(target.pk,),
+        )
+
+    try:
+        updated_count = actions.publish_event_assets(queryset)
+        model_admin.message_user(
+            request,
+            ngettext(
+                "Le visuel a été publié.",
+                f"{updated_count} visuels ont été publiés",
+                updated_count,
+            ),
+        )
+    except Exception as e:
+        model_admin.message_user(
+            request,
+            str(e),
+            level=messages.WARNING,
+        )
+    return HttpResponseRedirect(redirect_to + f"?{request.GET.urlencode()}")
+
+
+def unpublish_event_assets(model_admin, request, target):
+    if not model_admin.has_change_permission(request):
+        raise PermissionDenied
+
+    queryset = target
+    redirect_to = "."
+
+    if isinstance(target, str) or isinstance(target, UUID):
+        queryset = model_admin.model.objects.filter(pk=target)
+
+        if not queryset.first():
+            raise Http404("Le visuel n'a pas pu être retrouvé.")
+
+        redirect_to = reverse(
+            "%s:%s_%s_change"
+            % (
+                model_admin.admin_site.name,
+                Event._meta.app_label,
+                Event._meta.model_name,
+            ),
+            args=(queryset.first().event_id,),
+        )
+    elif isinstance(target, model_admin.model):
+        queryset = model_admin.model.objects.filter(pk=target.pk)
+        redirect_to = reverse(
+            "%s:%s_%s_change"
+            % (
+                model_admin.admin_site.name,
+                model_admin.model._meta.app_label,
+                model_admin.model._meta.model_name,
+            ),
+            args=(target.pk,),
+        )
+
+    try:
+        updated_count = actions.unpublish_event_assets(queryset)
+        model_admin.message_user(
+            request,
+            ngettext(
+                "Le visuel a été dépublié.",
+                f"{updated_count} visuels ont été dépubliés",
+                updated_count,
+            ),
+        )
+    except Exception as e:
+        model_admin.message_user(
+            request,
+            str(e),
+            level=messages.WARNING,
+        )
+
+    return HttpResponseRedirect(redirect_to + f"?{request.GET.urlencode()}")
