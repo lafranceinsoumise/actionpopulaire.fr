@@ -10,7 +10,7 @@ from agir.event_requests import models, actions
 from agir.event_requests.admin import inlines, views, filter as filters
 from agir.event_requests.admin.forms import EventRequestAdminForm
 from agir.lib.admin.panels import PersonLinkMixin
-from agir.lib.admin.utils import display_list_of_links, display_link
+from agir.lib.admin.utils import display_list_of_links, display_link, admin_url
 from agir.lib.utils import front_url
 
 
@@ -41,7 +41,13 @@ class EventAssetAdmin(admin.ModelAdmin):
         filters.EventAutocompleteFilter,
     )
     search_fields = ("name", "event__name")
-    readonly_fields = ("event_link", "is_event_image", "published", "render")
+    readonly_fields = (
+        "event_link",
+        "is_event_image",
+        "published",
+        "preview_image",
+        "render",
+    )
     create_only_fields = ("event",)
     exclude = ("renderable",)
     autocomplete_fields = ("template", "event")
@@ -60,15 +66,48 @@ class EventAssetAdmin(admin.ModelAdmin):
     def is_image(self, obj):
         return obj.is_event_image
 
+    @admin.display(description="Aperçu")
+    def preview_image(self, obj):
+        if not obj or not obj.renderable:
+            return "-"
+
+        img = (
+            "<img width='300' height='300' "
+            "style='clear:right;display:block;width:100%;height:auto;max-width:300px;' "
+            "src={} />"
+        )
+
+        src = admin_url(
+            f"admin:{self.opts.app_label}_{self.opts.model_name}_preview",
+            args=[obj.pk],
+        )
+
+        return format_html(img.format(src)) + format_html(
+            "<p class='help' style='margin:0;padding: 0.5rem 0;font-size:0.875rem;'>"
+            "<strong>⚠ Attention&nbsp;: cette image n'est qu'un aperçu du visuel</strong><br/>Pour générer ou mettre à "
+            "jour le fichier, veuillez cliquer sur le bouton `Régénérer le visuel` ci-dessous."
+            "</p>"
+        )
+
     @admin.display(description="Actions")
     def render(self, obj):
         actions = []
+
+        if obj and obj.renderable:
+            actions.append(
+                mark_safe(
+                    "<input type='submit' name='_render' value='Régénérer le visuel' />"
+                    "<p class='help' style='margin:0;padding: 0.5rem 0;font-size:0.875rem;'>"
+                    "<strong>⚠ Attention&nbsp;:</strong> le visuel existant sera définitivement supprimé"
+                    "</p>"
+                )
+            )
 
         if obj and not obj.published:
             actions.append(
                 mark_safe(
                     "<input type='submit' name='_publish' value='Publier le visuel' />"
-                    "<p class='help' style='margin: 0; padding: 0.25rem 0;'>"
+                    "<p class='help' style='margin:0;padding: 0.5rem 0;font-size:0.875rem;'>"
                     "Les organisateur·ices recevront une notification et pourront accèder au visuel "
                     "dans le volet de gestion de la page de l'événement"
                     "</p>"
@@ -79,16 +118,6 @@ class EventAssetAdmin(admin.ModelAdmin):
             actions.append(
                 mark_safe(
                     "<input type='submit' name='_unpublish' value='Dépublier le visuel' />"
-                )
-            )
-
-        if obj and obj.renderable:
-            actions.append(
-                mark_safe(
-                    "<input type='submit' name='_render' value='Régénérer le visuel' />"
-                    "<p class='help' style='margin: 0; padding: 0.25rem 0;'>"
-                    "<strong>⚠ Attention&nbsp;:</strong> le visuel existant sera définitivement supprimé"
-                    "</p>"
                 )
             )
 
@@ -178,10 +207,18 @@ class EventAssetAdmin(admin.ModelAdmin):
                 self.admin_site.admin_view(self.set_as_event_image),
                 name=f"{self.opts.app_label}_{self.opts.model_name}_set_as_event_image",
             ),
+            path(
+                "<uuid:pk>/preview/",
+                self.admin_site.admin_view(self.preview),
+                name=f"{self.opts.app_label}_{self.opts.model_name}_preview",
+            ),
         ] + super().get_urls()
 
     def set_as_event_image(self, request, pk):
         return views.set_event_asset_as_event_image(self, request, pk)
+
+    def preview(self, request, pk):
+        return views.preview_event_asset(self, request, pk)
 
     class Media:
         pass
@@ -494,7 +531,7 @@ class EventRequestAdmin(admin.ModelAdmin):
 
     @admin.display(description="Événement")
     def event_link(self, obj):
-        display_link(obj.event)
+        return display_link(obj.event)
 
     @admin.display(description="Intervenant·es")
     def event_speaker_link(self, obj):

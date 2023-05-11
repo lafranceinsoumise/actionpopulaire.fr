@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, Http404, FileResponse
 from django.shortcuts import reverse
 
 from agir.event_requests import actions
@@ -148,3 +148,17 @@ def set_event_asset_as_event_image(model_admin, request, pk):
         )
 
     return response
+
+
+def preview_event_asset(model_admin, request, pk):
+    if not model_admin.has_change_permission(request):
+        raise PermissionDenied
+
+    event_asset = model_admin.get_object(request, pk)
+
+    if event_asset is None:
+        raise Http404("Le visuel n'a pas pu être retrouvé.")
+
+    file = event_asset.render_preview()
+
+    return FileResponse(file)
