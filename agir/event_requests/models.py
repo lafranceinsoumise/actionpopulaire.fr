@@ -192,6 +192,23 @@ class EventAsset(BaseAPIResource):
                 self.file = self.event.image
             self.save()
 
+    def render_preview(self, to_format="png"):
+        if not self.renderable:
+            raise self.EventAssetRenderingException(
+                "Ce visuel ne peut plus être généré car l'événement et/ou le template ont été supprimés"
+            )
+
+        if to_format not in RSVG_CONVERT_AVAILABLE_FORMATS:
+            raise self.EventAssetRenderingException(
+                f"Le visuel ne peut pas être généré au format {to_format}."
+            )
+
+        return rsvg_convert(
+            self.template.render(data={"event": self.event, **self.extra_data}),
+            to_format=to_format,
+            filename=f"preview__{self.get_filename(from_template=True)}",
+        )
+
     class Meta:
         verbose_name = "Visuel de l'événement"
         verbose_name_plural = "Visuels des événements"
