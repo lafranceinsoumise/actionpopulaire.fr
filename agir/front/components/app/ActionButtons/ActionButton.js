@@ -53,7 +53,7 @@ const StyledButton = styled(Link)`
     align-items: center;
     justify-content: center;
     border-radius: 100%;
-    color: white;
+    color: ${(props) => props.$textColor || "white"};
 
     @media (min-width: ${(props) => props.theme.collapse}px) {
       transform-origin: left center;
@@ -78,12 +78,14 @@ const ActionButton = (props) => {
     label,
     icon,
     color,
+    textColor,
     className,
     disabled = false,
   } = props;
   return (
     <StyledButton
       $color={color}
+      $textColor={textColor}
       disabled={disabled}
       onClick={disabled ? (e) => e.preventDefault() : undefined}
       onMouseDown={(e) => e.preventDefault()}
@@ -116,6 +118,7 @@ ActionButton.propTypes = {
   ]),
   icon: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   color: PropTypes.string,
+  textColor: PropTypes.string,
   className: PropTypes.string,
   disabled: PropTypes.bool,
 };
