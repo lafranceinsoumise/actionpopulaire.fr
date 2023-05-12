@@ -104,46 +104,58 @@ class PersonFormDisplay:
         if value is None:
             if na_placeholder is not None:
                 return na_placeholder
-            elif html:
+
+            if html:
                 return self.NA_HTML_PLACEHOLDER
+
             return self.NA_TEXT_PLACEHOLDER
 
         field_type = field.get("type")
 
         if field_type in ["choice", "autocomplete_choice"] and "choices" in field:
-            return self._get_choice_label(field, value, html)
+            value = self._get_choice_label(field, value, html)
         elif field_type == "multiple_choice" and "choices" in field:
             if isinstance(value, list):
-                return " // ".join(
+                value = " // ".join(
                     self._get_choice_label(field, v, html) for v in value
                 )
-            else:
-                return value
         elif field_type == "person":
             try:
-                return str(Person.objects.get(id=value))
+                value = str(Person.objects.get(id=value))
             except (ValidationError, ValueError, Person.DoesNotExist):
-                return value
+                value = value
         elif field_type == "datetime":
             date = iso8601.parse_date(value)
-            return localize(date.astimezone(get_current_timezone()))
+            value = localize(date.astimezone(get_current_timezone()))
+        elif field_type == "datetimes":
+            value = [
+                localize(
+                    iso8601.parse_date(datetime).astimezone(get_current_timezone())
+                )
+                for datetime in value
+            ]
         elif field_type == "phone_number":
             try:
                 phone_number = PhoneNumber.from_string(value)
-                return phone_number.as_international
+                value = phone_number.as_international
             except NumberParseException:
-                return value
+                pass
         elif field_type == "file":
-            values = value
-            if not isinstance(values, list):
-                values = [value]
-            if not html:
-                return ",".join(values)
-            values = [
-                format_html('<a href="{}">Fichier {}</a>', v, i + 1)
-                for i, v in enumerate(values)
-            ]
-            return mark_safe("<br />".join(values))
+            if not isinstance(value, list):
+                value = [value]
+
+            if html:
+                value = mark_safe(
+                    "<br />".join(
+                        [
+                            format_html('<a href="{}">Fichier {}</a>', v, i + 1)
+                            for i, v in enumerate(value)
+                        ]
+                    )
+                )
+
+        if isinstance(value, list):
+            value = ", ".join(value)
 
         return value
 
