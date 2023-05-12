@@ -38,14 +38,16 @@ class EventAssetInline(admin.TabularInline):
     fields = (
         "name",
         "file",
-        "image",
         "render",
+        "image",
+        "is_published",
         "publishing",
     )
     readonly_fields = (
         "thumbnail",
-        "image",
         "render",
+        "image",
+        "is_published",
         "publishing",
     )
     show_change_link = True
@@ -98,10 +100,14 @@ class EventAssetInline(admin.TabularInline):
                 src += "…"
 
         return format_html(
-            '<img style="max-height:160px;max-width:160px;width:auto;height:auto;" src="{}" alt={} />',
+            '<img style="max-height:120px;max-width:120px;width:auto;height:auto;" src="{}" alt={} />',
             src,
             obj.name,
         )
+
+    @admin.display(description="Publié", boolean=True)
+    def is_published(self, obj):
+        return obj and obj.published
 
     @admin.display(description="Publication")
     def publishing(self, obj):
