@@ -796,6 +796,7 @@ else:
     PROMO_CODE_DELAY = None
 CERTIFIABLE_GROUP_TYPES = ["L", "B"]  # groupes locaux  # groupes thématiques
 CERTIFIABLE_GROUP_SUBTYPES = ["comité d'appui"]
+CERTIFICATION_WARNING_EXPIRATION_IN_DAYS = 31
 
 # HTML settings
 USER_ALLOWED_TAGS = [

@@ -9,6 +9,7 @@ from django.db.models.expressions import RawSQL
 from django.http import HttpResponseRedirect
 from django.urls import path
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.html import format_html, escape, format_html_join
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
@@ -153,6 +154,7 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
     list_filter = (
         "published",
         filters.CertifiedSupportGroupFilter,
+        filters.CertificationWarningFilter,
         filters.GroupHasEventsFilter,
         CountryListFilter,
         CirconscriptionLegislativeFilter,
@@ -345,13 +347,24 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
     @admin.display(description="Statut")
     def certification_status(self, obj):
         if obj.is_certified:
-            status = f"Certifié depuis le {obj.certification_date.strftime('%d %B %Y')}"
+            status = (
+                f"<span style='font-size:14px;'>"
+                f"Certifié depuis le <strong>{obj.certification_date.strftime('%d %B %Y')}</strong>"
+                f"</span>"
+            )
             if obj.uncertifiable_warning_date:
+                diff_days = (timezone.now() - obj.uncertifiable_warning_date).days
+                if diff_days == 0:
+                    diff_days = "aujourd'hui"
+                elif diff_days == 1:
+                    diff_days = "hier"
+                else:
+                    diff_days = f"il y a {diff_days} jours"
                 status = mark_safe(
                     f"{status}"
                     "<br />"
-                    f"— <em>Avertissement de décertification envoyé "
-                    f"le {obj.uncertifiable_warning_date.strftime('%d %B %Y')}</em>"
+                    f"— Avertissement de décertification envoyé "
+                    f"le <strong>{obj.uncertifiable_warning_date.strftime('%d %B %Y')}</strong> ({diff_days})"
                 )
             return status
 

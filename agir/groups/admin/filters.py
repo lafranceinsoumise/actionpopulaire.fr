@@ -1,7 +1,11 @@
 from datetime import timedelta
 
+from django.conf import settings
+from django.contrib.humanize.templatetags import humanize
+
+from agir.activity.models import Activity
 from django.contrib import admin
-from django.db.models import Count, Q
+from django.db.models import Count, Q, F, Max
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -49,6 +53,35 @@ class CertifiedSupportGroupFilter(admin.SimpleListFilter):
             return queryset.certified()
         if self.value() == "no":
             return queryset.uncertified()
+
+
+class CertificationWarningFilter(admin.SimpleListFilter):
+    title = "avertissement de décertification"
+    parameter_name = "certification_warning"
+    WARNING_EXPIRATION_IN_DAYS = 31
+
+    def lookups(self, request, model_admin):
+        limit = humanize.apnumber(settings.CERTIFICATION_WARNING_EXPIRATION_IN_DAYS)
+        return (
+            ("sent", f"Envoyé"),
+            ("expired", f"Envoyé depuis plus de {limit} jours"),
+            (
+                "unexpired",
+                f"Envoyé depuis moins de {limit} jours",
+            ),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == "received":
+            return queryset.with_certification_warning()
+
+        if self.value() == "expired":
+            return queryset.with_certification_warning(expired=True)
+
+        if self.value() == "unexpired":
+            return queryset.with_certification_warning(expired=False)
+
+        return queryset
 
 
 class MembersFilter(admin.SimpleListFilter):

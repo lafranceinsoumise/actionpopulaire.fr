@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from django.conf import settings
 from django.contrib.humanize.templatetags.humanize import apnumber
 from django.utils import timezone
 from django.utils.translation import ngettext
@@ -22,18 +23,16 @@ class Command(BaseCommand):
         - send the list of groups that have received a warning more than one month ago to the admin email
         """
 
-    WARNING_EXPIRATION_IN_DAYS = 31
-
     def warn_uncertifiable_group_referents(self, group):
         if not self.dry_run:
             tasks.send_uncertifiable_group_warning.delay(
-                group.id, self.WARNING_EXPIRATION_IN_DAYS
+                group.id, settings.CERTIFICATION_WARNING_EXPIRATION_IN_DAYS
             )
 
     def send_uncertifiable_group_list(self, group_ids):
         if not self.dry_run:
             tasks.send_uncertifiable_group_list.delay(
-                group_ids, self.WARNING_EXPIRATION_IN_DAYS
+                group_ids, settings.CERTIFICATION_WARNING_EXPIRATION_IN_DAYS
             )
 
     def check_uncertifiable_groups(self, uncertifiable_groups):
@@ -52,7 +51,7 @@ class Command(BaseCommand):
 
             # Warning has been sent less than 31 days ago
             if timezone.now() <= group.uncertifiable_warning_date + timedelta(
-                days=self.WARNING_EXPIRATION_IN_DAYS
+                days=settings.CERTIFICATION_WARNING_EXPIRATION_IN_DAYS
             ):
                 continue
 
