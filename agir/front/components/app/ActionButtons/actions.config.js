@@ -212,7 +212,7 @@ const ACTIONS = {
   cafePopulaireRequest: {
     key: "cafePopulaireRequest",
     route: "cafePopulaireRequest",
-    label: ["Café populaire", "Organiser une café populaire"],
+    label: ["Café populaire", "Organiser un café populaire"],
     icon: "coffee",
     color: "#00B171",
   },
