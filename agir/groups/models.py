@@ -1,4 +1,5 @@
 import hashlib
+from datetime import timedelta
 from urllib.parse import urljoin
 
 import reversion
@@ -7,8 +8,9 @@ from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
 from django.contrib.postgres.search import SearchVector, SearchRank
 from django.db import models
-from django.db.models import Subquery, OuterRef, Count, Q, Exists, Max
+from django.db.models import Subquery, OuterRef, Count, Q, Exists, Max, F
 from django.db.models.functions import Coalesce
+from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
@@ -155,6 +157,28 @@ class SupportGroupQuerySet(models.QuerySet):
             .filter(coordinates__dwithin=(coordinates, D(km=radius)))
             .annotate(distance=Distance("coordinates", coordinates))
         )
+
+    def with_certification_warning(self, expired=None):
+        qs = (
+            self.certified()
+            .filter(
+                notification__type=Activity.TYPE_UNCERTIFIABLE_GROUP_WARNING,
+                notification__timestamp__gte=F("certification_date"),
+            )
+            .annotate(warning_date=Max("notification__timestamp"))
+        )
+
+        if expired is None:
+            return qs
+
+        expiration_limit = timezone.now().date() - timedelta(
+            days=settings.CERTIFICATION_WARNING_EXPIRATION_IN_DAYS
+        )
+
+        if expired:
+            return qs.filter(warning_date__date__lt=expiration_limit)
+
+        return qs.filter(warning_date__date__gte=expiration_limit)
 
 
 class MembershipQuerySet(models.QuerySet):
@@ -378,9 +402,8 @@ class SupportGroup(
             warning = (
                 self.notifications.filter(
                     type=Activity.TYPE_UNCERTIFIABLE_GROUP_WARNING,
-                    supportgroup=self,
+                    timestamp__gte=self.certification_date,
                 )
-                .filter(timestamp__gte=self.certification_date)
                 .only("timestamp")
                 .order_by("-timestamp")
                 .first()
