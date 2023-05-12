@@ -952,7 +952,7 @@ def send_uncertifiable_group_warning(supportgroup_pk, expiration_in_days):
             "expiration_in_days": expiration_in_days,
             "certification_criteria": certification_criteria,
         },
-        recipients=[*recipients, settings.EMAIL_SUPPORT],
+        recipients=recipients,
     )
     with reversion.create_revision():
         reversion.set_comment(

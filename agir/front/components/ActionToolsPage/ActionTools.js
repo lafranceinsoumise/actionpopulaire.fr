@@ -82,7 +82,7 @@ export const ActionTools = () => {
         <i
           aria-hidden="true"
           css={`
-            background-color: ${({ theme }) => theme.redNSP};
+            background-color: #fd3d66;
             color: ${({ theme }) => theme.white};
           `}
         >
@@ -114,8 +114,8 @@ export const ActionTools = () => {
         <i
           aria-hidden="true"
           css={`
-            background-color: ${({ theme }) => theme.secondary500};
-            color: ${({ theme }) => theme.black1000};
+            background-color: ${({ theme }) => theme.primary500};
+            color: ${({ theme }) => theme.white};
           `}
         >
           <RawFeatherIcon name="calendar" />
@@ -123,9 +123,8 @@ export const ActionTools = () => {
         <span>
           <strong>Organiser une action</strong>
           <span>
-            Porte-à-porte, tractage, caravane, réunion avec un·e orateur·ice de
-            la campagne... Vous pouvez vous aider des{" "}
-            <Link route="helpIndex">fiches pratiques</Link> pour organiser vos
+            Porte-à-porte, tractage, caravane... Des fiches pratiques sont à
+            votre disposition vour vous aider dans l'organisation de vos
             actions.
           </span>
           <span
@@ -139,6 +138,9 @@ export const ActionTools = () => {
             <Button small link route="createEvent">
               Créer un événement
             </Button>
+            <Button small link route="helpIndex">
+              Voir les fiches pratiques
+            </Button>
           </span>
         </span>
       </StyledCardItem>
@@ -146,8 +148,8 @@ export const ActionTools = () => {
         <i
           aria-hidden="true"
           css={`
-            background-color: ${({ theme }) => theme.materielBlue};
-            color: ${({ theme }) => theme.white};
+            background-color: ${({ theme }) => theme.secondary500};
+            color: ${({ theme }) => theme.black1000};
           `}
         >
           <RawFeatherIcon name="shopping-bag" />
@@ -155,8 +157,8 @@ export const ActionTools = () => {
         <span>
           <strong>Commander du matériel</strong>
           <span>
-            Recevez chez vous des tracts, des affiches et des objets de la
-            campagne.
+            Commandez et recevez chez vous des tracts, des affiches et des
+            objets de campagnes du mouvement.
           </span>
         </span>
         <RawFeatherIcon aria-hidden="true" name="chevron-right" />
@@ -174,8 +176,8 @@ export const ActionTools = () => {
         <span>
           <strong>Organiser une réunion publique</strong>
           <span>
-            Demandez l'organisation d'une réunion publique, avec la présence ou
-            non d'un·e député·e ou eurodéputé·e.
+            Demandez l'organisation d'une réunion publique, avec la présence
+            d'un·e député·e ou eurodéputé·e.
           </span>
           <span
             css={`
@@ -193,13 +195,43 @@ export const ActionTools = () => {
             </Button>
           </span>
         </span>
+      </StyledCardItem>
+      <StyledCardItem route="cafePopulaireRequest">
+        <i
+          aria-hidden="true"
+          css={`
+            background-color: #00b171;
+            color: ${({ theme }) => theme.white};
+          `}
+        >
+          <RawFeatherIcon name="coffee" />
+        </i>
+        <span>
+          <strong>Organiser un café populaire</strong>
+          <span>
+            Le café populaire est un exercice d’éducation populaire, de débat
+            d’idées, et de formation politique mis en place par la France
+            insoumise et organisé par l’Institut La Boétie, qui fournit un
+            catalogue de thèmes et d'intervenant·es. Les cafés populaires
+            peuvent être organisés partout en France et sont ouvert à tou·tes
+            les citoyen·nes.
+          </span>
+          <span
+            css={`
+              display: inline-flex;
+              flex-wrap: wrap;
+              gap: 0.5rem;
+              margin-top: 0.25rem;
+            `}
+          ></span>
+        </span>
         <RawFeatherIcon aria-hidden="true" name="chevron-right" />
       </StyledCardItem>
       <StyledCardItem route="createContact">
         <i
           aria-hidden="true"
           css={`
-            background-color: ${({ theme }) => theme.primary500};
+            background-color: #4d26b9;
             color: ${({ theme }) => theme.white};
           `}
         >

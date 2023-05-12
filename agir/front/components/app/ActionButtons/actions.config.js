@@ -12,14 +12,14 @@ const ACTIONS = {
           route: "donations",
           label: ["Don", "Faire un don"],
           icon: "heart",
-          color: style.redNSP,
+          color: "#FD3D66",
         }
       : {
           key: "donations",
           route: "donationLanding",
           label: ["Don", "Faire un don"],
           icon: "heart",
-          color: style.redNSP,
+          color: "#FD3D66",
         },
   contributions: (user) =>
     user?.hasContribution
@@ -28,28 +28,28 @@ const ACTIONS = {
           route: "donations",
           label: ["Don", "Faire un don"],
           icon: "heart",
-          color: style.redNSP,
+          color: "#FD3D66",
         }
       : {
           key: "contributions",
           route: "contributions",
           label: ["Financer", "Devenir financeur·euse"],
           icon: "trending-up",
-          color: style.redLFI,
+          color: "#FD3D66",
         },
   createEvent: {
     key: "createEvent",
     route: "createEvent",
     label: ["Créer événement", "Créer un événement"],
-    color: style.secondary500,
+    color: style.primary500,
     icon: (
-      <span style={{ backgroundColor: style.secondary500 }}>
+      <span style={{ backgroundColor: style.primary500 }}>
         <svg
           width="24"
           height="24"
           viewBox="0 0 16 16"
           fill="none"
-          stroke="#000A2C"
+          stroke={style.white}
           strokeWidth={1.33}
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -77,14 +77,15 @@ const ACTIONS = {
     route: "materiel",
     label: "Matériel",
     icon: "shopping-bag",
-    color: style.materielBlue,
+    color: style.secondary500,
+    textColor: style.black1000,
   },
   createContact: {
     key: "createContact",
     route: "createContact",
     label: ["Ajouter contact", "Ajouter un contact"],
     icon: "user-plus",
-    color: style.primary500,
+    color: "#4D26B9",
   },
   toktokPreview: {
     key: "toktokPreview",
@@ -198,14 +199,22 @@ const ACTIONS = {
     route: "help",
     label: ["Aide", "Centre d'aide"],
     icon: "help-circle",
-    color: style.referralPink,
+    color: style.black100,
+    textColor: style.black1000,
   },
   publicMeetingRequest: {
     key: "publicMeetingRequest",
     route: "publicMeetingRequest",
-    label: ["Réunion publique", "Demander une réunion publique"],
+    label: ["Réunion publique", "Organiser une réunion publique"],
     icon: "radio",
     color: "#00ace0",
+  },
+  cafePopulaireRequest: {
+    key: "cafePopulaireRequest",
+    route: "cafePopulaireRequest",
+    label: ["Café populaire", "Organiser une café populaire"],
+    icon: "coffee",
+    color: "#00B171",
   },
 };
 
@@ -223,6 +232,7 @@ const GROUP_MANAGER_ACTION_ORDER = [
   "createEvent",
   "materiel",
   "publicMeetingRequest",
+  "cafePopulaireRequest",
   "createContact",
   "help",
   "actionTools",
