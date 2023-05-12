@@ -1,0 +1,48 @@
+{% extends email_template %}
+
+{% block header %}{% endblock %}
+
+{% block subject %}
+  {{ group.name }} a été décertifié
+{% endblock %}
+
+{% block html_content %}
+  <p>{{ greetings }}</p>
+  <p>
+    Vous recevez ce message en tant qu'animateur·ice du groupe d'action certifié <a
+    href="{{ group.front_url }}"><strong>{{ group.name }}</strong></a>.
+  </p>
+  <p>
+    {% if group.uncertifiable_warning_date %}
+      Le <strong>{{ group.uncertifiable_warning_date|date:"j F Y" }}</strong> vous avez reçu
+    {% else %}
+      Vous avez reçu
+    {% endif %} un message vous indiquant
+      que ce groupe d'action ne remplissait plus un ou plusieurs critères de certification, tels que définis par <a
+    href="https://lafranceinsoumise.fr/groupes-action/charte-groupes-dappui-de-france-insoumise/">la Charte des groupes
+    d'action</a>.
+  </p>
+  <p>
+    À ce jour, ce ou ces critères ne sont toujours pas remplis. Par conséquent, <strong>le groupe d'action <a
+    href="{{ group.front_url }}">{{ group.name }}</a> perd sa
+    certification</strong>.
+  </p>
+  <p>
+    Vous pourrez demander à nouveau la certification du groupe sur Action populaire lorsque l'ensemble des critères
+    de certification seront remplis par celui-ci.
+  </p>
+  <p>
+    Amitiés,
+    <br/>
+    <br/>
+    Alexandra et Clément
+    <br/>
+    pour le Pôle des groupes d’action
+    <br/>
+    <a href="mailto:groupes@actionpopulaire.fr">
+      <em>groupes@actionpopulaire.fr</em>
+    </a>
+  </p>
+{% endblock %}
+
+{% block html_footer %}{% endblock %}

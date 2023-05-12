@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unknown-property */
 import React from "react";
 import styled from "styled-components";
 
@@ -81,6 +82,38 @@ export const ActionTools = () => {
         <i
           aria-hidden="true"
           css={`
+            background-color: ${({ theme }) => theme.redNSP};
+            color: ${({ theme }) => theme.white};
+          `}
+        >
+          <RawFeatherIcon name="heart" />
+        </i>
+        <span>
+          <strong>Financer les actions du mouvement</strong>
+          <span>
+            Pour que le mouvement puisse financer ses frais de fonctionnement,
+            organiser des actions et s’équiper en matériel, vous pouvez
+            contribuer financièrement de manière ponctuelle ou mensuellement.
+            Chaque euro compte.
+          </span>
+          <span
+            css={`
+              display: inline-flex;
+              flex-wrap: wrap;
+              gap: 0.5rem;
+              margin-top: 0.25rem;
+            `}
+          >
+            <Button small link route="donationLanding">
+              En savoir plus sur le financement
+            </Button>
+          </span>
+        </span>
+      </StyledCardItem>
+      <StyledCardItem as="span">
+        <i
+          aria-hidden="true"
+          css={`
             background-color: ${({ theme }) => theme.secondary500};
             color: ${({ theme }) => theme.black1000};
           `}
@@ -109,23 +142,40 @@ export const ActionTools = () => {
           </span>
         </span>
       </StyledCardItem>
+      <StyledCardItem route="materiel">
+        <i
+          aria-hidden="true"
+          css={`
+            background-color: ${({ theme }) => theme.materielBlue};
+            color: ${({ theme }) => theme.white};
+          `}
+        >
+          <RawFeatherIcon name="shopping-bag" />
+        </i>
+        <span>
+          <strong>Commander du matériel</strong>
+          <span>
+            Recevez chez vous des tracts, des affiches et des objets de la
+            campagne.
+          </span>
+        </span>
+        <RawFeatherIcon aria-hidden="true" name="chevron-right" />
+      </StyledCardItem>
       <StyledCardItem as="span">
         <i
           aria-hidden="true"
           css={`
-            background-color: ${({ theme }) => theme.redNSP};
+            background-color: #00ace0;
             color: ${({ theme }) => theme.white};
           `}
         >
-          <RawFeatherIcon name="heart" />
+          <RawFeatherIcon name="radio" />
         </i>
         <span>
-          <strong>Financer les actions du mouvement</strong>
+          <strong>Organiser une réunion publique</strong>
           <span>
-            Pour que le mouvement puisse financer ses frais de fonctionnement,
-            organiser des actions et s’équiper en matériel, vous pouvez
-            contribuer financièrement de manière ponctuelle ou mensuellement.
-            Chaque euro compte.
+            Demandez l'organisation d'une réunion publique, avec la présence ou
+            non d'un·e député·e ou eurodéputé·e.
           </span>
           <span
             css={`
@@ -135,11 +185,15 @@ export const ActionTools = () => {
               margin-top: 0.25rem;
             `}
           >
-            <Button small link route="donationLanding">
-              En savoir plus sur le financement
+            <Button small link route="publicMeetingRequest">
+              Faire une demande de réunion publique
+            </Button>
+            <Button small link route="publicMeetingHelp">
+              En savoir plus
             </Button>
           </span>
         </span>
+        <RawFeatherIcon aria-hidden="true" name="chevron-right" />
       </StyledCardItem>
       <StyledCardItem route="createContact">
         <i
@@ -223,25 +277,6 @@ export const ActionTools = () => {
             </Button>
           </span>
         </span>
-      </StyledCardItem>
-      <StyledCardItem route="materiel">
-        <i
-          aria-hidden="true"
-          css={`
-            background-color: ${({ theme }) => theme.materielBlue};
-            color: ${({ theme }) => theme.white};
-          `}
-        >
-          <RawFeatherIcon name="shopping-bag" />
-        </i>
-        <span>
-          <strong>Commander du matériel</strong>
-          <span>
-            Recevez chez vous des tracts, des affiches et des objets de la
-            campagne.
-          </span>
-        </span>
-        <RawFeatherIcon aria-hidden="true" name="chevron-right" />
       </StyledCardItem>
     </StyledCard>
   );

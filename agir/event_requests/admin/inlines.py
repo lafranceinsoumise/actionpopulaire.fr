@@ -35,10 +35,39 @@ class EventAssetInline(admin.TabularInline):
     verbose_name = "visuel de l'événement"
     verbose_name_plural = "visuels de l'événement"
     model = models.EventAsset
-    fields = ("name", "file", "published", "image")
-    readonly_fields = ("thumbnail", "published", "image")
+    fields = (
+        "name",
+        "file",
+        "render",
+        "image",
+        "is_published",
+        "publishing",
+    )
+    readonly_fields = (
+        "thumbnail",
+        "render",
+        "image",
+        "is_published",
+        "publishing",
+    )
     show_change_link = True
     extra = 0
+
+    @admin.display(description="Génération")
+    def render(self, obj):
+        if obj and obj.renderable:
+            return format_html(
+                '<a href="{}" class="button" title="Régénérer le visuel">⟳ Régénérer</a>'
+                "<p class='help' style='margin:0;padding:8px 0 0;font-size:0.75rem;'>"
+                "<strong>⚠ Le visuel existant sera définitivement supprimé</strong>"
+                "</p>",
+                admin_url(
+                    f"{self.opts.app_label}_{self.opts.model_name}_render",
+                    args=[obj.id],
+                ),
+            )
+
+        return "-"
 
     @admin.display(description="Image de bannière")
     def image(self, obj):
@@ -47,7 +76,10 @@ class EventAssetInline(admin.TabularInline):
 
         if obj.is_event_image_candidate:
             return format_html(
-                '<a href="{}" class="button" title="Utiliser comme image de bannière">✔ Sélectionner</a>',
+                '<a href="{}" class="button" title="Utiliser comme image de bannière">🖼️ Utiliser comme image</a>'
+                "<p class='help' style='margin:0;padding:8px 0 0;font-size:0.75rem;'>"
+                "<strong>⚠ L'image existante sera définitivement supprimée</strong>"
+                "</p>",
                 admin_url(
                     f"{self.opts.app_label}_{self.opts.model_name}_set_as_event_image",
                     args=[obj.id],
@@ -60,9 +92,7 @@ class EventAssetInline(admin.TabularInline):
         if obj.is_event_image or obj.is_event_image_candidate:
             src = obj.file.url
         else:
-            src = (
-                "https://placehold.co/160x160/e9e1ff/cbbfec?font=playfair-display&text="
-            )
+            src = "https://placehold.co/80x80/e9e1ff/cbbfec?font=playfair-display&text="
             if obj.file.name:
                 _, ext = os.path.splitext(obj.file.name)
                 src += ext.lower().replace(".", "")
@@ -70,10 +100,40 @@ class EventAssetInline(admin.TabularInline):
                 src += "…"
 
         return format_html(
-            '<img style="max-height:85px;width:100%;height:auto;" src="{}" alt={} />',
+            '<img style="max-height:120px;max-width:120px;width:auto;height:auto;" src="{}" alt={} />',
             src,
             obj.name,
         )
+
+    @admin.display(description="Publié", boolean=True)
+    def is_published(self, obj):
+        return obj and obj.published
+
+    @admin.display(description="Publication")
+    def publishing(self, obj):
+        if obj and not obj.published:
+            return format_html(
+                "<a href='{}' class='button'>✔ Publier</a>"
+                "<p class='help' style='margin:0;padding:8px 0 0;font-size:0.75rem;'>"
+                "Les organisateur·ices recevront une notification et pourront accèder au visuel "
+                "dans le volet de gestion de la page de l'événement"
+                "</p>",
+                admin_url(
+                    f"{self.opts.app_label}_{self.opts.model_name}_publish",
+                    args=[obj.id],
+                ),
+            )
+
+        if obj and obj.published:
+            return format_html(
+                "<a href='{}' class='button'>✖ Dépublier</a>",
+                admin_url(
+                    f"{self.opts.app_label}_{self.opts.model_name}_unpublish",
+                    args=[obj.id],
+                ),
+            )
+
+        return "-"
 
     def get_fields(self, request, obj=None):
         fields = super().get_fields(request, obj)

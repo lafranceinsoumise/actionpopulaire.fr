@@ -912,14 +912,14 @@ files = [
 
 [[package]]
 name = "django"
-version = "3.2.18"
+version = "3.2.19"
 description = "A high-level Python Web framework that encourages rapid development and clean, pragmatic design."
 category = "main"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "Django-3.2.18-py3-none-any.whl", hash = "sha256:4d492d9024c7b3dfababf49f94511ab6a58e2c9c3c7207786f1ba4eb77750706"},
-    {file = "Django-3.2.18.tar.gz", hash = "sha256:08208dfe892eb64fff073ca743b3b952311104f939e7f6dae954fe72dcc533ba"},
+    {file = "Django-3.2.19-py3-none-any.whl", hash = "sha256:21cc991466245d659ab79cb01204f9515690f8dae00e5eabde307f14d24d4d7d"},
+    {file = "Django-3.2.19.tar.gz", hash = "sha256:031365bae96814da19c10706218c44dff3b654cc4de20a98bd2d29b9bde469f0"},
 ]
 
 [package.dependencies]
@@ -2116,22 +2116,21 @@ attrs = ">=19.2.0"
 
 [[package]]
 name = "ovh"
-version = "1.0.0"
+version = "1.1.0"
 description = "\"Official module to perform HTTP requests to the OVHcloud APIs\""
 category = "main"
 optional = false
 python-versions = "*"
 files = [
-    {file = "ovh-1.0.0-py2.py3-none-any.whl", hash = "sha256:c8170ea8b3ff2f0618279ce619952f2fb08a003dc9cb676c5bd2e8bd15061a54"},
-    {file = "ovh-1.0.0.tar.gz", hash = "sha256:210cf0bb48307cf34f38b40b08ef7d28be47bb6d3de18f9a7100455d51b31e15"},
+    {file = "ovh-1.1.0-py2.py3-none-any.whl", hash = "sha256:9e82c761f3adad4c7db8028da179a9f9a19d1c2b1a32d8008541e198f08d843e"},
+    {file = "ovh-1.1.0.tar.gz", hash = "sha256:108f9b5a3b471193ce4a4589c7782f4bccbffe0ba03169774eb0472ac28ef679"},
 ]
 
 [package.dependencies]
 requests = ">=2.11.0"
 
 [package.extras]
-dev = ["Sphinx (==1.2.2)", "coverage (==5.5)", "coveralls (==3.2.0)", "mock (==1.0.1)", "nose (==1.3.3)", "setuptools (>=30.3.0)", "wheel", "yanc (==0.2.4)"]
-test = ["coverage (==5.5)", "mock (==1.0.1)", "nose (==1.3.3)", "yanc (==0.2.4)"]
+dev = ["Sphinx (==1.2.2)", "black", "coverage (>=7.2.2,<7.3.0)", "flake8", "isort", "pytest (>=7.2.2,<7.3.0)", "pytest-cov (==4.0.0)", "setuptools (>=30.3.0)", "wheel"]
 
 [[package]]
 name = "packaging"
@@ -2830,18 +2829,18 @@ test = ["coverage", "pytest"]
 
 [[package]]
 name = "redis"
-version = "4.5.1"
+version = "4.5.5"
 description = "Python client for Redis database and key-value store"
 category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "redis-4.5.1-py3-none-any.whl", hash = "sha256:5deb072d26e67d2be1712603bfb7947ec3431fb0eec9c578994052e33035af6d"},
-    {file = "redis-4.5.1.tar.gz", hash = "sha256:1eec3741cda408d3a5f84b78d089c8b8d895f21b3b050988351e925faf202864"},
+    {file = "redis-4.5.5-py3-none-any.whl", hash = "sha256:77929bc7f5dab9adf3acba2d3bb7d7658f1e0c2f1cafe7eb36434e751c471119"},
+    {file = "redis-4.5.5.tar.gz", hash = "sha256:dc87a0bdef6c8bfe1ef1e1c40be7034390c2ae02d92dcd0c7ca1729443899880"},
 ]
 
 [package.dependencies]
-async-timeout = ">=4.0.2"
+async-timeout = {version = ">=4.0.2", markers = "python_full_version <= \"3.11.2\""}
 
 [package.extras]
 hiredis = ["hiredis (>=1.0.0)"]

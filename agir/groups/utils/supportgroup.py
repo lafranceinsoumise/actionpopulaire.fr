@@ -2,17 +2,16 @@ from datetime import timedelta
 from urllib.parse import urlencode
 
 from django.conf import settings
-from django.db.models import Q, Max, DateField
+from django.db.models import Q
 from django.utils.timezone import now
 
 from agir.events.models import Event
-from agir.groups.models import SupportGroup, Membership
+from agir.groups.models import Membership
 from agir.lib.admin.utils import admin_url
 from agir.lib.utils import front_url
 
 DAYS_SINCE_GROUP_CREATION_LIMIT = 31
 DAYS_SINCE_LAST_EVENT_LIMIT = 62
-DAYS_SINCE_LAST_EVENT_WARNING = 45
 
 
 def is_new_group_filter():
@@ -36,38 +35,6 @@ def has_recent_event_filter():
 
 def is_active_group_filter():
     return is_new_group_filter() | has_recent_event_filter()
-
-
-def get_soon_to_be_inactive_groups(exact=False):
-    # âge dernier événement = maintenant - date événement =/<= durée d'avertissement
-    # ==>
-    # date événement =/>= maintenant - durée d'avertissement = date limite
-    limit_date = (now() - timedelta(days=DAYS_SINCE_LAST_EVENT_WARNING)).date()
-    qs = (
-        SupportGroup.objects.active()
-        .exclude(is_new_group_filter())
-        .annotate(
-            last_event_start_date=Max(
-                "organized_events__start_time__date",
-                filter=Q(organized_events__visibility=Event.VISIBILITY_PUBLIC),
-                output_field=DateField(),
-            )
-        )
-    )
-    if exact:
-        # Keep only groups :
-        # - with no events whose creation date was exactly n days ago
-        # - whose last event start date was n days ago
-        return qs.filter(
-            Q(last_event_start_date__isnull=True, created__date=limit_date)
-            | Q(last_event_start_date=limit_date)
-        )
-
-    # Keep only groups :
-    # - with recent events, but whose last event start date was n days ago or more
-    return qs.filter(has_recent_event_filter()).filter(
-        Q(last_event_start_date__lte=limit_date)
-    )
 
 
 EDITABLE_ONLY_ROUTES = [

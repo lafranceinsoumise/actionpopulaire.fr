@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 
 from django.core.management.base import BaseCommand, CommandError
 
@@ -27,12 +28,35 @@ class Command(BaseCommand):
                     .values_list("payment__price", flat=True)
                 )
                 average = amount / event.participants_confirmes
+
+                modification_price_date = datetime(2023, 5, 5)
+                amount_since = sum(
+                    RSVP.objects.filter(event__id=event.id)
+                    .filter(status="CO")
+                    .filter(payment__price__isnull=False)
+                    .filter(created__gte=modification_price_date)
+                    .values_list("payment__price", flat=True)
+                )
+
+                participants_since = (
+                    RSVP.objects.filter(event__id=event.id)
+                    .filter(status="CO")
+                    .filter(created__gte=modification_price_date)
+                    .count()
+                )
+
+                average_since = amount_since / participants_since
+
                 message += (
                     f"Pour l'événement <b>{event.name} il y a {event.participants} participants, "
                     f"dont {event.participants_confirmes} confirmés</b>\n"
                     "Le montant total des paiements est de <b>{:.2f}€</b>\n"
-                    "Le montant moyen par participant est de <b>{:.2f}€</b>\n\n".format(
-                        amount / 100, average / 100
+                    "Le montant moyen par participant est de <b>{:.2f}€</b>\n"
+                    "Le montant moyen par participant inscrits après le {} est de <b>{:.2f}€</b>\n\n".format(
+                        amount / 100,
+                        average / 100,
+                        modification_price_date.strftime("%d %B %Y"),
+                        average_since / 100,
                     )
                 )
 

@@ -193,6 +193,20 @@ const ACTIONS = {
       </span>
     ),
   },
+  help: {
+    key: "help",
+    route: "help",
+    label: ["Aide", "Centre d'aide"],
+    icon: "help-circle",
+    color: style.referralPink,
+  },
+  publicMeetingRequest: {
+    key: "publicMeetingRequest",
+    route: "publicMeetingRequest",
+    label: ["Réunion publique", "Demander une réunion publique"],
+    icon: "radio",
+    color: "#00ace0",
+  },
 };
 
 const DEFAULT_ACTION_ORDER = [
@@ -200,15 +214,17 @@ const DEFAULT_ACTION_ORDER = [
   "createEvent",
   "materiel",
   "createContact",
-  "toktokPreview",
+  "help",
   "actionTools",
 ];
+
 const GROUP_MANAGER_ACTION_ORDER = [
   "contributions",
   "createEvent",
   "materiel",
+  "publicMeetingRequest",
   "createContact",
-  "toktokPreview",
+  "help",
   "actionTools",
 ];
 

@@ -187,7 +187,7 @@ class PushAnnouncementAdmin(admin.ModelAdmin):
         "test_action_buttons",
         "action_buttons",
     ]
-    autocomplete_fields = ("segment",)
+    autocomplete_fields = ("segment", "test_segment")
 
     @admin.display(description="Données")
     def notification_data(self, obj):
