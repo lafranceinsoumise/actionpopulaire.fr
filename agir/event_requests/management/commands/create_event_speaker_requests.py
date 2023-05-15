@@ -3,6 +3,7 @@ import uuid
 from django.contrib.humanize.templatetags.humanize import apnumber
 from django.utils.translation import ngettext
 
+from agir.event_requests.actions import create_event_speaker_requests_for_event_request
 from agir.event_requests.models import EventSpeakerRequest, EventRequest
 from agir.event_requests.tasks import send_new_event_speaker_request_notification
 from agir.lib.commands import BaseCommand
@@ -34,33 +35,9 @@ class Command(BaseCommand):
         for event_request in pending_event_requests:
             self.tqdm.update(1)
             self.log_current_item(f"{event_request}")
-            possible_event_speaker_ids = set(
-                event_request.event_theme.event_speakers.available().values_list(
-                    "id", flat=True
-                )
+            event_speaker_requests += create_event_speaker_requests_for_event_request(
+                event_request, commit=False
             )
-            if len(possible_event_speaker_ids) == 0:
-                self.warning(
-                    f"No speaker found for the event request's theme: “{event_request.event_theme.name}”"
-                )
-                continue
-
-            for datetime in event_request.datetimes:
-                existing_speaker_ids = set(
-                    EventSpeakerRequest.objects.filter(
-                        event_request=event_request,
-                        datetime=datetime,
-                    ).values_list("event_speaker_id", flat=True)
-                )
-                event_speaker_requests += [
-                    EventSpeakerRequest(
-                        event_request=event_request,
-                        event_speaker_id=event_speaker_id,
-                        datetime=datetime,
-                    )
-                    for event_speaker_id in possible_event_speaker_ids
-                    if event_speaker_id not in existing_speaker_ids
-                ]
 
         if self.dry_run:
             return event_speaker_requests

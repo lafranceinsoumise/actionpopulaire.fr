@@ -7,7 +7,7 @@ from django.db import transaction
 from django.utils import timezone
 from django.utils.text import slugify
 
-from agir.event_requests.models import EventRequest, EventAsset
+from agir.event_requests.models import EventRequest, EventAsset, EventSpeakerRequest
 from agir.event_requests.tasks import (
     send_event_request_validation_emails,
     send_new_publish_event_asset_notification,
@@ -189,6 +189,43 @@ def create_event_request_from_personform_submission(submission, do_not_create=Fa
         submission.save()
 
         return event_request
+
+
+def create_event_speaker_requests_for_event_request(event_request, commit=True):
+    possible_event_speaker_ids = set(
+        event_request.event_theme.event_speakers.available().values_list(
+            "id", flat=True
+        )
+    )
+    if len(possible_event_speaker_ids) == 0:
+        return []
+
+    event_speaker_requests = []
+    for dt in event_request.datetimes:
+        existing_speaker_ids = set(
+            EventSpeakerRequest.objects.filter(
+                event_request=event_request,
+                datetime=dt,
+            ).values_list("event_speaker_id", flat=True)
+        )
+        event_speaker_requests += [
+            EventSpeakerRequest(
+                event_request=event_request,
+                event_speaker_id=event_speaker_id,
+                datetime=dt,
+            )
+            for event_speaker_id in possible_event_speaker_ids
+            if event_speaker_id not in existing_speaker_ids
+        ]
+
+    if not commit:
+        return event_speaker_requests
+
+    return EventSpeakerRequest.objects.bulk_create(
+        event_speaker_requests,
+        ignore_conflicts=True,
+        send_post_save_signal=True,
+    )
 
 
 def publish_event_assets(event_assets):

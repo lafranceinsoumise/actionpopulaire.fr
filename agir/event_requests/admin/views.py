@@ -15,6 +15,50 @@ from agir.event_requests.models import EventRequest
 from agir.events.models import Event
 
 
+def create_event_speaker_requests(model_admin, request, pk):
+    if not model_admin.has_change_permission(request):
+        raise PermissionDenied
+
+    event_request = model_admin.get_object(request, pk)
+
+    if event_request is None:
+        raise Http404("La demande d'événement n'a pas pu être retrouvée.")
+
+    response = HttpResponseRedirect(
+        reverse(
+            "%s:%s_%s_change"
+            % (
+                model_admin.admin_site.name,
+                EventRequest._meta.app_label,
+                EventRequest._meta.model_name,
+            ),
+            args=(event_request.id,),
+        )
+    )
+
+    if (
+        not event_request.is_pending
+        or event_request.event_theme.event_theme_type.has_event_speaker_request_emails
+    ):
+        messages.warning(
+            request,
+            "Il n'est pas ou plus possible de créer de demandes de disponibilité pour cette demande",
+        )
+        return response
+
+    try:
+        actions.create_event_speaker_requests_for_event_request(event_request)
+    except Exception as e:
+        messages.warning(request, str(e))
+    else:
+        success_message = """
+        Les demandes de disponibilité ont été mises à jour pour cette demande.
+        """
+        messages.success(request, success_message)
+
+    return response
+
+
 def accept_event_speaker_request(model_admin, request, pk):
     if not model_admin.has_change_permission(request):
         raise PermissionDenied
