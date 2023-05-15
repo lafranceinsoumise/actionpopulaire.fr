@@ -4,6 +4,7 @@ from datetime import datetime
 from functools import reduce
 from operator import or_
 
+import dynamic_filenames
 import phonenumbers
 from django.conf import settings
 from django.contrib.postgres.indexes import GinIndex
@@ -1130,3 +1131,28 @@ class PersonValidationSMS(
     class Meta:
         verbose_name = _("SMS de validation")
         verbose_name_plural = _("SMS de validation")
+
+
+class Document(models.Model):
+    class Type(models.TextChoices):
+        RECU_FISCAL = "RF", "Reçu fiscal"
+
+    person = models.ForeignKey(
+        Person,
+        related_name="documents",
+        related_query_name="document",
+        on_delete=models.CASCADE,
+    )
+    titre = models.CharField(verbose_name="Titre du document", max_length=200)
+    date = models.DateField(verbose_name="Date du document", null=False, blank=False)
+    type = models.CharField(
+        verbose_name="Type de document", choices=Type.choices, blank=False, max_length=5
+    )
+    fichier = models.FileField(
+        verbose_name="Fichier",
+        upload_to=FilePattern(
+            filename_pattern="people/person/documents/{uuid:.30base32}{ext}"
+        ),
+        blank=False,
+        null=False,
+    )

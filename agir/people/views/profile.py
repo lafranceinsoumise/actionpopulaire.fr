@@ -36,7 +36,7 @@ from agir.people.forms.profile import (
     ContactForm,
     ActivityAndSkillsForm,
 )
-from agir.people.models import PersonEmail
+from agir.people.models import PersonEmail, Document
 
 
 class ProfileViewMixin(SoftLoginRequiredMixin):
@@ -335,6 +335,10 @@ class PaymentsView(AskAmountView, ProfileViewMixin, TemplateView):
         kwargs["can_make_contribution"] = can_make_contribution(
             person=self.request.user.person
         )
+
+        kwargs["recus_fiscaux"] = self.request.user.person.documents.filter(
+            type=Document.Type.RECU_FISCAL,
+        ).order_by("-date")
 
         return super().get_context_data(
             is_hard_logged=is_hard_logged(self.request),
