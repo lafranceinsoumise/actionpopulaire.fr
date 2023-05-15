@@ -3,8 +3,8 @@ from django.utils.formats import date_format
 
 from agir.lib.admin.utils import admin_url
 from agir.lib.commands import BaseCommand
-from ...actions import *
-from ...models import AbsoluteStatistics
+from agir.statistics.actions import *
+from agir.statistics.models import AbsoluteStatistics
 
 
 class Command(BaseCommand):
@@ -17,7 +17,7 @@ class Command(BaseCommand):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.date = AbsoluteStatistics.objects.latest().date
-        week_start = self.date - datetime.timedelta(days=self.date.weekday(), weeks=1)
+        week_start = self.date - datetime.timedelta(days=self.date.weekday())
         week_end = week_start + datetime.timedelta(days=6)
         self.week = week_start, week_end
 
