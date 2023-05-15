@@ -72,7 +72,7 @@ class CertificationWarningFilter(admin.SimpleListFilter):
         )
 
     def queryset(self, request, queryset):
-        if self.value() == "received":
+        if self.value() == "sent":
             return queryset.with_certification_warning()
 
         if self.value() == "expired":
