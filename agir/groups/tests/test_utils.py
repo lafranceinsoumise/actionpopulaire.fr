@@ -112,8 +112,10 @@ class SupportGroupCertificationCriteriaTestCase(TestCase):
 
     def test_supportgroup_activity(self):
         group = SupportGroup.objects.create(name="G", location_country="UK")
-        criteria = check_certification_criteria(group)
+        criteria = check_certification_criteria(group, with_labels=True)
         self.assertNotIn("activity", criteria)
+        criteria = check_certification_criteria(group)
+        self.assertTrue("activity", criteria)
         group.location_country = "FR"
         group.save()
         group.refresh_from_db()

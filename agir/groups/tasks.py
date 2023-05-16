@@ -931,7 +931,9 @@ def send_uncertifiable_group_warning(supportgroup_pk, expiration_in_days):
     certification_criteria = check_certification_criteria(supportgroup)
     # Double-check if any criterium is unmatched to avoid false positives
     if all(certification_criteria.values()):
-        return
+        raise Exception(
+            f"False positive: uncertifiable group warning scheduled for group #{supportgroup_pk}"
+        )
     Activity.objects.bulk_create(
         [
             Activity(

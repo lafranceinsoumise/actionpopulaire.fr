@@ -1,11 +1,8 @@
-from django.conf import settings
 from django.db import models
+from django.utils.functional import cached_property
 
 from agir.groups.models import SupportGroup, SupportGroupQuerySet
-from agir.groups.utils.certification import (
-    add_certification_criteria_to_queryset,
-    check_certification_criteria,
-)
+from agir.groups.utils import certification
 
 
 class ThematicGroupManager(models.Manager):
@@ -25,18 +22,31 @@ class ThematicGroup(SupportGroup):
 
 class UncertifiableGroupManager(models.Manager.from_queryset(SupportGroupQuerySet)):
     def get_queryset(self):
-        qs = (
-            super()
-            .get_queryset()
-            .active()
-            .certified()
-            .filter(type=SupportGroup.TYPE_LOCAL_GROUP)
-        )
-        return add_certification_criteria_to_queryset(qs).filter(certifiable=False)
+        return super().get_queryset().uncertifiable()
 
 
 class UncertifiableGroup(SupportGroup):
     objects = UncertifiableGroupManager()
+
+    @cached_property
+    def cc_creation(self):
+        return certification.check_criterion_creation(self)
+
+    @cached_property
+    def cc_members(self):
+        return certification.check_criterion_members(self)
+
+    @cached_property
+    def cc_activity(self):
+        return certification.check_criterion_activity(self)
+
+    @cached_property
+    def cc_gender(self):
+        return certification.check_criterion_gender(self)
+
+    @cached_property
+    def cc_exclusivity(self):
+        return certification.check_criterion_exclusivity(self)
 
     class Meta:
         default_permissions = ("view", "change")
