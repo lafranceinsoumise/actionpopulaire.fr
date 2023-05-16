@@ -370,22 +370,24 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "location_short",
         "start_time",
         "created",
+        "acceptable_for_group_certification",
     )
     list_filter = (
         EventStatusFilter,
         "visibility",
-        EventHasReportFilter,
         OrganizerGroupFilter,
         ParticipantFilter,
         GroupAttendeeFilter,
-        CountryListFilter,
-        CirconscriptionLegislativeFilter,
-        DepartementListFilter,
-        RegionListFilter,
-        "coordinates_type",
+        EventHasReportFilter,
         "subtype__type",
         EventSubtypeFilter,
+        "subtype__is_acceptable_for_group_certification",
         EventCalendarFilter,
+        DepartementListFilter,
+        CirconscriptionLegislativeFilter,
+        RegionListFilter,
+        CountryListFilter,
+        "coordinates_type",
         "tags",
     )
 
@@ -427,10 +429,13 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
     location_short.short_description = _("Lieu")
     location_short.admin_order_field = "location_city"
 
+    @admin.display(description="Certification", boolean=True)
+    def acceptable_for_group_certification(self, obj):
+        return obj and obj.subtype.is_acceptable_for_group_certification
+
+    @admin.display(description="Calendriers")
     def calendar_names(self, object):
         return ", ".join(c.name for c in object.calendars.all())
-
-    calendar_names.short_description = _("Agendas")
 
     def add_organizer_button(self, object):
         if object.pk is None:
