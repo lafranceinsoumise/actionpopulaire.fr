@@ -112,6 +112,22 @@
         </div>
       {% endif %}
 
+      {% if recus_fiscaux %}
+        <h3 class="payment-section-title" id="recus">Reçus fiscaux</h3>
+        <div class="list-group">
+        {% for recu in recus_fiscaux %}
+          <div class="list-group-item payment-item">
+            <h4>{{ recu.titre }} — <small>{{ recu.date|date:"SHORT_DATE_FORMAT" }}</small></h4>
+            <footer>
+              <a href="{{ recu.fichier.url }}" class="btn btn-block btn-sm btn-info">
+                <i class="fa-regular fa-download"></i> Télécharger le document
+              </a>
+            </footer>
+          </div>
+        {% endfor %}
+        </div>
+      {% endif %}
+
       <h3 class="payment-section-title" id="paiements">Paiements passés</h3>
       {% if is_hard_logged %}
         <div class="panel-group" id="payments-accordion" role="tablist">

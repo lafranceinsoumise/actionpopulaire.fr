@@ -293,6 +293,7 @@ MERGE_STRATEGIES = {
     "event_speaker": merge_event_speakers,
     "public_email": None,
     "action_radius": None,
+    "document": merge_reassign_related,
 }
 
 
