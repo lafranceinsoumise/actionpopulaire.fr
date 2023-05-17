@@ -6,7 +6,7 @@ from django.utils import timezone
 from django.utils.translation import ngettext
 
 from agir.groups import tasks
-from agir.groups.proxys import UncertifiableGroup
+from agir.groups.models import SupportGroup
 from agir.lib.commands import BaseCommand
 
 
@@ -70,9 +70,11 @@ class Command(BaseCommand):
         *args,
         **kwargs,
     ):
-        uncertifiable_groups = UncertifiableGroup.objects.prefetch_related(
-            "notifications"
-        ).only("id", "name")
+        uncertifiable_groups = (
+            SupportGroup.objects.prefetch_related("notifications")
+            .uncertifiable()
+            .only("id", "name")
+        )
         uncertifiable_group_count = len(uncertifiable_groups)
 
         if uncertifiable_group_count == 0:

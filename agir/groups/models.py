@@ -54,6 +54,18 @@ class SupportGroupQuerySet(models.QuerySet):
     def uncertified(self):
         return self.filter(certification_date__isnull=True)
 
+    def uncertifiable(self):
+        from agir.groups.utils.certification import certification_criteria_for_queryset
+
+        qs = self.active().certified().filter(type=SupportGroup.TYPE_LOCAL_GROUP)
+        uncertifiable_group_ids = [
+            group.id
+            for group in certification_criteria_for_queryset(qs)
+            if not group.certifiable
+        ]
+
+        return qs.filter(id__in=uncertifiable_group_ids)
+
     def search(self, query):
         vector = (
             SearchVector(models.F("name"), config="french_unaccented", weight="A")

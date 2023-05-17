@@ -446,6 +446,7 @@ class EventRequestAdmin(admin.ModelAdmin):
                     "datetimes",
                     "event_data",
                     "comment",
+                    "event_speaker_request_action",
                     "event_field",
                 )
             },
@@ -454,6 +455,7 @@ class EventRequestAdmin(admin.ModelAdmin):
     readonly_fields = (
         "event_theme_type",
         "event_theme",
+        "event_speaker_request_action",
         "event_field",
     )
     list_display = (
@@ -519,6 +521,26 @@ class EventRequestAdmin(admin.ModelAdmin):
 
         return display_link(obj.event_theme.event_theme_type)
 
+    @admin.display(description="Demandes de disponibilité")
+    def event_speaker_request_action(self, obj):
+        if not obj:
+            return "-"
+
+        if (
+            not obj.is_pending
+            or obj.event_theme.event_theme_type.has_event_speaker_request_emails
+        ):
+            return obj.event_speaker_requests.count() or "-"
+
+        return display_link(
+            reverse(
+                f"admin:{self.opts.app_label}_{self.opts.model_name}_create_event_speaker_requests",
+                args=(obj.pk,),
+            ),
+            "Mettre à jour les demandes de disponibilité",
+            button=True,
+        )
+
     @admin.display(description="Événement")
     def event_field(self, obj):
         if obj and obj.event is not None:
@@ -548,11 +570,19 @@ class EventRequestAdmin(admin.ModelAdmin):
                 "<uuid:pk>/accept/",
                 self.admin_site.admin_view(self.accept),
                 name=f"{self.opts.app_label}_{self.opts.model_name}_accept",
-            )
+            ),
+            path(
+                "<uuid:pk>/create-event-speaker-requests/",
+                self.admin_site.admin_view(self.create_event_speaker_requests),
+                name=f"{self.opts.app_label}_{self.opts.model_name}_create_event_speaker_requests",
+            ),
         ] + super().get_urls()
 
     def accept(self, request, pk):
         return views.accept_event_request(self, request, pk)
+
+    def create_event_speaker_requests(self, request, pk):
+        return views.create_event_speaker_requests(self, request, pk)
 
     class Media:
         pass
