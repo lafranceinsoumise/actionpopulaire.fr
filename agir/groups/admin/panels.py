@@ -360,13 +360,13 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
                     diff_days = "hier"
                 else:
                     diff_days = f"il y a {diff_days} jours"
-                status = mark_safe(
+                status = (
                     f"{status}"
                     "<br />"
                     f"— Avertissement de décertification envoyé "
                     f"le <strong>{obj.uncertifiable_warning_date.strftime('%d %B %Y')}</strong> ({diff_days})"
                 )
-            return status
+            return mark_safe(status)
 
         if obj.is_certifiable:
             return "Éligible à la certification"
@@ -542,16 +542,17 @@ class UncertifiableGroupAdmin(SupportGroupAdmin):
         "group_link",
         "location_short",
         "created__date",
-        "active_member_count",
+        "certification__date",
+        "uncertifiable_warning__date",
         "referents",
-        "recent_event_count",
         "short_certification_criteria",
     )
     list_filter = (
-        CountryListFilter,
-        CirconscriptionLegislativeFilter,
+        filters.CertificationWarningFilter,
         DepartementListFilter,
+        CirconscriptionLegislativeFilter,
         RegionListFilter,
+        CountryListFilter,
     )
     date_hierarchy = None
     show_full_result_count = False
@@ -570,13 +571,17 @@ class UncertifiableGroupAdmin(SupportGroupAdmin):
     def created__date(self, obj):
         return obj.created.date()
 
-    @admin.display(description="Membres")
-    def active_member_count(self, obj):
-        return obj.active_member_count
+    @admin.display(description="Certification", ordering="certification_date")
+    def certification__date(self, obj):
+        return obj.certification_date and obj.certification_date.strftime("%-d %B %Y")
 
-    @admin.display(description="Actions")
-    def recent_event_count(self, obj):
-        return obj.recent_event_count
+    @admin.display(description="Avertissement")
+    def uncertifiable_warning__date(self, obj):
+        warning_date = obj.uncertifiable_warning_date
+        if not warning_date:
+            return "-"
+
+        return obj.uncertifiable_warning_date.strftime("%-d %B %Y")
 
     @admin.display(description="Critères")
     def short_certification_criteria(self, obj):
@@ -591,6 +596,15 @@ class UncertifiableGroupAdmin(SupportGroupAdmin):
             for key, criterion in criteria.items()
         ]
         return format_html("".join(html))
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request):
+        return False
 
 
 @admin.register(models.SupportGroupTag)
