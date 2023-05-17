@@ -175,62 +175,87 @@ WHERE
   g.id = ANY(%(supportgroup_ids)s)
 """
 
+PARAMS = {
+    "french_countries": FRENCH_COUNTRY_CODES,
+    "supportgroup_type_local": SupportGroup.TYPE_LOCAL_GROUP,
+    "membership_type_member": Membership.MEMBERSHIP_TYPE_MEMBER,
+    "membership_type_referent": Membership.MEMBERSHIP_TYPE_REFERENT,
+    "event_visibility_public": Event.VISIBILITY_PUBLIC,
+    "creation_limit_days": 31,
+    "member_limit_n": 3,
+    "activity_limit_n": 3,
+    "activity_limit_days": 62,
+    "gender_limit_n": 2,
+}
 
-def certification_criteria_for_queryset(qs):
+
+def get_params(qs=None):
     params = {
+        **PARAMS,
         "now": timezone.now(),
-        "french_countries": FRENCH_COUNTRY_CODES,
-        "supportgroup_type_local": SupportGroup.TYPE_LOCAL_GROUP,
-        "supportgroup_ids": list(qs.values_list("id", flat=True)),
         "supportgroupsubtype_ids": list(
             SupportGroupSubtype.objects.active().values_list("id", flat=True)
         ),
-        "membership_type_member": Membership.MEMBERSHIP_TYPE_MEMBER,
-        "membership_type_referent": Membership.MEMBERSHIP_TYPE_REFERENT,
-        "event_visibility_public": Event.VISIBILITY_PUBLIC,
-        "creation_limit_days": 31,
-        "member_limit_n": 3,
-        "activity_limit_n": 3,
-        "activity_limit_days": 62,
-        "gender_limit_n": 2,
     }
+
+    if qs:
+        params["supportgroup_ids"] = list(qs.values_list("id", flat=True))
+
+    return params
+
+
+def certification_criteria_for_queryset(qs):
+    params = get_params(qs)
 
     return SupportGroup.objects.raw(SQL_QUERY, params=params)
 
 
-def check_criterion_creation(group):
-    # Exists since at least 31 days
-    now = timezone.now()
-    return now - timedelta(days=31) >= group.created
+def check_criterion_creation(group, params=None):
+    if params is None:
+        params = get_params()
+
+    now = params.get("now")
+    creation_limit_days = params.get("creation_limit_days")
+
+    return now - timedelta(days=creation_limit_days) >= group.created
 
 
-def check_criterion_members(group):
-    # At least 3 active members
-    return 3 <= group.active_members_count
+def check_criterion_members(group, params=None):
+    if params is None:
+        params = get_params()
+
+    return (
+        params.get("member_limit_n")
+        <= group.memberships.exclude(
+            person__role__isnull=False, person__role__is_active=False
+        )
+        .filter(membership_type__gte=params.get("membership_type_member"))
+        .count()
+    )
 
 
-def check_criterion_activity(group):
-    # At least 3 recent events, except for groups abroad
-    if (
-        group.location_country
-        and group.location_country.code not in FRENCH_COUNTRY_CODES
+def check_criterion_activity(group, params=None):
+    if params is None:
+        params = get_params()
+
+    if group.location_country and group.location_country.code not in params.get(
+        "french_countries"
     ):
         return None
 
-    now = timezone.now()
     recent_event_count = group.organized_events.acceptable_for_group_certification(
-        time_ref=now
+        limit_days=params.get("activity_limit_days"), time_ref=params.get("now")
     ).count()
 
-    return 3 <= recent_event_count
+    return params.get("activity_limit_n") <= recent_event_count
 
 
-def check_criterion_gender(group):
-    from agir.groups.models import Membership
+def check_criterion_gender(group, params=None):
+    if params is None:
+        params = get_params()
 
-    # At least two referents with different gender
     referents = group.memberships.filter(
-        membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT
+        membership_type__gte=params.get("membership_type_referent")
     )
     referent_genders = (
         referents.exclude(person__gender__exact="")
@@ -239,10 +264,12 @@ def check_criterion_gender(group):
         .order_by("person__gender")
         .count()
     )
-    return 2 <= referent_genders
+    return params.get("gender_limit_n") <= referent_genders
 
 
-def check_criterion_exclusivity(group):
+def check_criterion_exclusivity(group, params=None):
+    if params is None:
+        params = get_params()
     # Group referents cannot be referents of another certified local group of the same subtype
     exclusivity = True
     for referent in group.referents:
@@ -253,9 +280,9 @@ def check_criterion_exclusivity(group):
             == referent.memberships.exclude(supportgroup_id=group.id)
             .filter(
                 supportgroup__published=True,
-                membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
-                supportgroup__type=SupportGroup.TYPE_LOCAL_GROUP,
-                supportgroup__subtypes__in=group.subtypes.active(),
+                membership_type__gte=params.get("membership_type_referent"),
+                supportgroup__type=params.get("supportgroup_type_local"),
+                supportgroup__subtypes__id__in=group.subtypes.active(),
                 supportgroup__certification_date__isnull=False,
             )
             .exists()
@@ -265,32 +292,33 @@ def check_criterion_exclusivity(group):
 
 
 def check_certification_criteria(group, with_labels=False):
+    params = get_params()
     criteria = {}
 
     if hasattr(group, "cc_creation"):
         criteria["creation"] = group.cc_creation
     else:
-        criteria["creation"] = check_criterion_creation(group)
+        criteria["creation"] = check_criterion_creation(group, params)
 
     if hasattr(group, "cc_members"):
         criteria["members"] = group.cc_members
     else:
-        criteria["members"] = check_criterion_members(group)
+        criteria["members"] = check_criterion_members(group, params)
 
     if hasattr(group, "cc_activity"):
         criteria["activity"] = group.cc_activity
     else:
-        criteria["activity"] = check_criterion_activity(group)
+        criteria["activity"] = check_criterion_activity(group, params)
 
     if hasattr(group, "cc_gender"):
         criteria["gender"] = group.cc_gender
     else:
-        criteria["gender"] = check_criterion_gender(group)
+        criteria["gender"] = check_criterion_gender(group, params)
 
     if hasattr(group, "cc_exclusivity"):
         criteria["exclusivity"] = group.cc_exclusivity
     else:
-        criteria["exclusivity"] = check_criterion_exclusivity(group)
+        criteria["exclusivity"] = check_criterion_exclusivity(group, params)
 
     if not with_labels:
         return criteria
@@ -303,23 +331,24 @@ def check_certification_criteria(group, with_labels=False):
 
 
 def check_single_group_and_queryset_criterion_match(qs):
+    params = get_params(qs)
     qs = certification_criteria_for_queryset(qs)
 
     for group in qs:
         print(".", end="")
-        if group.cc_creation != check_criterion_creation(group):
+        if group.cc_creation != check_criterion_creation(group, params):
             print("\ncreation")
             print(group.id)
-        if group.cc_members != check_criterion_members(group):
+        if group.cc_members != check_criterion_members(group, params):
             print("\nmembers")
             print(group.id)
-        if group.cc_activity != check_criterion_activity(group):
+        if group.cc_activity != check_criterion_activity(group, params):
             print("\nactivity")
             print(group.id)
-        if group.cc_gender != check_criterion_gender(group):
+        if group.cc_gender != check_criterion_gender(group, params):
             print("\ngender")
             print(group.id)
-        if group.cc_exclusivity != check_criterion_exclusivity(group):
+        if group.cc_exclusivity != check_criterion_exclusivity(group, params):
             print("\nexclusivity")
             print(group.id)
 

@@ -96,7 +96,7 @@ class EventQuerySet(models.QuerySet):
             condition &= models.Q(visibility=Event.VISIBILITY_PUBLIC)
         return self.filter(condition)
 
-    def acceptable_for_group_certification(self, time_ref=None):
+    def acceptable_for_group_certification(self, limit_days=62, time_ref=None):
         if time_ref is None:
             time_ref = timezone.now()
 
@@ -105,7 +105,7 @@ class EventQuerySet(models.QuerySet):
             .filter(subtype__is_acceptable_for_group_certification=True)
             .filter(
                 start_time__range=(
-                    time_ref - timedelta(days=62),
+                    time_ref - timedelta(days=limit_days),
                     time_ref,
                 )
             )
