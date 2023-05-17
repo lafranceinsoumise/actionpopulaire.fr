@@ -167,7 +167,13 @@ SELECT
   cc_activity, 
   cc_gender, 
   cc_exclusivity,
-  cc_creation AND cc_members AND cc_activity AND cc_gender AND cc_exclusivity AS certifiable
+  (
+    cc_creation 
+    AND cc_members 
+    AND cc_gender 
+    AND cc_exclusivity 
+    AND cc_activity IS NOT FALSE
+  ) AS certifiable
 FROM 
   groups_supportgroup g 
   LEFT JOIN criteria ON criteria.supportgroup_id = g.id  
@@ -321,7 +327,7 @@ def check_certification_criteria(group, with_labels=False):
         criteria["exclusivity"] = check_criterion_exclusivity(group, params)
 
     if not with_labels:
-        return criteria
+        return {key: val is not False for key, val in criteria.items()}
 
     return {
         key: {**labels, "value": criteria.get(key)}
