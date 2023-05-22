@@ -291,6 +291,17 @@ class EventThemeType(models.Model):
         blank=False,
         max_length=1,
     )
+    organizer_group = models.ForeignKey(
+        "groups.SupportGroup",
+        limit_choices_to={"published": True},
+        on_delete=models.SET_NULL,
+        verbose_name="Groupe organisateur",
+        related_name="+",
+        blank=True,
+        null=True,
+        help_text="Si un groupe est selectionné, il sera automatiquement indiqué comme organisateur de tous les "
+        "événements de ce type",
+    )
     has_event_speaker_request_emails = models.BooleanField(
         verbose_name="demander leur disponibilité aux intervenant·es",
         default=True,
@@ -396,7 +407,6 @@ class EventTheme(BaseAPIResource):
         null=False,
         blank=False,
     )
-
     calendar = models.OneToOneField(
         "events.Calendar",
         on_delete=models.SET_NULL,
@@ -406,7 +416,6 @@ class EventTheme(BaseAPIResource):
         default=None,
         editable=False,
     )
-
     event_asset_templates = models.ManyToManyField(
         "event_requests.EventAssetTemplate",
         verbose_name="Templates de visuels",
@@ -414,7 +423,6 @@ class EventTheme(BaseAPIResource):
         related_query_name="event_theme",
         blank=True,
     )
-
     event_image_template = models.ForeignKey(
         "event_requests.EventAssetTemplate",
         limit_choices_to={"target_format": "png"},
@@ -425,7 +433,6 @@ class EventTheme(BaseAPIResource):
         blank=True,
         null=True,
     )
-
     speaker_event_creation_email_subject = models.CharField(
         verbose_name="objet de l'e-mail à l'intervenant·e",
         max_length=255,
@@ -445,7 +452,6 @@ class EventTheme(BaseAPIResource):
         "sélectionné·e lors de la création d'un événement. Le lien vers la page de l'événement et les coordonnées"
         "de l'organisateur·ice seront automatiquement ajoutés à la fin du message.",
     )
-
     organizer_event_creation_email_subject = models.CharField(
         verbose_name="objet de l'e-mail à l'organisateur·ice",
         max_length=255,
@@ -465,7 +471,6 @@ class EventTheme(BaseAPIResource):
         "lors de la création d'un événement. Le lien vers la page de l'événement et les coordonnées"
         "de l'intervenant·e seront automatiquement ajoutés à la fin du message.",
     )
-
     event_creation_notification_email_subject = models.CharField(
         verbose_name="objet de l'e-mail de notification de validation",
         max_length=255,
@@ -485,7 +490,6 @@ class EventTheme(BaseAPIResource):
         "lors de la création d'un événement. Le lien vers la page de l'événement et les coordonnées"
         "de l'organisateur·ice et de l'intervenant·e seront automatiquement ajoutés à la fin du message.",
     )
-
     unretained_speaker_event_creation_email_subject = models.CharField(
         verbose_name="objet de l'e-mail aux intervenant·es non retenu·es",
         max_length=255,

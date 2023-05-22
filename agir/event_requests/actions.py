@@ -13,7 +13,7 @@ from agir.event_requests.tasks import (
     send_new_publish_event_asset_notification,
     render_event_assets,
 )
-from agir.events.models import Calendar
+from agir.events.models import Calendar, OrganizerConfig
 from agir.events.models import Event
 from agir.events.tasks import (
     send_event_creation_notification,
@@ -133,6 +133,9 @@ def create_event_for_event_request(event_request, event_speakers, start_time):
         subtype=event_subtype,
         **data,
     )
+
+    if event_theme_type.organizer_group:
+        event.add_organizer_group(group=event_theme_type.organizer_group)
 
     if event_theme_type.calendar:
         event_theme_type.calendar.events.add(event)

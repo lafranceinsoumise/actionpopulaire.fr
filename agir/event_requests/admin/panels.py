@@ -200,8 +200,10 @@ class EventThemeTypeAdmin(admin.ModelAdmin):
                     "name",
                     "event_subtype",
                     "event_request_validation_mode",
+                    "organizer_group",
                     "calendar_link",
                     "map_link",
+                    "event_request_list_link",
                 )
             },
         ),
@@ -234,15 +236,18 @@ class EventThemeTypeAdmin(admin.ModelAdmin):
             },
         ),
     )
-    list_display = ("name", "event_subtype", "calendar_link", "map_link")
-    list_filter = ("event_theme",)
-    search_fields = ("name",)
-    autocomplete_fields = ("event_subtype", "event_image_template")
-    filter_horizontal = ("event_asset_templates",)
-    readonly_fields = (
+    list_display = (
+        "name",
+        "event_subtype",
         "calendar_link",
         "map_link",
+        "event_request_list_link",
     )
+    list_filter = ("event_theme",)
+    search_fields = ("name",)
+    autocomplete_fields = ("event_subtype", "organizer_group", "event_image_template")
+    filter_horizontal = ("event_asset_templates",)
+    readonly_fields = ("calendar_link", "map_link", "event_request_list_link")
     inlines = (
         inlines.EventAssetTemplateInline,
         inlines.EventThemeInline,
@@ -272,6 +277,20 @@ class EventThemeTypeAdmin(admin.ModelAdmin):
             ),
         )
 
+    @admin.display(description="Demandes d'événement")
+    def event_request_list_link(self, obj):
+        if not obj:
+            return "-"
+        return format_html(
+            '<a href="{0}">Voir les demandes</a>',
+            admin_url(
+                "event_requests_eventrequest_changelist",
+                query={
+                    "event_theme__event_theme_type__id__exact": obj.pk,
+                },
+            ),
+        )
+
 
 @admin.register(models.EventTheme)
 class EventThemeAdmin(admin.ModelAdmin):
@@ -284,6 +303,7 @@ class EventThemeAdmin(admin.ModelAdmin):
                     "description",
                     "event_theme_type",
                     "calendar_link",
+                    "event_request_list_link",
                 )
             },
         ),
@@ -343,11 +363,12 @@ class EventThemeAdmin(admin.ModelAdmin):
         "notification_email",
         "unretained_speaker_email",
         "event_speaker_count",
+        "event_request_list_link",
     )
     list_filter = ("event_theme_type",)
     search_fields = ("name", "event_theme_type__name")
     autocomplete_fields = ("event_theme_type", "event_image_template")
-    readonly_fields = ("calendar_link", "email_to")
+    readonly_fields = ("calendar_link", "event_request_list_link", "email_to")
     filter_horizontal = ("event_asset_templates",)
     inlines = (
         inlines.EventAssetTemplateInline,
@@ -369,6 +390,20 @@ class EventThemeAdmin(admin.ModelAdmin):
             '<a href="{0}">{0}</a>',
             front_url(
                 "view_calendar", kwargs={"slug": obj.calendar.slug}, absolute=True
+            ),
+        )
+
+    @admin.display(description="Demandes d'événement")
+    def event_request_list_link(self, obj):
+        if not obj:
+            return "-"
+        return format_html(
+            '<a href="{0}">Voir les demandes</a>',
+            admin_url(
+                "event_requests_eventrequest_changelist",
+                query={
+                    "theme": obj.pk,
+                },
             ),
         )
 
