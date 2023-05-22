@@ -227,6 +227,19 @@ const locale = {
   ],
 };
 
+const convertIsoDateOffset = (date) => {
+  const [splitDate, offset] = date.split("+");
+
+  if (!offset || offset.indexOf(":") >= 0) {
+    return date;
+  }
+
+  const hoursOffset = offset.substring(0, 2) || "00";
+  const secondsOffset = offset.substring(2, 4) || "00";
+
+  return `${splitDate}+${hoursOffset}:${secondsOffset}`;
+};
+
 const getInitialValue = (value) => {
   if (!value) {
     return null;
@@ -236,7 +249,7 @@ const getInitialValue = (value) => {
     .map(
       (v) =>
         new DateObject(
-          new Date(v.length === 10 ? v + " 00:00:00" : v).toISOString()
+          new Date(v.length === 10 ? v + " 00:00:00" : convertIsoDateOffset(v))
         )
     )
     .filter((v) => v.isValid);
@@ -341,9 +354,7 @@ const MultiDateInput = (props) => {
             .map((dateObject) =>
               hasTime
                 ? // Cast dateObject to UTC string with datetimes
-                  new Date(dateObject.format(format))
-                    .toISOString()
-                    .split(".")[0] + "Z"
+                  dateObject.toDate().toISOString().split(".")[0] + "Z"
                 : dateObject.format(format)
             )
             .join(",")
