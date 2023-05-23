@@ -31,7 +31,7 @@ SPEC_IDENTIFIED_GUEST = {
 
 SPEC_PAYMENT = {
     "montant": ("price", T / 100),
-    "status": T.get_status_display(),
+    "status_paiement": T.get_status_display(),
     "mode de paiement": "mode",
 }
 
