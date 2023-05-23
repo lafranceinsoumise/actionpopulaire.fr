@@ -488,7 +488,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
                         "admin:events_event_rsvps_download_results",
                         "Télécharger les inscriptions",
                     ),
-                    ("admin:add_participant_link", "Inscrire quelqu'un"),
+                    ("admin:events_event_add_participant", "Inscrire quelqu'un"),
                 ]
             )
 
