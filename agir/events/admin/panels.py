@@ -601,7 +601,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
                 name="events_event_generate_mailing_campaign",
             ),
             path(
-                "<int:pk>/reset_feuille_externe/",
+                "<uuid:pk>/reset_feuille_externe/",
                 self.admin_site.admin_view(self.reset_feuille_externe),
                 name="events_event_reset_feuille_externe",
             ),
