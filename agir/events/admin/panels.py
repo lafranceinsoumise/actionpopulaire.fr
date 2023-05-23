@@ -504,7 +504,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
             '<div style="display: flex; gap: 10px;">{}</div>',
             format_html_join(
                 "",
-                '<a href="{}">{}</a>',
+                '<a href="{}" class="button">{}</a>',
                 ((reverse(view, args=(object.pk,)), label) for view, label in links),
             ),
         )
