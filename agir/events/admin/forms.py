@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.forms import BooleanField
@@ -188,6 +189,13 @@ class EventAdminForm(CoordinatesFormMixin, forms.ModelForm):
         widgets = {
             "description": AdminRichEditorWidget(),
             "report_content": AdminRichEditorWidget(),
+        }
+
+        help_texts = {
+            "lien_feuille_externe": mark_safe(
+                f"Google Sheet uniquement pour le moment. La feuille doit être partagée"
+                f" en écriture avec l'utilisateur <em>{settings.GCE_ACCOUNT_EMAIL}</em>."
+            )
         }
 
 

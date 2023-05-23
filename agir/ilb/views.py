@@ -35,7 +35,7 @@ class PersonalInformationView(base_views.BasePersonalInformationView):
 
     payment_modes = ["system_pay_ilb", "check_ilb"]
 
-def form_valid(self, form):
+    def form_valid(self, form):
         if form.connected:
             person = form.save()
             email = person.email

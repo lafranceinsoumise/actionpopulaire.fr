@@ -281,6 +281,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
                     "max_participants",
                     "allow_guests",
                     "subscription_form",
+                    "lien_feuille_externe",
                     "participants_display",
                     "group_participants_display",
                     "rsvps_buttons",
@@ -474,23 +475,39 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
     link.short_description = _("Page sur le site")
 
     def rsvps_buttons(self, object):
-        if object.subscription_form is None or object.pk is None:
-            return mark_safe("-")
-        else:
-            return format_html(
-                '<a href="{view_results_link}" class="button">Voir les inscriptions</a><br>'
-                '<a href="{download_results_link}" class="button">Télécharger les inscriptions</a><br>'
-                '<a href="{add_participant_link}" class="button">Inscrire quelq\'un</a>',
-                view_results_link=reverse(
-                    "admin:events_event_rsvps_view_results", args=(object.pk,)
-                ),
-                download_results_link=reverse(
-                    "admin:events_event_rsvps_download_results", args=(object.pk,)
-                ),
-                add_participant_link=reverse(
-                    "admin:events_event_add_participant", args=(object.pk,)
-                ),
+        links = []
+
+        if object.subscription_form:
+            links.extend(
+                [
+                    ("admin:events_event_rsvps_view_results", "Voir les inscriptions"),
+                    (
+                        "admin:events_event_rsvps_download_results",
+                        "Télécharger les inscriptions",
+                    ),
+                    ("admin:add_participant_link", "Inscrire quelqu'un"),
+                ]
             )
+
+        if object.lien_feuille_externe:
+            links.append(("admin:events_event_"))
+
+        return format_html(
+            '<div style="display: flex">'
+            '<a href="{view_results_link}" class="button">Voir les inscriptions</a>'
+            '<a href="{download_results_link}" class="button">Télécharger les inscriptions</a>'
+            '<a href="{add_participant_link}" class="button">Inscrire quelq\'un</a>'
+            "</div>",
+            view_results_link=reverse(
+                "admin:events_event_rsvps_view_results", args=(object.pk,)
+            ),
+            download_results_link=reverse(
+                "admin:events_event_rsvps_download_results", args=(object.pk,)
+            ),
+            add_participant_link=reverse(
+                "admin:events_event_add_participant", args=(object.pk,)
+            ),
+        )
 
     rsvps_buttons.short_description = _("Inscriptions")
 
@@ -579,6 +596,11 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
                 "<uuid:pk>/generate-mailing-campaign/",
                 self.admin_site.admin_view(self.generate_mailing_campaign),
                 name="events_event_generate_mailing_campaign",
+            ),
+            path(
+                "<int:pk>/reset_feuille_externe/",
+                self.admin_site.admin_view(self.reset_feuille_externe),
+                name="people_personform_reset_feuille_externe",
             ),
         ] + super().get_urls()
 

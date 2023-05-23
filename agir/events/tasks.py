@@ -1,15 +1,21 @@
+import logging
 from collections import OrderedDict
 from datetime import timedelta
 
 import ics
 import requests
+from celery import shared_task
 from django.conf import settings
 from django.template.defaultfilters import date as _date
 from django.template.loader import render_to_string
+from django.utils.formats import localize
 from django.utils.html import format_html
 from django.utils.http import urlencode
+from django.utils.timezone import get_current_timezone
 from django.utils.translation import gettext_lazy as _
+from glom import T, Val
 
+from agir.activity.models import Activity
 from agir.authentication.tokens import subscription_confirmation_token_generator
 from agir.groups.models import Membership
 from agir.lib.celery import (
@@ -19,13 +25,27 @@ from agir.lib.celery import (
 )
 from agir.lib.display import str_summary
 from agir.lib.geo import geocode_element
+from agir.lib.google_sheet import (
+    parse_sheet_link,
+    copy_array_to_sheet,
+    add_row_to_sheet,
+)
 from agir.lib.html import sanitize_html
 from agir.lib.mailing import send_mosaico_email
 from agir.lib.utils import front_url
+from agir.notifications.models import Subscription
 from agir.people.models import Person
-from .models import Event, RSVP, GroupAttendee, Invitation, OrganizerConfig
-from ..activity.models import Activity
-from ..notifications.models import Subscription
+from .display import display_participants, display_rsvp, display_identified_guest
+from .models import (
+    Event,
+    RSVP,
+    GroupAttendee,
+    Invitation,
+    OrganizerConfig,
+    IdentifiedGuest,
+)
+
+logger = logging.getLogger(__name__)
 
 # encodes the preferred order when showing the messages
 NOTIFIED_CHANGES = {
@@ -820,3 +840,90 @@ def send_event_report_form_reminder_email(event_pk):
         recipients=event.organizers.all(),
         bindings=bindings,
     )
+
+
+SPEC_RSVP = {
+    "id": ("id", "R{}".format),
+    "created": (T.created.astimezone(get_current_timezone()), localize),
+    "person_id": ("person_id", str),
+    "email": "person.email",
+    "status": T.get_status_display(),
+}
+
+SPEC_IDENTIFIED_GUEST = {
+    **SPEC_RSVP,
+    "id": ("id", "I{}".format),
+    "created": Val(""),
+    "person_id": ("rsvp.person_id", str),
+    "email": "rsvp.person.email",
+}
+
+SPEC_PAYMENT = {
+    "montant": ("price", T / 100),
+    "status": T.get_status_display(),
+    "mode de paiement": "mode",
+}
+
+
+@shared_task
+def copier_participants_vers_feuille_externe(event_id):
+    try:
+        event = Event.objects.select_related("subscription_form").get(id=event_id)
+    except Event.DoesNotExist:
+        return
+
+    sheet_id = parse_sheet_link(event.lien_feuille_externe)
+
+    if not sheet_id:
+        logger.warning(
+            f"URL de la Google sheet incorrecte pour l'événement d'id {event.id}"
+        )
+        return
+
+    values = display_participants(event)
+
+    copy_array_to_sheet(sheet_id, values)
+
+
+@shared_task
+def copier_rsvp_vers_feuille_externe(rsvp_id):
+    try:
+        rsvp = RSVP.objects.select_related(
+            "form_submission", "person", "payment", "event"
+        ).get(id=rsvp_id)
+    except RSVP.DoesNotExist:
+        return
+
+    sheet_id = parse_sheet_link(rsvp.event.lien_feuille_externe)
+
+    if not sheet_id:
+        logger.warning(
+            f"URL de la Google sheet incorrecte pour l'événement d'id {rsvp.event.id}"
+        )
+        return
+
+    values = display_rsvp(rsvp)
+
+    add_row_to_sheet(sheet_id, values, "id")
+
+
+@shared_task
+def copier_identified_guest_vers_feuille_externe(guest_id):
+    try:
+        ig = IdentifiedGuest.objects.select_related(
+            "submission", "rsvp__event", "rsvp__person", "payment", "event"
+        ).get(id=guest_id)
+    except IdentifiedGuest.DoesNotExist:
+        return
+
+    sheet_id = parse_sheet_link(ig.rsvp.event.lien_feuille_externe)
+
+    if not sheet_id:
+        logger.warning(
+            f"URL de la Google sheet incorrecte pour l'événement d'id {ig.rsvp.event.id}"
+        )
+        return
+
+    values = display_identified_guest(ig)
+
+    add_row_to_sheet(sheet_id, values, "id")

@@ -1,14 +1,14 @@
 import csv
-from urllib.parse import urljoin, urlparse, urlunparse
+from urllib.parse import urljoin
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
 from django.core.files import File
-from django.http import Http404, QueryDict
+from django.http import Http404
 from django.http.response import HttpResponseRedirect, HttpResponse
-from django.shortcuts import get_object_or_404, redirect, resolve_url
+from django.shortcuts import get_object_or_404, redirect
 from django.templatetags.static import static
 from django.urls import reverse
 from django.utils.decorators import method_decorator
