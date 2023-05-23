@@ -1,3 +1,4 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 
 from agir.activity.models import Activity
@@ -22,17 +23,38 @@ def schedule_new_organizer_group_notifications(invitation):
     group_tasks.notify_new_group_event.delay(invitation.group_id, invitation.event_id)
 
 
-def add_organizer_group(invitation, person):
-    _, created = models.OrganizerConfig.objects.get_or_create(
-        event=invitation.event,
-        as_group=invitation.group,
-        defaults={"person": person, "is_creator": False},
+def add_organizer_group(event, group, as_person=None):
+    if as_person is not None:
+        obj, _created = models.OrganizerConfig.objects.get_or_create(
+            event=event,
+            as_group=group,
+            defaults={"person": as_person},
+        )
+        return [obj]
+    # Defaults to group referents if no person is specified
+    return models.OrganizerConfig.objects.bulk_create(
+        [
+            models.OrganizerConfig(
+                event=event,
+                as_group=group,
+                person=referent_person,
+            )
+            for referent_person in group.referents
+        ],
+        ignore_conflicts=True,
     )
-    if not created:
+
+
+def accept_group_organization_invitation(invitation, person):
+    try:
+        invitation.event.organizers_groups.get(pk=invitation.group_id)
         raise CoorganizationResponseException(
             "Votre groupe a déjà accepté de coorganiser cet événement"
         )
+    except ObjectDoesNotExist:
+        pass
 
+    add_organizer_group(invitation.event, invitation.group, as_person=person)
     schedule_new_organizer_group_notifications(invitation)
 
     return True
@@ -62,7 +84,7 @@ def respond_to_coorganization_invitation(invitation, person, accepted=True):
 
         invitation.status = models.Invitation.STATUS_ACCEPTED
         invitation.save()
-        created = add_organizer_group(invitation, person)
+        created = accept_group_organization_invitation(invitation, person)
         Activity.objects.filter(
             event=invitation.event,
             supportgroup=invitation.group,
