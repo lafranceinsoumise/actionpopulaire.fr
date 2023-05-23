@@ -330,7 +330,7 @@ def copier_toutes_reponses_vers_feuille_externe(person_form_id):
         if isinstance(p, Person):
             row[1] = p.email
 
-    copy_array_to_sheet(sheet_id, headers, values)
+    copy_array_to_sheet(sheet_id, [headers, *values])
 
 
 @shared_task

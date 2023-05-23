@@ -256,7 +256,7 @@ FRANCE_COUNTRY_CODES = [
     "MQ",  # Martinique
     "YT",  # Mayotte
     "RE",  # La Réunion
-    "NC",  # Nouvelle Calédonie
+    "NC",  # Nouvelle-Calédonie
     "WF",  # Wallis-et-Futuna
-    "",  # des fois on a pas le pays
+    "",  # en cas d'absence du pays,
 ]
