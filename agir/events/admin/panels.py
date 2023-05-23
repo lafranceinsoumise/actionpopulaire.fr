@@ -1,5 +1,3 @@
-import json
-
 from django import forms
 from django.conf import settings
 from django.contrib import admin
@@ -39,7 +37,9 @@ from .filters import (
     RelatedEventFilter,
 )
 from .forms import EventAdminForm, EventSubtypeAdminForm
+from .views import reset_feuille_externe
 from ..serializers import EventEmailCampaignSerializer
+from ..tasks import copier_participants_vers_feuille_externe
 from ...event_requests.admin.inlines import EventAssetInline
 from ...lib.admin.utils import display_link, display_list_of_links
 
@@ -493,22 +493,19 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
             )
 
         if object.lien_feuille_externe:
-            links.append(("admin:events_event_"))
+            links.append(
+                (
+                    "admin:events_event_reset_feuille_externe",
+                    "Réinitialiser la feuille externe",
+                )
+            )
 
         return format_html(
-            '<div style="display: flex">'
-            '<a href="{view_results_link}" class="button">Voir les inscriptions</a>'
-            '<a href="{download_results_link}" class="button">Télécharger les inscriptions</a>'
-            '<a href="{add_participant_link}" class="button">Inscrire quelq\'un</a>'
-            "</div>",
-            view_results_link=reverse(
-                "admin:events_event_rsvps_view_results", args=(object.pk,)
-            ),
-            download_results_link=reverse(
-                "admin:events_event_rsvps_download_results", args=(object.pk,)
-            ),
-            add_participant_link=reverse(
-                "admin:events_event_add_participant", args=(object.pk,)
+            '<div style="display: flex; gap: 10px;">{}</div>',
+            format_html_join(
+                "",
+                '<a href="{}">{}</a>',
+                ((reverse(view, args=(object.pk,)), label) for view, label in links),
             ),
         )
 
@@ -566,6 +563,9 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
     def autocomplete_view(self, request):
         return AutoCompleteEventView.as_view(model_admin=self)(request)
 
+    def reset_feuille_externe(self, request, pk):
+        return reset_feuille_externe(self, request, pk)
+
     def get_urls(self):
         return [
             path(
@@ -603,7 +603,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
             path(
                 "<int:pk>/reset_feuille_externe/",
                 self.admin_site.admin_view(self.reset_feuille_externe),
-                name="people_personform_reset_feuille_externe",
+                name="events_event_reset_feuille_externe",
             ),
         ] + super().get_urls()
 
