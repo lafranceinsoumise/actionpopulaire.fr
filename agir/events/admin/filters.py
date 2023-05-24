@@ -1,9 +1,10 @@
 import django_filters
+from django.contrib.admin import SimpleListFilter
 from django.urls import reverse
 from django.utils.html import format_html
 from django_filters import filters
 
-from agir.events.models import Calendar, EventSubtype, Event
+from agir.events.models import Calendar, EventSubtype, Event, RSVP
 from agir.groups.models import SupportGroup
 from agir.lib.admin.autocomplete_filter import (
     AutocompleteRelatedModelFilter,
@@ -115,3 +116,27 @@ class GroupAttendeeFilter(AutocompleteSelectModelBaseFilter):
             return queryset.filter(groups_attendees__id=self.value())
         else:
             return queryset
+
+
+class RSVPGuestFilter(SimpleListFilter):
+    title = "Invités"
+    parameter_name = "guests"
+
+    def lookups(self, _request, _model_admin):
+        return (
+            ("none", "Sans invités"),
+            ("all", "Avec un ou plusieurs invités"),
+            ("identified", "Avec un ou plusieurs invités identifiés"),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == "none":
+            return queryset.filter(guests=0).exclude(
+                identified_guests__status=RSVP.STATUS_CONFIRMED
+            )
+        if self.value() == "all":
+            return queryset.filter(guests__gt=0)
+        if self.value() == "identified":
+            return queryset.filter(identified_guests__status=RSVP.STATUS_CONFIRMED)
+
+        return queryset

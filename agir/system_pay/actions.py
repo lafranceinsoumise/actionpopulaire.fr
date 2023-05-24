@@ -4,6 +4,7 @@ from agir.payments.actions.payments import (
     complete_payment,
     refuse_payment,
     refund_payment,
+    notify_status_change,
 )
 from agir.payments.actions.subscriptions import (
     complete_subscription,
@@ -23,23 +24,27 @@ SUBSCRIPTION_ERROR_STATUS_MAPPING = {
 
 
 def update_payment_from_transaction(payment, transaction):
-    if transaction.status == SystemPayTransaction.STATUS_COMPLETED:
+    if transaction.status in (
+        SystemPayTransaction.STATUS_CANCELED,
+        SystemPayTransaction.STATUS_REFUNDED,
+    ):
+        refund_payment(payment)
+    elif transaction.status == SystemPayTransaction.STATUS_COMPLETED:
         if payment.status == Payment.STATUS_CANCELED:
             logger.error(
                 f"La transaction Systempay {transaction.pk} a été mise à jour alors que le paiement {payment.pk} était annulé"
             )
-            return
-
-        if transaction.is_refund:
+        elif transaction.is_refund:
             refund_payment(payment)
         else:
             complete_payment(payment)
-
-    if (
+    elif (
         transaction.status == SystemPayTransaction.STATUS_REFUSED
         and payment.status == Payment.STATUS_WAITING
     ):
         refuse_payment(payment)
+
+    notify_status_change(payment)
 
 
 def replace_sp_subscription_for_subscription(subscription, sp_subscription):

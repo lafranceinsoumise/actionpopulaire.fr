@@ -1,3 +1,5 @@
+import json
+
 from django import forms
 from django.conf import settings
 from django.contrib import admin
@@ -13,7 +15,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from agir.events import models
-from agir.events.models import Calendar, RSVP
+from agir.events.models import Calendar, RSVP, IdentifiedGuest
 from agir.events.models import GroupAttendee
 from agir.groups.models import SupportGroup, Membership
 from agir.lib.admin.filters import (
@@ -35,11 +37,11 @@ from .filters import (
     GroupAttendeeFilter,
     EventSubtypeFilter,
     RelatedEventFilter,
+    RSVPGuestFilter,
 )
 from .forms import EventAdminForm, EventSubtypeAdminForm
 from .views import reset_feuille_externe
 from ..serializers import EventEmailCampaignSerializer
-from ..tasks import copier_participants_vers_feuille_externe
 from ...event_requests.admin.inlines import EventAssetInline
 from ...lib.admin.utils import display_link, display_list_of_links
 
@@ -916,19 +918,67 @@ class JitsiMeetingAdmin(admin.ModelAdmin):
         return format_html('<a target="_blank" href="{0}">{0}</a>', object.link)
 
 
+class IdentifiedGuestInline(admin.StackedInline):
+    model = IdentifiedGuest
+    verbose_name = "Invité identifié"
+    verbose_name_plural = "Invités identifiés"
+    fields = readonly_fields = (
+        "id",
+        "status",
+        "payment_link",
+        "submission_data",
+    )
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    @admin.display(description="Paiement", ordering="payment")
+    def payment_link(self, obj):
+        return display_link(obj.payment)
+
+    @admin.display(description="Inscription", ordering="submission")
+    def submission_data(self, obj):
+        if not obj or not obj.submission:
+            return "-"
+
+        return format_html(
+            "<details>"
+            "<summary style='cursor:pointer;'>Réponse au formulaire d'inscription</summary>"
+            "<pre>{}</pre>"
+            "</details>",
+            mark_safe(json.dumps(obj.submission.data, indent=2)),
+        )
+
+
 @admin.register(RSVP)
 class RSVPAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "person_link",
         "event_link",
+        "payment_link",
         "status",
         "guest_count",
     )
-
+    fields = readonly_fields = (
+        "id",
+        "status",
+        "event_link",
+        "person_link",
+        "person_contact_phone",
+        "payment_link",
+        "submission_data",
+        "guest_count",
+    )
     search_fields = ("person__search", "event__name")
-    list_filter = (RelatedEventFilter, "status")
-    list_display_links = None
+    list_filter = (RelatedEventFilter, "status", RSVPGuestFilter)
+    inlines = (IdentifiedGuestInline,)
 
     def has_add_permission(self, request, obj=None):
         return False
@@ -959,42 +1009,46 @@ class RSVPAdmin(admin.ModelAdmin):
             .prefetch_related("identified_guests")
         )
 
+    @admin.display(description="Personne", ordering="person")
     def person_link(self, obj):
-        return format_html(
-            '<a href="{link}">{person}</a>',
-            person=str(obj.person),
-            link=reverse("admin:people_person_change", args=[obj.person.pk]),
-        )
+        return display_link(obj.person)
 
-    person_link.short_description = "Personne"
-
+    @admin.display(description="Numéro de téléphone")
     def person_contact_phone(self, obj):
         return obj.person.contact_phone
 
-    person_contact_phone.short_description = "Numéro de téléphone"
-
+    @admin.display(description="Événement", ordering="event")
     def event_link(self, obj):
+        return display_link(obj.event)
+
+    @admin.display(description="Paiement", ordering="payment")
+    def payment_link(self, obj):
+        return display_link(obj.payment)
+
+    @admin.display(description="Inscription", ordering="form_submission")
+    def submission_data(self, obj):
+        if not obj.form_submission:
+            return "-"
+
         return format_html(
-            '<a href="{link}">{event}</a>',
-            event=str(obj.event),
-            link=reverse("admin:events_event_change", args=[obj.id]),
+            "<details>"
+            "<summary style='cursor:pointer;'>Réponse au formulaire d'inscription</summary>"
+            "<pre>{}</pre>"
+            "</details>",
+            mark_safe(json.dumps(obj.form_submission.data, indent=2)),
         )
 
-    event_link.short_description = "Événement"
+    @admin.display(description="Invités")
+    def guest_count(self, obj):
+        return obj.guests
 
+    @admin.display(description="")
     def filter_by_event_button(self, obj):
         return format_html(
             '<a class="button default" style="color: white;" href="{link}?event={event_id}">Voir uniquement cet événement</a>',
             link=reverse("admin:events_rsvp_changelist"),
             event_id=str(obj.event_id),
         )
-
-    filter_by_event_button.short_description = ""
-
-    def guest_count(self, obj):
-        return obj.guests
-
-    guest_count.short_description = "Invités"
 
     class Media:
         pass

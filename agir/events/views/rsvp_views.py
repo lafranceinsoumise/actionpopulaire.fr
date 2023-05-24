@@ -31,6 +31,8 @@ from ..actions.rsvps import (
     validate_payment_for_guest,
     is_participant,
     RSVPException,
+    cancel_payment_for_rsvp,
+    cancel_payment_for_guest,
 )
 from ..forms import BillingForm, GuestsForm, BaseRSVPForm, ExternalRSVPForm
 from ..models import Event, RSVP
@@ -429,6 +431,9 @@ def notification_listener(payment):
             else:
                 validate_payment_for_rsvp(payment)
 
+        if payment.status == Payment.STATUS_REFUND:
+            cancel_payment_for_rsvp(payment)
+            cancel_payment_for_guest(payment)
     else:
         # should not happen anymore
         pass
