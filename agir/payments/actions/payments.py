@@ -1,12 +1,13 @@
 from datetime import datetime
 
+from django.db import transaction
 from django.http.response import HttpResponseRedirect
 from django.template import loader
 
-from agir.people.models import Person
 from agir.payments.models import Payment
-from agir.payments.payment_modes import DEFAULT_MODE
+from agir.payments.payment_modes import DEFAULT_MODE, PAYMENT_MODES
 from agir.payments.types import PAYMENT_TYPES
+from agir.people.models import Person
 
 
 class PaymentException(Exception):
@@ -98,8 +99,9 @@ def refund_payment(payment):
     if payment.status not in (Payment.STATUS_COMPLETED, Payment.STATUS_REFUND):
         raise PaymentException("Impossible de rembourser un paiement non confirmé.")
 
-    payment.status = Payment.STATUS_REFUND
-    payment.save()
+    with transaction.atomic():
+        payment.status = Payment.STATUS_REFUND
+        payment.save()
 
 
 def redirect_to_payment(payment):
@@ -170,3 +172,9 @@ def find_or_create_person_from_payment(payment):
             )
         payment.person.save()
         payment.save()
+
+
+def cancel_or_refund_payment(payment, *args, **kwargs):
+    return PAYMENT_MODES[payment.mode].cancel_or_refund_payment_action(
+        payment, *args, **kwargs
+    )

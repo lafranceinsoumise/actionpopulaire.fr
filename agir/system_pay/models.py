@@ -1,10 +1,9 @@
-from django.db.models import JSONField
 from django.db import models
+from django.db.models import JSONField
 from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
 
 from agir.lib.models import TimeStampedModel
-
 
 __all__ = ["SystemPayTransaction", "SystemPayAlias", "SystemPaySubscription"]
 
@@ -17,13 +16,16 @@ class SystemPayTransaction(
     STATUS_ABANDONED = 2
     STATUS_CANCELED = 3
     STATUS_REFUSED = 4
+    STATUS_CANCELLED = 5
+    STATUS_REFUNDED = 6
 
     STATUS_CHOICES = (
         (STATUS_WAITING, "Paiement en attente"),
         (STATUS_COMPLETED, "Paiement terminé"),
         (STATUS_ABANDONED, "Paiement abandonné au milieu"),
-        (STATUS_CANCELED, "Paiement annulé avant encaissement"),
+        (STATUS_CANCELED, "Paiement annulé avant remise"),
         (STATUS_REFUSED, "Paiement refusé par la banque"),
+        (STATUS_REFUNDED, "Paiement annulé et remboursé après remise"),
     )
 
     status = models.IntegerField(

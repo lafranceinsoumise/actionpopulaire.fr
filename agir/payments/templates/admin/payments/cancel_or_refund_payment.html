@@ -1,0 +1,33 @@
+{% extends "admin/change_form.html" %}{% load crispy_forms_tags i18n admin_urls static admin_modify %}
+
+
+{% if not is_popup %}
+  {% block breadcrumbs %}
+    <div class="breadcrumbs">
+      <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+      &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+      &rsaquo; {% if has_change_permission %}
+      <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>{% else %}
+      {{ opts.verbose_name_plural|capfirst }}{% endif %}
+      &rsaquo; <a
+      href="{% url 'admin:payments_payment_change' payment.pk|admin_urlquote %}">{{ payment|truncatewords:"18" }}</a>
+      &rsaquo; {% blocktrans %}Annuler/Rembourser{% endblocktrans %}
+    </div>
+  {% endblock %}
+{% endif %}
+
+{% block content %}
+
+  <div class="delete-confirmation">
+
+    <p>Annuler et/ou rembourser le paiement n°{{ payment.pk }}&nbsp;? Attention, cette action est irréversible.</p>
+    <form method="post" novalidate>{% csrf_token %}
+      <div>
+        <input type="submit" value="Annuler/rembourser le paiement">
+        <a href="{% url 'admin:payments_payment_change' payment.pk|admin_urlquote %}"
+         class="button cancel-link">Non, revenir à la page précédente</a>
+      </div>
+    </form>
+
+  </div>
+{% endblock %}

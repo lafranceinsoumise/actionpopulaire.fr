@@ -7,10 +7,12 @@ from django.urls import reverse
 from django.views.decorators.cache import never_cache
 from django.views.generic import TemplateView
 from rest_framework import serializers
+from rest_framework.generics import ListAPIView
+from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from agir.payments.actions import subscriptions
-from agir.payments.actions.payments import notify_status_change, create_payment
+from agir.payments.actions.payments import create_payment
 from agir.payments.actions.subscriptions import (
     notify_status_change as notify_subscription_status_change,
 )
@@ -236,7 +238,6 @@ class SystemPayWebhookView(APIView):
         self.save_transaction(sp_transaction, serializer)
 
         update_payment_from_transaction(payment, sp_transaction)
-        notify_status_change(payment)
 
         return self.successful_response()
 
@@ -293,7 +294,6 @@ class SystemPayWebhookView(APIView):
 
         self.save_transaction(sp_transaction, serializer)
         update_payment_from_transaction(payment, sp_transaction)
-        notify_status_change(payment)
 
         return self.successful_response()
 
@@ -450,3 +450,16 @@ def failure_view(request, pk):
             "system_pay/subscription_failed.html",
             context={"retry_url": retry_url, "status": status},
         )
+
+
+class SystemPayRestAPINotificationView(ListAPIView):
+    sp_config = None
+    mode_id = None
+    queryset = SystemPayTransaction.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        logger.warning(
+            "Notification de SystemPay sur l'API REST",
+            extra={"request": request, "params": request.GET},
+        )
+        return Response([])

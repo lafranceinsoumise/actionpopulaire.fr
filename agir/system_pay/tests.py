@@ -1,5 +1,7 @@
 import string
 import uuid
+from datetime import timedelta
+from random import choices
 from unittest import mock
 from urllib.parse import urlparse
 
@@ -7,17 +9,20 @@ from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
-from random import choices
-
 from rest_framework import status
 
 from agir.donations.apps import DonsConfig
+from agir.events.apps import EventsConfig
+from agir.events.models import Event, RSVP, IdentifiedGuest
 from agir.lib.tests.mixins import FakeDataMixin
 from agir.payments.models import Payment, Subscription
-from agir.system_pay import SystemPayPaymentMode
+from agir.people.models import Person
+from agir.system_pay import SystemPayPaymentMode, SystemPayError
 from agir.system_pay.crypto import get_signature
 from agir.system_pay.models import SystemPayTransaction
-from agir.system_pay.rest_api import SystemPayRestAPI
+from agir.system_pay.rest_api import (
+    SystemPayRestAPI,
+)
 from agir.system_pay.utils import get_trans_id_from_order_id
 
 
@@ -332,3 +337,213 @@ class WebhookTestCase(FakeDataMixin, TestCase):
         cancel_alias.assert_called_with(
             subscription.system_pay_subscriptions.get(active=False).alias
         )
+
+
+class CancelOrRefundPaymentTestCase(TestCase):
+    def create_payment(self, **kwargs):
+        payment = Payment.objects.create(
+            mode=SystemPayPaymentMode.id,
+            status=Payment.STATUS_COMPLETED,
+            person=kwargs.pop("person", self.person),
+            price=kwargs.pop("price", 1000),
+            type=kwargs.pop("type", DonsConfig.SINGLE_TIME_DONATION_TYPE),
+            meta=kwargs.pop("meta", {"VERSION": 2}),
+            **kwargs,
+        )
+        payment.systempaytransaction_set.add(
+            SystemPayTransaction.objects.create(
+                status=SystemPayTransaction.STATUS_COMPLETED, uuid=uuid.uuid4()
+            )
+        )
+        return payment
+
+    def setUp(self):
+        self.person = Person.objects.create_insoumise("person@agir.local")
+        event = Event.objects.create(
+            name="Event",
+            start_time=timezone.now() + timedelta(days=3),
+            end_time=timezone.now() + timedelta(days=4),
+            allow_guests=True,
+        )
+        self.rsvp_payment = self.create_payment(
+            type=EventsConfig.PAYMENT_TYPE,
+            meta={"VERSION": "2", "is_guest": False},
+        )
+        self.rsvp = RSVP.objects.create(
+            status=RSVP.STATUS_CONFIRMED,
+            event=event,
+            person=self.person,
+            payment=self.rsvp_payment,
+        )
+        self.guest_payment = self.create_payment(
+            type=EventsConfig.PAYMENT_TYPE, meta={"VERSION": "2", "is_guest": True}
+        )
+        self.guest = IdentifiedGuest.objects.create(
+            rsvp=self.rsvp,
+            status=RSVP.STATUS_CONFIRMED,
+            payment=self.guest_payment,
+        )
+        self.payment_mode = SystemPayPaymentMode()
+        self.mock_api_response = {
+            "status": "PAID",
+            "detailedStatus": "AUTHORISED",
+            "operationType": "CREDIT",
+        }
+
+    @mock.patch.object(SystemPayRestAPI, "cancel_or_refund_transaction")
+    def test_payment_transaction_can_be_cancelled(self, rest_api):
+        rest_api.return_value = False, self.mock_api_response
+        payment = self.create_payment()
+        transaction = (
+            payment.systempaytransaction_set.filter(
+                status=SystemPayTransaction.STATUS_COMPLETED, uuid__isnull=False
+            )
+            .order_by("-created")
+            .first()
+        )
+        self.assertEqual(payment.status, Payment.STATUS_COMPLETED)
+        self.assertEqual(transaction.status, SystemPayTransaction.STATUS_COMPLETED)
+        self.payment_mode.cancel_or_refund_payment_action(payment)
+        payment.refresh_from_db()
+        transaction.refresh_from_db()
+        self.assertEqual(payment.status, Payment.STATUS_REFUND)
+        self.assertEqual(transaction.status, SystemPayTransaction.STATUS_CANCELED)
+
+    @mock.patch.object(SystemPayRestAPI, "cancel_or_refund_transaction")
+    def test_payment_transaction_can_be_refunded(self, rest_api):
+        rest_api.return_value = True, self.mock_api_response
+        payment = self.create_payment()
+        transaction = (
+            payment.systempaytransaction_set.filter(
+                status=SystemPayTransaction.STATUS_COMPLETED, uuid__isnull=False
+            )
+            .order_by("-created")
+            .first()
+        )
+        self.assertEqual(payment.status, Payment.STATUS_COMPLETED)
+        self.assertEqual(transaction.status, SystemPayTransaction.STATUS_COMPLETED)
+        self.payment_mode.cancel_or_refund_payment_action(payment)
+        payment.refresh_from_db()
+        transaction.refresh_from_db()
+        self.assertEqual(payment.status, Payment.STATUS_REFUND)
+        self.assertEqual(transaction.status, SystemPayTransaction.STATUS_REFUNDED)
+
+    @mock.patch.object(SystemPayRestAPI, "cancel_or_refund_transaction")
+    def test_payment_is_not_refunded_if_no_completed_transanction_is_found(
+        self, rest_api
+    ):
+        rest_api.side_effect = SystemPayError("Oh nooooo !", system_pay_code="PSP_OHNO")
+        payment = self.create_payment()
+        transaction = (
+            payment.systempaytransaction_set.filter(
+                status=SystemPayTransaction.STATUS_COMPLETED, uuid__isnull=False
+            )
+            .order_by("-created")
+            .first()
+        )
+        self.assertEqual(payment.status, Payment.STATUS_COMPLETED)
+        transaction.status = SystemPayTransaction.STATUS_WAITING
+        transaction.save()
+        transaction.refresh_from_db()
+        self.assertEqual(transaction.status, SystemPayTransaction.STATUS_WAITING)
+        with self.assertRaises(ValueError):
+            self.payment_mode.cancel_or_refund_payment_action(payment)
+            payment.refresh_from_db()
+            transaction.refresh_from_db()
+            self.assertEqual(payment.status, Payment.STATUS_COMPLETED)
+            self.assertEqual(transaction.status, SystemPayTransaction.STATUS_COMPLETED)
+
+    @mock.patch.object(SystemPayRestAPI, "cancel_or_refund_transaction")
+    def test_payment_is_not_refunded_if_transanction_has_no_id(self, rest_api):
+        rest_api.side_effect = SystemPayError("Oh nooooo !", system_pay_code="PSP_OHNO")
+        payment = self.create_payment()
+        transaction = (
+            payment.systempaytransaction_set.filter(
+                status=SystemPayTransaction.STATUS_COMPLETED, uuid__isnull=False
+            )
+            .order_by("-created")
+            .first()
+        )
+        self.assertEqual(payment.status, Payment.STATUS_COMPLETED)
+        self.assertEqual(transaction.status, SystemPayTransaction.STATUS_COMPLETED)
+        transaction.uuid = None
+        transaction.save()
+        with self.assertRaises(ValueError):
+            self.payment_mode.cancel_or_refund_payment_action(payment)
+            payment.refresh_from_db()
+            transaction.refresh_from_db()
+            self.assertEqual(payment.status, Payment.STATUS_COMPLETED)
+            self.assertEqual(transaction.status, SystemPayTransaction.STATUS_COMPLETED)
+
+    @mock.patch.object(SystemPayRestAPI, "cancel_or_refund_transaction")
+    @mock.patch("agir.system_pay.logger")
+    def test_payment_is_not_refunded_if_rest_api_raise_an_error(self, logger, rest_api):
+        rest_api.side_effect = SystemPayError("Oh nooooo !", system_pay_code="PSP_OHNO")
+        payment = self.create_payment()
+        transaction = (
+            payment.systempaytransaction_set.filter(
+                status=SystemPayTransaction.STATUS_COMPLETED, uuid__isnull=False
+            )
+            .order_by("-created")
+            .first()
+        )
+        self.assertEqual(payment.status, Payment.STATUS_COMPLETED)
+        self.assertEqual(transaction.status, SystemPayTransaction.STATUS_COMPLETED)
+        logger.error.assert_not_called()
+        with self.assertRaises(SystemPayError):
+            self.payment_mode.cancel_or_refund_payment_action(payment)
+            logger.error.called()
+            payment.refresh_from_db()
+            transaction.refresh_from_db()
+            self.assertEqual(payment.status, Payment.STATUS_COMPLETED)
+            self.assertEqual(transaction.status, SystemPayTransaction.STATUS_COMPLETED)
+
+    @mock.patch.object(SystemPayRestAPI, "cancel_or_refund_transaction")
+    def test_refunding_a_payment_cancels_the_related_rsvp(self, rest_api):
+        rest_api.return_value = True, self.mock_api_response
+        payment = self.rsvp_payment
+        transaction = (
+            payment.systempaytransaction_set.filter(
+                status=SystemPayTransaction.STATUS_COMPLETED, uuid__isnull=False
+            )
+            .order_by("-created")
+            .first()
+        )
+        self.assertEqual(payment.status, Payment.STATUS_COMPLETED)
+        self.assertEqual(transaction.status, SystemPayTransaction.STATUS_COMPLETED)
+        self.assertEqual(self.rsvp.status, RSVP.STATUS_CONFIRMED)
+        self.payment_mode.cancel_or_refund_payment_action(payment)
+        payment.refresh_from_db()
+        transaction.refresh_from_db()
+        self.rsvp.refresh_from_db()
+        self.guest.refresh_from_db()
+        self.assertEqual(payment.status, Payment.STATUS_REFUND)
+        self.assertEqual(transaction.status, SystemPayTransaction.STATUS_REFUNDED)
+        self.assertEqual(self.rsvp.status, RSVP.STATUS_CANCELED)
+        self.assertEqual(self.guest_payment.status, Payment.STATUS_COMPLETED)
+        self.assertEqual(self.guest.status, RSVP.STATUS_CONFIRMED)
+
+    @mock.patch.object(SystemPayRestAPI, "cancel_or_refund_transaction")
+    def test_refunding_a_payment_cancels_the_related_identified_guest(self, rest_api):
+        rest_api.return_value = True, self.mock_api_response
+        payment = self.guest_payment
+        transaction = (
+            payment.systempaytransaction_set.filter(
+                status=SystemPayTransaction.STATUS_COMPLETED, uuid__isnull=False
+            )
+            .order_by("-created")
+            .first()
+        )
+        self.assertEqual(payment.status, Payment.STATUS_COMPLETED)
+        self.assertEqual(transaction.status, SystemPayTransaction.STATUS_COMPLETED)
+        self.assertEqual(self.guest.status, RSVP.STATUS_CONFIRMED)
+        self.payment_mode.cancel_or_refund_payment_action(payment)
+        payment.refresh_from_db()
+        transaction.refresh_from_db()
+        self.rsvp.refresh_from_db()
+        self.guest.refresh_from_db()
+        self.assertEqual(payment.status, Payment.STATUS_REFUND)
+        self.assertEqual(transaction.status, SystemPayTransaction.STATUS_REFUNDED)
+        self.assertEqual(self.guest.status, RSVP.STATUS_CANCELED)
+        self.assertEqual(self.rsvp_payment.status, Payment.STATUS_COMPLETED)
+        self.assertEqual(self.rsvp.status, RSVP.STATUS_CONFIRMED)
