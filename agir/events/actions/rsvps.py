@@ -162,6 +162,17 @@ def cancel_payment_for_rsvp(payment):
     return rsvp
 
 
+def retry_payment_for_rsvp(payment):
+    try:
+        rsvp = payment.rsvp
+    except RSVP.DoesNotExist:
+        return
+
+    rsvp.status = RSVP.STATUS_AWAITING_PAYMENT
+    rsvp.save()
+    return rsvp
+
+
 def _add_identified_guest(event, person, submission, status, paying=True):
     if not event.allow_guests:
         raise RSVPException(MESSAGES["forbidden_to_add_guest"])
@@ -267,6 +278,16 @@ def cancel_payment_for_guest(payment):
         return
 
     guest.status = RSVP.STATUS_CANCELED
+    guest.save()
+
+
+def retry_payment_for_guest(payment):
+    try:
+        guest = payment.identified_guest
+    except:
+        return
+
+    guest.status = RSVP.STATUS_AWAITING_PAYMENT
     guest.save()
 
 

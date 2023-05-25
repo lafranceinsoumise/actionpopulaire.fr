@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.http import HttpResponseServerError, HttpResponseForbidden
 from django.shortcuts import redirect, get_object_or_404
 from django.template.response import TemplateResponse
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django.views.generic import DetailView
@@ -65,7 +66,15 @@ class RetryPaymentView(DetailView):
                 return HttpResponseForbidden()
 
             self.object.status = Payment.STATUS_WAITING
-            self.object.save(update_fields=("status",))
+            self.object.events.append(
+                {
+                    "action": "cancel_or_refund_payment",
+                    "date": timezone.now(),
+                    "origin": "RetryPaymentView",
+                    "user": request.user,
+                }
+            )
+            self.object.save(update_fields=("status", "events"))
             notify_status_change(self.object)
 
         return payment_mode.retry_payment_view(

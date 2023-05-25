@@ -1,4 +1,3 @@
-import reversion
 from django import forms
 from django.contrib import admin, messages
 from django.contrib.admin.views.main import ChangeList
@@ -245,10 +244,15 @@ class PaymentManagementAdminMixin:
 
         if request.method == "POST":
             try:
-                with reversion.create_revision():
-                    reversion.set_user(request.user)
-                    reversion.set_comment("Annulation / remboursement du paiement")
-                    cancel_or_refund_payment(payment)
+                payment.events.append(
+                    {
+                        "action": "cancel_or_refund_payment",
+                        "date": timezone.now(),
+                        "origin": self.opts.app_label + "_admin_cancel_or_refund_view",
+                        "user": request.user,
+                    }
+                )
+                cancel_or_refund_payment(payment)
             except NotImplementedError:
                 self.message_user(
                     request,

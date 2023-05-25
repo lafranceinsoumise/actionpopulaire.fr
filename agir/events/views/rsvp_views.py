@@ -33,6 +33,8 @@ from ..actions.rsvps import (
     RSVPException,
     cancel_payment_for_rsvp,
     cancel_payment_for_guest,
+    retry_payment_for_rsvp,
+    retry_payment_for_guest,
 )
 from ..forms import BillingForm, GuestsForm, BaseRSVPForm, ExternalRSVPForm
 from ..models import Event, RSVP, IdentifiedGuest
@@ -458,13 +460,20 @@ def notification_listener(payment):
 
             # RSVP or IdentifiedGuest model has already been created, only need to confirm it
             if is_guest:
-                validate_payment_for_guest(payment)
-            else:
-                validate_payment_for_rsvp(payment)
+                return validate_payment_for_guest(payment)
+
+            return validate_payment_for_rsvp(payment)
 
         if payment.status in (Payment.STATUS_CANCELED, Payment.STATUS_REFUND):
             cancel_payment_for_rsvp(payment)
             cancel_payment_for_guest(payment)
+            return
+
+        if payment.status == Payment.STATUS_WAITING:
+            retry_payment_for_rsvp(payment)
+            retry_payment_for_guest(payment)
+            return
+
     else:
         # should not happen anymore
         pass
