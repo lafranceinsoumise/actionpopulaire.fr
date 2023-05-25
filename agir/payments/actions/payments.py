@@ -76,7 +76,7 @@ def complete_payment(payment):
         raise PaymentException("Le paiement a déjà été remboursé.")
 
     payment.status = Payment.STATUS_COMPLETED
-    payment.save(update_fields=["status"])
+    payment.save(update_fields=["status", "events"])
 
 
 def refuse_payment(payment):
@@ -84,7 +84,7 @@ def refuse_payment(payment):
         raise PaymentException("Le paiement a déjà été annulé.")
 
     payment.status = Payment.STATUS_REFUSED
-    payment.save(update_fields=["status"])
+    payment.save(update_fields=["status", "events"])
 
 
 def cancel_payment(payment):
@@ -92,7 +92,7 @@ def cancel_payment(payment):
         raise PaymentException("Le paiement a déjà été confirmé.")
 
     payment.status = Payment.STATUS_CANCELED
-    payment.save()
+    payment.save(update_fields=["status", "events"])
 
 
 def refund_payment(payment):
@@ -101,7 +101,7 @@ def refund_payment(payment):
 
     with transaction.atomic():
         payment.status = Payment.STATUS_REFUND
-        payment.save()
+        payment.save(update_fields=["status", "events"])
 
 
 def redirect_to_payment(payment):
