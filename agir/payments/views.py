@@ -37,7 +37,7 @@ class PaymentView(DetailView):
 
         if not self.object.status == Payment.STATUS_WAITING:
             if self.object.can_retry():
-                return redirect("payment_retry", args=(self.obj.pk,))
+                return redirect("payment_retry", self.object.pk)
 
             return HttpResponseForbidden()
 
