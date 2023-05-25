@@ -59,7 +59,7 @@ def display_participants(event):
         }
 
         headers += list(SPEC_PAYMENT)
-        empty = [""] * len(headers)
+        empty = [""] * len(SPEC_PAYMENT)
 
         for val, i in zip(values, payments_id):
             val.extend(payment_values.get(i, empty))
