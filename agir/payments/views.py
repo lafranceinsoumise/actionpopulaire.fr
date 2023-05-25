@@ -8,7 +8,7 @@ from django.views.generic import DetailView
 
 from agir.authentication.view_mixins import HardLoginRequiredMixin
 from agir.payments.actions.subscriptions import terminate_subscription
-from .actions.payments import cancel_payment
+from .actions.payments import cancel_payment, notify_status_change
 from .models import Payment, Subscription
 from .payment_modes import PAYMENT_MODES
 from .types import PAYMENT_TYPES, SUBSCRIPTION_TYPES
@@ -66,6 +66,7 @@ class RetryPaymentView(DetailView):
 
             self.object.status = Payment.STATUS_WAITING
             self.object.save(update_fields=("status",))
+            notify_status_change(self.object)
 
         return payment_mode.retry_payment_view(
             request, payment=self.object, *args, **kwargs
