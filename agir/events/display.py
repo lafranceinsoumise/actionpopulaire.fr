@@ -22,11 +22,11 @@ SPEC_RSVP = {
 IG_ID = lambda ig: f"R{ig.rsvp_id}I{ig.id}"
 
 SPEC_IDENTIFIED_GUEST = {
-    **SPEC_RSVP,
     "id": IG_ID,
-    "created": Val(""),
+    "created": (T.submission.created.astimezone(get_current_timezone()), localize),
     "person_id": ("rsvp.person_id", str),
     "email": "rsvp.person.email",
+    "status": T.get_status_display(),
 }
 
 SPEC_PAYMENT = {
@@ -39,9 +39,7 @@ SPEC_PAYMENT = {
 def display_participants(event):
     headers = list(SPEC_RSVP)
 
-    rsvps = event.rsvps.select_related(
-        "person",
-    )
+    rsvps = event.rsvps.select_related("person")
     values = glom(rsvps, [(SPEC_RSVP, T.values(), list)])
 
     guests = IdentifiedGuest.objects.filter(rsvp__event=event)

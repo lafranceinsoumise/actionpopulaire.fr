@@ -431,7 +431,7 @@ def notification_listener(payment):
             else:
                 validate_payment_for_rsvp(payment)
 
-        if payment.status == Payment.STATUS_REFUND:
+        if payment.status in (Payment.STATUS_CANCELED, Payment.STATUS_REFUND):
             cancel_payment_for_rsvp(payment)
             cancel_payment_for_guest(payment)
     else:

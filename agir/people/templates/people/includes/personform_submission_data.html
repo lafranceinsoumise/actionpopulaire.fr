@@ -1,10 +1,13 @@
 {% for fieldset in submission_data %}
-  <p><strong>{{ fieldset.title }}</strong></p>
-  <ul>
+  <dl class="list-group dl-horizontal">
+    <div class="list-group-item" style="color:#4d26b9;background-color:#e9e1ff;border-color:#e9e1ff;">{{ fieldset.title }}</div>
     {% for item in fieldset.data %}
       {% if item.value %}
-        <li><strong>{{ item.label }}</strong>&nbsp;: {{ item.value }}</li>
+        <div class="list-group-item">
+          <dt class="list-group-item-heading">{{ item.label }}</dt>
+          <dd class="list-group-item-text">{{ item.value }}</dd>
+        </div>
       {% endif %}
     {% endfor %}
-  </ul>
+  </dl>
 {% endfor %}

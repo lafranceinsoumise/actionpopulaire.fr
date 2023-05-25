@@ -926,6 +926,8 @@ class IdentifiedGuestInline(admin.StackedInline):
         "id",
         "status",
         "payment_link",
+        "payment_mode",
+        "payment_status",
         "submission_data",
     )
 
@@ -941,6 +943,20 @@ class IdentifiedGuestInline(admin.StackedInline):
     @admin.display(description="Paiement", ordering="payment")
     def payment_link(self, obj):
         return display_link(obj.payment)
+
+    @admin.display(description="Mode du paiement")
+    def payment_mode(self, obj):
+        if not obj or not obj.payment:
+            return "-"
+
+        return obj.payment.get_mode_display()
+
+    @admin.display(description="Statut du paiement")
+    def payment_status(self, obj):
+        if not obj or not obj.payment:
+            return "-"
+
+        return obj.payment.get_status_display()
 
     @admin.display(description="Inscription", ordering="submission")
     def submission_data(self, obj):
@@ -973,6 +989,8 @@ class RSVPAdmin(admin.ModelAdmin):
         "person_link",
         "person_contact_phone",
         "payment_link",
+        "payment_mode",
+        "payment_status",
         "submission_data",
         "guest_count",
     )
@@ -1024,6 +1042,20 @@ class RSVPAdmin(admin.ModelAdmin):
     @admin.display(description="Paiement", ordering="payment")
     def payment_link(self, obj):
         return display_link(obj.payment)
+
+    @admin.display(description="Mode du paiement")
+    def payment_mode(self, obj):
+        if not obj or not obj.payment:
+            return "-"
+
+        return obj.payment.get_mode_display()
+
+    @admin.display(description="Statut du paiement")
+    def payment_status(self, obj):
+        if not obj or not obj.payment:
+            return "-"
+
+        return obj.payment.get_status_display()
 
     @admin.display(description="Inscription", ordering="form_submission")
     def submission_data(self, obj):

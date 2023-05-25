@@ -21,29 +21,46 @@
         <li>Inscription</li>
       </ol>
       {% if rsvp %}
-        <h3>{{ rsvp.get_status_display }}</h3>
+        <h3 class="h2"><span class="label label-primary">{{ rsvp.get_status_display }}</span></h3>
         {% if rsvp.payment %}
-          <ul>
-            <li><strong>Prix</strong> : {{ rsvp.payment.get_price_display }}</li>
-            <li><strong>Numéro de transaction</strong> : {{ rsvp.payment.pk }}</li>
-            <li><strong>Mode de paiement</strong> : {{ rsvp.payment.get_mode_display }}
-              {% if rsvp.payment.can_cancel %}
-                <a class="btn btn-default" href="{% url "rsvp_change_payment" rsvp.pk %}">Payer maintenant</a>
-              {% endif %}
-            </li>
-            <li>
-              <strong>Status</strong> : {{ rsvp.payment.get_status_display }}
-              {% if rsvp.payment.can_retry %}
-                <a class="btn btn-default" href="{% url "payment_retry" rsvp.payment.pk %}">Retenter le paiement</a>
-              {% endif %}
-            </li>
-          </ul>
+            <div class="panel panel-primary">
+              <div class="panel-heading">Informations de paiement</div>
+              <dl class="list-group">
+                <div class="list-group-item">
+                  <dt class="list-group-item-heading">Prix</dt>
+                  <dd class="list-group-item-text">{{ rsvp.payment.get_price_display }}</dd>
+                </div>
+                <div class="list-group-item">
+                  <dt class="list-group-item-heading">Numéro de transaction</dt>
+                  <dd class="list-group-item-text">{{ rsvp.payment.pk }}</dd>
+                </div>
+                <div class="list-group-item">
+                  <dt class="list-group-item-heading">Mode de paiement</dt>
+                  <dd class="list-group-item-text">{{ rsvp.payment.get_mode_display }}</dd>
+                </div>
+                <div class="list-group-item">
+                  <dt class="list-group-item-heading">Statut de paiement</dt>
+                  <dd class="list-group-item-text">{{ rsvp.payment.get_status_display }}</dd>
+                </div>
+              </dl>
+              <div class="panel-footer">
+                {% if rsvp.payment.can_cancel %}
+                  <a class="btn btn-sm btn-default" href="{% url "rsvp_change_payment" rsvp.pk %}">
+                    Payer maintenant
+                  </a>
+                {% endif %}
+                &nbsp;
+                {% if rsvp.payment.can_retry %}
+                  <a class="btn btn-sm btn-default" href="{% url "payment_retry" rsvp.payment.pk %}">
+                    Retenter le paiement
+                  </a>
+                {% endif %}
+              </div>
+            </div>
         {% endif %}
 
         {% if submission_data %}
-          <p>
-            Voici les informations que vous avez donné :
-          </p>
+          <h4>Voici les informations que vous avez donné :</h4>
 
           {% include "people/includes/personform_submission_data.html" with submission_data=submission_data %}
 
@@ -55,19 +72,26 @@
         {% endif %}
 
         {% if guests_submission_data %}
-          <p>Vous avez inscrit d'autre personnes :</p>
+          <h4>Vous avez inscrit d'autre personnes&nbsp;:</h4>
           {% for status, submission_data in guests_submission_data %}
-            <h4>Invité {{ forloop.counter }}</h4>
-            {% include "people/includes/personform_submission_data.html" with submission_data=submission_data %}
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <div style="display:flex;gap:0.5rem;align-items:center;justify-content:space-between;">
+                  <strong class="panel-title">Invité #{{ forloop.counter }}&ensp;</strong>
+                  <span class="label label-primary">{{ status }}</span>
+                </div>
+              </div>
+              {% include "people/includes/personform_submission_data.html" with submission_data=submission_data %}
+            </div>
           {% endfor %}
         {% endif %}
 
         {% if form %}
           <h3>Inscrire un⋅e autre participant⋅e</h3>
-          <div class="alert alert-info">
+          <div class="alert" style="color:#4d26b9;background-color:#e9e1ff;border-color:#e9e1ff;">
             <p>
               Vous pouvez inscrire un⋅e participant⋅e supplémentaire avec votre compte. Cela est utile si cette
-              personne ne dispose pas d'adresse email ou de compte sur lafranceinsoumise.fr. Il sera de votre
+              personne ne dispose pas d'adresse email ou de compte sur lafranceinsoumise.fr ou actionpopulaire.fr. Il sera de votre
               responsabilité de transmettre les éventuelles informations ou billets d'entrée qui vous seront envoyés
               avant l'événement.
             </p>
