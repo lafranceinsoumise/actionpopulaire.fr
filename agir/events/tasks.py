@@ -911,7 +911,7 @@ def copier_rsvp_vers_feuille_externe(rsvp_id):
 def copier_identified_guest_vers_feuille_externe(guest_id):
     try:
         ig = IdentifiedGuest.objects.select_related(
-            "submission", "rsvp__event", "rsvp__person", "payment", "event"
+            "submission", "rsvp__event", "rsvp__person", "rsvp__event", "payment"
         ).get(id=guest_id)
     except IdentifiedGuest.DoesNotExist:
         return

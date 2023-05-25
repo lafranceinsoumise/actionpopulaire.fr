@@ -115,9 +115,10 @@ class PaymentManagementAdminMixin:
         if not payment or not payment.id:
             return "-"
 
-        if (
-            payment.status == Payment.STATUS_COMPLETED
-            or payment.status == Payment.STATUS_CANCELED
+        if payment.status in (
+            Payment.STATUS_COMPLETED,
+            Payment.STATUS_CANCELED,
+            Payment.STATUS_REFUND,
         ):
             return payment.get_mode_display()
 
