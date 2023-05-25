@@ -35,7 +35,7 @@ from ..actions.rsvps import (
     cancel_payment_for_guest,
 )
 from ..forms import BillingForm, GuestsForm, BaseRSVPForm, ExternalRSVPForm
-from ..models import Event, RSVP
+from ..models import Event, RSVP, IdentifiedGuest
 from ...people.actions.subscription import SUBSCRIPTION_TYPE_EXTERNAL
 
 
@@ -103,15 +103,17 @@ class RSVPEventView(SoftLoginRequiredMixin, DetailView):
             "submission": kwargs["rsvp"].form_submission
             if "rsvp" in kwargs and kwargs["rsvp"].form_submission
             else None,
-            "guests_submission_data": [
-                (
-                    guest.get_status_display(),
-                    default_person_form_display.get_formatted_submission(
+            "guests": [
+                {
+                    "pk": guest.pk,
+                    "status": guest.get_status_display(),
+                    "submission": default_person_form_display.get_formatted_submission(
                         guest.submission
                     )
                     if guest.submission
                     else [],
-                )
+                    "payment": guest.payment,
+                }
                 for guest in kwargs["rsvp"].identified_guests.select_related(
                     "submission"
                 )
@@ -272,7 +274,9 @@ class ChangeRSVPPaymentView(SoftLoginRequiredMixin, DetailView):
     def get_queryset(self):
         return (
             self.request.user.person.rsvps.exclude(payment=None)
-            .exclude(payment__status=Payment.STATUS_COMPLETED)
+            .exclude(
+                payment__status__in=(Payment.STATUS_COMPLETED, Payment.STATUS_REFUND)
+            )
             .filter(
                 payment__mode__in=[
                     mode.id for mode in PAYMENT_MODES.values() if mode.can_cancel
@@ -289,6 +293,33 @@ class ChangeRSVPPaymentView(SoftLoginRequiredMixin, DetailView):
             del self.request.session["rsvp_submission"]
         self.request.session["rsvp_event"] = str(rsvp.event.pk)
         self.request.session["is_guest"] = False
+
+        return HttpResponseRedirect(reverse("pay_event"))
+
+
+class ChangeIdentifiedGuestPaymentView(SoftLoginRequiredMixin, DetailView):
+    def get_queryset(self):
+        return (
+            IdentifiedGuest.objects.filter(rsvp__person=self.request.user.person)
+            .exclude(
+                payment__status__in=(Payment.STATUS_COMPLETED, Payment.STATUS_REFUND)
+            )
+            .filter(
+                payment__mode__in=[
+                    mode.id for mode in PAYMENT_MODES.values() if mode.can_cancel
+                ]
+            )
+        )
+
+    @never_cache
+    def get(self, *args, **kwargs):
+        guest = self.get_object()
+        if guest.submission:
+            self.request.session["rsvp_submission"] = guest.submission.pk
+        elif "rsvp_submission" in self.request.session:
+            del self.request.session["rsvp_submission"]
+        self.request.session["rsvp_event"] = str(guest.rsvp.event.pk)
+        self.request.session["is_guest"] = True
 
         return HttpResponseRedirect(reverse("pay_event"))
 

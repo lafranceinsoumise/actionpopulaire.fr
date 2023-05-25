@@ -218,10 +218,7 @@ class PaymentManagementAdminMixin:
         if payment._state.adding:
             return "-"
 
-        if not PAYMENT_MODES[payment.mode].can_refund:
-            return "Le remboursement n'est pas disponible pour ce mode de paiement"
-
-        if payment.status != Payment.STATUS_COMPLETED:
+        if not payment.can_refund():
             return "Le remboursement n'est pas disponible pour ce paiement"
 
         return format_html(
@@ -234,14 +231,17 @@ class PaymentManagementAdminMixin:
 
     def cancel_or_refund_view(self, request, payment_pk):
         try:
-            payment = Payment.objects.get(
-                pk=payment_pk, status__lte=Payment.STATUS_COMPLETED
-            )
+            payment = Payment.objects.get(pk=payment_pk)
         except Payment.DoesNotExist:
             raise Http404()
 
-        if not PAYMENT_MODES[payment.mode].can_refund:
-            raise Http404()
+        if not payment.can_refund():
+            self.message_user(
+                request,
+                "Le remboursement n'est pas disponible pour ce mode de paiement.",
+                level=messages.WARNING,
+            )
+            return redirect("admin:payments_payment_change", payment_pk)
 
         if request.method == "POST":
             try:

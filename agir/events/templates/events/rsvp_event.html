@@ -43,10 +43,11 @@
                   <dd class="list-group-item-text">{{ rsvp.payment.get_status_display }}</dd>
                 </div>
               </dl>
+              {% if rsvp.payment.can_cancel or rsvp.payment.can_retry %}
               <div class="panel-footer">
                 {% if rsvp.payment.can_cancel %}
                   <a class="btn btn-sm btn-default" href="{% url "rsvp_change_payment" rsvp.pk %}">
-                    Payer maintenant
+                    Modifier le paiement
                   </a>
                 {% endif %}
                 &nbsp;
@@ -56,6 +57,7 @@
                   </a>
                 {% endif %}
               </div>
+              {% endif %}
             </div>
         {% endif %}
 
@@ -71,17 +73,34 @@
           {% endif %}
         {% endif %}
 
-        {% if guests_submission_data %}
+        {% if guests %}
           <h4>Vous avez inscrit d'autre personnes&nbsp;:</h4>
-          {% for status, submission_data in guests_submission_data %}
+          {% for guest in guests %}
             <div class="panel panel-default">
               <div class="panel-heading">
                 <div style="display:flex;gap:0.5rem;align-items:center;justify-content:space-between;">
                   <strong class="panel-title">Invité #{{ forloop.counter }}&ensp;</strong>
-                  <span class="label label-primary">{{ status }}</span>
+                  <span class="label label-primary">{{ guest.status }}</span>
                 </div>
               </div>
-              {% include "people/includes/personform_submission_data.html" with submission_data=submission_data %}
+              {% if guest.submission %}
+                {% include "people/includes/personform_submission_data.html" with submission_data=guest.submission %}
+              {% endif %}
+              {% if guest.payment and guest.payment.can_cancel or guest.payment.can_retry %}
+                <div class="panel-footer">
+                  {% if guest.payment.can_cancel %}
+                    <a class="btn btn-sm btn-default" href="{% url "identified_guest_change_payment" guest.pk %}">
+                      Modifier le paiement
+                    </a>
+                  {% endif %}
+                  &nbsp;
+                  {% if guest.payment.can_retry %}
+                    <a class="btn btn-sm btn-default" href="{% url "payment_retry" guest.payment.pk %}">
+                      Retenter le paiement
+                    </a>
+                  {% endif %}
+                </div>
+              {% endif %}
             </div>
           {% endfor %}
         {% endif %}

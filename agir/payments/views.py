@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.http import HttpResponseServerError
+from django.http import HttpResponseServerError, HttpResponseForbidden
 from django.shortcuts import redirect, get_object_or_404
 from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
@@ -24,7 +24,9 @@ def payment_view(
 
 @method_decorator(never_cache, name="get")
 class PaymentView(DetailView):
-    queryset = Payment.objects.filter(status=Payment.STATUS_WAITING)
+    queryset = Payment.objects.exclude(
+        status__in=[Payment.STATUS_COMPLETED, Payment.STATUS_REFUND]
+    )
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -33,18 +35,20 @@ class PaymentView(DetailView):
         if payment_mode is None:
             return HttpResponseServerError()
 
+        if not self.object.status == Payment.STATUS_WAITING:
+            if self.object.can_retry():
+                return redirect("payment_retry", args=(self.obj.pk,))
+
+            return HttpResponseForbidden()
+
         return payment_mode.payment_view(request, payment=self.object, *args, **kwargs)
 
 
 @method_decorator(never_cache, name="get")
 class RetryPaymentView(DetailView):
     def get_queryset(self):
-        return Payment.objects.filter(
-            status__in=[
-                Payment.STATUS_WAITING,
-                Payment.STATUS_ABANDONED,
-                Payment.STATUS_REFUSED,
-            ]
+        return Payment.objects.exclude(
+            status__in=[Payment.STATUS_COMPLETED, Payment.STATUS_REFUND]
         ).filter(
             mode__in=[mode.id for mode in PAYMENT_MODES.values() if mode.can_retry]
         )
@@ -55,6 +59,13 @@ class RetryPaymentView(DetailView):
 
         if payment_mode is None:
             return HttpResponseServerError()
+
+        if not self.object.status == Payment.STATUS_WAITING:
+            if not self.object.can_retry():
+                return HttpResponseForbidden()
+
+            self.object.status = Payment.STATUS_WAITING
+            self.object.save(update_fields=("status",))
 
         return payment_mode.retry_payment_view(
             request, payment=self.object, *args, **kwargs

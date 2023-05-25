@@ -1,6 +1,5 @@
-from django.urls import path, include
+from django.urls import path
 
-from .payment_modes import PAYMENT_MODES
 from .views import (
     PaymentView,
     RetryPaymentView,

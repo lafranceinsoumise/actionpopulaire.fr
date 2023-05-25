@@ -2,12 +2,11 @@ import logging
 from functools import partial
 
 from django.conf import settings
-from django.db.models import F, Count
 from django.db import transaction, IntegrityError
+from django.db.models import F, Count
 from django.utils.translation import gettext as _
 
 from agir.payments.actions.payments import create_payment, cancel_payment
-
 from ..apps import EventsConfig
 from ..models import RSVP, IdentifiedGuest, JitsiMeeting
 from ..tasks import send_rsvp_notification, send_guest_confirmation
@@ -163,7 +162,7 @@ def cancel_payment_for_rsvp(payment):
     return rsvp
 
 
-def _add_identified_guest(event, person, submission, status):
+def _add_identified_guest(event, person, submission, status, paying=True):
     if not event.allow_guests:
         raise RSVPException(MESSAGES["forbidden_to_add_guest"])
 
@@ -179,14 +178,32 @@ def _add_identified_guest(event, person, submission, status):
     except RSVP.DoesNotExist:
         raise RSVPException(MESSAGES["not_rsvped_cannot_add_guest"])
 
-    _ensure_can_rsvp(event, 1)
+    try:
+        guest = IdentifiedGuest.objects.select_for_update().get(
+            rsvp__event=event, rsvp__person=person, submission=submission
+        )
+
+        if guest.status == RSVP.STATUS_CONFIRMED:
+            raise RSVPException(MESSAGES["already_rsvped"])
+
+        if guest.status == RSVP.STATUS_CANCELED:
+            _ensure_can_rsvp(event, 1)
+
+    except IdentifiedGuest.DoesNotExist:
+        _ensure_can_rsvp(event, 1)
+        guest = IdentifiedGuest(rsvp=rsvp, submission=submission, status=status)
+
+    guest.status = RSVP.STATUS_AWAITING_PAYMENT if paying else RSVP.STATUS_CONFIRMED
     RSVP.objects.filter(pk=rsvp.pk).update(guests=F("guests") + 1)
-    return IdentifiedGuest(rsvp=rsvp, submission=submission, status=status)
+
+    return guest
 
 
 def add_free_identified_guest(event, person, submission):
     with transaction.atomic():
-        guest = _add_identified_guest(event, person, submission, RSVP.STATUS_CONFIRMED)
+        guest = _add_identified_guest(
+            event, person, submission, RSVP.STATUS_CONFIRMED, False
+        )
         try:
             guest.save()
         except IntegrityError:
@@ -200,27 +217,30 @@ def add_paid_identified_guest_and_get_payment(
 ):
     price = event.get_price(form_submission and form_submission.data)
 
-    try:
-        with transaction.atomic():
-            guest = _add_identified_guest(
-                event, person, form_submission, RSVP.STATUS_AWAITING_PAYMENT
-            )
-            payment = create_payment(
-                person=person,
-                type=EventsConfig.PAYMENT_TYPE,
-                mode=payment_mode.id,
-                price=price,
-                meta=_get_meta(event, form_submission, True),
-            )
-            guest.payment = payment
-            guest.save()
-    except IntegrityError:
-        guest = IdentifiedGuest.objects.select_related("payment").get(
-            rsvp=guest.rsvp, submission=form_submission
+    with transaction.atomic():
+        guest = _add_identified_guest(
+            event, person, form_submission, RSVP.STATUS_AWAITING_PAYMENT
         )
-        payment = guest.payment
 
-    return payment
+        if guest.payment is not None:
+            if guest.payment.mode == payment_mode.id and guest.payment.can_retry():
+                return guest.payment
+
+            if not guest.payment.can_cancel():
+                raise RSVPException("Ce mode de paiement ne permet pas l'annulation.")
+
+            cancel_payment(guest.payment)
+
+        guest.payment = create_payment(
+            person=person,
+            type=EventsConfig.PAYMENT_TYPE,
+            mode=payment_mode.id,
+            price=price,
+            meta=_get_meta(event, form_submission, True),
+        )
+        guest.save()
+
+        return guest.payment
 
 
 def validate_payment_for_guest(payment):
