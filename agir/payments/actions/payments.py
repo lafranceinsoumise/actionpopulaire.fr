@@ -1,4 +1,5 @@
 from datetime import datetime
+from functools import partial
 
 from django.db import transaction
 from django.http.response import HttpResponseRedirect
@@ -69,18 +70,28 @@ def create_payment(*, person=None, type, price, mode=DEFAULT_MODE, meta=None, **
 
 
 def change_payment_status(payment, status):
-    if status == Payment.STATUS_REFUND:
-        return refund_payment(payment)
     if status == Payment.STATUS_COMPLETED:
-        return complete_payment(payment)
+        complete_payment(payment)
+    elif status == Payment.STATUS_REFUSED:
+        refuse_payment(payment)
+    elif status == Payment.STATUS_CANCELED:
+        cancel_payment(payment)
+    elif status == Payment.STATUS_REFUND:
+        refund_payment(payment)
+    elif status == Payment.STATUS_WAITING:
+        wait_for_payment(payment)
+    else:
+        raise ValueError("Ce statut n'existe pas ou n'est pas disponible.")
 
-    if status == Payment.STATUS_REFUSED:
-        return refuse_payment(payment)
+    transaction.on_commit(partial(notify_status_change, payment))
 
-    if status == Payment.STATUS_CANCELED:
-        return cancel_payment(payment)
 
-    raise ValueError("Ce statut n'existe pas ou n'est pas disponible.")
+def wait_for_payment(payment):
+    if payment.is_done():
+        raise PaymentException("Le paiement a déjà été terminé.")
+
+    payment.status = Payment.STATUS_WAITING
+    payment.save(update_fields=["status", "events"])
 
 
 def complete_payment(payment):
@@ -117,9 +128,8 @@ def refund_payment(payment):
     if payment.status not in (Payment.STATUS_COMPLETED, Payment.STATUS_REFUND):
         raise PaymentException("Impossible de rembourser un paiement non confirmé.")
 
-    with transaction.atomic():
-        payment.status = Payment.STATUS_REFUND
-        payment.save(update_fields=["status", "events"])
+    payment.status = Payment.STATUS_REFUND
+    payment.save(update_fields=["status", "events"])
 
 
 def redirect_to_payment(payment):

@@ -10,7 +10,7 @@ from rangefilter.filters import DateRangeFilter
 from agir.checks.admin import actions, forms, filters
 from agir.checks.models import CheckPayment
 from agir.lib.admin.panels import AddRelatedLinkMixin
-from agir.payments.actions.payments import notify_status_change
+from agir.payments.actions.payments import notify_status_change, change_payment_status
 from agir.payments.admin import PaymentManagementAdminMixin
 
 
@@ -195,19 +195,16 @@ class CheckPaymentAdmin(
 
             with transaction.atomic():
                 for p in payments:
-                    p.status = CheckPayment.STATUS_COMPLETED
                     p.events.append(
                         {
-                            "change_status": CheckPayment.STATUS_COMPLETED,
-                            "date": now,
+                            "event": "status_change",
+                            "old_status": p.status,
+                            "new_status": CheckPayment.STATUS_COMPLETED,
                             "origin": "check_payment_admin_validation",
+                            "user": request.user,
                         }
                     )
-                    p.save()
-
-            # notifier en dehors de la transaction, pour être sûr que ça ait été committé
-            for p in payments:
-                notify_status_change(p)
+                    change_payment_status(p, CheckPayment.STATUS_COMPLETED)
 
             messages.add_message(
                 request,
