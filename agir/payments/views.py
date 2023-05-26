@@ -9,7 +9,6 @@ from django.views.generic import DetailView
 from agir.authentication.view_mixins import HardLoginRequiredMixin
 from agir.payments.actions.subscriptions import terminate_subscription
 from .actions.payments import (
-    notify_status_change,
     log_payment_event,
     change_payment_status,
 )
