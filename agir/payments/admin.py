@@ -60,8 +60,6 @@ def change_payments_status_action(status, description):
                         user=request.user,
                     )
                     change_payment_status(payment, status)
-                    payment.save()
-                    notify_status_change(payment)
         except PaymentException as exception:
             modeladmin.message_user(request, exception, level=messages.WARNING)
 
@@ -179,7 +177,6 @@ class PaymentManagementAdminMixin:
                     user=request.user,
                 )
                 change_payment_status(payment, int(status))
-                notify_status_change(payment)
 
             return super().save_form(request, form, change)
 

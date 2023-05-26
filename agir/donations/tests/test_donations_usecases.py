@@ -23,7 +23,7 @@ from agir.payments import payment_modes
 from agir.payments.actions.payments import (
     complete_payment,
     create_payment,
-    notify_status_change,
+    change_payment_status,
 )
 from agir.payments.actions.subscriptions import complete_subscription
 from agir.payments.models import Payment, Subscription
@@ -272,8 +272,7 @@ class DonationTestCase(DonationTestMixin, APITestCase):
             meta={"allocations": json.dumps({str(self.group.pk): 10000})},
         )
 
-        complete_payment(payment)
-        notify_status_change(payment)
+        change_payment_status(payment, Payment.STATUS_COMPLETED)
 
         self.assertTrue(Operation.objects.exists())
         operation = Operation.objects.get()
