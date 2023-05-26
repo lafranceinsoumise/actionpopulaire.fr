@@ -158,6 +158,7 @@ class PaymentManagementAdminMixin:
                     origin=self.opts.app_label + "_admin_change_mode",
                     user=request.user,
                 )
+                payment.mode = mode
 
             if "_changestatus" in request.POST:
                 if int(request.POST["_changestatus"]) not in [
