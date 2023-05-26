@@ -5,6 +5,7 @@ from django.db import transaction
 from django.http import (
     HttpResponseRedirect,
     HttpResponseBadRequest,
+    HttpResponseNotFound,
 )
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -274,21 +275,15 @@ class RSVPEventView(SoftLoginRequiredMixin, DetailView):
 
 class ChangeRSVPPaymentView(SoftLoginRequiredMixin, DetailView):
     def get_queryset(self):
-        return (
-            self.request.user.person.rsvps.exclude(payment=None)
-            .exclude(
-                payment__status__in=(Payment.STATUS_COMPLETED, Payment.STATUS_REFUND)
-            )
-            .filter(
-                payment__mode__in=[
-                    mode.id for mode in PAYMENT_MODES.values() if mode.can_cancel
-                ]
-            )
-        )
+        return self.request.user.person.rsvps.exclude(payment=None)
 
     @never_cache
     def get(self, *args, **kwargs):
         rsvp = self.get_object()
+
+        if not rsvp.payment.can_cancel():
+            return HttpResponseNotFound()
+
         if rsvp.form_submission:
             self.request.session["rsvp_submission"] = rsvp.form_submission.pk
         elif "rsvp_submission" in self.request.session:
@@ -301,21 +296,17 @@ class ChangeRSVPPaymentView(SoftLoginRequiredMixin, DetailView):
 
 class ChangeIdentifiedGuestPaymentView(SoftLoginRequiredMixin, DetailView):
     def get_queryset(self):
-        return (
-            IdentifiedGuest.objects.filter(rsvp__person=self.request.user.person)
-            .exclude(
-                payment__status__in=(Payment.STATUS_COMPLETED, Payment.STATUS_REFUND)
-            )
-            .filter(
-                payment__mode__in=[
-                    mode.id for mode in PAYMENT_MODES.values() if mode.can_cancel
-                ]
-            )
-        )
+        return IdentifiedGuest.objects.filter(
+            rsvp__person=self.request.user.person
+        ).exclude(payment=None)
 
     @never_cache
     def get(self, *args, **kwargs):
         guest = self.get_object()
+
+        if not guest.payment.can_cancel():
+            return HttpResponseNotFound()
+
         if guest.submission:
             self.request.session["rsvp_submission"] = guest.submission.pk
         elif "rsvp_submission" in self.request.session:
