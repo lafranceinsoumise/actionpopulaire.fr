@@ -83,7 +83,7 @@ def change_payment_status(payment, status):
     else:
         raise ValueError("Ce statut n'existe pas ou n'est pas disponible.")
 
-    transaction.on_commit(partial(notify_status_change, payment))
+    notify_status_change(payment)
 
 
 def wait_for_payment(payment):
