@@ -1,11 +1,7 @@
-import json
-
 from django.contrib import admin
-from django.utils.html import format_html
-from django.utils.safestring import mark_safe
 
 from . import models
-from ..lib.admin.utils import display_link
+from ..lib.admin.utils import display_link, display_json_details
 
 
 @admin.register(models.SystemPayTransaction)
@@ -67,13 +63,7 @@ class SystemPayTransactionAdmin(admin.ModelAdmin):
 
     @admin.display(description="Événements de paiement", ordering="webhook_calls")
     def payment_events(self, obj):
-        if not obj or not obj.webhook_calls:
+        if not obj:
             return "-"
 
-        return format_html(
-            "<details>"
-            "<summary style='cursor:pointer;'>Événements de paiement</summary>"
-            "<pre>{}</pre>"
-            "</details>",
-            mark_safe(json.dumps(obj.webhook_calls, indent=2)),
-        )
+        return display_json_details(obj.webhook_calls, "Événements de paiement")

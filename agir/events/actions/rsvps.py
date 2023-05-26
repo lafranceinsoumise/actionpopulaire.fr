@@ -6,7 +6,11 @@ from django.db import transaction, IntegrityError
 from django.db.models import F, Count
 from django.utils.translation import gettext as _
 
-from agir.payments.actions.payments import create_payment, cancel_payment
+from agir.payments.actions.payments import (
+    create_payment,
+    cancel_payment,
+    log_payment_event,
+)
 from ..apps import EventsConfig
 from ..models import RSVP, IdentifiedGuest, JitsiMeeting
 from ..tasks import send_rsvp_notification, send_guest_confirmation
@@ -115,19 +119,32 @@ def rsvp_to_paid_event_and_create_payment(
 
             if not rsvp.payment.can_cancel():
                 raise RSVPException("Ce mode de paiement ne permet pas l'annulation.")
+
+            log_payment_event(
+                rsvp.payment,
+                event="cancel_payment",
+                origin="agir.events.actions.rsvps.rsvp_to_paid_event_and_create_payment",
+                user=person.role,
+            )
             cancel_payment(rsvp.payment)
 
-        payment = create_payment(
+        rsvp.payment = create_payment(
             person=person,
             type=EventsConfig.PAYMENT_TYPE,
             mode=payment_mode.id,
             price=price,
             meta=_get_meta(event, form_submission, False),
         )
-        rsvp.payment = payment
+        log_payment_event(
+            rsvp.payment,
+            commit=True,
+            event="create_payment",
+            origin="agir.events.actions.rsvps.rsvp_to_paid_event_and_create_payment",
+            user=person.role,
+        )
         rsvp.save()
 
-    return payment
+    return rsvp.payment
 
 
 def validate_payment_for_rsvp(payment):
@@ -240,6 +257,12 @@ def add_paid_identified_guest_and_get_payment(
             if not guest.payment.can_cancel():
                 raise RSVPException("Ce mode de paiement ne permet pas l'annulation.")
 
+            log_payment_event(
+                guest.payment,
+                event="cancel_payment",
+                origin="agir.events.actions.rsvps.add_paid_identified_guest_and_get_payment",
+                user=person.role,
+            )
             cancel_payment(guest.payment)
 
         guest.payment = create_payment(
@@ -248,6 +271,13 @@ def add_paid_identified_guest_and_get_payment(
             mode=payment_mode.id,
             price=price,
             meta=_get_meta(event, form_submission, True),
+        )
+        log_payment_event(
+            guest.payment,
+            commit=True,
+            event="create_payment",
+            origin="agir.events.actions.rsvps.add_paid_identified_guest_and_get_payment",
+            user=person.role,
         )
         guest.save()
 

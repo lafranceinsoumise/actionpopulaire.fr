@@ -9,7 +9,7 @@ from django.views.generic import DetailView
 
 from agir.authentication.view_mixins import HardLoginRequiredMixin
 from agir.payments.actions.subscriptions import terminate_subscription
-from .actions.payments import cancel_payment, notify_status_change
+from .actions.payments import cancel_payment, notify_status_change, log_payment_event
 from .models import Payment, Subscription
 from .payment_modes import PAYMENT_MODES
 from .types import PAYMENT_TYPES, SUBSCRIPTION_TYPES
@@ -65,15 +65,15 @@ class RetryPaymentView(DetailView):
             if not self.object.can_retry():
                 return HttpResponseForbidden()
 
-            self.object.status = Payment.STATUS_WAITING
-            self.object.events.append(
-                {
-                    "action": "cancel_or_refund_payment",
-                    "date": timezone.now(),
-                    "origin": "RetryPaymentView",
-                    "user": request.user,
-                }
+            log_payment_event(
+                self.object,
+                event="status_change",
+                old_status=self.object.status,
+                new_status=Payment.STATUS_WAITING,
+                origin="agir.payment.views.RetryPaymentView",
+                user=request.user,
             )
+            self.object.status = Payment.STATUS_WAITING
             self.object.save(update_fields=("status", "events"))
             notify_status_change(self.object)
 
@@ -111,6 +111,12 @@ class TerminateCheckPaymentView(HardLoginRequiredMixin, DetailView):
 
     def post(self, request, pk):
         payment = self.get_object()
+        log_payment_event(
+            payment,
+            event="cancel_payment",
+            origin="agir.payments.views.TerminateCheckPaymentView",
+            user=request.user,
+        )
         cancel_payment(payment)
 
         messages.add_message(

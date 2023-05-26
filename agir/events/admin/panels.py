@@ -1,5 +1,3 @@
-import json
-
 from django import forms
 from django.conf import settings
 from django.contrib import admin
@@ -43,7 +41,7 @@ from .forms import EventAdminForm, EventSubtypeAdminForm
 from .views import reset_feuille_externe
 from ..serializers import EventEmailCampaignSerializer
 from ...event_requests.admin.inlines import EventAssetInline
-from ...lib.admin.utils import display_link, display_list_of_links
+from ...lib.admin.utils import display_link, display_list_of_links, display_json_details
 
 
 class EventStatusFilter(admin.SimpleListFilter):
@@ -963,12 +961,8 @@ class IdentifiedGuestInline(admin.StackedInline):
         if not obj or not obj.submission:
             return "-"
 
-        return format_html(
-            "<details>"
-            "<summary style='cursor:pointer;'>Réponse au formulaire d'inscription</summary>"
-            "<pre>{}</pre>"
-            "</details>",
-            mark_safe(json.dumps(obj.submission.data, indent=2)),
+        return display_json_details(
+            obj.submission.data, "Réponse au formulaire d'inscription"
         )
 
 
@@ -1062,12 +1056,8 @@ class RSVPAdmin(admin.ModelAdmin):
         if not obj.form_submission:
             return "-"
 
-        return format_html(
-            "<details>"
-            "<summary style='cursor:pointer;'>Réponse au formulaire d'inscription</summary>"
-            "<pre>{}</pre>"
-            "</details>",
-            mark_safe(json.dumps(obj.form_submission.data, indent=2)),
+        return display_json_details(
+            obj.form_submission.data, "Réponse au formulaire d'inscription"
         )
 
     @admin.display(description="Invités")

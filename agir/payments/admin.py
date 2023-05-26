@@ -8,7 +8,6 @@ from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse, path
-from django.utils import timezone
 from django.utils.html import escape, format_html, format_html_join
 from rangefilter.filters import DateRangeFilter
 
@@ -23,11 +22,13 @@ from .actions.payments import (
     change_payment_status,
     PaymentException,
     cancel_or_refund_payment,
+    log_payment_event,
 )
 from .actions.subscriptions import terminate_subscription
 from .models import Subscription, Payment
 from .payment_modes import PAYMENT_MODES
 from .types import PAYMENT_TYPES, get_payment_choices
+from ..lib.admin.utils import display_json_details
 
 
 def notify_status_action(model_admin, request, queryset):
@@ -42,8 +43,6 @@ def change_payments_status_action(status, description):
     def action(modeladmin, request, queryset):
         try:
             with transaction.atomic():
-                now = timezone.now().astimezone(timezone.utc).isoformat()
-
                 for payment in queryset.filter(status=CheckPayment.STATUS_WAITING):
                     if not PAYMENT_MODES[payment.mode].can_admin:
                         raise PaymentException(
@@ -52,14 +51,15 @@ def change_payments_status_action(status, description):
                             )
                         )
 
-                    change_payment_status(payment, status)
-                    payment.events.append(
-                        {
-                            "change_status": status,
-                            "date": now,
-                            "origin": "payment_admin_action",
-                        }
+                    log_payment_event(
+                        payment,
+                        event="status_change",
+                        old_status=payment.status,
+                        new_status=status,
+                        origin="payment_admin_action",
+                        user=request.user,
                     )
+                    change_payment_status(payment, status)
                     payment.save()
                     notify_status_change(payment)
         except PaymentException as exception:
@@ -150,15 +150,13 @@ class PaymentManagementAdminMixin:
 
                 mode = request.POST["_changemode"]
                 payment = form.instance
-                now = timezone.now().astimezone(timezone.utc).isoformat()
-
-                payment.mode = mode
-                payment.events.append(
-                    {
-                        "change_mode": mode,
-                        "date": now,
-                        "origin": self.opts.app_label + "_admin_change_mode",
-                    }
+                log_payment_event(
+                    payment,
+                    event="mode_change",
+                    old_mode=payment.mode,
+                    new_mode=mode,
+                    origin=self.opts.app_label + "_admin_change_mode",
+                    user=request.user,
                 )
 
             if "_changestatus" in request.POST:
@@ -171,16 +169,15 @@ class PaymentManagementAdminMixin:
 
                 status = request.POST["_changestatus"]
                 payment = form.instance
-                now = timezone.now().astimezone(timezone.utc).isoformat()
-
-                change_payment_status(payment, int(status))
-                payment.events.append(
-                    {
-                        "change_status": status,
-                        "date": now,
-                        "origin": self.opts.app_label + "_admin_change_button",
-                    }
+                log_payment_event(
+                    payment,
+                    event="status_change",
+                    old_status=payment.status,
+                    new_status=status,
+                    origin=self.opts.app_label + "_admin_change_button",
+                    user=request.user,
                 )
+                change_payment_status(payment, int(status))
                 notify_status_change(payment)
 
             return super().save_form(request, form, change)
@@ -244,13 +241,11 @@ class PaymentManagementAdminMixin:
 
         if request.method == "POST":
             try:
-                payment.events.append(
-                    {
-                        "action": "cancel_or_refund_payment",
-                        "date": timezone.now(),
-                        "origin": self.opts.app_label + "_admin_cancel_or_refund_view",
-                        "user": request.user,
-                    }
+                log_payment_event(
+                    payment,
+                    event="cancel_or_refund_payment",
+                    origin=self.opts.app_label + "_admin_cancel_or_refund_view",
+                    user=request.user,
                 )
                 cancel_or_refund_payment(payment)
             except NotImplementedError:
@@ -349,8 +344,8 @@ class PaymentAdmin(PaymentManagementAdminMixin, AddRelatedLinkMixin, admin.Model
         "location_zip",
         "location_city",
         "location_country",
-        "meta",
-        "events",
+        "meta_data",
+        "event_data",
         "status",
         "change_mode_buttons",
         "status_buttons",
@@ -396,12 +391,20 @@ class PaymentAdmin(PaymentManagementAdminMixin, AddRelatedLinkMixin, admin.Model
             "Informations supplémentaires",
             {
                 "fields": (
-                    "meta",
-                    "events",
+                    "meta_data",
+                    "event_data",
                 )
             },
         ),
     )
+
+    @admin.display(description="Meta", ordering="meta")
+    def meta_data(self, obj):
+        return display_json_details(obj.meta, "Données de paiement", is_open=True)
+
+    @admin.display(description="Événements", ordering="events")
+    def event_data(self, obj):
+        return display_json_details(obj.events, "Événements de paiement", is_open=True)
 
     def get_changelist(self, request, **kwargs):
         return PaymentChangeList
@@ -423,14 +426,13 @@ class PaymentAdmin(PaymentManagementAdminMixin, AddRelatedLinkMixin, admin.Model
                 and "price" in form.changed_data
                 and payment.price != form["price"].initial
             ):
-                now = timezone.now().astimezone(timezone.utc).isoformat()
-                payment.events.append(
-                    {
-                        "new_price": payment.price,
-                        "old_price": form["price"].initial,
-                        "date": now,
-                        "origin": self.opts.app_label + "_admin_change_price",
-                    }
+                log_payment_event(
+                    payment,
+                    event="price_change",
+                    new_price=payment.price,
+                    old_price=form["price"].initial,
+                    origin=self.opts.app_label + "_admin_change_price",
+                    user=request.user,
                 )
                 self.message_user(
                     request, "Le montant a bien été modifié.", messages.SUCCESS

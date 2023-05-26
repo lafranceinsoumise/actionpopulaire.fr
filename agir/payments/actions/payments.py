@@ -3,6 +3,7 @@ from datetime import datetime
 from django.db import transaction
 from django.http.response import HttpResponseRedirect
 from django.template import loader
+from django.utils import timezone
 
 from agir.payments.models import Payment
 from agir.payments.payment_modes import DEFAULT_MODE, PAYMENT_MODES
@@ -12,6 +13,20 @@ from agir.people.models import Person
 
 class PaymentException(Exception):
     pass
+
+
+def log_payment_event(payment, commit=False, **kwargs):
+    payment.events.append(
+        {
+            "date": timezone.now().astimezone(timezone.utc).isoformat(),
+            **{key: str(val) for key, val in kwargs.items()},
+        }
+    )
+
+    if commit:
+        payment.save()
+
+    return payment
 
 
 def create_payment(*, person=None, type, price, mode=DEFAULT_MODE, meta=None, **kwargs):
