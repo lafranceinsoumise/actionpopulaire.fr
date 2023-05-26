@@ -155,6 +155,9 @@ class Payment(ExportModelOperationsMixin("payment"), TimeStampedModel, LocationM
     def is_done(self):
         return self.status in (self.STATUS_COMPLETED, self.STATUS_REFUND)
 
+    def is_cancelled(self):
+        return self.status in (self.STATUS_CANCELED, self.STATUS_REFUND)
+
     def can_retry(self):
         return (
             self.mode in PAYMENT_MODES
@@ -166,7 +169,7 @@ class Payment(ExportModelOperationsMixin("payment"), TimeStampedModel, LocationM
         return (
             self.mode in PAYMENT_MODES
             and PAYMENT_MODES[self.mode].can_cancel
-            and not self.is_done()
+            and self.status != self.STATUS_COMPLETED
         )
 
     def can_refund(self):

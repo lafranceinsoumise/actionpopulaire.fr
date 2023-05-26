@@ -106,6 +106,9 @@ def cancel_payment(payment):
     if payment.status == Payment.STATUS_COMPLETED:
         raise PaymentException("Le paiement a déjà été confirmé.")
 
+    if payment.is_cancelled():
+        return
+
     payment.status = Payment.STATUS_CANCELED
     payment.save(update_fields=["status", "events"])
 
