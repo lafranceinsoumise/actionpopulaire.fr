@@ -122,3 +122,24 @@ def apply_payment_allocations(payment):
 
         for allocation in allocations:
             apply_payment_allocation(payment, allocation)
+
+
+def cancel_payment_allocations(payment):
+    with transaction.atomic():
+        for operation in payment.operation_set.all():
+            Operation.objects.create(
+                group=operation.group,
+                amount=-operation.amount,
+                comment=f"Annule l'opération #{operation.id} ({str(payment)})",
+            )
+        for operation in payment.departementoperation_set.all():
+            DepartementOperation.objects.create(
+                departement=operation.departement,
+                amount=-operation.amount,
+                comment=f"Annule l'opération #{operation.id} ({str(payment)})",
+            )
+        for operation in payment.cnsoperation_set.all():
+            CNSOperation.objects.create(
+                amount=-operation.amount,
+                comment=f"Annule l'opération #{operation.id} ({str(payment)})",
+            )

@@ -17,6 +17,7 @@ from agir.donations import forms
 from agir.donations.allocations import (
     apply_payment_allocations,
     get_allocation_list,
+    cancel_payment_allocations,
 )
 from agir.donations.apps import DonsConfig
 from agir.donations.base_views import BaseAskAmountView
@@ -337,3 +338,6 @@ def notification_listener(payment):
                 transaction.on_commit(
                     partial(send_donation_email.delay, payment.person.pk, payment.type)
                 )
+
+    if payment.status == Payment.STATUS_REFUND:
+        cancel_payment_allocations(payment)
