@@ -42,6 +42,20 @@ MESSAGES = {
 
 
 def _ensure_can_rsvp(event, number=0):
+    """Garantit qu'il est possible de RSVP à cet événement.
+
+    Cette fonction est un noop si c'est bien le cas. Si le RSVP n'est pas possible, elle lève une RSVPException.
+
+    Cette fonction vérifie pour le moment :
+    - que l'événement n'est pas terminé
+    - que nous la limite éventuelle du nombre de participants n'est pas atteinte.
+
+    :param event: L'événement concerné
+    :param number: Le numéro de l'inscription à tester
+    :return: None
+    :raises: :class:`RSVPException`
+
+    """
     if event.is_past():
         raise RSVPException(MESSAGES["finished"])
 
@@ -62,8 +76,27 @@ def _get_meta(event, form_submission, is_guest):
     }
 
 
-# idempotent if not confirmed
 def _get_rsvp_for_event(event, person, form_submission, paying):
+    """Obtient un RSVP correspondant à un couple (événement, personne, soumission de formulaire)
+
+    Si le RSVP existe déjà, il est récupéré, verrouillé (avec un row-level lock) et renvoyé, mais uniquement s'il n'est
+    pas encore confirmé
+
+    Si ce n'est pas le cas, il est créé (mais pas sauvegardé en DB).
+
+    S'il y a déjà un RSVP confirmé, la fonction lève un `RSVPException`.
+
+    Si un formulaire est associé à l'événement mais qu'aucune soumission de formulaire n'est fournie, ou au contraire
+    s'il y a une soumission mais pas de formulaire associé à l'événement, une `RSVPException` est levée.
+
+    :param event: l'événement concerné
+    :param person: la personne concernée
+    :param form_submission: l'éventuelle soumission de formulaire (potentiellement `None`)
+    :param paying: s'il s'agit d'une participation payante ou pas
+    :return: le RSVP (non sauvegardé !)
+    :raises: :class:`RSVPException`
+    """
+
     # TODO: add race conditions handling with explicit locking for maximum participants
     # see https://www.caktusgroup.com/blog/2009/05/26/explicit-table-locking-with-postgresql-and-django/
     # for potential solution
@@ -91,6 +124,17 @@ def _get_rsvp_for_event(event, person, form_submission, paying):
 
 
 def rsvp_to_free_event(event, person, form_submission=None):
+    """RSVP la personne a un événement gratuit.
+
+    La fonction se prémunit contre une situation de double création simultanée du RSVP (et est dans ce cas un noop).
+
+    Si le RSVP a bien été créé, la tâche de notification est programmée.
+
+    :param event:
+    :param person:
+    :param form_submission:
+    :return: `None`
+    """
     try:
         with transaction.atomic():
             rsvp = _get_rsvp_for_event(event, person, form_submission, False)
@@ -104,6 +148,16 @@ def rsvp_to_free_event(event, person, form_submission=None):
 def rsvp_to_paid_event_and_create_payment(
     event, person, payment_mode, form_submission=None
 ):
+    """RSVP la personne à un événement payant.
+
+    Cette fonction calcule le prix du RSVP, crée le RSVP et le paiement correspondant (s'il n'existe pas encore)
+
+    :param event:
+    :param person:
+    :param payment_mode:
+    :param form_submission:
+    :return: Le paiement à effectuer pour confirmer le RSVP
+    """
     if event.is_free:
         raise RSVPException(
             "Cet événement est gratuit : aucun paiement n'est donc nécessaire."
@@ -148,9 +202,13 @@ def rsvp_to_paid_event_and_create_payment(
 
 
 def validate_payment_for_rsvp(payment):
-    """Validate participation for paid event
+    """Valide la participation suite au règlement d'un paiement.
 
-    This function should be used in payment webhooks, and should try to avoid raising any error.
+    Cette fonction est notamment appelée dans les webhooks liés au paiement par carte, et devrait donc éviter
+    de lever des exceptions.
+
+    :param payment: le paiement tout juste réglé
+
     """
 
     try:
@@ -163,7 +221,8 @@ def validate_payment_for_rsvp(payment):
     rsvp.status = RSVP.STATUS_CONFIRMED
     rsvp.save()
 
-    # à faire au commit uniquement
+    # on programme l'envoi de la notification à la fin de la transaction, pour s'assurer que
+    # la tâche Celery s'exécute bien après la fin de la transaction (et voit donc le RSVP mis à jour)
     transaction.on_commit(partial(send_rsvp_notification.delay, rsvp.pk))
     return rsvp
 
@@ -191,6 +250,17 @@ def retry_payment_for_rsvp(payment):
 
 
 def _add_identified_guest(event, person, submission, status, paying=True):
+    """Ajoute un invité identifié à un RSVP.
+
+    TODO: l'argument statut n'est semble-t-il plus nécessaire
+
+    :param event: l'événement concerné
+    :param person: la personne qui invite
+    :param submission: la soumission de formulaire correspondant à l'invité
+    :param status: le status
+    :param paying:
+    :return:
+    """
     if not event.allow_guests:
         raise RSVPException(MESSAGES["forbidden_to_add_guest"])
 
@@ -243,6 +313,14 @@ def add_free_identified_guest(event, person, submission):
 def add_paid_identified_guest_and_get_payment(
     event, person, payment_mode, form_submission=None
 ):
+    """Récupère le paiement associé à l'ajout d'un invité à un événement payantx
+
+    :param event:
+    :param person:
+    :param payment_mode:
+    :param form_submission:
+    :return:
+    """
     price = event.get_price(form_submission and form_submission.data)
 
     with transaction.atomic():
