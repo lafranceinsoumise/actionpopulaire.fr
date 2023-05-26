@@ -331,7 +331,6 @@ def notification_listener(payment):
             # adresse email. On récupère la personne associée à cette adresse email, ou on la crée, et on l'associe à
             # ce paiement.
             find_or_create_person_from_payment(payment)
-
             apply_payment_allocations(payment)
 
             if payment.subscription is None:
