@@ -177,6 +177,8 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
         actions.uncertify_supportgroups,
     )
 
+    change_form_template = "admin/supportgroups/change_form.html"
+
     def promo_code(self, object):
         if (
             not object.pk
@@ -497,6 +499,13 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
                     self.opts.app_label, self.opts.model_name
                 ),
             ),
+            path(
+                "<path:object_id>/old_history/",
+                self.admin_site.admin_view(self.old_history_view),
+                name="{}_{}_old_history".format(
+                    self.opts.app_label, self.opts.model_name
+                ),
+            ),
         ] + super().get_urls()
 
     def add_member(self, request, pk):
@@ -507,6 +516,18 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
 
     def export_memberships(self, request, pk, as_format):
         return views.export_memberships(self, request, pk, as_format)
+
+    def history_view(self, request, object_id, extra_context=None):
+        self.object_history_template = super().object_history_template
+        return super(SupportGroupAdmin, self).history_view(
+            request, object_id, extra_context=extra_context
+        )
+
+    def old_history_view(self, request, object_id, extra_context=None):
+        self.object_history_template = None
+        return super(CenterOnFranceMixin, self).history_view(
+            request, object_id, extra_context=extra_context
+        )
 
     def get_changelist_instance(self, request):
         cl = super().get_changelist_instance(request)
