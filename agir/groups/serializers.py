@@ -189,6 +189,7 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
         "isFull",
         "isOpen",
         "isCertified",
+        "location",
         "contact",
         "image",
         "referents",
