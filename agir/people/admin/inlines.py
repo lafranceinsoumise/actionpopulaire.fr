@@ -6,6 +6,7 @@ from django.utils.html import format_html
 from agir.events.models import Event
 from agir.groups.models import Membership, SupportGroupSubtype
 from agir.lib.admin.inlines import NonrelatedTabularInline
+from agir.lib.admin.utils import display_link
 from agir.people.models import PersonEmail, PersonQualification
 
 
@@ -93,12 +94,38 @@ class PersonQualificationInline(admin.TabularInline):
     template = "admin/people/includes/person_qualification_tabular.html"
     model = PersonQualification
     extra = 0
-    fields = ("qualification", "start_time", "end_time", "is_effective")
-    readonly_fields = ("qualification", "start_time", "end_time", "is_effective")
+    fields = readonly_fields = (
+        "person_link",
+        "supportgroup_link",
+        "qualification_link",
+        "interval",
+        "is_effective",
+    )
     show_change_link = True
+    can_delete = False
 
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    @admin.display(description="Type de statut", ordering="qualification")
+    def qualification_link(self, obj):
+        return display_link(obj.qualification)
+
+    @admin.display(description="Personne", ordering="person")
+    def person_link(self, obj):
+        return display_link(obj.person)
+
+    @admin.display(description="Groupe", ordering="supportgroup")
+    def supportgroup_link(self, obj):
+        return display_link(obj.supportgroup)
+
+    @admin.display(description="Durée", ordering="start_time")
+    def interval(self, obj):
+        return obj.get_range_display()
+
+    @admin.display(description="En cours", boolean=True)
     def is_effective(self, obj):
         return obj.is_effective
-
-    is_effective.short_description = "En cours"
-    is_effective.boolean = True

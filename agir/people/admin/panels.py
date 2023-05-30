@@ -32,6 +32,7 @@ from agir.lib.admin.filters import (
     CirconscriptionLegislativeFilter,
 )
 from agir.lib.admin.panels import CenterOnFranceMixin, DisplayContactPhoneMixin
+from agir.lib.admin.utils import display_link
 from agir.lib.utils import generate_token_params, front_url
 from agir.people.actions.stats import get_statistics_for_queryset
 from agir.people.admin import filters
@@ -1058,88 +1059,80 @@ class LiaisonAdmin(admin.ModelAdmin):
 @admin.register(Qualification)
 class QualificationAdmin(admin.ModelAdmin):
     list_display = ("label", "description", "active_count", "total_count")
+    inlines = (PersonQualificationInline,)
     search_fields = ("label",)
 
+    @admin.display(description="En cours")
     def active_count(self, obj):
         return obj.person_qualifications.effective().count()
 
-    active_count.short_description = "En cours"
-    active_count.integer = True
-
+    @admin.display(description="Total")
     def total_count(self, obj):
         return obj.person_qualifications.count()
-
-    total_count.short_description = "Total"
-    total_count.integer = True
-
-
-class QualificationListFilter(AutocompleteRelatedModelFilter):
-    field_name = "qualification"
-    title = "type de statut"
-
-
-class PersonQualificationStatusListFilter(admin.SimpleListFilter):
-    title = "état du statut"
-    parameter_name = "status"
-
-    def lookups(self, request, model_admin):
-        return PersonQualification.Status.choices
-
-    def queryset(self, request, queryset):
-        if self.value():
-            return queryset.only_statuses(statuses=[self.value()])
-        return queryset
 
 
 @admin.register(PersonQualification)
 class PersonQualificationAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    "is_effective",
+                    "qualification",
+                    "person",
+                    "supportgroup",
+                    "start_time",
+                    "end_time",
+                    "description",
+                )
+            },
+        ),
+    )
     list_display = (
-        "__str__",
-        "qualification_link",
+        "id",
         "person_link",
-        "start_time",
-        "end_time",
+        "supportgroup_link",
+        "qualification_link",
+        "interval",
         "is_effective",
     )
-    search_fields = ("person__search", "qualification__label")
+    search_fields = ("person__search", "qualification__label", "supportgroup__search")
     list_filter = (
-        PersonQualificationStatusListFilter,
-        QualificationListFilter,
+        filters.PersonQualificationStatusListFilter,
+        filters.QualificationListFilter,
+        filters.PersonQualificationSupportGroupListFilter,
     )
-    autocomplete_fields = ("person", "qualification")
+    autocomplete_fields = ("person", "qualification", "supportgroup")
+    readonly_fields = ("id", "is_effective")
+    create_only_fields = ("person", "qualification", "supportgroup")
 
     def get_readonly_fields(self, request, obj=None):
-        if obj:
-            return ["person", "qualification"]
-        return super().get_readonly_fields(request, obj)
+        readonly_fields = super().get_readonly_fields(request, obj)
+        if not obj:
+            return readonly_fields
 
+        return readonly_fields + self.create_only_fields
+
+    @admin.display(description="Type de statut", ordering="qualification")
     def qualification_link(self, obj):
-        return format_html(
-            '<a href="{link}">{qualification}</a>',
-            qualification=str(obj.qualification),
-            link=reverse(
-                "admin:people_qualification_change", args=[obj.qualification_id]
-            ),
-        )
+        return display_link(obj.qualification)
 
-    qualification_link.short_description = "Type de statut"
-    qualification_link.ordering = "qualification"
-
+    @admin.display(description="Personne", ordering="person")
     def person_link(self, obj):
-        return format_html(
-            '<a href="{link}">{person}</a>',
-            person=str(obj.person),
-            link=reverse("admin:people_person_change", args=[obj.person_id]),
-        )
+        return display_link(obj.person)
 
-    person_link.short_description = "Personne"
-    person_link.ordering = "qualification"
+    @admin.display(description="Groupe", ordering="supportgroup")
+    def supportgroup_link(self, obj):
+        return display_link(obj.supportgroup)
 
+    @admin.display(description="Durée", ordering="start_time")
+    def interval(self, obj):
+        return obj.get_range_display()
+
+    @admin.display(description="En cours", boolean=True)
     def is_effective(self, obj):
-        return obj.is_effective
-
-    is_effective.short_description = "En cours"
-    is_effective.boolean = True
+        return obj and obj.is_effective
 
     class Media:
         pass
