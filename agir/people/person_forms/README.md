@@ -155,7 +155,9 @@ Un champs qui permet le choix parmi plusieurs valeurs prédéfinies grâce à un
 ##### Paramètres optionnels
 
 - `"default_label": "---" [string]`
-  Le libellé de la valeur vide, lorsqu'aucune option n'est sélectionnée
+  Le libellé de la valeur vide, lorsqu'aucune option n'est sélectionnée   
+- `"empty_value": true [boolean]`
+  Afficher ou non une option vide en plus de celles indiquées
 
 ##### Examples
 
@@ -172,6 +174,7 @@ Un champs qui permet le choix parmi plusieurs valeurs prédéfinies grâce à un
     "id": "app_2",
     "label": "Appartement",
     "type": "choice",
+    "empty_value": false,
     "choices": [
       [
         "1A", // Valeur enregistrée
@@ -260,7 +263,9 @@ Un champs qui permet le choix parmi plusieurs valeurs prédéfinies grâce à un
 ##### Paramètres optionnels
 
 - `"default_label": "---" [string]`
-  Le libellé de la valeur vide, lorsqu'aucune option n'est sélectionnée
+  Le libellé de la valeur vide, lorsqu'aucune option n'est sélectionnée   
+- `"empty_value": true [boolean]`
+  Afficher ou non une option vide en plus de celles indiquées
 
 ##### Examples
 
@@ -289,7 +294,7 @@ Un champs qui permet le choix parmi plusieurs valeurs prédéfinies grâce à un
     "id": "app_3",
     "label": "Appartement",
     "type": "autocomplete_choice",
-    "default_label": "Je ne vis pas ici",
+    "empty_value": false,
     "choices": [
       [
         "1er étage",
@@ -954,6 +959,7 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
         "id": "choice_3",
         "label": "Appartement",
         "type": "choice",
+        "empty_value": false,
         "choices": [
           [
             "1er étage",
@@ -1023,7 +1029,7 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
         "id": "autocomplete_3",
         "label": "Appartement",
         "type": "autocomplete_choice",
-        "default_label": "Je ne vis pas ici",
+        "empty_value": false,
         "choices": [
           [
             "1er étage",
