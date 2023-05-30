@@ -8,12 +8,9 @@ from celery import shared_task
 from django.conf import settings
 from django.template.defaultfilters import date as _date
 from django.template.loader import render_to_string
-from django.utils.formats import localize
 from django.utils.html import format_html
 from django.utils.http import urlencode
-from django.utils.timezone import get_current_timezone
 from django.utils.translation import gettext_lazy as _
-from glom import T, Val
 
 from agir.activity.models import Activity
 from agir.authentication.tokens import subscription_confirmation_token_generator
@@ -29,6 +26,7 @@ from agir.lib.google_sheet import (
     parse_sheet_link,
     copy_array_to_sheet,
     add_row_to_sheet,
+    gspread_task,
 )
 from agir.lib.html import sanitize_html
 from agir.lib.mailing import send_mosaico_email
@@ -699,7 +697,7 @@ def send_group_coorganization_invitation_notification(invitation_pk):
         ),
     )
 
-    # Add activity for all group referents that hasnt been notified yet
+    # Add activity for all group referents that hasn't been notified yet
     Activity.objects.bulk_create(
         [
             Activity(
@@ -842,30 +840,7 @@ def send_event_report_form_reminder_email(event_pk):
     )
 
 
-SPEC_RSVP = {
-    "id": ("id", "R{}".format),
-    "created": (T.created.astimezone(get_current_timezone()), localize),
-    "person_id": ("person_id", str),
-    "email": "person.email",
-    "status": T.get_status_display(),
-}
-
-SPEC_IDENTIFIED_GUEST = {
-    **SPEC_RSVP,
-    "id": ("id", "I{}".format),
-    "created": Val(""),
-    "person_id": ("rsvp.person_id", str),
-    "email": "rsvp.person.email",
-}
-
-SPEC_PAYMENT = {
-    "montant": ("price", T / 100),
-    "status": T.get_status_display(),
-    "mode de paiement": "mode",
-}
-
-
-@shared_task
+@gspread_task
 def copier_participants_vers_feuille_externe(event_id):
     try:
         event = Event.objects.select_related("subscription_form").get(id=event_id)
@@ -885,7 +860,7 @@ def copier_participants_vers_feuille_externe(event_id):
     copy_array_to_sheet(sheet_id, values)
 
 
-@shared_task
+@gspread_task
 def copier_rsvp_vers_feuille_externe(rsvp_id):
     try:
         rsvp = RSVP.objects.select_related(
@@ -907,7 +882,7 @@ def copier_rsvp_vers_feuille_externe(rsvp_id):
     add_row_to_sheet(sheet_id, values, "id")
 
 
-@shared_task
+@gspread_task
 def copier_identified_guest_vers_feuille_externe(guest_id):
     try:
         ig = IdentifiedGuest.objects.select_related(

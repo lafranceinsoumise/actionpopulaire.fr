@@ -7,8 +7,13 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from gspread.utils import ValueInputOption, rowcol_to_a1, ValueRenderOption
 
+from agir.lib.celery import retriable_task
+
 GOOGLE_SHEET_REGEX = r"^https://docs.google.com/spreadsheets/d/(?P<sid>[A-Za-z0-9_-]{40,})/.*[?#&]gid=(?P<gid>[0-9]+)"
 MAX_CHUNK_SIZE = 100_000
+
+
+gspread_task = retriable_task(start=5, retry_on=(gspread.exceptions.APIError,))
 
 
 @dataclasses.dataclass
