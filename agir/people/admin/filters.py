@@ -3,10 +3,14 @@ from django.db.models import Count, Q
 from django.urls import reverse
 from django.utils.html import format_html
 
-from agir.groups.models import Membership
-from agir.lib.admin.autocomplete_filter import AutocompleteRelatedModelFilter
+from agir.groups.models import Membership, SupportGroup
+from agir.lib.admin.autocomplete_filter import (
+    AutocompleteRelatedModelFilter,
+    AutocompleteSelectModelBaseFilter,
+)
 from agir.lib.admin.form_fields import AutocompleteSelectModel
 from agir.mailing.models import Segment
+from agir.people.models import PersonQualification
 
 
 class SegmentFilter(AutocompleteRelatedModelFilter):
@@ -81,3 +85,36 @@ class AnimateMoreThanOneGroup(admin.SimpleListFilter):
                     ),
                 )
             ).filter(group_count__gt=1)
+
+
+class QualificationListFilter(AutocompleteRelatedModelFilter):
+    field_name = "qualification"
+    title = "type de statut"
+
+
+class PersonQualificationStatusListFilter(admin.SimpleListFilter):
+    title = "état du statut"
+    parameter_name = "status"
+
+    def lookups(self, request, model_admin):
+        return PersonQualification.Status.choices
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.only_statuses(statuses=[self.value()])
+        return queryset
+
+
+class PersonQualificationSupportGroupListFilter(AutocompleteSelectModelBaseFilter):
+    title = "groupe d'action"
+    filter_model = SupportGroup
+    parameter_name = "supportgroup"
+
+    def get_queryset_for_field(self):
+        return SupportGroup.objects.all()
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(supportgroup_id=self.value())
+        else:
+            return queryset
