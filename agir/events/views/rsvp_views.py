@@ -79,6 +79,15 @@ class RSVPEventView(SoftLoginRequiredMixin, DetailView):
             person_form.is_open and person_form.is_authorized(person)
         )
 
+    def has_form(self):
+        if not self.can_post_form():
+            return False
+
+        if not self.user_is_already_rsvped:
+            return True
+
+        return self.event.allow_guests
+
     def get_context_data(self, **kwargs):
         if "rsvp" not in kwargs:
             try:
@@ -98,6 +107,7 @@ class RSVPEventView(SoftLoginRequiredMixin, DetailView):
             "hide_feedback_button": True,
             "person_form_instance": self.event.subscription_form,
             "event": self.event,
+            "is_participant": self.user_is_already_rsvped,
             "submission_data": default_person_form_display.get_formatted_submission(
                 kwargs["rsvp"].form_submission
             )
@@ -126,12 +136,7 @@ class RSVPEventView(SoftLoginRequiredMixin, DetailView):
             **kwargs,
         }
 
-        # we add a form when user is allowed AND either not subscribed, or allowed to add guests
-        will_add_form = self.can_post_form() and (
-            "rsvp" not in kwargs or self.event.allow_guests
-        )
-
-        if "form" not in kwargs and will_add_form:
+        if "form" not in kwargs and self.has_form():
             kwargs["form"] = self.get_form()
 
         return super().get_context_data(**kwargs)

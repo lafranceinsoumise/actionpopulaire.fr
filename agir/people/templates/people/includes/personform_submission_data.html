@@ -2,12 +2,18 @@
   <dl class="list-group dl-horizontal">
     <div class="list-group-item" style="color:#4d26b9;background-color:#e9e1ff;border-color:#e9e1ff;">{{ fieldset.title }}</div>
     {% for item in fieldset.data %}
-      {% if item.value %}
-        <div class="list-group-item">
-          <dt class="list-group-item-heading">{{ item.label }}</dt>
-          <dd class="list-group-item-text">{{ item.value }}</dd>
-        </div>
-      {% endif %}
+      <div class="list-group-item">
+        <dt class="list-group-item-heading" title="{{ item.label|capfirst }}">{{ item.label|capfirst }}</dt>
+        {% if item.value %}
+          <dd class="list-group-item-text" title="{{ item.value }}">{{ item.value }}</dd>
+        {% else %}
+          <dd class="list-group-item-text">&mdash;</dd>
+        {% endif %}
+      </div>
+    {% empty %}
+      <div class="list-group-item">
+        <em style="font-size: 0.875rem;">Cette section est vide</em>
+      </div>
     {% endfor %}
   </dl>
 {% endfor %}
