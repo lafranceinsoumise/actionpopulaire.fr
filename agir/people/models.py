@@ -4,7 +4,6 @@ from datetime import datetime
 from functools import reduce
 from operator import or_
 
-import dynamic_filenames
 import phonenumbers
 from django.conf import settings
 from django.contrib.postgres.indexes import GinIndex
@@ -16,7 +15,7 @@ from django.core.validators import (
     MaxValueValidator,
 )
 from django.db import models, transaction, IntegrityError
-from django.db.models import JSONField, Subquery, OuterRef, DateTimeField
+from django.db.models import JSONField, Subquery, OuterRef, DateTimeField, Prefetch
 from django.db.models import Q
 from django.db.models.fields.json import KeyTextTransform
 from django.db.models.functions import Cast, Coalesce
@@ -882,6 +881,9 @@ class Qualification(AbstractLabel):
 
 
 class PersonQualificationQueryset(models.QuerySet):
+    def with_related_objects(self):
+        return self.select_related("person", "qualification", "supportgroup")
+
     def effective(self):
         now = timezone.now()
         return self.filter(
@@ -922,6 +924,13 @@ class PersonQualificationQueryset(models.QuerySet):
         return query
 
 
+class PersonQualificationManager(
+    models.Manager.from_queryset(PersonQualificationQueryset)
+):
+    def get_queryset(self):
+        return super().get_queryset().with_related_objects()
+
+
 class PersonQualification(TimeStampedModel):
     """
     Model that represents a tag that may be used to qualify people and that may be temporary
@@ -933,7 +942,7 @@ class PersonQualification(TimeStampedModel):
         PAST = "P", "Statut passé"
         FUTURE = "F", "Statut futur"
 
-    objects = PersonQualificationQueryset.as_manager()
+    objects = PersonQualificationManager()
 
     person = models.ForeignKey(
         "people.Person",
@@ -949,6 +958,15 @@ class PersonQualification(TimeStampedModel):
         related_query_name="person_qualification",
         on_delete=models.CASCADE,
     )
+    supportgroup = models.ForeignKey(
+        "groups.SupportGroup",
+        verbose_name=_("groupe d'action"),
+        related_name="person_qualifications",
+        related_query_name="person_qualification",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
     description = models.TextField(_("description"), null=False, blank=True)
     start_time = CustomDateTimeField(_("date et heure de début"), null=True, blank=True)
     end_time = CustomDateTimeField(_("date et heure de fin"), null=True, blank=True)
@@ -962,9 +980,21 @@ class PersonQualification(TimeStampedModel):
             return self.Status.FUTURE
         return self.Status.EFFECTIVE
 
+    def get_status_display(self):
+        return self.status.name
+
     @property
     def is_effective(self):
         return self.status == self.Status.EFFECTIVE
+
+    @property
+    def membership(self):
+        if not self.supportgroup_id:
+            return None
+
+        return self.person.memberships.filter(
+            supportgroup_id=self.supportgroup_id
+        ).first()
 
     def get_range_display(self):
         strings = []
@@ -999,9 +1029,10 @@ class PersonQualification(TimeStampedModel):
             )
 
     def __str__(self):
-        return "{person} : {tag_label} {range}".format(
+        return "{person} : {tag_label}, {group} {range}".format(
             person=str(self.person),
             tag_label=self.qualification.label,
+            group=self.supportgroup.name if self.supportgroup else "",
             range=self.get_range_display(),
         )
 

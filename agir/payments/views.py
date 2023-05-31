@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.http import HttpResponseServerError
+from django.http import HttpResponseServerError, HttpResponseForbidden
 from django.shortcuts import redirect, get_object_or_404
 from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
@@ -8,7 +8,10 @@ from django.views.generic import DetailView
 
 from agir.authentication.view_mixins import HardLoginRequiredMixin
 from agir.payments.actions.subscriptions import terminate_subscription
-from .actions.payments import cancel_payment
+from .actions.payments import (
+    log_payment_event,
+    change_payment_status,
+)
 from .models import Payment, Subscription
 from .payment_modes import PAYMENT_MODES
 from .types import PAYMENT_TYPES, SUBSCRIPTION_TYPES
@@ -24,7 +27,9 @@ def payment_view(
 
 @method_decorator(never_cache, name="get")
 class PaymentView(DetailView):
-    queryset = Payment.objects.filter(status=Payment.STATUS_WAITING)
+    queryset = Payment.objects.exclude(
+        status__in=[Payment.STATUS_COMPLETED, Payment.STATUS_REFUND]
+    )
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -33,18 +38,20 @@ class PaymentView(DetailView):
         if payment_mode is None:
             return HttpResponseServerError()
 
+        if not self.object.status == Payment.STATUS_WAITING:
+            if self.object.can_retry():
+                return redirect("payment_retry", self.object.pk)
+
+            return HttpResponseForbidden()
+
         return payment_mode.payment_view(request, payment=self.object, *args, **kwargs)
 
 
 @method_decorator(never_cache, name="get")
 class RetryPaymentView(DetailView):
     def get_queryset(self):
-        return Payment.objects.filter(
-            status__in=[
-                Payment.STATUS_WAITING,
-                Payment.STATUS_ABANDONED,
-                Payment.STATUS_REFUSED,
-            ]
+        return Payment.objects.exclude(
+            status__in=[Payment.STATUS_COMPLETED, Payment.STATUS_REFUND]
         ).filter(
             mode__in=[mode.id for mode in PAYMENT_MODES.values() if mode.can_retry]
         )
@@ -55,6 +62,20 @@ class RetryPaymentView(DetailView):
 
         if payment_mode is None:
             return HttpResponseServerError()
+
+        if not self.object.status == Payment.STATUS_WAITING:
+            if not self.object.can_retry():
+                return HttpResponseForbidden()
+
+            log_payment_event(
+                self.object,
+                event="status_change",
+                old_status=self.object.status,
+                new_status=Payment.STATUS_WAITING,
+                origin="agir.payment.views.RetryPaymentView",
+                user=request.user,
+            )
+            change_payment_status(self.object, Payment.STATUS_WAITING)
 
         return payment_mode.retry_payment_view(
             request, payment=self.object, *args, **kwargs
@@ -90,8 +111,13 @@ class TerminateCheckPaymentView(HardLoginRequiredMixin, DetailView):
 
     def post(self, request, pk):
         payment = self.get_object()
-        cancel_payment(payment)
-
+        log_payment_event(
+            payment,
+            event="cancel_payment",
+            origin="agir.payments.views.TerminateCheckPaymentView",
+            user=request.user,
+        )
+        change_payment_status(payment, Payment.STATUS_CANCELED)
         messages.add_message(
             self.request,
             messages.SUCCESS,

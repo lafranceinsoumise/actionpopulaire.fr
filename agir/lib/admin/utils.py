@@ -1,3 +1,4 @@
+import json
 from urllib.parse import urljoin
 
 from django.conf import settings
@@ -54,6 +55,21 @@ def display_list_of_links(links, button=False):
     )
     sep = "<br><br>" if button else "<br>"
     return format_html_join(mark_safe(sep), '<a class="{}" href="{}">{}</a>', links)
+
+
+def display_json_details(data, title, is_open=False):
+    if not data:
+        return "-"
+
+    open_attr = "open" if is_open else ""
+
+    return format_html(
+        f"<details {open_attr}>"
+        f"<summary style='cursor:pointer;'>{title}</summary>"
+        "<pre>{}</pre>"
+        "</details>",
+        mark_safe(json.dumps(data, indent=2)),
+    )
 
 
 def admin_url(viewname, args=None, kwargs=None, query=None, absolute=True):

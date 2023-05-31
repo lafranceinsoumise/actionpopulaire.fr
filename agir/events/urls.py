@@ -54,6 +54,11 @@ urlpatterns = [
         views.ChangeRSVPPaymentView.as_view(),
         name="rsvp_change_payment",
     ),
+    path(
+        "evenements/invite/<pk>/changer-paiement/",
+        views.ChangeIdentifiedGuestPaymentView.as_view(),
+        name="identified_guest_change_payment",
+    ),
     path("evenements/paiement/", views.PayEventView.as_view(), name="pay_event"),
     path(
         "evenements/<uuid:pk>/localisation/",

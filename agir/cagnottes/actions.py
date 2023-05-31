@@ -29,7 +29,7 @@ def montant_cagnotte(cagnotte):
         return 0
 
 
-def ajouter_compteur(payment: Payment):
+def mettre_a_jour_compteur(payment: Payment, negative=False):
     if "cagnotte" not in payment.meta:
         return
     try:
@@ -39,7 +39,18 @@ def ajouter_compteur(payment: Payment):
 
     client = get_auth_redis_client()
 
-    client.incr(redis_key(cagnotte), payment.price)
+    if negative:
+        client.decr(redis_key(cagnotte), payment.price)
+    else:
+        client.incr(redis_key(cagnotte), payment.price)
+
+
+def incrementer_compteur(payment: Payment):
+    mettre_a_jour_compteur(payment, negative=False)
+
+
+def decrementer_compteur(payment: Payment):
+    mettre_a_jour_compteur(payment, negative=True)
 
 
 def rafraichir_compteur(cagnotte):

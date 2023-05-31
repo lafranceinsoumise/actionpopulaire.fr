@@ -100,13 +100,16 @@ class SimpleChoiceListMixin:
 
 
 class ChoiceField(SimpleChoiceListMixin, forms.ChoiceField):
-    def __init__(self, *, choices, default_label=None, required=True, **kwargs):
+    def __init__(
+        self, *, choices, default_label=None, empty_value=True, required=True, **kwargs
+    ):
         if default_label is None:
             default_label = (
                 "---" if required else _("Non applicable / ne souhaite pas répondre")
             )
 
-        choices = [("", default_label), *choices]
+        if empty_value:
+            choices = [("", default_label), *choices]
 
         super().__init__(choices=choices, required=required, **kwargs)
 

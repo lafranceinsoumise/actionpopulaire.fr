@@ -1,9 +1,7 @@
 import logging
 
 from agir.payments.actions.payments import (
-    complete_payment,
-    refuse_payment,
-    refund_payment,
+    change_payment_status,
 )
 from agir.payments.actions.subscriptions import (
     complete_subscription,
@@ -23,6 +21,12 @@ SUBSCRIPTION_ERROR_STATUS_MAPPING = {
 
 
 def update_payment_from_transaction(payment, transaction):
+    if transaction.status in (
+        SystemPayTransaction.STATUS_CANCELED,
+        SystemPayTransaction.STATUS_REFUNDED,
+    ):
+        return change_payment_status(payment, Payment.STATUS_REFUND)
+
     if transaction.status == SystemPayTransaction.STATUS_COMPLETED:
         if payment.status == Payment.STATUS_CANCELED:
             logger.error(
@@ -31,15 +35,15 @@ def update_payment_from_transaction(payment, transaction):
             return
 
         if transaction.is_refund:
-            refund_payment(payment)
-        else:
-            complete_payment(payment)
+            return change_payment_status(payment, Payment.STATUS_REFUND)
+
+        return change_payment_status(payment, Payment.STATUS_COMPLETED)
 
     if (
         transaction.status == SystemPayTransaction.STATUS_REFUSED
         and payment.status == Payment.STATUS_WAITING
     ):
-        refuse_payment(payment)
+        return change_payment_status(payment, Payment.STATUS_REFUSED)
 
 
 def replace_sp_subscription_for_subscription(subscription, sp_subscription):

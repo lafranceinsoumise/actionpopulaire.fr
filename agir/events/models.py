@@ -544,6 +544,12 @@ class Event(
         help_text=EVENT_PAYMENT_PARAMETERS_DOCUMENTATION,
     )
 
+    lien_feuille_externe = models.URLField(
+        verbose_name="Lien vers une feuille de calcul externe",
+        help_text="Une feuille de calcul externe à mettre à jour avec les participants à l'événement.",
+        blank=True,
+    )
+
     scanner_event = models.IntegerField(
         "L'ID de l'événement sur le logiciel de tickets", blank=True, null=True
     )

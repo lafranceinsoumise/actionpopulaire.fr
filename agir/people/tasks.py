@@ -1,7 +1,5 @@
 import logging
 
-import re
-
 from celery import shared_task
 from django.conf import settings
 from django.template.loader import render_to_string
@@ -20,8 +18,8 @@ from agir.lib.display import pretty_time_since
 from agir.lib.google_sheet import (
     copy_array_to_sheet,
     add_row_to_sheet,
-    GOOGLE_SHEET_REGEX,
     parse_sheet_link,
+    gspread_task,
 )
 from agir.lib.mailing import send_mosaico_email
 from agir.lib.sms import send_sms
@@ -303,7 +301,7 @@ def notify_contact(person_pk, is_new=False):
     )
 
 
-@shared_task
+@gspread_task
 def copier_toutes_reponses_vers_feuille_externe(person_form_id):
     try:
         form = PersonForm.objects.get(id=person_form_id)
@@ -330,10 +328,10 @@ def copier_toutes_reponses_vers_feuille_externe(person_form_id):
         if isinstance(p, Person):
             row[1] = p.email
 
-    copy_array_to_sheet(sheet_id, headers, values)
+    copy_array_to_sheet(sheet_id, [headers, *values])
 
 
-@shared_task
+@gspread_task
 def copier_reponse_vers_feuille_externe(person_form_submission_id):
     try:
         sub = PersonFormSubmission.objects.select_related("form", "person").get(

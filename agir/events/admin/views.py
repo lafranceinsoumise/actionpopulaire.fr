@@ -1,11 +1,12 @@
 from itertools import groupby
 
-from agir.events import actions
+import gspread
+from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.admin.widgets import AutocompleteSelectMultiple
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect, Http404
-from django.shortcuts import reverse
+from django.shortcuts import reverse, get_object_or_404
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -16,6 +17,7 @@ from django.views.generic.detail import SingleObjectMixin
 from django_filters.views import FilterView
 from unidecode import unidecode
 
+from agir.events import actions
 from agir.events.admin.filters import EventFilterSet
 from agir.events.admin.forms import NewParticipantForm
 from agir.events.models import Event, EventSubtype, Calendar
@@ -23,6 +25,7 @@ from agir.lib.admin.panels import AdminViewMixin
 from agir.people.person_forms.actions import get_people_form_class
 from agir.people.person_forms.fields import is_actual_model_field
 from .forms import AddOrganizerForm
+from ..tasks import copier_participants_vers_feuille_externe
 
 
 def add_organizer(model_admin, request, pk):
@@ -334,3 +337,45 @@ def generate_mailing_campaign(model_admin, request, pk):
         messages.success(request, success_message)
 
     return response
+
+
+def reset_feuille_externe(admin_panel, request, pk):
+    if not admin_panel.has_change_permission(request):
+        raise PermissionDenied()
+
+    event = get_object_or_404(Event, id=pk)
+
+    if not event.lien_feuille_externe:
+        messages.add_message(
+            request=request,
+            level=messages.WARNING,
+            message=f"Cet événement n'a pas de lien vers une feuille de calcul externe",
+        )
+        return HttpResponseRedirect(reverse("admin:events_event_change", args=[pk]))
+
+    try:
+        copier_participants_vers_feuille_externe(event.pk)
+    except gspread.exceptions.APIError as e:
+        error = e.args[0]
+        message = "Les données de la feuille de calcul externe n'ont pas pu être réinitialisées."
+
+        if error.get("code") in [401, 403]:
+            message += f" Le compte « {settings.GCE_ACCOUNT_EMAIL} » n'a pas de droit d'édition de la feuille de calcul externe."
+        elif error.get("code") == 404:
+            message += f" La feuille de calcul externe n'a pas été trouvée. Vérifiez son URL et reessayez."
+        else:
+            message += f" Une erreur est survenue : {e}"
+
+        messages.add_message(
+            request=request,
+            level=messages.WARNING,
+            message=message,
+        )
+    else:
+        messages.add_message(
+            request=request,
+            level=messages.SUCCESS,
+            message=f"Les données de la feuille de calcul externe ont été réinitialisées",
+        )
+
+    return HttpResponseRedirect(reverse("admin:events_event_change", args=[pk]))

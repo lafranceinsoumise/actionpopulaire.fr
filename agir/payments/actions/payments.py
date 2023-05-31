@@ -1,16 +1,33 @@
 from datetime import datetime
+from functools import partial
 
+from django.db import transaction
 from django.http.response import HttpResponseRedirect
 from django.template import loader
+from django.utils import timezone
 
-from agir.people.models import Person
 from agir.payments.models import Payment
-from agir.payments.payment_modes import DEFAULT_MODE
+from agir.payments.payment_modes import DEFAULT_MODE, PAYMENT_MODES
 from agir.payments.types import PAYMENT_TYPES
+from agir.people.models import Person
 
 
 class PaymentException(Exception):
     pass
+
+
+def log_payment_event(payment, commit=False, **kwargs):
+    payment.events.append(
+        {
+            "date": timezone.now().astimezone(timezone.utc).isoformat(),
+            **{key: str(val) for key, val in kwargs.items()},
+        }
+    )
+
+    if commit:
+        payment.save()
+
+    return payment
 
 
 def create_payment(*, person=None, type, price, mode=DEFAULT_MODE, meta=None, **kwargs):
@@ -53,18 +70,28 @@ def create_payment(*, person=None, type, price, mode=DEFAULT_MODE, meta=None, **
 
 
 def change_payment_status(payment, status):
-    if status == Payment.STATUS_REFUND:
-        return refund_payment(payment)
     if status == Payment.STATUS_COMPLETED:
-        return complete_payment(payment)
+        complete_payment(payment)
+    elif status == Payment.STATUS_REFUSED:
+        refuse_payment(payment)
+    elif status == Payment.STATUS_CANCELED:
+        cancel_payment(payment)
+    elif status == Payment.STATUS_REFUND:
+        refund_payment(payment)
+    elif status == Payment.STATUS_WAITING:
+        wait_for_payment(payment)
+    else:
+        raise ValueError("Ce statut n'existe pas ou n'est pas disponible.")
 
-    if status == Payment.STATUS_REFUSED:
-        return refuse_payment(payment)
+    notify_status_change(payment)
 
-    if status == Payment.STATUS_CANCELED:
-        return cancel_payment(payment)
 
-    raise ValueError("Ce statut n'existe pas ou n'est pas disponible.")
+def wait_for_payment(payment):
+    if payment.is_done():
+        raise PaymentException("Le paiement a déjà été terminé.")
+
+    payment.status = Payment.STATUS_WAITING
+    payment.save(update_fields=["status", "events"])
 
 
 def complete_payment(payment):
@@ -75,7 +102,7 @@ def complete_payment(payment):
         raise PaymentException("Le paiement a déjà été remboursé.")
 
     payment.status = Payment.STATUS_COMPLETED
-    payment.save(update_fields=["status"])
+    payment.save(update_fields=["status", "events"])
 
 
 def refuse_payment(payment):
@@ -83,15 +110,18 @@ def refuse_payment(payment):
         raise PaymentException("Le paiement a déjà été annulé.")
 
     payment.status = Payment.STATUS_REFUSED
-    payment.save(update_fields=["status"])
+    payment.save(update_fields=["status", "events"])
 
 
 def cancel_payment(payment):
     if payment.status == Payment.STATUS_COMPLETED:
         raise PaymentException("Le paiement a déjà été confirmé.")
 
+    if payment.is_cancelled():
+        return
+
     payment.status = Payment.STATUS_CANCELED
-    payment.save()
+    payment.save(update_fields=["status", "events"])
 
 
 def refund_payment(payment):
@@ -99,7 +129,7 @@ def refund_payment(payment):
         raise PaymentException("Impossible de rembourser un paiement non confirmé.")
 
     payment.status = Payment.STATUS_REFUND
-    payment.save()
+    payment.save(update_fields=["status", "events"])
 
 
 def redirect_to_payment(payment):
@@ -170,3 +200,9 @@ def find_or_create_person_from_payment(payment):
             )
         payment.person.save()
         payment.save()
+
+
+def cancel_or_refund_payment(payment, *args, **kwargs):
+    return PAYMENT_MODES[payment.mode].cancel_or_refund_payment_action(
+        payment, *args, **kwargs
+    )

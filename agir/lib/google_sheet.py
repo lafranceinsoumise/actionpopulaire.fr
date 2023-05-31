@@ -5,11 +5,15 @@ from typing import Any, Optional
 import gspread
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from gspread.utils import ValueInputOption, rowcol_to_a1
+from gspread.utils import ValueInputOption, rowcol_to_a1, ValueRenderOption
 
+from agir.lib.celery import retriable_task
 
 GOOGLE_SHEET_REGEX = r"^https://docs.google.com/spreadsheets/d/(?P<sid>[A-Za-z0-9_-]{40,})/.*[?#&]gid=(?P<gid>[0-9]+)"
 MAX_CHUNK_SIZE = 100_000
+
+
+gspread_task = retriable_task(start=5, retry_on=(gspread.exceptions.APIError,))
 
 
 @dataclasses.dataclass
@@ -71,27 +75,28 @@ def check_sheet_permissions(sheet: GoogleSheetId):
         )
 
 
-def copy_array_to_sheet(sheet_id: GoogleSheetId, headers, values):
-    num_rows = len(values) + 1
-    num_cols = len(headers)
+def copy_array_to_sheet(sheet_id: GoogleSheetId, values):
+    num_rows = len(values)
+    num_cols = len(values[0])
 
     sheet = open_sheet(sheet_id)
     sheet.resize(rows=num_rows, cols=num_cols)
 
     chunk_height = MAX_CHUNK_SIZE // num_cols
 
-    values = [headers, *values]
-
     for i, rows in enumerate(grouper(values, chunk_height)):
         first_cell = rowcol_to_a1(i * chunk_height + 1, 1)
         last_cell = rowcol_to_a1((i + 1) * chunk_height, num_cols)
-        sheet.batch_update(
-            [{"range": f"{first_cell}:{last_cell}", "values": rows}],
+        sheet.update(
+            f"{first_cell}:{last_cell}",
+            rows,
             value_input_option=ValueInputOption.raw,
         )
 
 
-def add_row_to_sheet(sheet_id: GoogleSheetId, values: dict[str, Any]):
+def add_row_to_sheet(sheet_id: GoogleSheetId, values: dict[str, Any], id_column=None):
+    if id_column is not None:
+        assert id_column in values
     sheet = open_sheet(sheet_id)
 
     sheet_headers = sheet.row_values(1)
@@ -125,10 +130,28 @@ def add_row_to_sheet(sheet_id: GoogleSheetId, values: dict[str, Any]):
         )
         sheet.update(header_range, [missing_columns])
 
+    # la valeur par défaut est une chaîne vide plutôt que None car sinon gspread
+    # n'écrase pas une potentielle valeur existante.
     insert = [
-        values[headers_map[i]] if i in headers_map else None
+        values[headers_map[i]] if i in headers_map else ""
         for i in range(len(sheet_headers) + len(missing_columns))
     ]
+
+    if id_column is not None:
+        id_pos = next(i for i, c in headers_map.items() if c == id_column)
+        id_values = sheet.col_values(
+            id_pos + 1, value_render_option=ValueRenderOption.unformatted
+        )[1:]
+
+        try:
+            existing_row = id_values.index(values[id_column]) + 2
+        except ValueError:
+            pass
+        else:
+            first_cell = rowcol_to_a1(existing_row, 1)
+            last_cell = rowcol_to_a1(existing_row, len(insert))
+            sheet.update(f"{first_cell}:{last_cell}", [insert])
+            return
 
     sheet.append_row(
         insert,

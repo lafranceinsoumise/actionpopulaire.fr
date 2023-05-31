@@ -5,6 +5,7 @@ from django.db import transaction
 from django.http import (
     HttpResponseRedirect,
     HttpResponseBadRequest,
+    HttpResponseNotFound,
 )
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -31,9 +32,13 @@ from ..actions.rsvps import (
     validate_payment_for_guest,
     is_participant,
     RSVPException,
+    cancel_payment_for_rsvp,
+    cancel_payment_for_guest,
+    retry_payment_for_rsvp,
+    retry_payment_for_guest,
 )
 from ..forms import BillingForm, GuestsForm, BaseRSVPForm, ExternalRSVPForm
-from ..models import Event, RSVP
+from ..models import Event, RSVP, IdentifiedGuest
 from ...people.actions.subscription import SUBSCRIPTION_TYPE_EXTERNAL
 
 
@@ -101,15 +106,17 @@ class RSVPEventView(SoftLoginRequiredMixin, DetailView):
             "submission": kwargs["rsvp"].form_submission
             if "rsvp" in kwargs and kwargs["rsvp"].form_submission
             else None,
-            "guests_submission_data": [
-                (
-                    guest.get_status_display(),
-                    default_person_form_display.get_formatted_submission(
+            "guests": [
+                {
+                    "pk": guest.pk,
+                    "status": guest.get_status_display(),
+                    "submission": default_person_form_display.get_formatted_submission(
                         guest.submission
                     )
                     if guest.submission
                     else [],
-                )
+                    "payment": guest.payment,
+                }
                 for guest in kwargs["rsvp"].identified_guests.select_related(
                     "submission"
                 )
@@ -268,25 +275,44 @@ class RSVPEventView(SoftLoginRequiredMixin, DetailView):
 
 class ChangeRSVPPaymentView(SoftLoginRequiredMixin, DetailView):
     def get_queryset(self):
-        return (
-            self.request.user.person.rsvps.exclude(payment=None)
-            .exclude(payment__status=Payment.STATUS_COMPLETED)
-            .filter(
-                payment__mode__in=[
-                    mode.id for mode in PAYMENT_MODES.values() if mode.can_cancel
-                ]
-            )
-        )
+        return self.request.user.person.rsvps.exclude(payment=None)
 
     @never_cache
     def get(self, *args, **kwargs):
         rsvp = self.get_object()
+
+        if not rsvp.payment.can_cancel():
+            return HttpResponseNotFound()
+
         if rsvp.form_submission:
             self.request.session["rsvp_submission"] = rsvp.form_submission.pk
         elif "rsvp_submission" in self.request.session:
             del self.request.session["rsvp_submission"]
         self.request.session["rsvp_event"] = str(rsvp.event.pk)
         self.request.session["is_guest"] = False
+
+        return HttpResponseRedirect(reverse("pay_event"))
+
+
+class ChangeIdentifiedGuestPaymentView(SoftLoginRequiredMixin, DetailView):
+    def get_queryset(self):
+        return IdentifiedGuest.objects.filter(
+            rsvp__person=self.request.user.person
+        ).exclude(payment=None)
+
+    @never_cache
+    def get(self, *args, **kwargs):
+        guest = self.get_object()
+
+        if not guest.payment.can_cancel():
+            return HttpResponseNotFound()
+
+        if guest.submission:
+            self.request.session["rsvp_submission"] = guest.submission.pk
+        elif "rsvp_submission" in self.request.session:
+            del self.request.session["rsvp_submission"]
+        self.request.session["rsvp_event"] = str(guest.rsvp.event.pk)
+        self.request.session["is_guest"] = True
 
         return HttpResponseRedirect(reverse("pay_event"))
 
@@ -425,9 +451,19 @@ def notification_listener(payment):
 
             # RSVP or IdentifiedGuest model has already been created, only need to confirm it
             if is_guest:
-                validate_payment_for_guest(payment)
-            else:
-                validate_payment_for_rsvp(payment)
+                return validate_payment_for_guest(payment)
+
+            return validate_payment_for_rsvp(payment)
+
+        if payment.status in (Payment.STATUS_CANCELED, Payment.STATUS_REFUND):
+            cancel_payment_for_rsvp(payment)
+            cancel_payment_for_guest(payment)
+            return
+
+        if payment.status == Payment.STATUS_WAITING:
+            retry_payment_for_rsvp(payment)
+            retry_payment_for_guest(payment)
+            return
 
     else:
         # should not happen anymore

@@ -13,7 +13,7 @@
     </ol>
     {% if event.subscription_form is not None %}
       <h2 class="headline">Récapitulatif et paiement</h2>
-      <div class="alert alert-info">
+      <div class="alert" style="color:#4d26b9;background-color:#e9e1ff;border-color:#e9e1ff;">
         Les paiements relatifs aux événements ne constituent <strong>pas</strong> des dons,
         et n'ouvrent donc <strong>pas</strong> droit à la réduction d'impôt de 66 %.
       </div>
@@ -26,14 +26,14 @@
         <div class="alert alert-warning">
           <p>
             Attention, même si vous inscrivez une autre personne, vous devez entrer les informations de la personne
-            qui détient le compte lafranceinsoumise.fr associé à l'adresse {{ user.person.email }} et qui
+            qui détient le compte lafranceinsoumise.fr ou actionpopulaire.fr associé à l'adresse {{ user.person.email }} et qui
             effectue le paiement.
           </p>
         </div>
       </div>
     {% else %}
       <h2 class="headline">Informations de facturation</h2>
-      <div class="alert alert-info">
+      <div class="alert" style="color:#4d26b9;background-color:#e9e1ff;border-color:#e9e1ff;">
         Les paiements relatifs aux événements ne constituent <strong>pas</strong> des dons,
         et n'ouvrent donc <strong>pas</strong> droit à la réduction d'impôt de 66 %.
       </div>
@@ -41,7 +41,7 @@
       <div class="alert alert-warning">
         <p>
           Attention, même si vous inscrivez une autre personne, vous devez entrer les informations de la personne
-          qui détient le compte lafranceinsoumise.fr associé à l'adresse {{ user.person.email }} et qui
+          qui détient le compte lafranceinsoumise.fr ou actionpopulaire.fr associé à l'adresse {{ user.person.email }} et qui
           effectue le paiement.
         </p>
       </div>

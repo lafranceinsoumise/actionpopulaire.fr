@@ -15,7 +15,7 @@ from rest_framework.views import APIView
 from agir.donations import base_views
 from agir.payments.actions.payments import find_or_create_person_from_payment
 from agir.payments.models import Payment
-from .actions import ajouter_compteur, montant_cagnotte
+from .actions import incrementer_compteur, montant_cagnotte, decrementer_compteur
 from .apps import CagnottesConfig
 from .forms import PersonalInformationForm
 from .models import Cagnotte
@@ -86,20 +86,12 @@ def notification_listener(payment):
             # adresse email. On récupère la personne associée à cette adresse email, ou on la crée, et on l'associe à
             # ce paiement.
             find_or_create_person_from_payment(payment)
+            transaction.on_commit(partial(envoyer_email_remerciement.delay, payment.pk))
+            transaction.on_commit(partial(incrementer_compteur, payment))
 
-            transaction.on_commit(
-                partial(
-                    envoyer_email_remerciement.delay,
-                    payment.pk,
-                )
-            )
-
-            transaction.on_commit(
-                partial(
-                    ajouter_compteur,
-                    payment,
-                )
-            )
+    if payment.status == Payment.STATUS_REFUND:
+        with transaction.atomic():
+            transaction.on_commit(partial(decrementer_compteur, payment))
 
 
 @method_decorator(xframe_options_exempt, name="get")

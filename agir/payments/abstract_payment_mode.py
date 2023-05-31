@@ -3,6 +3,7 @@ class AbstractPaymentMode:
 
     can_retry = False
     can_cancel = False
+    can_refund = False
     can_admin = False
     support_subscription = False
 
@@ -43,6 +44,15 @@ class AbstractPaymentMode:
     @property
     def subscription_view(self):
         raise NotImplementedError("Must implement this property.")
+
+    def cancel_or_refund_payment_action(self, payment, *args, **kwargs):
+        """
+        Through this action, the payment must be cancelled and/or refunded.
+
+        If the cancellation/refund is impossible, the PaymentMethod must raise
+        an error.
+        """
+        raise NotImplementedError("Must implement this property")
 
     def subscription_terminate_action(self, subscription):
         """

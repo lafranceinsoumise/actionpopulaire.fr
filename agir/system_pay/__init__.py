@@ -3,12 +3,12 @@ import logging
 from typing import Optional
 
 from django.conf import settings
+from django.db import transaction
 from django.urls import path
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 from ..payments.abstract_payment_mode import AbstractPaymentMode
-
 
 logger = logging.getLogger(__name__)
 
@@ -26,9 +26,11 @@ class SystemPayConfig:
 class AbstractSystemPayPaymentMode(AbstractPaymentMode):
     can_retry = True
     can_cancel = True
+    can_refund = True
 
     webhook_url = "webhook/"
     failure_url = "retour/<int:pk>/"
+    api_notification_url = "api/notification/"
 
     id = None
     url_fragment = None
@@ -60,6 +62,45 @@ class AbstractSystemPayPaymentMode(AbstractPaymentMode):
         from . import views
 
         return views.SystemPaySubscriptionRedirectView.as_view(sp_config=self.sp_config)
+
+    def cancel_or_refund_payment_action(self, payment, *args, comment="", **kwargs):
+        from agir.system_pay.actions import update_payment_from_transaction
+        from agir.system_pay.models import SystemPayTransaction
+
+        sp_transaction = (
+            payment.systempaytransaction_set.filter(
+                status=SystemPayTransaction.STATUS_COMPLETED, uuid__isnull=False
+            )
+            .order_by("-created")
+            .first()
+        )
+
+        if not sp_transaction or not sp_transaction.uuid:
+            raise ValueError(
+                "Aucune transaction SystemPay n'est associée à ce paiement"
+            )
+
+        try:
+            is_refunded, answer = self.api_client.cancel_or_refund_transaction(
+                sp_transaction, payment.price, comment=comment
+            )
+        except (ValueError, SystemPayError) as e:
+            logger.error(
+                f"Le {str(payment)} n'a pas pu être annulé/remboursé. {repr(e)}",
+                exc_info=True,
+            )
+            raise
+
+        sp_transaction.webhook_calls.append(answer)
+
+        if is_refunded:
+            sp_transaction.status = SystemPayTransaction.STATUS_REFUNDED
+        else:
+            sp_transaction.status = SystemPayTransaction.STATUS_CANCELED
+
+        with transaction.atomic():
+            sp_transaction.save(update_fields=["status", "webhook_calls"])
+            update_payment_from_transaction(payment, sp_transaction)
 
     def subscription_terminate_action(self, subscription):
         sp_subscription = subscription.system_pay_subscriptions.get(active=True)
@@ -112,6 +153,13 @@ class AbstractSystemPayPaymentMode(AbstractPaymentMode):
                 name="webhook",
             ),
             path(self.failure_url, views.failure_view, name="failure"),
+            path(
+                self.api_notification_url,
+                views.SystemPayRestAPINotificationView.as_view(
+                    sp_config=self.sp_config, mode_id=self.id
+                ),
+                name="api_notification",
+            ),
         ]
 
 
@@ -131,11 +179,14 @@ class SystemPayPaymentMode(AbstractSystemPayPaymentMode):
 
 
 class SystemPayError(Exception):
-    def __init__(self, message, system_pay_code=None, detailed_message=None):
+    def __init__(
+        self, message, system_pay_code=None, detailed_message=None, response_data=None
+    ):
         super().__init__(message, system_pay_code)
         self.message = message
         self.system_pay_code = system_pay_code
         self.detailed_message = detailed_message
+        self.response_data = response_data
 
     def __str__(self):
         return self.message

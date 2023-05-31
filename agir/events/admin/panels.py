@@ -1,5 +1,3 @@
-import json
-
 from django import forms
 from django.conf import settings
 from django.contrib import admin
@@ -15,7 +13,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from agir.events import models
-from agir.events.models import Calendar, RSVP
+from agir.events.models import Calendar, RSVP, IdentifiedGuest
 from agir.events.models import GroupAttendee
 from agir.groups.models import SupportGroup, Membership
 from agir.lib.admin.filters import (
@@ -37,11 +35,13 @@ from .filters import (
     GroupAttendeeFilter,
     EventSubtypeFilter,
     RelatedEventFilter,
+    RSVPGuestFilter,
 )
 from .forms import EventAdminForm, EventSubtypeAdminForm
+from .views import reset_feuille_externe
 from ..serializers import EventEmailCampaignSerializer
 from ...event_requests.admin.inlines import EventAssetInline
-from ...lib.admin.utils import display_link, display_list_of_links
+from ...lib.admin.utils import display_link, display_list_of_links, display_json_details
 
 
 class EventStatusFilter(admin.SimpleListFilter):
@@ -281,6 +281,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
                     "max_participants",
                     "allow_guests",
                     "subscription_form",
+                    "lien_feuille_externe",
                     "participants_display",
                     "group_participants_display",
                     "rsvps_buttons",
@@ -474,23 +475,39 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
     link.short_description = _("Page sur le site")
 
     def rsvps_buttons(self, object):
-        if object.subscription_form is None or object.pk is None:
-            return mark_safe("-")
-        else:
-            return format_html(
-                '<a href="{view_results_link}" class="button">Voir les inscriptions</a><br>'
-                '<a href="{download_results_link}" class="button">Télécharger les inscriptions</a><br>'
-                '<a href="{add_participant_link}" class="button">Inscrire quelq\'un</a>',
-                view_results_link=reverse(
-                    "admin:events_event_rsvps_view_results", args=(object.pk,)
-                ),
-                download_results_link=reverse(
-                    "admin:events_event_rsvps_download_results", args=(object.pk,)
-                ),
-                add_participant_link=reverse(
-                    "admin:events_event_add_participant", args=(object.pk,)
-                ),
+        if not object.pk:
+            return "-"
+
+        links = []
+
+        if object.subscription_form:
+            links.extend(
+                [
+                    ("admin:events_event_rsvps_view_results", "Voir les inscriptions"),
+                    (
+                        "admin:events_event_rsvps_download_results",
+                        "Télécharger les inscriptions",
+                    ),
+                    ("admin:events_event_add_participant", "Inscrire quelqu'un"),
+                ]
             )
+
+        if object.lien_feuille_externe:
+            links.append(
+                (
+                    "admin:events_event_reset_feuille_externe",
+                    "Réinitialiser la feuille externe",
+                )
+            )
+
+        return format_html(
+            '<div style="display: flex; gap: 10px;">{}</div>',
+            format_html_join(
+                "",
+                '<a href="{}" class="button">{}</a>',
+                ((reverse(view, args=(object.pk,)), label) for view, label in links),
+            ),
+        )
 
     rsvps_buttons.short_description = _("Inscriptions")
 
@@ -546,6 +563,9 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
     def autocomplete_view(self, request):
         return AutoCompleteEventView.as_view(model_admin=self)(request)
 
+    def reset_feuille_externe(self, request, pk):
+        return reset_feuille_externe(self, request, pk)
+
     def get_urls(self):
         return [
             path(
@@ -579,6 +599,11 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
                 "<uuid:pk>/generate-mailing-campaign/",
                 self.admin_site.admin_view(self.generate_mailing_campaign),
                 name="events_event_generate_mailing_campaign",
+            ),
+            path(
+                "<uuid:pk>/reset_feuille_externe/",
+                self.admin_site.admin_view(self.reset_feuille_externe),
+                name="events_event_reset_feuille_externe",
             ),
         ] + super().get_urls()
 
@@ -891,19 +916,81 @@ class JitsiMeetingAdmin(admin.ModelAdmin):
         return format_html('<a target="_blank" href="{0}">{0}</a>', object.link)
 
 
+class IdentifiedGuestInline(admin.StackedInline):
+    model = IdentifiedGuest
+    verbose_name = "Invité identifié"
+    verbose_name_plural = "Invités identifiés"
+    fields = readonly_fields = (
+        "id",
+        "status",
+        "payment_link",
+        "payment_mode",
+        "payment_status",
+        "submission_data",
+    )
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    @admin.display(description="Paiement", ordering="payment")
+    def payment_link(self, obj):
+        return display_link(obj.payment)
+
+    @admin.display(description="Mode du paiement")
+    def payment_mode(self, obj):
+        if not obj or not obj.payment:
+            return "-"
+
+        return obj.payment.get_mode_display()
+
+    @admin.display(description="Statut du paiement")
+    def payment_status(self, obj):
+        if not obj or not obj.payment:
+            return "-"
+
+        return obj.payment.get_status_display()
+
+    @admin.display(description="Inscription", ordering="submission")
+    def submission_data(self, obj):
+        if not obj or not obj.submission:
+            return "-"
+
+        return display_json_details(
+            obj.submission.data, "Réponse au formulaire d'inscription"
+        )
+
+
 @admin.register(RSVP)
 class RSVPAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "person_link",
         "event_link",
+        "payment_link",
         "status",
         "guest_count",
     )
-
+    fields = readonly_fields = (
+        "id",
+        "status",
+        "event_link",
+        "person_link",
+        "person_contact_phone",
+        "payment_link",
+        "payment_mode",
+        "payment_status",
+        "submission_data",
+        "guest_count",
+    )
     search_fields = ("person__search", "event__name")
-    list_filter = (RelatedEventFilter, "status")
-    list_display_links = None
+    list_filter = (RelatedEventFilter, "status", RSVPGuestFilter)
+    inlines = (IdentifiedGuestInline,)
 
     def has_add_permission(self, request, obj=None):
         return False
@@ -934,42 +1021,56 @@ class RSVPAdmin(admin.ModelAdmin):
             .prefetch_related("identified_guests")
         )
 
+    @admin.display(description="Personne", ordering="person")
     def person_link(self, obj):
-        return format_html(
-            '<a href="{link}">{person}</a>',
-            person=str(obj.person),
-            link=reverse("admin:people_person_change", args=[obj.person.pk]),
-        )
+        return display_link(obj.person)
 
-    person_link.short_description = "Personne"
-
+    @admin.display(description="Numéro de téléphone")
     def person_contact_phone(self, obj):
         return obj.person.contact_phone
 
-    person_contact_phone.short_description = "Numéro de téléphone"
-
+    @admin.display(description="Événement", ordering="event")
     def event_link(self, obj):
-        return format_html(
-            '<a href="{link}">{event}</a>',
-            event=str(obj.event),
-            link=reverse("admin:events_event_change", args=[obj.id]),
+        return display_link(obj.event)
+
+    @admin.display(description="Paiement", ordering="payment")
+    def payment_link(self, obj):
+        return display_link(obj.payment)
+
+    @admin.display(description="Mode du paiement")
+    def payment_mode(self, obj):
+        if not obj or not obj.payment:
+            return "-"
+
+        return obj.payment.get_mode_display()
+
+    @admin.display(description="Statut du paiement")
+    def payment_status(self, obj):
+        if not obj or not obj.payment:
+            return "-"
+
+        return obj.payment.get_status_display()
+
+    @admin.display(description="Inscription", ordering="form_submission")
+    def submission_data(self, obj):
+        if not obj.form_submission:
+            return "-"
+
+        return display_json_details(
+            obj.form_submission.data, "Réponse au formulaire d'inscription"
         )
 
-    event_link.short_description = "Événement"
+    @admin.display(description="Invités")
+    def guest_count(self, obj):
+        return obj.guests
 
+    @admin.display(description="")
     def filter_by_event_button(self, obj):
         return format_html(
             '<a class="button default" style="color: white;" href="{link}?event={event_id}">Voir uniquement cet événement</a>',
             link=reverse("admin:events_rsvp_changelist"),
             event_id=str(obj.event_id),
         )
-
-    filter_by_event_button.short_description = ""
-
-    def guest_count(self, obj):
-        return obj.guests
-
-    guest_count.short_description = "Invités"
 
     class Media:
         pass

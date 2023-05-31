@@ -7,6 +7,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ngettext
 
 from agir.activity.models import Activity, Announcement, PushAnnouncement
+from agir.lib.admin.utils import display_json_details
 from agir.lib.search import PrefixSearchQuery
 
 
@@ -195,12 +196,8 @@ class PushAnnouncementAdmin(admin.ModelAdmin):
             return "-"
 
         android, ios = obj.get_notification_kwargs()
-        return format_html(
-            "<details>"
-            "<summary style='cursor:pointer;'>Données de notification</summary>"
-            "<pre>{}</pre>"
-            "</details>",
-            mark_safe(json.dumps({"android": android, "ios": ios}, indent=2)),
+        return display_json_details(
+            {"android": android, "ios": ios}, "Données de notification"
         )
 
     @admin.display(description="Nombre de destinataires de test")
@@ -229,16 +226,10 @@ class PushAnnouncementAdmin(admin.ModelAdmin):
 
     @admin.display(description="Données")
     def sending_data(self, obj):
-        if obj._state.adding or not obj.sending_meta:
+        if obj._state.adding:
             return "-"
 
-        return format_html(
-            "<details>"
-            "<summary style='cursor:pointer;'>Données de l'envoi</summary>"
-            "<pre>{}</pre>"
-            "</details>",
-            mark_safe(json.dumps(obj.sending_meta, indent=2)),
-        )
+        return display_json_details(obj.sending_meta, "Données de l'envoi")
 
     @admin.display(description="Actions")
     def test_action_buttons(self, obj):

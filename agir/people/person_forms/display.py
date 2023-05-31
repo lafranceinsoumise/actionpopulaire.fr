@@ -160,7 +160,7 @@ class PersonFormDisplay:
         return value
 
     def _get_admin_fields(self, submissions, html=True):
-        id_fields = [str(s.pk) for s in submissions]
+        id_fields = [s.pk for s in submissions]
 
         for s in submissions:
             # copier l'email de façon à éviter une requête pour l'email PAR submission

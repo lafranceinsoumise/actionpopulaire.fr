@@ -1,7 +1,7 @@
 import logging
-from enum import Enum
 from datetime import datetime
-from typing import Any, Optional
+from enum import Enum
+from typing import Any, Optional, Literal
 
 import pydantic
 import requests
@@ -38,6 +38,8 @@ class APIErrorCode(Enum):
     UNKNOWN_ALIAS = "PSP_030"
     UNKNOWN_SUBSCRIPTION = "PSP_032"
     INVALID_SUBSCRIPTION = "PSP_033"
+    ALREADY_CANCELLED = "PSP_105"
+    ALREADY_REFUNDED = "PSP_104"
 
 
 class CancelSuscriptionResponseCode(Enum):
@@ -76,6 +78,18 @@ class SubscriptionDetails(BaseModel):
     description: Optional[constr(max_length=255)]
 
 
+class CancelledTransaction(BaseModel):
+    status: Literal["UNPAID"]
+    detailedStatus: Literal["CANCELLED"]
+    operationType: Literal["DEBIT"]
+
+
+class RefundedTransaction(BaseModel):
+    status: Literal["PAID"]
+    detailedStatus: Literal["AUTHORISED"]
+    operationType: Literal["CREDIT"]
+
+
 class SystemPayRestAPI:
     BASE_URL = "https://api.systempay.fr/api-payment/V4/"
 
@@ -98,6 +112,7 @@ class SystemPayRestAPI:
             message=error.errorMessage,
             system_pay_code=error.errorCode,
             detailed_message=error.detailedErrorMessage,
+            response_data=answer,
         )
 
     def _make_request(self, endpoint, data):
@@ -135,6 +150,7 @@ class SystemPayRestAPI:
             raise SystemPayError(
                 message=f"Impossible d'annuler l'alias de carte {alias!r}",
                 system_pay_code=answer["responseCode"],
+                response_data=answer,
             )
 
     def cancel_subscription(self, subscription, termination_date=None):
@@ -155,6 +171,7 @@ class SystemPayRestAPI:
             raise SystemPayError(
                 message=f"Impossible d'annuler la souscription {subscription!r}",
                 system_pay_code=answer["responseCode"],
+                response_data=answer,
             )
 
     def get_subscription_details(self, subscription):
@@ -206,3 +223,66 @@ class SystemPayRestAPI:
         )
 
         return answer["subscriptionId"]
+
+    def cancel_or_refund_transaction(self, transaction, amount, comment=""):
+        """
+        https://paiement.systempay.fr/doc/fr-FR/rest/V4.0/api/playground/Transaction/CancelOrRefund
+        :param transaction: the SystemPayTransaction instance to be cancelled or refunded
+        :param amount: the amount to be refunded (in the smallest currency unit)
+        :param comment: an optional comment string (max 255 chars)
+        :return:
+        """
+        if not transaction or not transaction.uuid:
+            raise ValueError("Aucune transaction SystemPay à annuler/rembourser")
+
+        if not amount:
+            raise ValueError(
+                "Aucun montant spécifie pour l'annulation / le remboursement"
+            )
+
+        # La transaction est ANNULÉE par SP avant la remise
+        is_cancelled = False
+        # La transaction est REMBOURSÉE par SP après la remise
+        is_refunded = False
+
+        try:
+            answer = self._make_request(
+                "Transaction/CancelOrRefund",
+                data={
+                    "uuid": transaction.uuid.hex,
+                    "amount": amount,
+                    "currency": CURRENCIES[self.sp_config.currency],
+                    "comment": comment,
+                },
+            )
+        except SystemPayError as e:
+            if e.system_pay_code in (
+                APIErrorCode.ALREADY_CANCELLED.value,
+                APIErrorCode.ALREADY_REFUNDED.value,
+            ):
+                # La transaction a déjà été annulée / remboursée
+                is_refunded = e.system_pay_code == APIErrorCode.ALREADY_REFUNDED.value
+                return is_refunded, e.response_data
+
+            raise
+
+        try:
+            CancelledTransaction.parse_obj(answer)
+            is_cancelled = True
+        except pydantic.ValidationError:
+            pass
+
+        try:
+            RefundedTransaction.parse_obj(answer)
+            is_refunded = True
+        except pydantic.ValidationError:
+            pass
+
+        if not is_cancelled and not is_refunded:
+            raise SystemPayError(
+                message=f"La transaction n'a pas pu être annulée/remboursée",
+                system_pay_code=answer.get("status"),
+                detailed_message=answer.get("detailedStatus"),
+            )
+
+        return is_refunded, answer

@@ -152,11 +152,17 @@ class Payment(ExportModelOperationsMixin("payment"), TimeStampedModel, LocationM
     def get_payment_url(self):
         return front_url("payment_page", args=[self.pk])
 
+    def is_done(self):
+        return self.status in (self.STATUS_COMPLETED, self.STATUS_REFUND)
+
+    def is_cancelled(self):
+        return self.status in (self.STATUS_CANCELED, self.STATUS_REFUND)
+
     def can_retry(self):
         return (
             self.mode in PAYMENT_MODES
             and PAYMENT_MODES[self.mode].can_retry
-            and self.status != self.STATUS_COMPLETED
+            and not self.is_done()
         )
 
     def can_cancel(self):
@@ -164,6 +170,13 @@ class Payment(ExportModelOperationsMixin("payment"), TimeStampedModel, LocationM
             self.mode in PAYMENT_MODES
             and PAYMENT_MODES[self.mode].can_cancel
             and self.status != self.STATUS_COMPLETED
+        )
+
+    def can_refund(self):
+        return (
+            self.mode in PAYMENT_MODES
+            and PAYMENT_MODES[self.mode].can_refund
+            and self.status == self.STATUS_COMPLETED
         )
 
     def is_check(self):
