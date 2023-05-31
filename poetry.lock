@@ -1061,14 +1061,14 @@ Django = ">=3.2"
 
 [[package]]
 name = "django-oauth-toolkit"
-version = "1.7.1"
+version = "2.3.0"
 description = "OAuth2 Provider for Django"
 category = "main"
 optional = false
 python-versions = "*"
 files = [
-    {file = "django-oauth-toolkit-1.7.1.tar.gz", hash = "sha256:37b690fa53f340c7391bdbc0fdbb32fd9ef8a7c012e72ee8754c331a2d7b4adb"},
-    {file = "django_oauth_toolkit-1.7.1-py3-none-any.whl", hash = "sha256:756e44421d0993f27705736b6c33a3d89018393859a31ac926296950f76e4433"},
+    {file = "django-oauth-toolkit-2.3.0.tar.gz", hash = "sha256:cf1cb1a5744672e6bd7d66b4a110a463bcef9cf5ed4f27e29682cc6a4d0df1ed"},
+    {file = "django_oauth_toolkit-2.3.0-py3-none-any.whl", hash = "sha256:47dfeab97ec21496f307c2cf3468e64ca08897fa499bf3104366d32005c9111d"},
 ]
 
 [package.dependencies]
@@ -3581,4 +3581,4 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "c25ce77ba6c6acc20e85d0b35936f15fa74a699acd98773b360a8791f69615ad"
+content-hash = "1dd0a2346a4ef50c3ae0e3b494caae1ddc019167a89868af7cfa5491d349e278"
