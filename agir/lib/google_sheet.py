@@ -1,5 +1,6 @@
 import dataclasses
 import re
+from functools import wraps
 from typing import Any, Optional
 
 import gspread
@@ -13,7 +14,33 @@ GOOGLE_SHEET_REGEX = r"^https://docs.google.com/spreadsheets/d/(?P<sid>[A-Za-z0-
 MAX_CHUNK_SIZE = 100_000
 
 
-gspread_task = retriable_task(start=5, retry_on=(gspread.exceptions.APIError,))
+class _TemporaryGspreadError(Exception):
+    pass
+
+
+def gspread_task(task):
+    """Permet de retenter une tâche celery qui utilise gspread
+
+    Nous avons constaté des problèmes de sérialisation des exceptions de gspread.
+    Pour les éviter, on utilise donc une exception spécifique qui est levée en lieu et place de l'exception
+    de gspread, et qui ne posera pas de problème de sérialisation.
+
+    Pour éviter le chaînage d'exception (l'exception d'origine serait quand même sérialisée dans ce cas !), on prend
+    garde à utiliser la forme raise … from None.
+    :param task:
+    :return:
+    """
+
+    @wraps(task)
+    def _wrapped(*args, **kwargs):
+        try:
+            task(*args, **kwargs)
+        except gspread.exceptions.APIError as e:
+            raise _TemporaryGspreadError(
+                *e.args,
+            ) from None
+
+    return retriable_task(_wrapped, start=5, retry_on=(_TemporaryGspreadError,))
 
 
 @dataclasses.dataclass
