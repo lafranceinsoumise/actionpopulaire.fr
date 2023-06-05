@@ -10,6 +10,11 @@ const production = {
     assetModuleFilename: "files/[hash][ext][query]",
     devtoolModuleFilenameTemplate: "webpack://[absolute-resource-path]",
   },
+  devServer: {
+    hot: false,
+    inline: false,
+    liveReload: false,
+  },
 };
 
 const es5Config = merge.merge(common(common.CONFIG_TYPES.ES5), production);

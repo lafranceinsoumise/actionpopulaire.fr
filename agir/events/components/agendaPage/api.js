@@ -126,16 +126,10 @@ export const useEventSuggestions = (isPaused = false) => {
       mutate({ optimisticData: undefined });
     },
     [userID, userZip, userActionRadius, mutate],
-    (previous, next) => {
-      const keys = Object.keys(previous);
-      for (let i = 0; keys[i]; i++) {
-        const key = keys[key];
-        if (previous[key] && previous[key] !== next[key]) {
-          return true;
-        }
-      }
-      return false;
-    }
+    (previous, next) =>
+      !Object.keys(previous).some(
+        (key) => previous[key] && previous[key] !== next[key]
+      )
   );
 
   return [
