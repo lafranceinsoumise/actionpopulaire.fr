@@ -23,59 +23,13 @@ from agir.people.tasks import (
 )
 
 
-class DashboardSearchTestCase(APITestCase):
-    def setUp(self):
-        self.now = now = timezone.now().astimezone(timezone.get_default_timezone())
-        day = timezone.timedelta(days=1)
-        hour = timezone.timedelta(hours=1)
-
-        self.person_insoumise = Person.objects.create_insoumise(
-            "person@lfi.com", create_role=True
-        )
-        self.person_2022 = Person.objects.create_person(
-            "person@nsp.com", create_role=True, is_2022=True, is_insoumise=False
-        )
-
-        self.subtype = EventSubtype.objects.create(
-            label="sous-type",
-            visibility=EventSubtype.VISIBILITY_ALL,
-            type=EventSubtype.TYPE_PUBLIC_ACTION,
-        )
-        self.event_insoumis = Event.objects.create(
-            name="Event Insoumis",
-            subtype=self.subtype,
-            start_time=now + day,
-            end_time=now + day + 4 * hour,
-            for_users=Event.FOR_USERS_INSOUMIS,
-        )
-        self.event_2022 = Event.objects.create(
-            name="Event NSP",
-            subtype=self.subtype,
-            start_time=now + day,
-            end_time=now + day + 4 * hour,
-            for_users=Event.FOR_USERS_2022,
-        )
-
-    def test_insoumise_persone_can_search_through_all_events(self):
-        self.client.force_login(self.person_insoumise.role)
-        res = self.client.get(reverse("api_search_supportgroup_and_events") + "?q=e")
-        self.assertContains(res, self.event_insoumis.name)
-        self.assertContains(res, self.event_2022.name)
-
-    def test_2022_only_person_can_search_through_all_events(self):
-        self.client.force_login(self.person_2022.role)
-        res = self.client.get(reverse("api_search_supportgroup_and_events") + "?q=e")
-        self.assertContains(res, self.event_insoumis.name)
-        self.assertContains(res, self.event_2022.name)
-
-
 class ProfileTestCase(TestCase):
     def setUp(self):
         self.person = Person.objects.create_person(
-            "test@test.com", is_insoumise=False, create_role=True
+            "test@test.com", is_political_support=False, create_role=True
         )
         self.person.add_email("test2@test.com")
-        self.person_to_merge = Person.objects.create_insoumise("merge@test.com")
+        self.person_to_merge = Person.objects.create_political_support("merge@test.com")
 
         self.client.force_login(self.person.role)
 
@@ -229,7 +183,7 @@ class ProfileTestCase(TestCase):
             self.assertContains(res, "Il semble que celui-ci est invalide.")
 
     def test_can_stop_messages(self):
-        self.person.is_insoumise = True
+        self.person.is_political_support = True
         self.person.subscribed = True
         self.person.subscribed_sms = True
         self.person.draw_notifications = True
@@ -444,9 +398,8 @@ class VolunteerFormTestCases(TestCase):
 
 class InformationContactFormTestCases(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_insoumise(
+        self.person = Person.objects.create_political_support(
             "test@test.com",
-            is_insoumise=True,
             subscribed=False,
             subscribed_sms=False,
             create_role=True,

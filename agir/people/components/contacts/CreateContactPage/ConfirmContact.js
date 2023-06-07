@@ -71,7 +71,9 @@ const ConfirmContact = (props) => {
       </div>
       <Spacer size="1.5rem" />
       <ul>
-        {data.is2022 ? <li>Soutien Jean-Luc Mélenchon pour 2022</li> : null}
+        {data.isPoliticalSupport ? (
+          <li>Soutien Jean-Luc Mélenchon pour 2022</li>
+        ) : null}
         {newsletters.length > 0 ? (
           <li>{`Recevra ${newsletters.join(", ")}`}</li>
         ) : null}
@@ -113,7 +115,7 @@ ConfirmContact.propTypes = {
     zip: PropTypes.string.isRequired,
     phone: PropTypes.string,
     email: PropTypes.string.isRequired,
-    is2022: PropTypes.bool.isRequired,
+    isPoliticalSupport: PropTypes.bool.isRequired,
     newsletters: PropTypes.arrayOf(PropTypes.string).isRequired,
     group: PropTypes.object,
     hasGroupNotifications: PropTypes.bool,

@@ -360,13 +360,8 @@ const getNewsletterNotifications = (user) => {
   if (!user) {
     return [];
   }
-  return NEWSLETTER_NOTIFICATIONS.filter(
-    (n) =>
-      !(
-        (n.id === "LFI" && !user.isInsoumise) ||
-        (n.id === "melenchon2022" && !user.is2022)
-      )
-  );
+
+  return NEWSLETTER_NOTIFICATIONS;
 };
 
 export const getAllNotifications = (user) => [

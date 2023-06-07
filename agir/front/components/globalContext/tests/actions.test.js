@@ -21,14 +21,14 @@ describe("GlobalContext/actions", function () {
       );
     });
   });
-  describe("setIs2022 action creator", function () {
-    it(`should dispatch an action of type ${ACTION_TYPE.SET_IS_2022_ACTION}`, function () {
+  describe("setisPoliticalSupport action creator", function () {
+    it(`should dispatch an action of type ${ACTION_TYPE.SET_IS_POLITICAL_SUPPORT_ACTION}`, function () {
       expect(mockDispatch.mock.calls).toHaveLength(0);
-      dispatch(actions.setIs2022());
+      dispatch(actions.setisPoliticalSupport());
       expect(mockDispatch.mock.calls).toHaveLength(1);
       expect(mockDispatch.mock.calls[0][0]).toHaveProperty(
         "type",
-        ACTION_TYPE.SET_IS_2022_ACTION
+        ACTION_TYPE.SET_IS_POLITICAL_SUPPORT_ACTION
       );
     });
   });

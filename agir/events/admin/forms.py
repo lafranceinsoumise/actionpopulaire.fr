@@ -242,10 +242,15 @@ class NewParticipantForm(BasePersonForm):
         label="ou si non-inscrit, email d'inscription", required=False
     )
 
-    insoumise = forms.BooleanField(
+    is_political_support = forms.BooleanField(
+        required=False,
+        label="La personne souhaite compter parmi les soutiens de la France insoumise",
+        help_text="Ce champ ne s'applique que s'il s'agit de la création d'une nouvelle personne.",
+    )
+
+    newsletter = forms.BooleanField(
         required=False,
         label="La personne souhaite recevoir les emails de la France insoumise",
-        help_text="Ce champ ne s'applique que s'il s'agit de la création d'une nouvelle personne.",
     )
 
     payment_mode = PaymentModeField(required=True, payment_modes=DEFAULT_ADMIN_MODES)
@@ -272,7 +277,14 @@ class NewParticipantForm(BasePersonForm):
         self.fieldsets = [
             (
                 "Compte",
-                {"fields": ("existing_person", "new_person_email", "insoumise")},
+                {
+                    "fields": (
+                        "existing_person",
+                        "new_person_email",
+                        "is_political_support",
+                        "newsletter",
+                    )
+                },
             ),
             (
                 "Informations d'inscription",
@@ -344,9 +356,15 @@ class NewParticipantForm(BasePersonForm):
                 pass
 
         if self.instance._state.adding:
-            self.instance.is_insoumise = self.instance.subscribed = self.cleaned_data[
-                "insoumise"
-            ]
+            self.instance.is_political_support = (
+                self.instance.subscribed
+            ) = self.cleaned_data["is_political_support"]
+
+        if (
+            self.cleaned_data["newsletter"]
+            and Person.NEWSLETTER_LFI not in self.instance.newsletters
+        ):
+            self.instance.newsletters.add(Person.NEWSLETTER_LFI)
 
         # pour sauver l'instance, il faut appeler la méthode ModelForm plutôt que celle
         # de BasePersonForm parce que cette dernière ne crée jamais d'instance.

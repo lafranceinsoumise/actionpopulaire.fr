@@ -18,7 +18,7 @@ class BasicPersonTestCase(TestCase):
         )
 
     def test_non_insoumise(self):
-        user = Person.objects.create_person(email="test@domain.com", is_insoumise=False)
+        user = Person.objects.create_political_support(email="test@domain.com")
 
         self.assertEqual(user.subscribed, False)
 

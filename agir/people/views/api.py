@@ -97,8 +97,7 @@ class PersonProfileAPIView(RetrieveUpdateAPIView):
                 "city",
                 "country",
                 "contactPhone",
-                "isInsoumise",
-                "is2022",
+                "isPoliticalSupport",
                 "mandat",
                 "newsletters",
                 "actionRadius",
@@ -116,7 +115,7 @@ class CounterAPIView(GenericAPIView):
     @method_decorator(cache_page(60))
     def get(self, request, *args, **kwargs):
         return Response(
-            {"value": Person.objects.filter(is_2022=True).count()},
+            {"value": Person.objects.filter(is_political_support=True).count()},
             status=status.HTTP_200_OK,
         )
 

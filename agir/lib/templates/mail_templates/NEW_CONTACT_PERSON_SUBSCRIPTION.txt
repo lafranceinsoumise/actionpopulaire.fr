@@ -6,11 +6,11 @@ Vous ne soutenez encore pas Jean-Luc Mélenchon pour 2022. Pour en avoir plus su
 
 Voir le site de campagne:
 https://melenchon2022.fr
-  
+
 Vous n’êtes pas à l’origine de cette action et vous souhaitez pas être recontacté·e ?
 Suivez ce lien : {{ DELETE_LINK }}
 Il vous sera demandé d'entrer un code que vous recevrez sur votre adresse e-mail.
-  
+
 Vous souhaitez modifier vos préférences de réception de nos e-mails :
 https://melenchon2022.fr/preferences/?_{{ login_query }}
 

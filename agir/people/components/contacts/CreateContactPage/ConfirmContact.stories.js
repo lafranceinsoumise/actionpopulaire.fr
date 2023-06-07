@@ -20,7 +20,7 @@ Default.args = {
     zip: "75010",
     email: "foo@bar.com",
     phone: "06 00 00 00 00",
-    is2022: true,
+    isPoliticalSupport: true,
     newsletters: ["2022", "2022_exceptionnel", "2022_liaison"],
     group: {
       id: "a1a1",

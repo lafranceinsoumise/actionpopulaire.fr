@@ -97,9 +97,8 @@ class ActivityAPIViewTestCase(TestCase):
 
 class AnnouncementTestCase(TestCase):
     def setUp(self) -> None:
-        self.insoumise = Person.objects.create_insoumise("a@a.a")
-
-        self.nsp = Person.objects.create_person("b@b.b", is_2022=True)
+        self.supportive_person = Person.objects.create_political_support("a@a.a")
+        self.unsupportive_person = Person.objects.create_person("b@b.b")
 
     def test_can_get_all_announcements(self):
         a1 = Announcement.objects.create(
@@ -112,12 +111,12 @@ class AnnouncementTestCase(TestCase):
             title="2ème annonce", link="https://melenchon2022.fr", content="GO SIGNEZ"
         )
 
-        announcements = get_announcements(self.insoumise)
+        announcements = get_announcements(self.supportive_person)
         self.assertCountEqual(announcements, [a2, a1])
 
     def test_can_limit_announcement_with_segment(self):
         segment_insoumis = Segment.objects.create(
-            is_insoumise=True, is_2022=None, newsletters=[]
+            newsletters=[], is_political_support=True
         )
         a1 = Announcement.objects.create(
             title="1ère annonce",
@@ -126,10 +125,10 @@ class AnnouncementTestCase(TestCase):
             segment=segment_insoumis,
         )
 
-        announcements = get_announcements(self.insoumise)
+        announcements = get_announcements(self.supportive_person)
         self.assertCountEqual(announcements, [a1])
 
-        announcements = get_announcements(self.nsp)
+        announcements = get_announcements(self.unsupportive_person)
         self.assertCountEqual(announcements, [])
 
     def test_activity_is_created_if_none_exists_for_authenticated_person(self):
@@ -140,13 +139,13 @@ class AnnouncementTestCase(TestCase):
         )
         self.assertFalse(
             Activity.objects.filter(
-                announcement=announcement, recipient=self.insoumise
+                announcement=announcement, recipient=self.supportive_person
             ).exists()
         )
-        get_announcements(self.insoumise)
+        get_announcements(self.supportive_person)
         self.assertTrue(
             Activity.objects.filter(
-                announcement=announcement, recipient=self.insoumise
+                announcement=announcement, recipient=self.supportive_person
             ).exists()
         )
 
@@ -158,19 +157,19 @@ class AnnouncementTestCase(TestCase):
         )
         Activity.objects.create(
             announcement=announcement,
-            recipient=self.insoumise,
+            recipient=self.supportive_person,
             type=Activity.TYPE_ANNOUNCEMENT,
         )
         self.assertEqual(
             Activity.objects.filter(
-                announcement=announcement, recipient=self.insoumise
+                announcement=announcement, recipient=self.supportive_person
             ).count(),
             1,
         )
-        get_announcements(self.insoumise)
+        get_announcements(self.supportive_person)
         self.assertEqual(
             Activity.objects.filter(
-                announcement=announcement, recipient=self.insoumise
+                announcement=announcement, recipient=self.supportive_person
             ).count(),
             1,
         )

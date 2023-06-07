@@ -74,7 +74,7 @@ export const ContactForm = (props) => {
     zip: "",
     email: "",
     phone: "",
-    is2022: true,
+    isPoliticalSupport: true,
     newsletters: ["2022_exceptionnel"],
     ...(initialData || {}),
   });
@@ -96,11 +96,11 @@ export const ContactForm = (props) => {
     }));
   }, []);
 
-  const handleCheckIs2022 = useCallback((e) => {
+  const handleCheckisPoliticalSupport = useCallback((e) => {
     const { checked } = e.target;
     setData((state) => ({
       ...state,
-      is2022: checked,
+      isPoliticalSupport: checked,
       newsletters: checked
         ? state.newsletters
         : state.newsletters.filter((nl) => nl !== NEWSLETTER_2022_LIAISON),
@@ -264,10 +264,10 @@ export const ContactForm = (props) => {
       </h4>
       <CheckboxField
         label="Je veux rejoindre la France insoumise"
-        onChange={handleCheckIs2022}
-        value={data.is2022}
-        id="is2022"
-        name="is2022"
+        onChange={handleCheckisPoliticalSupport}
+        value={data.isPoliticalSupport}
+        id="isPoliticalSupport"
+        name="isPoliticalSupport"
         disabled={isLoading}
       />
       <Spacer data-scroll="newsletters" size="1.5rem" />
@@ -334,7 +334,7 @@ export const ContactForm = (props) => {
           />
         </>
       )}
-      {data.is2022 && (
+      {data.isPoliticalSupport && (
         <>
           <Spacer size="1.5rem" />
           <h4>

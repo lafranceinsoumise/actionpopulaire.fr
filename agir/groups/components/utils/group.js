@@ -38,13 +38,13 @@ const LFI_NSP_GROUP_WORD_LABELS = {
 };
 
 export const withGroupWord =
-  (is2022) =>
+  (isPoliticalSupport) =>
   (strings, ...params) => {
     let sentence = strings
       .map((s, i) => (params[i] ? s + params[i] : s))
       .join("");
     Object.entries(LFI_NSP_GROUP_WORD_LABELS).forEach(([lfi, nsp]) => {
-      sentence = is2022
+      sentence = isPoliticalSupport
         ? sentence.replace(lfi, nsp)
         : sentence.replace(nsp, lfi);
     });
@@ -52,8 +52,14 @@ export const withGroupWord =
   };
 
 export const useGroupWord = (group) => {
-  const is2022 = useMemo(() => !!group?.is2022, [group]);
-  const templateTag = useMemo(() => withGroupWord(is2022), [is2022]);
+  const isPoliticalSupport = useMemo(
+    () => !!group?.isPoliticalSupport,
+    [group]
+  );
+  const templateTag = useMemo(
+    () => withGroupWord(isPoliticalSupport),
+    [isPoliticalSupport]
+  );
 
   return templateTag;
 };

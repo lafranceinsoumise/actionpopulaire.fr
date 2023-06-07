@@ -109,7 +109,7 @@ class APISubscriptionTestCase(WordpressClientMixin, APITestCase):
         send_confirmation_email.assert_not_called()
 
         person.refresh_from_db()
-        self.assertTrue(person.is_2022)
+        self.assertTrue(person.is_political_support)
         self.assertEqual(person.first_name, "Marc")
         self.assertEqual(person.last_name, "Polo")
         self.assertEqual(person.location_zip, "75001")
@@ -193,7 +193,7 @@ class SubscriptionConfirmationTestCase(TestCase):
         p = Person.objects.get_by_natural_key("personne@organisation.pays")
         p.ensure_role_exists()
 
-        self.assertTrue(p.is_2022)
+        self.assertTrue(p.is_political_support)
         self.assertEqual(p.location_country, "VE")
 
         subscription_time = datetime.fromisoformat(
@@ -232,7 +232,7 @@ class SubscriptionConfirmationTestCase(TestCase):
         p = Person.objects.get_by_natural_key("personne@organisation.pays")
         p.ensure_role_exists()
 
-        self.assertTrue(p.is_2022)
+        self.assertTrue(p.is_political_support)
         self.assertEqual(
             p.meta["subscriptions"]["LJI"]["metadata"],
             {"universite": "Montaigne", "niveau": "licence"},

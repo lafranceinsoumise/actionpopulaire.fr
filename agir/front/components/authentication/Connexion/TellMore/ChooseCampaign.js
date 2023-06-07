@@ -73,7 +73,7 @@ const ChooseCampaign = ({ fromSignup, dismiss }) => {
     async (e) => {
       e.preventDefault();
       setSubmitted(true);
-      await updateProfile({ is2022: true });
+      await updateProfile({ isPoliticalSupport: true });
       await dismiss();
       setSubmitted(false);
     },

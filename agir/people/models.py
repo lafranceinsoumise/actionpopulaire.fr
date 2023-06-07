@@ -68,7 +68,7 @@ person_image_path = FilePattern(
 
 class PersonQueryset(models.QuerySet):
     def is_political_support(self):
-        return self.filter(is_2022=True)
+        return self.filter(is_political_support=True)
 
     def with_active_role(self):
         return self.filter(role__is_active=True)
@@ -272,6 +272,29 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
         extra_fields.setdefault("password", None)
         return self._create_person(email, **extra_fields)
 
+    def create_political_support(
+        self, email, password=None, *, subscribed=None, **extra_fields
+    ):
+        """
+        Create a user
+        :param email: the user's email
+        :param password: optional password that may be used to connect to the admin website
+        :param extra_fields: any other field
+        :return:
+        """
+
+        extra_fields.setdefault("is_political_support", True)
+
+        if subscribed is False:
+            extra_fields.setdefault("newsletters", [])
+        else:
+            extra_fields.setdefault(
+                "newsletters",
+                [Person.NEWSLETTER_2022, Person.NEWSLETTER_2022_EXCEPTIONNEL],
+            )
+
+        return self.create_person(email, password=password, **extra_fields)
+
     def create_2022(self, email, password=None, *, subscribed=None, **extra_fields):
         """
         Create a user
@@ -280,7 +303,11 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
         :param extra_fields: any other field
         :return:
         """
-        extra_fields.setdefault("is_2022", True)
+
+        meta = extra_fields.get("meta", {})
+        meta.setdefault("political_support", {})
+        meta["political_support"]["is_2022"] = True
+        extra_fields["meta"] = meta
 
         if subscribed is False:
             extra_fields.setdefault("newsletters", [])
@@ -302,7 +329,10 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
         :param extra_fields: any other field
         :return:
         """
-        extra_fields.setdefault("is_insoumise", True)
+        meta = extra_fields.get("meta", {})
+        meta.setdefault("political_support", {})
+        meta["political_support"]["is_insoumise"] = True
+        extra_fields["meta"] = meta
 
         if subscribed is False:
             extra_fields.setdefault("newsletters", [])
@@ -383,8 +413,7 @@ class Person(
     )
     auto_login_salt = models.CharField(max_length=255, blank=True, default="")
 
-    is_insoumise = models.BooleanField(_("Insoumis⋅e"), default=False)
-    is_2022 = models.BooleanField(_("Soutien 2022"), default=False)
+    is_political_support = models.BooleanField(_("Soutien 2022"), default=False)
 
     MEMBRE_RESEAU_INCONNU = "I"
     MEMBRE_RESEAU_SOUHAITE = "S"
@@ -665,6 +694,16 @@ class Person(
         if self.primary_email:
             return self.primary_email.address
         return ""
+
+    @property
+    def is_insoumise(self):
+        # TODO: remove this legacy property
+        return self.meta.get("political_support", {}).get("is_insoumise", False)
+
+    @property
+    def is_2022(self):
+        # TODO: remove this legacy property
+        return self.meta.get("political_support", {}).get("is_2022", False)
 
     @property
     def is_2022_only(self):

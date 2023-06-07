@@ -593,7 +593,9 @@ class MemberPersonalInformationSerializer(serializers.ModelSerializer):
     email = serializers.SerializerMethodField(read_only=True)
     phone = PhoneField(source="person.contact_phone", read_only=True)
     address = serializers.CharField(source="person.short_address", read_only=True)
-    is2022 = serializers.BooleanField(source="person.is_2022", read_only=True)
+    isPoliticalSupport = serializers.BooleanField(
+        source="person.is_political_support", read_only=True
+    )
     isLiaison = serializers.SerializerMethodField(read_only=True)
     created = serializers.DateTimeField(read_only=True)
     membershipType = serializers.IntegerField(source="membership_type", read_only=True)
@@ -653,7 +655,7 @@ class MemberPersonalInformationSerializer(serializers.ModelSerializer):
             "created",
             "membershipType",
             "subscriber",
-            "is2022",
+            "isPoliticalSupport",
             "isLiaison",
             "hasGroupNotifications",
             "personalInfoConsent",
@@ -665,7 +667,7 @@ class MemberPersonalInformationSerializer(serializers.ModelSerializer):
             "gender",
             "phone",
             "address",
-            "is2022",
+            "isPoliticalSupport",
             "isLiaison",
             "hasGroupNotifications",
         )

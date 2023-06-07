@@ -322,12 +322,6 @@ class ContactForm(LegacySubscribedMixin, ContactPhoneNumberMixin, forms.ModelFor
 
         self.fields["contact_phone"].label = "Numéro de contact"
 
-        if not self.instance.is_insoumise:
-            del self.fields["subscribed_lfi"]
-
-        if not self.instance.is_2022 and not self.instance.is_insoumise:
-            del self.fields["subscribed_sms"]
-
     def get_fields(self, fields=None):
         fields = fields or []
 
@@ -364,14 +358,10 @@ class ContactForm(LegacySubscribedMixin, ContactPhoneNumberMixin, forms.ModelFor
             )
         )
 
-        btn_no_mails = (
-            Submit(
-                "no_mail",
-                "Ne plus recevoir d'emails ou de SMS",
-                css_class="btn-danger btn-block marginbottom",
-            )
-            if self.instance.is_insoumise
-            else Div()
+        btn_no_mails = Submit(
+            "no_mail",
+            "Ne plus recevoir d'emails ou de SMS",
+            css_class="btn-danger btn-block marginbottom",
         )
 
         btn_submit = Submit(
@@ -385,9 +375,7 @@ class ContactForm(LegacySubscribedMixin, ContactPhoneNumberMixin, forms.ModelFor
                 Fieldset(
                     "Téléphone",
                     Row(ThirdCol("contact_phone"), HalfCol(validation_block)),
-                    "subscribed_sms"
-                    if self.instance.is_2022 or self.instance.is_insoumise
-                    else Div(),
+                    "subscribed_sms",
                 ),
                 Row(
                     ThirdCol(btn_submit),

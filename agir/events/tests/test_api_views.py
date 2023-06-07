@@ -6,17 +6,16 @@ from PIL import Image
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 from django.utils import timezone
-
-from agir.event_requests.models import EventAsset
-from agir.msgs.models import SupportGroupMessage
 from rest_framework.test import APITestCase
 
+from agir.event_requests.models import EventAsset
 from agir.events.models import Event, EventSubtype, GroupAttendee, OrganizerConfig, RSVP
 from agir.events.serializers import EventProjectSerializer
 from agir.gestion.models import Projet
 from agir.gestion.typologies import TypeProjet
 from agir.groups.models import SupportGroup, Membership
-from agir.lib.tests.mixins import create_location, get_random_object
+from agir.lib.tests.mixins import create_location
+from agir.msgs.models import SupportGroupMessage
 from agir.people.models import Person, PersonForm, PersonFormSubmission
 
 
@@ -47,7 +46,9 @@ class CreateEventAPITestCase(APITestCase):
         self.start_time = timezone.now() + timezone.timedelta(days=3)
         self.end_time = timezone.now() + timezone.timedelta(days=3, hours=4)
         self.location = create_location()
-        self.subtype = get_random_object(EventSubtype)
+        self.subtype = EventSubtype.objects.create(
+            label=uuid.uuid4().hex, visibility=EventSubtype.VISIBILITY_ALL
+        )
         self.valid_data = {
             "name": "Nouvel événement",
             "startTime": str(self.start_time),
@@ -67,7 +68,6 @@ class CreateEventAPITestCase(APITestCase):
                 "city": self.location["location_city"],
                 "country": self.location["location_country"],
             },
-            "forUsers": Event.FOR_USERS_INSOUMIS,
             "subtype": self.subtype.id,
             "organizerGroup": self.managed_group.id,
             "legal": "{}",
@@ -349,7 +349,9 @@ class CreateEventAPITestCase(APITestCase):
     def test_for_organizer_group_members_only_subtype_event_is_not_created_without_organizer_group(
         self,
     ):
-        subtype = get_random_object(EventSubtype)
+        subtype = EventSubtype.objects.create(
+            label=uuid.uuid4().hex, visibility=EventSubtype.VISIBILITY_ALL
+        )
         subtype.for_organizer_group_members_only = True
         subtype.save()
         self.client.force_login(self.person.role)
@@ -363,7 +365,9 @@ class CreateEventAPITestCase(APITestCase):
     def test_for_supportgroup_type_subtype_event_is_not_created_without_organizer_group(
         self,
     ):
-        subtype = get_random_object(EventSubtype)
+        subtype = EventSubtype.objects.create(
+            label=uuid.uuid4().hex, visibility=EventSubtype.VISIBILITY_ALL
+        )
         subtype.for_supportgroup_type = SupportGroup.TYPE_LOCAL_GROUP
         subtype.save()
         self.client.force_login(self.person.role)
@@ -389,7 +393,9 @@ class CreateEventAPITestCase(APITestCase):
             person=self.person,
             membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
         )
-        subtype = get_random_object(EventSubtype)
+        subtype = EventSubtype.objects.create(
+            label=uuid.uuid4().hex, visibility=EventSubtype.VISIBILITY_ALL
+        )
         subtype.for_supportgroup_type = SupportGroup.TYPE_LOCAL_GROUP
         subtype.save()
         self.client.force_login(self.person.role)
@@ -417,16 +423,10 @@ class CreateEventAPITestCase(APITestCase):
 class RSVPEventAPITestCase(APITestCase):
     def setUp(self):
         self.person = Person.objects.create_person(
-            email="person@example.com",
-            create_role=True,
-            is_insoumise=True,
-            is_2022=True,
+            email="person@example.com", create_role=True, is_political_support=True
         )
         self.organizer = Person.objects.create_person(
-            email="organizer@example.com",
-            create_role=True,
-            is_insoumise=True,
-            is_2022=True,
+            email="organizer@example.com", create_role=True, is_political_support=True
         )
         self.start_time = timezone.now()
         self.end_time = self.start_time + timezone.timedelta(hours=2)
@@ -446,30 +446,6 @@ class RSVPEventAPITestCase(APITestCase):
         event = self.create_event()
         res = self.client.post(f"/api/evenements/{event.pk}/inscription/")
         self.assertEqual(res.status_code, 401)
-
-    def test_2022_person_can_rsvp_insoumise_event(self):
-        person_2022 = Person.objects.create_person(
-            email="2022@example.com",
-            create_role=True,
-            is_insoumise=False,
-            is_2022=True,
-        )
-        event = self.create_event(for_users=Event.FOR_USERS_INSOUMIS)
-        self.client.force_login(person_2022.role)
-        res = self.client.post(f"/api/evenements/{event.pk}/inscription/")
-        self.assertEqual(res.status_code, 201)
-
-    def test_insoumise_person_can_rsvp_2022_event(self):
-        person_insoumise = Person.objects.create_person(
-            email="insoumise@example.com",
-            create_role=True,
-            is_insoumise=True,
-            is_2022=False,
-        )
-        event = self.create_event(for_users=Event.FOR_USERS_2022)
-        self.client.force_login(person_insoumise.role)
-        res = self.client.post(f"/api/evenements/{event.pk}/inscription/")
-        self.assertEqual(res.status_code, 201)
 
     def test_person_cannot_rsvp_event_with_subscription_form(self):
         subscription_form = PersonForm.objects.create()
@@ -510,7 +486,9 @@ class RSVPEventAPITestCase(APITestCase):
     def test_person_can_rsvp_for_organizer_group_members_only_if_person_is_group_member(
         self,
     ):
-        subtype = get_random_object(EventSubtype)
+        subtype = EventSubtype.objects.create(
+            label=uuid.uuid4().hex, visibility=EventSubtype.VISIBILITY_ALL
+        )
         subtype.for_organizer_group_members_only = True
         subtype.save()
         group = SupportGroup.objects.create(name="Group")
@@ -573,10 +551,7 @@ class RSVPEventAPITestCase(APITestCase):
 class RSVPEventAsGroupAPITestCase(APITestCase):
     def setUp(self):
         self.person = Person.objects.create_person(
-            email="person@example.com",
-            create_role=True,
-            is_insoumise=True,
-            is_2022=True,
+            email="person@example.com", create_role=True, is_political_support=True
         )
         self.start_time = timezone.now()
         self.end_time = self.start_time + timezone.timedelta(hours=2)
@@ -623,7 +598,9 @@ class RSVPEventAsGroupAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 403)
 
     def test_cannot_rsvp_for_organizer_group_members_only_event_as_group(self):
-        subtype = get_random_object(EventSubtype)
+        subtype = EventSubtype.objects.create(
+            label=uuid.uuid4().hex, visibility=EventSubtype.VISIBILITY_ALL
+        )
         subtype.for_organizer_group_members_only = True
         subtype.save()
         group = SupportGroup.objects.create()
@@ -795,7 +772,6 @@ class UpdateEventAPITestCase(APITestCase):
             start_time=start_time,
             end_time=end_time,
             timezone=timezone.get_default_timezone_name(),
-            for_users=Event.FOR_USERS_ALL,
             subtype=self.a_subtype,
             organizer_person=self.organizer,
         )
@@ -804,7 +780,6 @@ class UpdateEventAPITestCase(APITestCase):
             start_time=timezone.now() - timezone.timedelta(days=3),
             end_time=timezone.now() - timezone.timedelta(days=2),
             timezone=timezone.get_default_timezone_name(),
-            for_users=Event.FOR_USERS_ALL,
             subtype=self.a_subtype,
             organizer_person=self.organizer,
         )
@@ -887,7 +862,6 @@ class EventProjectAPITestCase(APITestCase):
             start_time=start_time,
             end_time=end_time,
             timezone=timezone.get_default_timezone_name(),
-            for_users=Event.FOR_USERS_ALL,
             subtype=self.a_subtype,
             organizer_person=self.organizer,
         )
@@ -899,7 +873,6 @@ class EventProjectAPITestCase(APITestCase):
             start_time=start_time,
             end_time=end_time,
             timezone=timezone.get_default_timezone_name(),
-            for_users=Event.FOR_USERS_ALL,
             subtype=self.a_subtype,
             organizer_person=self.organizer,
         )
@@ -1029,7 +1002,6 @@ class CreateEventProjectDocumentAPITestCase(APITestCase):
             start_time=start_time,
             end_time=end_time,
             timezone=timezone.get_default_timezone_name(),
-            for_users=Event.FOR_USERS_ALL,
             subtype=self.a_subtype,
             organizer_person=self.organizer,
         )
@@ -1041,7 +1013,6 @@ class CreateEventProjectDocumentAPITestCase(APITestCase):
             start_time=start_time,
             end_time=end_time,
             timezone=timezone.get_default_timezone_name(),
-            for_users=Event.FOR_USERS_ALL,
             subtype=self.a_subtype,
             organizer_person=self.organizer,
         )
@@ -1155,7 +1126,6 @@ class EventProjectsAPITestCase(APITestCase):
             start_time=start_time,
             end_time=end_time,
             timezone=timezone.get_default_timezone_name(),
-            for_users=Event.FOR_USERS_ALL,
             subtype=self.a_subtype,
             organizer_person=self.organizer,
         )
@@ -1209,7 +1179,6 @@ class EventReportPersonFormAPITestCase(APITestCase):
             start_time=timezone.now() + timezone.timedelta(days=3),
             end_time=timezone.now() + timezone.timedelta(days=3, hours=4),
             timezone=timezone.get_default_timezone_name(),
-            for_users=Event.FOR_USERS_ALL,
             subtype=self.subtype_without_form,
             organizer_person=self.organizer,
         )
@@ -1218,7 +1187,6 @@ class EventReportPersonFormAPITestCase(APITestCase):
             start_time=timezone.now() + timezone.timedelta(days=3),
             end_time=timezone.now() + timezone.timedelta(days=3, hours=4),
             timezone=timezone.get_default_timezone_name(),
-            for_users=Event.FOR_USERS_ALL,
             subtype=self.subtype_with_form,
             organizer_person=self.organizer,
         )
@@ -1227,7 +1195,6 @@ class EventReportPersonFormAPITestCase(APITestCase):
             start_time=timezone.now() - timezone.timedelta(days=3),
             end_time=timezone.now() - timezone.timedelta(days=2),
             timezone=timezone.get_default_timezone_name(),
-            for_users=Event.FOR_USERS_ALL,
             subtype=self.subtype_with_form,
             organizer_person=self.organizer,
         )
@@ -1236,7 +1203,6 @@ class EventReportPersonFormAPITestCase(APITestCase):
             start_time=timezone.now() - timezone.timedelta(days=9),
             end_time=timezone.now() - timezone.timedelta(days=8),
             timezone=timezone.get_default_timezone_name(),
-            for_users=Event.FOR_USERS_ALL,
             subtype=self.subtype_with_form,
             organizer_person=self.organizer,
         )
@@ -1326,7 +1292,6 @@ class EventTestMessageAPITestCase(APITestCase):
             name="Event",
             start_time=start_time,
             end_time=end_time,
-            for_users=Event.FOR_USERS_INSOUMIS,
             organizer_person=self.organizer,
         )
 
@@ -1414,7 +1379,6 @@ class EventAssetListAPITestCase(APITestCase):
             start_time=start_time,
             end_time=end_time,
             timezone=timezone.get_default_timezone_name(),
-            for_users=Event.FOR_USERS_ALL,
             subtype=self.a_subtype,
             organizer_person=self.organizer,
         )

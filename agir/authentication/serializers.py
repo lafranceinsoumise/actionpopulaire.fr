@@ -29,8 +29,7 @@ class UserContextSerializer(serializers.Serializer):
     contactPhone = serializers.CharField(source="contact_phone")
     image = serializers.SerializerMethodField()
     fullName = serializers.SerializerMethodField(method_name="get_full_name")
-    isInsoumise = serializers.BooleanField(source="is_insoumise")
-    is2022 = serializers.BooleanField(source="is_2022")
+    isPoliticalSupport = serializers.BooleanField(source="is_political_support")
     isAgir = serializers.BooleanField(source="is_agir")
     groups = serializers.SerializerMethodField()
     address1 = serializers.CharField(source="location_address1")
@@ -111,10 +110,11 @@ class SessionSerializer(serializers.Serializer):
             "personalInformation": reverse("personal_information"),
             "nspReferral": front_url("nsp_referral"),
             "materiel": "https://materiel.actionpopulaire.fr/",
+            "news": "https://lafranceinsoumise.fr/actualites/",
+            "thematicTeams": front_url("thematic_teams_list"),
         }
 
         if request.user.is_authenticated and request.user.person is not None:
-            person = request.user.person
             routes.update(
                 {
                     "notificationSettings": reverse(
@@ -122,13 +122,6 @@ class SessionSerializer(serializers.Serializer):
                     )
                 }
             )
-            if person.is_insoumise:
-                routes.update(
-                    {
-                        "news": "https://lafranceinsoumise.fr/actualites/",
-                        "thematicTeams": front_url("thematic_teams_list"),
-                    }
-                )
 
             return routes
 

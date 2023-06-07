@@ -25,7 +25,9 @@ SORTED_SUBSCRIPTION_TYPES = (
 
 def get_general_stats(start, end):
     nouveaux_soutiens = (
-        Person.objects.filter(is_2022=True, meta__subscriptions__isnull=False)
+        Person.objects.filter(
+            meta__political_support__is_2022=True, meta__subscriptions__isnull=False
+        )
         .annotate(
             datetime=Case(
                 *(
@@ -49,43 +51,60 @@ def get_general_stats(start, end):
     ouvert_news = Person.objects.filter(
         campaignsentevent__datetime__range=(start, end),
         campaignsentevent__open_count__gt=0,
-        is_2022=True,
+        meta__political_support__is_2022=True,
     )
 
     ap_users = Person.objects.filter(role__last_login__range=(start, end))
 
     sent_events = CampaignSentEvent.objects.filter(
-        subscriber__is_2022=True, datetime__range=(start, end)
+        subscriber__meta__political_support__meta__political_support__is_2022=True,
+        datetime__range=(start, end),
     )
 
     return {
         "soutiens_2022": nouveaux_soutiens.count(),
-        "soutiens_2022_insoumis": nouveaux_soutiens.filter(is_insoumise=True).count(),
-        "soutiens_2022_non_insoumis": nouveaux_soutiens.filter(
-            is_insoumise=False
+        "soutiens_2022_insoumis": nouveaux_soutiens.filter(
+            meta__political_support__is_insoumise=True
         ).count(),
-        "news_LFI": ouvert_news.filter(is_insoumise=True).distinct().count(),
+        "soutiens_2022_non_insoumis": nouveaux_soutiens.filter(
+            meta__political_support__is_insoumise=False
+        ).count(),
+        "news_LFI": ouvert_news.filter(meta__political_support__is_insoumise=True)
+        .distinct()
+        .count(),
         "taux_news_LFI": sent_events.filter(
-            subscriber__is_insoumise=True,
-            open_count__gt=0,
-        ).count()
-        / (sent_events.filter(subscriber__is_insoumise=True).count() or 1)
-        * 100,
-        "news_2022": ouvert_news.filter(is_insoumise=False).distinct().count(),
-        "taux_news_2022": sent_events.filter(
-            subscriber__is_insoumise=False,
+            subscriber__meta__political_support__meta__political_support__is_insoumise=True,
             open_count__gt=0,
         ).count()
         / (
             sent_events.filter(
-                subscriber__is_insoumise=False,
+                subscriber__meta__political_support__meta__political_support__is_insoumise=True
+            ).count()
+            or 1
+        )
+        * 100,
+        "news_2022": ouvert_news.filter(meta__political_support__is_insoumise=False)
+        .distinct()
+        .count(),
+        "taux_news_2022": sent_events.filter(
+            subscriber__meta__political_support__meta__political_support__is_insoumise=False,
+            open_count__gt=0,
+        ).count()
+        / (
+            sent_events.filter(
+                subscriber__meta__political_support__meta__political_support__is_insoumise=False,
             ).count()
             or 1
         )
         * 100,
         "ap_users": ap_users.count(),
-        "ap_users_LFI": ap_users.filter(is_insoumise=True).count(),
-        "ap_users_2022": ap_users.filter(is_insoumise=False, is_2022=True).count(),
+        "ap_users_LFI": ap_users.filter(
+            meta__political_support__is_insoumise=True
+        ).count(),
+        "ap_users_2022": ap_users.filter(
+            meta__political_support__is_insoumise=False,
+            meta__political_support__is_2022=True,
+        ).count(),
         "ap_events": Event.objects.filter(
             visibility=Event.VISIBILITY_PUBLIC, start_time__range=(start, end)
         ).count(),
@@ -166,12 +185,16 @@ def get_events_by_subtype(start, end):
 
 def get_instant_stats():
     return {
-        "soutiens_2022": Person.objects.filter(is_2022=True).count(),
+        "soutiens_2022": Person.objects.filter(
+            meta__political_support__is_2022=True
+        ).count(),
         "soutiens_2022_insoumis": Person.objects.filter(
-            is_2022=True, is_insoumise=True
+            meta__political_support__is_2022=True,
+            meta__political_support__is_insoumise=True,
         ).count(),
         "soutiens_2022_non_insoumis": Person.objects.filter(
-            is_2022=True, is_insoumise=False
+            meta__political_support__is_2022=True,
+            meta__political_support__is_insoumise=False,
         ).count(),
         "ga": SupportGroup.objects.filter(
             type=SupportGroup.TYPE_LOCAL_GROUP, published=True
@@ -221,14 +244,14 @@ def get_instant_stats():
         .distinct()
         .count(),
         "insoumis_non_2022": Person.objects.filter(
-            is_insoumise=True,
-            is_2022=False,
+            meta__political_support__is_insoumise=True,
+            meta__political_support__is_2022=False,
             emails___bounced=False,
             newsletters__contains=[Person.NEWSLETTER_LFI],
         ).count(),
         "insoumis_non_2022_newsletter": Person.objects.filter(
-            is_insoumise=True,
-            is_2022=False,
+            meta__political_support__is_insoumise=True,
+            meta__political_support__is_2022=False,
             emails___bounced=False,
             newsletters__contains=[Person.NEWSLETTER_LFI],
             campaignsentevent__datetime__gt=(now() - timedelta(days=90)),
@@ -237,8 +260,8 @@ def get_instant_stats():
         .distinct()
         .count(),
         "insoumis_non_2022_phone": Person.objects.filter(
-            is_insoumise=True,
-            is_2022=False,
+            meta__political_support__is_insoumise=True,
+            meta__political_support__is_2022=False,
             newsletters__contains=[Person.NEWSLETTER_LFI],
         )
         .exclude(contact_phone="")

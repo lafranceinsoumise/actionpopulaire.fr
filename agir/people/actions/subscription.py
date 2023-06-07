@@ -44,9 +44,9 @@ SUBSCRIPTION_TYPE_CHOICES = (
     (SUBSCRIPTION_TYPE_LJI, "Les jeunes insoumis"),
 )
 SUBSCRIPTION_FIELD = {
-    SUBSCRIPTION_TYPE_LFI: "is_2022",
-    SUBSCRIPTION_TYPE_NSP: "is_2022",
-    SUBSCRIPTION_TYPE_LJI: "is_2022",
+    SUBSCRIPTION_TYPE_LFI: "is_political_support",
+    SUBSCRIPTION_TYPE_NSP: "is_political_support",
+    SUBSCRIPTION_TYPE_LJI: "is_political_support",
 }
 
 SUBSCRIPTIONS_EMAILS = {
