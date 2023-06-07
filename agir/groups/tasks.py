@@ -927,7 +927,7 @@ def send_newly_certified_group_notifications(supportgroup_pk):
 @emailing_task()
 def send_uncertifiable_group_warning(supportgroup_pk, expiration_in_days):
     supportgroup = SupportGroup.objects.get(pk=supportgroup_pk)
-    recipients = supportgroup.referents
+    recipients = supportgroup.managers
     certification_criteria = check_certification_criteria(supportgroup)
     # Double-check if any criterium is unmatched to avoid false positives
     if all(certification_criteria.values()):
