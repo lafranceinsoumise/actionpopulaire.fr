@@ -122,7 +122,7 @@ class MessageAdminMixin:
 
         return format_html(
             "<details style='width:240px;' {}>"
-            "<summary style='cursor:pointer;'><strong>{}</strong></summary>"
+            "<summary style='cursor:pointer;overflow:hidden;text-overflow:ellipsis;'><strong>{}</strong></summary>"
             "<blockquote>{}</blockquote>"
             "</details>",
             "open" if is_comment else "",
@@ -390,7 +390,7 @@ class UserReportAdmin(admin.ModelAdmin):
         return format_html(
             """
             <details open>
-                <summary style='cursor:pointer;'>
+                <summary style='cursor:pointer;overflow:hidden;text-overflow:ellipsis;'>
                     <strong>{}</strong>
                 </summary>
                 {}
