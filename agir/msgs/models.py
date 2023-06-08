@@ -2,12 +2,10 @@ import reversion
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.utils.translation import gettext_lazy as _
 from stdimage import StdImageField
 
-from agir.lib.models import TimeStampedModel, BaseAPIResource
 from agir.groups.models import Membership
-from django.db.models import Q
+from agir.lib.models import TimeStampedModel, BaseAPIResource
 
 
 class UserReport(TimeStampedModel):
