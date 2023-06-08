@@ -22,6 +22,9 @@ class UserReport(TimeStampedModel):
     object_id = models.UUIDField()
     reported_object = GenericForeignKey()
 
+    def __str__(self):
+        return f"Signalement ({self.id})"
+
     class Meta:
         verbose_name = "Signalement"
         verbose_name_plural = "Signalements"

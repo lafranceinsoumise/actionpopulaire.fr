@@ -3,7 +3,7 @@ from django.contrib.admin.options import TabularInline
 from django.contrib.contenttypes.models import ContentType
 from django.template.defaultfilters import truncatechars
 from django.urls import reverse
-from django.utils.html import format_html
+from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
 from reversion.admin import VersionAdmin
 
@@ -117,12 +117,16 @@ class MessageAdminMixin:
 
     @admin.display(description="Texte")
     def text_preview(self, obj):
+        is_comment = hasattr(obj, "message")
+        message = obj.message if is_comment else obj
+
         return format_html(
-            "<details style='width:200px;' open>"
+            "<details style='width:240px;' {}>"
             "<summary style='cursor:pointer;'><strong>{}</strong></summary>"
             "<blockquote>{}</blockquote>"
             "</details>",
-            obj.message.subject if hasattr(obj, "message") else obj.subject,
+            "open" if is_comment else "",
+            mark_safe(message.subject if message.subject else "-"),
             mark_safe(obj.text),
         )
 
@@ -322,27 +326,97 @@ class SupportGroupMessageAdmin(MessageAdminMixin, VersionAdmin):
 
 @admin.register(UserReport)
 class UserReportAdmin(admin.ModelAdmin):
-    fields = ("reporter", "reported_object_link", "reported_object_author", "created")
-    list_fields = (
-        "reporter",
+    fields = readonly_fields = (
+        "reporter_link",
+        "created",
         "reported_object_link",
         "reported_object_author",
+        "reported_object_text",
+    )
+    list_display = (
+        "__str__",
         "created",
+        "reporter_link",
+        "reported_object_author",
+        "reported_object_link",
+        "reported_object_deleted",
     )
     search_fields = ("reporter__search", "=object_id")
-    readonly_fields = fields
-    list_display = fields
+
+    @admin.display(description="Auteur·ice du signalement", ordering="reporter")
+    def reporter_link(self, obj):
+        return display_link(obj.reporter)
 
     @admin.display(description="Objet du signalement")
     def reported_object_link(self, obj):
-        return display_link(obj.reported_object)
+        return display_link(
+            obj.reported_object, f"{obj.content_type.name} ({obj.reported_object.id})"
+        )
 
-    @admin.display(description="Auteur·ice du signalement")
+    @admin.display(description="Texte")
+    def reported_object_text(self, obj):
+        if not obj.reported_object:
+            return "-"
+
+        message = (
+            obj.reported_object.message
+            if hasattr(obj.reported_object, "message")
+            else obj.reported_object
+        )
+
+        selected_style = "background-color:red;color:white;font-weight:600;font-size:1.5em;padding:24px;"
+        messages = format_html_join(
+            "",
+            """
+            <figure style="width:100%;padding:0;margin:4px 0;">
+                <figcaption style="padding:0 8px;"><strong>{}</strong></figcaption>
+                <blockquote style="margin:0;padding:0;border:none;">
+                    <p style="padding:16px;background-color:#eee;border-radius:8px;{}">{}</p>
+                </blockquote>
+                <figcaption style="padding:0 8px;text-align:right;"><em>{}</em></figcaption>
+            </figure>
+            """,
+            [
+                (
+                    str(message.author),
+                    selected_style if message == obj.reported_object else "",
+                    message.text,
+                    message.created.strftime("%d/%m/%Y à %H:%M"),
+                )
+                for message in [message, *message.comments.all()]
+            ],
+        )
+
+        return format_html(
+            """
+            <details open>
+                <summary style='cursor:pointer;'>
+                    <strong>{}</strong>
+                </summary>
+                {}
+            </details>
+            """,
+            message.subject if message.subject else "-",
+            messages,
+        )
+
+    @admin.display(description="Auteur·ice de l'objet")
     def reported_object_author(self, obj):
         if not obj.reported_object:
             return "-"
 
         return display_link(obj.reported_object.author)
+
+    @admin.display(description="Auteur·ice de l'objet")
+    def reported_object_author(self, obj):
+        if not obj.reported_object:
+            return "-"
+
+        return display_link(obj.reported_object.author)
+
+    @admin.display(description="Objet supprimé", boolean=True)
+    def reported_object_deleted(self, obj):
+        return obj and obj.reported_object and obj.reported_object.deleted
 
     def has_add_permission(self, request):
         return False
