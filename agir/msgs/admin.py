@@ -1,12 +1,55 @@
 from django.contrib import admin
 from django.contrib.admin.options import TabularInline
+from django.contrib.contenttypes.models import ContentType
 from django.template.defaultfilters import truncatechars
 from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from reversion.admin import VersionAdmin
 
+from agir.groups.models import Membership, SupportGroup
+from agir.lib.admin.autocomplete_filter import AutocompleteSelectModelBaseFilter
+from agir.lib.admin.utils import display_link, admin_url
 from agir.msgs.models import SupportGroupMessage, SupportGroupMessageComment, UserReport
-from agir.groups.models import Membership
+from agir.people.models import Person
+
+
+class MessageSupportGroupFilter(AutocompleteSelectModelBaseFilter):
+    title = "groupe"
+    filter_model = SupportGroup
+    parameter_name = "supportgroup"
+
+    def get_queryset_for_field(self):
+        return SupportGroup.objects.all()
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(supportgroup_id=self.value())
+        else:
+            return queryset
+
+
+class CommentSupportGroupFilter(MessageSupportGroupFilter):
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(message__supportgroup_id=self.value())
+        else:
+            return queryset
+
+
+class AuthorFilter(AutocompleteSelectModelBaseFilter):
+    title = "auteur·ice"
+    filter_model = Person
+    parameter_name = "author"
+
+    def get_queryset_for_field(self):
+        return Person.objects.all()
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(author_id=self.value())
+        else:
+            return queryset
 
 
 class ReportListFilter(admin.SimpleListFilter):
@@ -41,42 +84,69 @@ class RequiredMembershipListFilter(admin.SimpleListFilter):
         return queryset
 
 
-@admin.register(SupportGroupMessageComment)
-class SupportGroupMessageCommentAdmin(VersionAdmin):
-    fields = ("created", "modified", "author", "text", "image", "msg", "deleted")
-    readonly_fields = ("created", "modified", "author", "text", "image", "msg")
-    list_display = (
-        "text_excerpt",
-        "author",
-        "msg",
-        "report_count",
+class MessageAdminMixin:
+    fields = (
+        "id",
         "created",
+        "modified",
+        "author_link",
+        "text",
+        "image",
         "deleted",
     )
-    list_filter = ("deleted", ReportListFilter)
-    search_fields = ("=id", "=message__id", "message__subject", "author__search")
-    model = SupportGroupMessageComment
+    readonly_fields = (
+        "id",
+        "author_link",
+        "text",
+        "image",
+        "created",
+        "modified",
+    )
+    list_display = (
+        "id",
+        "deleted",
+        "author_link",
+        "text_preview",
+        "created",
+        "report_count",
+    )
 
-    def text_excerpt(self, object):
-        return truncatechars(object.text, 20)
+    @admin.display(description="Auteur·ice")
+    def author_link(self, obj):
+        return display_link(obj.author)
 
-    text_excerpt.short_description = "Texte"
-
-    def msg(self, object):
-        href = reverse(
-            "admin:msgs_supportgroupmessage_change",
-            args=[object.message.pk],
-        )
+    @admin.display(description="Texte")
+    def text_preview(self, obj):
         return format_html(
-            f'<a href="{href}"><strong>{truncatechars(object.message.subject, 40)}</strong><br />({object.message.pk})</a>'
+            "<details style='width:200px;' open>"
+            "<summary style='cursor:pointer;'><strong>{}</strong></summary>"
+            "<blockquote>{}</blockquote>"
+            "</details>",
+            obj.message.subject if hasattr(obj, "message") else obj.subject,
+            mark_safe(obj.text),
         )
 
-    msg.short_description = "Message initial"
+    @admin.display(description="Nombre de signalements")
+    def report_count(self, obj):
+        count = obj.reports.count()
 
-    def report_count(self, object):
-        return object.reports.count()
+        if count == 0:
+            return "-"
 
-    report_count.short_description = "Signalements"
+        return format_html(
+            "<strong>{}</strong> " "<a href={}>(voir les signalements)</a>",
+            count,
+            admin_url(
+                "admin:msgs_userreport_changelist",
+                query={
+                    "content_type": ContentType.objects.get(
+                        app_label=self.model._meta.app_label,
+                        model=self.model._meta.model_name,
+                    ).id,
+                    "object_id": str(obj.id),
+                },
+            ),
+        )
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -84,13 +154,56 @@ class SupportGroupMessageCommentAdmin(VersionAdmin):
     def has_add_permission(self, request, obj=None):
         return False
 
+    class Media:
+        pass
 
-class InlineSupportGroupMessageCommentAdmin(TabularInline):
+
+@admin.register(SupportGroupMessageComment)
+class SupportGroupMessageCommentAdmin(MessageAdminMixin, VersionAdmin):
+    fields = (
+        "id",
+        "created",
+        "modified",
+        "author_link",
+        "message_link",
+        "text",
+        "image",
+        "deleted",
+    )
+    readonly_fields = (
+        "id",
+        "author_link",
+        "message_link",
+        "text",
+        "image",
+        "created",
+        "modified",
+    )
+    list_display = (
+        "id",
+        "deleted",
+        "message_link",
+        "author_link",
+        "text_preview",
+        "created",
+        "modified",
+        "report_count",
+    )
+    list_filter = (AuthorFilter, CommentSupportGroupFilter, ReportListFilter, "deleted")
+    search_fields = ("=id", "=message__id", "message__subject", "author__search")
+    model = SupportGroupMessageComment
+
+    @admin.display(description="Message")
+    def message_link(self, obj):
+        return display_link(obj.message, obj.message.pk)
+
+
+class InlineSupportGroupMessageCommentAdmin(TabularInline, MessageAdminMixin):
     fields = (
         "created",
         "modified",
-        "author",
-        "text",
+        "author_link",
+        "text_excerpt",
         "history",
         "report_count",
         "deleted",
@@ -98,23 +211,24 @@ class InlineSupportGroupMessageCommentAdmin(TabularInline):
     readonly_fields = (
         "created",
         "modified",
-        "author",
-        "text",
+        "author_link",
+        "text_excerpt",
         "history",
         "report_count",
     )
     model = SupportGroupMessageComment
+    show_change_link = True
+    can_delete = False
+    extra = 0
 
-    def history(self, object):
+    def history(self, obj):
         return format_html(
             '<a href="{}">Historique</a>',
-            reverse("admin:msgs_supportgroupmessagecomment_history", args=[object.pk]),
+            reverse("admin:msgs_supportgroupmessagecomment_history", args=[obj.pk]),
         )
 
-    def report_count(self, object):
-        return object.reports.count()
-
-    report_count.short_description = "Signalements"
+    def text_excerpt(self, object):
+        return truncatechars(object.text, 20)
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -124,96 +238,86 @@ class InlineSupportGroupMessageCommentAdmin(TabularInline):
 
 
 @admin.register(SupportGroupMessage)
-class SupportGroupMessageAdmin(VersionAdmin):
+class SupportGroupMessageAdmin(MessageAdminMixin, VersionAdmin):
     fields = (
-        "supportgroup",
+        "id",
         "created",
         "modified",
-        "author",
-        "subject",
+        "author_link",
+        "group",
         "text",
         "image",
-        "linked_event",
-        "deleted",
+        "event",
         "required_membership_type",
-        "is_locked",
         "readonly",
+        "is_locked",
+        "deleted",
     )
     readonly_fields = (
-        "created",
-        "modified",
-        "author",
-        "supportgroup",
-        "linked_event",
-        "subject",
+        "id",
+        "author_link",
+        "group",
         "text",
         "image",
+        "event",
+        "required_membership_type",
+        "created",
+        "modified",
     )
     list_display = (
-        "subject",
-        "text_excerpt",
-        "author",
+        "id",
+        "deleted",
+        "author_link",
         "group",
+        "text_preview",
         "event",
+        "required_membership_type",
         "created",
         "comment_count",
         "report_count",
-        "deleted",
-        "required_membership_type",
+        "readonly",
+        "is_locked",
     )
     search_fields = ("=id", "subject", "supportgroup__name", "author__search")
-    list_filter = ("deleted", ReportListFilter, RequiredMembershipListFilter)
+    list_filter = (
+        AuthorFilter,
+        MessageSupportGroupFilter,
+        "supportgroup__type",
+        RequiredMembershipListFilter,
+        ReportListFilter,
+        "deleted",
+        "readonly",
+    )
 
     inlines = [
         InlineSupportGroupMessageCommentAdmin,
     ]
 
-    def text_excerpt(self, object):
-        return truncatechars(object.text, 20)
-
-    text_excerpt.short_description = "Texte"
-
-    def comment_count(self, object):
-        return SupportGroupMessageComment.objects.filter(message=object.pk).count()
-
-    comment_count.short_description = "Nombre de commentaires"
-
-    def report_count(self, object):
-        return object.reports.count()
-
-    report_count.short_description = "Signalements"
-
-    def event(self, object):
-        if object.linked_event_id is None:
+    @admin.display(description="Nombre de commentaires")
+    def comment_count(self, obj):
+        count = SupportGroupMessageComment.objects.filter(message=obj.pk).count()
+        if count == 0:
             return "-"
-        href = reverse(
-            "admin:events_event_change",
-            args=[object.linked_event.pk],
-        )
+
         return format_html(
-            f'<a href="{href}"><strong>{truncatechars(object.linked_event.name, 40)}</strong><br />({object.linked_event.pk})</a>'
+            "<strong>{}</strong> " "<a href={}>(voir les commentaires)</a>",
+            count,
+            admin_url(
+                "admin:msgs_supportgroupmessagecomment_changelist",
+                query={"message_id": str(obj.id)},
+            ),
         )
 
-    event.short_description = "Événement"
+    @admin.display(description="Événement")
+    def event(self, obj):
+        return display_link(obj.linked_event)
 
-    def group(self, object):
-        if object.supportgroup is None:
-            return "-"
-        href = reverse(
-            "admin:groups_supportgroup_change",
-            args=[object.supportgroup.pk],
-        )
-        return format_html(
-            f'<a href="{href}"><strong>{truncatechars(object.supportgroup.name, 40)}</strong><br />({object.supportgroup.pk})</a>'
-        )
+    @admin.display(description="Groupe")
+    def group(self, obj):
+        return display_link(obj.supportgroup)
 
-    group.short_description = "Groupe"
-
-    def has_add_permission(self, request, obj=None):
-        return False
-
-    def has_delete_permission(self, request, obj=None):
-        return False
+    class Media:
+        pass
 
 
 @admin.register(UserReport)
@@ -229,30 +333,16 @@ class UserReportAdmin(admin.ModelAdmin):
     readonly_fields = fields
     list_display = fields
 
+    @admin.display(description="Objet du signalement")
     def reported_object_link(self, obj):
-        return format_html(
-            '<a href="{}">{}</a>',
-            reverse(
-                f"admin:{obj.content_type.app_label}_{obj.content_type.model}_change",
-                args=[obj.object_id],
-            ),
-            str(obj.reported_object),
-        )
+        return display_link(obj.reported_object)
 
-    reported_object_link.short_description = "Message signalé"
-
+    @admin.display(description="Auteur·ice du signalement")
     def reported_object_author(self, obj):
-        if obj.reported_object and obj.reported_object.author:
-            return format_html(
-                '<a href="{}">{}</a>',
-                reverse(
-                    f"admin:people_person_change",
-                    args=[obj.reported_object.author.id],
-                ),
-                str(obj.reported_object.author),
-            )
+        if not obj.reported_object:
+            return "-"
 
-    reported_object_author.short_description = "Auteur du message signalé"
+        return display_link(obj.reported_object.author)
 
     def has_add_permission(self, request):
         return False
