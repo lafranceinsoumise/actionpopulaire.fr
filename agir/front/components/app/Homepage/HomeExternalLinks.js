@@ -2,13 +2,10 @@ import React from "react";
 
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
-
 import Spacer from "@agir/front/genericComponents/Spacer";
 
-import lfiLogo from "@agir/front/genericComponents/logos/lfi.svg";
+import lfiLogo from "@agir/front/genericComponents/logos/LFI-NUPES-Violet-H.webp";
 import linsoumissionLogo from "@agir/front/genericComponents/logos/linsoumission.svg";
-import melenchon2022Logo from "@agir/front/genericComponents/logos/melenchon2022.svg";
 import nupesLogo from "@agir/front/genericComponents/logos/nupes.svg";
 
 const StyledArticle = styled.article`
