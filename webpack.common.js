@@ -325,12 +325,7 @@ module.exports = (type = CONFIG_TYPES.ES5) => ({
       type === CONFIG_TYPES.ES2015 ? "mjs" : "js"
     }?cv=6`,
     path: DISTPATH,
-    clean: type === CONFIG_TYPES.DEV || {
-      keep:
-        type === CONFIG_TYPES.ES2015
-          ? /.+\.bundle\.html$/
-          : /.+\.module\.html$/,
-    },
+    clean: type === CONFIG_TYPES.DEV,
   },
   module: {
     rules: [
