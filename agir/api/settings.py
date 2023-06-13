@@ -536,7 +536,7 @@ if ENABLE_FRONT:
             # This backend is used for email challenge connection
             "agir.authentication.backend.ShortCodeBackend",
             # This backend is used for password connection
-            "agir.people.backend.PersonBackend"
+            "agir.people.backend.PersonBackend",
             # This backend is used for connection through links found in emails
             "agir.authentication.backend.MailLinkBackend",
             # connection through Facebook
