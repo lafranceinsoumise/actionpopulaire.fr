@@ -37,13 +37,12 @@ const GreenToast = styled(StaticToast)`
     flex: 1;
     display: flex;
     align-items: center;
-    flex-wrap: wrap;
     margin-bottom: 0.5rem;
-
     justify-content: space-between;
-    @media (max-width: ${style.collapse}px) {
-      flex-direction: column;
-      align-items: baseline;
+    gap: 0.5rem;
+
+    & div a {
+      font-weight: 500;
     }
   }
 
@@ -52,7 +51,7 @@ const GreenToast = styled(StaticToast)`
   }
 `;
 
-const Joined = ({ hasPrice, eventPk, group, backLink }) => (
+const RSVP = ({ hasPrice, eventPk, rsvpRoute }) => (
   <StyledJoin>
     <RawFeatherIcon
       name="check"
@@ -61,32 +60,47 @@ const Joined = ({ hasPrice, eventPk, group, backLink }) => (
     />
     <StyledContent>
       <div>
-        {!group ? (
-          "Vous participez à l'événement"
+        {rsvpRoute ? (
+          <Link route={rsvpRoute}>Vous participez à l'événement</Link>
         ) : (
-          <>
-            Votre groupe&nbsp;
-            <Link
-              route="groupDetails"
-              routeParams={{ groupPk: group.id }}
-              backLink={backLink}
-            >
-              <b>{group.name}</b>
-            </Link>
-            &nbsp;participe à l'événement
-          </>
+          "Vous participez à l'événement"
         )}
       </div>
-      {!group
-        ? !hasPrice && <QuitEventButton eventPk={eventPk} />
-        : group.isManager && (
-            <QuitEventButton eventPk={eventPk} group={group} />
-          )}
+      {!hasPrice && <QuitEventButton eventPk={eventPk} />}
     </StyledContent>
   </StyledJoin>
 );
-Joined.propTypes = {
+RSVP.propTypes = {
   hasPrice: PropTypes.bool,
+  eventPk: PropTypes.string.isRequired,
+  backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  rsvpRoute: PropTypes.string,
+};
+
+const GroupRSVP = ({ eventPk, group, backLink }) => (
+  <StyledJoin>
+    <RawFeatherIcon
+      name="check"
+      color="green"
+      style={{ marginRight: "0.5rem" }}
+    />
+    <StyledContent>
+      <div>
+        Votre groupe&nbsp;
+        <Link
+          route="groupDetails"
+          routeParams={{ groupPk: group.id }}
+          backLink={backLink}
+        >
+          {group.name}
+        </Link>
+        &nbsp;participe à l'événement
+      </div>
+      {group.isManager && <QuitEventButton eventPk={eventPk} group={group} />}
+    </StyledContent>
+  </StyledJoin>
+);
+GroupRSVP.propTypes = {
   eventPk: PropTypes.string.isRequired,
   group: PropTypes.shape({
     id: PropTypes.string,
@@ -96,7 +110,9 @@ Joined.propTypes = {
   backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
 };
 
-const JoiningDetails = ({ id, hasPrice, rsvped, groups, logged, backLink }) => {
+const JoiningDetails = (props) => {
+  const { id, hasPrice, rsvped, groups, logged, backLink, rsvpRoute } = props;
+
   const user = useSelector(getUser);
   const groupsId = groups?.map((group) => group.id) || [];
 
@@ -111,12 +127,13 @@ const JoiningDetails = ({ id, hasPrice, rsvped, groups, logged, backLink }) => {
 
   return (
     <GreenToast $color="green">
-      {logged && rsvped && <Joined eventPk={id} hasPrice={hasPrice} />}
+      {logged && rsvped && (
+        <RSVP eventPk={id} hasPrice={hasPrice} rsvpRoute={rsvpRoute} />
+      )}
       {managingGroupsAttendees.map((group) => (
-        <Joined
+        <GroupRSVP
           key={group.id}
           eventPk={id}
-          hasPrice={hasPrice}
           group={group}
           backLink={backLink}
         />
@@ -137,6 +154,7 @@ JoiningDetails.propTypes = {
   ),
   logged: PropTypes.bool,
   backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  rsvpRoute: PropTypes.string,
 };
 
 export default JoiningDetails;
