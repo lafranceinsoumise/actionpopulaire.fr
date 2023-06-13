@@ -148,7 +148,7 @@ class CheckCodeAPIView(APIView):
     }
 
     def validate_password(self, email, password):
-        role = authenticate(email=email, password=password)
+        role = authenticate(self.request, email=email, password=password)
 
         if not role:
             raise exceptions.ValidationError(
@@ -170,7 +170,7 @@ class CheckCodeAPIView(APIView):
                 detail={"code": self.messages["invalid_format"]}, code="invalid_format"
             )
 
-        role = authenticate(email=email, short_code=short_code)
+        role = authenticate(self.request, email=email, short_code=short_code)
 
         if not role:
             raise exceptions.ValidationError(
