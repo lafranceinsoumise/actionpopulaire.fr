@@ -204,6 +204,8 @@ const Actions = (props) => {
     );
   }
 
+  const hasRSVPDetails = hasSubscriptionForm || hasPrice;
+
   return (
     <>
       <StyledActions>
@@ -255,7 +257,7 @@ const Actions = (props) => {
             groupsAttendees={groupsAttendees}
           />
         )}
-        {allowGuests && (hasSubscriptionForm || hasPrice) && (
+        {allowGuests && hasRSVPDetails && (
           <Button link href={routes.rsvp}>
             Ajouter une personne
           </Button>
@@ -268,6 +270,7 @@ const Actions = (props) => {
         groups={groupsAttendees}
         logged={logged}
         backLink={backLink}
+        rsvpRoute={hasRSVPDetails ? routes.rsvp : null}
       />
     </>
   );

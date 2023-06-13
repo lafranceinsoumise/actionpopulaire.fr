@@ -60,7 +60,7 @@ connection_token_generator = ConnectionSignatureGenerator(
 
 class ShortCodeGenerator:
     alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ123456789"
-    allowed_patterns = [r"[A-Z1-9]{5}", r"[0-9]{8}"]
+    allowed_patterns = [r"^[A-Z1-9]{5}$"]
     length = 5
 
     def __init__(self, key_prefix, validity, max_concurrent_codes):
