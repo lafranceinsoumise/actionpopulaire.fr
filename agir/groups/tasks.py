@@ -652,7 +652,9 @@ def effectuer_changements(boucle, membres_souhaites, metas, dry_run=False):
         return len(membres_actuels), len(a_ajouter), len(a_retirer)
 
     _, membres_supprimes = a_retirer.delete()
-    nouveau_membres = Membership.objects.bulk_create(a_ajouter, ignore_conflicts=True)
+    nouveau_membres = Membership.objects.bulk_create(
+        a_ajouter, ignore_conflicts=True, send_post_save_signal=True
+    )
     membres_apres_maj = list(Membership.objects.filter(supportgroup=boucle))
     for membre in membres_apres_maj:
         membre.meta = metas[membre.person_id]

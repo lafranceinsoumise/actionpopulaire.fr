@@ -91,6 +91,7 @@ class Subscription(UUIDIdentified, TimeStampedModel):
         Activity.TYPE_GROUP_CREATION_CONFIRMATION,
         Activity.TYPE_GROUP_COORGANIZATION_INVITE,
         Activity.TYPE_GROUP_COORGANIZATION_ACCEPTED,
+        Activity.TYPE_NEW_EVENT_PARTICIPATION_MYGROUPS,
     ]
 
     person = models.ForeignKey(

@@ -7,7 +7,7 @@ from django.conf import settings
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
 from django.contrib.postgres.search import SearchVector, SearchRank
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Subquery, OuterRef, Count, Q, Exists, Max, F
 from django.db.models.functions import Coalesce
 from django.utils import timezone
@@ -219,6 +219,25 @@ class MembershipQuerySet(models.QuerySet):
             .prefetch_related("subscription_set")
             .with_email()
         )
+
+
+class MembershipManager(models.Manager.from_queryset(MembershipQuerySet)):
+    def bulk_create(self, instances, send_post_save_signal=False, **kwargs):
+        with transaction.atomic():
+            memberships = super().bulk_create(instances, **kwargs)
+
+            if not send_post_save_signal:
+                return memberships
+
+            for membership in memberships:
+                models.signals.post_save.send(
+                    self.model,
+                    instance=membership,
+                    created=True,
+                    using=self._db,
+                )
+
+            return memberships
 
 
 @reversion.register(for_concrete_model=True, follow=("subtypes", "links"))
@@ -528,7 +547,7 @@ class Membership(ExportModelOperationsMixin("membership"), TimeStampedModel):
         (MEMBERSHIP_TYPE_REFERENT, "Animateur⋅rice"),
     )
 
-    objects = MembershipQuerySet.as_manager()
+    objects = MembershipManager()
 
     person = models.ForeignKey(
         "people.Person",
