@@ -8,6 +8,7 @@ from ..actions import groups_to_csv_lines
 from ..tasks import (
     send_newly_certified_group_notifications,
     send_uncertified_group_notifications,
+    subscribe_supportgroup_referents_to_main_newsletters,
 )
 
 
@@ -54,6 +55,7 @@ def certify_supportgroups(modeladmin, request, qs):
                 group.certification_date = now
                 group.save()
                 send_newly_certified_group_notifications.delay(group.pk)
+                subscribe_supportgroup_referents_to_main_newsletters.delay(group.pk)
                 updated_count += 1
         except Exception as e:
             modeladmin.message_user(

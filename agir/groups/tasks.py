@@ -891,6 +891,16 @@ def create_transfer_membership_activities(
     )
 
 
+@post_save_task()
+def subscribe_supportgroup_referents_to_main_newsletters(supportgroup_pk):
+    supportgroup = SupportGroup.objects.get(pk=supportgroup_pk)
+    recipients = supportgroup.referents
+    for referent in recipients:
+        if not referent.subscribed:
+            referent.subscribed = True
+            referent.save()
+
+
 @emailing_task()
 def send_newly_certified_group_notifications(supportgroup_pk):
     supportgroup = SupportGroup.objects.get(pk=supportgroup_pk)
