@@ -127,8 +127,8 @@ class LenderForm(BaseDonorForm):
             ]
         )
 
-        if "subscribed_lfi" in self.fields:
-            fields.append("subscribed_lfi")
+        if "subscribed" in self.fields:
+            fields.append("subscribed")
 
         if len(self.fields["payment_mode"].payment_modes) <= 1:
             del self.fields["payment_mode"]

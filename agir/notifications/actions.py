@@ -71,6 +71,10 @@ def create_default_person_push_subscriptions(person):
 
 
 def create_default_group_membership_subscriptions(person, membership):
+    if not membership.id:
+        membership = Membership.objects.get(
+            supportgroup=membership.supportgroup, person=membership.person
+        )
     subscriptions = get_default_group_push_subscriptions(person, membership)
     subscriptions += get_default_group_email_subscriptions(person, membership)
-    Subscription.objects.bulk_create(subscriptions)
+    Subscription.objects.bulk_create(subscriptions, ignore_conflicts=True)

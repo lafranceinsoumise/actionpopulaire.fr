@@ -83,7 +83,9 @@
         </div>
         <fieldset>
           <legend>Notifications et e-mails Action Populaire</legend>
-          <a href="{% url "list_activities.notification_settings" %}" class="btn btn-primary">Paramétrer mes notifications et emails</a>
+          <a href="{% url "list_activities.notification_settings" %}" class="btn btn-sm btn-info">
+            Paramétrer mes notifications et emails
+          </a>
         </fieldset>
         {% crispy form %}
       </div>
