@@ -461,12 +461,12 @@ class InformationContactFormTestCases(TestCase):
             data={
                 "contact_phone": "0658985632",
                 "subscribed_sms": "on",
-                "subscribed_lfi": "on",
+                "subscribed": "on",
             },
             follow=True,
         )
 
-        self.person = Person.objects.get(pk=self.person.pk)
+        self.person.refresh_from_db()
         self.assertTrue(self.person.subscribed)
         self.assertTrue(self.person.subscribed_sms)
 

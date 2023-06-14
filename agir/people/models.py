@@ -426,6 +426,7 @@ class Person(
         (NEWSLETTER_2022_PROGRAMME, "NSP processus programme"),
         (NEWSLETTER_2022_LIAISON, "NSP Correspondant·e d'immeuble ou de rue"),
     )
+    MAIN_NEWSLETTER_CHOICES = (NEWSLETTER_2022, NEWSLETTER_2022_EXCEPTIONNEL)
 
     newsletters = ChoiceArrayField(
         models.CharField(choices=NEWSLETTERS_CHOICES, max_length=255),
@@ -716,14 +717,25 @@ class Person(
 
     @property
     def subscribed(self):
-        return self.NEWSLETTER_LFI in self.newsletters
+        return all(
+            subscription in self.newsletters
+            for subscription in self.MAIN_NEWSLETTER_CHOICES
+        )
 
     @subscribed.setter
     def subscribed(self, value):
-        if value and not self.subscribed:
-            self.newsletters.append(self.NEWSLETTER_LFI)
-        if not value and self.subscribed:
-            self.newsletters.remove(self.NEWSLETTER_LFI)
+        if value == self.subscribed:
+            return
+
+        if value:
+            self.newsletters = list({*self.newsletters, *self.MAIN_NEWSLETTER_CHOICES})
+            return
+
+        self.newsletters = [
+            subscription
+            for subscription in self.newsletters
+            if subscription not in self.MAIN_NEWSLETTER_CHOICES
+        ]
 
     def get_full_name(self):
         """
