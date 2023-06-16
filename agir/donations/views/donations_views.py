@@ -206,7 +206,9 @@ class AlreadyHasSubscriptionView(FormView):
         # en effet, si l'opération échoue au milieu, on a ainsi accès à la nouvelle
         # souscription, et on peut tenter de réparer les choses à la main.
         new_subscription = create_subscription(
-            person=self.request.user.person, **self.new_subscription_info
+            person=self.request.user.person,
+            allocations=self.new_subscription_info["meta"]["allocations"],
+            **self.new_subscription_info,
         )
 
         replace_subscription(
