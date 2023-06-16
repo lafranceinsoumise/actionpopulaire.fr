@@ -79,7 +79,7 @@ class Poll(BaseAPIResource):
         with transaction.atomic():
             if self.tags.all().count() > 0:
                 person.tags.add(*self.tags.all())
-            PollChoice.objects.create(
+            return PollChoice.objects.create(
                 person=person, poll=self, selection=[option.pk for option in options]
             )
 

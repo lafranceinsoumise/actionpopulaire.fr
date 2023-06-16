@@ -1,0 +1,23 @@
+{% extends email_template %}
+
+{% block header %}{% endblock %}
+
+{% block subject %}
+  Votre vote a été pris en compte
+{% endblock %}
+
+{% block html_content %}
+<p>{{ greetings }}</p>
+<p>
+  Votre participation à la consultation «_{{ poll.title }}_» a bien été enregistrée.
+</p>
+<p>
+  Votre identifiant anonyme et unique est le <strong>{{ poll_choice.anonymous_id }}</strong>. Lors de la publication des résultats,
+  vous pourrez vous en servir pour vérifier que votre vote a bien été pris en compte.
+</p>
+<div>
+ {{ poll_choice.html_confirmation_note }}
+</div>
+{% endblock %}
+
+{% block html_footer %}{% endblock %}

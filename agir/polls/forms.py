@@ -71,4 +71,5 @@ class PollParticipationForm(Form):
 
     def make_choice(self, user):
         choice = self.cleaned_data["choice"]
-        self.poll.make_choice(user.person, choice)
+        self.poll_choice = self.poll.make_choice(user.person, choice)
+        return self.poll_choice
