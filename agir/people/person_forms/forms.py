@@ -1,16 +1,15 @@
+import os
+from copy import copy
 from pathlib import PurePath
 from uuid import uuid4
 
-import os
-from copy import copy
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Fieldset, Row, Submit
+from crispy_forms.layout import Submit
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.files import File
 from django.core.files.storage import default_storage
 from django.utils.text import slugify
-from django.utils.translation import gettext as _
 
 from agir.lib.form_components import *
 from agir.lib.form_mixins import MetaFieldsMixin
@@ -20,11 +19,6 @@ from .fields import is_actual_model_field, get_data_from_submission, get_form_fi
 from ..models import Person, PersonFormSubmission
 
 check_person_email_bucket = TokenBucket("PersonFormPersonChoice", 10, 600)
-
-
-class PersonTagChoiceField(forms.ModelChoiceField):
-    def label_from_instance(self, obj):
-        return obj.description
 
 
 class SuperHiddenDisplay(forms.HiddenInput):
@@ -72,23 +66,27 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
                 self.initial[id] = value
             self.is_submission_edition = True
 
-        parts = []
+        self.parts = []
+        self.tags = []
 
         # lors de la création et du test du formulaire, celui-ci n'a pas encore d'ID, et on ne peut pas manipuler
         # ses tags
         if not self.person_form_instance._state.adding:
-            self.tag_queryset = self.person_form_instance.tags.all()
+            self.tag_queryset = list(self.person_form_instance.tags.all())
 
-            if len(self.tag_queryset) > 1:
-                self.fields["tag"] = PersonTagChoiceField(
-                    queryset=self.tag_queryset,
-                    to_field_name="label",
-                    required=True,
-                    label=self.person_form_instance.main_question,
+            if self.person_form_instance.main_question_fields:
+                # if main_question is specified and more than one tag selected: allow the person to choose the tag
+                self.parts.append(
+                    get_form_part(
+                        {
+                            "title": " ",
+                            "fields": self.person_form_instance.main_question_fields,
+                        }
+                    )
                 )
-                parts.append(Fieldset(_("Ma situation"), Row(FullCol("tag"))))
-            elif len(self.tag_queryset) == 1:
-                self.tag = self.tag_queryset[0]
+            elif self.tag_queryset:
+                # if main_question is not specified or only one tag is selected: automatically add the tag(s)
+                self.tags += self.tag_queryset
 
         opts = self._meta
         if opts.fields:
@@ -118,11 +116,9 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
         self.helper.layout = Layout()
 
         if self.person_form_instance.custom_fields:
-            self.parts = [
+            self.parts += [
                 get_form_part(part) for part in self.person_form_instance.custom_fields
             ]
-        else:
-            self.parts = []
 
         for part in self.parts:
             part.set_up_fields(self, self.is_submission_edition)
@@ -165,6 +161,13 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
                             code="selected_self",
                         ),
                     )
+            elif field_descriptor.get("type") == "person_tag" and field_descriptor.get(
+                "person_field", False
+            ):
+                tags = cleaned_data.get(field_descriptor.get("id"), [])
+                tags = tags if not tags or isinstance(tags, list) else [tags]
+                if tags:
+                    self.tags += tags
 
             if (
                 self.is_submission_edition
@@ -223,10 +226,15 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
         return self.submission
 
     def _save_m2m(self):
-        if "tag" in self.cleaned_data:
-            self.instance.tags.add(self.cleaned_data["tag"])
-        elif hasattr(self, "tag"):
-            self.instance.tags.add(self.tag)
+        if self.tags:
+            # Fields of type tags are only used to ADD tags to a person (except for person_form_instance tags
+            # which are meant to be exclusive and thus are all removed before addition)
+            self.instance.tags.set(
+                list(
+                    self.instance.tags.difference(self.person_form_instance.tags.all())
+                )
+                + self.tags
+            )
 
         self.save_submission(self.instance)
 
