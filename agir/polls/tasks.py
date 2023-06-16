@@ -13,7 +13,7 @@ def send_vote_confirmation_email(poll_choice_id):
         return
 
     send_template_email(
-        "polls/confirmation_email",
+        "polls/confirmation_email.html",
         recipients=[poll_choice.person],
         bindings={"poll_choice": poll_choice, "poll": poll_choice.poll},
     )
