@@ -1,11 +1,12 @@
 # Configuration des champs d'un formulaire personnalisé
 
-Les champs d'un formulaire personnalisé sont définis à travers une configuration au format [JSON](https://www.json.org/json-fr.html). Il s'agit d'un tableau (array) de configurations de groupes de champs.
+Les champs d'un formulaire personnalisé sont définis à travers une configuration au
+format [JSON](https://www.json.org/json-fr.html). Il s'agit d'un tableau (array) de configurations de groupes de champs.
 
 ## Paramètres d'un groupe de champs
 
-Un groupe de champs représente une section du formulaire. Pour chaque groupe de champs, on définit obligatoirement un titre et une liste de champs.
-Un texte introductif peut aussi être ajouté entre le titre et les champs de la section.
+Un groupe de champs représente une section du formulaire. Pour chaque groupe de champs, on définit obligatoirement un
+titre et une liste de champs. Un texte introductif peut aussi être ajouté entre le titre et les champs de la section.
 
 ##### Paramètres obligatoires
 
@@ -22,29 +23,44 @@ Un texte introductif peut aussi être ajouté entre le titre et les champs de la
 
 ## Paramètres d'un champs de saisi de formulaire
 
-Chaque champs dans un groupe de champs est défini par un objet au format JSON.
-Certaines propriétés de cet objet sont spécifiques aux types de champs, alors que d'autres s'appliquent à tous les types.
+Chaque champs dans un groupe de champs est défini par un objet au format JSON. Certaines propriétés de cet objet sont
+spécifiques aux types de champs, alors que d'autres s'appliquent à tous les types.
 
 ### Paramètres communs à tous les types de champs
 
 ##### Paramètres obligatoires
 
 - `"id": "prenom" [string]`
-  L'identifiant court du champs qui sera utilisé pour enregistrer les valeurs renseignées par les utilisateur·ices pour le champs. Il doit être unique pour tout le formulaire.
+  L'identifiant court du champs qui sera utilisé pour enregistrer les valeurs renseignées par les utilisateur·ices pour
+  le champs. Il doit être unique pour tout le formulaire.
 
 - `"label": "Prénom" [string]`
-  Le libellé du champs. Cette propriété est obligatoire uniquement si la propriété `person_field` (cf. [Paramètres optionnels](#parametres-optionnels)) n'est pas indiquée ou sa valeur est `false`.
+  Le libellé du champs. Cette propriété est obligatoire uniquement si la propriété `person_field` (
+  cf. [Paramètres optionnels](#parametres-optionnels)) n'est pas indiquée ou sa valeur est `false`.
 
 - `"type": "short_text" [string]`
-  Le type de champs à utiliser. Cette propriété est obligatoire uniquement si la propriété `person_field` (cf. [Paramètres optionnels](#parametres-optionnels)) n'est pas indiquée ou sa valeur est `false`. Les types de champs disponibles sont: ["short_text"](#short_text), ["long_text"](#long_text), ["choice"](#choice), ["radio_choice"](#radio_choice), ["autocomplete_choice"](#autocomplete_choice), ["autocomplete_multiple_choice"](#autocomplete_multiple_choice), ["multiple_choice"](#multiple_choice), ["email_address"](#email_address), ["phone_number"](#phone_number), ["url"](#url), ["file"](#file), ["boolean"](#boolean), ["integer"](#integer), ["decimal"](#decimal), ["datetime"](#datetime), ["date"](#date), ["datetimes"](#datetimes), ["dates"](#dates), ["person"](#person), ["iban"](#iban), ["commune"](#commune), ["group"](#group), ["multiple_groups"](#multiple_groups), ["newsletters"](#newsletters), ["event_theme"](#event_theme).
+  Le type de champs à utiliser. Cette propriété est obligatoire uniquement si la propriété `person_field` (
+  cf. [Paramètres optionnels](#parametres-optionnels)) n'est pas indiquée ou sa valeur est `false`. Les types de champs
+  disponibles sont: ["short_text"](#short_text), ["long_text"](#long_text), ["choice"](#choice)
+  , ["radio_choice"](#radio_choice), ["autocomplete_choice"](#autocomplete_choice)
+  , ["autocomplete_multiple_choice"](#autocomplete_multiple_choice), ["multiple_choice"](#multiple_choice)
+  , ["email_address"](#email_address), ["phone_number"](#phone_number), ["url"](#url), ["file"](#file)
+  , ["boolean"](#boolean), ["integer"](#integer), ["decimal"](#decimal), ["datetime"](#datetime), ["date"](#date)
+  , ["datetimes"](#datetimes), ["dates"](#dates), ["person"](#person), ["iban"](#iban), ["commune"](#commune)
+  , ["group"](#group), ["multiple_groups"](#multiple_groups), ["newsletters"](#newsletters)
+  , ["event_theme"](#event_theme), ["person_tag"](#person_tag).
 
 ##### Paramètres optionnels
 
 - `"person_field": true [boolean]`
-  Si `true`, le champs sera automatiquement lié à une propriété (si celle-ci existe) de la personne connectée. Le champs sera pré-rempli et les informations de la personne mises à jour en cas de modification du champs. Si `false`, le champs ne sera pas lié à la personne connectée: il sera donc obligatoire de spécifié une valeur pour les propriétés `label` et `type`.
+  Si `true`, le champs sera automatiquement lié à une propriété (si celle-ci existe) de la personne connectée. Le champs
+  sera pré-rempli et les informations de la personne mises à jour en cas de modification du champs. Si `false`, le
+  champs ne sera pas lié à la personne connectée: il sera donc obligatoire de spécifié une valeur pour les
+  propriétés `label` et `type`.
 
 - `"required": false [boolean]`
-  Cette propriété indique si le champs est obligatoire pour la soumission du formulaire ou non. Si non spécifié, sa valeur sera par défaut `true` pour les champs dont la propriété `person_field` est `true`, sinon `false`.
+  Cette propriété indique si le champs est obligatoire pour la soumission du formulaire ou non. Si non spécifié, sa
+  valeur sera par défaut `true` pour les champs dont la propriété `person_field` est `true`, sinon `false`.
 
 - `"disabled": false [boolean]`
   Cette propriété indique si le champs est modifiable par l'utilisateur (`false`) ou non (`true`).
@@ -90,7 +106,10 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
   Indique si la valeur renseignées doit être enregistrée en supprimant les espaces au début et à la fin.
 
 - `"choices": [["a", "Choix A"], ["b", "Choix B"]] [array[]]`
-  Une liste de valeurs possibles à suggérer à la personne. Si cette propriété est indiqué, la personne pourra soit choisir parmi les valeurs suggérées, soit écrire une nouvelle valeur directement dans le champs. La valeur de cette propriété est un tableau en deux dimensions (tableau de tableaux) indiquant une liste de choix possibles et, pour chaque choix, la valeur (toute expression JSON valide est acceptée) suivie du libellé du choix (string).
+  Une liste de valeurs possibles à suggérer à la personne. Si cette propriété est indiqué, la personne pourra soit
+  choisir parmi les valeurs suggérées, soit écrire une nouvelle valeur directement dans le champs. La valeur de cette
+  propriété est un tableau en deux dimensions (tableau de tableaux) indiquant une liste de choix possibles et, pour
+  chaque choix, la valeur (toute expression JSON valide est acceptée) suivie du libellé du choix (string).
 
 ##### Examples
 
@@ -100,9 +119,18 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
   "label": "Parfum de glâce",
   "type": "short_text",
   "choices": [
-    ["Ba", "Banane"],
-    ["Ch", "Chocolat"],
-    ["Cr", "Crème"]
+    [
+      "Ba",
+      "Banane"
+    ],
+    [
+      "Ch",
+      "Chocolat"
+    ],
+    [
+      "Cr",
+      "Crème"
+    ]
   ],
   "min_length": "3",
   "max_length": "255",
@@ -141,21 +169,23 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
 
 #### `choice`
 
-Un champs qui permet le choix parmi plusieurs valeurs prédéfinies grâce à une liste déroulante. Une seule valeur peut-être sélectionnée.
+Un champs qui permet le choix parmi plusieurs valeurs prédéfinies grâce à une liste déroulante. Une seule valeur
+peut-être sélectionnée.
 
 ##### Paramètres obligatoires
 
 - `"choices": [["a", "Choix A"], ["b", "Choix B"]] [array[] / string[]]`
-  La liste de valeurs possibles.
-  La valeur de cette propriété peut être:
-  1. un tableau de valeurs (string) - ex. `"choices": ["a", "b", "c"]`
-  2. un tableau en deux dimensions (tableau de tableaux) indiquant une liste de choix possibles et, pour chaque choix, la valeur (toute expression JSON valide est acceptée) suivie du libellé du choix (string)
-  3. un tableau en trois dimensions pour présenter une liste du type 2 séparé en sous-listes - ex. `"choices": [["Catégorie A", [["a", "choix A"]]]]`
+  La liste de valeurs possibles. La valeur de cette propriété peut être:
+    1. un tableau de valeurs (string) - ex. `"choices": ["a", "b", "c"]`
+    2. un tableau en deux dimensions (tableau de tableaux) indiquant une liste de choix possibles et, pour chaque choix,
+       la valeur (toute expression JSON valide est acceptée) suivie du libellé du choix (string)
+    3. un tableau en trois dimensions pour présenter une liste du type 2 séparé en sous-listes -
+       ex. `"choices": [["Catégorie A", [["a", "choix A"]]]]`
 
 ##### Paramètres optionnels
 
 - `"default_label": "---" [string]`
-  Le libellé de la valeur vide, lorsqu'aucune option n'est sélectionnée   
+  Le libellé de la valeur vide, lorsqu'aucune option n'est sélectionnée
 - `"empty_value": true [boolean]`
   Afficher ou non une option vide en plus de celles indiquées
 
@@ -214,14 +244,16 @@ Un champs qui permet le choix parmi plusieurs valeurs prédéfinies grâce à un
 
 #### `radio_choice`
 
-Un champs qui permet le choix parmi plusieurs valeurs prédéfinies à des cases à cocher de type radio. Une seule valeur peut-être sélectionnée.
+Un champs qui permet le choix parmi plusieurs valeurs prédéfinies à des cases à cocher de type radio. Une seule valeur
+peut-être sélectionnée.
 
 ##### Paramètres obligatoires
 
 - `"choices": [["a", "Choix A"], ["b", "Choix B"]] [array[] / string[]]`
   La liste de valeurs possibles. La valeur de cette propriété peut être:
-  1. un tableau de valeurs (string) - ex. `"choices": ["a", "b", "c"]`
-  2. un tableau en deux dimensions (tableau de tableaux) indiquant une liste de choix possibles et, pour chaque choix, la valeur (toute expression JSON valide est acceptée) suivie du libellé du choix (string)
+    1. un tableau de valeurs (string) - ex. `"choices": ["a", "b", "c"]`
+    2. un tableau en deux dimensions (tableau de tableaux) indiquant une liste de choix possibles et, pour chaque choix,
+       la valeur (toute expression JSON valide est acceptée) suivie du libellé du choix (string)
 
 ##### Examples
 
@@ -231,17 +263,34 @@ Un champs qui permet le choix parmi plusieurs valeurs prédéfinies à des cases
     "id": "app_1",
     "label": "Appartement",
     "type": "radio_choice",
-    "choices": ["1A", "1B", "2A", "2B"]
+    "choices": [
+      "1A",
+      "1B",
+      "2A",
+      "2B"
+    ]
   },
   {
     "id": "app_2",
     "label": "Appartement",
     "type": "radio_choice",
     "choices": [
-      ["1A", "App. 1A"],
-      ["1B", "App. 1B"],
-      ["2A", "App. 2A"],
-      ["2B", "App. 2B"]
+      [
+        "1A",
+        "App. 1A"
+      ],
+      [
+        "1B",
+        "App. 1B"
+      ],
+      [
+        "2A",
+        "App. 2A"
+      ],
+      [
+        "2B",
+        "App. 2B"
+      ]
     ]
   }
 ]
@@ -249,21 +298,23 @@ Un champs qui permet le choix parmi plusieurs valeurs prédéfinies à des cases
 
 #### `autocomplete_choice`
 
-Un champs qui permet le choix parmi plusieurs valeurs prédéfinies grâce à une liste déroulante filtrable. Une seule valeur peut-être sélectionnée.
+Un champs qui permet le choix parmi plusieurs valeurs prédéfinies grâce à une liste déroulante filtrable. Une seule
+valeur peut-être sélectionnée.
 
 ##### Paramètres obligatoires
 
 - `"choices": [["a", "Choix A"], ["b", "Choix B"]] [array[] / string[]]`
-  La liste de valeurs possibles.
-  La valeur de cette propriété peut être:
-  1. un tableau de valeurs (string) - ex. `"choices": ["a", "b", "c"]`
-  2. un tableau en deux dimensions (tableau de tableaux) indiquant une liste de choix possibles et, pour chaque choix, la valeur (toute expression JSON valide est acceptée) suivie du libellé du choix (string)
-  3. un tableau en trois dimensions pour présenter une liste du type 2 séparé en sous-listes - ex. `"choices": [["Catégorie A", [["a", "choix A"]]]]`
+  La liste de valeurs possibles. La valeur de cette propriété peut être:
+    1. un tableau de valeurs (string) - ex. `"choices": ["a", "b", "c"]`
+    2. un tableau en deux dimensions (tableau de tableaux) indiquant une liste de choix possibles et, pour chaque choix,
+       la valeur (toute expression JSON valide est acceptée) suivie du libellé du choix (string)
+    3. un tableau en trois dimensions pour présenter une liste du type 2 séparé en sous-listes -
+       ex. `"choices": [["Catégorie A", [["a", "choix A"]]]]`
 
 ##### Paramètres optionnels
 
 - `"default_label": "---" [string]`
-  Le libellé de la valeur vide, lorsqu'aucune option n'est sélectionnée   
+  Le libellé de la valeur vide, lorsqu'aucune option n'est sélectionnée
 - `"empty_value": true [boolean]`
   Afficher ou non une option vide en plus de celles indiquées
 
@@ -276,7 +327,12 @@ Un champs qui permet le choix parmi plusieurs valeurs prédéfinies grâce à un
     "label": "Appartement",
     "type": "autocomplete_choice",
     "default_label": "Je ne vis pas ici",
-    "choices": ["1A", "1B", "2A", "2B"]
+    "choices": [
+      "1A",
+      "1B",
+      "2A",
+      "2B"
+    ]
   },
   {
     "id": "app_2",
@@ -284,10 +340,22 @@ Un champs qui permet le choix parmi plusieurs valeurs prédéfinies grâce à un
     "type": "autocomplete_choice",
     "default_label": "Je ne vis pas ici",
     "choices": [
-      ["1A", "App. 1A"],
-      ["1B", "App. 1B"],
-      ["2A", "App. 2A"],
-      ["2B", "App. 2B"]
+      [
+        "1A",
+        "App. 1A"
+      ],
+      [
+        "1B",
+        "App. 1B"
+      ],
+      [
+        "2A",
+        "App. 2A"
+      ],
+      [
+        "2B",
+        "App. 2B"
+      ]
     ]
   },
   {
@@ -299,15 +367,27 @@ Un champs qui permet le choix parmi plusieurs valeurs prédéfinies grâce à un
       [
         "1er étage",
         [
-          ["1A", "App. A"],
-          ["1B", "App. B"]
+          [
+            "1A",
+            "App. A"
+          ],
+          [
+            "1B",
+            "App. B"
+          ]
         ]
       ],
       [
         "2ème étage",
         [
-          ["2A", "App. A"],
-          ["2B", "App. B"]
+          [
+            "2A",
+            "App. A"
+          ],
+          [
+            "2B",
+            "App. B"
+          ]
         ]
       ]
     ]
@@ -317,15 +397,18 @@ Un champs qui permet le choix parmi plusieurs valeurs prédéfinies grâce à un
 
 #### `autocomplete_multiple_choice`
 
-Un champs qui permet le choix parmi plusieurs valeurs prédéfinies grâce à une liste déroulante filtrable. Plusieurs valeurs peuvent être sélectionnées.
+Un champs qui permet le choix parmi plusieurs valeurs prédéfinies grâce à une liste déroulante filtrable. Plusieurs
+valeurs peuvent être sélectionnées.
 
 ##### Paramètres obligatoires
 
 - `"choices": [["a", "Choix A"], ["b", "Choix B"]] [array[] / string[]]`
   La liste de valeurs possibles. La valeur de cette propriété peut être:
-  1. un tableau de valeurs (string) - ex. `"choices": ["a", "b", "c"]`
-  2. un tableau en deux dimensions (tableau de tableaux) indiquant une liste de choix possibles et, pour chaque choix, la valeur (toute expression JSON valide est acceptée) suivie du libellé du choix (string)
-  3. un tableau en trois dimensions pour présenter une liste du type 2 séparé en sous-listes - ex. `"choices": [["Catégorie A", [["a", "choix A"]]]]`
+    1. un tableau de valeurs (string) - ex. `"choices": ["a", "b", "c"]`
+    2. un tableau en deux dimensions (tableau de tableaux) indiquant une liste de choix possibles et, pour chaque choix,
+       la valeur (toute expression JSON valide est acceptée) suivie du libellé du choix (string)
+    3. un tableau en trois dimensions pour présenter une liste du type 2 séparé en sous-listes -
+       ex. `"choices": [["Catégorie A", [["a", "choix A"]]]]`
 
 ##### Paramètres optionnels
 
@@ -341,7 +424,12 @@ Un champs qui permet le choix parmi plusieurs valeurs prédéfinies grâce à un
     "label": "Appartement",
     "type": "autocomplete_multiple_choice",
     "max_items": 2,
-    "choices": ["1A", "1B", "2A", "2B"]
+    "choices": [
+      "1A",
+      "1B",
+      "2A",
+      "2B"
+    ]
   },
   {
     "id": "app_2",
@@ -349,10 +437,22 @@ Un champs qui permet le choix parmi plusieurs valeurs prédéfinies grâce à un
     "type": "autocomplete_multiple_choice",
     "max_items": 2,
     "choices": [
-      ["1A", "App. 1A"],
-      ["1B", "App. 1B"],
-      ["2A", "App. 2A"],
-      ["2B", "App. 2B"]
+      [
+        "1A",
+        "App. 1A"
+      ],
+      [
+        "1B",
+        "App. 1B"
+      ],
+      [
+        "2A",
+        "App. 2A"
+      ],
+      [
+        "2B",
+        "App. 2B"
+      ]
     ]
   },
   {
@@ -364,15 +464,27 @@ Un champs qui permet le choix parmi plusieurs valeurs prédéfinies grâce à un
       [
         "1er étage",
         [
-          ["1A", "App. A"],
-          ["1B", "App. B"]
+          [
+            "1A",
+            "App. A"
+          ],
+          [
+            "1B",
+            "App. B"
+          ]
         ]
       ],
       [
         "2ème étage",
         [
-          ["2A", "App. A"],
-          ["2B", "App. B"]
+          [
+            "2A",
+            "App. A"
+          ],
+          [
+            "2B",
+            "App. B"
+          ]
         ]
       ]
     ]
@@ -382,14 +494,16 @@ Un champs qui permet le choix parmi plusieurs valeurs prédéfinies grâce à un
 
 #### `multiple_choice`
 
-Un champs qui permet le choix parmi plusieurs valeurs prédéfinies grâce à une liste déroulante. Plusieurs valeurs peuvent être sélectionnées.
+Un champs qui permet le choix parmi plusieurs valeurs prédéfinies grâce à une liste déroulante. Plusieurs valeurs
+peuvent être sélectionnées.
 
 ##### Paramètres obligatoires
 
 - `"choices": [["a", "Choix A"], ["b", "Choix B"]] [array[] / string[]]`
   La liste de valeurs possibles. La valeur de cette propriété peut être:
-  1. un tableau de valeurs (string) - ex. `"choices": ["a", "b", "c"]`
-  2. un tableau en deux dimensions (tableau de tableaux) indiquant une liste de choix possibles et, pour chaque choix, la valeur (toute expression JSON valide est acceptée) suivie du libellé du choix (string)
+    1. un tableau de valeurs (string) - ex. `"choices": ["a", "b", "c"]`
+    2. un tableau en deux dimensions (tableau de tableaux) indiquant une liste de choix possibles et, pour chaque choix,
+       la valeur (toute expression JSON valide est acceptée) suivie du libellé du choix (string)
 
 ##### Examples
 
@@ -399,17 +513,34 @@ Un champs qui permet le choix parmi plusieurs valeurs prédéfinies grâce à un
     "id": "app_1",
     "label": "Appartement",
     "type": "multiple_choice",
-    "choices": ["1A", "1B", "2A", "2B"]
+    "choices": [
+      "1A",
+      "1B",
+      "2A",
+      "2B"
+    ]
   },
   {
     "id": "app_2",
     "label": "Appartement",
     "type": "multiple_choice",
     "choices": [
-      ["1A", "App. 1A"],
-      ["1B", "App. 1B"],
-      ["2A", "App. 2A"],
-      ["2B", "App. 2B"]
+      [
+        "1A",
+        "App. 1A"
+      ],
+      [
+        "1B",
+        "App. 1B"
+      ],
+      [
+        "2A",
+        "App. 2A"
+      ],
+      [
+        "2B",
+        "App. 2B"
+      ]
     ]
   }
 ]
@@ -444,7 +575,8 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
 ##### Paramètres optionnels
 
 - `"region": "EE" [string]`
-  Le code [ISO_3166-1](https://en.wikipedia.org/wiki/ISO_3166-1#Current_codes) de la région par défaut du numéro de téléphone
+  Le code [ISO_3166-1](https://en.wikipedia.org/wiki/ISO_3166-1#Current_codes) de la région par défaut du numéro de
+  téléphone
 
 ##### Examples
 
@@ -492,7 +624,7 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
   Les extensions de fichier autorisées
 
 - `"multiple": false [boolean]`
-   Autoriser ou non l'envoi de plusieurs fichiers
+  Autoriser ou non l'envoi de plusieurs fichiers
 
 ##### Examples
 
@@ -502,7 +634,10 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
   "label": "Photo de profil",
   "type": "file",
   "max_size": 1000000,
-  "allowed_extensions": ["jpg", "png"],
+  "allowed_extensions": [
+    "jpg",
+    "png"
+  ],
   "multiple": false
 }
 ```
@@ -625,6 +760,7 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
   "max_value": "1871-05-28"
 }
 ```
+
 #### `datetimes`, `dates`
 
 Un champs qui permet de saisir une liste de dates avec (*datetimes*) ou sans (*dates*) un horaire.
@@ -636,7 +772,8 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
 ##### Paramètres optionnels
 
 - `"min_value": "1871-05-21" [string]`, `"max_value": "1871-05-28" [string]`
-  La valeur minimale et maximale autorisée pour le champs. Il est possible d'indiquer une date exacte, ou bien une date relative (en anglais, ex. *'today', '2 years ago', '2 weeks from now'*).
+  La valeur minimale et maximale autorisée pour le champs. Il est possible d'indiquer une date exacte, ou bien une date
+  relative (en anglais, ex. *'today', '2 years ago', '2 weeks from now'*).
 
 - `"min_length": 1 [number]`, `"max_length": 10 [number]`
   La longeur minimale et maximale de la liste
@@ -710,7 +847,9 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
   "id": "iban",
   "label": "IBAN",
   "type": "iban",
-  "allowed_countries": ["FR"]
+  "allowed_countries": [
+    "FR"
+  ]
 }
 ```
 
@@ -725,13 +864,13 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
 ##### Paramètres optionnels
 
 - `"types": ["COM"] [string[]]`
-  Les codes des types de communes à utiliser pour filtrer les résultats de recherche. Par défaut, tous les types seront affichés.
-  Les valeurs disponibles sont:
-  - "COM" (commune)
-  - "ARM" (arrondissement municipal)
-  - "COMA" (commune associée)
-  - "COMD" (commune déléguée)
-  - "SRM" (secteur électoral).
+  Les codes des types de communes à utiliser pour filtrer les résultats de recherche. Par défaut, tous les types seront
+  affichés. Les valeurs disponibles sont:
+    - "COM" (commune)
+    - "ARM" (arrondissement municipal)
+    - "COMA" (commune associée)
+    - "COMD" (commune déléguée)
+    - "SRM" (secteur électoral).
 
 ##### Examples
 
@@ -740,7 +879,9 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
   "id": "commune",
   "label": "Nom de la commune",
   "type": "commune",
-  "types": ["SRM"]
+  "types": [
+    "SRM"
+  ]
 }
 ```
 
@@ -756,10 +897,13 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
 
 - `"choices": "member" [string, string[]]`
   Une liste de valeurs possibles à suggérer à la personne. Les valeurs possibles sont :
-  1. `"membre", "member"`, pour afficher tous les groupes dont la personne est membre
-  2. `"animateur", "animatrice", "animator", "referent"` pour afficher tous les groupes dont la personne est animateur·ice
-  3. `"manager", "gestionnaire"` pour afficher tous les groupes dont la personne est gestionnaire
-  4. un tableau d'identifiants de groupe - ex. `"choices": ["64ed1c08-6329-4bee-aaae-c3d6a1ca0ec7", "3a32fc55-7507-4d5f-bb57-a66daad63461"]`. La valeur par défaut est `membre`
+    1. `"membre", "member"`, pour afficher tous les groupes dont la personne est membre
+    2. `"animateur", "animatrice", "animator", "referent"` pour afficher tous les groupes dont la personne est
+       animateur·ice
+    3. `"manager", "gestionnaire"` pour afficher tous les groupes dont la personne est gestionnaire
+    4. un tableau d'identifiants de groupe -
+       ex. `"choices": ["64ed1c08-6329-4bee-aaae-c3d6a1ca0ec7", "3a32fc55-7507-4d5f-bb57-a66daad63461"]`. La valeur par
+       défaut est `membre`
 
 ##### Examples
 
@@ -803,10 +947,13 @@ Un champs qui permet de sélectionner plusieurs groupes d'action à l'aide d'une
 
 - `"choices": "member" [string, string[]]`
   Une liste de valeurs possibles à suggérer à la personne. Les valeurs possibles sont :
-  1. `"membre", "member"`, pour afficher tous les groupes dont la personne est membre
-  2. `"animateur", "animatrice", "animator", "referent"` pour afficher tous les groupes dont la personne est animateur·ice
-  3. `"manager", "gestionnaire"` pour afficher tous les groupes dont la personne est gestionnaire
-  4. un tableau d'identifiants de groupe - ex. `"choices": ["64ed1c08-6329-4bee-aaae-c3d6a1ca0ec7", "3a32fc55-7507-4d5f-bb57-a66daad63461"]`. La valeur par défaut est `membre`
+    1. `"membre", "member"`, pour afficher tous les groupes dont la personne est membre
+    2. `"animateur", "animatrice", "animator", "referent"` pour afficher tous les groupes dont la personne est
+       animateur·ice
+    3. `"manager", "gestionnaire"` pour afficher tous les groupes dont la personne est gestionnaire
+    4. un tableau d'identifiants de groupe -
+       ex. `"choices": ["64ed1c08-6329-4bee-aaae-c3d6a1ca0ec7", "3a32fc55-7507-4d5f-bb57-a66daad63461"]`. La valeur par
+       défaut est `membre`
 
 ##### Examples
 
@@ -849,8 +996,10 @@ Un champs qui permet de sélectionner une ou plusieurs newsletters parmi une lis
 ##### Paramètres obligatoires
 
 - `"choices": [["2022", "Newsletter 2022"]] [array[]]`
-  Une liste de valeurs possibles à suggérer à la personne. La valeur de cette propriété est un tableau en deux dimensions (tableau de tableaux) indiquant une liste de choix possibles et, pour chaque choix, la valeur (l'identifiant d'une newsletter) suivie du libellé du choix (string). Par défaut toutes les newsletters disponibles sont affichées.
-
+  Une liste de valeurs possibles à suggérer à la personne. La valeur de cette propriété est un tableau en deux
+  dimensions (tableau de tableaux) indiquant une liste de choix possibles et, pour chaque choix, la valeur (
+  l'identifiant d'une newsletter) suivie du libellé du choix (string). Par défaut toutes les newsletters disponibles
+  sont affichées.
 
 #### `event_theme`
 
@@ -863,7 +1012,8 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
 ##### Paramètres optionnels
 
 - `"event_theme_type": null [string, number]`
-  L'id (nombre) ou le nom (chaîne de caractères) d'un type de thème d'événement pour n'afficher que les thèmes appartenant à un type particulier
+  L'id (nombre) ou le nom (chaîne de caractères) d'un type de thème d'événement pour n'afficher que les thèmes
+  appartenant à un type particulier
 
 ##### Examples
 
@@ -876,7 +1026,52 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
 }
 ```
 
+#### `person_tag`
 
+Un champs qui permet de sélectionner un ou plusieurs tags (PersonTag) et, optionnellement, de les ajouter à 
+la personne qui remplit le formulaire après la validation.   
+
+##### Paramètres obligatoires
+
+- `"choices": [] [[string, number]]`   
+  La liste d'ids (nombre) ou de noms (chaîne de caractères) de tags parmi lesquels la personne pourra choisir.  
+
+##### Paramètres optionnels
+
+- `"multiple": false [boolean]`   
+   Permet d'autoriser la sélection de plusieurs tags, qui par défaut est limité à un seul.
+- `"person_field": false [boolean]`   
+   Si `true`, les tags selectionnés seront ajoutées à la personne qui remplit le formulaire. 
+   N.B. : il est uniquement possible d'**ajouter** des tags à l'aide des champs de ce type et pas 
+   d'en supprimer.
+
+##### Examples
+
+```json
+[
+  {
+    "id": "color_tag",
+    "label": "Choisissez une couleur",
+    "type": "person_tag",
+    "choices": [
+      "label",
+      1,
+      2
+    ]
+  },
+  {
+    "id": "fruit_tag",
+    "label": "Choisissez un ou plusieurs fruits",
+    "type": "person_tag",
+    "multiple": true,
+    "choices": [
+      "label",
+      1,
+      2
+    ]
+  }
+]
+```
 
 ## Example
 
@@ -909,9 +1104,18 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
         "label": "Parfum de glâce",
         "type": "short_text",
         "choices": [
-          ["Ba", "Banane"],
-          ["Ch", "Chocolat"],
-          ["Cr", "Crème"]
+          [
+            "Ba",
+            "Banane"
+          ],
+          [
+            "Ch",
+            "Chocolat"
+          ],
+          [
+            "Cr",
+            "Crème"
+          ]
         ],
         "min_length": "3",
         "max_length": "255",
@@ -942,17 +1146,34 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
         "label": "Appartement",
         "type": "choice",
         "default_label": "Je ne vis pas ici",
-        "choices": ["1A", "1B", "2A", "2B"]
+        "choices": [
+          "1A",
+          "1B",
+          "2A",
+          "2B"
+        ]
       },
       {
         "id": "choice_2",
         "label": "Appartement",
         "type": "choice",
         "choices": [
-          ["1A", "App. 1A" ],
-          ["1B", "App. 1B"],
-          ["2A", "App. 2A"],
-          ["2B", "App. 2B"]
+          [
+            "1A",
+            "App. 1A"
+          ],
+          [
+            "1B",
+            "App. 1B"
+          ],
+          [
+            "2A",
+            "App. 2A"
+          ],
+          [
+            "2B",
+            "App. 2B"
+          ]
         ]
       },
       {
@@ -964,15 +1185,27 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
           [
             "1er étage",
             [
-              ["1A", "App. 1A"],
-              ["1B", "App. B"]
+              [
+                "1A",
+                "App. 1A"
+              ],
+              [
+                "1B",
+                "App. B"
+              ]
             ]
           ],
           [
             "2ème étage",
             [
-              ["2A", "App. A"],
-              ["2B", "App. B"]
+              [
+                "2A",
+                "App. A"
+              ],
+              [
+                "2B",
+                "App. B"
+              ]
             ]
           ]
         ]
@@ -987,17 +1220,34 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
         "id": "radio_1",
         "label": "Appartement",
         "type": "radio_choice",
-        "choices": ["1A", "1B", "2A", "2B"]
+        "choices": [
+          "1A",
+          "1B",
+          "2A",
+          "2B"
+        ]
       },
       {
         "id": "radio_2",
         "label": "Appartement",
         "type": "radio_choice",
         "choices": [
-          ["1A", "App. 1A"],
-          ["1B", "App. 1B"],
-          ["2A", "App. 2A"],
-          ["2B", "App. 2B"]
+          [
+            "1A",
+            "App. 1A"
+          ],
+          [
+            "1B",
+            "App. 1B"
+          ],
+          [
+            "2A",
+            "App. 2A"
+          ],
+          [
+            "2B",
+            "App. 2B"
+          ]
         ]
       }
     ]
@@ -1011,7 +1261,12 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
         "label": "Appartement",
         "type": "autocomplete_choice",
         "default_label": "Je ne vis pas ici",
-        "choices": ["1A", "1B", "2A", "2B"]
+        "choices": [
+          "1A",
+          "1B",
+          "2A",
+          "2B"
+        ]
       },
       {
         "id": "autocomplete_2",
@@ -1019,10 +1274,22 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
         "type": "autocomplete_choice",
         "default_label": "Je ne vis pas ici",
         "choices": [
-          ["1A", "App. 1A"],
-          ["1B", "App. 1B"],
-          ["2A", "App. 2A"],
-          ["2B", "App. 2B"]
+          [
+            "1A",
+            "App. 1A"
+          ],
+          [
+            "1B",
+            "App. 1B"
+          ],
+          [
+            "2A",
+            "App. 2A"
+          ],
+          [
+            "2B",
+            "App. 2B"
+          ]
         ]
       },
       {
@@ -1034,15 +1301,27 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
           [
             "1er étage",
             [
-              ["1A", "App. A"],
-              ["1B", "App. B"]
+              [
+                "1A",
+                "App. A"
+              ],
+              [
+                "1B",
+                "App. B"
+              ]
             ]
           ],
           [
             "2ème étage",
             [
-              ["2A", "App. A"],
-              ["2B", "App. B"]
+              [
+                "2A",
+                "App. A"
+              ],
+              [
+                "2B",
+                "App. B"
+              ]
             ]
           ]
         ]
@@ -1058,7 +1337,12 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
         "label": "Appartement",
         "type": "autocomplete_multiple_choice",
         "max_items": 2,
-        "choices": ["1A", "1B", "2A", "2B"]
+        "choices": [
+          "1A",
+          "1B",
+          "2A",
+          "2B"
+        ]
       },
       {
         "id": "autocomplete_multi_2",
@@ -1066,10 +1350,22 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
         "type": "autocomplete_multiple_choice",
         "max_items": 2,
         "choices": [
-          ["1A", "App. 1A"],
-          ["1B", "App. 1B"],
-          ["2A", "App. 2A"],
-          ["2B", "App. 2B"]
+          [
+            "1A",
+            "App. 1A"
+          ],
+          [
+            "1B",
+            "App. 1B"
+          ],
+          [
+            "2A",
+            "App. 2A"
+          ],
+          [
+            "2B",
+            "App. 2B"
+          ]
         ]
       },
       {
@@ -1081,15 +1377,27 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
           [
             "1er étage",
             [
-              ["1A", "App. A"],
-              ["1B", "App. B"]
+              [
+                "1A",
+                "App. A"
+              ],
+              [
+                "1B",
+                "App. B"
+              ]
             ]
           ],
           [
             "2ème étage",
             [
-              ["2A", "App. A"],
-              ["2B", "App. B"]
+              [
+                "2A",
+                "App. A"
+              ],
+              [
+                "2B",
+                "App. B"
+              ]
             ]
           ]
         ]
@@ -1104,17 +1412,34 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
         "id": "multiple_choice_1",
         "label": "Appartement",
         "type": "multiple_choice",
-        "choices": ["1A", "1B", "2A", "2B"]
+        "choices": [
+          "1A",
+          "1B",
+          "2A",
+          "2B"
+        ]
       },
       {
         "id": "multiple_choice_2",
         "label": "Appartement",
         "type": "multiple_choice",
         "choices": [
-          ["1A", "App. 1A"],
-          ["1B", "App. 1B"],
-          ["2A", "App. 2A"],
-          ["2B", "App. 2B"]
+          [
+            "1A",
+            "App. 1A"
+          ],
+          [
+            "1B",
+            "App. 1B"
+          ],
+          [
+            "2A",
+            "App. 2A"
+          ],
+          [
+            "2B",
+            "App. 2B"
+          ]
         ]
       }
     ]
@@ -1162,7 +1487,10 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
         "label": "Photo de profil",
         "type": "file",
         "max_size": 1000000,
-        "allowed_extensions": ["jpg", "png"],
+        "allowed_extensions": [
+          "jpg",
+          "png"
+        ],
         "multiple": false
       }
     ]
@@ -1234,32 +1562,32 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
     "title": "Champs 'datetimes' et 'dates'",
     "intro_html": "<p>Champs de saisie de plusieurs dates</p>",
     "fields": [
-        {
-          "id": "datetimes",
-          "type": "datetimes",
-          "label": "Dates disponibles",
-          "initial": "1871-05-21 10:00:00Z",
-          "required": false,
-          "min_value": "1871-05-21",
-          "max_value": "1871-05-28",
-          "min_length": 2,
-          "max_length": 3,
-          "min_delta": 3,
-          "max_delta": 5
-        },
-        {
-          "id": "dates",
-          "type": "dates",
-          "label": "Dates disponibles",
-          "initial": "1871-05-21,1871-05-22",
-          "required": false,
-          "min_value": "1871-05-21",
-          "max_value": "1871-05-28",
-          "min_length": 2,
-          "max_length": 3,
-          "min_delta": 3,
-          "max_delta": 5
-        }
+      {
+        "id": "datetimes",
+        "type": "datetimes",
+        "label": "Dates disponibles",
+        "initial": "1871-05-21 10:00:00Z",
+        "required": false,
+        "min_value": "1871-05-21",
+        "max_value": "1871-05-28",
+        "min_length": 2,
+        "max_length": 3,
+        "min_delta": 3,
+        "max_delta": 5
+      },
+      {
+        "id": "dates",
+        "type": "dates",
+        "label": "Dates disponibles",
+        "initial": "1871-05-21,1871-05-22",
+        "required": false,
+        "min_value": "1871-05-21",
+        "max_value": "1871-05-28",
+        "min_length": 2,
+        "max_length": 3,
+        "min_delta": 3,
+        "max_delta": 5
+      }
     ]
   },
   {
@@ -1283,7 +1611,9 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
         "id": "iban",
         "label": "IBAN",
         "type": "iban",
-        "allowed_countries": ["FR"]
+        "allowed_countries": [
+          "FR"
+        ]
       }
     ]
   },
@@ -1295,7 +1625,9 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
         "id": "srm",
         "label": "Nom du secteur électoral",
         "type": "commune",
-        "types": ["SRM"]
+        "types": [
+          "SRM"
+        ]
       },
       {
         "id": "commune",
@@ -1378,7 +1710,12 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
         "id": "liaison",
         "label": "Correspondant·e d'immeuble",
         "type": "newsletters",
-        "choices": [["2022", "J'accepte d'être correspondant·e d'immeuble"]]
+        "choices": [
+          [
+            "2022",
+            "J'accepte d'être correspondant·e d'immeuble"
+          ]
+        ]
       },
       {
         "id": "nls",
@@ -1388,22 +1725,49 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
     ]
   },
   {
-    "title": "Champs 'event_type'",
+    "title": "Champs 'event_theme'",
     "intro_html": "<p>Champs de sélection de thème d'événement</p>",
     "fields": [
       {
         "id": "theme_w_name",
         "label": "Thème de l'événement (nom)",
-        "type": "event_type",
+        "type": "event_theme",
         "event_theme_type": "Café populaire"
       },
       {
         "id": "theme_w_id",
         "label": "Thème de l'événement (id)",
-        "type": "event_type",
+        "type": "event_theme",
         "event_theme_type": 1
       }
     ]
   },
+  {
+    "title": "Champs 'person_tag'",
+    "intro_html": "<p>Champs de sélection de tags à ajouter</p>",
+    "fields": [
+      {
+        "id": "color_tag",
+        "label": "Choisissez une couleur",
+        "type": "person_tag",
+        "choices": [
+          "label",
+          1,
+          2
+        ]
+      },
+      {
+        "id": "fruit_tag",
+        "label": "Choisissez un ou plusieurs fruits",
+        "type": "person_tag",
+        "multiple": true,
+        "choices": [
+          "label",
+          1,
+          2
+        ]
+      }
+    ]
+  }
 ]
 ```

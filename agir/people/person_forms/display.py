@@ -15,7 +15,7 @@ from django.utils.timezone import get_current_timezone
 from phonenumber_field.phonenumber import PhoneNumber
 from phonenumbers import NumberParseException
 
-from agir.people.models import Person, PersonForm, PersonEmail
+from agir.people.models import Person, PersonForm, PersonEmail, PersonTag
 from agir.people.person_forms.fields import (
     PREDEFINED_CHOICES,
     PREDEFINED_CHOICES_REVERSE,
@@ -153,6 +153,13 @@ class PersonFormDisplay:
                         ]
                     )
                 )
+        elif field_type == "person_tag":
+            if not isinstance(value, list):
+                value = [value]
+
+            value = [
+                str(PersonTag.objects.filter(id=tag_id).first()) for tag_id in value
+            ]
 
         if isinstance(value, list):
             value = ", ".join(value)
@@ -248,30 +255,34 @@ class PersonFormDisplay:
 
         person_fields = {f.name: f for f in Person._meta.get_fields()}
 
-        for fieldset in form.custom_fields:
-            for field in fieldset.get("fields", []):
-                if field.get("person_field") and field["id"] in person_fields:
-                    label = field.get(
-                        "label",
-                        capfirst(
-                            getattr(
-                                person_fields[field["id"]],
-                                "verbose_name",
-                                person_fields[field["id"]].name,
-                            )
-                        ),
-                    )
-                else:
-                    label = field["label"]
+        fieldsets = {}
+        if fieldsets_titles:
+            fieldsets = {
+                field.get("id"): fieldset.get("title")
+                for fieldset in form.custom_fields
+                for field in fieldset.get("fields", [])
+            }
 
-                field_information[field["id"]] = (
-                    format_html(
-                        "{title}&nbsp;:<br>{label}",
-                        title=fieldset["title"],
-                        label=label,
-                    )
-                    if fieldsets_titles
-                    else label
+        for key, field in form.fields_dict.items():
+            field_information[key] = field.get("label")
+
+            if field.get("person_field") and key in person_fields:
+                field_information[key] = field.get(
+                    "label",
+                    capfirst(
+                        getattr(
+                            person_fields[key],
+                            "verbose_name",
+                            person_fields[key].name,
+                        )
+                    ),
+                )
+
+            if fieldset := fieldsets.get(key, None):
+                field_information[key] = format_html(
+                    "{title}&nbsp;:<br>{label}",
+                    title=fieldset,
+                    label=field_information[key],
                 )
 
         return field_information

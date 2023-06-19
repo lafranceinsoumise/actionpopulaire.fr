@@ -44,6 +44,8 @@ def default_custom_forms():
 
 
 class PersonForm(TimeStampedModel):
+    MAIN_QUESTION_FIELD_ID = "__main_question_tag"
+
     objects = PersonFormQueryset.as_manager()
 
     title = models.CharField(_("Titre"), max_length=250)
@@ -148,14 +150,26 @@ class PersonForm(TimeStampedModel):
         blank=True,
     )
 
-    main_question = models.CharField(
-        _("Intitulé de la question principale"),
-        max_length=200,
-        help_text=_("Uniquement utilisée si des choix de tags sont demandés."),
-        blank=True,
-    )
     tags = models.ManyToManyField(
-        "PersonTag", related_name="forms", related_query_name="form", blank=True
+        "PersonTag",
+        related_name="forms",
+        related_query_name="form",
+        blank=True,
+        help_text=_(
+            "Un ou plusieurs tags à ajouter à la personne qui remplit le formulaire. Si un seul tag est "
+            "sélectionné ou si le champ 'Question principale' est vide, le tag seront automatiquement ajoutés "
+            "après la validation du formulaire."
+        ),
+    )
+
+    main_question = models.CharField(
+        _("Question principale"),
+        max_length=200,
+        help_text=_(
+            "Si rempli, ce champ sera utilisé lorsque plusieurs tags auront été sélectionnés pour permettre à la "
+            "personne de choisir lequel sera appliqué après la validation du formulaire."
+        ),
+        blank=True,
     )
 
     custom_fields = JSONField(_("Champs"), blank=False, default=default_custom_forms)
@@ -196,10 +210,29 @@ class PersonForm(TimeStampedModel):
         return self.config.get("submit_label", "Envoyer")
 
     @property
+    def main_question_fields(self):
+        tag_queryset = self.tags.all()
+        if self.main_question and len(tag_queryset) > 1:
+            return [
+                {
+                    "id": self.MAIN_QUESTION_FIELD_ID,
+                    "type": "person_tag",
+                    "label": self.main_question,
+                    "queryset": tag_queryset,
+                    "required": True,
+                    "person_field": True,
+                    "editable": True,
+                }
+            ]
+
+        return []
+
+    @property
     def fields_dict(self):
         return OrderedDict(
             (field["id"], field)
             for field in chain(
+                self.main_question_fields,
                 (
                     field
                     for fieldset in self.custom_fields

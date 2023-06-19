@@ -649,7 +649,7 @@ class PersonFormAdmin(FormSubmissionViewsMixin, admin.ModelAdmin):
                 )
             },
         ),
-        (_("Champs"), {"fields": ("main_question", "tags", "custom_fields", "config")}),
+        (_("Champs"), {"fields": ("tags", "main_question", "custom_fields", "config")}),
         (
             _("Textes"),
             {

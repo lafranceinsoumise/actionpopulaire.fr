@@ -33,7 +33,7 @@ from agir.lib.form_fields import (
     MultiDateTimeField,
     MultiDateField,
 )
-from ..models import Person
+from ..models import Person, PersonTag
 from ...event_requests.models import EventTheme, EventThemeType
 from ...groups.models import SupportGroup, Membership
 from ...lib.validators import FileSizeValidator
@@ -328,6 +328,49 @@ class PersonNewslettersField(forms.MultipleChoiceField):
         return value
 
 
+class PersonTagMultipleChoiceField(forms.ModelMultipleChoiceField):
+    widget = forms.CheckboxSelectMultiple
+
+    def label_from_instance(self, obj):
+        return obj.description
+
+    def clean(self, value):
+        tags = super().clean(value)
+
+        if tags is None:
+            return []
+
+        return [tag.pk for tag in tags]
+
+
+class PersonTagSingleChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.description
+
+    def to_python(self, value):
+        value = super().to_python(value)
+
+        if value is None:
+            return value
+
+        return value.pk
+
+
+class PersonTagChoiceField:
+    def __new__(cls, *args, queryset=None, choices=None, multiple=False, **kwargs):
+        if not queryset and choices:
+            ids = [c for c in choices if isinstance(c, int)]
+            labels = [c for c in choices if isinstance(c, str)]
+            queryset = PersonTag.objects.filter(id__in=ids) | PersonTag.objects.filter(
+                label__in=labels
+            )
+
+        if multiple:
+            return PersonTagMultipleChoiceField(queryset, **kwargs)
+
+        return PersonTagSingleChoiceField(queryset, **kwargs)
+
+
 class EventThemeField(forms.ModelChoiceField):
     instance_in_kwargs = True
     widget = SelectizeWidget
@@ -398,6 +441,7 @@ FIELDS = {
     "group": GroupField,
     "multiple_groups": MultipleGroupField,
     "newsletters": PersonNewslettersField,
+    "person_tag": PersonTagChoiceField,
     "uuid": forms.UUIDField,
     "event_theme": EventThemeField,
 }
