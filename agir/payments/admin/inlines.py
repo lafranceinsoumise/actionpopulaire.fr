@@ -10,7 +10,7 @@ from django.contrib import admin
 
 class PaymentInline(admin.TabularInline):
     model = models.Payment
-    show_change_link = False
+    show_change_link = True
     can_delete = False
     extra = 0
     fields = readonly_fields = (
