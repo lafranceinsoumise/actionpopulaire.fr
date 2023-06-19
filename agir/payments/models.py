@@ -126,7 +126,7 @@ class Payment(ExportModelOperationsMixin("payment"), TimeStampedModel, LocationM
             return text
         return text + f" et {cents} centîmes"
 
-    get_price_display.short_description = "Prix en toutes lettres"
+    get_price_as_text.short_description = "Prix en toutes lettres"
 
     def get_mode_display(self):
         return (
