@@ -9,7 +9,8 @@ from django.template.response import TemplateResponse
 
 from agir.lib.admin.form_fields import AutocompleteSelectModel
 from agir.people.actions.export import liaisons_to_csv_response, people_to_csv_response
-from agir.people.models import PersonTag
+from agir.people.actions.subscription import DATE_2022_LIAISON_META_PROPERTY
+from agir.people.models import PersonTag, Person
 
 
 def export_people_to_csv(modeladmin, request, queryset):
@@ -29,6 +30,30 @@ def export_liaisons_to_csv(modeladmin, request, queryset):
 export_liaisons_to_csv.short_description = f"Exporter les correspondant·es en CSV"
 export_liaisons_to_csv.allowed_permissions = ["export"]
 export_liaisons_to_csv.select_across = True
+
+
+def remove_from_liaisons(modeladmin, request, queryset):
+    if not modeladmin.has_change_permission(request):
+        raise PermissionDenied
+
+    updates = []
+    for person in queryset:
+        person.newsletters.remove(Person.NEWSLETTER_2022_LIAISON)
+        person.meta[DATE_2022_LIAISON_META_PROPERTY] = None
+        updates.append(person)
+
+    Person.objects.bulk_update(updates, fields=("newsletters", "meta"))
+
+    modeladmin.message_user(
+        request,
+        f"Les personnes sélectionnées ont été supprimées de la liste des correspondant·es d'immeuble et de quartier",
+    )
+    return HttpResponseRedirect(request.get_full_path())
+
+
+remove_from_liaisons.short_description = f"Supprimer de la liste des correspondant·es"
+remove_from_liaisons.allowed_permissions = ["change"]
+remove_from_liaisons.select_across = True
 
 
 def unsubscribe_from_all_newsletters(person):
