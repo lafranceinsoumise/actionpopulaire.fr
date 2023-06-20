@@ -1016,7 +1016,7 @@ class LiaisonAdmin(admin.ModelAdmin):
     actions = (export_liaisons_to_csv, remove_from_liaisons)
 
     def has_view_permission(self, request, obj=None):
-        return request.user.has_perm("people.view_people")
+        return request.user.has_perm("people.view_liaison")
 
     def has_export_permission(self, request):
         return request.user.has_perm("people.export_people")
@@ -1028,7 +1028,7 @@ class LiaisonAdmin(admin.ModelAdmin):
         return False
 
     def has_change_permission(self, request, obj=None):
-        return request.user.has_perm("people.change_people")
+        return request.user.has_perm("people.change_liaison")
 
     def name(self, obj):
         return format_html(
