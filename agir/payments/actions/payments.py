@@ -168,22 +168,12 @@ def find_or_create_person_from_payment(payment):
     if payment.person is None and payment.email is not None:
         try:
             payment.person = Person.objects.get_by_natural_key(payment.email)
-            if payment.meta.get("subscribed_2022"):
-                if Person.NEWSLETTER_2022 not in payment.person.newsletters:
-                    payment.person.newsletters.append(Person.NEWSLETTER_2022)
-                if (
-                    Person.NEWSLETTER_2022_EXCEPTIONNEL
-                    not in payment.person.newsletters
-                ):
-                    payment.person.newsletters.append(
-                        Person.NEWSLETTER_2022_EXCEPTIONNEL
-                    )
         except Person.DoesNotExist:
             person_fields = [f.name for f in Person._meta.get_fields()]
             person_meta = {k: v for k, v in payment.meta.items() if k in person_fields}
             newsletters = (
-                [Person.NEWSLETTER_2022, Person.NEWSLETTER_2022_EXCEPTIONNEL]
-                if payment.meta.get("subscribed_2022", False)
+                Person.MAIN_NEWSLETTER_CHOICES
+                if payment.meta.get("subscr", False)
                 else []
             )
 
@@ -198,6 +188,10 @@ def find_or_create_person_from_payment(payment):
             payment.person = Person.objects.create_person(
                 email=payment.email, newsletters=newsletters, **person_meta
             )
+
+        if payment.meta.get("subscribed", False) and not payment.person.subscribed:
+            payment.person.subscribed = True
+
         payment.person.save()
         payment.save()
 

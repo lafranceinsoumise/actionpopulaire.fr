@@ -11,7 +11,7 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
-from agir.lib.form_components import HalfCol, FullCol, ThirdCol
+from agir.lib.form_components import HalfCol, FullCol, ThirdCol, TwoThirdCol
 from agir.lib.form_mixins import TagMixin, MetaFieldsMixin, ImageFormMixin
 from agir.lib.forms import MediaInHead
 from agir.lib.models import RE_FRENCH_ZIPCODE
@@ -315,11 +315,8 @@ class ContactForm(LegacySubscribedMixin, ContactPhoneNumberMixin, forms.ModelFor
         super().__init__(data, *args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_method = "POST"
-
         self.no_mail = data is not None and "no_mail" in data
-
         self.helper.layout = Layout(*self.get_fields())
-
         self.fields["contact_phone"].label = "Numéro de contact"
 
     def get_fields(self, fields=None):
@@ -333,7 +330,7 @@ class ContactForm(LegacySubscribedMixin, ContactPhoneNumberMixin, forms.ModelFor
                     </div>
                 """
         validation_link = format_html(
-            '<a href="{url}" class="btn btn-default btn-block">{label}</a>',
+            '<a href="{url}" class="btn btn-sm btn-default">{label}</a>',
             url=reverse("send_validation_sms"),
             label=_("Valider mon numéro de téléphone"),
         )
@@ -367,7 +364,7 @@ class ContactForm(LegacySubscribedMixin, ContactPhoneNumberMixin, forms.ModelFor
         btn_submit = Submit(
             "submit",
             "Sauvegarder",
-            css_class="btn-danger btn-block marginbottom",
+            css_class="btn-primary btn-block marginbottom",
         )
 
         fields.extend(
@@ -378,8 +375,8 @@ class ContactForm(LegacySubscribedMixin, ContactPhoneNumberMixin, forms.ModelFor
                     "subscribed_sms",
                 ),
                 Row(
-                    ThirdCol(btn_submit),
-                    HalfCol(btn_no_mails, css_class="col-md-offset-2"),
+                    HalfCol(btn_no_mails),
+                    ThirdCol(btn_submit, css_class="col-md-offset-2"),
                     css_class="padtop",
                 ),
             ]
@@ -401,12 +398,15 @@ class ContactForm(LegacySubscribedMixin, ContactPhoneNumberMixin, forms.ModelFor
 
         return cleaned_data
 
+    def save(self, commit=True):
+        if "subscribed" in self.cleaned_data:
+            self.instance.subscribed = self.cleaned_data["subscribed"]
+
+        return super().save(commit=commit)
+
     class Meta:
         model = Person
-        fields = (
-            "contact_phone",
-            "subscribed_sms",
-        )
+        fields = ("contact_phone", "subscribed_sms", "subscribed")
 
 
 class ActivityAndSkillsForm(MetaFieldsMixin, TagMixin, forms.ModelForm):

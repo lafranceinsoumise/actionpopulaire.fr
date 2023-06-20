@@ -100,8 +100,8 @@ SUBSCRIPTIONS_EMAILS = {
 }
 
 SUBSCRIPTION_NEWSLETTERS = {
-    SUBSCRIPTION_TYPE_LFI: {Person.NEWSLETTER_2022},
-    SUBSCRIPTION_TYPE_LJI: {Person.NEWSLETTER_2022, Person.NEWSLETTER_LJI},
+    SUBSCRIPTION_TYPE_LFI: {*Person.MAIN_NEWSLETTER_CHOICES},
+    SUBSCRIPTION_TYPE_LJI: {*Person.MAIN_NEWSLETTER_CHOICES, Person.NEWSLETTER_LJI},
     SUBSCRIPTION_TYPE_NSP: set(),
     SUBSCRIPTION_TYPE_EXTERNAL: set(),
     SUBSCRIPTION_TYPE_AP: set(),
@@ -134,6 +134,7 @@ def save_subscription_information(person, type, data, new=False):
 
     if type in SUBSCRIPTION_FIELD and not getattr(person, SUBSCRIPTION_FIELD[type]):
         setattr(person, SUBSCRIPTION_FIELD[type], True)
+
     subscriptions = person.meta.setdefault("subscriptions", {})
     if type not in subscriptions:
         subscriptions[type] = {"date": timezone.now().isoformat()}

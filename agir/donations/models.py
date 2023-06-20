@@ -1,9 +1,11 @@
 import uuid
 
 import reversion
+from django.contrib import admin
 from django.core import validators
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.template.defaultfilters import floatformat
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
@@ -79,6 +81,13 @@ class AllocationModelMixin(models.Model):
             "departement": self.departement,
         }
 
+    @admin.display(description="Montant")
+    def get_amount_display(self):
+        if not isinstance(self.amount, int):
+            return "-"
+
+        return "{} €".format(floatformat(self.amount / 100, 2))
+
     class Meta:
         abstract = True
 
@@ -116,6 +125,13 @@ class OperationModelMixin(TimeStampedModel):
 
         if errors:
             raise ValidationError(errors)
+
+    @admin.display(description="Montant")
+    def get_amount_display(self):
+        if not isinstance(self.amount, int):
+            return "-"
+
+        return "{} €".format(floatformat(self.amount / 100, 2))
 
     class Meta:
         abstract = True

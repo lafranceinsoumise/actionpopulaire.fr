@@ -60,3 +60,35 @@ def create_statistics_from_date(date=None, silent=False):
         progress.update(1)
 
     progress.clear()
+
+
+def update_statistics_from_date(date=None, silent=False, columns=None):
+    today = datetime.date.today()
+    if date is None:
+        # defaults to current year start
+        date = today.replace(day=1, month=1)
+
+    progress = tqdm(
+        total=(today - date).days,
+        bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}]",
+        colour="#cbbfec",
+        disable=silent,
+    )
+
+    while date < today:
+        progress.set_description_str(str(date))
+
+        # Update AbsoluteStatistics
+        abs_kwargs = get_absolute_statistics(date=date, as_kwargs=True, columns=columns)
+        if abs_kwargs:
+            AbsoluteStatistics.objects.filter(date=date).update(**abs_kwargs)
+
+        # Update MaterielStatistics
+        mat_kwargs = get_materiel_statistics(date=date, columns=columns)
+        if mat_kwargs:
+            MaterielStatistics.objects.filter(date=date).update(**mat_kwargs)
+
+        date += datetime.timedelta(days=1)
+        progress.update(1)
+
+    progress.clear()

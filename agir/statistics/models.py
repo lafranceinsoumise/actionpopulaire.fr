@@ -92,6 +92,7 @@ class AbsoluteStatistics(TimeStampedModel):
         "membership_person_count",
         "boucle_departementale_membership_person_count",
         "political_support_person_count",
+        "liaison_count",
         "lfi_newsletter_subscriber_count",
         "sent_campaign_count",
         "sent_campaign_email_count",
@@ -131,6 +132,12 @@ class AbsoluteStatistics(TimeStampedModel):
     )
     boucle_departementale_membership_person_count = models.IntegerField(
         verbose_name="Membres des boucles départementales",
+        null=False,
+        blank=False,
+        default=0,
+    )
+    liaison_count = models.IntegerField(
+        verbose_name="Correspondant·es d'immeuble et de quartier",
         null=False,
         blank=False,
         default=0,

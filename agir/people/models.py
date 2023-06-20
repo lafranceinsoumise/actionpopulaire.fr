@@ -15,7 +15,7 @@ from django.core.validators import (
     MaxValueValidator,
 )
 from django.db import models, transaction, IntegrityError
-from django.db.models import JSONField, Subquery, OuterRef, DateTimeField, Prefetch
+from django.db.models import JSONField, Subquery, OuterRef, DateTimeField
 from django.db.models import Q
 from django.db.models.fields.json import KeyTextTransform
 from django.db.models.functions import Cast, Coalesce
@@ -266,15 +266,19 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
 
         return person
 
-    def create_person(self, email, **extra_fields):
+    def create_person(self, email, subscribed=False, **extra_fields):
         extra_fields.setdefault("is_staff", False)
         extra_fields.setdefault("is_superuser", False)
         extra_fields.setdefault("password", None)
+
+        if subscribed is False:
+            extra_fields.setdefault("newsletters", [])
+        else:
+            extra_fields.setdefault("newsletters", Person.MAIN_NEWSLETTER_CHOICES)
+
         return self._create_person(email, **extra_fields)
 
-    def create_political_support(
-        self, email, password=None, *, subscribed=None, **extra_fields
-    ):
+    def create_political_support(self, email, password=None, **extra_fields):
         """
         Create a user
         :param email: the user's email
@@ -282,20 +286,12 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
         :param extra_fields: any other field
         :return:
         """
-
+        extra_fields.setdefault("subscribed", True)
         extra_fields.setdefault("is_political_support", True)
-
-        if subscribed is False:
-            extra_fields.setdefault("newsletters", [])
-        else:
-            extra_fields.setdefault(
-                "newsletters",
-                [Person.NEWSLETTER_2022, Person.NEWSLETTER_2022_EXCEPTIONNEL],
-            )
 
         return self.create_person(email, password=password, **extra_fields)
 
-    def create_2022(self, email, password=None, *, subscribed=None, **extra_fields):
+    def create_2022(self, email, password=None, **extra_fields):
         """
         Create a user
         :param email: the user's email
@@ -309,19 +305,9 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
         meta["political_support"]["is_2022"] = True
         extra_fields["meta"] = meta
 
-        if subscribed is False:
-            extra_fields.setdefault("newsletters", [])
-        else:
-            extra_fields.setdefault(
-                "newsletters",
-                [Person.NEWSLETTER_2022, Person.NEWSLETTER_2022_EXCEPTIONNEL],
-            )
-
         return self.create_person(email, password=password, **extra_fields)
 
-    def create_insoumise(
-        self, email, password=None, *, subscribed=None, **extra_fields
-    ):
+    def create_insoumise(self, email, password=None, **extra_fields):
         """
         Create a user
         :param email: the user's email
@@ -329,18 +315,12 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
         :param extra_fields: any other field
         :return:
         """
+        extra_fields.setdefault("subscribed", True)
+
         meta = extra_fields.get("meta", {})
         meta.setdefault("political_support", {})
         meta["political_support"]["is_insoumise"] = True
         extra_fields["meta"] = meta
-
-        if subscribed is False:
-            extra_fields.setdefault("newsletters", [])
-        else:
-            extra_fields.setdefault(
-                "newsletters",
-                [Person.NEWSLETTER_LFI],
-            )
 
         return self.create_person(email, password=password, **extra_fields)
 
@@ -455,6 +435,7 @@ class Person(
         (NEWSLETTER_2022_PROGRAMME, "NSP processus programme"),
         (NEWSLETTER_2022_LIAISON, "NSP Correspondant·e d'immeuble ou de rue"),
     )
+    MAIN_NEWSLETTER_CHOICES = (NEWSLETTER_2022, NEWSLETTER_2022_EXCEPTIONNEL)
 
     newsletters = ChoiceArrayField(
         models.CharField(choices=NEWSLETTERS_CHOICES, max_length=255),
@@ -755,14 +736,25 @@ class Person(
 
     @property
     def subscribed(self):
-        return self.NEWSLETTER_LFI in self.newsletters
+        return all(
+            subscription in self.newsletters
+            for subscription in self.MAIN_NEWSLETTER_CHOICES
+        )
 
     @subscribed.setter
     def subscribed(self, value):
-        if value and not self.subscribed:
-            self.newsletters.append(self.NEWSLETTER_LFI)
-        if not value and self.subscribed:
-            self.newsletters.remove(self.NEWSLETTER_LFI)
+        if value == self.subscribed:
+            return
+
+        if value:
+            self.newsletters = list({*self.newsletters, *self.MAIN_NEWSLETTER_CHOICES})
+            return
+
+        self.newsletters = [
+            subscription
+            for subscription in self.newsletters
+            if subscription not in self.MAIN_NEWSLETTER_CHOICES
+        ]
 
     def get_full_name(self):
         """

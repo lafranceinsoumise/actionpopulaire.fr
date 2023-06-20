@@ -121,8 +121,8 @@ class BaseDonorForm(MetaFieldsMixin, LegacySubscribedMixin, forms.ModelForm):
             del self.fields["email"]
 
         # we remove the subscribed field for people who are already subscribed
-        if not self.show_subscribed or self.connected:
-            del self.fields["subscribed_lfi"]
+        if "subscribed" in self.fields and not self.show_subscribed or self.connected:
+            del self.fields["subscribed"]
 
         for f in [
             "first_name",
@@ -171,8 +171,8 @@ class BaseDonorForm(MetaFieldsMixin, LegacySubscribedMixin, forms.ModelForm):
 
         fields.append("declaration")
 
-        if "subscribed_lfi" in self.fields:
-            fields.append("subscribed_lfi")
+        if "subscribed" in self.fields:
+            fields.append("subscribed")
 
         self.helper = FormHelper()
         self.helper.add_input(

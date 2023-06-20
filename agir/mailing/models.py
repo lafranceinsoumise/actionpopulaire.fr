@@ -34,10 +34,7 @@ DONATION_FILTER = {
 
 
 def default_newsletters():
-    return [
-        Person.NEWSLETTER_2022,
-        Person.NEWSLETTER_2022_EXCEPTIONNEL,
-    ]
+    return Person.MAIN_NEWSLETTER_CHOICES
 
 
 class Segment(BaseSegment, models.Model):

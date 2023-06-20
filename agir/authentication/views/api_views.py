@@ -1,3 +1,5 @@
+import logging
+
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import ValidationError
@@ -31,6 +33,8 @@ __all__ = [
 send_mail_email_bucket = TokenBucket("SendMail", 5, 600)
 send_mail_ip_bucket = TokenBucket("SendMailIP", 5, 120)
 check_short_code_bucket = TokenBucket("CheckShortCode", 5, 180)
+
+logger = logging.getLogger(__name__)
 
 
 class CSRFAPIView(APIView):
@@ -143,18 +147,30 @@ class CheckCodeAPIView(APIView):
         " peu avant de retenter.",
     }
 
-    def validate(self, email, code):
-        if not short_code_generator.is_allowed_pattern(code):
+    def validate_password(self, email, password):
+        role = authenticate(self.request, email=email, password=password)
+
+        if not role:
+            raise exceptions.ValidationError(
+                detail={"code": self.messages["invalid_code"]}, code="invalid_code"
+            )
+
+        logger.error(
+            "A role has been authenticated via password authentication",
+            extra={"role": role.id, "email": email},
+        )
+
+        return role
+
+    def validate_short_code(self, email, code):
+        short_code = code.replace(" ", "").upper()
+
+        if not short_code_generator.is_allowed_pattern(short_code):
             raise exceptions.ValidationError(
                 detail={"code": self.messages["invalid_format"]}, code="invalid_format"
             )
 
-        if not settings.DEBUG and not check_short_code_bucket.has_tokens(email):
-            raise exceptions.Throttled(
-                detail=self.messages["throttled"], code="throttled"
-            )
-
-        role = authenticate(email=email, short_code=code)
+        role = authenticate(self.request, email=email, short_code=short_code)
 
         if not role:
             raise exceptions.ValidationError(
@@ -162,6 +178,23 @@ class CheckCodeAPIView(APIView):
             )
 
         return role
+
+    def validate(self, email, code):
+        if not settings.DEBUG and not check_short_code_bucket.has_tokens(email):
+            raise exceptions.Throttled(
+                detail=self.messages["throttled"], code="throttled"
+            )
+
+        try:
+            # The authenticate function should be called with a short_code most of the time.
+            return self.validate_short_code(email, code)
+        except exceptions.ValidationError as short_code_error:
+            # The fallback of checking if the received code is the user password is only meant for granting access to
+            # the the app to specific users (e.g. for Google or Apple app validation)
+            try:
+                return self.validate_password(email, code)
+            except exceptions.ValidationError:
+                raise short_code_error
 
     def do_login(self, email, role):
         login(self.request, role)
@@ -187,7 +220,7 @@ class CheckCodeAPIView(APIView):
         email = request.session.get("login_email")
         if not email:
             raise exceptions.MethodNotAllowed(method="post", code="method_not_allowed")
-        code = request.data.get("code", "").replace(" ", "").upper()
+        code = request.data.get("code", "")
         role = self.validate(email, code)
         last_login = role.last_login
         self.do_login(email, role)

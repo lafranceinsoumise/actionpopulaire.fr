@@ -1,7 +1,7 @@
 from unittest import mock
 from urllib.parse import urljoin, urlsplit
 
-from django.conf import settings
+from django.db.models import QuerySet
 from django.http import QueryDict
 from django.test import TestCase
 from django.urls import reverse
@@ -9,9 +9,9 @@ from django.utils import timezone
 from nuntius.models import Campaign
 
 from agir.api.redis import using_separate_redis_server
+from agir.people.models import Person, PersonTag, PersonForm, PersonFormSubmission
 from agir.people.person_forms.actions import get_people_form_class
 from agir.people.person_forms.display import default_person_form_display
-from agir.people.models import Person, PersonTag, PersonForm, PersonFormSubmission
 
 
 class SetUpPersonFormsMixin:
@@ -27,7 +27,10 @@ class SetUpPersonFormsMixin:
         self.tag2 = PersonTag.objects.create(
             label="tag2", description="Description TAG2"
         )
-
+        self.extra_tag = PersonTag.objects.create(
+            label="extra_tag", description="Description EXTRA TAG"
+        )
+        self.person.tags.add(self.extra_tag)
         self.single_tag_form = PersonForm.objects.create(
             title="Formulaire simple",
             slug="formulaire-simple",
@@ -81,29 +84,47 @@ class SetUpPersonFormsMixin:
 
 class ViewPersonFormTestCase(SetUpPersonFormsMixin, TestCase):
     def test_flatten_fields_property(self):
-        self.assertEqual(
-            self.complex_form.fields_dict,
-            {
-                "custom-field": {
-                    "id": "custom-field",
-                    "type": "short_text",
-                    "label": "Mon label",
-                    "editable": True,
-                },
-                "custom-person-field": {
-                    "id": "custom-person-field",
-                    "type": "short_text",
-                    "label": "Prout",
-                    "person_field": True,
-                    "editable": True,
-                },
-                "contact_phone": {
-                    "id": "contact_phone",
-                    "person_field": True,
-                    "editable": True,
-                },
+        self.maxDiff = None
+        expected_fields = {
+            self.complex_form.MAIN_QUESTION_FIELD_ID: {
+                "id": self.complex_form.MAIN_QUESTION_FIELD_ID,
+                "type": "person_tag",
+                "label": self.complex_form.main_question,
+                "queryset": self.complex_form.tags.all(),
+                "required": True,
+                "person_field": True,
+                "editable": True,
             },
-        )
+            "custom-field": {
+                "id": "custom-field",
+                "type": "short_text",
+                "label": "Mon label",
+                "editable": True,
+                "fieldset": "Détails",
+            },
+            "custom-person-field": {
+                "id": "custom-person-field",
+                "type": "short_text",
+                "label": "Prout",
+                "person_field": True,
+                "editable": True,
+                "fieldset": "Détails",
+            },
+            "contact_phone": {
+                "id": "contact_phone",
+                "person_field": True,
+                "editable": True,
+                "fieldset": "Détails",
+            },
+        }
+        for key, field in self.complex_form.fields_dict.items():
+            for prop in field.keys():
+                value = field.get(prop)
+                expected_value = expected_fields.get(key).get(prop)
+                if isinstance(value, QuerySet):
+                    self.assertQuerysetEqual(value, expected_value, ordered=False)
+                else:
+                    self.assertEqual(value, expected_value)
 
     def test_title_and_description(self):
         res = self.client.get("/formulaires/formulaire-simple/")
@@ -180,10 +201,11 @@ class ViewPersonFormTestCase(SetUpPersonFormsMixin, TestCase):
         )
         self.assertContains(res, "has-error")
 
+        self.assertListEqual(list(self.person.tags.all()), [self.extra_tag])
         res = self.client.post(
             "/formulaires/formulaire-complexe/",
             data={
-                "tag": "tag2",
+                PersonForm.MAIN_QUESTION_FIELD_ID: self.tag2.id,
                 "contact_phone": "06 34 56 78 90",
                 "custom-field": "valeur du champ libre person_field false",
                 "custom-person-field": "valeur du champ libre avec person_field true",
@@ -193,7 +215,7 @@ class ViewPersonFormTestCase(SetUpPersonFormsMixin, TestCase):
 
         self.person.refresh_from_db()
 
-        self.assertCountEqual(self.person.tags.all(), [self.tag2])
+        self.assertListEqual(list(self.person.tags.all()), [self.tag2, self.extra_tag])
         self.assertEqual(
             self.person.meta["custom-person-field"],
             "valeur du champ libre avec person_field true",
@@ -214,8 +236,9 @@ class ViewPersonFormTestCase(SetUpPersonFormsMixin, TestCase):
     def test_can_update_form(self):
         self.complex_form.editable = True
         self.complex_form.save()
+        self.assertListEqual(list(self.person.tags.all()), [self.extra_tag])
         self.test_can_validate_complex_form()
-
+        self.assertListEqual(list(self.person.tags.all()), [self.tag2, self.extra_tag])
         self.assertEqual(PersonFormSubmission.objects.count(), 1)
         edit_url = reverse(
             "edit_person_form_submission",
@@ -235,7 +258,7 @@ class ViewPersonFormTestCase(SetUpPersonFormsMixin, TestCase):
         res = self.client.post(
             edit_url,
             data={
-                "tag": "tag1",
+                PersonForm.MAIN_QUESTION_FIELD_ID: self.tag1.id,
                 "contact_phone": "06 34 56 78 91",
                 "custom-field": "valeur modifié du champ libre person_field false",
                 "custom-person-field": "valeur modifiée du champ libre person_field true",
@@ -245,7 +268,7 @@ class ViewPersonFormTestCase(SetUpPersonFormsMixin, TestCase):
 
         self.person.refresh_from_db()
 
-        self.assertCountEqual(self.person.tags.all(), [self.tag1, self.tag2])
+        self.assertListEqual(list(self.person.tags.all()), [self.tag1, self.extra_tag])
         self.assertEqual(
             self.person.meta["custom-person-field"],
             "valeur modifiée du champ libre person_field true",
@@ -267,7 +290,9 @@ class ViewPersonFormTestCase(SetUpPersonFormsMixin, TestCase):
         self.complex_form.editable = True
         self.complex_form.fields_dict["custom-person-field"]["editable"] = False
         self.complex_form.save()
+        self.assertListEqual(list(self.person.tags.all()), [self.extra_tag])
         self.test_can_validate_complex_form()
+        self.assertListEqual(list(self.person.tags.all()), [self.tag2, self.extra_tag])
 
         edit_url = reverse(
             "edit_person_form_submission",
@@ -277,7 +302,7 @@ class ViewPersonFormTestCase(SetUpPersonFormsMixin, TestCase):
         self.client.post(
             edit_url,
             data={
-                "tag": "tag1",
+                PersonForm.MAIN_QUESTION_FIELD_ID: self.tag1.id,
                 "contact_phone": "06 34 56 78 91",
                 "custom-field": "valeur modifié du champ libre person_field false",
                 "custom-person-field": "valeur modifiée du champ libre person_field true",
@@ -285,8 +310,7 @@ class ViewPersonFormTestCase(SetUpPersonFormsMixin, TestCase):
         )
 
         self.person.refresh_from_db()
-
-        self.assertCountEqual(self.person.tags.all(), [self.tag2, self.tag1])
+        self.assertListEqual(list(self.person.tags.all()), [self.tag1, self.extra_tag])
         self.assertEqual(
             self.person.meta["custom-person-field"],
             "valeur du champ libre avec person_field true",
@@ -316,7 +340,7 @@ class ViewPersonFormTestCase(SetUpPersonFormsMixin, TestCase):
         self.client.post(
             reverse("view_person_form", args=[self.complex_form.slug]),
             data={
-                "tag": "tag1",
+                PersonForm.MAIN_QUESTION_FIELD_ID: self.tag1.id,
                 "contact_phone": "06 34 56 78 91",
                 "custom-field": "valeur modifié du champ libre person_field false",
                 "custom-person-field": "valeur modifiée du champ libre person_field true",
@@ -366,6 +390,40 @@ class ViewPersonFormTestCase(SetUpPersonFormsMixin, TestCase):
         self.assertIn(Person.NEWSLETTER_2022_LIAISON, self.person.newsletters)
         self.assertIn(Person.NEWSLETTER_2022, self.person.newsletters)
 
+    def test_person_tags_are_silently_added_if_main_question_is_empty(self):
+        form = PersonForm.objects.create(
+            title="Tags",
+            slug="tags",
+            description="Ajouter les tags",
+            confirmation_note="Ajoutées !",
+            main_question="",
+            custom_fields=[
+                {
+                    "title": "Coordonnées",
+                    "fields": [
+                        {
+                            "id": "first_name",
+                            "person_field": True,
+                        }
+                    ],
+                }
+            ],
+        )
+        form.tags.add(self.tag1, self.tag2)
+        self.assertListEqual(list(self.person.tags.all()), [self.extra_tag])
+        res = self.client.get("/formulaires/tags/")
+        self.assertContains(res, "first_name")
+        self.assertNotContains(res, form.MAIN_QUESTION_FIELD_ID)
+        res = self.client.post(
+            "/formulaires/tags/",
+            data={"first_name": "Domino"},
+        )
+        self.assertRedirects(res, "/formulaires/tags/confirmation/")
+        self.person.refresh_from_db()
+        self.assertListEqual(
+            list(self.person.tags.all()), [self.tag1, self.tag2, self.extra_tag]
+        )
+
 
 class AccessControlTestCase(SetUpPersonFormsMixin, TestCase):
     def test_cannot_access_not_anonymous_form(self):
@@ -395,7 +453,7 @@ class AccessControlTestCase(SetUpPersonFormsMixin, TestCase):
         res = self.client.post(
             "/formulaires/formulaire-complexe/",
             data={
-                "tag": "tag2",
+                PersonForm.MAIN_QUESTION_FIELD_ID: self.tag2.id,
                 "contact_phone": "06 34 56 78 90",
                 "custom-field": "valeur du champ libre person_field false",
                 "custom-person-field": "valeur du champ libre avec person_field true",
@@ -419,7 +477,7 @@ class AccessControlTestCase(SetUpPersonFormsMixin, TestCase):
         res = self.client.post(
             "/formulaires/formulaire-complexe/",
             data={
-                "tag": "tag2",
+                PersonForm.MAIN_QUESTION_FIELD_ID: self.tag2.id,
                 "contact_phone": "06 34 56 78 90",
                 "custom-field": "valeur du champ libre person_field false",
                 "custom-person-field": "valeur du champ libre avec person_field true",
@@ -637,7 +695,7 @@ class CampaignTemplateTestCase(SetUpPersonFormsMixin, TestCase):
         res = self.client.post(
             "/formulaires/formulaire-complexe/",
             data={
-                "tag": "tag2",
+                PersonForm.MAIN_QUESTION_FIELD_ID: self.tag2.id,
                 "contact_phone": "06 34 56 78 90",
                 "custom-field": "Super titre<script>alert('xss');{{ malicious_template }}",
                 "custom-person-field": "valeur du champ libre avec person_field true",

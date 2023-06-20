@@ -64,7 +64,7 @@ const EventGeneral = (props) => {
       description: event.description,
       facebook: event.routes.facebook,
       image: event.illustration?.banner,
-      subtype: event.subtype,
+      subtype: event.subtype.isVisible ? event.subtype : undefined,
       startTime: event.startTime,
       endTime: event.endTime,
       timezone: event.timezone,

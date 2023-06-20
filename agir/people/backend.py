@@ -1,5 +1,5 @@
-from agir.authentication.models import Role
 from agir.authentication.backend_mixins import GetRoleMixin
+from agir.authentication.models import Role
 
 
 class PersonBackend(GetRoleMixin):

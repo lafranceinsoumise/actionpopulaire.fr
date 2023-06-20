@@ -6,6 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
     dependencies = [
         ("mailing", "0050_auto_20230412_1431"),
+        ("people", "0029_person_is_political_support"),
     ]
 
     operations = [

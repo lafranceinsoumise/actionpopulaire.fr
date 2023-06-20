@@ -63,7 +63,7 @@ def restore_legacy_political_support_fields_from_meta(apps, schema):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("people", "0027_personqualification_supportgroup"),
+        ("people", "0028_auto_20230615_1759"),
     ]
 
     operations = [

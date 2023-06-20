@@ -1,10 +1,12 @@
+from functools import partial
+
 from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext as _
@@ -22,6 +24,10 @@ from .models import Poll, PollChoice
 
 __all__ = ["PollParticipationView", "PollFinishedView"]
 
+from .tasks import send_vote_confirmation_email
+
+from ..lib.http import add_query_params_to_url
+
 
 @method_decorator(never_cache, name="get")
 class PollParticipationView(
@@ -36,9 +42,6 @@ class PollParticipationView(
     def get_queryset(self):
         # use get queryset because timezone.now must be evaluated each time
         return Poll.objects.filter(start__lt=timezone.now())
-
-    def get_success_url(self):
-        return reverse_lazy("participate_poll", args=[self.object.pk])
 
     def get_form_kwargs(self):
         return {"poll": self.object, **super().get_form_kwargs()}
@@ -118,11 +121,22 @@ class PollParticipationView(
 
     def form_valid(self, form):
         try:
-            form.make_choice(self.request.user)
+            choice = form.make_choice(self.request.user)
         except (
             IntegrityError
         ):  # there probably has been a race condition when POSTing twice
             return HttpResponseRedirect(self.get_success_url())
+
+        if self.object.rules.get("confirmation_email", True):
+            transaction.on_commit(
+                partial(send_vote_confirmation_email.delay, choice.id)
+            )
+
+        if self.object.rules.get("success_url"):
+            url = add_query_params_to_url(
+                self.object.rules["success_url"], {"anonymous_id": choice.anonymous_id}
+            )
+            return HttpResponseRedirect(url)
 
         messages.add_message(
             self.request,
@@ -131,7 +145,8 @@ class PollParticipationView(
                 "Votre choix a bien été pris en compte. Merci d'avoir participé à cette consultation !"
             ),
         )
-        return super().form_valid(form)
+
+        return HttpResponseRedirect(reverse("participate_poll", args=[self.object.pk]))
 
 
 class PollFinishedView(TemplateView):

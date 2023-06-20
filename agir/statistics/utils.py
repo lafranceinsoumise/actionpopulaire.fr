@@ -8,7 +8,7 @@ from agir.lib.materiel import MaterielRestAPI
 from agir.people.models import Person
 
 
-def get_absolute_statistics(date=None, as_kwargs=False):
+def get_absolute_statistics(date=None, as_kwargs=False, columns=None):
     if date is None:
         date = datetime.date.today() - datetime.timedelta(days=1)
 
@@ -47,6 +47,11 @@ def get_absolute_statistics(date=None, as_kwargs=False):
         "political_support_person_count": Person.objects.with_active_role()
         .is_political_support()
         .filter(created__date__lte=date),
+        "liaison_count": (
+            Person.objects.with_active_role()
+            .liaisons()
+            .filter(liaison_date__date__lte=date)
+        ),
         "lfi_newsletter_subscriber_count": (
             Person.objects.with_active_role()
             .filter(newsletters__contains=(Person.NEWSLETTER_2022,))
@@ -62,6 +67,12 @@ def get_absolute_statistics(date=None, as_kwargs=False):
             datetime__date__lte=date
         ),
     }
+
+    if columns:
+        querysets = {key: qs for key, qs in querysets.items() if key in columns}
+
+    if not querysets:
+        return querysets
 
     if as_kwargs:
         querysets = {key: qs.count() for key, qs in querysets.items()}
@@ -84,7 +95,7 @@ MATERIEL_SALES_REPORT_FIELDS = (
 )
 
 
-def get_materiel_statistics(date=None):
+def get_materiel_statistics(date=None, columns=None):
     if date is None:
         date = datetime.date.today() - datetime.timedelta(days=1)
 
@@ -95,6 +106,11 @@ def get_materiel_statistics(date=None):
         for key, value in data.items()
         if key in MATERIEL_SALES_REPORT_FIELDS
     }
-    data["date"] = date
+
+    if columns:
+        data = {key: val for key, val in data.items() if key in columns}
+
+    if data:
+        data["date"] = date
 
     return data

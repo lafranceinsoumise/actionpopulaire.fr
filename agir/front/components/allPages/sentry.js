@@ -80,6 +80,9 @@ if (process.env.NODE_ENV === "production") {
       "EBCallBackMessageReceived",
       // See http://toolbar.conduit.com/Developer/HtmlAndGadget/Methods/JSInjection.aspx
       "conduitPage",
+      // see https://stackoverflow.com/questions/49384120/resizeobserver-loop-limit-exceeded
+      "ResizeObserver loop limit exceeded",
+      "ResizeObserver loop completed with undelivered notifications.",
     ],
     denyUrls: [
       // Facebook flakiness

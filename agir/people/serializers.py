@@ -260,8 +260,9 @@ class PersonMandatField(serializers.Field):
     def to_internal_value(self, data):
         if not data.get("mandat", None):
             return None
+
         mandat_type = data.pop("mandat")
-        mandat = None
+
         if not mandat_type in self.types:
             return self.fail("invalid", data=data)
         try:

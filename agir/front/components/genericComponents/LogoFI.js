@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import styled from "styled-components";
 
 import "./_variables.scss";
-import svgLogo from "./logos/lfi.svg";
+import svgLogo from "./logos/LFI-NUPES-Violet-H.webp";
 
 const LogoFI = styled.img.attrs(() => ({ src: svgLogo }))`
   height: ${(props) => props.height || "auto"};
