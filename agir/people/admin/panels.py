@@ -25,7 +25,6 @@ from rangefilter.filters import DateRangeFilter
 
 from agir.authentication.models import Role
 from agir.elus.models import types_elus
-from agir.lib.admin.autocomplete_filter import AutocompleteRelatedModelFilter
 from agir.lib.admin.filters import (
     DepartementListFilter,
     RegionListFilter,
@@ -41,6 +40,7 @@ from agir.people.admin.actions import (
     export_liaisons_to_csv,
     unsubscribe_from_all_newsletters,
     bulk_add_tag,
+    remove_from_liaisons,
 )
 from agir.people.admin.forms import PersonAdminForm, PersonFormForm
 from agir.people.admin.inlines import (
@@ -649,7 +649,7 @@ class PersonFormAdmin(FormSubmissionViewsMixin, admin.ModelAdmin):
                 )
             },
         ),
-        (_("Champs"), {"fields": ("main_question", "tags", "custom_fields", "config")}),
+        (_("Champs"), {"fields": ("tags", "main_question", "custom_fields", "config")}),
         (
             _("Textes"),
             {
@@ -1007,15 +1007,16 @@ class Liaison(Person):
 class LiaisonAdmin(admin.ModelAdmin):
     list_display = ("name", "short_address", "liaison_date", "created")
     list_filter = (
+        filters.SegmentFilter,
         CirconscriptionLegislativeFilter,
         DepartementListFilter,
         RegionListFilter,
     )
     search_fields = ["search", "contact_phone"]
-    actions = (export_liaisons_to_csv,)
+    actions = (export_liaisons_to_csv, remove_from_liaisons)
 
     def has_view_permission(self, request, obj=None):
-        return request.user.has_perm("people.export_people")
+        return request.user.has_perm("people.view_people")
 
     def has_export_permission(self, request):
         return request.user.has_perm("people.export_people")
@@ -1023,11 +1024,11 @@ class LiaisonAdmin(admin.ModelAdmin):
     def has_add_permission(self, request, obj=None):
         return False
 
-    def has_change_permission(self, request, obj=None):
-        return False
-
     def has_delete_permission(self, request, obj=None):
         return False
+
+    def has_change_permission(self, request, obj=None):
+        return request.user.has_perm("people.change_people")
 
     def name(self, obj):
         return format_html(

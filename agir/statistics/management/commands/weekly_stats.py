@@ -226,6 +226,7 @@ class Command(BaseCommand):
 
         self.print_section_title("Membres LFI")
         self.print_stock("political_support_person_count")
+        self.print_stock("liaison_count")
 
         self.print_section_title("E-mails")
         self.print_stock("lfi_newsletter_subscriber_count")
