@@ -140,6 +140,14 @@ class BooleanField(NotRequiredByDefaultMixin, forms.BooleanField):
     pass
 
 
+class FileList(list):
+    pass
+
+
+class MultipleFileWidget(forms.ClearableFileInput):
+    allow_multiple_selected = True
+
+
 class FileField(forms.FileField):
     def __init__(
         self,
@@ -156,9 +164,19 @@ class FileField(forms.FileField):
         if max_size:
             validators.append(FileSizeValidator(max_size))
         if multiple:
-            kwargs["widget"] = forms.ClearableFileInput(attrs={"multiple": True})
+            kwargs["widget"] = MultipleFileWidget()
 
         super().__init__(validators=validators, **kwargs)
+
+    def clean(self, data, initial=None):
+        single_file_clean = super().clean
+
+        if isinstance(data, (list, tuple)):
+            result = FileList(single_file_clean(d, initial) for d in data)
+        else:
+            result = FileList(single_file_clean(data, initial))
+
+        return result
 
 
 # In person form there is a token bucket for preventing searching
