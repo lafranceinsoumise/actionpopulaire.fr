@@ -49,6 +49,7 @@ schema = {
                                     },
                                 },
                                 {"type": "string"},
+                                {"type": "number"},
                             ],
                         },
                     },

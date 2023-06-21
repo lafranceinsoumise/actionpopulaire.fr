@@ -11,7 +11,35 @@ const initAdminJsonWidget = () => {
   }
 
   document.querySelectorAll(".jsoneditordiv").forEach((e) => {
+    console.log("Boom");
+
     if (loaded.includes(e.dataset.fieldname)) return;
+
+    let schema = "";
+    let data = "";
+
+    if (document.getElementById(e.dataset.fieldname + "-schema")) {
+      try {
+        schema = document.getElementById(
+          e.dataset.fieldname + "-schema"
+        ).textContent;
+        schema = JSON.parse(schema);
+      } catch (e) {
+        console.log(e);
+        schema = undefined;
+      }
+    }
+
+    if (document.getElementById(e.dataset.fieldname + "-data").textContent) {
+      try {
+        data = document.getElementById(
+          e.dataset.fieldname + "-data"
+        ).textContent;
+        data = JSON.parse(data);
+      } catch (e) {
+        console.log(e);
+      }
+    }
 
     const editor = new JsonEditor(e, {
       onChangeText: (content) => {
@@ -36,20 +64,15 @@ const initAdminJsonWidget = () => {
           },
         },
       ],
-      modes: ["tree", "code"],
-      schema: document.getElementById(e.dataset.fieldname + "-schema")
-        ? JSON.parse(
-            document.getElementById(e.dataset.fieldname + "-schema").textContent
-          )
-        : null,
+      mode: typeof data === "string" ? "code" : "tree",
+      modes: ["tree", "code", "preview"],
+      schema: schema,
     });
-    editor.set(
-      JSON.parse(
-        document.getElementById(e.dataset.fieldname + "-data").textContent
-      )
-    );
-    editor.expandAll();
+
+    typeof data === "string" ? editor.setText(data) : editor.set(data);
+    typeof data !== "string" && editor.expandAll();
     loaded.push(e.dataset.fieldname);
+
     window.AgirAdminJsonWidgetEditor = editor;
   });
 
