@@ -6,7 +6,7 @@ from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError, transaction
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext as _
@@ -16,7 +16,6 @@ from django.views.generic.detail import SingleObjectMixin
 
 from agir.authentication.view_mixins import (
     SoftLoginRequiredMixin,
-    GlobalOrObjectPermissionRequiredMixin,
 )
 from agir.people.models import Person
 from .forms import PollParticipationForm
@@ -27,6 +26,7 @@ __all__ = ["PollParticipationView", "PollFinishedView"]
 from .tasks import send_vote_confirmation_email
 
 from ..lib.http import add_query_params_to_url
+from ..lib.utils import front_url
 
 
 @method_decorator(never_cache, name="get")
@@ -60,6 +60,7 @@ class PollParticipationView(
         poll_choice = PollChoice.objects.filter(
             person=self.request.user.person, poll=self.object
         ).first()
+
         return super().get_context_data(
             already_voted=(poll_choice is not None),
             anonymous_id=(poll_choice is not None and poll_choice.anonymous_id),
@@ -119,6 +120,17 @@ class PollParticipationView(
 
         return super().post(*args, **kwargs)
 
+    def get_success_url(self, choice=None):
+        url = reverse_lazy("participate_poll", args=[self.object.pk])
+
+        if self.object.rules.get("success_url"):
+            anonymous_id = choice.anonymous_id if choice else None
+            url = add_query_params_to_url(
+                self.object.rules["success_url"], {"anonymous_id": anonymous_id}
+            )
+
+        return url
+
     def form_valid(self, form):
         try:
             choice = form.make_choice(self.request.user)
@@ -132,12 +144,6 @@ class PollParticipationView(
                 partial(send_vote_confirmation_email.delay, choice.id)
             )
 
-        if self.object.rules.get("success_url"):
-            url = add_query_params_to_url(
-                self.object.rules["success_url"], {"anonymous_id": choice.anonymous_id}
-            )
-            return HttpResponseRedirect(url)
-
         messages.add_message(
             self.request,
             messages.SUCCESS,
@@ -146,7 +152,7 @@ class PollParticipationView(
             ),
         )
 
-        return HttpResponseRedirect(reverse("participate_poll", args=[self.object.pk]))
+        return HttpResponseRedirect(self.get_success_url(choice))
 
 
 class PollFinishedView(TemplateView):
