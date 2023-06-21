@@ -174,7 +174,7 @@ class FileField(forms.FileField):
         if isinstance(data, (list, tuple)):
             result = FileList(single_file_clean(d, initial) for d in data)
         else:
-            result = FileList(single_file_clean(data, initial))
+            result = single_file_clean(data, initial)
 
         return result
 

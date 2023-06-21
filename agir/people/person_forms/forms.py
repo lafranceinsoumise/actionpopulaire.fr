@@ -217,6 +217,8 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
         for key, value in data.items():
             if isinstance(value, File) and key in self.files:
                 data[key] = [self._save_file(f, key) for f in self.files.getlist(key)]
+            elif isinstance(value, File):
+                data[key] = [self._save_file(value, key)]
             elif isinstance(value, FileList):
                 data[key] = [self._save_file(v, key) for v in value]
 
