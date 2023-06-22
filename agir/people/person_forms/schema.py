@@ -76,9 +76,8 @@ field_commons = {
             "type": "boolean",
         },
     },
-    "required": ["id"],
     "dependencies": {"type": ["label"]},
-    "oneOf": [
+    "anyOf": [
         {
             "properties": {"person_field": {"const": True}},
             "required": ["id", "person_field"],
@@ -374,9 +373,10 @@ field_types = [
     {
         "properties": {
             "type": {"const": "person_tag"},
-            "initial": uuid,
+            "initial": {"type": "number"},
             "choices": {"type": "array", "items": {"type": ["string", "number"]}},
             "multiple": {"type": "boolean"},
+            "person_field": {"type": "boolean"},
         },
         "required": ["choices"],
     },
