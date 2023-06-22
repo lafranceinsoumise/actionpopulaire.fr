@@ -47,11 +47,6 @@ field_commons = {
             "description": "Le libellé du champ",
             "type": "string",
         },
-        "person_field": {
-            "description": "Le champ doit-il être enregistré sur la personne",
-            "type": "boolean",
-            "const": True,
-        },
         "type": {
             "description": "Le type de champ",
             "type": "string",
@@ -76,7 +71,22 @@ field_commons = {
                 "null",
             ],
         },
-    }
+        "person_field": {
+            "description": "Le champ doit-il être enregistré sur la personne",
+            "type": "boolean",
+        },
+    },
+    "required": ["id"],
+    "dependencies": {"type": ["label"]},
+    "oneOf": [
+        {
+            "properties": {"person_field": {"const": True}},
+            "required": ["id", "person_field"],
+        },
+        {
+            "required": ["id", "type", "label"],
+        },
+    ],
 }
 
 field_types = [
@@ -374,7 +384,7 @@ field_types = [
 
 field = {
     "type": "object",
-    "allOf": [field_commons, {"oneOf": field_types}],
+    "allOf": [field_commons, {"anyOf": field_types}],
 }
 
 schema = {
@@ -396,6 +406,7 @@ schema = {
                 "items": field,
             },
         },
+        "additionalProperties": False,
         "required": ["title", "fields"],
     },
     "minItems": 1,

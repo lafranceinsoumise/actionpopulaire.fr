@@ -38,7 +38,12 @@ const initAdminJsonWidget = () => {
     let templates;
     let data = "";
 
-    e.closest(".form-row").style.overflow = "visible";
+    const parentElement = e.closest(".form-row") || e.parentNode;
+    parentElement.style.overflow = "visible";
+
+    const popupAnchor = document.createElement("div");
+    popupAnchor.style.position = "relative";
+    parentElement.appendChild(popupAnchor);
 
     if (document.getElementById(e.dataset.fieldname + "-schema")) {
       try {
@@ -86,6 +91,7 @@ const initAdminJsonWidget = () => {
       schema: schema,
       schemaRefs: {},
       allowSchemaSuggestions: true,
+      popupAnchor,
     });
 
     typeof data === "string" ? editor.setText(data) : editor.set(data);
