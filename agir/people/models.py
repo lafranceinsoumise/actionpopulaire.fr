@@ -278,7 +278,7 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
 
         return self._create_person(email, **extra_fields)
 
-    def create_political_support(self, email, password=None, **extra_fields):
+    def create_political_supporter(self, email, password=None, **extra_fields):
         """
         Create a user
         :param email: the user's email
@@ -393,7 +393,7 @@ class Person(
     )
     auto_login_salt = models.CharField(max_length=255, blank=True, default="")
 
-    is_political_support = models.BooleanField(_("Soutien 2022"), default=False)
+    is_political_support = models.BooleanField(_("Soutien politique"), default=False)
 
     MEMBRE_RESEAU_INCONNU = "I"
     MEMBRE_RESEAU_SOUHAITE = "S"

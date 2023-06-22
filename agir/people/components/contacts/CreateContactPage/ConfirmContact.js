@@ -72,7 +72,7 @@ const ConfirmContact = (props) => {
       <Spacer size="1.5rem" />
       <ul>
         {data.isPoliticalSupport ? (
-          <li>Soutien Jean-Luc Mélenchon pour 2022</li>
+          <li>Veut rejoindre la France insoumise</li>
         ) : null}
         {newsletters.length > 0 ? (
           <li>{`Recevra ${newsletters.join(", ")}`}</li>

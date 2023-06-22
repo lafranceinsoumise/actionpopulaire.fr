@@ -464,7 +464,7 @@ class FindVotingProxyCandidatesForRequestsTestCase(TestCase):
         )
 
     def create_proxy_candidate(self, **kwargs):
-        return Person.objects.create_political_support(
+        return Person.objects.create_political_supporter(
             **{
                 "first_name": "a",
                 "last_name": "Candidate",

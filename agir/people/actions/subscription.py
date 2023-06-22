@@ -44,6 +44,7 @@ SUBSCRIPTION_TYPE_CHOICES = (
     (SUBSCRIPTION_TYPE_LJI, "Les jeunes insoumis"),
 )
 SUBSCRIPTION_FIELD = {
+    # TODO: Vérifier ce qui est encore utilisé et ce qui ne l'est plus
     SUBSCRIPTION_TYPE_LFI: "is_political_support",
     SUBSCRIPTION_TYPE_NSP: "is_political_support",
     SUBSCRIPTION_TYPE_LJI: "is_political_support",

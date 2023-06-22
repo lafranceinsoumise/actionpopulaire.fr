@@ -97,7 +97,7 @@ class ActivityAPIViewTestCase(TestCase):
 
 class AnnouncementTestCase(TestCase):
     def setUp(self) -> None:
-        self.supportive_person = Person.objects.create_political_support("a@a.a")
+        self.supportive_person = Person.objects.create_political_supporter("a@a.a")
         self.unsupportive_person = Person.objects.create_person("b@b.b")
 
     def test_can_get_all_announcements(self):

@@ -29,7 +29,9 @@ class ProfileTestCase(TestCase):
             "test@test.com", is_political_support=False, create_role=True
         )
         self.person.add_email("test2@test.com")
-        self.person_to_merge = Person.objects.create_political_support("merge@test.com")
+        self.person_to_merge = Person.objects.create_political_supporter(
+            "merge@test.com"
+        )
 
         self.client.force_login(self.person.role)
 
@@ -398,7 +400,7 @@ class VolunteerFormTestCases(TestCase):
 
 class InformationContactFormTestCases(TestCase):
     def setUp(self):
-        self.person = Person.objects.create_political_support(
+        self.person = Person.objects.create_political_supporter(
             "test@test.com",
             subscribed=False,
             subscribed_sms=False,

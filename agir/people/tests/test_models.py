@@ -18,7 +18,7 @@ class BasicPersonTestCase(TestCase):
         )
 
     def test_subscription_defaults(self):
-        user = Person.objects.create_political_support(
+        user = Person.objects.create_political_supporter(
             email="political_support@domain.com"
         )
         self.assertEqual(user.subscribed, True)
