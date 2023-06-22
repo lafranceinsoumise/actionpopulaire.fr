@@ -15,7 +15,12 @@ from agir.lib.form_components import *
 from agir.lib.form_mixins import MetaFieldsMixin
 from agir.lib.token_bucket import TokenBucket
 from agir.people.person_forms.field_groups import get_form_part
-from .fields import is_actual_model_field, get_data_from_submission, get_form_field
+from .fields import (
+    is_actual_model_field,
+    get_data_from_submission,
+    get_form_field,
+    FileList,
+)
 from ..models import Person, PersonFormSubmission
 
 check_person_email_bucket = TokenBucket("PersonFormPersonChoice", 10, 600)
@@ -214,6 +219,8 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
                 data[key] = [self._save_file(f, key) for f in self.files.getlist(key)]
             elif isinstance(value, File):
                 data[key] = [self._save_file(value, key)]
+            elif isinstance(value, FileList):
+                data[key] = [self._save_file(v, key) for v in value]
 
         if self.submission is not None:
             self.submission.data = data
