@@ -14,8 +14,15 @@ class MembershipInline(admin.TabularInline):
         "gender",
         "description",
         "group_name",
+        "is_finance_manager",
     )
-    readonly_fields = ("person_link", "gender", "description", "group_name")
+    readonly_fields = (
+        "person_link",
+        "gender",
+        "description",
+        "group_name",
+        "is_finance_manager",
+    )
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related("person")
@@ -52,6 +59,10 @@ class MembershipInline(admin.TabularInline):
                 escape(group_name),
             )
         )
+
+    @admin.display(description="Gestionnaire financier", boolean=True)
+    def is_finance_manager(self, obj):
+        return obj and obj.is_finance_manager
 
     def has_add_permission(self, request, obj=None):
         return False
