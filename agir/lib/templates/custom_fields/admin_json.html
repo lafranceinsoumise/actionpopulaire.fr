@@ -1,6 +1,6 @@
 <input type="hidden" id="id_{{ widget.name }}" name="{{ widget.name }}"
   {% include "django/forms/widgets/attrs.html" %} value="{{ widget.value }}"/>
-<div style="margin-left: 170px;" data-fieldname="{{ widget.name }}" class="jsoneditordiv"></div>
+<div style="resize: vertical; overflow: hidden; margin-left: 170px;" data-fieldname="{{ widget.name }}" class="jsoneditordiv"></div>
 <script id="{{ widget.name }}-data" type="application/json">
   {{ widget.value|safe }}
 </script>
