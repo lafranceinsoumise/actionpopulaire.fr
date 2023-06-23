@@ -14,8 +14,8 @@ from django.utils.translation import gettext_lazy as _
 from glom import glom, T
 
 from .forms import AddMemberForm
+from ..actions.boucles_departementales import maj_boucles
 from ..models import SupportGroup
-from ..tasks import maj_boucles
 from ...lib.utils import front_url
 
 
