@@ -22,6 +22,7 @@ from django.db.models import JSONField, Prefetch
 from django.db.models.functions import Coalesce
 from django.template.defaultfilters import floatformat
 from django.utils import formats, timezone
+from django.utils.html import format_html
 from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
@@ -873,6 +874,14 @@ class Event(
 
     def get_absolute_url(self):
         return front_url("view_event", args=[self.pk])
+
+    def confirmation_note(self):
+        if not self.subscription_form:
+            return ""
+
+        return format_html(
+            self.subscription_form.confirmation_note,
+        )
 
     def get_google_calendar_url(self):
         # https://github.com/InteractionDesignFoundation/add-event-to-calendar-docs/blob/master/services/google.md
