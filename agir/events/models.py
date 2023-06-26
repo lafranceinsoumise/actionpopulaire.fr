@@ -535,8 +535,27 @@ class Event(
     )
 
     subscription_form = models.OneToOneField(
-        "people.PersonForm", null=True, blank=True, on_delete=models.PROTECT
+        "people.PersonForm",
+        verbose_name="Formulaire d'inscription",
+        related_name="subscription_form_event",
+        related_query_name="subscription_form_event",
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
     )
+
+    volunteer_application_form = models.OneToOneField(
+        "people.PersonForm",
+        verbose_name="Formulaire d'appel à volontaires",
+        help_text="Si un formulaire existe, son lien sera affiché sur la page de l'événement et dans les e-mails de "
+        "confirmation de participation.",
+        related_name="volunteer_application_form_event",
+        related_query_name="volunteer_application_form_event",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
+
     payment_parameters = JSONField(
         verbose_name=_("Paramètres de paiement"),
         null=True,

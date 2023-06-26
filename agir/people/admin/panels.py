@@ -633,6 +633,7 @@ class PersonFormAdmin(FormSubmissionViewsMixin, admin.ModelAdmin):
                     "required_tags",
                     "lien_feuille_externe",
                     "segment",
+                    "linked_event",
                 )
             },
         ),
@@ -676,17 +677,32 @@ class PersonFormAdmin(FormSubmissionViewsMixin, admin.ModelAdmin):
         "action_buttons",
         "last_submission",
         "result_url",
+        "linked_event",
     )
     autocomplete_fields = ("required_tags", "segment", "tags", "campaign_template")
 
+    @admin.display(description="Dernière réponse", ordering="last_submission")
     def last_submission(self, obj):
         last_submission = obj.submissions.last()
         if last_submission is None:
             return mark_safe("-")
         return last_submission.created
 
-    last_submission.short_description = "Dernière réponse"
-    last_submission.admin_order_field = "last_submission"
+    @admin.display(description="Événement")
+    def linked_event(self, obj):
+        if obj and obj.subscription_form_event:
+            return display_link(
+                obj.subscription_form_event,
+                text=f"[INSCRIPTION] {obj.subscription_form_event}",
+            )
+
+        if obj and obj.volunteer_application_form_event:
+            return display_link(
+                obj.volunteer_application_form_event,
+                text=f"[APPEL À VOLONTAIRES] {obj.volunteer_application_form_event}",
+            )
+
+        return "-"
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
