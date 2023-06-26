@@ -212,7 +212,9 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     eventSpeakers = serializers.SerializerMethodField(
         method_name="get_event_speakers", read_only=True
     )
-
+    volunteerApplicationFormLink = serializers.URLField(
+        source="volunteer_application_form.front_url", read_only=True
+    )
     # hasProject = serializers.SerializerMethodField(
     #     read_only=True, method_name="get_has_project"
     # )

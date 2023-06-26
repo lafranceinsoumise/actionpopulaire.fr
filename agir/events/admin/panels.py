@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html, escape, format_html_join
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, ngettext
 
 from agir.events import models
 from agir.events.models import Calendar, RSVP, IdentifiedGuest
@@ -41,7 +41,12 @@ from .forms import EventAdminForm, EventSubtypeAdminForm
 from .views import reset_feuille_externe
 from ..serializers import EventEmailCampaignSerializer
 from ...event_requests.admin.inlines import EventAssetInline
-from ...lib.admin.utils import display_link, display_list_of_links, display_json_details
+from ...lib.admin.utils import (
+    display_link,
+    display_list_of_links,
+    display_json_details,
+    admin_url,
+)
 
 
 class EventStatusFilter(admin.SimpleListFilter):
@@ -286,6 +291,8 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
                     "group_participants_display",
                     "rsvps_buttons",
                     "payment_parameters",
+                    "volunteer_application_form",
+                    "volunteer_application_form_submissions",
                     "enable_jitsi",
                     "participation_template",
                 )
@@ -361,6 +368,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "mailing_actions",
         "email_campaign_modified",
         "email_data_preview",
+        "volunteer_application_form_submissions",
     )
     date_hierarchy = "start_time"
 
@@ -404,6 +412,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
     autocomplete_fields = (
         "tags",
         "subscription_form",
+        "volunteer_application_form",
         "suggestion_segment",
         "event_speakers",
         "email_campaign",
@@ -531,6 +540,28 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         return "-"
 
     group_participants_display.short_description = "Nombre de groupes participants"
+
+    @admin.display(description="Réponses au formulaire d'appel à volontaires")
+    def volunteer_application_form_submissions(self, obj):
+        if not obj or not obj.volunteer_application_form:
+            return "-"
+
+        count = (
+            obj.volunteer_application_form.submissions.values("person_id")
+            .distinct()
+            .count()
+        )
+
+        if count == 0:
+            return "Aucune réponse n'a encore été reçue "
+
+        count = ngettext("Voir la réponse", f"Voir les {count} réponses", count)
+
+        link = admin_url(
+            "people_personform_view_results", args=(obj.volunteer_application_form.pk,)
+        )
+
+        return display_link(link, count)
 
     def add_organizer(self, request, pk):
         return views.add_organizer(self, request, pk)
