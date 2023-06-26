@@ -49,15 +49,17 @@
       </a>
     </p>
   {% endif %}
-  <p style="Margin: 1em 0px; Margin-top: 0px;">Pour toute demande ou information, vous pouvez
-    contacter <strong>{{ event.contact_name }}</strong> par e-mail à l'adresse&nbsp;:
-    <a href="mailto:{{ event.contact_email }}"
-       style="color: #571AFF; color: #571AFF; text-decoration: underline;">{{ event.contact_email }}</a>
-  </p>
-  <p style="Margin: 1em 0px;">Si l'inscription ne comportait pas de participation financière, vous pouvez
-    à tout moment annuler votre participation en vous rendant sur la page de l'événement&nbsp;:&nbsp;<a
+  {% if event.contact_email %}
+    <p style="Margin: 1em 0px; Margin-top: 0px;">Pour toute demande ou information, vous pouvez
+      contacter <strong>{{ event.contact_name }}</strong> par e-mail à l'adresse&nbsp;:
+      <a href="mailto:{{ event.contact_email }}"
+         style="color: #571AFF; color: #571AFF; text-decoration: underline;">{{ event.contact_email }}</a>
+    </p>
+  {% endif %}
+  <p style="Margin: 1em 0px;">Vous pouvez à tout moment consulter et, si l'inscription ne comportait pas de participation financière,
+    annuler votre participation en vous rendant sur <a
       href="{{ event.get_absolute_url }}"
-      style="color: #571AFF; color: #571AFF; text-decoration: underline;">{{ event.get_absolute_url }}</a></p>
+      style="color: #571AFF; color: #571AFF; text-decoration: underline;">la page de l'événement</a></p>
   <br/>
   <p>Amitiés<br>L'équipe d'Action Populaire</p>
 {% endblock %}
