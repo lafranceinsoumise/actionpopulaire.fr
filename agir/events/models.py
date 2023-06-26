@@ -177,7 +177,7 @@ class EventQuerySet(models.QuerySet):
 
     def with_serializer_prefetch(self, person):
         qs = (
-            self.select_related("subtype")
+            self.select_related("subtype", "volunteer_application_form")
             .prefetch_related(
                 "organizer_configs", "event_speakers", "event_speakers__person"
             )

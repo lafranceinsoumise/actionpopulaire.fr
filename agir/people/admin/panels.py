@@ -749,12 +749,12 @@ class PersonFormAdmin(FormSubmissionViewsMixin, admin.ModelAdmin):
             ),
         ] + super().get_urls()
 
-    def slug_link(self, object):
-        if object.slug:
+    def slug_link(self, obj):
+        if obj.slug:
             return format_html(
                 '<a href="{}">{}</a>',
-                front_url("view_person_form", args=(object.slug,)),
-                object.slug,
+                front_url("view_person_form", args=(obj.slug,)),
+                obj.slug,
             )
         else:
             return "-"
@@ -788,40 +788,37 @@ class PersonFormAdmin(FormSubmissionViewsMixin, admin.ModelAdmin):
 
     action_buttons.short_description = _("Actions")
 
-    def simple_link(self, object):
-        if object.slug:
-            return format_html(
-                '<a href="{0}">{0}</a>',
-                front_url("view_person_form", args=(object.slug,)),
-            )
+    def simple_link(self, obj):
+        if obj.slug:
+            return format_html('<a href="{0}">{0}</a>', obj.front_url)
         else:
             return "-"
 
     simple_link.short_description = "Lien vers le formulaire"
 
-    def result_url(self, object):
-        if object._state.adding:
+    def result_url(self, obj):
+        if obj._state.adding:
             return "-"
 
-        if object.result_url_uuid:
+        if obj.result_url_uuid:
             return format_html(
                 '<a href="{url}">{url}</a> <a href="{change_url}" class="button">Changer l\'URL</a>'
                 ' <a href="{clear_url}" class="button">Supprimer l\'URL</a>',
                 url=front_url(
-                    "person_form_private_submissions", args=(object.result_url_uuid,)
+                    "person_form_private_submissions", args=(obj.result_url_uuid,)
                 ),
                 change_url=reverse(
-                    "admin:people_personform_create_result_url", args=(object.pk,)
+                    "admin:people_personform_create_result_url", args=(obj.pk,)
                 ),
                 clear_url=reverse(
-                    "admin:people_personform_clear_result_url", args=(object.pk,)
+                    "admin:people_personform_clear_result_url", args=(obj.pk,)
                 ),
             )
 
         return format_html(
             '<em>Pas d\'URL pour le moment</em> <a href="{change_url}" class="button">Créer une URL</a>',
             change_url=reverse(
-                "admin:people_personform_create_result_url", args=(object.pk,)
+                "admin:people_personform_create_result_url", args=(obj.pk,)
             ),
         )
 
@@ -832,12 +829,12 @@ class PersonFormAdmin(FormSubmissionViewsMixin, admin.ModelAdmin):
     )
 
     @admin.display(description="Nombre de réponses")
-    def submissions_number(self, object):
-        return object.submissions_number
+    def submissions_number(self, obj):
+        return obj.submissions_number
 
     @admin.display(description="Nombre de personnes")
-    def person_count(self, object):
-        return object.person_count
+    def person_count(self, obj):
+        return obj.person_count
 
 
 @admin.register(PersonFormSubmission)
