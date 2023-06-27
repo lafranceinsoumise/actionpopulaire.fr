@@ -80,7 +80,7 @@ def send_new_code(person, request):
     )
     formatted_code = sms.code[:3] + " " + sms.code[3:]
 
-    if not settings.OVH_SMS_DISABLE:
+    if not settings.SMS_DISABLED:
         send_validation_sms.delay(sms.id)
         sms_counter.labels("sent").inc()
 
