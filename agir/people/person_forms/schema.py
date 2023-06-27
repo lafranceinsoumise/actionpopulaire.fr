@@ -11,28 +11,28 @@ uuid = {
     "minLength": 32,
 }
 
+choice_value = {"type": ["string", "number"]}
+choice_label_value = {
+    "type": "array",
+    "minItems": 2,
+    "maxItems": 2,
+    "items": [choice_value, {"type": "string"}],
+}
 
 choices = {
     "predefined": {"type": "string", "enum": list(PREDEFINED_CHOICES.keys())},
-    "values": {"type": "array", "items": {"type": ["string", "number"]}},
-    "labels": {
-        "type": "array",
-        "maxItems": 2,
-        "minItems": 2,
-        "items": {"type": ["string", "number"]},
-    },
+    "values": {"type": "array", "items": choice_value},
+    "labels": {"type": "array", "items": choice_label_value},
     "categories": {
         "type": "array",
         "items": {
-            "oneOf": [
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": [
                 {"type": "string"},
-                {
-                    "type": "array",
-                    "maxItems": 2,
-                    "minItems": 2,
-                    "items": {"type": ["string", "number"]},
-                },
-            ]
+                {"type": "array", "items": choice_label_value},
+            ],
         },
     },
 }
