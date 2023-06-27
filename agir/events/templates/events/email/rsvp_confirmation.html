@@ -6,37 +6,51 @@
 
 {% block html_content %}
   <p>{{ greetings }}</p>
+
   <p>Bonne nouvelle&nbsp;!</p>
+
   <p>Vous êtes bien inscrit·e à l'événement suivant&nbsp;:</p>
+
   <h2 style="color: #571AFF; color: #571AFF; text-decoration: underline;">
     <a href="{{ event.get_absolute_url }}">
       {{ event.name }}
     </a>
   </h2>
+
   <h3 style="margin:0.5em 0;">
     {{ event.get_display_date.title }}
   </h3>
+
   <h3 style="margin:0.5em 0;">
     {{ event.location_name }}
     <br>
     <span style="font-size: 0.875em; font-weight: 600;">{{ event.short_address }}</span>
   </h3>
+
   {% if event.confirmation_note %}
     <div style="margin: 1em 0; background: #EEE; padding: 2em; border-radius: 8px;">
       {{ event.confirmation_note }}
     </div>
   {% endif %}
+
   {% if event.attendant_notice %}
     <div style="margin: 1em 0; background: #EEE; padding: 2em; border-radius: 8px;">
       {{ event.attendant_notice }}
     </div>
   {% endif %}
+
   <p style="font-family: Arial, Helvetica, sans-serif; text-align: center;">
     <a href="{{ event.get_absolute_url }}"
        style="display: inline-block; text-decoration: none; color: #000A2C; font-weight: bold; padding: 14px; background-color: #F4ED0F; border-radius: 5px; font-size: 1.25em;">
       Partager l'événement
     </a>
   </p>
+
+  <p style="Margin: 1em 0px;">Vous pouvez à tout moment consulter et, si l'inscription ne comportait pas de participation financière,
+    annuler votre participation en vous rendant sur <a
+      href="{{ event.get_absolute_url }}"
+      style="color: #571AFF; color: #571AFF; text-decoration: underline;">la page de l'événement</a></p>
+
   {% if event.volunteer_application_form %}
     <p>
       Si vous êtes disponible et que vous souhaitez aider à l'organisation de l'événement,
@@ -49,6 +63,7 @@
       </a>
     </p>
   {% endif %}
+
   {% if event.contact_email %}
     <p style="Margin: 1em 0px; Margin-top: 0px;">Pour toute demande ou information, vous pouvez
       contacter <strong>{{ event.contact_name }}</strong> par e-mail à l'adresse&nbsp;:
@@ -56,10 +71,8 @@
          style="color: #571AFF; color: #571AFF; text-decoration: underline;">{{ event.contact_email }}</a>
     </p>
   {% endif %}
-  <p style="Margin: 1em 0px;">Vous pouvez à tout moment consulter et, si l'inscription ne comportait pas de participation financière,
-    annuler votre participation en vous rendant sur <a
-      href="{{ event.get_absolute_url }}"
-      style="color: #571AFF; color: #571AFF; text-decoration: underline;">la page de l'événement</a></p>
+
   <br/>
+
   <p>Amitiés<br>L'équipe d'Action Populaire</p>
 {% endblock %}

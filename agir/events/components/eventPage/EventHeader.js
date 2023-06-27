@@ -25,9 +25,7 @@ import QuitEventButton from "./QuitEventButton";
 
 import logger from "@agir/lib/utils/logger";
 import StaticToast from "@agir/front/genericComponents/StaticToast";
-import FeatherIcon, {
-  RawFeatherIcon,
-} from "@agir/front/genericComponents/FeatherIcon";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const log = logger(__filename);
 
@@ -86,6 +84,10 @@ const StyledActions = styled.div`
 
   @media (max-width: ${style.collapse}px) {
     flex-direction: column;
+  }
+
+  ${Button} {
+    font-weight: 500;
   }
 `;
 
