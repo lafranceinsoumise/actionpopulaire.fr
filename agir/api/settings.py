@@ -898,8 +898,11 @@ PAYMENT_MODES = [
     "agir.ilb.ILBCheckPaymentMode",
 ]
 
+# SMS settings
+SMS_PROVIDER = os.environ.get("SMS_PROVIDER", "SFR")  # OVH or SFR
+SMS_DISABLED = os.environ.get("SMS_DISABLED", "true").lower() == "true"
+
 # OVH Settings
-OVH_SMS_DISABLE = os.environ.get("OVH_SMS_DISABLE", "true").lower() == "true"
 OVH_SMS_SERVICE = os.environ.get("OVH_SMS_SERVICE")
 OVH_APPLICATION_KEY = os.environ.get("OVH_APPLICATION_KEY")
 OVH_APPLICATION_SECRET = os.environ.get("OVH_APPLICATION_SECRET")
@@ -910,6 +913,11 @@ SMS_BUCKET_INTERVAL = 600
 SMS_BUCKET_IP_MAX = 10
 SMS_BUCKET_IP_INTERVAL = 600
 
+# SFR settings
+SFR_SERVICE_ID = os.environ.get("SFR_SERVICE_ID")
+SFR_SPACE_ID = os.environ.get("SFR_SPACE_ID")
+SFR_PASSWORD = os.environ.get("SFR_PASSWORD")
+SFR_DEFAULT_SENDER = "LFI"
 
 # Short login codes settings
 SHORT_CODE_VALIDITY = 90

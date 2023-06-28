@@ -14,7 +14,7 @@ from agir.lib.models import BaseAPIResource
 
 __all__ = ["VotingProxy", "VotingProxyRequest"]
 
-from agir.lib.sms import to_7bit_string
+from agir.lib.sms.common import to_7bit_string
 
 
 class AbstractVoter(BaseAPIResource):

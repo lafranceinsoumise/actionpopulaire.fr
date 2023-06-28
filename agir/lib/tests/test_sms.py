@@ -1,12 +1,13 @@
 from django.test import TestCase
 from math import ceil
 
-from agir.lib.sms import (
+import agir.lib.sms.ovh
+from agir.lib.sms.common import (
     compute_sms_length_information,
-    MessageLength,
+    MESSAGE_LENGTH,
     SMSSendException,
-    send_bulk_sms,
 )
+from agir.lib.sms import send_bulk_sms
 
 
 def _mock_send_sms(message, recipients, at=None, sender=None):
@@ -17,10 +18,11 @@ def _mock_send_sms(message, recipients, at=None, sender=None):
             raise SMSSendException("Erreur incroyable")
 
     recipients = [r.as_e164 for r in recipients]
-    return {
-        "validReceivers": [r for r in recipients if not r.startswith("+337")],
-        "invalidReceivers": [r for r in recipients if r.startswith("+337")],
-    }
+
+    return (
+        [r for r in recipients if not r.startswith("+337")],
+        [r for r in recipients if r.startswith("+337")],
+    )
 
 
 _mock_send_sms.counter = None
@@ -32,34 +34,34 @@ class SMSLengthTestCase(TestCase):
             "Simple SMS sans caractère spécial hors GSM7. Il doit faire quatre-vingt-huit caractères."
         )
 
-        self.assertEqual(res, MessageLength("GSM7", ceil(88 * 7 / 8), 1))
+        self.assertEqual(res, MESSAGE_LENGTH("GSM7", ceil(88 * 7 / 8), 1))
 
         res = compute_sms_length_information(
             "Ici j'ajoute juste des caractères spéciaux étendus genre {€^}. En tout quatre-vingt-huit"
         )
 
-        self.assertEqual(res, MessageLength("GSM7-EXT", ceil((88 + 4) * 7 / 8), 1))
+        self.assertEqual(res, MESSAGE_LENGTH("GSM7-EXT", ceil((88 + 4) * 7 / 8), 1))
 
         res = compute_sms_length_information(
             "Enfin ici ça va dépoter avec du UTF16 ŸÔâ. Cinquante-sept"
         )
-        self.assertEqual(res, MessageLength("UCS-2", 57 * 2, 1))
+        self.assertEqual(res, MESSAGE_LENGTH("UCS-2", 57 * 2, 1))
 
 
 class SMSSendingTestCase(TestCase):
     def setUp(self) -> None:
         from agir.lib import sms
 
-        self.original_send_sms = sms._send_sms
-        self.original_bulk_group_size = sms.BULK_GROUP_SIZE
+        self.original_send_sms = agir.lib.sms.SMS_PROVIDER.send_sms
+        self.original_bulk_group_size = sms.SMS_PROVIDER.BULK_GROUP_SIZE
 
-        sms._send_sms = _mock_send_sms
-        sms.BULK_GROUP_SIZE = 2
+        agir.lib.sms.SMS_PROVIDER.send_sms = _mock_send_sms
+        sms.SMS_PROVIDER.BULK_GROUP_SIZE = 2
 
     def tearDown(self) -> None:
         from agir.lib import sms
 
-        sms._send_sms = self.original_send_sms
+        agir.lib.sms.SMS_PROVIDER.send_sms = self.original_send_sms
         sms.BULK_GROUP_SIZE = self.original_bulk_group_size
         del self.original_send_sms
         del self.original_bulk_group_size
