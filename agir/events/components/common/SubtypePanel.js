@@ -133,6 +133,12 @@ SubtypeOption.propTypes = {
     description: PropTypes.string,
     isPrivate: PropTypes.bool,
     forGroupType: PropTypes.string,
+    forGroups: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.string,
+        name: PropTypes.string,
+      })
+    ),
   }),
   onClick: PropTypes.func,
   selected: PropTypes.bool,

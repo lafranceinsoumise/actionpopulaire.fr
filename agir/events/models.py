@@ -1165,6 +1165,16 @@ class EventSubtype(BaseSubtype):
         "pourront créer des événements de ce type.",
     )
 
+    for_supportgroups = models.ManyToManyField(
+        "groups.SupportGroup",
+        limit_choices_to={"published": True},
+        blank=True,
+        default=None,
+        verbose_name="Organisations réservé à certains groupes",
+        help_text="Seulement les gestionnaires et animateur·ices des groupes sélectionnés "
+        "pourront créer des événements de ce type.",
+    )
+
     is_coorganizable = models.BooleanField(
         "Co-organisation avec d'autres groupes d'action autorisée",
         default=True,
