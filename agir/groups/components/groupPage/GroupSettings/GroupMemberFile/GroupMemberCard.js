@@ -83,6 +83,8 @@ const StyledCard = styled.div`
       & > button {
         display: inline-flex;
         align-items: center;
+        line-height: 1.3;
+        gap: 0.75rem;
 
         svg {
           color: ${(props) => props.theme.black500};
@@ -163,13 +165,13 @@ const GroupMemberCard = (props) => {
           {phone ? (
             <span>
               <FeatherIcon small name="phone" />
-              &ensp;<a href={`tel:${phone}`}>{phone}</a>
+              <a href={`tel:${phone}`}>{phone}</a>
             </span>
           ) : null}
           {email ? (
             <button type="button" title="Copier l'adresse" onClick={handleCopy}>
               <FeatherIcon small name="mail" />
-              &ensp;<strong>{email}</strong>
+              <strong>{email}</strong>
             </button>
           ) : null}
         </p>
@@ -177,14 +179,14 @@ const GroupMemberCard = (props) => {
           <p>
             <span>
               <FeatherIcon small name="map-pin" />
-              &ensp;{address}
+              {address}
             </span>
           </p>
         ) : null}
         <p>
           <span>
             <FeatherIcon small name="clock" />
-            &ensp;
+
             {membershipType === MEMBERSHIP_TYPES.FOLLOWER
               ? `Contact ${subscriber ? "ajouté" : "depuis"} ${
                   timeAgo(created, "day").split(" à ")[0]
@@ -200,7 +202,6 @@ const GroupMemberCard = (props) => {
             <p>
               <span>
                 <FeatherIcon small name="info" />
-                &ensp;
                 {description}
               </span>
             </p>
@@ -208,7 +209,6 @@ const GroupMemberCard = (props) => {
               <p>
                 <span>
                   <FeatherIcon small name="users" />
-                  &ensp;
                   <Link
                     route="groupDetails"
                     routeParams={{ groupPk: group_id }}

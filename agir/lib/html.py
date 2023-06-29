@@ -48,6 +48,10 @@ def remove_duplicate_spaces(text):
 
 def format_link(href, text):
     text = text.strip()
+
+    if not text:
+        return f">> {href}"
+
     return f">> {text[0].upper()}{text[1:]}\n{href}"
 
 

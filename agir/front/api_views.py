@@ -4,7 +4,7 @@ from rest_framework.generics import (
 from rest_framework.response import Response
 
 from agir.events.models import Event
-from agir.events.serializers import EventSerializer, EventListSerializer
+from agir.events.serializers import EventListSerializer
 from agir.groups.models import SupportGroup
 from agir.groups.serializers import SupportGroupSearchResultSerializer
 from agir.groups.utils.supportgroup import is_active_group_filter
@@ -125,7 +125,7 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
 
         events_serializer = self.get_serializer(
             data=events,
-            serializer_class=EventSerializer,
+            serializer_class=EventListSerializer,
             fields=EventListSerializer.EVENT_CARD_FIELDS,
         )
         events_serializer.is_valid()

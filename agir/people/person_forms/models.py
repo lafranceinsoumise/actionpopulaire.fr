@@ -13,10 +13,13 @@ from stdimage import StdImageField
 from stdimage.validators import MinSizeValidator
 
 from agir.lib import html
+from agir.lib.admin.utils import admin_url
 from agir.lib.form_fields import CustomJSONEncoder
 from agir.lib.models import DescriptionField, TimeStampedModel
 
 __all__ = ["PersonForm", "PersonFormSubmission"]
+
+from agir.lib.utils import front_url
 
 
 class PersonFormQueryset(models.QuerySet):
@@ -248,6 +251,16 @@ class PersonForm(TimeStampedModel):
         return (self.start_time is None or self.start_time < now) and (
             self.end_time is None or now < self.end_time
         )
+
+    @property
+    def front_url(self, *args, **kwargs):
+        kwargs.setdefault("absolute", True)
+        return front_url("view_person_form", *args, args=(self.slug,), **kwargs)
+
+    @property
+    def admin_url(self, *args, **kwargs):
+        kwargs.setdefault("absolute", True)
+        return admin_url("people_personform_change", *args, args=(self.slug,), **kwargs)
 
     def is_authorized(self, person):
         return (

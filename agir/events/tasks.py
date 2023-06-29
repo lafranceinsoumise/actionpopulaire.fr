@@ -4,11 +4,9 @@ from datetime import timedelta
 
 import ics
 import requests
-from celery import shared_task
 from django.conf import settings
 from django.template.defaultfilters import date as _date
 from django.template.loader import render_to_string
-from django.utils.html import format_html
 from django.utils.http import urlencode
 from django.utils.translation import gettext_lazy as _
 
@@ -29,7 +27,7 @@ from agir.lib.google_sheet import (
     gspread_task,
 )
 from agir.lib.html import sanitize_html
-from agir.lib.mailing import send_mosaico_email
+from agir.lib.mailing import send_mosaico_email, send_template_email
 from agir.lib.utils import front_url
 from agir.notifications.models import Subscription
 from agir.people.models import Person
@@ -174,44 +172,26 @@ def send_event_changed_notification(event_pk, changed_data):
 
 @emailing_task(post_save=True)
 def send_rsvp_notification(rsvp_pk):
-    rsvp = RSVP.objects.select_related("person", "event").get(pk=rsvp_pk)
-    person_information = str(rsvp.person)
+    rsvp = RSVP.objects.select_related(
+        "person", "event", "event__volunteer_application_form"
+    ).get(pk=rsvp_pk)
 
-    if rsvp.event.subscription_form:
-        additional_message = format_html(
-            '<div style="margin-top: 16px; padding: 16px; background-color: #EEE;">{}</div>',
-            rsvp.event.subscription_form.html_confirmation_note(),
-        )
-    else:
-        additional_message = ""
+    ics_content = ics.Calendar(
+        events=[rsvp.event.to_ics(text_only_description=True)]
+    ).serialize()
 
-    attendee_bindings = {
-        "EVENT_NAME": rsvp.event.name,
-        "EVENT_SCHEDULE": rsvp.event.get_display_date(),
-        "CONTACT_NAME": rsvp.event.contact_name,
-        "CONTACT_EMAIL": rsvp.event.contact_email,
-        "LOCATION_NAME": rsvp.event.location_name,
-        "LOCATION_ADDRESS": rsvp.event.short_address,
-        "EVENT_LINK": front_url("view_event", auto_login=False, args=[rsvp.event.pk]),
-        "ADDITIONAL_INFORMATION": additional_message,
-        "ATTENDANT_NOTICE": rsvp.event.attendant_notice,
-    }
-
-    send_mosaico_email(
-        code="EVENT_RSVP_CONFIRMATION",
-        subject=_("Confirmation de votre participation à l'événement"),
+    send_template_email(
+        template_name="events/email/rsvp_confirmation.html",
         from_email=settings.EMAIL_FROM,
         recipients=[rsvp.person],
-        bindings=attendee_bindings,
         attachments=(
             {
                 "filename": "event.ics",
-                "content": ics.Calendar(
-                    events=[rsvp.event.to_ics(text_only_description=True)]
-                ).serialize(),
+                "content": ics_content,
                 "mimetype": "text/calendar",
             },
         ),
+        bindings={"event": rsvp.event},
     )
 
     if rsvp.event.rsvps.count() > 50:
@@ -234,7 +214,7 @@ def send_rsvp_notification(rsvp_pk):
 
     organizer_bindings = {
         "EVENT_NAME": rsvp.event.name,
-        "PERSON_INFORMATION": person_information,
+        "PERSON_INFORMATION": str(rsvp.person),
         "MANAGE_EVENT_LINK": front_url("manage_event", kwargs={"pk": rsvp.event.pk}),
     }
 
