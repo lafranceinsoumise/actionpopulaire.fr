@@ -60,8 +60,8 @@ const DeviceNotificationSubscription = (props) => {
       <StyledWrapper>
         <h2>Activer les notifications</h2>
         <p>
-          Ne ratez pas les actions près de chez vous et recevez les annonces de
-          la campagne.
+          Ne ratez pas les actions près de chez vous et recevez les annonces du
+          mouvement.
         </p>
         <img
           src={notificationIllustration}

@@ -15,6 +15,7 @@ from agir.donations.actions import can_make_contribution
 from agir.donations.views.donations_views import DONATION_SESSION_NAMESPACE
 from agir.groups.models import SupportGroup, Membership
 from agir.lib.utils import front_url
+from agir.people.serializers import PersonNewsletterListField
 
 
 class UserContextSerializer(serializers.Serializer):
@@ -40,6 +41,10 @@ class UserContextSerializer(serializers.Serializer):
     country = CountryField(source="location_country")
     hasContribution = serializers.SerializerMethodField(method_name="has_contribution")
     actionRadius = serializers.IntegerField(source="action_radius")
+    newsletters = PersonNewsletterListField(read_only=True)
+    membreReseauElus = serializers.SerializerMethodField(
+        method_name="is_membre_reseau_elus", read_only=True
+    )
 
     def get_full_name(self, obj):
         return obj.get_full_name()
@@ -76,6 +81,9 @@ class UserContextSerializer(serializers.Serializer):
 
     def has_contribution(self, obj):
         return can_make_contribution(person=obj) == False
+
+    def is_membre_reseau_elus(self, obj):
+        return obj.membre_reseau_elus == obj.MEMBRE_RESEAU_OUI
 
 
 class SessionSerializer(serializers.Serializer):

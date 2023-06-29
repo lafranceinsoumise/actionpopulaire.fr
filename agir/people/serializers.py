@@ -175,7 +175,7 @@ class NewslettersField(serializers.DictField):
     def to_internal_value(self, data):
         value = super().to_internal_value(data)
 
-        allowed_keys = {key for key, label in Person.NEWSLETTERS_CHOICES}
+        allowed_keys = Person.Newsletter.values
         wrong_keys = set(value).difference(allowed_keys)
         errors = [f"{key} n'est pas un nom de newsletter" for key in wrong_keys]
 
@@ -225,7 +225,7 @@ class RetrievePersonRequestSerializer(serializers.Serializer):
 
 
 class PersonNewsletterListField(serializers.ListField):
-    child = serializers.ChoiceField(choices=Person.NEWSLETTERS_CHOICES)
+    child = serializers.ChoiceField(choices=Person.Newsletter.choices)
 
 
 class PersonMandatField(serializers.Field):

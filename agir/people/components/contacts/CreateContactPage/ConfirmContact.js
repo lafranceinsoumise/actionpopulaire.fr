@@ -7,6 +7,10 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import Button from "@agir/front/genericComponents/Button";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
+import {
+  LIAISON_NEWSLETTER,
+  NEWSLETTERS,
+} from "@agir/front/authentication/common";
 
 const StyledWrapper = styled.div`
   h2 {
@@ -50,13 +54,14 @@ const StyledWrapper = styled.div`
 const ConfirmContact = (props) => {
   const { data, onBack, onConfirm, isLoading } = props;
   const newsletters = [
-    data.newsletters.includes("2022_exceptionnel") &&
-      "les informations très importantes",
-    data.newsletters.includes("2022") && "hebdomadaires",
+    ...data.newsletters.map(
+      (n) => NEWSLETTERS[n]?.visible && NEWSLETTERS[n].label
+    ),
     data.group?.id &&
       data.hasGroupNotifications &&
-      "les actualités du groupe d'action",
+      "Les actualités du groupe d'action",
   ].filter(Boolean);
+
   return (
     <StyledWrapper>
       <h2>Confirmer les informations</h2>
@@ -75,9 +80,18 @@ const ConfirmContact = (props) => {
           <li>Veut rejoindre la France insoumise</li>
         ) : null}
         {newsletters.length > 0 ? (
-          <li>{`Recevra ${newsletters.join(", ")}`}</li>
+          <li>
+            Recevra les lettres d'information suivantes&nbsp;:{" "}
+            <ul>
+              {newsletters.map((n) => (
+                <li key={n} style={{ fontSize: "0.875rem" }}>
+                  {n}
+                </li>
+              ))}
+            </ul>
+          </li>
         ) : null}
-        {data.newsletters.includes("2022_liaison") ? (
+        {data.newsletters.includes(LIAISON_NEWSLETTER.value) ? (
           <li>Sera correspondant·e de l’immeuble ou de village</li>
         ) : null}
         {data.group?.id ? (

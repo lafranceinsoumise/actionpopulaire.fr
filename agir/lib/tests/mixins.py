@@ -88,11 +88,11 @@ def create_person():
         "is_political_support": fake.boolean(),
         "newsletters": random.sample(
             [
-                Person.NEWSLETTER_LFI,
-                Person.NEWSLETTER_2022,
-                Person.NEWSLETTER_2022_EN_LIGNE,
-                Person.NEWSLETTER_2022_CHEZ_MOI,
-                Person.NEWSLETTER_2022_PROGRAMME,
+                Person.Newsletter.LFI_REGULIERE.value,
+                Person.Newsletter.LFI_EXCEPTIONNELLE.value,
+                Person.Newsletter.ILB.value,
+                Person.Newsletter.LFI_LJI.value,
+                Person.Newsletter.ELUES.value,
             ],
             k=random.randint(1, 5),
         ),

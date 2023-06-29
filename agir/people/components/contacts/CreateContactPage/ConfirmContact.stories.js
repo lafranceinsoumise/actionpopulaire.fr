@@ -21,7 +21,7 @@ Default.args = {
     email: "foo@bar.com",
     phone: "06 00 00 00 00",
     isPoliticalSupport: true,
-    newsletters: ["2022", "2022_exceptionnel", "2022_liaison"],
+    newsletters: ["LFI_reguliere", "LFI_exceptionnelle", "LFI_liaison"],
     group: {
       id: "a1a1",
       value: "a1a1a",

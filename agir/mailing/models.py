@@ -90,7 +90,7 @@ class Segment(BaseSegment, models.Model):
     )
 
     newsletters = ChoiceArrayField(
-        models.CharField(choices=Person.NEWSLETTERS_CHOICES, max_length=255),
+        models.CharField(choices=Person.Newsletter.choices, max_length=255),
         default=default_newsletters,
         help_text="Inclure les personnes abonnées aux newsletters suivantes.",
         blank=True,

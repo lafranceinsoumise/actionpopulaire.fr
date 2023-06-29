@@ -623,7 +623,7 @@ class MemberPersonalInformationSerializer(serializers.ModelSerializer):
         return subscriber.display_name
 
     def get_isLiaison(self, membership):
-        return Person.NEWSLETTER_2022_LIAISON in membership.person.newsletters
+        return membership.person.is_liaison
 
     def get_hasGroupNotifications(self, membership):
         return membership.subscription_set.exists()

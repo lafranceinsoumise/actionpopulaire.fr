@@ -12,13 +12,14 @@ class SendCampaignActionTestCase(TestCase):
     def setUp(self):
         self.admin = Person.objects.create_superperson("admin@agir.test", "password")
         self.user_with_newsletters = Person.objects.create_person(
-            "newsletters@agir.test", newsletters=[Person.NEWSLETTER_LFI]
+            "newsletters@agir.test",
+            newsletters=[Person.Newsletter.LFI_REGULIERE.value],
         )
         self.user_without_newsletters = Person.objects.create_person(
             "no_newsletters@agir.test", newsletters=[]
         )
         self.segment_with_newsletters = Segment.objects.create(
-            newsletters=[Person.NEWSLETTER_LFI], is_2022=None
+            newsletters=[Person.Newsletter.LFI_REGULIERE.value], is_2022=None
         )
         self.segment_without_newsletters = Segment.objects.create(
             newsletters=[], is_2022=None

@@ -1,75 +1,16 @@
-const NEWSLETTER_NOTIFICATIONS = [
-  {
-    id: "LFI",
-    type: "La France Insoumise",
-    icon: "rss",
-    subtype: "Newsletter",
-    label: "Lettres d'informations de la France Insoumise",
-    hasEmail: true,
-    hasPush: false,
-    isNewsletter: true,
-  },
-  {
-    id: "2022",
-    type: "Mélenchon 2022",
-    icon: "rss",
-    subtype: "Newsletter",
-    label: "Informations importantes de la campagne",
-    hasEmail: true,
-    hasPush: false,
-    isNewsletter: true,
-  },
-  {
-    id: "2022_exceptionnel",
-    type: "Mélenchon 2022",
-    icon: "rss",
-    subtype: "Newsletter",
-    label: "Informations exceptionnelles",
-    hasEmail: true,
-    hasPush: false,
-    isNewsletter: true,
-  },
-  {
-    id: "2022_en_ligne",
-    type: "Mélenchon 2022",
-    icon: "rss",
-    subtype: "Newsletter",
-    label: "Actions en ligne",
-    hasEmail: true,
-    hasPush: false,
-    isNewsletter: true,
-  },
-  {
-    id: "2022_chez_moi",
-    type: "Mélenchon 2022",
-    icon: "rss",
-    subtype: "Newsletter",
-    label: "Agir près de chez moi",
-    hasEmail: true,
-    hasPush: false,
-    isNewsletter: true,
-  },
-  {
-    id: "2022_programme",
-    type: "Mélenchon 2022",
-    icon: "rss",
-    subtype: "Newsletter",
-    label: "Processus programme",
-    hasEmail: true,
-    hasPush: false,
-    isNewsletter: true,
-  },
-  {
-    id: "2022_liaison",
-    type: "Mélenchon 2022",
-    icon: "rss",
-    subtype: "Newsletter",
-    label: "Correspondant·e d'immeuble ou de rue",
-    hasEmail: true,
-    hasPush: false,
-    isNewsletter: true,
-  },
-].filter((notification) => !!notification.isNewsletter);
+import { NEWSLETTER_OPTIONS } from "@agir/front/authentication/common";
+
+const NEWSLETTER_NOTIFICATIONS = NEWSLETTER_OPTIONS.map((option) => ({
+  id: option.value,
+  label: option.label,
+  active: option.active,
+  type: "Lettres d'information",
+  icon: "rss",
+  subtype: "Newsletter",
+  hasEmail: true,
+  hasPush: false,
+  isNewsletter: true,
+}));
 
 const PERSON_NOTIFICATIONS = [
   {

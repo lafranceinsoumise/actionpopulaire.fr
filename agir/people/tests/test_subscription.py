@@ -244,7 +244,10 @@ class ManageNewslettersAPIViewTestCase(WordpressClientMixin, TestCase):
         super().setUp()
         self.person = Person.objects.create_person(
             email="a@b.c",
-            newsletters=[Person.NEWSLETTER_LFI, Person.NEWSLETTER_2022_EN_LIGNE],
+            newsletters=[
+                Person.Newsletter.LFI_REGULIERE.value,
+                Person.Newsletter.ILB.value,
+            ],
             create_role=True,
         )
 
@@ -255,8 +258,8 @@ class ManageNewslettersAPIViewTestCase(WordpressClientMixin, TestCase):
                 {
                     "id": str(self.person.id),
                     "newsletters": {
-                        Person.NEWSLETTER_2022: True,
-                        Person.NEWSLETTER_2022_EN_LIGNE: False,
+                        Person.Newsletter.LFI_EXCEPTIONNELLE.value: True,
+                        Person.Newsletter.ILB.value: False,
                     },
                 }
             ),
@@ -266,7 +269,11 @@ class ManageNewslettersAPIViewTestCase(WordpressClientMixin, TestCase):
 
         self.person.refresh_from_db()
         self.assertCountEqual(
-            self.person.newsletters, [Person.NEWSLETTER_LFI, Person.NEWSLETTER_2022]
+            self.person.newsletters,
+            [
+                Person.Newsletter.LFI_REGULIERE.value,
+                Person.Newsletter.LFI_EXCEPTIONNELLE.value,
+            ],
         )
 
     def test_cannot_modify_while_anonymous(self):
@@ -277,8 +284,8 @@ class ManageNewslettersAPIViewTestCase(WordpressClientMixin, TestCase):
                 {
                     "id": str(self.person.id),
                     "newsletters": {
-                        Person.NEWSLETTER_2022: True,
-                        Person.NEWSLETTER_2022_EN_LIGNE: False,
+                        Person.Newsletter.LFI_EXCEPTIONNELLE.value: True,
+                        Person.Newsletter.ILB.value: False,
                     },
                 }
             ),
@@ -294,8 +301,8 @@ class ManageNewslettersAPIViewTestCase(WordpressClientMixin, TestCase):
                 {
                     "id": str(self.person.id),
                     "newsletters": {
-                        Person.NEWSLETTER_2022: True,
-                        Person.NEWSLETTER_2022_EN_LIGNE: False,
+                        Person.Newsletter.LFI_EXCEPTIONNELLE.value: True,
+                        Person.Newsletter.ILB.value: False,
                     },
                 }
             ),

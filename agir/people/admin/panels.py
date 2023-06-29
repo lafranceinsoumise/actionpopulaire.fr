@@ -979,7 +979,7 @@ class ContactAdmin(admin.ModelAdmin):
     short_address.short_description = "Adresse"
 
     def is_liaison(self, obj):
-        return obj.NEWSLETTER_2022_LIAISON in obj.newsletters
+        return obj.is_liaison
 
     is_liaison.short_description = "Correspondant·e d'immeuble"
     is_liaison.boolean = True
