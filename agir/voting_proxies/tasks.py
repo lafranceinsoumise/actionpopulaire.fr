@@ -7,7 +7,8 @@ from django.utils.html import format_html, escape
 
 from agir.lib.celery import post_save_task, emailing_task
 from agir.lib.mailing import send_mosaico_email
-from agir.lib.sms import send_sms, SMSSendException, to_7bit_string
+from agir.lib.sms import send_sms
+from agir.lib.sms.common import SMSSendException, to_7bit_string
 from agir.lib.utils import shorten_url, front_url
 from agir.voting_proxies.models import VotingProxyRequest, VotingProxy
 

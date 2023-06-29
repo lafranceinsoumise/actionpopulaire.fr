@@ -22,6 +22,7 @@ from django.db.models import JSONField, Prefetch
 from django.db.models.functions import Coalesce
 from django.template.defaultfilters import floatformat
 from django.utils import formats, timezone
+from django.utils.html import format_html
 from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
@@ -176,7 +177,7 @@ class EventQuerySet(models.QuerySet):
 
     def with_serializer_prefetch(self, person):
         qs = (
-            self.select_related("subtype")
+            self.select_related("subtype", "volunteer_application_form")
             .prefetch_related(
                 "organizer_configs", "event_speakers", "event_speakers__person"
             )
@@ -535,8 +536,27 @@ class Event(
     )
 
     subscription_form = models.OneToOneField(
-        "people.PersonForm", null=True, blank=True, on_delete=models.PROTECT
+        "people.PersonForm",
+        verbose_name="Formulaire d'inscription",
+        related_name="subscription_form_event",
+        related_query_name="subscription_form_event",
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
     )
+
+    volunteer_application_form = models.OneToOneField(
+        "people.PersonForm",
+        verbose_name="Formulaire d'appel à volontaires",
+        help_text="Si un formulaire existe, son lien sera affiché sur la page de l'événement et dans les e-mails de "
+        "confirmation de participation.",
+        related_name="volunteer_application_form_event",
+        related_query_name="volunteer_application_form_event",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
+
     payment_parameters = JSONField(
         verbose_name=_("Paramètres de paiement"),
         null=True,
@@ -854,6 +874,14 @@ class Event(
 
     def get_absolute_url(self):
         return front_url("view_event", args=[self.pk])
+
+    def confirmation_note(self):
+        if not self.subscription_form:
+            return ""
+
+        return format_html(
+            self.subscription_form.confirmation_note,
+        )
 
     def get_google_calendar_url(self):
         # https://github.com/InteractionDesignFoundation/add-event-to-calendar-docs/blob/master/services/google.md

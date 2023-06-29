@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
 from django.contrib.postgres.search import SearchVector, SearchRank
+from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.db.models import Subquery, OuterRef, Count, Q, Exists, Max, F
 from django.db.models.functions import Coalesce
@@ -198,6 +199,18 @@ class MembershipQuerySet(models.QuerySet):
         return self.filter(supportgroup__published=True).exclude(
             person__role__isnull=False, person__role__is_active=False
         )
+
+    def referents(self):
+        return self.filter(membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT)
+
+    def managers(self):
+        return self.filter(membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER)
+
+    def active_members(self):
+        return self.filter(membership_type__gte=Membership.MEMBERSHIP_TYPE_MEMBER)
+
+    def finance_managers(self):
+        return self.managers().filter(has_finance_managing_privilege=True)
 
     def with_email(self):
         from agir.people.models import PersonEmail
@@ -601,6 +614,17 @@ class Membership(ExportModelOperationsMixin("membership"), TimeStampedModel):
         encoder=CustomJSONEncoder,
     )
 
+    has_finance_managing_privilege = models.BooleanField(
+        _("Accès à la gestion des finances du groupe"),
+        default=True,
+        editable=False,
+        help_text=_(
+            "La valeur de ce champ indique si la personne aura le droit de gérer les finances du groupe "
+            "et de créer/suivre/valider des demandes de dépense. N.B. Cette propriété est valable uniquement "
+            "pour les gestionnaires et animateur·ices du groupe"
+        ),
+    )
+
     class Meta:
         verbose_name = _("adhésion")
         verbose_name_plural = _("adhésions")
@@ -628,7 +652,36 @@ class Membership(ExportModelOperationsMixin("membership"), TimeStampedModel):
 
     @property
     def description(self):
-        return self.meta.get("description", "")
+        description = self.meta.get("description", "")
+
+        if isinstance(description, list):
+            return ", ".join(description)
+
+        return description
+
+    @description.setter
+    def description(self, value=""):
+        if value == self.meta["description"]:
+            return
+
+        self.meta["description"] = value
+
+    @property
+    def is_finance_manager(self):
+        return self.is_manager and self.has_finance_managing_privilege
+
+    @is_finance_manager.setter
+    def is_finance_manager(self, value):
+        if value == self.is_finance_manager:
+            return
+
+        if not self.is_manager:
+            raise ValidationError(
+                "La modification de ce champ est autorisée uniquement pour les gestionnaires et "
+                "animateur·ices du groupe"
+            )
+
+        self.has_finance_managing_privilege = value
 
 
 class TransferOperation(models.Model):

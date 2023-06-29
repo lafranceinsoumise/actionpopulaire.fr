@@ -2,9 +2,7 @@ import re
 
 from django.core.management import BaseCommand, CommandError
 
-from agir.groups.tasks import (
-    maj_boucles,
-)
+from agir.groups.actions.boucles_departementales import maj_boucles
 
 CODE_RE = re.compile(
     r"^(?:99-(?:0[0-9]|1[01])|[01345678][0-9]|2[1-9AB]|9(?:[0-5]|7[1-8]|8[678]))$"

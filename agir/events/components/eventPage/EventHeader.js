@@ -25,9 +25,7 @@ import QuitEventButton from "./QuitEventButton";
 
 import logger from "@agir/lib/utils/logger";
 import StaticToast from "@agir/front/genericComponents/StaticToast";
-import FeatherIcon, {
-  RawFeatherIcon,
-} from "@agir/front/genericComponents/FeatherIcon";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const log = logger(__filename);
 
@@ -87,6 +85,10 @@ const StyledActions = styled.div`
   @media (max-width: ${style.collapse}px) {
     flex-direction: column;
   }
+
+  ${Button} {
+    font-weight: 500;
+  }
 `;
 
 const StyledUnauthorizedMessage = styled(StaticToast)`
@@ -129,6 +131,7 @@ const Actions = (props) => {
     groups,
     groupsAttendees,
     backLink,
+    volunteerApplicationFormLink,
   } = props;
 
   const [isLoading, setIsLoading] = useState(false);
@@ -257,9 +260,18 @@ const Actions = (props) => {
             groupsAttendees={groupsAttendees}
           />
         )}
-        {allowGuests && hasRSVPDetails && (
+        {rsvped && allowGuests && hasRSVPDetails && (
           <Button link href={routes.rsvp}>
             Ajouter une personne
+          </Button>
+        )}
+        {!isManager && volunteerApplicationFormLink && (
+          <Button
+            title="Si vous êtes disponible et que vous souhaitez aider à l'organisation de l'événement, nous vous invitons à vous inscrire en tant que volontaire"
+            link
+            href={volunteerApplicationFormLink}
+          >
+            Se porter volontaire
           </Button>
         )}
       </StyledActions>
@@ -306,6 +318,7 @@ Actions.propTypes = {
     })
   ),
   backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  volunteerApplicationFormLink: PropTypes.string,
 };
 
 const AdditionalMessage = (props) => {
@@ -401,6 +414,7 @@ const EventHeader = (props) => {
     canRSVP,
     canRSVPAsGroup,
     unauthorizedMessage,
+    volunteerApplicationFormLink,
   } = props;
 
   const globalRoutes = useSelector(getRoutes);
@@ -436,6 +450,7 @@ const EventHeader = (props) => {
         backLink={backLink}
         canRSVP={canRSVP}
         canRSVPAsGroup={canRSVPAsGroup}
+        volunteerApplicationFormLink={volunteerApplicationFormLink}
       />
       {!past && (
         <AdditionalMessage
@@ -476,6 +491,7 @@ EventHeader.propTypes = {
   canRSVP: PropTypes.bool,
   canRSVPAsGroup: PropTypes.bool,
   unauthorizedMessage: PropTypes.string,
+  volunteerApplicationFormLink: PropTypes.string,
 };
 
 export default EventHeader;

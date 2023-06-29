@@ -1,28 +1,12 @@
-import logging
 from collections import namedtuple
 from math import ceil
 
-import ovh
-from django.conf import settings
-from django.utils import timezone
 from phonenumber_field.phonenumber import PhoneNumber
 from phonenumbers import number_type, PhoneNumberType
 from unidecode import unidecode
 
-from agir.lib.utils import grouper
 from agir.people.models import PersonQueryset
 
-logger = logging.getLogger(__name__)
-
-client = ovh.Client(
-    endpoint="ovh-eu",
-    application_key=settings.OVH_APPLICATION_KEY,
-    application_secret=settings.OVH_APPLICATION_SECRET,
-    consumer_key=settings.OVH_CONSUMER_KEY,
-)
-
-
-BULK_GROUP_SIZE = 50
 GSM7_CODEPOINTS = {
     0x0040: 1,  # 	COMMERCIAL AT
     0x00A3: 1,  # 	POUND SIGN
@@ -164,79 +148,21 @@ GSM7_CODEPOINTS = {
     0x00E0: 1,  # 	LATIN SMALL LETTER A WITH GRAVE
 }
 
+MESSAGE_LENGTH = namedtuple("MessageLength", ["encoding", "byte_length", "messages"])
+
 
 def to_7bit_string(string):
     # Remove non 7bit characters from message to avoid errors
     return unidecode(string).encode("ascii", errors="replace").decode("utf-8")
 
 
-def _send_sms_as_email(message, recipients, params):
-    """
-    Sends an email with the message parameters to allow locally debugging
-    through Mailhog
-
-    :param message:
-    :param recipients:
-    :param params:
-    :return:
-    """
-    import json
-    import textwrap
-    from django.core.mail import get_connection, EmailMultiAlternatives
-
-    connection = get_connection()
-    with connection:
-        for recipient in recipients:
-            msg = "\n".join(textwrap.wrap(message, width=70))
-            email = EmailMultiAlternatives(
-                connection=connection,
-                from_email="SMS message",
-                subject=message,
-                to=[recipient],
-                body=f"\nSMS message sent to {recipient}"
-                f"\n\n{'=' * 80}\n{msg}\n{'=' * 80}"
-                f"\n\n{len(message)} characters"
-                f"\n\nParameters:\n{json.dumps(params, indent=2)}",
-            )
-            email.send()
-
-
-def _send_sms(message, recipients, at=None, sender=settings.OVH_DEFAULT_SENDER):
-    params = dict(
-        charset="UTF-8",
-        coding="7bit",
-        receivers=[r.as_e164 for r in recipients],
-        message=message,
-        noStopClause=True,
-        priority="high",
-        sender=sender,
-        validityPeriod=2880,
-    )
-
-    if at is not None:
-        now = timezone.now()
-        if at <= now:
-            raise SMSSendException("`at` est dans le passé")
-
-        minutes = ceil((at - now).total_seconds() / 60)
-        params["differedPeriod"] = minutes
-
-    if settings.DEBUG:
-        _send_sms_as_email(message, recipients, params)
-
-    return client.post("/sms/" + settings.OVH_SMS_SERVICE + "/jobs", **params)
-
-
 def to_phone_number(n):
     return PhoneNumber.from_string(n, region="FR") if isinstance(n, str) else n
 
 
-MessageLength = namedtuple("MessageLength", ["encoding", "byte_length", "messages"])
-
-
 def compute_sms_length_information(message):
     if any(ord(c) not in GSM7_CODEPOINTS for c in message):
-        return MessageLength(
+        return MESSAGE_LENGTH(
             "UCS-2",
             2 * len(message),
             1 if len(message) <= 70 else ceil(len(message) / 67),
@@ -249,77 +175,7 @@ def compute_sms_length_information(message):
     byte_length = ceil(base_length * 7 / 8)
     messages = 1 if byte_length <= 140 else ceil(byte_length / 134)
 
-    return MessageLength(encoding, byte_length, messages)
-
-
-class SMSSendException(Exception):
-    def __init__(self, *args, sent=None, invalid=None):
-        super().__init__(*args)
-
-        if sent is None:
-            sent = frozenset()
-        else:
-            sent = frozenset(sent)
-        if invalid is None:
-            invalid = frozenset()
-        else:
-            invalid = frozenset(invalid)
-
-        self.sent = sent
-        self.invalid = invalid
-
-
-def send_sms(
-    message, phone_number, force=False, at=None, sender=settings.OVH_DEFAULT_SENDER
-):
-    phone_number = to_phone_number(phone_number)
-
-    if not force and not phone_number.is_valid():
-        raise SMSSendException(
-            "Le numéro ne semble pas correct", invalid=[phone_number]
-        )
-
-    if not force and number_type(phone_number) not in [
-        PhoneNumberType.FIXED_LINE_OR_MOBILE,
-        PhoneNumberType.MOBILE,
-    ]:
-        raise SMSSendException(
-            "Le numéro ne semble pas être un numéro de mobile", invalid=[phone_number]
-        )
-
-    try:
-        result = _send_sms(message, [phone_number], at=at, sender=sender)
-    except Exception:
-        logger.exception("Le message n'a pas été envoyé.")
-        raise SMSSendException("Le message n'a pas été envoyé.", invalid=[phone_number])
-
-    if len(result["invalidReceivers"]) > 0:
-        logger.error(f"Destinataires invalides {' '.join(result['invalidReceivers'])}")
-        raise SMSSendException(
-            "Destinataire invalide.", invalid=result["invalidReceivers"]
-        )
-
-    if len(result["validReceivers"]) < 1:
-        raise SMSSendException("Le message n'a pas été envoyé.", invalid=[phone_number])
-
-
-def send_bulk_sms(message, phone_numbers, at=None, sender=settings.OVH_DEFAULT_SENDER):
-    sent = set()
-    invalid = set()
-
-    for numbers in grouper(phone_numbers, BULK_GROUP_SIZE):
-        try:
-            result = _send_sms(
-                message, [to_phone_number(n) for n in numbers], at=at, sender=sender
-            )
-        except ovh.exceptions.APIError:
-            raise SMSSendException(
-                "L'API OVH a rencontré une erreur", sent=sent, invalid=invalid
-            )
-        sent.update(result["validReceivers"])
-        invalid.update(result["invalidReceivers"])
-
-    return sent, invalid
+    return MESSAGE_LENGTH(encoding, byte_length, messages)
 
 
 def numeros_mobiles(qs: PersonQueryset):
@@ -345,3 +201,24 @@ def numeros_mobiles(qs: PersonQueryset):
         and number_type(n)
         in (PhoneNumberType.MOBILE, PhoneNumberType.FIXED_LINE_OR_MOBILE)
     ]
+
+
+class SMSException(Exception):
+    pass
+
+
+class SMSSendException(SMSException):
+    def __init__(self, *args, sent=None, invalid=None):
+        super().__init__(*args)
+
+        if sent is None:
+            sent = frozenset()
+        else:
+            sent = frozenset(sent)
+        if invalid is None:
+            invalid = frozenset()
+        else:
+            invalid = frozenset(invalid)
+
+        self.sent = sent
+        self.invalid = invalid
