@@ -4,7 +4,7 @@ from django.http import Http404, HttpResponse
 from django.utils import timezone
 from django.views.generic import ListView, DetailView
 
-from agir.events.models import Calendar, Event
+from agir.events.models import Calendar, Event, EventSubtype
 from agir.front.view_mixins import ObjectOpengraphMixin
 from agir.lib.views import IframableMixin
 
@@ -81,3 +81,8 @@ class CalendarIcsView(DetailView):
         ).serialize()
 
         return HttpResponse(calendar, content_type="text/calendar")
+
+
+class EventSubtypeIcsView(CalendarIcsView):
+    model = EventSubtype
+    queryset = EventSubtype.objects.exclude(visibility=EventSubtype.VISIBILITY_NONE)

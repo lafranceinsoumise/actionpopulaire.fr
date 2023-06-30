@@ -10,6 +10,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html, escape, format_html_join
 from django.utils.safestring import mark_safe
+from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _, ngettext
 
 from agir.events import models
@@ -806,6 +807,7 @@ class EventTagAdmin(admin.ModelAdmin):
 
 @admin.register(models.EventSubtype)
 class EventSubtypeAdmin(admin.ModelAdmin):
+    save_on_top = True
     form = EventSubtypeAdminForm
     fieldsets = (
         (
@@ -821,11 +823,22 @@ class EventSubtypeAdmin(admin.ModelAdmin):
             },
         ),
         (
+            "Liens",
+            {
+                "fields": (
+                    "event_list_link",
+                    "map_link",
+                    "calendar_link",
+                )
+            },
+        ),
+        (
             "Autorisations",
             {
                 "fields": (
                     "visibility",
                     "for_supportgroup_type",
+                    "for_supportgroups",
                     "is_coorganizable",
                     "for_organizer_group_members_only",
                     "unauthorized_message",
@@ -843,7 +856,7 @@ class EventSubtypeAdmin(admin.ModelAdmin):
                 "fields": (
                     "icon_name",
                     "color",
-                    "icon",
+                    "icon_preview",
                     "icon_anchor_x",
                     "icon_anchor_y",
                     "popup_anchor_y",
@@ -856,6 +869,7 @@ class EventSubtypeAdmin(admin.ModelAdmin):
                 "fields": (
                     "default_description",
                     "default_image",
+                    "default_image_preview",
                     "campaign_template",
                 )
             },
@@ -880,6 +894,7 @@ class EventSubtypeAdmin(admin.ModelAdmin):
         "type",
         "visibility",
         "for_group_type",
+        "for_groups",
         "priority",
         "certification",
         "private",
@@ -895,8 +910,70 @@ class EventSubtypeAdmin(admin.ModelAdmin):
         "related_project_type",
     )
     search_fields = ("label", "description")
-    autocomplete_fields = ("report_person_form", "campaign_template")
-    readonly_fields = ("icon",)
+    autocomplete_fields = (
+        "report_person_form",
+        "campaign_template",
+        "for_supportgroups",
+    )
+    readonly_fields = (
+        "event_list_link",
+        "map_link",
+        "calendar_link",
+        "default_image_preview",
+        "icon_preview",
+    )
+
+    @admin.display(description="Événements")
+    def event_list_link(self, obj):
+        if not obj:
+            return "-"
+
+        count = obj.events.count()
+
+        if count == 0:
+            return "Aucun événement de ce type n'a pas encore été créé"
+
+        url = admin_url("events_event_changelist", query={"subtype_id": obj.id})
+        text = ngettext(
+            "Voir l'événement de ce type",
+            f"Voir les {humanize.apnumber(count)} événements de ce type",
+            count,
+        )
+
+        return format_html(
+            f'<a class="button" href="{url}">{text}</a>',
+        )
+
+    @admin.display(description="Cartes")
+    def map_link(self, obj):
+        if not obj:
+            return "-"
+
+        url = front_url(
+            "carte:events_map",
+            absolute=True,
+            query={"subtype": obj.label},
+        )
+        return format_html(
+            f'<a target="_blank" href="{url}">🔮&ensp;Événements à venir</a>'
+            f"&emsp;·&emsp;"
+            f'<a target="_blank" href="{url}&include_past=1">📜&ensp;Tous les événements</a>',
+        )
+
+    @admin.display(description="Agenda")
+    def calendar_link(self, obj):
+        if not obj:
+            return "-"
+
+        return format_html(
+            '<a href="{}" download="{}.ics">'
+            "💾&ensp;Télécharger l'agenda des événements de ce type au format .ics"
+            "</a>",
+            front_url(
+                "eventsubtype_ics_calendar", kwargs={"pk": obj.pk}, absolute=True
+            ),
+            slugify(obj.label),
+        )
 
     @admin.display(description="Prioritaire", boolean=True, ordering="has_priority")
     def priority(self, obj):
@@ -932,6 +1009,68 @@ class EventSubtypeAdmin(admin.ModelAdmin):
     )
     def for_group_type(self, obj):
         return obj.get_for_supportgroup_type_display()
+
+    @admin.display(description="Groupes", ordering="for_supportgroups")
+    def for_groups(self, obj):
+        count = obj.for_supportgroups.count()
+        if count == 0:
+            return "Tous"
+        return count
+
+    @admin.display(description="Image par défaut actuelle")
+    def default_image_preview(self, obj):
+        if not obj or not obj.default_image:
+            return "-"
+
+        return mark_safe(
+            format_html(
+                '<a href="{}"><img src="{}"></a>',
+                obj.default_image.url,
+                obj.default_image.thumbnail.url,
+            )
+        )
+
+    @admin.display(description="Icône actuelle")
+    def icon_preview(self, obj):
+        if not obj or not obj.icon_name:
+            return "-"
+
+        background = obj.color or "#571aff"
+        color = "white" if obj.color else "#000000"
+        split = obj.icon_name.split(":")
+        icon_name = split.pop()
+        icon_variant = split.pop() if split else "solid"
+        marker_style = (
+            "display:inline-flex;"
+            "align-items:center;"
+            "justify-content:center;"
+            "border-radius: 50% 50% 50% 0;"
+            "transform:rotate(-45deg);"
+            "box-sizing:border-box;"
+            "width:50px;"
+            "height:50px;"
+            "margin-bottom:1rem;"
+            f"background:{background};"
+            f"color:{color};"
+            "border:2px solid white;"
+            f"box-shadow:0 0 8px {background};"
+        )
+        href = f"https://fontawesome.com/icons/{icon_name}?f=classic&s={icon_variant}"
+
+        return mark_safe(
+            f'<a target="_blank" href="{href}" style="{marker_style}">'
+            f'<i class="fa-{icon_variant} fa-{icon_name} fa-2x" style="transform:rotate(45deg);"></i>'
+            "</a>",
+        )
+
+    class Media:
+        css = {
+            "all": (
+                "https://media.actionpopulaire.fr/fontawesome/css/all.min.css",
+                "https://media.actionpopulaire.fr/fontawesome/css/v4-font-face.min.css",
+                "https://media.actionpopulaire.fr/fontawesome/css/v4-shims.min.css",
+            )
+        }
 
 
 @admin.register(models.JitsiMeeting)

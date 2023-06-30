@@ -52,7 +52,10 @@ export const PRIVATE_EVENT_SUBTYPE_INFO =
   "Seuls les membres des groupes organisateurs pourront participer à l'événement.";
 
 export const FOR_GROUP_TYPE_EVENT_SUBTYPE_INFO =
-  "Reservé aux groupes du type « :type ».";
+  "Ce type d'événement est reservé aux groupes du type « :type ».";
+
+export const FOR_GROUPS_EVENT_SUBTYPE_INFO =
+  "Ce type d'événement est reservé aux groupes suivants : ";
 
 export const getEventSubtypeInfo = (subtype) => {
   let info = "";
@@ -67,6 +70,12 @@ export const getEventSubtypeInfo = (subtype) => {
       ":type",
       subtype.forGroupType
     )}`;
+  }
+  if (subtype.forGroups && subtype.forGroups.length > 0) {
+    info += `\n${FOR_GROUPS_EVENT_SUBTYPE_INFO}`;
+    subtype.forGroups.forEach((group) => {
+      info += `\n— ${group.name}`;
+    });
   }
   return info.trim();
 };
