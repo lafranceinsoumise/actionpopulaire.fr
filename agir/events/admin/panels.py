@@ -1035,7 +1035,7 @@ class EventSubtypeAdmin(admin.ModelAdmin):
         if not obj or not obj.icon_name:
             return "-"
 
-        background = obj.color or "#571aff"
+        background = obj.color or "#f4ed0f"
         color = "white" if obj.color else "#000000"
         split = obj.icon_name.split(":")
         icon_name = split.pop()
