@@ -826,6 +826,7 @@ class EventSubtypeAdmin(admin.ModelAdmin):
                 "fields": (
                     "visibility",
                     "for_supportgroup_type",
+                    "for_supportgroups",
                     "is_coorganizable",
                     "for_organizer_group_members_only",
                     "unauthorized_message",
@@ -880,6 +881,7 @@ class EventSubtypeAdmin(admin.ModelAdmin):
         "type",
         "visibility",
         "for_group_type",
+        "for_groups",
         "priority",
         "certification",
         "private",
@@ -895,7 +897,11 @@ class EventSubtypeAdmin(admin.ModelAdmin):
         "related_project_type",
     )
     search_fields = ("label", "description")
-    autocomplete_fields = ("report_person_form", "campaign_template")
+    autocomplete_fields = (
+        "report_person_form",
+        "campaign_template",
+        "for_supportgroups",
+    )
     readonly_fields = ("icon",)
 
     @admin.display(description="Prioritaire", boolean=True, ordering="has_priority")
@@ -932,6 +938,13 @@ class EventSubtypeAdmin(admin.ModelAdmin):
     )
     def for_group_type(self, obj):
         return obj.get_for_supportgroup_type_display()
+
+    @admin.display(description="Groupes", ordering="for_supportgroups")
+    def for_groups(self, obj):
+        count = obj.for_supportgroups.count()
+        if count == 0:
+            return "Tous"
+        return count
 
 
 @admin.register(models.JitsiMeeting)

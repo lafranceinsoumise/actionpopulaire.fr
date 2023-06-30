@@ -90,6 +90,9 @@ class EventSubtypeSerializer(serializers.ModelSerializer):
     forGroupType = serializers.CharField(
         read_only=True, source="get_for_supportgroup_type_display"
     )
+    forGroups = serializers.SerializerMethodField(
+        read_only=True, method_name="get_for_supportgroups"
+    )
 
     def get_needsDocuments(self, obj):
         return bool(obj.related_project_type)
@@ -111,6 +114,9 @@ class EventSubtypeSerializer(serializers.ModelSerializer):
     def get_isVisible(self, obj):
         return obj.visibility == EventSubtype.VISIBILITY_ALL
 
+    def get_for_supportgroups(self, obj):
+        return list(obj.for_supportgroups.values("id", "name"))
+
     class Meta:
         model = models.EventSubtype
         fields = (
@@ -125,6 +131,7 @@ class EventSubtypeSerializer(serializers.ModelSerializer):
             "isVisible",
             "isPrivate",
             "forGroupType",
+            "forGroups",
         )
 
 
@@ -562,18 +569,27 @@ class EventPropertyOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer
         ).data
 
     def get_subtype(self, _request):
-        subtypes = (
-            EventSubtype.objects.filter(visibility=EventSubtype.VISIBILITY_ALL)
-            .filter(
+        subtypes = EventSubtype.objects.prefetch_related("for_supportgroups").filter(
+            visibility=EventSubtype.VISIBILITY_ALL
+        )
+        if self.managed_groups:
+            subtypes = subtypes.filter(
                 Q(for_supportgroup_type__isnull=True)
                 | Q(
                     for_supportgroup_type__in=[
                         group.type for group in self.managed_groups
                     ]
                 )
+            ).filter(
+                Q(for_supportgroups__isnull=True)
+                | Q(for_supportgroups__in=self.managed_groups)
             )
-            .order_by("-has_priority", "description")
-        )
+        else:
+            subtypes = subtypes.filter(
+                for_supportgroup_type__isnull=True, for_supportgroups__isnull=True
+            )
+
+        subtypes = subtypes.order_by("-has_priority", "description")
 
         return EventSubtypeSerializer(
             subtypes,
@@ -768,6 +784,21 @@ class CreateEventSerializer(serializers.Serializer):
                 {
                     "organizerGroup": f"Ce type d'événement peut être organisé uniquement "
                     f"par des groupes du type « {data['subtype'].get_for_supportgroup_type_display()} »"
+                }
+            )
+
+        for_supportgroups = list(data["subtype"].for_supportgroups.all())
+        if for_supportgroups and not organizer_group:
+            raise serializers.ValidationError(
+                {
+                    "organizerGroup": "Ce type d'événement ne peut pas être organisé à titre individuel"
+                }
+            )
+
+        if for_supportgroups and organizer_group not in for_supportgroups:
+            raise serializers.ValidationError(
+                {
+                    "organizerGroup": "Ce type d'événement ne peut pas être organisé par le groupe sélectionné"
                 }
             )
 
