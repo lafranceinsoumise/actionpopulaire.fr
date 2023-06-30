@@ -47,7 +47,9 @@ class CreateEventAPITestCase(APITestCase):
         self.start_time = timezone.now() + timezone.timedelta(days=3)
         self.end_time = timezone.now() + timezone.timedelta(days=3, hours=4)
         self.location = create_location()
-        self.subtype = get_random_object(EventSubtype)
+        self.subtype = EventSubtype.objects.create(
+            visibility=EventSubtype.VISIBILITY_ALL, label=uuid.uuid4().hex
+        )
         self.valid_data = {
             "name": "Nouvel événement",
             "startTime": str(self.start_time),
@@ -82,13 +84,13 @@ class CreateEventAPITestCase(APITestCase):
     def test_authenticated_user_can_post(self):
         self.client.force_login(self.person.role)
         res = self.client.post("/api/evenements/creer/", data=self.valid_data)
-        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res.status_code, 201, res.data)
 
     def test_event_is_created_upon_posting_valid_data(self):
         self.client.force_login(self.person.role)
         initial_event_length = Event.objects.all().count()
         res = self.client.post("/api/evenements/creer/", data=self.valid_data)
-        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res.status_code, 201, res.data)
         self.assertIn("id", res.data)
         self.assertEqual(Event.objects.all().count(), initial_event_length + 1)
 
@@ -97,7 +99,7 @@ class CreateEventAPITestCase(APITestCase):
     ):
         self.client.force_login(self.person.role)
         res = self.client.post("/api/evenements/creer/", data=self.valid_data)
-        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res.status_code, 201, res.data)
         self.assertIn("id", res.data)
         organizer_config = OrganizerConfig.objects.filter(
             event_id=res.data["id"],
@@ -111,7 +113,7 @@ class CreateEventAPITestCase(APITestCase):
         res = self.client.post(
             "/api/evenements/creer/", data={**self.valid_data, "organizerGroup": None}
         )
-        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res.status_code, 201, res.data)
         self.assertIn("id", res.data)
         organizer_config = OrganizerConfig.objects.filter(
             event_id=res.data["id"],
@@ -123,7 +125,7 @@ class CreateEventAPITestCase(APITestCase):
     def test_rsvp_is_created_upon_posting_valid_data(self):
         self.client.force_login(self.person.role)
         res = self.client.post("/api/evenements/creer/", data=self.valid_data)
-        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res.status_code, 201, res.data)
         self.assertIn("id", res.data)
         rsvp = OrganizerConfig.objects.filter(
             event_id=res.data["id"],
@@ -138,7 +140,7 @@ class CreateEventAPITestCase(APITestCase):
         send_event_creation_notification.assert_not_called()
         self.client.force_login(self.person.role)
         res = self.client.post("/api/evenements/creer/", data=self.valid_data)
-        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res.status_code, 201, res.data)
         self.assertIn("id", res.data)
         send_event_creation_notification.assert_called_once()
 
@@ -147,7 +149,7 @@ class CreateEventAPITestCase(APITestCase):
         geocode_event.assert_not_called()
         self.client.force_login(self.person.role)
         res = self.client.post("/api/evenements/creer/", data=self.valid_data)
-        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res.status_code, 201, res.data)
         self.assertIn("id", res.data)
         geocode_event.assert_called_once()
 
@@ -158,7 +160,7 @@ class CreateEventAPITestCase(APITestCase):
         notify_new_group_event.assert_not_called()
         self.client.force_login(self.person.role)
         res = self.client.post("/api/evenements/creer/", data=self.valid_data)
-        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res.status_code, 201, res.data)
         self.assertIn("id", res.data)
         notify_new_group_event.assert_called_once()
 
@@ -169,7 +171,7 @@ class CreateEventAPITestCase(APITestCase):
         send_new_group_event_email.assert_not_called()
         self.client.force_login(self.person.role)
         res = self.client.post("/api/evenements/creer/", data=self.valid_data)
-        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res.status_code, 201, res.data)
         self.assertIn("id", res.data)
         send_new_group_event_email.assert_called_once()
 
@@ -182,7 +184,7 @@ class CreateEventAPITestCase(APITestCase):
         res = self.client.post(
             "/api/evenements/creer/", data={**self.valid_data, "organizerGroup": None}
         )
-        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res.status_code, 201, res.data)
         self.assertIn("id", res.data)
         notify_new_group_event.assert_not_called()
 
@@ -195,7 +197,7 @@ class CreateEventAPITestCase(APITestCase):
         res = self.client.post(
             "/api/evenements/creer/", data={**self.valid_data, "organizerGroup": None}
         )
-        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res.status_code, 201, res.data)
         self.assertIn("id", res.data)
         send_new_group_event_email.assert_not_called()
 
@@ -349,9 +351,11 @@ class CreateEventAPITestCase(APITestCase):
     def test_for_organizer_group_members_only_subtype_event_is_not_created_without_organizer_group(
         self,
     ):
-        subtype = get_random_object(EventSubtype)
-        subtype.for_organizer_group_members_only = True
-        subtype.save()
+        subtype = EventSubtype.objects.create(
+            visibility=EventSubtype.VISIBILITY_ALL,
+            label=uuid.uuid4().hex,
+            for_organizer_group_members_only=True,
+        )
         self.client.force_login(self.person.role)
         res = self.client.post(
             "/api/evenements/creer/",
@@ -363,9 +367,11 @@ class CreateEventAPITestCase(APITestCase):
     def test_for_supportgroup_type_subtype_event_is_not_created_without_organizer_group(
         self,
     ):
-        subtype = get_random_object(EventSubtype)
-        subtype.for_supportgroup_type = SupportGroup.TYPE_LOCAL_GROUP
-        subtype.save()
+        subtype = EventSubtype.objects.create(
+            visibility=EventSubtype.VISIBILITY_ALL,
+            label=uuid.uuid4().hex,
+            for_supportgroup_type=SupportGroup.TYPE_LOCAL_GROUP,
+        )
         self.client.force_login(self.person.role)
         res = self.client.post(
             "/api/evenements/creer/",
@@ -389,9 +395,11 @@ class CreateEventAPITestCase(APITestCase):
             person=self.person,
             membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
         )
-        subtype = get_random_object(EventSubtype)
-        subtype.for_supportgroup_type = SupportGroup.TYPE_LOCAL_GROUP
-        subtype.save()
+        subtype = EventSubtype.objects.create(
+            visibility=EventSubtype.VISIBILITY_ALL,
+            label=uuid.uuid4().hex,
+            for_supportgroup_type=SupportGroup.TYPE_LOCAL_GROUP,
+        )
         self.client.force_login(self.person.role)
         res = self.client.post(
             "/api/evenements/creer/",
@@ -411,7 +419,63 @@ class CreateEventAPITestCase(APITestCase):
                 "organizerGroup": str(local_group.id),
             },
         )
-        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res.status_code, 201, res.data)
+
+    def test_for_supportgroups_subtype_event_is_not_created_without_organizer_group(
+        self,
+    ):
+        authorized_group = SupportGroup.objects.create()
+        subtype = EventSubtype.objects.create(
+            visibility=EventSubtype.VISIBILITY_ALL, label=uuid.uuid4().hex
+        )
+        subtype.for_supportgroups.add(authorized_group)
+        self.client.force_login(self.person.role)
+        res = self.client.post(
+            "/api/evenements/creer/",
+            data={**self.valid_data, "subtype": subtype.id, "organizerGroup": None},
+        )
+        self.assertEqual(res.status_code, 422)
+        self.assertIn("organizerGroup", res.data)
+
+    def test_for_supportgroups_subtype_event_is_not_created_for_different_type_group(
+        self,
+    ):
+        authorized_group = SupportGroup.objects.create()
+        unauthorized_group = SupportGroup.objects.create()
+        Membership.objects.create(
+            supportgroup=authorized_group,
+            person=self.person,
+            membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
+        )
+        Membership.objects.create(
+            supportgroup=unauthorized_group,
+            person=self.person,
+            membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
+        )
+        subtype = EventSubtype.objects.create(
+            visibility=EventSubtype.VISIBILITY_ALL, label=uuid.uuid4().hex
+        )
+        subtype.for_supportgroups.add(authorized_group)
+        self.client.force_login(self.person.role)
+        res = self.client.post(
+            "/api/evenements/creer/",
+            data={
+                **self.valid_data,
+                "subtype": subtype.id,
+                "organizerGroup": str(unauthorized_group.id),
+            },
+        )
+        self.assertEqual(res.status_code, 422)
+        self.assertIn("organizerGroup", res.data)
+        res = self.client.post(
+            "/api/evenements/creer/",
+            data={
+                **self.valid_data,
+                "subtype": subtype.id,
+                "organizerGroup": str(authorized_group.id),
+            },
+        )
+        self.assertEqual(res.status_code, 201, res.data)
 
 
 class RSVPEventAPITestCase(APITestCase):
@@ -457,7 +521,7 @@ class RSVPEventAPITestCase(APITestCase):
         event = self.create_event(for_users=Event.FOR_USERS_INSOUMIS)
         self.client.force_login(person_2022.role)
         res = self.client.post(f"/api/evenements/{event.pk}/inscription/")
-        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res.status_code, 201, res.data)
 
     def test_insoumise_person_can_rsvp_2022_event(self):
         person_insoumise = Person.objects.create_person(
@@ -469,7 +533,7 @@ class RSVPEventAPITestCase(APITestCase):
         event = self.create_event(for_users=Event.FOR_USERS_2022)
         self.client.force_login(person_insoumise.role)
         res = self.client.post(f"/api/evenements/{event.pk}/inscription/")
-        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res.status_code, 201, res.data)
 
     def test_person_cannot_rsvp_event_with_subscription_form(self):
         subscription_form = PersonForm.objects.create()
@@ -510,7 +574,9 @@ class RSVPEventAPITestCase(APITestCase):
     def test_person_can_rsvp_for_organizer_group_members_only_if_person_is_group_member(
         self,
     ):
-        subtype = get_random_object(EventSubtype)
+        subtype = EventSubtype.objects.create(
+            visibility=EventSubtype.VISIBILITY_ALL, label=uuid.uuid4().hex
+        )
         subtype.for_organizer_group_members_only = True
         subtype.save()
         group = SupportGroup.objects.create(name="Group")
@@ -534,13 +600,13 @@ class RSVPEventAPITestCase(APITestCase):
         )
         self.client.force_login(member.role)
         res = self.client.post(f"/api/evenements/{event.pk}/inscription/")
-        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res.status_code, 201, res.data)
 
     def test_authenticated_person_can_rsvp_available_event(self):
         event = self.create_event()
         self.client.force_login(self.person.role)
         res = self.client.post(f"/api/evenements/{event.pk}/inscription/")
-        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res.status_code, 201, res.data)
 
     @patch("agir.events.views.api_views.rsvp_to_free_event")
     def test_rsvp_to_free_event_is_called_upon_joining(self, rsvp_to_free_event):
@@ -548,7 +614,7 @@ class RSVPEventAPITestCase(APITestCase):
         self.client.force_login(self.person.role)
         rsvp_to_free_event.assert_not_called()
         res = self.client.post(f"/api/evenements/{event.pk}/inscription/")
-        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res.status_code, 201, res.data)
         rsvp_to_free_event.assert_called()
 
     def test_rsvp_is_created_upon_rsvping(self):
@@ -561,7 +627,7 @@ class RSVPEventAPITestCase(APITestCase):
             ).exists()
         )
         res = self.client.post(f"/api/evenements/{event.pk}/inscription/")
-        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res.status_code, 201, res.data)
         self.assertTrue(
             RSVP.objects.filter(
                 event=event,
@@ -599,7 +665,7 @@ class RSVPEventAsGroupAPITestCase(APITestCase):
             f"/api/evenements/{event.pk}/inscription-groupe/",
             data={"groupPk": group.id},
         )
-        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res.status_code, 201, res.data)
 
     def test_person_cannot_rsvp_for_group_without_permission(self):
         group = SupportGroup.objects.create()
@@ -623,7 +689,9 @@ class RSVPEventAsGroupAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 403)
 
     def test_cannot_rsvp_for_organizer_group_members_only_event_as_group(self):
-        subtype = get_random_object(EventSubtype)
+        subtype = EventSubtype.objects.create(
+            visibility=EventSubtype.VISIBILITY_ALL, label=uuid.uuid4().hex
+        )
         subtype.for_organizer_group_members_only = True
         subtype.save()
         group = SupportGroup.objects.create()
@@ -1128,7 +1196,7 @@ class CreateEventProjectDocumentAPITestCase(APITestCase):
             data=self.valid_data,
             format="multipart",
         )
-        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res.status_code, 201, res.data)
         self.project.refresh_from_db()
         self.assertEqual(self.project.documents.count(), original_document_length + 1)
 
@@ -1195,14 +1263,14 @@ class EventReportPersonFormAPITestCase(APITestCase):
             title="Form", description="Form", slug="formulaire"
         )
         self.subtype_with_form = EventSubtype.objects.create(
+            visibility=EventSubtype.VISIBILITY_ALL,
             label="Subtype with form",
             report_person_form=self.report_person_form,
-            visibility=EventSubtype.VISIBILITY_ALL,
         )
         self.subtype_without_form = EventSubtype.objects.create(
+            visibility=EventSubtype.VISIBILITY_ALL,
             label="Subtype without form",
             report_person_form=None,
-            visibility=EventSubtype.VISIBILITY_ALL,
         )
         self.event_without_form = Event.objects.create(
             name="Event",
