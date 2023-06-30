@@ -30,7 +30,7 @@ export const NEWSLETTERS = {
   ELUES: {
     label: "Les informations destinées aux élu·es",
     value: "ELUES",
-    visible: (person) => console.log(person) || !!person?.membreReseauElus,
+    visible: (person) => !!person?.membreReseauElus,
   },
   LFI_jeunes_insoumise: {
     label: "Les informations destinées aux Jeunes insoumis·es",
