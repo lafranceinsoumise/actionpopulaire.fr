@@ -297,9 +297,11 @@ class ContactMixinSerializer(serializers.Serializer):
     phone = serializers.SerializerMethodField(source="contact_phone")
 
     def get_phone(self, obj):
-        if obj.contact_hide_phone:
-            return None
-        return obj.contact_phone
+        # mesure temporaire
+        return None
+        # if obj.contact_hide_phone:
+        #     return None
+        # return obj.contact_phone
 
     def to_representation(self, instance):
         data = super().to_representation(instance=instance)
