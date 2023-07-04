@@ -66,6 +66,7 @@ const SecondaryActions = ({
           id={id}
           contact={contact}
           isMessagingEnabled={isMessagingEnabled}
+          autoOpen
         />
       )}
       {isCertified && (

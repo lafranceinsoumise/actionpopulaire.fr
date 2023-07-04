@@ -17,7 +17,13 @@ import ShareLink from "@agir/front/genericComponents/ShareLink";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 const ContactButton = (props) => {
-  const { id, isMessagingEnabled, contact, buttonTrigger = false } = props;
+  const {
+    id,
+    isMessagingEnabled,
+    contact,
+    buttonTrigger = false,
+    autoOpen = false,
+  } = props;
 
   const user = useSelector(getUser);
   const hasModal = !isMessagingEnabled && !contact?.email;
@@ -28,7 +34,7 @@ const ContactButton = (props) => {
     () => new URLSearchParams(location.search),
     [location]
   );
-  const hasMessage = !!user && !!urlParams.get("contact", false);
+  const hasMessage = autoOpen && !!user && !!urlParams.get("contact", false);
 
   const onSelectMessage = useSelectMessage();
   const [messageModalOpen, setMessageModalOpen] = useState(hasMessage);
@@ -114,6 +120,7 @@ ContactButton.propTypes = {
   isMessagingEnabled: PropTypes.bool,
   contact: PropTypes.object,
   buttonTrigger: PropTypes.bool,
+  autoOpen: PropTypes.bool,
 };
 
 export default ContactButton;
