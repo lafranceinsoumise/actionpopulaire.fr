@@ -1038,14 +1038,16 @@ class EventSubtypeAdmin(admin.ModelAdmin):
         background = obj.color or "#f4ed0f"
         color = "white" if obj.color else "#000000"
         split = obj.icon_name.split(":")
-        icon_name = split.pop()
-        icon_variant = split.pop() if split else "solid"
+        print(split)
+        icon_name = split.pop(0)
+        icon_variant = split.pop(0) if split else "solid"
         marker_style = (
             "display:inline-flex;"
             "align-items:center;"
             "justify-content:center;"
-            "border-radius: 50% 50% 50% 0;"
+            "border-radius:50% 50% 50% 0;"
             "transform:rotate(-45deg);"
+            "transform-origin:center center;"
             "box-sizing:border-box;"
             "width:50px;"
             "height:50px;"
@@ -1054,7 +1056,7 @@ class EventSubtypeAdmin(admin.ModelAdmin):
             f"color:{color};"
             "border:2px solid white;"
             f"box-shadow:0 0 8px {background};"
-            "text-decoration: none;"
+            "text-decoration:none;"
         )
         href = f"https://fontawesome.com/icons/{icon_name}?f=classic&s={icon_variant}"
 
