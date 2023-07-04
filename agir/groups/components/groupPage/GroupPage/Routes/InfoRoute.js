@@ -56,6 +56,8 @@ const MobileInfoRoute = (props) => {
       )}
 
       <GroupContactCard
+        id={group?.id}
+        isMessagingEnabled={group?.isMessagingEnabled}
         contact={group?.contact}
         editLinkTo={groupSettingsLinks?.contact}
       />

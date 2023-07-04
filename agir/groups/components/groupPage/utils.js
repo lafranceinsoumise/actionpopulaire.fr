@@ -2,8 +2,8 @@ import { DateTime } from "luxon";
 
 import { communeNameOfToIn } from "@agir/lib/utils/display";
 
-export const getGroupTypeWithLocation = (type, location, commune) => {
-  const { city, zip } = location || {};
+export const getGroupTypeWithLocation = (type, location) => {
+  const { city, zip, commune } = location || {};
   const { nameOf } = commune || {};
   if (!zip) {
     return type;

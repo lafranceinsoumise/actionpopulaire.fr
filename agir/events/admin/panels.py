@@ -1054,6 +1054,7 @@ class EventSubtypeAdmin(admin.ModelAdmin):
             f"color:{color};"
             "border:2px solid white;"
             f"box-shadow:0 0 8px {background};"
+            "text-decoration: none;"
         )
         href = f"https://fontawesome.com/icons/{icon_name}?f=classic&s={icon_variant}"
 
