@@ -7,7 +7,6 @@ from agir.groups.tasks import (
     send_support_group_changed_notification,
     geocode_support_group,
 )
-from agir.lib.geo import get_commune
 from agir.lib.html import textify
 from agir.lib.serializers import (
     FlexibleFieldsMixin,
@@ -94,7 +93,7 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
     isCertified = serializers.SerializerMethodField(
         read_only=True, method_name="get_is_certified"
     )
-    location = SimpleLocationSerializer(source="*", read_only=True)
+    location = SimpleLocationSerializer(source="*", read_only=True, with_address=False)
 
     def to_representation(self, instance):
         user = self.context["request"].user
@@ -240,7 +239,7 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
     isCertified = serializers.SerializerMethodField(
         read_only=True, method_name="get_is_certified"
     )
-    location = LocationSerializer(read_only=True, source="*")
+    location = serializers.SerializerMethodField(read_only=True)
     contact = serializers.SerializerMethodField(
         read_only=True,
     )
@@ -264,9 +263,6 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
         read_only=True,
     )
     discountCodes = serializers.SerializerMethodField(
-        read_only=True,
-    )
-    commune = serializers.SerializerMethodField(
         read_only=True,
     )
 
@@ -316,17 +312,11 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def get_isManager(self, obj):
         membership = self.get_membership(obj)
-        return (
-            membership is not None
-            and membership.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER
-        )
+        return membership is not None and membership.is_manager
 
     def get_isReferent(self, obj):
         membership = self.get_membership(obj)
-        return (
-            membership is not None
-            and membership.membership_type >= Membership.MEMBERSHIP_TYPE_REFERENT
-        )
+        return membership is not None and membership.is_referent
 
     def get_personalInfoConsent(self, obj):
         membership = self.get_membership(obj)
@@ -334,14 +324,20 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             membership is not None and membership.personal_information_sharing_consent
         )
 
-    def get_contact(self, instance):
-        if self.get_isManager(instance):
+    def get_location(self, obj):
+        return LocationSerializer(
+            source="*", read_only=True, with_address=self.get_isManager(obj)
+        ).to_representation(obj)
+
+    def get_contact(self, obj):
+        if self.get_isManager(obj):
             return NestedContactSerializer(
                 source="*", context=self.context
-            ).to_representation(instance)
+            ).to_representation(obj)
+
         return ContactMixinSerializer(
             source="*", context=self.context
-        ).to_representation(instance)
+        ).to_representation(obj)
 
     def get_type(self, obj):
         return obj.get_type_display()
@@ -393,20 +389,11 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
         membership = self.get_membership(obj)
         if (
             membership is not None
-            and membership.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER
+            and membership.is_manager
             and obj.tags.filter(label=settings.PROMO_CODE_TAG).exists()
         ):
             return get_promo_codes(obj)
         return []
-
-    def get_commune(self, obj):
-        commune = get_commune(obj)
-        if commune is not None:
-            commune = {
-                "name": commune.nom_complet,
-                "nameOf": commune.nom_avec_charniere,
-            }
-        return commune
 
     def get_hasUpcomingEvents(self, obj):
         return obj.organized_events.upcoming().exists()
@@ -444,7 +431,7 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
 
 class SupportGroupSearchResultSerializer(serializers.ModelSerializer):
-    location = LocationSerializer(read_only=True, source="*")
+    location = LocationSerializer(read_only=True, source="*", with_address=False)
     iconConfiguration = serializers.SerializerMethodField(
         read_only=True, method_name="get_icon_configuration"
     )

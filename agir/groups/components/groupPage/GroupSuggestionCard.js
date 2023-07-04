@@ -77,14 +77,8 @@ const StyledCard = styled(Card)`
 `;
 
 const GroupSuggestionCard = (props) => {
-  const {
-    id,
-    name,
-    location: { city, zip, coordinates, staticMapUrl },
-    iconConfiguration,
-    backLink,
-  } = props;
-
+  const { id, name, location, iconConfiguration, backLink } = props;
+  const { city, zip, coordinates, staticMapUrl } = location || {};
   const history = useHistory();
   const handleClick = React.useCallback(() => {
     id &&

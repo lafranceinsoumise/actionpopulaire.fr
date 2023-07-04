@@ -90,6 +90,11 @@ urlpatterns = [
         views.RefuseEventCoorganizationInvitationView.as_view(),
         name="refuse_event_group_coorganization",
     ),
+    path(
+        "evenements/sous-types/<int:pk>/icalendar.ics",
+        views.EventSubtypeIcsView.as_view(),
+        name="eventsubtype_ics_calendar",
+    ),
     path("agenda/<slug:slug>/", views.CalendarView.as_view(), name="view_calendar"),
     path(
         "agenda/<slug:slug>/icalendar/",

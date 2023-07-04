@@ -12,27 +12,28 @@ const StyledCard = styled(Card)`
   border-bottom: 1px solid ${style.black50};
 `;
 
-const ContactCard = ({ name, phone, email }) => (
-  <StyledCard>
-    <p>
-      <b>Contact</b>
-    </p>
-    <IconList>
-      {name && <IconListItem name="user">{name}</IconListItem>}
-      {phone && (
-        <IconListItem name="phone">
-          <a
-            href={`tel:${phone}`}
-            style={{ color: "inherit", textDecoration: "none" }}
-          >
-            {phone}
-          </a>
-        </IconListItem>
-      )}
-      {email && <IconListItem name="mail">{email}</IconListItem>}
-    </IconList>
-  </StyledCard>
-);
+const ContactCard = ({ name, phone, email }) =>
+  phone || email ? (
+    <StyledCard>
+      <p>
+        <b>Contact</b>
+      </p>
+      <IconList>
+        {name && <IconListItem name="user">{name}</IconListItem>}
+        {phone && (
+          <IconListItem name="phone">
+            <a
+              href={`tel:${phone}`}
+              style={{ color: "inherit", textDecoration: "none" }}
+            >
+              {phone}
+            </a>
+          </IconListItem>
+        )}
+        {email && <IconListItem name="mail">{email}</IconListItem>}
+      </IconList>
+    </StyledCard>
+  ) : null;
 
 ContactCard.propTypes = {
   name: PropTypes.string,
