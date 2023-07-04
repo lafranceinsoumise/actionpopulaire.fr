@@ -319,7 +319,7 @@ class UpdatableListSerializer(serializers.ListSerializer):
 class ContactMixinSerializer(serializers.Serializer):
     name = serializers.CharField(source="contact_name")
     # email = serializers.CharField(source="contact_email")
-    # phone = serializers.SerializerMethodField(source="contact_phone")
+    # phone = serializers.SerializerMethodField()
     email = serializers.ReadOnlyField(default=None)
     phone = serializers.ReadOnlyField(default=None)
 
