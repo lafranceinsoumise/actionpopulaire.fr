@@ -165,6 +165,8 @@ const DesktopGroupPage = (props) => {
             <GroupOrders {...group} />
             <div style={{ backgroundColor: style.black25, padding: "1.5rem" }}>
               <GroupContactCard
+                id={group?.id}
+                isMessagingEnabled={group?.isMessagingEnabled}
                 contact={group?.contact}
                 editLinkTo={groupSettingsLinks?.contact}
               />

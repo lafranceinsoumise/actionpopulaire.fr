@@ -6,16 +6,10 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import Link from "@agir/front/app/Link";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
-import { useSelector } from "@agir/front/globalContext/GlobalContext";
-import { getUser } from "@agir/front/globalContext/reducers";
 import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 import ShareContentUrl from "@agir/front/genericComponents/ShareContentUrl";
-import ShareLink from "@agir/front/genericComponents/ShareLink";
-import Spacer from "@agir/front/genericComponents/Spacer";
 
-import MessageModal from "@agir/front/formComponents/MessageModal/Modal";
-import { useSelectMessage } from "@agir/msgs/common/hooks";
-import * as groupAPI from "@agir/groups/utils/api";
+import ContactButton from "./ContactButton";
 
 const StyledLink = styled(Link)``;
 const StyledContainer = styled.div`
@@ -52,67 +46,6 @@ const StyledContainer = styled.div`
   }
 `;
 
-const ContactButton = (props) => {
-  const { id, isMessagingEnabled, contact } = props;
-
-  const user = useSelector(getUser);
-  const onSelectMessage = useSelectMessage();
-  const [messageModalOpen, setMessageModalOpen] = useState(false);
-
-  const handleMessageClose = useCallback(() => setMessageModalOpen(false), []);
-  const handleMessageOpen = useCallback(() => setMessageModalOpen(true), []);
-
-  const sendPrivateMessage = async (msg) => {
-    const message = {
-      subject: msg.subject,
-      text: msg.text,
-    };
-    const result = await groupAPI.createPrivateMessage(id, message);
-    onSelectMessage(result.data?.id);
-  };
-
-  return (
-    <>
-      <button type="button" onClick={handleMessageOpen}>
-        <RawFeatherIcon name="mail" width="1.5rem" height="1.5rem" />
-        <span>Contacter</span>
-      </button>
-      {isMessagingEnabled ? (
-        <MessageModal
-          shouldShow={messageModalOpen}
-          user={user}
-          groupPk={id}
-          onSend={sendPrivateMessage}
-          onClose={handleMessageClose}
-        />
-      ) : (
-        <ModalConfirmation
-          shouldShow={messageModalOpen}
-          onClose={handleMessageClose}
-          title="Contactez les animateur·ices du groupe"
-        >
-          <div>
-            Vous pouvez contacter les animateur·ices du groupe par e-mail&nbsp;:
-            <Spacer size="1rem" />
-            <ShareLink
-              label="Copier"
-              color="primary"
-              url={contact?.email}
-              $wrap
-            />
-          </div>
-        </ModalConfirmation>
-      )}
-    </>
-  );
-};
-
-ContactButton.propTypes = {
-  id: PropTypes.string.isRequired,
-  isMessagingEnabled: PropTypes.bool,
-  contact: PropTypes.object,
-};
-
 const SecondaryActions = ({
   id,
   contact,
@@ -133,6 +66,7 @@ const SecondaryActions = ({
           id={id}
           contact={contact}
           isMessagingEnabled={isMessagingEnabled}
+          autoOpen
         />
       )}
       {isCertified && (

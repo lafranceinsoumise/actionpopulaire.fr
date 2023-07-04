@@ -64,10 +64,12 @@ const Login = () => {
   const next = useMemo(() => {
     if (location.state?.next) {
       return location.state.next;
-    } else if (location.search) {
+    }
+    if (location.search) {
       return new URLSearchParams(location.search).get("next");
     }
-  }, [location.state, location.search]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleShowMore = useCallback(() => {
     setShowMore(true);

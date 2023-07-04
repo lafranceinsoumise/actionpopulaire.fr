@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
 from django_countries.serializer_fields import CountryField
@@ -8,6 +7,7 @@ from rest_framework.fields import empty
 from rest_framework.serializers import BaseSerializer
 from rest_framework_gis.fields import GeometryField
 
+from agir.lib.geo import get_commune
 from agir.carte.models import StaticMapImage
 from .data import code_postal_vers_code_departement
 from .geo import FRENCH_COUNTRY_CODES
@@ -47,6 +47,14 @@ class NullableCountryField(NullAsBlankMixin, CountryField):
 
 
 class SimpleLocationSerializer(serializers.Serializer):
+    ADDRESS_FIELDS = (
+        "name",
+        "address1",
+        "address2",
+        "address",
+        "shortAddress",
+    )
+
     name = serializers.CharField(source="location_name")
     address1 = serializers.CharField(source="location_address1")
     address2 = serializers.CharField(
@@ -57,15 +65,32 @@ class SimpleLocationSerializer(serializers.Serializer):
     departement = serializers.SerializerMethodField(read_only=True)
     country = CountryField(source="location_country")
     address = serializers.SerializerMethodField()
+    commune = serializers.SerializerMethodField(read_only=True)
 
     shortAddress = serializers.CharField(source="short_address", required=False)
     shortLocation = serializers.CharField(source="short_location", required=False)
 
+    def __init__(self, *args, with_address=True, **kwargs):
+        if not with_address:
+            for field in self.ADDRESS_FIELDS:
+                del self.fields[field]
+
+        super().__init__(*args, **kwargs)
+
     def to_representation(self, instance):
         data = super().to_representation(instance=instance)
-        if not ["name"] and not data["zip"] and not data["city"]:
+        if not data["zip"] and not data["city"]:
             return None
         return data
+
+    def get_commune(self, obj):
+        commune = get_commune(obj)
+        if commune is not None:
+            commune = {
+                "name": commune.nom_complet,
+                "nameOf": commune.nom_avec_charniere,
+            }
+        return commune
 
     def get_departement(self, obj):
         if hasattr(obj, "get_departement"):
@@ -293,8 +318,10 @@ class UpdatableListSerializer(serializers.ListSerializer):
 
 class ContactMixinSerializer(serializers.Serializer):
     name = serializers.CharField(source="contact_name")
-    email = serializers.CharField(source="contact_email")
-    phone = serializers.SerializerMethodField(source="contact_phone")
+    # email = serializers.CharField(source="contact_email")
+    # phone = serializers.SerializerMethodField()
+    email = serializers.ReadOnlyField(default=None)
+    phone = serializers.ReadOnlyField(default=None)
 
     def get_phone(self, obj):
         if obj.contact_hide_phone:
