@@ -925,7 +925,7 @@ class EventSubtypeAdmin(admin.ModelAdmin):
 
     @admin.display(description="Événements")
     def event_list_link(self, obj):
-        if not obj:
+        if not obj or not obj.pk:
             return "-"
 
         count = obj.events.count()
@@ -946,7 +946,7 @@ class EventSubtypeAdmin(admin.ModelAdmin):
 
     @admin.display(description="Cartes")
     def map_link(self, obj):
-        if not obj:
+        if not obj or not obj.pk:
             return "-"
 
         url = front_url(
@@ -962,7 +962,7 @@ class EventSubtypeAdmin(admin.ModelAdmin):
 
     @admin.display(description="Agenda")
     def calendar_link(self, obj):
-        if not obj:
+        if not obj or not obj.pk:
             return "-"
 
         return format_html(
