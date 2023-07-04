@@ -43,7 +43,7 @@ const GroupContactCard = (props) => {
     <Card>
       {contact ? (
         <StyledContactSection>
-          {contact.name && (
+          {contact.name || isMessagingEnabled ? (
             <strong>
               Moyens de contact&ensp;
               {editLinkTo && (
@@ -57,7 +57,7 @@ const GroupContactCard = (props) => {
                 </Link>
               )}
             </strong>
-          )}
+          ) : null}
           {contact.name && <span>{contact.name}</span>}
           {contact.email && (
             <a href={`mailto:${contact.email}`}>{contact.email}</a>

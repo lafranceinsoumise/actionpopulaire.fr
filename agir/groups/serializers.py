@@ -326,14 +326,18 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def get_location(self, obj):
         return LocationSerializer(
-            obj, source="*", read_only=True, with_address=self.get_isManager(obj)
-        ).data
+            source="*", read_only=True, with_address=self.get_isManager(obj)
+        ).to_representation(obj)
 
     def get_contact(self, obj):
         if self.get_isManager(obj):
-            return NestedContactSerializer(obj, source="*", context=self.context).data
+            return NestedContactSerializer(
+                source="*", context=self.context
+            ).to_representation(obj)
 
-        return ContactMixinSerializer(obj, source="*", context=self.context).data
+        return ContactMixinSerializer(
+            source="*", context=self.context
+        ).to_representation(obj)
 
     def get_type(self, obj):
         return obj.get_type_display()
