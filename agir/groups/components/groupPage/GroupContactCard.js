@@ -7,21 +7,24 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import Card from "./GroupPageCard";
 import Link from "@agir/front/app/Link";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import ContactButton from "./GroupUserActions/ContactButton";
+import Spacer from "@agir/front/genericComponents/Spacer";
 
 const StyledContactSection = styled.p`
   font-size: 14px;
   line-height: 1.5;
   display: flex;
   flex-flow: column nowrap;
+  align-items: start;
   margin: 0;
+  gap: 0.5rem;
 
-  && strong {
+  && > strong {
     font-weight: 600;
     font-size: 1rem;
-    margin-bottom: 0.5rem;
   }
 
-  && a {
+  && > a {
     font-weight: 500;
     text-decoration: none;
     color: ${style.primary500};
@@ -30,7 +33,7 @@ const StyledContactSection = styled.p`
 `;
 
 const GroupContactCard = (props) => {
-  const { contact, editLinkTo } = props;
+  const { id, isMessagingEnabled, contact, editLinkTo } = props;
 
   if (!contact) {
     return null;
@@ -64,6 +67,13 @@ const GroupContactCard = (props) => {
               {contact.phone} {contact.hidePhone && " (caché)"}
             </a>
           )}
+          <Spacer size="0" />
+          <ContactButton
+            id={id}
+            isMessagingEnabled={isMessagingEnabled}
+            buttonTrigger
+            contact={contact}
+          />
         </StyledContactSection>
       ) : null}
     </Card>
@@ -71,6 +81,8 @@ const GroupContactCard = (props) => {
 };
 
 GroupContactCard.propTypes = {
+  id: PropTypes.string,
+  isMessagingEnabled: PropTypes.bool,
   contact: PropTypes.shape({
     name: PropTypes.string,
     email: PropTypes.string,

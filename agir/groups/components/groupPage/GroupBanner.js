@@ -162,12 +162,12 @@ const StyledBanner = styled.div`
 `;
 
 const GroupBanner = (props) => {
-  const { name, type, location, commune, iconConfiguration, image } = props;
+  const { name, type, location, iconConfiguration, image } = props;
   const [shouldShowModal, setShouldShowModal] = useState();
 
   const subtitle = useMemo(
-    () => getGroupTypeWithLocation(type, location, commune),
-    [type, location, commune]
+    () => getGroupTypeWithLocation(type, location),
+    [type, location]
   );
 
   const openModal = useCallback(() => {
@@ -253,9 +253,9 @@ GroupBanner.propTypes = {
       coordinates: PropTypes.arrayOf(PropTypes.number),
     }),
     staticMapUrl: PropTypes.string,
+    commune: PropTypes.shape({
+      nameOf: PropTypes.string,
+    }),
   }).isRequired,
-  commune: PropTypes.shape({
-    nameOf: PropTypes.string,
-  }),
 };
 export default GroupBanner;
