@@ -35,47 +35,43 @@ const StyledContactSection = styled.p`
 const GroupContactCard = (props) => {
   const { id, isMessagingEnabled, contact, editLinkTo } = props;
 
-  if (!contact) {
+  if (!contact?.email && !contact?.phone && !isMessagingEnabled) {
     return null;
   }
 
   return (
     <Card>
-      {contact ? (
-        <StyledContactSection>
-          {contact.name || isMessagingEnabled ? (
-            <strong>
-              Moyens de contact&ensp;
-              {editLinkTo && (
-                <Link to={editLinkTo}>
-                  <RawFeatherIcon
-                    name="edit-2"
-                    color={style.black1000}
-                    width="1rem"
-                    height="1rem"
-                  />
-                </Link>
-              )}
-            </strong>
-          ) : null}
-          {contact.name && <span>{contact.name}</span>}
-          {contact.email && (
-            <a href={`mailto:${contact.email}`}>{contact.email}</a>
+      <StyledContactSection>
+        <strong>
+          Moyens de contact&ensp;
+          {editLinkTo && (
+            <Link to={editLinkTo}>
+              <RawFeatherIcon
+                name="edit-2"
+                color={style.black1000}
+                width="1rem"
+                height="1rem"
+              />
+            </Link>
           )}
-          {contact.phone && (
-            <a href={`tel:${contact.phone}`} style={{ color: "inherit" }}>
-              {contact.phone} {contact.hidePhone && " (caché)"}
-            </a>
-          )}
-          <Spacer size="0" />
-          <ContactButton
-            id={id}
-            isMessagingEnabled={isMessagingEnabled}
-            buttonTrigger
-            contact={contact}
-          />
-        </StyledContactSection>
-      ) : null}
+        </strong>
+        {contact.name && <span>{contact.name}</span>}
+        {contact.email && (
+          <a href={`mailto:${contact.email}`}>{contact.email}</a>
+        )}
+        {contact.phone && (
+          <a href={`tel:${contact.phone}`} style={{ color: "inherit" }}>
+            {contact.phone} {contact.hidePhone && " (caché)"}
+          </a>
+        )}
+        <Spacer size="0" />
+        <ContactButton
+          id={id}
+          isMessagingEnabled={isMessagingEnabled}
+          buttonTrigger
+          contact={contact}
+        />
+      </StyledContactSection>
     </Card>
   );
 };
