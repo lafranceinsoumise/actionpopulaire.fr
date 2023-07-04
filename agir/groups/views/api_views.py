@@ -256,7 +256,7 @@ class NearGroupsAPIView(ListAPIView):
             (
                 SupportGroup.objects.active()
                 .exclude(pk=self.supportgroup.pk)
-                .exclude(coordinates__isnull=True)
+                .filter(coordinates__isnull=False, coordinates_type__isnull=False)
             )
             .annotate(distance=Distance("coordinates", self.supportgroup.coordinates))
             .order_by("distance")
