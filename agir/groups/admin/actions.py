@@ -85,7 +85,8 @@ def uncertify_supportgroups(modeladmin, request, qs):
             for group in groups:
                 group.certification_date = None
                 group.save()
-                send_uncertified_group_notifications.delay(group.pk)
+                # Temporarily disable the notification
+                # send_uncertified_group_notifications.delay(group.pk)
                 updated_count += 1
         except Exception as e:
             modeladmin.message_user(
