@@ -55,13 +55,13 @@ const GroupContactCard = (props) => {
             </Link>
           )}
         </strong>
-        {contact.name && <span>{contact.name}</span>}
-        {contact.email && (
+        {!!contact?.name && <span>{contact.name}</span>}
+        {!!contact?.email && (
           <a href={`mailto:${contact.email}`}>{contact.email}</a>
         )}
-        {contact.phone && (
+        {!!contact?.phone && (
           <a href={`tel:${contact.phone}`} style={{ color: "inherit" }}>
-            {contact.phone} {contact.hidePhone && " (caché)"}
+            {contact.phone} {!!contact?.hidePhone && " (caché)"}
           </a>
         )}
         <Spacer size="0" />
