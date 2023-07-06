@@ -40,10 +40,10 @@ const ShareCard = (props) => {
   return (
     <StyledCard style={{ padding: "1.5rem" }} {...rest}>
       <Row gutter={2} style={{ marginBottom: "1rem" }}>
-        <Column grow collapse={false}>
+        <Column grow collapse={0}>
           <b>{title || "Partager"}</b>
         </Column>
-        <Column collapse={false}>
+        <Column collapse={0}>
           <a
             href={`https://wa.me/?text=${encodedLocation}`}
             target="_blank"
@@ -100,7 +100,7 @@ const ShareCard = (props) => {
       </Row>
 
       <Row gutter={4}>
-        <Column grow collapse={false}>
+        <Column grow collapse={0}>
           {" "}
           <input
             type="text"
@@ -117,7 +117,7 @@ const ShareCard = (props) => {
             onClick={copyUrl}
           />
         </Column>
-        <Column collapse={false}>
+        <Column collapse={0}>
           <Button small icon={copied ? "check" : "copy"} onClick={copyUrl}>
             Copier le lien
           </Button>

@@ -100,7 +100,7 @@ export const MessageOptions = () => {
           <RawFeatherIcon name="check-circle" color={style.primary500} />
           Tout marquer comme lu
         </button>
-        <Link link to={route} icon="settings" small>
+        <Link to={route} icon="settings">
           <RawFeatherIcon name="settings" color={style.primary500} />
           Paramètres de notifications
         </Link>

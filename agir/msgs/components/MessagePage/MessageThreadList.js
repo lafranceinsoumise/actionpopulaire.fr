@@ -14,8 +14,8 @@ import MessageThreadMenu from "./MessageThreadMenu";
 import { routeConfig } from "@agir/front/app/routes.config";
 
 const StyledContent = styled.article`
-  ${({ readonly }) =>
-    !readonly &&
+  ${({ $readonly }) =>
+    !$readonly &&
     `
     height: 100%;
   `}
@@ -237,7 +237,7 @@ const MobileThreadList = (props) => {
       >
         <StyledContent
           ref={scrollableRef}
-          readonly={selectedMessage?.readonly || selectedMessage?.isLocked}
+          $readonly={selectedMessage?.readonly || selectedMessage?.isLocked}
         >
           {selectedMessage && (
             <MessageCard

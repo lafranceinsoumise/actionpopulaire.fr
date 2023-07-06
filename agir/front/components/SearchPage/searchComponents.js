@@ -143,7 +143,7 @@ export const InputSearch = ({ inputSearch, updateSearch, placeholder }) => (
         name="search"
         width="1rem"
         height="1rem"
-        stroke-width={1.33}
+        strokeWidth={1.33}
         style={{ position: "absolute", left: "1rem" }}
       />
       <SearchBarInput
@@ -153,7 +153,7 @@ export const InputSearch = ({ inputSearch, updateSearch, placeholder }) => (
         name="q"
         onChange={updateSearch}
         autoComplete="off"
-        maxlength="512"
+        maxLength="512"
         value={inputSearch.slice(0, 512)}
       />
     </SearchBarWrapper>
