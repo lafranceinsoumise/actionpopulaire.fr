@@ -10,7 +10,7 @@ import Modal from "@agir/front/genericComponents/Modal";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 import imageNSP from "@agir/front/genericComponents/images/subscription_type__nsp.jpg";
-import imageLFI from "@agir/front/genericComponents/logos/LFI-NUPES-Violet-H.png";
+import imageLFI from "@agir/front/genericComponents/logos/LFI-NUPES-Violet-H.webp";
 
 import { updateProfile } from "./api";
 

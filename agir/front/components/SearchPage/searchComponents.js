@@ -85,7 +85,7 @@ const SearchBarInput = styled.input`
   display: inline-flex;
   flex: 1;
 
-  ::placeholder {
+  &::placeholder {
     color: ${style.black500};
     font-weight: 400;
     text-overflow: ellipsis;
