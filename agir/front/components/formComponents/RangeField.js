@@ -296,7 +296,7 @@ const RangeField = (props) => {
       className={className}
       style={style}
     >
-      {label && <StyledLabel htmlForm={id}>{label}</StyledLabel>}
+      {label && <StyledLabel htmlFor={id}>{label}</StyledLabel>}
       <StyledRangeInput
         $invalid={!!error}
         $disabled={!!disabled}

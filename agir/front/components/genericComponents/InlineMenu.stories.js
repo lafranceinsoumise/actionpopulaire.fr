@@ -5,6 +5,9 @@ import InlineMenu from "./InlineMenu";
 export default {
   component: InlineMenu,
   title: "Generic/InlineMenu",
+  parameters: {
+    layout: "padded",
+  },
 };
 
 export const Default = (props) => (
