@@ -104,7 +104,7 @@ const SearchBar = () => {
           name="search"
           width="1rem"
           height="1rem"
-          stroke-width={1.33}
+          strokeWidth={1.33}
         />
       </SearchBarIndicator>
 
@@ -118,7 +118,7 @@ const SearchBar = () => {
         onBlur={handleBlur}
         onChange={handleChange}
         value={value.slice(0, 512)}
-        maxlength="512"
+        maxLength="512"
       />
       <SearchBarButton type="submit" color="primary">
         <RawFeatherIcon
@@ -126,7 +126,7 @@ const SearchBar = () => {
           color="#fff"
           width="1rem"
           height="1rem"
-          stroke-width={2}
+          strokeWidth={2}
         />
       </SearchBarButton>
     </SearchBarWrapper>

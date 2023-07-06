@@ -54,7 +54,7 @@ export const ButtonLoader = styled.i
     circle {
         fill: transparent;
         stroke: currentColor;
-        stroke-width: 2;
+        strokeWidth: 2;
         stroke-linecap: round;
         stroke-dasharray: 3.138em;
         transform-origin: center center;

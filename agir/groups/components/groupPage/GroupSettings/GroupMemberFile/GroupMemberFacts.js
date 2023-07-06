@@ -44,9 +44,9 @@ const GroupMemberFacts = (props) => {
 };
 
 GroupMemberFacts.propTypes = {
-  is2022: PropTypes.bool.isRequired,
-  isLiaison: PropTypes.bool.isRequired,
-  hasGroupNotifications: PropTypes.bool.isRequired,
+  is2022: PropTypes.bool,
+  isLiaison: PropTypes.bool,
+  hasGroupNotifications: PropTypes.bool,
 };
 
 export default GroupMemberFacts;

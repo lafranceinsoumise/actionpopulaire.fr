@@ -40,7 +40,9 @@ export const PullRight = styled.div`
 /**
  * Media queries
  */
-export const Hide = styled.div`
+export const Hide = styled.div.withConfig({
+  shouldForwardProp: (prop) => !["under", "over"].includes(prop),
+})`
   min-width: 0;
 
   @media (max-width: ${({ under }) => (under === true ? collapse : under)}px) {
@@ -63,7 +65,10 @@ export const GrayBackground = styled.div`
   background-color: ${style.black25};
 `;
 
-export const Column = styled.div`
+export const Column = styled.div.withConfig({
+  shouldForwardProp: (prop) =>
+    ["collapse", "grow", "stack"].includes(prop) === false,
+})`
   flex-basis: ${({ width, grow }) =>
     width || grow
       ? (Array.isArray(width) && width[1] ? width[1] : width) || "1px"
@@ -95,9 +100,13 @@ Column.propTypes = {
   ]), // can be anything like "50%" "400px"
   // if array first is mobile size, second is desktop
   grow: PropTypes.bool, // does the column fill the remaining space
+  collapse: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 };
 
-export const Row = styled.div`
+export const Row = styled.div.withConfig({
+  shouldForwardProp: (prop) =>
+    ["gutter", "align", "justify"].includes(prop) === false,
+})`
   margin-left: -${(props) => (typeof props.gutter === "undefined" ? gutter : props.gutter)}px;
   margin-right: -${(props) => (typeof props.gutter === "undefined" ? gutter : props.gutter)}px;
   display: flex;

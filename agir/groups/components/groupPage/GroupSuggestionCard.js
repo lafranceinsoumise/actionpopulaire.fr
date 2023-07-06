@@ -133,7 +133,7 @@ GroupSuggestionCard.propTypes = {
       coordinates: PropTypes.arrayOf(PropTypes.number),
     }).isRequired,
     staticMapUrl: PropTypes.string,
-  }).isRequired,
+  }),
   backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
 };
 export default GroupSuggestionCard;
