@@ -113,10 +113,10 @@ export const HeaderSearch = ({ querySearch, mapRoute }) => (
   <StyledHeaderSearch>
     <div>
       <h1>
-        <Hide over>Rechercher</Hide>
-        {!querySearch && <Hide under>Recherche : "{querySearch}"</Hide>}
+        <Hide $over>Rechercher</Hide>
+        {!querySearch && <Hide $under>Recherche : "{querySearch}"</Hide>}
       </h1>
-      <Hide under as="div" style={{ marginTop: "0.5rem" }}>
+      <Hide $under as="div" style={{ marginTop: "0.5rem" }}>
         Recherchez des événements et des groupes d'actions par nom, ville, code
         postal...
       </Hide>

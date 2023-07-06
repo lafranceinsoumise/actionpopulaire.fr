@@ -51,7 +51,7 @@ const LoginPage = () => {
           <LeftBlockDesktop />
           <MainBlock>
             <Container>
-              <Hide over style={{ textAlign: "center", marginTop: "3rem" }}>
+              <Hide $over style={{ textAlign: "center", marginTop: "3rem" }}>
                 <img
                   src={logoMobile}
                   alt="logo"
@@ -64,7 +64,7 @@ const LoginPage = () => {
               <Login />
             </Container>
 
-            <Hide over>
+            <Hide $over>
               <BackgroundMobile />
             </Hide>
           </MainBlock>

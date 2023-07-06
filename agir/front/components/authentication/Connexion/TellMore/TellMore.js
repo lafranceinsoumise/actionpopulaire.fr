@@ -200,7 +200,7 @@ const TellMore = ({ dismiss }) => {
 
   return (
     <div>
-      <Hide under>
+      <Hide $under>
         <div style={{ position: "fixed" }}>
           <Link route="events">
             <LogoAP
@@ -345,7 +345,7 @@ const TellMore = ({ dismiss }) => {
               Enregistrer
             </Button>
             {formData.mandat === null && (
-              <Hide under style={{ paddingBottom: "79px" }}></Hide>
+              <Hide $under style={{ paddingBottom: "79px" }}></Hide>
             )}
           </div>
         </MainBlock>

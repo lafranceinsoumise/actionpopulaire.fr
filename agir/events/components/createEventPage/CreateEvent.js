@@ -113,7 +113,7 @@ const InfoBlock = (props) => (
         Consulter le centre d'aide
       </Link>
     </div>
-    <Hide under>
+    <Hide $under>
       <Spacer size="1.5rem" />
       <TokTokCard />
     </Hide>
@@ -132,11 +132,11 @@ const CreateEvent = () => {
           </BackLink>
           <Spacer size="1.5rem" />
           <h2>Nouvel événement</h2>
-          <Hide as={InfoBlock} over />
+          <Hide as={InfoBlock} $over />
           <Spacer size="1.5rem" />
           <EventForm />
         </div>
-        <Hide as={InfoBlock} under />
+        <Hide as={InfoBlock} $under />
       </StyledContainer>
     </PageFadeIn>
   );

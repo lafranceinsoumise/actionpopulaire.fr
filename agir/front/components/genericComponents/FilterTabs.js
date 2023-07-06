@@ -28,18 +28,19 @@ const TabListWrapper = styled.div`
   }
 
   ${TabList} {
-    padding: 1px 1px 0 1px;
+    padding: 1px 1rem 0 1px;
     white-space: nowrap;
     border-bottom: 1px solid ${style.black200};
-    display: flex;
+    display: inline-flex;
     gap: 16px;
+    min-width: 100%;
 
     ${Tab} {
       display: inline-flex;
       align-items: center;
       justify-content: flex-start;
       width: auto;
-      height: 24px;
+      height: 1.5rem;
       text-transform: uppercase;
       padding: 0 2px;
       font-size: 11px;
@@ -50,23 +51,21 @@ const TabListWrapper = styled.div`
     }
   }
 
-  :before {
+  &:before {
     content: "";
     width: 100%;
-    height: 100%;
+    height: 2rem;
     position: absolute;
     right: 0;
-    top: 0;
-    bottom: 0;
     background: rgba(250, 250, 250, 0.001);
     background-image: -webkit-linear-gradient(
       left,
-      rgba(250, 250, 250, 0.001) calc(100% - 2rem),
+      rgba(250, 250, 250, 0.001) calc(100% - 3rem),
       rgba(250, 250, 250, 1)
     );
     background-image: linear-gradient(
       to right,
-      rgba(250, 250, 250, 0.001) calc(100% - 2rem),
+      rgba(250, 250, 250, 0.001) calc(100% - 3rem),
       rgba(250, 250, 250, 1)
     );
     pointer-events: none;

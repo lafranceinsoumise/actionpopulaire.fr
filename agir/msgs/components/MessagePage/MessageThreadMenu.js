@@ -123,7 +123,7 @@ const MessageThreadMenu = (props) => {
 
   return (
     <StyledMenu {...rest}>
-      <Hide under>
+      <Hide $under>
         <header>
           <h2>
             Messages{typeof writeNewMessage !== "function" ? " reçus" : ""}

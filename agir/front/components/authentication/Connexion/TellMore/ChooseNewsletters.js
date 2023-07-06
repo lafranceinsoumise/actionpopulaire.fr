@@ -271,7 +271,7 @@ const ChooseNewsletters = ({ dismiss }) => {
 
   return (
     <div>
-      <Hide under>
+      <Hide $under>
         <div style={{ position: "fixed" }}>
           <Link route="events">
             <LogoAP
