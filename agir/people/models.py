@@ -813,9 +813,7 @@ class Person(
             return
 
         if value:
-            self.newsletters = self.newsletters.append(
-                self.Newsletter.LFI_LIAISONS.value
-            )
+            self.newsletters.append(self.Newsletter.LFI_LIAISONS.value)
             return
 
         self.newsletters = [
