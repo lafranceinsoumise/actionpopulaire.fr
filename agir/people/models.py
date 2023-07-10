@@ -15,7 +15,7 @@ from django.core.validators import (
     MaxValueValidator,
 )
 from django.db import models, transaction, IntegrityError
-from django.db.models import JSONField, Subquery, OuterRef, DateTimeField, Prefetch
+from django.db.models import JSONField, Subquery, OuterRef, DateTimeField
 from django.db.models import Q
 from django.db.models.fields.json import KeyTextTransform
 from django.db.models.functions import Cast, Coalesce
@@ -68,7 +68,7 @@ person_image_path = FilePattern(
 
 class PersonQueryset(models.QuerySet):
     def is_political_support(self):
-        return self.filter(is_2022=True)
+        return self.filter(is_political_support=True)
 
     def with_active_role(self):
         return self.filter(role__is_active=True)
@@ -158,7 +158,10 @@ class PersonQueryset(models.QuerySet):
             .values("created")
         )
         liaisons = self.filter(
-            newsletters__contains=[Person.NEWSLETTER_2022_LIAISON]
+            newsletters__overlap=[
+                Person.Newsletter.LFI_LIAISONS.value,
+                Person.Newsletter.NEWSLETTER_2022_LIAISON.value,
+            ]
         ).annotate(
             liaison_date=Coalesce(
                 Subquery(liaison_form_submissions[:1]),
@@ -266,13 +269,19 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
 
         return person
 
-    def create_person(self, email, **extra_fields):
+    def create_person(self, email, subscribed=False, **extra_fields):
         extra_fields.setdefault("is_staff", False)
         extra_fields.setdefault("is_superuser", False)
         extra_fields.setdefault("password", None)
+
+        if subscribed is False:
+            extra_fields.setdefault("newsletters", [])
+        else:
+            extra_fields.setdefault("newsletters", Person.MAIN_NEWSLETTER_CHOICES)
+
         return self._create_person(email, **extra_fields)
 
-    def create_2022(self, email, password=None, *, subscribed=None, **extra_fields):
+    def create_political_supporter(self, email, password=None, **extra_fields):
         """
         Create a user
         :param email: the user's email
@@ -280,21 +289,12 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
         :param extra_fields: any other field
         :return:
         """
-        extra_fields.setdefault("is_2022", True)
-
-        if subscribed is False:
-            extra_fields.setdefault("newsletters", [])
-        else:
-            extra_fields.setdefault(
-                "newsletters",
-                [Person.NEWSLETTER_2022, Person.NEWSLETTER_2022_EXCEPTIONNEL],
-            )
+        extra_fields.setdefault("subscribed", True)
+        extra_fields.setdefault("is_political_support", True)
 
         return self.create_person(email, password=password, **extra_fields)
 
-    def create_insoumise(
-        self, email, password=None, *, subscribed=None, **extra_fields
-    ):
+    def create_2022(self, email, password=None, **extra_fields):
         """
         Create a user
         :param email: the user's email
@@ -302,15 +302,28 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
         :param extra_fields: any other field
         :return:
         """
-        extra_fields.setdefault("is_insoumise", True)
 
-        if subscribed is False:
-            extra_fields.setdefault("newsletters", [])
-        else:
-            extra_fields.setdefault(
-                "newsletters",
-                [Person.NEWSLETTER_LFI],
-            )
+        meta = extra_fields.get("meta", {})
+        meta.setdefault("political_support", {})
+        meta["political_support"]["is_2022"] = True
+        extra_fields["meta"] = meta
+
+        return self.create_person(email, password=password, **extra_fields)
+
+    def create_insoumise(self, email, password=None, **extra_fields):
+        """
+        Create a user
+        :param email: the user's email
+        :param password: optional password that may be used to connect to the admin website
+        :param extra_fields: any other field
+        :return:
+        """
+        extra_fields.setdefault("subscribed", True)
+
+        meta = extra_fields.get("meta", {})
+        meta.setdefault("political_support", {})
+        meta["political_support"]["is_insoumise"] = True
+        extra_fields["meta"] = meta
 
         return self.create_person(email, password=password, **extra_fields)
 
@@ -356,6 +369,60 @@ def generate_referrer_id():
     return secrets.token_urlsafe(9)
 
 
+class NewsletterChoices(models.TextChoices):
+    # TODO: remove legacy values after migration
+    # LEGACY NEWSLETTER VALUES
+    NEWSLETTER_LFI = (
+        "LFI",
+        "Lettre d'information de la France insoumise",
+    )  # ==> replaced by: None
+    NEWSLETTER_LJI = (
+        "LJI",
+        "Informations jeunes insoumis",
+    )  # ==> replaced by: LFI_LJI
+    NEWSLETTER_2022 = (
+        "2022",
+        "Lettre d'information NSP",
+    )  # ==> replaced by: LFI_REGULIERE
+    NEWSLETTER_2022_EXCEPTIONNEL = (
+        "2022_exceptionnel",
+        "NSP : informations exceptionnelles",
+    )  # ==> replaced by: LFI_EXCEPTIONNELLE
+    NEWSLETTER_2022_EN_LIGNE = (
+        "2022_en_ligne",
+        "NSP actions en ligne",
+    )  # ==> replaced by: None
+    NEWSLETTER_2022_CHEZ_MOI = (
+        "2022_chez_moi",
+        "NSP agir près de chez moi",
+    )  # ==> replaced by: None
+    NEWSLETTER_2022_PROGRAMME = (
+        "2022_programme",
+        "NSP processus programme",
+    )  # ==> replaced by: None
+    NEWSLETTER_2022_LIAISON = (
+        "2022_liaison",
+        "NSP Correspondant·e d'immeuble ou de rue",
+    )  # ==> replaced by: LFI_LIAISON
+
+    # CURRENT NEWSLETTER VALUES
+    LFI_REGULIERE = (
+        "LFI_reguliere",
+        "Les informations régulières de la France insoumise",
+    )
+    LFI_EXCEPTIONNELLE = (
+        "LFI_exceptionnelle",
+        "Les informations exceptionnelles de la France insoumise",
+    )
+    LFI_LJI = (
+        "LFI_jeunes_insoumises",
+        "Les informations destinées aux Jeunes insoumis·es",
+    )
+    LFI_LIAISONS = "LFI_liaisons", "Correspondant·es d'immeuble ou de rue"
+    ILB = "ILB", "Les informations de l'Institut La Boétie"
+    ELUES = "ELUES", "Les informations destinées aux élu·es"
+
+
 class Person(
     AbstractSubscriber,
     ExportModelOperationsMixin("person"),
@@ -383,8 +450,7 @@ class Person(
     )
     auto_login_salt = models.CharField(max_length=255, blank=True, default="")
 
-    is_insoumise = models.BooleanField(_("Insoumis⋅e"), default=False)
-    is_2022 = models.BooleanField(_("Soutien 2022"), default=False)
+    is_political_support = models.BooleanField(_("Soutien politique"), default=False)
 
     MEMBRE_RESEAU_INCONNU = "I"
     MEMBRE_RESEAU_SOUHAITE = "S"
@@ -408,28 +474,15 @@ class Person(
         help_text="Pertinent uniquement si la personne a un ou plusieurs mandats électoraux.",
     )
 
-    NEWSLETTER_LFI = "LFI"
-    NEWSLETTER_LJI = "LJI"
-    NEWSLETTER_2022 = "2022"
-    NEWSLETTER_2022_EXCEPTIONNEL = "2022_exceptionnel"
-    NEWSLETTER_2022_EN_LIGNE = "2022_en_ligne"
-    NEWSLETTER_2022_CHEZ_MOI = "2022_chez_moi"
-    NEWSLETTER_2022_PROGRAMME = "2022_programme"
-    NEWSLETTER_2022_LIAISON = "2022_liaison"
-    NEWSLETTERS_CHOICES = (
-        (NEWSLETTER_LFI, "Lettre d'information de la France insoumise"),
-        (NEWSLETTER_LJI, "Informations jeunes insoumis"),
-        (NEWSLETTER_2022, "Lettre d'information NSP"),
-        (NEWSLETTER_2022_EXCEPTIONNEL, "NSP : informations exceptionnelles"),
-        (NEWSLETTER_2022_EN_LIGNE, "NSP actions en ligne"),
-        (NEWSLETTER_2022_CHEZ_MOI, "NSP agir près de chez moi"),
-        (NEWSLETTER_2022_PROGRAMME, "NSP processus programme"),
-        (NEWSLETTER_2022_LIAISON, "NSP Correspondant·e d'immeuble ou de rue"),
+    Newsletter = NewsletterChoices
+
+    MAIN_NEWSLETTER_CHOICES = (
+        Newsletter.LFI_REGULIERE.value,
+        Newsletter.LFI_EXCEPTIONNELLE.value,
     )
-    MAIN_NEWSLETTER_CHOICES = (NEWSLETTER_2022, NEWSLETTER_2022_EXCEPTIONNEL)
 
     newsletters = ChoiceArrayField(
-        models.CharField(choices=NEWSLETTERS_CHOICES, max_length=255),
+        models.CharField(choices=Newsletter.choices, max_length=255),
         default=list,
         blank=True,
     )
@@ -668,6 +721,16 @@ class Person(
         return ""
 
     @property
+    def is_insoumise(self):
+        # TODO: remove this legacy property
+        return self.meta.get("political_support", {}).get("is_insoumise", False)
+
+    @property
+    def is_2022(self):
+        # TODO: remove this legacy property
+        return self.meta.get("political_support", {}).get("is_2022", False)
+
+    @property
     def is_2022_only(self):
         return self.is_2022 and not self.is_insoumise
 
@@ -735,6 +798,34 @@ class Person(
             subscription
             for subscription in self.newsletters
             if subscription not in self.MAIN_NEWSLETTER_CHOICES
+        ]
+
+    @property
+    def is_liaison(self):
+        return (
+            self.Newsletter.LFI_LIAISONS.value in self.newsletters
+            or self.Newsletter.NEWSLETTER_2022_LIAISON.value in self.newsletters
+        )
+
+    @is_liaison.setter
+    def is_liaison(self, value):
+        if value == self.is_liaison:
+            return
+
+        if value:
+            self.newsletters = self.newsletters.append(
+                self.Newsletter.LFI_LIAISONS.value
+            )
+            return
+
+        self.newsletters = [
+            subscription
+            for subscription in self.newsletters
+            if subscription
+            not in (
+                self.Newsletter.LFI_LIAISONS.value,
+                self.Newsletter.NEWSLETTER_2022_LIAISON.value,
+            )
         ]
 
     def get_full_name(self):

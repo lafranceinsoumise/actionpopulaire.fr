@@ -10,10 +10,7 @@ class LoginAPITestCase(APITestCase):
     def setUp(self):
         self.valid_email = "valid@email.com"
         self.person = Person.objects.create_person(
-            email=self.valid_email,
-            create_role=True,
-            is_insoumise=True,
-            is_2022=True,
+            email=self.valid_email, create_role=True, is_political_support=True
         )
 
     def test_person_cannot_login_with_empty_email(self):
@@ -101,10 +98,7 @@ class CheckCodeTestCase(APITestCase):
     def setUp(self):
         self.primary_email = "person@email.com"
         self.person = Person.objects.create_person(
-            email=self.primary_email,
-            create_role=True,
-            is_insoumise=True,
-            is_2022=True,
+            email=self.primary_email, create_role=True, is_political_support=True
         )
 
     def test_person_cannot_login_without_a_session_email(self):
@@ -205,10 +199,7 @@ class LogoutTestCase(APITestCase):
     def setUp(self):
         self.primary_email = "person@email.com"
         self.person = Person.objects.create_person(
-            email=self.primary_email,
-            create_role=True,
-            is_insoumise=True,
-            is_2022=True,
+            email=self.primary_email, create_role=True, is_political_support=True
         )
 
     def test_person_can_logout(self):

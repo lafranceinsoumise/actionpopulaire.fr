@@ -38,7 +38,7 @@ def remove_from_liaisons(modeladmin, request, queryset):
 
     updates = []
     for person in queryset:
-        person.newsletters.remove(Person.NEWSLETTER_2022_LIAISON)
+        person.is_liaison = False
         person.meta[DATE_2022_LIAISON_META_PROPERTY] = None
         updates.append(person)
 

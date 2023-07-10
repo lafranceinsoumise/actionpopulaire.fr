@@ -350,14 +350,14 @@ field_types = [
                 "type": "array",
                 "items": {
                     "type": "string",
-                    "enum": [n[0] for n in Person.NEWSLETTERS_CHOICES],
+                    "enum": [n[0] for n in Person.Newsletter.choices],
                 },
             },
             "choices": {
                 "type": "array",
                 "items": {
                     "type": "string",
-                    "enum": [n[0] for n in Person.NEWSLETTERS_CHOICES],
+                    "enum": [n[0] for n in Person.Newsletter.choices],
                 },
             },
         },

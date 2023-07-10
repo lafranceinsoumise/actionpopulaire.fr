@@ -81,7 +81,8 @@ const GroupContactsMainPanel = (props) => {
           <p>
             Vous n’avez pas encore de contact !
             <Spacer size="0.5rem" />
-            Obtenez des contacts pour la campagne et pour votre groupe d’action.
+            Obtenez des contacts pour partager les actions de votre groupe
+            d’action et du mouvement.
           </p>
           <Spacer size=".5rem" />
           <Button link icon="user-plus" route="createContact" color="secondary">

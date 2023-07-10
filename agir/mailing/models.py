@@ -34,10 +34,7 @@ DONATION_FILTER = {
 
 
 def default_newsletters():
-    return [
-        Person.NEWSLETTER_2022,
-        Person.NEWSLETTER_2022_EXCEPTIONNEL,
-    ]
+    return Person.MAIN_NEWSLETTER_CHOICES
 
 
 class Segment(BaseSegment, models.Model):
@@ -82,15 +79,18 @@ class Segment(BaseSegment, models.Model):
         null=False,
     )
 
-    is_2022 = models.BooleanField("Inscrits NSP", null=True, blank=True, default=True)
+    is_political_support = models.BooleanField(
+        "Soutiens politiques", null=True, blank=True, default=None
+    )
+    is_2022 = models.BooleanField(
+        "Soutiens Mélenchon 2022", null=True, blank=True, default=None
+    )
     is_insoumise = models.BooleanField(
-        "Inscrits LFI",
-        null=True,
-        blank=True,
+        "Anciens soutiens de la France insoumise", null=True, blank=True, default=None
     )
 
     newsletters = ChoiceArrayField(
-        models.CharField(choices=Person.NEWSLETTERS_CHOICES, max_length=255),
+        models.CharField(choices=Person.Newsletter.choices, max_length=255),
         default=default_newsletters,
         help_text="Inclure les personnes abonnées aux newsletters suivantes.",
         blank=True,
@@ -553,11 +553,18 @@ class Segment(BaseSegment, models.Model):
         if self.newsletters:
             q &= Q(newsletters__overlap=self.newsletters)
 
-        if self.is_insoumise is not None:
-            q = q & Q(is_insoumise=self.is_insoumise)
+        if self.is_political_support is not None:
+            q = q & Q(is_political_support=self.is_political_support)
 
-        if self.is_2022 is not None:
-            q = q & Q(is_2022=self.is_2022)
+        if self.is_insoumise:
+            q = q & Q(meta__political_support__is_insoumise=True)
+        elif self.is_insoumise == False:
+            q = q & ~Q(meta__political_support__is_insoumise=True)
+
+        if self.is_2022:
+            q = q & Q(meta__political_support__is_2022=True)
+        elif self.is_2022 == False:
+            q = q & ~Q(meta__political_support__is_2022=True)
 
         q = self.apply_tag_filters(q)
 

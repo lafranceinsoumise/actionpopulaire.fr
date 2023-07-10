@@ -16,10 +16,10 @@ const ONBOARDING_TYPE = {
     title: <>Organisez un événement près de chez vous&nbsp;!</>,
     body: (
       <>
-        Agissez et organisez un événement de soutien, tel qu’une action de
-        solidarité, une réunion en ligne pour discuter du programme, une écoute
-        collective des futurs meetings... Organisez-vous avec d’autres membres
-        pour soutenir la campagne&nbsp;!
+        Agissez et organisez un événement, tel qu’une action de solidarité, une
+        réunion en ligne pour discuter du programme, une écoute collective...
+        Organisez-vous avec d’autres personnes pour soutenir et faire vivre le
+        mouvement près de chez vous&nbsp;!
       </>
     ),
     primaryLink: {

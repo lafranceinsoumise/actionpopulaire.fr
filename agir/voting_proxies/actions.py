@@ -66,7 +66,7 @@ def create_or_update_voting_proxy(data):
         "date_of_birth": data.get("date_of_birth", ""),
         "email": email,
         "contact_phone": data.get("contact_phone", ""),
-        "is_2022": True,
+        "is_political_support": True,
     }
 
     with transaction.atomic():
@@ -335,7 +335,7 @@ def get_voting_proxy_candidates_queryset(request, blacklist_ids):
         Person.objects.exclude(role__isnull=False, role__is_active=False)
         .exclude(emails__address=None)
         .exclude(voting_proxy__isnull=False)
-        .filter(is_2022=True, newsletters__len__gt=0)
+        .filter(is_political_support=True, newsletters__len__gt=0)
     )
 
     if request and request["email"]:

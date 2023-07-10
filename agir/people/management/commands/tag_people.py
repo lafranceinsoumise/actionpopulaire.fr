@@ -29,9 +29,9 @@ class Command(BaseCommand):
         )
         parser.add_argument(
             "-i",
-            "--insoumis",
+            "--political_support",
             action="store_true",
-            dest="insoumis",
+            dest="political_support",
             default=False,
             help=("Make new accounts full members."),
         )
@@ -45,7 +45,7 @@ class Command(BaseCommand):
             ),
         )
 
-    def handle(self, *args, tag, create, insoumis, tmp, **options):
+    def handle(self, *args, tag, create, political_support, tmp, **options):
         entry = sys.stdin.read()
         emails = re.findall(self.EMAIL_RE, entry)
         numbers = []
@@ -76,7 +76,7 @@ class Command(BaseCommand):
                     missing += 1
                     if create:
                         person = Person.objects.create_person(
-                            email=e, is_insoumise=insoumis
+                            email=e, is_political_support=political_support
                         )
                     else:
                         continue
@@ -92,7 +92,9 @@ class Command(BaseCommand):
                     missing += 1
                     if create:
                         person = Person.objects.create_person(
-                            email=None, contact_phone=n, is_insoumise=insoumis
+                            email=None,
+                            contact_phone=n,
+                            is_political_support=political_support,
                         )
                     else:
                         continue

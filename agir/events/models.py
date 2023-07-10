@@ -75,9 +75,6 @@ class EventQuerySet(models.QuerySet):
     def listed(self):
         return self.public().filter(do_not_list=False)
 
-    def is_2022(self):
-        return self.filter(for_users=Event.FOR_USERS_2022)
-
     def upcoming(self, as_of=None, published_only=True):
         if as_of is None:
             as_of = timezone.now()
@@ -848,10 +845,6 @@ class Event(
     @property
     def is_free(self):
         return self.payment_parameters is None
-
-    @property
-    def is_2022(self):
-        return self.for_users == self.FOR_USERS_2022
 
     def get_price(self, submission_data: dict = None):
         price = self.payment_parameters.get("price", 0)

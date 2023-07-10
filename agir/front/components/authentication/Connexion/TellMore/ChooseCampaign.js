@@ -3,12 +3,12 @@ import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
-import JLM_rounded from "@agir/front/genericComponents/images/JLM_rounded.png";
 
 import Button from "@agir/front/genericComponents/Button";
 import { Hide } from "@agir/front/genericComponents/grid";
 import Link from "@agir/front/app/Link";
 import LogoAP from "@agir/front/genericComponents/LogoAP";
+import LogoFI from "@agir/front/genericComponents/LogoFI";
 import { RawFeatherIcon as FeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
@@ -41,12 +41,12 @@ const Container = styled.form`
     line-height: 1.5;
     text-align: center;
 
-    @media (max-width: ${style.collapse}px) {
-      font-size: 1.125rem;
-    }
-
     span {
       display: block;
+
+      @media (max-width: ${style.collapse}px) {
+        display: inline;
+      }
     }
   }
 
@@ -73,7 +73,7 @@ const ChooseCampaign = ({ fromSignup, dismiss }) => {
     async (e) => {
       e.preventDefault();
       setSubmitted(true);
-      await updateProfile({ is2022: true });
+      await updateProfile({ isPoliticalSupport: true });
       await dismiss();
       setSubmitted(false);
     },
@@ -114,20 +114,15 @@ const ChooseCampaign = ({ fromSignup, dismiss }) => {
             Votre compte a été créé
           </div>
         )}
-        <img
-          src={JLM_rounded}
-          width="114"
-          height="114"
-          alt="Jean-Luc Mélenchon"
-        />
+        <LogoFI height="114px" />
         <Spacer size="2rem" />
         <h2>
-          <span>Vous ne soutenez pas encore</span>{" "}
-          <span>l'Union Populaire&nbsp;!</span>
+          <span>Souhaitez-vous rejoindre</span>{" "}
+          <span>la France insoumise&nbsp;?</span>
         </h2>
         <Spacer size="2rem" />
         <Button color="primary" type="submit" disabled={submitted}>
-          Confirmer mon soutien et continuer
+          Je rejoins !
         </Button>
         <Spacer size="1rem" />
         <Button type="button" onClick={dismiss}>

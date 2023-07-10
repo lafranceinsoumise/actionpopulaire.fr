@@ -21,7 +21,7 @@ from agir.lib.google_sheet import (
     parse_sheet_link,
     gspread_task,
 )
-from agir.lib.mailing import send_mosaico_email
+from agir.lib.mailing import send_mosaico_email, send_template_email
 from agir.lib.sms import send_sms
 from agir.lib.utils import front_url
 from .actions.subscription import (
@@ -277,24 +277,17 @@ def notify_referrer(referrer_id, referred_id, referral_type):
 @post_save_task()
 def notify_contact(person_pk, is_new=False):
     person = Person.objects.prefetch_related("emails").get(pk=person_pk)
+
     bindings = {
-        "FORENAME": person.first_name,
-        "CREATION_DATE": person.created.strftime("%d/%m/%Y"),
-        "ACCOUNT_LINK": front_url("contact"),
-        "DELETE_LINK": front_url("delete_account"),
-        "login_query": person.get_subscriber_data()["login_query"],
+        "is_new": is_new,
+        "subscription_date": person.created.strftime("%d/%m/%Y"),
+        "dasbhoard_link": front_url("dashboard"),
+        "account_link": front_url("contact"),
+        "delete_link": front_url("delete_account"),
     }
 
-    if is_new and person.is_2022:
-        template_code = "NEW_CONTACT_PERSON_2022_SUBSCRIPTION"
-    elif is_new:
-        template_code = "NEW_CONTACT_PERSON_SUBSCRIPTION"
-    else:
-        template_code = "NEW_CONTACT_PERSON_UPDATE"
-
-    send_mosaico_email(
-        code=template_code,
-        subject=_("Merci pour votre soutien !"),
+    send_template_email(
+        template_name="people/email/contact_creation.html",
         from_email=settings.EMAIL_FROM,
         recipients=[person],
         bindings=bindings,
