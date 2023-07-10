@@ -281,9 +281,9 @@ def notify_contact(person_pk, is_new=False):
     bindings = {
         "is_new": is_new,
         "subscription_date": person.created.strftime("%d/%m/%Y"),
-        "dasbhoard_link": front_url("dashboard"),
-        "account_link": front_url("contact"),
-        "delete_link": front_url("delete_account"),
+        "dashboard_link": front_url("dashboard", absolute=True),
+        "account_link": front_url("contact", absolute=True),
+        "delete_link": front_url("delete_account", absolute=True),
     }
 
     send_template_email(
