@@ -61,7 +61,7 @@ const GroupInvitation = (props) => {
   return (
     <StyledDiv>
       <Row gutter={2} style={{ marginBottom: "1rem" }}>
-        <Column grow collapse={false}>
+        <Column grow collapse={0}>
           {title}
         </Column>
       </Row>

@@ -10,7 +10,6 @@ import Button from "@agir/front/genericComponents/Button";
 import Card from "@agir/front/genericComponents/Card";
 import CustomAnnouncementCard from "@agir/activity/common/CustomAnnouncementCard";
 import FeedbackButton from "@agir/front/allPages/FeedbackButton";
-import Link from "@agir/front/app/Link";
 import { Hide, useIsDesktop } from "@agir/front/genericComponents/grid";
 import { LayoutTitle } from "@agir/front/app/Layout/StyledComponents";
 import RenderIfVisibile from "@agir/front/genericComponents/RenderIfVisible";
@@ -122,7 +121,7 @@ const Agenda = () => {
   return (
     <StyledAgenda>
       <header>
-        <Hide over>
+        <Hide $over>
           <h2
             style={{
               textAlign: "center",
@@ -148,10 +147,8 @@ const Agenda = () => {
               : user?.firstName || user?.displayName}{" "}
             👋
           </LayoutTitle>
-          <Hide under>
-            <Button small link route="eventMap" icon="map">
-              Carte
-            </Button>
+          <Hide $under as={Button} small link route="eventMap" icon="map">
+            Carte
           </Hide>
         </TopBar>
       </header>
@@ -165,7 +162,7 @@ const Agenda = () => {
         wait={<Skeleton />}
       >
         {rsvpedEvents && rsvpedEvents.length > 0 ? (
-          <Hide over style={{ padding: "0 0 2rem" }}>
+          <Hide $over style={{ padding: "0 0 2rem" }}>
             <h2
               style={{
                 fontWeight: 600,
@@ -180,7 +177,7 @@ const Agenda = () => {
           </Hide>
         ) : null}
         <Hide
-          over
+          $over
           style={{
             display: "flex",
             alignItems: "center",

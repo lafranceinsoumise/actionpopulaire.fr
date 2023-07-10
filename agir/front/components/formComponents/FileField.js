@@ -60,10 +60,6 @@ const FileField = forwardRef((props, ref) => {
     [onChange]
   );
 
-  const deleteFile = useCallback(() => {
-    onChange(null);
-  }, [onChange]);
-
   const handleClick = useCallback(() => {
     labelRef.current && labelRef.current.click();
   }, []);
@@ -96,7 +92,6 @@ const FileField = forwardRef((props, ref) => {
           <Button
             color={error ? "danger" : fileName ? "primary" : "default"}
             type="button"
-            inline
             wrap
             onClick={handleClick}
             title={fileName ? "Remplacer le document" : "Ajouter un document"}
@@ -118,7 +113,6 @@ FileField.propTypes = {
   value: PropTypes.any,
   name: PropTypes.string,
   onChange: PropTypes.func.isRequired,
-  onDelete: PropTypes.func,
   id: PropTypes.string,
   label: PropTypes.string,
   helpText: PropTypes.string,

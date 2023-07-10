@@ -10,6 +10,9 @@ export default {
   component: FeatherIcon,
   subcomponents: { RawFeatherIcon },
   title: "Generic/FeatherIcon",
+  parameters: {
+    layout: "padded",
+  },
   argTypes: {
     name: {
       name: "Nom de l'icône",

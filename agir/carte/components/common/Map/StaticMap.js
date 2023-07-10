@@ -164,7 +164,7 @@ MapMarker.propTypes = {
 };
 
 const StaticMap = (props) => {
-  const { staticMapUrl, iconConfiguration, ...rest } = props;
+  const { staticMapUrl, iconConfiguration, className, style } = props;
 
   const [isLoaded, setIsLoaded] = useState(false);
   const [shouldShowAttributions, setShouldShowAttributions] = useState(false);
@@ -200,7 +200,11 @@ const StaticMap = (props) => {
   }, [staticMapUrl]);
 
   return (
-    <StyledStaticMapWrapper $isLoaded={isLoaded} {...rest}>
+    <StyledStaticMapWrapper
+      $isLoaded={isLoaded}
+      className={className}
+      style={style}
+    >
       <StyledStaticMapBackground
         style={{ backgroundImage: `url(${staticMapUrl})` }}
       />
@@ -235,5 +239,7 @@ StaticMap.propTypes = {
     iconUrl: PropTypes.string,
     iconAnchor: PropTypes.string,
   }),
+  className: PropTypes.string,
+  style: PropTypes.object,
 };
 export default StaticMap;

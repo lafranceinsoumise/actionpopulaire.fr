@@ -152,9 +152,9 @@ export const SoftLoginModal = (props) => (
 );
 
 SoftLoginModalContent.propTypes = SoftLoginModal.propTypes = {
-  data: {
+  data: PropTypes.shape({
     tags: PropTypes.string.isRequired,
-  },
+  }),
   user: PropTypes.shape({
     displayName: PropTypes.string.isRequired,
     firstName: PropTypes.string,

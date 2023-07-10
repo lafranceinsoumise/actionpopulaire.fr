@@ -50,9 +50,7 @@ Empty.args = {
 export const Filled = Template.bind({});
 Filled.args = {
   ...Empty.args,
-  value: {
-    name: "https://www.fillmurray.com/200/300",
-  },
+  value: "https://loremflickr.com/200/300",
 };
 
 export const WithHelpText = Template.bind({});

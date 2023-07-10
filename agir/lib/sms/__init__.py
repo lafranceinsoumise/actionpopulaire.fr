@@ -4,7 +4,12 @@ from django.conf import settings
 from phonenumbers import number_type, PhoneNumberType
 
 from agir.lib.sms import ovh, sfr
-from agir.lib.sms.common import SMSSendException, to_phone_number, SMSException
+from agir.lib.sms.common import (
+    compute_sms_length_information,
+    SMSSendException,
+    to_phone_number,
+    SMSException,
+)
 from agir.lib.utils import grouper
 
 logger = logging.getLogger(__name__)

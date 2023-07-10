@@ -1,10 +1,11 @@
 import PropTypes from "prop-types";
 import React from "react";
-import styled, { ThemeProvider } from "styled-components";
+import styled from "styled-components";
 
+import AppLink from "@agir/front/app/Link";
 import BaseButton from "@agir/front/genericComponents/Button";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-import AppLink from "@agir/front/app/Link";
+import ThemeProvider from "@agir/front/theme/ThemeProvider";
 
 import CONFIG from "@agir/donations/common/config";
 

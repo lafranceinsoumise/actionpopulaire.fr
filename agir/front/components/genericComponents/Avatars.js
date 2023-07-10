@@ -20,13 +20,13 @@ const StyledWrapper = styled.span`
     border: 3px solid white;
     background-color: white;
 
-    :first-child {
+    &:first-child {
       grid-column: 1/3;
       grid-row: 1/3;
       z-index: 1;
     }
 
-    :last-child {
+    &:last-child {
       grid-column: 2/4;
       grid-row: 2/4;
     }

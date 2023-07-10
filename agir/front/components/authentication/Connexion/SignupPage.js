@@ -12,7 +12,7 @@ const SignupPage = () => {
       <LeftBlockDesktop />
       <MainBlock>
         <Container>
-          <Hide over style={{ textAlign: "center", marginTop: "3rem" }}>
+          <Hide $over style={{ textAlign: "center", marginTop: "3rem" }}>
             <img
               src={logoMobile}
               width="70"
@@ -25,7 +25,7 @@ const SignupPage = () => {
           <Signup />
         </Container>
 
-        <Hide over>
+        <Hide $over>
           <BackgroundMobile />
         </Hide>
       </MainBlock>

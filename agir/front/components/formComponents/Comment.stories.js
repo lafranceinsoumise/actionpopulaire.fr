@@ -14,7 +14,7 @@ export default {
 
 const author = {
   displayName: "Bill Murray",
-  image: "https://www.fillmurray.com/200/200",
+  image: "https://loremflickr.com/200/200",
 };
 const Template = ({ hasActions, onEdit, onDelete, onReport, ...args }) => {
   return (

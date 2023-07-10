@@ -12,7 +12,7 @@ import TypeWidget from "./TypeWidget";
 const Title = styled.h4`
   counter-increment: sectionformulaire;
 
-  :before {
+  &:before {
     display: block;
     font-size: 1.4em;
     line-height: 1.5;

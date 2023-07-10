@@ -49,7 +49,7 @@ const DeviceNotificationSubscription = (props) => {
   const { onSubscribe, onDismiss, subscriptionError } = props;
   return (
     <>
-      <Hide style={{ position: "fixed" }} under>
+      <Hide style={{ position: "fixed" }} $under>
         <Link route="events">
           <LogoAP
             style={{ marginTop: "2rem", paddingLeft: "2rem", width: "200px" }}

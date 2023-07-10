@@ -44,9 +44,9 @@ const GroupMemberFacts = (props) => {
 };
 
 GroupMemberFacts.propTypes = {
-  isPoliticalSupport: PropTypes.bool.isRequired,
-  isLiaison: PropTypes.bool.isRequired,
-  hasGroupNotifications: PropTypes.bool.isRequired,
+  isPoliticalSupport: PropTypes.bool,
+  isLiaison: PropTypes.bool,
+  hasGroupNotifications: PropTypes.bool,
 };
 
 export default GroupMemberFacts;

@@ -1,3 +1,4 @@
+import isPropValid from "@emotion/is-prop-valid";
 import React, { useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
@@ -45,7 +46,9 @@ const GroupedFields = styled.div`
   }
 `;
 
-const StyledButton = styled.button`
+const StyledButton = styled.button.withConfig({
+  shouldForwardProp: isPropValid,
+})`
   display: inline-block;
   background: transparent;
   border: none;
