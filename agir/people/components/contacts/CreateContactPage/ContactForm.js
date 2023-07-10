@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
@@ -18,8 +18,7 @@ import { searchGroups } from "@agir/groups/utils/api";
 import { scrollToError } from "@agir/front/app/utils";
 import {
   LIAISON_NEWSLETTER,
-  NEWSLETTERS,
-  NEWSLETTER_OPTIONS,
+  getNewsletterOptions,
 } from "@agir/front/authentication/common";
 
 const StyledForm = styled.form`
@@ -71,6 +70,7 @@ const formatGroupOptions = (groups) =>
 
 export const ContactForm = (props) => {
   const { initialData, errors, isLoading, onSubmit, groups } = props;
+  const newsletterOptions = useMemo(() => getNewsletterOptions(), []);
   const [data, setData] = useState({
     firstName: "",
     lastName: "",
@@ -78,9 +78,9 @@ export const ContactForm = (props) => {
     email: "",
     phone: "",
     isPoliticalSupport: true,
-    newsletters: NEWSLETTER_OPTIONS.filter((n) => n.selected).map(
-      (n) => n.value
-    ),
+    newsletters: newsletterOptions
+      .filter((n) => n.selected)
+      .map((n) => n.value),
     ...(initialData || {}),
   });
   const [groupOptions, setGroupOptions] = useState(formatGroupOptions(groups));
@@ -277,7 +277,7 @@ export const ContactForm = (props) => {
       />
       <Spacer data-scroll="newsletters" size="1.5rem" />
       <h4>Souhaitez-vous recevoir&nbsp;:</h4>
-      {NEWSLETTER_OPTIONS.map((option) => (
+      {newsletterOptions.map((option) => (
         <React.Fragment key={option.value}>
           <CheckboxField
             label={option.label}

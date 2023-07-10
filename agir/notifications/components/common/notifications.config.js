@@ -1,16 +1,7 @@
-import { NEWSLETTER_OPTIONS } from "@agir/front/authentication/common";
-
-const NEWSLETTER_NOTIFICATIONS = NEWSLETTER_OPTIONS.map((option) => ({
-  id: option.value,
-  label: option.label,
-  active: option.active,
-  type: "Lettres d'information",
-  icon: "rss",
-  subtype: "Newsletter",
-  hasEmail: true,
-  hasPush: false,
-  isNewsletter: true,
-}));
+import {
+  NEWSLETTER_OPTIONS,
+  getNewsletterOptions,
+} from "@agir/front/authentication/common";
 
 const PERSON_NOTIFICATIONS = [
   {
@@ -302,7 +293,17 @@ const getNewsletterNotifications = (user) => {
     return [];
   }
 
-  return NEWSLETTER_NOTIFICATIONS;
+  return getNewsletterOptions(user).map((option) => ({
+    id: option.value,
+    label: option.label,
+    active: option.active,
+    type: "Lettres d'information",
+    icon: "rss",
+    subtype: "Newsletter",
+    hasEmail: true,
+    hasPush: false,
+    isNewsletter: true,
+  }));
 };
 
 export const getAllNotifications = (user) => [
@@ -316,13 +317,13 @@ export const getNewsletterStatus = (newsletters) => {
     return {};
   }
   let newsletterStatus = {};
-  Object.values(NEWSLETTER_NOTIFICATIONS).forEach((value) => {
-    if (!value.id) {
+  Object.values(NEWSLETTER_OPTIONS).forEach((opt) => {
+    if (!opt.value) {
       return;
     }
     newsletterStatus = {
       ...newsletterStatus,
-      [value.id]: { email: newsletters.includes(value.id) },
+      [opt.value]: { email: newsletters.includes(opt.value) },
     };
   });
   return newsletterStatus;
