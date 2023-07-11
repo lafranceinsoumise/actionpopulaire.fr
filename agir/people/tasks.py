@@ -17,9 +17,9 @@ from agir.lib.celery import emailing_task, post_save_task
 from agir.lib.display import pretty_time_since
 from agir.lib.google_sheet import (
     copy_array_to_sheet,
-    add_row_to_sheet,
     parse_sheet_link,
     gspread_task,
+    add_row_to_sheet,
 )
 from agir.lib.mailing import send_mosaico_email, send_template_email
 from agir.lib.sms import send_sms
@@ -311,7 +311,9 @@ def copier_toutes_reponses_vers_feuille_externe(person_form_id):
 
     display = PersonFormDisplay()
     headers, values = display.get_formatted_submissions(
-        form, html=False, include_admin_fields=True
+        form,
+        html=False,
+        unique_labels=True,
     )
 
     headers = [str(s) for s in headers]
@@ -327,25 +329,26 @@ def copier_toutes_reponses_vers_feuille_externe(person_form_id):
 @gspread_task
 def copier_reponse_vers_feuille_externe(person_form_submission_id):
     try:
-        sub = PersonFormSubmission.objects.select_related("form", "person").get(
+        submission = PersonFormSubmission.objects.select_related("form", "person").get(
             id=person_form_submission_id
         )
     except PersonFormSubmission.DoesNotExist:
         return
 
-    form = sub.form
-    sheet_id = parse_sheet_link(form.lien_feuille_externe)
+    sheet_id = parse_sheet_link(submission.form.lien_feuille_externe)
 
     if not sheet_id:
         logger.warning(
-            f"URL de la Google sheet incorrecte pour le formulaire d'id {form.id}"
+            f"URL de la Google sheet incorrecte pour le formulaire d'id {submission.form.id}"
         )
         return
 
-    if sub.person:
-        sub.email = sub.person.email
     display = PersonFormDisplay()
-    res = display.get_formatted_submission(sub, include_admin_fields=True, html=False)
-    values = {str(d["label"]): d["value"] for fs in res for d in fs["data"]}
+    rows = display.get_formatted_submissions(
+        submission,
+        html=False,
+        unique_labels=True,
+        as_dicts=True,
+    )
 
-    add_row_to_sheet(sheet_id, values)
+    add_row_to_sheet(sheet_id, rows[0])

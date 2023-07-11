@@ -2,7 +2,7 @@ from operator import itemgetter
 
 from django.utils.formats import localize
 from django.utils.timezone import get_current_timezone
-from glom import T, glom, Val
+from glom import T, glom
 
 from agir.payments.models import Payment
 from agir.people.person_forms.display import PersonFormDisplay
@@ -70,7 +70,9 @@ def display_participants(event):
             id__in=existing_submissions_id
         )
         sub_headers, sub_values = display.get_formatted_submissions(
-            submissions, html=False, include_admin_fields=False
+            submissions,
+            html=False,
+            unique_labels=True,
         )
         sub_headers = [str(s) for s in sub_headers]
         headers.extend(sub_headers)
@@ -96,10 +98,13 @@ def display_rsvp(rsvp):
 
     if rsvp.form_submission:
         display = PersonFormDisplay()
-        res = display.get_formatted_submission(
-            rsvp.form_submission, include_admin_fields=False, html=False
+        res = display.get_formatted_submissions(
+            rsvp.form_submission,
+            html=False,
+            unique_labels=True,
+            as_dicts=True,
         )
-        values.update({str(d["label"]): d["value"] for fs in res for d in fs["data"]})
+        values.update(res[0])
 
     return values
 
@@ -112,9 +117,12 @@ def display_identified_guest(ig):
 
     if ig.submission:
         display = PersonFormDisplay()
-        res = display.get_formatted_submission(
-            ig.submission, include_admin_fields=False, html=False
+        res = display.get_formatted_submissions(
+            ig.submission,
+            html=False,
+            unique_labels=True,
+            as_dicts=True,
         )
-        values.update({str(d["label"]): d["value"] for fs in res for d in fs["data"]})
+        values.update(res[0])
 
     return values
