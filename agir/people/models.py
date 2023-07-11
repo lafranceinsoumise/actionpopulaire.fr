@@ -158,10 +158,7 @@ class PersonQueryset(models.QuerySet):
             .values("created")
         )
         liaisons = self.filter(
-            newsletters__overlap=[
-                Person.Newsletter.LFI_LIAISONS.value,
-                Person.Newsletter.NEWSLETTER_2022_LIAISON.value,
-            ]
+            newsletters__overlap=[Person.Newsletter.LFI_LIAISONS.value]
         ).annotate(
             liaison_date=Coalesce(
                 Subquery(liaison_form_submissions[:1]),
@@ -370,42 +367,6 @@ def generate_referrer_id():
 
 
 class NewsletterChoices(models.TextChoices):
-    # TODO: remove legacy values after migration
-    # LEGACY NEWSLETTER VALUES
-    NEWSLETTER_LFI = (
-        "LFI",
-        "Lettre d'information de la France insoumise",
-    )  # ==> replaced by: None
-    NEWSLETTER_LJI = (
-        "LJI",
-        "Informations jeunes insoumis",
-    )  # ==> replaced by: LFI_LJI
-    NEWSLETTER_2022 = (
-        "2022",
-        "Lettre d'information NSP",
-    )  # ==> replaced by: LFI_REGULIERE
-    NEWSLETTER_2022_EXCEPTIONNEL = (
-        "2022_exceptionnel",
-        "NSP : informations exceptionnelles",
-    )  # ==> replaced by: LFI_EXCEPTIONNELLE
-    NEWSLETTER_2022_EN_LIGNE = (
-        "2022_en_ligne",
-        "NSP actions en ligne",
-    )  # ==> replaced by: None
-    NEWSLETTER_2022_CHEZ_MOI = (
-        "2022_chez_moi",
-        "NSP agir près de chez moi",
-    )  # ==> replaced by: None
-    NEWSLETTER_2022_PROGRAMME = (
-        "2022_programme",
-        "NSP processus programme",
-    )  # ==> replaced by: None
-    NEWSLETTER_2022_LIAISON = (
-        "2022_liaison",
-        "NSP Correspondant·e d'immeuble ou de rue",
-    )  # ==> replaced by: LFI_LIAISON
-
-    # CURRENT NEWSLETTER VALUES
     LFI_REGULIERE = (
         "LFI_reguliere",
         "Les informations régulières de la France insoumise",
@@ -802,10 +763,7 @@ class Person(
 
     @property
     def is_liaison(self):
-        return (
-            self.Newsletter.LFI_LIAISONS.value in self.newsletters
-            or self.Newsletter.NEWSLETTER_2022_LIAISON.value in self.newsletters
-        )
+        return self.Newsletter.LFI_LIAISONS.value in self.newsletters
 
     @is_liaison.setter
     def is_liaison(self, value):
@@ -816,15 +774,7 @@ class Person(
             self.newsletters.append(self.Newsletter.LFI_LIAISONS.value)
             return
 
-        self.newsletters = [
-            subscription
-            for subscription in self.newsletters
-            if subscription
-            not in (
-                self.Newsletter.LFI_LIAISONS.value,
-                self.Newsletter.NEWSLETTER_2022_LIAISON.value,
-            )
-        ]
+        self.newsletters.remove(self.Newsletter.LFI_LIAISONS.value)
 
     def get_full_name(self):
         """
