@@ -7,7 +7,6 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import MiniEventCard from "./MiniEventCard";
 
 import "swiper/scss";
-import { rest } from "lodash/fp";
 
 export const SingleSlide = styled(animated.div)`
   margin: 0;
