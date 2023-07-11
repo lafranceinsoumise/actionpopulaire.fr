@@ -15,6 +15,7 @@ from agir.donations.actions import can_make_contribution
 from agir.donations.views.donations_views import DONATION_SESSION_NAMESPACE
 from agir.groups.models import SupportGroup, Membership
 from agir.lib.utils import front_url
+from agir.people.serializers import PersonNewsletterListField
 
 
 class UserContextSerializer(serializers.Serializer):
@@ -29,8 +30,7 @@ class UserContextSerializer(serializers.Serializer):
     contactPhone = serializers.CharField(source="contact_phone")
     image = serializers.SerializerMethodField()
     fullName = serializers.SerializerMethodField(method_name="get_full_name")
-    isInsoumise = serializers.BooleanField(source="is_insoumise")
-    is2022 = serializers.BooleanField(source="is_2022")
+    isPoliticalSupport = serializers.BooleanField(source="is_political_support")
     isAgir = serializers.BooleanField(source="is_agir")
     groups = serializers.SerializerMethodField()
     address1 = serializers.CharField(source="location_address1")
@@ -41,6 +41,10 @@ class UserContextSerializer(serializers.Serializer):
     country = CountryField(source="location_country")
     hasContribution = serializers.SerializerMethodField(method_name="has_contribution")
     actionRadius = serializers.IntegerField(source="action_radius")
+    newsletters = PersonNewsletterListField(read_only=True)
+    membreReseauElus = serializers.SerializerMethodField(
+        method_name="is_membre_reseau_elus", read_only=True
+    )
 
     def get_full_name(self, obj):
         return obj.get_full_name()
@@ -78,6 +82,9 @@ class UserContextSerializer(serializers.Serializer):
     def has_contribution(self, obj):
         return can_make_contribution(person=obj) == False
 
+    def is_membre_reseau_elus(self, obj):
+        return obj.membre_reseau_elus == obj.MEMBRE_RESEAU_OUI
+
 
 class SessionSerializer(serializers.Serializer):
     user = serializers.SerializerMethodField(method_name="get_user", read_only=True)
@@ -111,10 +118,11 @@ class SessionSerializer(serializers.Serializer):
             "personalInformation": reverse("personal_information"),
             "nspReferral": front_url("nsp_referral"),
             "materiel": "https://materiel.actionpopulaire.fr/",
+            "news": "https://lafranceinsoumise.fr/actualites/",
+            "thematicTeams": front_url("thematic_teams_list"),
         }
 
         if request.user.is_authenticated and request.user.person is not None:
-            person = request.user.person
             routes.update(
                 {
                     "notificationSettings": reverse(
@@ -122,13 +130,6 @@ class SessionSerializer(serializers.Serializer):
                     )
                 }
             )
-            if person.is_insoumise:
-                routes.update(
-                    {
-                        "news": "https://lafranceinsoumise.fr/actualites/",
-                        "thematicTeams": front_url("thematic_teams_list"),
-                    }
-                )
 
             return routes
 

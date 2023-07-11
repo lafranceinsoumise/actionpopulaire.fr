@@ -11,7 +11,7 @@ import Link from "@agir/front/app/Link";
 const Name = styled.span``;
 const Label = styled.span``;
 const StyledGroup = styled.div`
-  cursor: ${({ isSelectGroup }) => (isSelectGroup ? "pointer" : "default")};
+  cursor: ${({ $isSelectGroup }) => ($isSelectGroup ? "pointer" : "default")};
   background-color: ${style.white};
   padding: 0.75rem 1rem;
   display: flex;
@@ -109,7 +109,7 @@ const GroupItem = ({
 }) => (
   <StyledGroup
     disabled={disabled}
-    isSelectGroup={!!selectGroup}
+    $isSelectGroup={!!selectGroup}
     onClick={() => selectGroup && selectGroup({ id, name })}
   >
     <div>

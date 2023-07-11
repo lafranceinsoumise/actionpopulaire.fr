@@ -350,7 +350,7 @@ class ViewPersonFormTestCase(SetUpPersonFormsMixin, TestCase):
         self.assertEqual(len(submissions), 2)
 
     def test_person_newsletters_field_add_without_overriding(self):
-        self.person.newsletters = [Person.NEWSLETTER_2022]
+        self.person.newsletters = [Person.Newsletter.LFI_EXCEPTIONNELLE.value]
         self.person.save()
         PersonForm.objects.create(
             title="Newsletters",
@@ -374,8 +374,10 @@ class ViewPersonFormTestCase(SetUpPersonFormsMixin, TestCase):
         )
         res = self.client.get("/formulaires/newsletters/")
         self.assertContains(res, "newsletters")
-        self.assertNotIn(Person.NEWSLETTER_2022_LIAISON, self.person.newsletters)
-        self.assertIn(Person.NEWSLETTER_2022, self.person.newsletters)
+        self.assertNotIn(Person.Newsletter.LFI_LIAISONS.value, self.person.newsletters)
+        self.assertIn(
+            Person.Newsletter.LFI_EXCEPTIONNELLE.value, self.person.newsletters
+        )
         res = self.client.post(
             "/formulaires/newsletters/",
             data={},
@@ -383,12 +385,14 @@ class ViewPersonFormTestCase(SetUpPersonFormsMixin, TestCase):
         self.assertContains(res, "has-error")
         res = self.client.post(
             "/formulaires/newsletters/",
-            data={"newsletters": [Person.NEWSLETTER_2022_LIAISON]},
+            data={"newsletters": [Person.Newsletter.LFI_LIAISONS.value]},
         )
         self.assertRedirects(res, "/formulaires/newsletters/confirmation/")
         self.person.refresh_from_db()
-        self.assertIn(Person.NEWSLETTER_2022_LIAISON, self.person.newsletters)
-        self.assertIn(Person.NEWSLETTER_2022, self.person.newsletters)
+        self.assertIn(Person.Newsletter.LFI_LIAISONS.value, self.person.newsletters)
+        self.assertIn(
+            Person.Newsletter.LFI_EXCEPTIONNELLE.value, self.person.newsletters
+        )
 
     def test_person_tags_are_silently_added_if_main_question_is_empty(self):
         form = PersonForm.objects.create(

@@ -162,7 +162,7 @@ const MembershipType = ({ gender, membershipType, hasGroupNotifications }) => {
     case MEMBERSHIP_TYPES.FOLLOWER:
       return hasGroupNotifications ? (
         <StyledMembershipType style={{ color: style.black500 }}>
-          <RawFeatherIcon name="rss" small />
+          <RawFeatherIcon name="rss" />
           &ensp;
           <span>{role}</span>
         </StyledMembershipType>
@@ -170,7 +170,7 @@ const MembershipType = ({ gender, membershipType, hasGroupNotifications }) => {
     case MEMBERSHIP_TYPES.MANAGER:
       return (
         <StyledMembershipType style={{ color: style.green500 }}>
-          <RawFeatherIcon name="settings" small />
+          <RawFeatherIcon name="settings" />
           &ensp;
           <span>{role}</span>
         </StyledMembershipType>
@@ -178,7 +178,7 @@ const MembershipType = ({ gender, membershipType, hasGroupNotifications }) => {
     case MEMBERSHIP_TYPES.REFERENT:
       return (
         <StyledMembershipType style={{ color: style.primary500 }}>
-          <RawFeatherIcon name="lock" small />
+          <RawFeatherIcon name="lock" />
           &ensp;
           <span>{role}</span>
         </StyledMembershipType>

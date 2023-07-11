@@ -68,7 +68,6 @@ const ContactButton = (props) => {
     <>
       {buttonTrigger ? (
         <Button
-          inline
           small
           color="primary"
           icon="mail"

@@ -42,7 +42,7 @@ const GroupMemberFile = (props) => {
       />
       <Spacer size="1.5rem" />
       <GroupMemberFacts
-        is2022={member?.is2022}
+        isPoliticalSupport={member?.isPoliticalSupport}
         isLiaison={member?.isLiaison}
         hasGroupNotifications={member?.hasGroupNotifications}
       />
@@ -80,7 +80,7 @@ GroupMemberFile.propTypes = {
     created: PropTypes.string,
     membershipType: PropTypes.number,
     subscriber: PropTypes.string,
-    is2022: PropTypes.bool,
+    isPoliticalSupport: PropTypes.bool,
     isLiaison: PropTypes.bool,
     hasGroupNotifications: PropTypes.bool,
     member: PropTypes.object,

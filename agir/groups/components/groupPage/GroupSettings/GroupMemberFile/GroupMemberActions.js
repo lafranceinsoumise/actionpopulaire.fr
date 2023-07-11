@@ -109,8 +109,7 @@ const GroupMemberActions = (props) => {
 };
 
 GroupMemberActions.propTypes = {
-  currentMembershipType: PropTypes.oneOf(Object.values(MEMBERSHIP_TYPES))
-    .isRequired,
+  currentMembershipType: PropTypes.oneOf(Object.values(MEMBERSHIP_TYPES)),
   onChangeMembershipType: PropTypes.func,
   isReferent: PropTypes.bool,
   isGroupFull: PropTypes.bool,

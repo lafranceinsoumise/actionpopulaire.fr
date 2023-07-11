@@ -20,8 +20,8 @@ const MenuLink = styled(Link)`
   font-size: 1rem;
   line-height: 1.5;
   font-weight: 600;
+  color: ${({ $active }) => ($active ? style.primary500 : "inherit")};
 
-  &,
   &:hover,
   &:focus {
     color: ${({ $active }) => ($active ? style.primary500 : "inherit")};

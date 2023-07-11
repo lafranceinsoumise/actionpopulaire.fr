@@ -5,6 +5,9 @@ import ShareLink from "./ShareLink";
 export default {
   component: ShareLink,
   title: "Generic/ShareLink",
+  parameters: {
+    layout: "padded",
+  },
 };
 
 const Template = (args) => <ShareLink {...args} />;

@@ -9,7 +9,7 @@ export default {
 
 const user = {
   displayName: "Bill Murray",
-  image: "https://www.fillmurray.com/200/200",
+  image: "https://loremflickr.com/200/200",
 };
 const groups = [
   {

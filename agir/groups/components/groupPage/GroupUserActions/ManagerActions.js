@@ -105,45 +105,25 @@ const ManagerActions = (props) => {
         <ul>
           {groupSettingsLinks?.members && (
             <li>
-              <RawFeatherIcon
-                small
-                inline
-                color={style.primary500}
-                name="users"
-              />
+              <RawFeatherIcon color={style.primary500} name="users" />
               <Link to={groupSettingsLinks.members}>Membres</Link>
             </li>
           )}
           {groupSettingsLinks?.contacts && (
             <li>
-              <RawFeatherIcon
-                small
-                inline
-                color={style.primary500}
-                name="rss"
-              />
+              <RawFeatherIcon color={style.primary500} name="rss" />
               <Link to={groupSettingsLinks.contacts}>Contacts</Link>
             </li>
           )}
           {groupSettingsLinks?.general && (
             <li>
-              <RawFeatherIcon
-                inline
-                small
-                name="file-text"
-                color={style.primary500}
-              />
+              <RawFeatherIcon name="file-text" color={style.primary500} />
               <Link to={groupSettingsLinks.general}>Informations</Link>
             </li>
           )}
           {groupSettingsLinks?.manage && (
             <li>
-              <RawFeatherIcon
-                small
-                inline
-                color={style.primary500}
-                name="lock"
-              />
+              <RawFeatherIcon color={style.primary500} name="lock" />
               <Link to={groupSettingsLinks.manage}>
                 Animateur·ices et gestionnaires
               </Link>
@@ -151,12 +131,7 @@ const ManagerActions = (props) => {
           )}
           {routes?.createSpendingRequest && (
             <li>
-              <RawFeatherIcon
-                small
-                inline
-                color={style.primary500}
-                name="folder"
-              />
+              <RawFeatherIcon color={style.primary500} name="folder" />
               <Link href={routes.createSpendingRequest}>
                 Remboursement et dépense
               </Link>
@@ -164,23 +139,13 @@ const ManagerActions = (props) => {
           )}
           {groupSettingsLinks?.finance && (
             <li>
-              <RawFeatherIcon
-                small
-                inline
-                color={style.primary500}
-                name="loader"
-              />
+              <RawFeatherIcon color={style.primary500} name="loader" />
               <Link to={groupSettingsLinks.finance}>Financement</Link>
             </li>
           )}
           {groupSettingsLinks?.links && (
             <li>
-              <RawFeatherIcon
-                small
-                inline
-                color={style.primary500}
-                name="loader"
-              />
+              <RawFeatherIcon color={style.primary500} name="loader" />
               <Link to={groupSettingsLinks.links}>Liens externes</Link>
             </li>
           )}

@@ -5,6 +5,9 @@ import LogoFI from "./LogoFI";
 export default {
   component: LogoFI,
   title: "Generic/Logo FI",
+  parameters: {
+    layout: "padded",
+  },
   decorators: [
     (story) => (
       <div

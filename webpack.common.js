@@ -278,6 +278,7 @@ module.exports = (type = CONFIG_TYPES.ES5) => ({
           : "",
       SENTRY_ENV: type !== CONFIG_TYPES.DEV ? "production" : "",
       DEBUG: type === CONFIG_TYPES.DEV ? "agir:*" : "",
+      ENABLE_VENDOR_PREFIXES: type === CONFIG_TYPES.ES5,
     }),
     type !== CONFIG_TYPES.DEV &&
       new WebpackBar({

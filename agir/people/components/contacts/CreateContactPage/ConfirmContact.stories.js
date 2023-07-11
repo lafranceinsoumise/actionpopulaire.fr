@@ -20,8 +20,8 @@ Default.args = {
     zip: "75010",
     email: "foo@bar.com",
     phone: "06 00 00 00 00",
-    is2022: true,
-    newsletters: ["2022", "2022_exceptionnel", "2022_liaison"],
+    isPoliticalSupport: true,
+    newsletters: ["LFI_reguliere", "LFI_exceptionnelle", "LFI_liaison"],
     group: {
       id: "a1a1",
       value: "a1a1a",

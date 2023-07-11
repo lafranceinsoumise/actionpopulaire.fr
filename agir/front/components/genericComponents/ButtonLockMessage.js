@@ -25,7 +25,7 @@ const StyledButton = styled.button`
   cursor: pointer;
   ${({ disabled }) => (!disabled ? `opacity: 1;` : `opacity: 0.5;`)}
   ${RawFeatherIcon} {
-    ${({ isLocked }) => isLocked && `color: ${style.redNSP};`}
+    ${({ $isLocked }) => $isLocked && `color: ${style.redNSP};`}
   }
 
   @media (min-width: ${style.collapse}px) {
@@ -88,7 +88,7 @@ const ButtonLockMessage = ({ message }) => {
         </Button>
       ) : (
         <StyledButton
-          isLocked={isLocked}
+          $isLocked={isLocked}
           disabled={loading}
           onClick={() => !loading && setIsModalOpen(true)}
         >

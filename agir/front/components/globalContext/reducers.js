@@ -17,11 +17,11 @@ export const isSessionLoaded = (state = false, action) => {
   return state;
 };
 
-export const is2022 = (state = false, action) => {
+export const isPoliticalSupport = (state = false, action) => {
   if (action.type === ACTION_TYPE.SET_SESSION_CONTEXT_ACTION) {
-    return !!action.user && action.user.is2022;
+    return !!action.user && action.user.isPoliticalSupport;
   }
-  if (action.type === ACTION_TYPE.SET_IS_2022_ACTION) {
+  if (action.type === ACTION_TYPE.SET_IS_POLITICAL_SUPPORT_ACTION) {
     return true;
   }
   return state;
@@ -270,7 +270,7 @@ export const getHasRouter = (state) => state.hasRouter;
 
 export const getIsSessionLoaded = (state) => state.isSessionLoaded;
 
-export const getIs2022 = (state) => state.is2022;
+export const getisPoliticalSupport = (state) => state.isPoliticalSupport;
 
 export const getUser = (state) => state.user;
 export const getIsConnected = (state) => !!state.user;
@@ -314,7 +314,7 @@ export const getIsUpdatingMessages = (state) => state.isUpdatingMessages;
 const reducers = {
   hasRouter,
   isSessionLoaded,
-  is2022,
+  isPoliticalSupport,
   user,
   authentication,
   bookmarkedEmails,

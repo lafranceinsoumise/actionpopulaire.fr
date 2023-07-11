@@ -5,6 +5,9 @@ import Collapsible from "./Collapsible";
 export default {
   component: Collapsible,
   title: "Generic/Collapsible",
+  parameters: {
+    layout: "padded",
+  },
 };
 
 const Template = (args) => <Collapsible {...args} />;
