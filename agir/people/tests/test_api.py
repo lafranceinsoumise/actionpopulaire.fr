@@ -116,7 +116,7 @@ class CreateContactAPITestCase(APITestCase):
             "city": "Paris",
             "country": "FR",
             "zip": "75010",
-            "newsletters": ["2022", "2022_exceptionnel", "2022_liaison"],
+            "newsletters": list(Person.MAIN_NEWSLETTER_CHOICES),
             "group": str(self.group.id),
             "hasGroupNotifications": False,
             "isPoliticalSupport": True,
