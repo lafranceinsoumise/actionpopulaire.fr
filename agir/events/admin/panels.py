@@ -180,17 +180,17 @@ class EventRsvpPersonFormDisplay(PersonFormDisplay):
     def get_admin_fields_label(self, form, *args, **kwargs):
         fields = super().get_admin_fields_label(form, *args, **kwargs)
 
-        if not form.event.is_free:
+        if not form.subscription_form_event.is_free:
             fields.append("Paiement")
 
-        if form.event.allow_guests:
+        if form.subscription_form_event.allow_guests:
             fields.append("Invité⋅e par")
 
         return fields
 
     def _get_admin_fields(self, submissions, html=True):
         results = super()._get_admin_fields(submissions, html)
-        event = submissions[0].form.event
+        event = submissions[0].form.subscription_form_event
 
         if not event.is_free:
             for s, r in zip(submissions, results):
