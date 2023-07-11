@@ -760,7 +760,7 @@ class PersonFormAdmin(FormSubmissionViewsMixin, admin.ModelAdmin):
     slug_link.short_description = "Slug"
 
     def action_buttons(self, obj):
-        if obj._state.adding:
+        if obj._state.adding or obj.submissions_number == 0:
             return "-"
 
         html = format_html(
