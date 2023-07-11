@@ -1,4 +1,5 @@
-﻿from functools import reduce
+﻿import collections
+from functools import reduce
 from itertools import chain
 from operator import or_
 
@@ -15,6 +16,7 @@ from django.utils.timezone import get_current_timezone
 from phonenumber_field.phonenumber import PhoneNumber
 from phonenumbers import NumberParseException
 
+from agir.lib.html import textify
 from agir.people.models import Person, PersonForm, PersonEmail, PersonTag
 from agir.people.person_forms.fields import (
     PREDEFINED_CHOICES,
@@ -46,6 +48,9 @@ class PersonFormDisplay:
         elif isinstance(submissions_or_form, QuerySet):
             submissions = submissions_or_form
             form = PersonForm.objects.get(submissions__in=submissions[:1])
+        elif isinstance(submissions_or_form, PersonFormSubmission):
+            submissions = PersonFormSubmission.objects.filter(pk=submissions_or_form.pk)
+            form = submissions_or_form.form
         else:
             raise TypeError("`submissions_or_form")
 
@@ -239,7 +244,7 @@ class PersonFormDisplay:
             emails = [(s.person.email if s.person else "") for s in submissions]
             return [list(a) for a in zip(id_fields, dates, id_persons, emails)]
 
-    def get_form_field_labels(self, form, fieldsets_titles=False):
+    def get_form_field_labels(self, form, fieldsets_titles=False, html=True):
         """Renvoie un dictionnaire associant id de champs et libellés à présenter
 
         Prend en compte tous les cas de figure :
@@ -249,6 +254,7 @@ class PersonFormDisplay:
 
         :param form:
         :param fieldsets_titles:
+        :param html: s'il faut inclure du HTML ou non
         :return:
         """
         field_information = {}
@@ -280,9 +286,14 @@ class PersonFormDisplay:
 
             if fieldset := fieldsets.get(key, None):
                 field_information[key] = format_html(
-                    "{title}&nbsp;:<br>{label}",
+                    "{title} :<br>{label}",
                     title=fieldset,
                     label=field_information[key],
+                )
+
+            if not html:
+                field_information[key] = textify(
+                    field_information[key].replace("<br>", "\n"), unescape=True
                 )
 
         return field_information
@@ -295,6 +306,8 @@ class PersonFormDisplay:
         resolve_labels=True,
         resolve_values=True,
         fieldsets_titles=False,
+        unique_labels=False,
+        as_dicts=False,
     ):
         if not submissions_or_form:
             return [], []
@@ -306,11 +319,30 @@ class PersonFormDisplay:
 
         fields_dict = form.fields_dict
 
-        labels = (
-            self.get_form_field_labels(form, fieldsets_titles=fieldsets_titles)
-            if resolve_labels
-            else {}
+        simple_labels = self.get_form_field_labels(
+            form, fieldsets_titles=False, html=html
         )
+        fieldset_labels = self.get_form_field_labels(
+            form, fieldsets_titles=True, html=html
+        )
+
+        if not resolve_labels:
+            labels = {}
+        elif fieldsets_titles:
+            labels = fieldset_labels
+        elif unique_labels:
+            simple_counter = collections.Counter(simple_labels.values())
+            fieldset_counter = collections.Counter(fieldset_labels.values())
+            labels = {
+                key: f"{fieldset_labels[key]} [{key}]"
+                if fieldset_counter[fieldset_labels[key]] > 1
+                else fieldset_labels[key]
+                if simple_counter[label] > 1
+                else label
+                for key, label in simple_labels.items()
+            }
+        else:
+            labels = simple_labels
 
         full_data = [sub.data for sub in submissions]
         if resolve_values:
@@ -331,7 +363,9 @@ class PersonFormDisplay:
             reduce(or_, (set(d) for d in full_data)).difference(declared_fields)
         )
 
-        headers = [labels.get(id, id) for id in fields_dict] + additional_fields
+        headers = [
+            labels.get(field_id, field_id) for field_id in fields_dict
+        ] + additional_fields
 
         ordered_values = [
             [
@@ -350,13 +384,17 @@ class PersonFormDisplay:
 
         if include_admin_fields:
             admin_values = self._get_admin_fields(submissions, html)
-            return (
-                self.get_admin_fields_label(form, html=html) + headers,
-                [
-                    admin_values + values
-                    for admin_values, values in zip(admin_values, ordered_values)
-                ],
-            )
+            headers = self.get_admin_fields_label(form, html=html) + headers
+            ordered_values = [
+                admin_values + values
+                for admin_values, values in zip(admin_values, ordered_values)
+            ]
+
+        if as_dicts:
+            return [
+                {headers[i]: val for i, val in enumerate(item)}
+                for item in ordered_values
+            ]
 
         return headers, ordered_values
 
