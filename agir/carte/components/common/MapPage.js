@@ -154,7 +154,7 @@ const MapPage = (props) => {
         <StyledActionButtons>
           <Button small link icon="search" route={searchRoute}>
             Rechercher
-            <Hide as="span" $under>
+            <Hide as="span" under>
               &nbsp;{itemLabel}
             </Hide>
           </Button>
@@ -167,7 +167,7 @@ const MapPage = (props) => {
             icon="plus"
           >
             Créer
-            <Hide as="span" $under>
+            <Hide as="span" under>
               &nbsp;{itemLabel}
             </Hide>
           </Button>

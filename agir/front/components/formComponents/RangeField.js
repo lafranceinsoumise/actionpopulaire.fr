@@ -1,6 +1,5 @@
-import { validProps } from "@agir/lib/utils/react";
 import PropTypes from "prop-types";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 
 const StyledLabel = styled.div``;
@@ -287,8 +286,6 @@ const RangeField = (props) => {
     [onChange]
   );
 
-  const inputProps = useMemo(() => validProps(rest), [rest]);
-
   return (
     <StyledField
       tabIndex="1"
@@ -296,7 +293,7 @@ const RangeField = (props) => {
       className={className}
       style={style}
     >
-      {label && <StyledLabel htmlFor={id}>{label}</StyledLabel>}
+      {label && <StyledLabel htmlForm={id}>{label}</StyledLabel>}
       <StyledRangeInput
         $invalid={!!error}
         $disabled={!!disabled}
@@ -319,7 +316,7 @@ const RangeField = (props) => {
       </StyledRangeInput>
       <StyledNumberInput $invalid={!!error}>
         <input
-          {...inputProps}
+          {...rest}
           id={id}
           type="number"
           onChange={handleChange}
@@ -347,7 +344,7 @@ RangeField.propTypes = {
   label: PropTypes.node,
   disabled: PropTypes.bool,
   error: PropTypes.string,
-  helpText: PropTypes.node,
+  helpText: PropTypes.string,
   className: PropTypes.string,
   style: PropTypes.object,
 };

@@ -21,17 +21,17 @@ const StyledList = styled.ul`
 `;
 
 const GroupMemberFacts = (props) => {
-  const { isPoliticalSupport, isLiaison, hasGroupNotifications } = props;
+  const { is2022, isLiaison, hasGroupNotifications } = props;
 
-  return [isPoliticalSupport, hasGroupNotifications, isLiaison].some(
+  return [is2022, hasGroupNotifications, isLiaison].some(
     (i) => typeof i === "boolean"
   ) ? (
     <StyledList>
       <h4>À propos</h4>
       <li>
-        {isPoliticalSupport
-          ? "Soutien politique de la France insoumise"
-          : "N’est pas encore soutien politique de la France insoumise"}
+        {is2022
+          ? "Soutien de Mélenchon 2022"
+          : "N’est pas encore soutien de Mélenchon 2022"}
       </li>
       <li>
         {hasGroupNotifications
@@ -44,9 +44,9 @@ const GroupMemberFacts = (props) => {
 };
 
 GroupMemberFacts.propTypes = {
-  isPoliticalSupport: PropTypes.bool,
-  isLiaison: PropTypes.bool,
-  hasGroupNotifications: PropTypes.bool,
+  is2022: PropTypes.bool.isRequired,
+  isLiaison: PropTypes.bool.isRequired,
+  hasGroupNotifications: PropTypes.bool.isRequired,
 };
 
 export default GroupMemberFacts;

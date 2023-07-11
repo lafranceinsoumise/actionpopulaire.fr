@@ -175,7 +175,7 @@ class NewslettersField(serializers.DictField):
     def to_internal_value(self, data):
         value = super().to_internal_value(data)
 
-        allowed_keys = Person.Newsletter.values
+        allowed_keys = {key for key, label in Person.NEWSLETTERS_CHOICES}
         wrong_keys = set(value).difference(allowed_keys)
         errors = [f"{key} n'est pas un nom de newsletter" for key in wrong_keys]
 
@@ -225,7 +225,7 @@ class RetrievePersonRequestSerializer(serializers.Serializer):
 
 
 class PersonNewsletterListField(serializers.ListField):
-    child = serializers.ChoiceField(choices=Person.Newsletter.choices)
+    child = serializers.ChoiceField(choices=Person.NEWSLETTERS_CHOICES)
 
 
 class PersonMandatField(serializers.Field):
@@ -260,9 +260,8 @@ class PersonMandatField(serializers.Field):
     def to_internal_value(self, data):
         if not data.get("mandat", None):
             return None
-
         mandat_type = data.pop("mandat")
-
+        mandat = None
         if not mandat_type in self.types:
             return self.fail("invalid", data=data)
         try:
@@ -311,9 +310,8 @@ class PersonSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
         label="Numéro de téléphone",
     )
 
-    isPoliticalSupport = serializers.BooleanField(
-        source="is_political_support", required=False
-    )
+    isInsoumise = serializers.BooleanField(source="is_insoumise", required=False)
+    is2022 = serializers.BooleanField(source="is_2022", required=False)
 
     mandat = PersonMandatField(required=False)
 
@@ -355,7 +353,8 @@ class PersonSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
             "displayName",
             "image",
             "contactPhone",
-            "isPoliticalSupport",
+            "isInsoumise",
+            "is2022",
             "referrerId",
             "newsletters",
             "gender",
@@ -394,9 +393,7 @@ class ContactSerializer(serializers.ModelSerializer):
         allow_blank=True,
         label="Numéro de téléphone",
     )
-    isPoliticalSupport = serializers.BooleanField(
-        source="is_political_support", default=False
-    )
+    is2022 = serializers.BooleanField(source="is_2022", default=False)
     newsletters = PersonNewsletterListField(required=False, allow_empty=True)
     address = serializers.CharField(
         required=False,
@@ -442,7 +439,7 @@ class ContactSerializer(serializers.ModelSerializer):
         model = models.Person
         fields = (
             "id",
-            "isPoliticalSupport",
+            "is2022",
             "firstName",
             "lastName",
             "zip",

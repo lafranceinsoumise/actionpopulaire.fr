@@ -36,7 +36,6 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                     "newsletters",
                     "tags",
                     "excluded_tags",
-                    "is_political_support",
                     "is_2022",
                     "is_insoumise",
                 )

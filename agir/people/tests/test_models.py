@@ -17,19 +17,9 @@ class BasicPersonTestCase(TestCase):
             user.pk, Person.objects.get_by_natural_key("test@domain.com").pk
         )
 
-    def test_subscription_defaults(self):
-        user = Person.objects.create_political_supporter(
-            email="political_support@domain.com"
-        )
-        self.assertEqual(user.subscribed, True)
+    def test_non_insoumise(self):
+        user = Person.objects.create_person(email="test@domain.com", is_insoumise=False)
 
-        user = Person.objects.create_2022(email="2022@domain.com")
-        self.assertEqual(user.subscribed, False)
-
-        user = Person.objects.create_insoumise(email="insoumise@domain.com")
-        self.assertEqual(user.subscribed, True)
-
-        user = Person.objects.create_person(email="person@domain.com")
         self.assertEqual(user.subscribed, False)
 
     @mock.patch("agir.people.models.metrics.subscriptions")

@@ -40,21 +40,14 @@ export const PullRight = styled.div`
 /**
  * Media queries
  */
-export const Hide = styled.div.attrs(({ $under, $over }) => ({
-  $under: $under
-    ? `max-width: ${typeof $under === "number" ? $under : style.collapse}px`
-    : "width <= 0",
-  $over: $over
-    ? `min-width: ${typeof $over === "number" ? $over : style.collapse}px`
-    : "width <= 0",
-}))`
+export const Hide = styled.div`
   min-width: 0;
 
-  @media (${(props) => props.$under}) {
+  @media (max-width: ${({ under }) => (under === true ? collapse : under)}px) {
     display: none !important;
   }
 
-  @media (${(props) => props.$over}) {
+  @media (min-width: ${({ over }) => (over === true ? collapse : over)}px) {
     display: none !important;
   }
 `;
@@ -64,15 +57,13 @@ export const Hide = styled.div.attrs(({ $under, $over }) => ({
  */
 
 const gutter = 16;
+const collapse = style.collapse;
 
 export const GrayBackground = styled.div`
   background-color: ${style.black25};
 `;
 
-export const Column = styled.div.withConfig({
-  shouldForwardProp: (prop) =>
-    ["collapse", "grow", "stack"].includes(prop) === false,
-})`
+export const Column = styled.div`
   flex-basis: ${({ width, grow }) =>
     width || grow
       ? (Array.isArray(width) && width[1] ? width[1] : width) || "1px"
@@ -82,7 +73,10 @@ export const Column = styled.div.withConfig({
     margin-bottom: 16px;
   }
 
-  @media (max-width: ${(props) => props.collapse || style.collapse}px) {
+  @media (max-width: ${(props) =>
+      typeof props.collapse === "undefined"
+        ? collapse
+        : props.collapse || 0}px) {
     flex-basis: ${(props) =>
       Array.isArray(props.width) && props.width[0] ? props.width[0] : "100%"};
     padding-left: 0;
@@ -101,13 +95,9 @@ Column.propTypes = {
   ]), // can be anything like "50%" "400px"
   // if array first is mobile size, second is desktop
   grow: PropTypes.bool, // does the column fill the remaining space
-  collapse: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 };
 
-export const Row = styled.div.withConfig({
-  shouldForwardProp: (prop) =>
-    ["gutter", "align", "justify"].includes(prop) === false,
-})`
+export const Row = styled.div`
   margin-left: -${(props) => (typeof props.gutter === "undefined" ? gutter : props.gutter)}px;
   margin-right: -${(props) => (typeof props.gutter === "undefined" ? gutter : props.gutter)}px;
   display: flex;
@@ -130,7 +120,7 @@ export const Row = styled.div.withConfig({
 
   @media (max-width: ${(props) =>
       typeof props.collapse === "undefined"
-        ? style.collapse
+        ? collapse
         : props.collapse || 0}px) {
     & > ${Column} > ${Card} {
       margin-left: -${(props) => (typeof props.gutter === "undefined" ? gutter : props.gutter)}px;
@@ -173,7 +163,7 @@ export const Container = styled.section`
 `;
 
 export const useIsDesktop = (breakpoint) => {
-  breakpoint = breakpoint || style.collapse;
+  breakpoint = breakpoint || collapse;
   const [isDesktop, setDesktop] = useState(window.innerWidth > breakpoint);
 
   let refresh = useCallback(

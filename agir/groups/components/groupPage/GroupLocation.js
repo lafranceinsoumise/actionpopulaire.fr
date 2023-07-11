@@ -136,7 +136,7 @@ GroupLocation.propTypes = {
     coordinates: PropTypes.shape({
       coordinates: PropTypes.arrayOf(PropTypes.number),
     }),
-  }),
+  }).isRequired,
   groupSettingsLinks: PropTypes.shape({
     location: PropTypes.string,
   }),

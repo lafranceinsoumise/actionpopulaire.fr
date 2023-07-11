@@ -54,7 +54,7 @@ Default.args = {
   firstName: "Jane Alice",
   lastName: "Doe",
   gender: "O",
-  image: "https://loremflickr.com/200/200",
+  image: "https://www.fillmurray.com/200/200",
   email: "janedoe@agir.local",
   phone: "+336400000000",
   address: "25 passage Dubail, 75010 Paris",

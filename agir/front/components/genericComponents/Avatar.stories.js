@@ -24,5 +24,5 @@ WithoutImage.args = {
 export const WithImage = Template.bind({});
 WithImage.args = {
   name: "John Doe",
-  image: "https://loremflickr.com/200/200",
+  image: "https://www.fillmurray.com/200/200",
 };

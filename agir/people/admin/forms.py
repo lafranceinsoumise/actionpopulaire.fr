@@ -27,7 +27,7 @@ from agir.people.person_forms.schema import schema
 class PersonAdminForm(CoordinatesFormMixin, forms.ModelForm):
     newsletters = forms.MultipleChoiceField(
         label="Inscription aux lettres",
-        choices=Person.Newsletter.choices,
+        choices=Person.NEWSLETTERS_CHOICES,
         widget=forms.CheckboxSelectMultiple,
         required=False,
     )

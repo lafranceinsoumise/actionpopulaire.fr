@@ -1,4 +1,3 @@
-import uuid
 from datetime import timedelta
 import random
 
@@ -11,7 +10,7 @@ from data_france.models import Commune
 from faker import Faker
 
 from agir.lib.models import LocationMixin
-from agir.events.models import Calendar, Event, OrganizerConfig, RSVP, EventSubtype
+from agir.events.models import Calendar, Event, OrganizerConfig, RSVP
 from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
 from agir.people.models import Person, PersonForm, PersonFormSubmission
 from agir.activity.models import Activity, Announcement
@@ -85,17 +84,18 @@ def create_person():
             ]
         ),
         "date_of_birth": fake.date_between(start_date="-100y"),
-        "is_political_support": fake.boolean(),
+        "is_2022": fake.boolean(),
         "newsletters": random.sample(
             [
-                Person.Newsletter.LFI_REGULIERE.value,
-                Person.Newsletter.LFI_EXCEPTIONNELLE.value,
-                Person.Newsletter.ILB.value,
-                Person.Newsletter.LFI_LJI.value,
-                Person.Newsletter.ELUES.value,
+                Person.NEWSLETTER_LFI,
+                Person.NEWSLETTER_2022,
+                Person.NEWSLETTER_2022_EN_LIGNE,
+                Person.NEWSLETTER_2022_CHEZ_MOI,
+                Person.NEWSLETTER_2022_PROGRAMME,
             ],
             k=random.randint(1, 5),
         ),
+        "is_insoumise": fake.boolean(),
         "subscribed_sms": fake.boolean(),
         "event_notifications": fake.boolean(),
         "group_notifications": fake.boolean(),
@@ -486,31 +486,19 @@ def load_fake_data():
 
     # Groups
     groups_subtypes = {
-        "local_group_default": SupportGroupSubtype.objects.get_or_create(
-            label="groupe local",
-            defaults={
-                "visibility": SupportGroupSubtype.VISIBILITY_ALL,
-            },
-        )[0],
-        "certified_local_group": SupportGroupSubtype.objects.get_or_create(
-            label="certifié",
-            defaults={
-                "visibility": SupportGroupSubtype.VISIBILITY_ALL,
-            },
-        )[0],
-        "booklet_redaction": SupportGroupSubtype.objects.get_or_create(
-            label="rédaction du livret",
-            defaults={
-                "visibility": SupportGroupSubtype.VISIBILITY_ALL,
-            },
-        )[0],
-        "test_thematic_booklet": SupportGroupSubtype.objects.get_or_create(
+        "local_group_default": SupportGroupSubtype.objects.get(label="groupe local"),
+        "certified_local_group": SupportGroupSubtype.objects.create(
+            label="certifié", description="Groupe certifié", type="L"
+        ),
+        "booklet_redaction": SupportGroupSubtype.objects.get(
+            label="rédaction du livret"
+        ),
+        "test_thematic_booklet": SupportGroupSubtype.objects.create(
             label="livret test",
-            defaults={
-                "type": "B",
-                "visibility": SupportGroupSubtype.VISIBILITY_ALL,
-            },
-        )[0],
+            description="livret test",
+            visibility=SupportGroupSubtype.VISIBILITY_ALL,
+            type="B",
+        ),
     }
     groups = {
         "user1_group": SupportGroup.objects.create(
@@ -559,11 +547,6 @@ def load_fake_data():
         ),
         "national": Calendar.objects.create_calendar("National", slug="national"),
     }
-
-    if not EventSubtype.objects.filter(type=EventSubtype.TYPE_PUBLIC_ACTION).exists():
-        EventSubtype.objects.create(
-            label=uuid.uuid4().hex, type=EventSubtype.TYPE_PUBLIC_ACTION
-        )
 
     events = {
         "user1_event1": Event.objects.create(

@@ -172,7 +172,7 @@ def find_or_create_person_from_payment(payment):
             person_fields = [f.name for f in Person._meta.get_fields()]
             person_meta = {k: v for k, v in payment.meta.items() if k in person_fields}
             newsletters = (
-                Person.MAIN_NEWSLETTER_CHOICES
+                [Person.NEWSLETTER_2022, Person.NEWSLETTER_2022_EXCEPTIONNEL]
                 if payment.meta.get("subscr", False)
                 else []
             )

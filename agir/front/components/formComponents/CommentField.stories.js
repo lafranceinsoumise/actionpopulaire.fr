@@ -13,13 +13,12 @@ export default {
 
 const user = {
   displayName: "Bill Murray",
-  image: "https://loremflickr.com/200/200",
+  image: "https://www.fillmurray.com/200/200",
 };
 
 export const Default = () => {
   const [messages, setMessages] = React.useState(["Bonjour."]);
   const [isLoading, setIsLoading] = React.useState(false);
-  const scrollerRef = React.useRef();
   const handleSend = React.useCallback(async (message) => {
     await new Promise((resolve) => {
       setIsLoading(true);
@@ -33,7 +32,6 @@ export const Default = () => {
 
   return (
     <div
-      ref={scrollerRef}
       style={{
         background: "lightgrey",
         minHeight: "100vh",
@@ -75,7 +73,6 @@ export const Default = () => {
           onSend={handleSend}
           id={`comment${messages.length}`}
           user={user}
-          scrollerRef={scrollerRef}
         />
       </div>
     </div>
@@ -97,7 +94,6 @@ export const WithComments = () => {
     },
   ]);
   const [isLoading, setIsLoading] = React.useState(false);
-  const scrollerRef = React.useRef();
   const handleSend = React.useCallback(async (text) => {
     await new Promise((resolve) => {
       setIsLoading(true);
@@ -124,7 +120,6 @@ export const WithComments = () => {
         minHeight: "100vh",
         padding: "16px",
       }}
-      ref={scrollerRef}
     >
       {messages.map((message) => (
         <div
@@ -134,7 +129,7 @@ export const WithComments = () => {
           }}
           key={message.id}
         >
-          <Comment comment={message} />
+          <Comment message={message} />
         </div>
       ))}
       <div
@@ -151,7 +146,6 @@ export const WithComments = () => {
           onSend={handleSend}
           id={`comment${messages.length}`}
           user={user}
-          scrollerRef={scrollerRef}
         />
       </div>
     </div>

@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Redirect, useRouteMatch, useLocation } from "react-router-dom";
-import useSWRImmutable from "swr/immutable";
 
 import { useCustomAnnouncement } from "@agir/activity/common/hooks";
 import { usePush } from "@agir/notifications/push/subscriptions";
@@ -14,9 +13,9 @@ import DeviceNotificationSubscription from "./DeviceNotificationSubscription";
 
 const TellMorePage = () => {
   const location = useLocation();
+
   const isTellMorePage = useRouteMatch(routeConfig.tellMore.getLink());
 
-  const { data: session } = useSWRImmutable("/api/session/");
   const { available, isSubscribed, subscribe, ready, errorMessage } = usePush();
 
   const [hasCampaign, dismissCampaign, campaignIsLoading] =
@@ -75,9 +74,7 @@ const TellMorePage = () => {
   }
 
   if (hasNewsletters) {
-    return (
-      <ChooseNewsletters dismiss={dismissNewsletters} user={session?.user} />
-    );
+    return <ChooseNewsletters dismiss={dismissNewsletters} />;
   }
 
   if (hasTellMore) {

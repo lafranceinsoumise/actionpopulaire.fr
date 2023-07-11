@@ -10,7 +10,6 @@ from data_france.models import (
 from data_france.utils import TypeNom
 from django.contrib.gis.geos import Point
 from django.test import TestCase
-from faker import Faker
 
 from agir.people.models import Person
 from agir.voting_proxies.actions import (
@@ -23,6 +22,7 @@ from agir.voting_proxies.models import (
     VotingProxy,
     VotingProxyRequest,
 )
+from faker import Faker
 
 fake = Faker("fr_FR")
 
@@ -464,14 +464,14 @@ class FindVotingProxyCandidatesForRequestsTestCase(TestCase):
         )
 
     def create_proxy_candidate(self, **kwargs):
-        return Person.objects.create_political_supporter(
+        return Person.objects.create_2022(
             **{
                 "first_name": "a",
                 "last_name": "Candidate",
                 "email": "a_candidate@agir.local",
                 "contact_phone": "+33600000000",
                 "location_country": self.country,
-                "is_political_support": True,
+                "newsletters": [Person.NEWSLETTER_2022],
                 **kwargs,
             }
         )
@@ -516,8 +516,8 @@ class FindVotingProxyCandidatesForRequestsTestCase(TestCase):
         self.assertEqual(len(candidates), 0)
 
     @patch("agir.voting_proxies.actions.invite_voting_proxy_candidates")
-    def test_cannot_invite_not_political_support_person(self, send_invitations):
-        candidate = self.create_proxy_candidate(is_political_support=False)
+    def test_cannot_invite_not_2022_person(self, send_invitations):
+        candidate = self.create_proxy_candidate(is_2022=False)
         request = self.create_request()
         qs = VotingProxyRequest.objects.filter(pk=request.pk)
         send_invitations.assert_not_called()

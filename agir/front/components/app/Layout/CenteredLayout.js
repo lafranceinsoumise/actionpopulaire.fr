@@ -57,8 +57,8 @@ const MainContainer = styled(Container)`
   }
   @media (max-width: ${style.collapse}px) {
     padding-top: 24px;
-    background-color: ${({ $smallBackgroundColor }) =>
-      $smallBackgroundColor || "transparent"};
+    background-color: ${({ smallBackgroundColor }) =>
+      smallBackgroundColor || "transparent"};
   }
 `;
 

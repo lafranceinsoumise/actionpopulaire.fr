@@ -85,7 +85,7 @@ const SearchBarInput = styled.input`
   display: inline-flex;
   flex: 1;
 
-  &::placeholder {
+  ::placeholder {
     color: ${style.black500};
     font-weight: 400;
     text-overflow: ellipsis;
@@ -113,10 +113,10 @@ export const HeaderSearch = ({ querySearch, mapRoute }) => (
   <StyledHeaderSearch>
     <div>
       <h1>
-        <Hide $over>Rechercher</Hide>
-        {!querySearch && <Hide $under>Recherche : "{querySearch}"</Hide>}
+        <Hide over>Rechercher</Hide>
+        {!querySearch && <Hide under>Recherche : "{querySearch}"</Hide>}
       </h1>
-      <Hide $under as="div" style={{ marginTop: "0.5rem" }}>
+      <Hide under as="div" style={{ marginTop: "0.5rem" }}>
         Recherchez des événements et des groupes d'actions par nom, ville, code
         postal...
       </Hide>
@@ -143,7 +143,7 @@ export const InputSearch = ({ inputSearch, updateSearch, placeholder }) => (
         name="search"
         width="1rem"
         height="1rem"
-        strokeWidth={1.33}
+        stroke-width={1.33}
         style={{ position: "absolute", left: "1rem" }}
       />
       <SearchBarInput
@@ -153,7 +153,7 @@ export const InputSearch = ({ inputSearch, updateSearch, placeholder }) => (
         name="q"
         onChange={updateSearch}
         autoComplete="off"
-        maxLength="512"
+        maxlength="512"
         value={inputSearch.slice(0, 512)}
       />
     </SearchBarWrapper>

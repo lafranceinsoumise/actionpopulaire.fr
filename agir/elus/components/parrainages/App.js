@@ -1,13 +1,12 @@
 import React, { useReducer } from "react";
-import styled from "styled-components";
+import styled, { ThemeProvider } from "styled-components";
 import ScrollableBlock from "./ScrollableBlock";
 import BarreSuperieure from "./BarreSuperieure";
 import Presentation from "./Presentation";
 import FicheElu from "./FicheElu";
 import Menu from "./Menu";
 
-import ThemeProvider from "@agir/front/theme/ThemeProvider";
-
+import style from "@agir/front/genericComponents/_variables.scss";
 import {
   ACTION_TYPES,
   initialState,
@@ -71,7 +70,7 @@ const App = () => {
   const [state, dispatch] = useReducer(reducer, null, initialState);
 
   return (
-    <ThemeProvider>
+    <ThemeProvider theme={style}>
       <LayoutExterieur>
         <BarreSuperieure
           onClose={

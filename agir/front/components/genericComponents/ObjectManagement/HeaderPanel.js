@@ -22,7 +22,7 @@ const HeaderPanel = (props) => {
 
   return (
     <>
-      <Hide $over>
+      <Hide over>
         <BackButton onClick={onBack} />
       </Hide>
       {illustration && (

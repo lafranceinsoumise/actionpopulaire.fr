@@ -100,7 +100,7 @@ export const MessageOptions = () => {
           <RawFeatherIcon name="check-circle" color={style.primary500} />
           Tout marquer comme lu
         </button>
-        <Link to={route} icon="settings">
+        <Link link to={route} icon="settings" small>
           <RawFeatherIcon name="settings" color={style.primary500} />
           Paramètres de notifications
         </Link>
@@ -123,7 +123,7 @@ const MessageThreadMenu = (props) => {
 
   return (
     <StyledMenu {...rest}>
-      <Hide $under>
+      <Hide under>
         <header>
           <h2>
             Messages{typeof writeNewMessage !== "function" ? " reçus" : ""}

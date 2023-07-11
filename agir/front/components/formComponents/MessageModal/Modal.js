@@ -327,7 +327,7 @@ const Modal = (props) => {
               disabled={isLoading}
               errors={errors}
               maxLength={TEXT_MAX_LENGTH}
-              subjectmaxLength={SUBJECT_MAX_LENGTH}
+              subjectMaxLength={SUBJECT_MAX_LENGTH}
               groupPk={groupPk}
               onBoarding={onBoarding}
             />

@@ -11,9 +11,7 @@ class TransferFormTestCase(TestCase):
         group2 = SupportGroup.objects.create(name="Groupe 2")
 
         people = [
-            Person.objects.create_person(
-                email=f"{i}@domain.fr", is_political_support=True
-            )
+            Person.objects.create_person(email=f"{i}@domain.fr", is_insoumise=True)
             for i in range(20)
         ]
 

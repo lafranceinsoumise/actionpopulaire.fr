@@ -113,9 +113,9 @@ Default.args = {
     content:
       "<p>Réservez votre après-midi pour le premier meeting en plein air à la campagne #MeetingAubin</p>",
     image: {
-      desktop: "https://loremflickr.com/255/130",
-      mobile: "https://loremflickr.com/160/160",
-      activity: "https://loremflickr.com/548/241",
+      desktop: "https://www.fillmurray.com/255/130",
+      mobile: "https://www.fillmurray.com/160/160",
+      activity: "https://www.fillmurray.com/548/241",
     },
     startDate: "2021-05-17T17:33:46+02:00",
     endDate: null,

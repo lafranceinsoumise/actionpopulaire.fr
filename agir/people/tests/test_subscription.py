@@ -109,7 +109,7 @@ class APISubscriptionTestCase(WordpressClientMixin, APITestCase):
         send_confirmation_email.assert_not_called()
 
         person.refresh_from_db()
-        self.assertTrue(person.is_political_support)
+        self.assertTrue(person.is_2022)
         self.assertEqual(person.first_name, "Marc")
         self.assertEqual(person.last_name, "Polo")
         self.assertEqual(person.location_zip, "75001")
@@ -193,7 +193,7 @@ class SubscriptionConfirmationTestCase(TestCase):
         p = Person.objects.get_by_natural_key("personne@organisation.pays")
         p.ensure_role_exists()
 
-        self.assertTrue(p.is_political_support)
+        self.assertTrue(p.is_2022)
         self.assertEqual(p.location_country, "VE")
 
         subscription_time = datetime.fromisoformat(
@@ -232,7 +232,7 @@ class SubscriptionConfirmationTestCase(TestCase):
         p = Person.objects.get_by_natural_key("personne@organisation.pays")
         p.ensure_role_exists()
 
-        self.assertTrue(p.is_political_support)
+        self.assertTrue(p.is_2022)
         self.assertEqual(
             p.meta["subscriptions"]["LJI"]["metadata"],
             {"universite": "Montaigne", "niveau": "licence"},
@@ -244,10 +244,7 @@ class ManageNewslettersAPIViewTestCase(WordpressClientMixin, TestCase):
         super().setUp()
         self.person = Person.objects.create_person(
             email="a@b.c",
-            newsletters=[
-                Person.Newsletter.LFI_REGULIERE.value,
-                Person.Newsletter.ILB.value,
-            ],
+            newsletters=[Person.NEWSLETTER_LFI, Person.NEWSLETTER_2022_EN_LIGNE],
             create_role=True,
         )
 
@@ -258,8 +255,8 @@ class ManageNewslettersAPIViewTestCase(WordpressClientMixin, TestCase):
                 {
                     "id": str(self.person.id),
                     "newsletters": {
-                        Person.Newsletter.LFI_EXCEPTIONNELLE.value: True,
-                        Person.Newsletter.ILB.value: False,
+                        Person.NEWSLETTER_2022: True,
+                        Person.NEWSLETTER_2022_EN_LIGNE: False,
                     },
                 }
             ),
@@ -269,11 +266,7 @@ class ManageNewslettersAPIViewTestCase(WordpressClientMixin, TestCase):
 
         self.person.refresh_from_db()
         self.assertCountEqual(
-            self.person.newsletters,
-            [
-                Person.Newsletter.LFI_REGULIERE.value,
-                Person.Newsletter.LFI_EXCEPTIONNELLE.value,
-            ],
+            self.person.newsletters, [Person.NEWSLETTER_LFI, Person.NEWSLETTER_2022]
         )
 
     def test_cannot_modify_while_anonymous(self):
@@ -284,8 +277,8 @@ class ManageNewslettersAPIViewTestCase(WordpressClientMixin, TestCase):
                 {
                     "id": str(self.person.id),
                     "newsletters": {
-                        Person.Newsletter.LFI_EXCEPTIONNELLE.value: True,
-                        Person.Newsletter.ILB.value: False,
+                        Person.NEWSLETTER_2022: True,
+                        Person.NEWSLETTER_2022_EN_LIGNE: False,
                     },
                 }
             ),
@@ -301,8 +294,8 @@ class ManageNewslettersAPIViewTestCase(WordpressClientMixin, TestCase):
                 {
                     "id": str(self.person.id),
                     "newsletters": {
-                        Person.Newsletter.LFI_EXCEPTIONNELLE.value: True,
-                        Person.Newsletter.ILB.value: False,
+                        Person.NEWSLETTER_2022: True,
+                        Person.NEWSLETTER_2022_EN_LIGNE: False,
                     },
                 }
             ),

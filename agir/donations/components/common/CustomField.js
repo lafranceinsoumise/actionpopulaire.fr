@@ -48,7 +48,7 @@ const CustomField = ({
   return (
     <div className={className}>
       <StyledCustomField htmlFor={id}>
-        <Hide $under as="label">
+        <Hide under as="label">
           {label}
         </Hide>
         <Component
@@ -58,7 +58,7 @@ const CustomField = ({
         />
       </StyledCustomField>
       {!!helpText && (
-        <Hide $under as={StyledDescription}>
+        <Hide under as={StyledDescription}>
           {helpText}
         </Hide>
       )}

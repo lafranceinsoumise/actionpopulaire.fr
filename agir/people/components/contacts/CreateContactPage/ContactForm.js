@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
@@ -16,10 +16,8 @@ import NoGroupCard from "./NoGroupCard";
 
 import { searchGroups } from "@agir/groups/utils/api";
 import { scrollToError } from "@agir/front/app/utils";
-import {
-  LIAISON_NEWSLETTER,
-  getNewsletterOptions,
-} from "@agir/front/authentication/common";
+
+const NEWSLETTER_2022_LIAISON = "2022_liaison";
 
 const StyledForm = styled.form`
   h2 {
@@ -70,17 +68,14 @@ const formatGroupOptions = (groups) =>
 
 export const ContactForm = (props) => {
   const { initialData, errors, isLoading, onSubmit, groups } = props;
-  const newsletterOptions = useMemo(() => getNewsletterOptions(), []);
   const [data, setData] = useState({
     firstName: "",
     lastName: "",
     zip: "",
     email: "",
     phone: "",
-    isPoliticalSupport: true,
-    newsletters: newsletterOptions
-      .filter((n) => n.selected)
-      .map((n) => n.value),
+    is2022: true,
+    newsletters: ["2022_exceptionnel"],
     ...(initialData || {}),
   });
   const [groupOptions, setGroupOptions] = useState(formatGroupOptions(groups));
@@ -101,14 +96,14 @@ export const ContactForm = (props) => {
     }));
   }, []);
 
-  const handleCheckisPoliticalSupport = useCallback((e) => {
+  const handleCheckIs2022 = useCallback((e) => {
     const { checked } = e.target;
     setData((state) => ({
       ...state,
-      isPoliticalSupport: checked,
+      is2022: checked,
       newsletters: checked
         ? state.newsletters
-        : state.newsletters.filter((nl) => nl !== LIAISON_NEWSLETTER.value),
+        : state.newsletters.filter((nl) => nl !== NEWSLETTER_2022_LIAISON),
       address: checked ? state.address : undefined,
       city: checked ? state.city : undefined,
       country: checked ? state.country : undefined,
@@ -122,7 +117,7 @@ export const ContactForm = (props) => {
       newState["newsletters"] = checked
         ? [...state.newsletters, name]
         : state.newsletters.filter((nl) => nl !== name);
-      if (name === LIAISON_NEWSLETTER.value) {
+      if (name === NEWSLETTER_2022_LIAISON) {
         newState["address"] = checked ? "" : undefined;
         newState["city"] = checked ? "" : undefined;
         newState["country"] = checked ? "FR" : undefined;
@@ -268,28 +263,50 @@ export const ContactForm = (props) => {
         insoumise&nbsp;?&nbsp;&raquo;
       </h4>
       <CheckboxField
-        label="Je souhaite rejoindre la France insoumise"
-        onChange={handleCheckisPoliticalSupport}
-        value={data.isPoliticalSupport}
-        id="isPoliticalSupport"
-        name="isPoliticalSupport"
+        label="Je veux rejoindre la France insoumise"
+        onChange={handleCheckIs2022}
+        value={data.is2022}
+        id="is2022"
+        name="is2022"
         disabled={isLoading}
       />
       <Spacer data-scroll="newsletters" size="1.5rem" />
-      <h4>Souhaitez-vous recevoir&nbsp;:</h4>
-      {newsletterOptions.map((option) => (
-        <React.Fragment key={option.value}>
-          <CheckboxField
-            label={option.label}
-            onChange={handleCheckNewsletter}
-            value={data.newsletters.includes(option.value)}
-            id={option.value}
-            name={option.value}
-            disabled={isLoading}
-          />
-          <Spacer size=".5rem" />
-        </React.Fragment>
-      ))}
+      <h4>Souhaitez-vous recevoir les&nbsp;:</h4>
+      <CheckboxField
+        label={
+          <>
+            Informations très importantes et exceptionnelles
+            <br />
+            <em>
+              &laquo;&nbsp;Un grand meeting ou une action importante est
+              organisée dans votre ville ou près de chez vous&nbsp;&raquo;
+            </em>
+          </>
+        }
+        onChange={handleCheckNewsletter}
+        value={data.newsletters.includes("2022_exceptionnel")}
+        id="2022_exceptionnel"
+        name="2022_exceptionnel"
+        disabled={isLoading}
+      />
+      <Spacer size=".5rem" />
+      <CheckboxField
+        label={
+          <>
+            Informations des campagnes de la France insoumise
+            <br />
+            <em>
+              &laquo;&nbsp;Les lettres d'informations concernants les actions et
+              l'actualité du mouvement&nbsp;&raquo;
+            </em>
+          </>
+        }
+        onChange={handleCheckNewsletter}
+        value={data.newsletters.includes("2022")}
+        id="2022"
+        name="2022"
+        disabled={isLoading}
+      />
       <Spacer data-scroll="group" size="1.5rem" />
       <SearchAndSelectField
         label="Groupe auquel ajouter le contact"
@@ -317,7 +334,7 @@ export const ContactForm = (props) => {
           />
         </>
       )}
-      {data.isPoliticalSupport && (
+      {data.is2022 && (
         <>
           <Spacer size="1.5rem" />
           <h4>
@@ -335,14 +352,14 @@ export const ContactForm = (props) => {
           <CheckboxField
             label="Devenir correspondant·e de l'immeuble ou du village"
             onChange={handleCheckNewsletter}
-            value={data.newsletters.includes(LIAISON_NEWSLETTER.value)}
-            id={LIAISON_NEWSLETTER.value}
-            name={LIAISON_NEWSLETTER.value}
+            value={data.newsletters.includes(NEWSLETTER_2022_LIAISON)}
+            id={NEWSLETTER_2022_LIAISON}
+            name={NEWSLETTER_2022_LIAISON}
             disabled={isLoading}
           />
         </>
       )}
-      {data.newsletters.includes(LIAISON_NEWSLETTER.value) && (
+      {data.newsletters.includes(NEWSLETTER_2022_LIAISON) && (
         <>
           <Spacer data-scroll="address" size="1rem" />
           <TextField

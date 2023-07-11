@@ -97,12 +97,12 @@ const EventSpeakerPage = () => {
   return (
     <PageFadeIn ready={!isLoading}>
       <StyledPage>
-        <Hide $over as="h3">
+        <Hide over as="h3">
           Demandes d'événements
         </Hide>
         <main>
           <section>
-            <Hide $under as="h3">
+            <Hide under as="h3">
               Demandes d'événements
             </Hide>
             {!hasAnswerable && !hasUnanswerable ? (
@@ -134,7 +134,7 @@ const EventSpeakerPage = () => {
               </>
             )}
           </section>
-          <Hide $under={!hasEvents} as="aside">
+          <Hide under={!hasEvents} as="aside">
             <PageFadeIn ready={!isLoadingEvents}>
               <h4>Vos événements à venir</h4>
               {hasEvents ? (
@@ -150,7 +150,7 @@ const EventSpeakerPage = () => {
           </Hide>
         </main>
       </StyledPage>
-      <Hide $over>
+      <Hide over>
         <BottomBar />
       </Hide>
     </PageFadeIn>

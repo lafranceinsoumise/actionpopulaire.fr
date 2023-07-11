@@ -21,7 +21,7 @@ const StyledAllocationDetails = styled.div`
     font-size: 0.875rem;
 
     li {
-      &::before {
+      ::before {
         content: "― ";
       }
     }

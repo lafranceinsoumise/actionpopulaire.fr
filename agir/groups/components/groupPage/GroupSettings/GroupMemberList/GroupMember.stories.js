@@ -25,7 +25,7 @@ Member.args = {
   displayName: "Clément Verde",
   email: "admin@example.fr",
   membershipType: 10,
-  image: "https://loremflickr.com/200/200",
+  image: "https://www.fillmurray.com/200/200",
 };
 
 export const Follower = Template.bind({});

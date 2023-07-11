@@ -192,7 +192,7 @@ TextField.propTypes = {
   id: PropTypes.string,
   label: PropTypes.node,
   helpText: PropTypes.node,
-  error: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
+  error: PropTypes.string,
   maxLength: PropTypes.number,
   textArea: PropTypes.bool,
   rows: PropTypes.number,

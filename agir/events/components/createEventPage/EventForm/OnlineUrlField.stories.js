@@ -3,10 +3,7 @@ import OnlineUrlField from "./OnlineUrlField";
 
 export default {
   component: OnlineUrlField,
-  title: "EventForm/OnlineUrlField",
-  parameters: {
-    layout: "padded",
-  },
+  title: "EventForm/VisioConference",
 };
 
 const Template = (args) => {

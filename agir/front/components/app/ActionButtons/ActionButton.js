@@ -3,7 +3,7 @@ import React from "react";
 import styled from "styled-components";
 
 import Link from "@agir/front/app/Link";
-import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
+import { Hide } from "@agir/front/genericComponents/grid";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const StyledButton = styled(Link)`
@@ -82,12 +82,6 @@ const ActionButton = (props) => {
     className,
     disabled = false,
   } = props;
-
-  const visibileLabel = useResponsiveMemo(
-    Array.isArray(label) ? label[0] : label,
-    Array.isArray(label) ? label[1] : label
-  );
-
   return (
     <StyledButton
       $color={color}
@@ -100,9 +94,18 @@ const ActionButton = (props) => {
       routeParams={routeParams}
     >
       {typeof icon === "string" ? <RawFeatherIcon name={icon} /> : icon}
-      <strong title={Array.isArray(label) ? label[1] : label}>
-        {visibileLabel}
-      </strong>
+      {Array.isArray(label) ? (
+        <strong>
+          <Hide as="span" title={label[1]} over>
+            {label[0]}
+          </Hide>
+          <Hide as="span" title={label[1]} under>
+            {label[1]}
+          </Hide>
+        </strong>
+      ) : (
+        <strong title={label}>{label}</strong>
+      )}
     </StyledButton>
   );
 };

@@ -209,7 +209,8 @@ class BaseMandatAdmin(admin.ModelAdmin):
             "mandats_municipaux",
             "mandats_departementaux",
             "mandats_regionaux",
-            "is_political_support_display",
+            "is_insoumise_display",
+            "is_2022_display",
             "is_2022_appel_elus",
             "statut_parrainage",
             "parrainage_link",
@@ -262,13 +263,21 @@ class BaseMandatAdmin(admin.ModelAdmin):
 
     person_link.short_description = "Profil de l'élu"
 
-    def is_political_support_display(self, obj):
+    def is_insoumise_display(self, obj):
         if obj.person:
-            return obj.person.is_political_support
+            return obj.person.is_insoumise
         return None
 
-    is_political_support_display.short_description = "Soutien politique"
-    is_political_support_display.boolean = True
+    is_insoumise_display.short_description = "Insoumis⋅e"
+    is_insoumise_display.boolean = True
+
+    def is_2022_display(self, obj):
+        if obj.person:
+            return obj.person.is_2022
+        return None
+
+    is_2022_display.short_description = "Soutien 2022"
+    is_2022_display.boolean = True
 
     def is_2022_appel_elus(self, obj):
         if obj.person:
@@ -407,7 +416,8 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
     list_filter = (
         "statut",
         DatesFilter,
-        "person__is_political_support",
+        "person__is_insoumise",
+        "person__is_2022",
         AppelEluFilter,
         "mandat",
         ConseilFilter,
@@ -425,7 +435,8 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
         "statut",
         "actif",
         "communautaire",
-        "is_political_support_display",
+        "is_insoumise_display",
+        "is_2022_display",
         "is_2022_appel_elus",
         "statut_parrainage",
     )
@@ -440,7 +451,8 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
                     "membre_reseau_elus",
                     "mandat",
                     "communautaire",
-                    "is_political_support",
+                    "is_insoumise",
+                    "is_2022",
                     "signataire_appel",
                     "parrainage_link",
                     "reference",
@@ -509,7 +521,8 @@ class MandatDepartementAdmin(BaseMandatAdmin):
     list_filter = (
         "statut",
         DatesFilter,
-        "person__is_political_support",
+        "person__is_insoumise",
+        "person__is_2022",
         AppelEluFilter,
         "mandat",
         ConseilFilter,
@@ -525,7 +538,8 @@ class MandatDepartementAdmin(BaseMandatAdmin):
         "membre_reseau_elus",
         "statut",
         "actif",
-        "is_political_support_display",
+        "is_insoumise_display",
+        "is_2022_display",
         "is_2022_appel_elus",
         "statut_parrainage",
     )
@@ -539,7 +553,8 @@ class MandatDepartementAdmin(BaseMandatAdmin):
                     "statut",
                     "membre_reseau_elus",
                     "mandat",
-                    "is_political_support",
+                    "is_insoumise",
+                    "is_2022",
                     "signataire_appel",
                     "parrainage_link",
                     "reference",
@@ -589,7 +604,8 @@ class MandatRegionalAdmin(BaseMandatAdmin):
     list_filter = (
         "statut",
         DatesFilter,
-        "person__is_political_support",
+        "person__is_insoumise",
+        "person__is_2022",
         AppelEluFilter,
         "mandat",
         RegionFilter,
@@ -604,7 +620,8 @@ class MandatRegionalAdmin(BaseMandatAdmin):
         "membre_reseau_elus",
         "statut",
         "actif",
-        "is_political_support_display",
+        "is_insoumise_display",
+        "is_2022_display",
         "is_2022_appel_elus",
         "parrainage_link",
         "statut_parrainage",
@@ -619,7 +636,8 @@ class MandatRegionalAdmin(BaseMandatAdmin):
                     "statut",
                     "membre_reseau_elus",
                     "mandat",
-                    "is_political_support",
+                    "is_insoumise",
+                    "is_2022",
                     "signataire_appel",
                     "parrainage_link",
                     "reference",
@@ -669,7 +687,8 @@ class MandatConsulaireAdmin(BaseMandatAdmin):
         "membre_reseau_elus",
         "statut",
         "actif",
-        "is_political_support_display",
+        "is_insoumise_display",
+        "is_2022_display",
         "is_2022_appel_elus",
     )
     fieldsets = (
@@ -682,7 +701,8 @@ class MandatConsulaireAdmin(BaseMandatAdmin):
                     "statut",
                     "mandat",
                     "membre_reseau_elus",
-                    "is_political_support",
+                    "is_insoumise",
+                    "is_2022",
                     "signataire_appel",
                     "commentaires",
                 )
@@ -730,7 +750,8 @@ class MandatDeputeAdmin(BaseMandatAdmin):
     list_filter = (
         "statut",
         DatesFilter,
-        "person__is_political_support",
+        "person__is_insoumise",
+        "person__is_2022",
         AppelEluFilter,
         ReferenceFilter,
         ParrainagesFilter,
@@ -742,7 +763,8 @@ class MandatDeputeAdmin(BaseMandatAdmin):
         "membre_reseau_elus",
         "statut",
         "actif",
-        "is_political_support_display",
+        "is_insoumise_display",
+        "is_2022_display",
         "is_2022_appel_elus",
         "statut_parrainage",
     )
@@ -755,7 +777,8 @@ class MandatDeputeAdmin(BaseMandatAdmin):
                     "conseil",
                     "statut",
                     "membre_reseau_elus",
-                    "is_political_support",
+                    "is_insoumise",
+                    "is_2022",
                     "signataire_appel",
                     "parrainage_link",
                     "reference",
@@ -808,7 +831,8 @@ class MandatDeputeEuropeenAdmin(BaseMandatAdmin):
         "membre_reseau_elus",
         "statut",
         "actif",
-        "is_political_support_display",
+        "is_insoumise_display",
+        "is_2022_display",
         "is_2022_appel_elus",
         "statut_parrainage",
     )
@@ -821,7 +845,8 @@ class MandatDeputeEuropeenAdmin(BaseMandatAdmin):
                     "person",
                     "statut",
                     "membre_reseau_elus",
-                    "is_political_support",
+                    "is_insoumise",
+                    "is_2022",
                     "signataire_appel",
                     "parrainage_link",
                     "reference",

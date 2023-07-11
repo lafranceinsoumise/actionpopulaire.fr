@@ -27,8 +27,8 @@ Default.args = {
   content:
     "Participez en ligne au <a href='#'>premier meeting numérique de campagne de Jean-Luc Mélenchon</a>",
   image: {
-    mobile: "https://loremflickr.com/800/600",
-    desktop: "https://loremflickr.com/510/260",
+    mobile: "https://www.fillmurray.com/800/600",
+    desktop: "https://www.fillmurray.com/510/260",
   },
   link: "https://actionpopulaire.fr",
 };

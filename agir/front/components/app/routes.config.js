@@ -76,7 +76,7 @@ export const routeConfig = {
     Component: RouteComponents.AgendaPage,
     hasLayout: true,
     layoutProps: {
-      $smallBackgroundColor: style.black25,
+      smallBackgroundColor: style.black25,
     },
     hideFeedbackButton: true,
     keepScroll: true,
@@ -155,7 +155,7 @@ export const routeConfig = {
     Component: RouteComponents.GroupsPage,
     hasLayout: true,
     layoutProps: {
-      $smallBackgroundColor: style.black25,
+      smallBackgroundColor: style.black25,
     },
     keepScroll: true,
   }),
@@ -229,7 +229,7 @@ export const routeConfig = {
     Component: RouteComponents.ActivityPage,
     hasLayout: true,
     layoutProps: {
-      $smallBackgroundColor: style.black25,
+      smallBackgroundColor: style.black25,
     },
     topBarRightLink: {
       label: notificationSettingRoute.label,

@@ -9,7 +9,6 @@ import CONFIG from "@agir/donations/common/config";
 export default {
   component: AmountStep,
   title: "Donations/Contributions/AmountStep",
-  argTypes: { selectGroup: { action: "selectGroup" } },
 };
 
 const Template = (args) => (
@@ -24,7 +23,6 @@ Default.args = {
   isLoading: false,
   error: "",
   hasGroups: false,
-  allowedPaymentModes: { S: ["system_pay"] },
 };
 
 export const WithGroupLink = Template.bind({});

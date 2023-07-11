@@ -1,6 +1,6 @@
 import React from "react";
 
-import ThemeProvider from "@agir/front/theme/ThemeProvider";
+import { ThemeProvider } from "styled-components";
 
 import {
   StyledPage,

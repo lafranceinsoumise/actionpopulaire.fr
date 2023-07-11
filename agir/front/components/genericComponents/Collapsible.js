@@ -33,8 +33,8 @@ const FadingOverflowWrapper = styled.div`
     right: 0;
     width: 100%;
     height: ${({ collapsed, maxHeight }) =>
-      collapsed && maxHeight ? "2rem" : "0"};
-    background: linear-gradient(0deg, white 0%, transparent 100%);
+      collapsed && maxHeight ? "30px" : "0"};
+    background: linear-gradient(0deg, white 0%, transparent 200%);
   }
 `;
 const FadingOverflowCollapsible = (props) => {

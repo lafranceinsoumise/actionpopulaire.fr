@@ -1,4 +1,3 @@
-import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
@@ -78,53 +77,50 @@ const AppLogo = styled.img`
 
 const OS = getMobileOS();
 
-export const DownloadApp = ({ onClick }) => (
-  <StyledContainer>
-    <div style={{ padding: "0.5rem", cursor: "pointer" }} onClick={onClick}>
-      <StyledFeatherIcon
-        name="x"
-        color="#fff"
-        width="0.5rem"
-        height="0.5rem"
-        small
-      />
-    </div>
-    <AppLogo src={logo} width="52" height="52" alt="Logo Action Populaire" />
-    <Content>
-      <Title>ACTION POPULAIRE</Title>
-      <Description>
-        Téléchargez l’appli des actions près{" "}
-        <InlineBlock>de chez vous</InlineBlock>
-      </Description>
-    </Content>
-    <div style={{ paddingRight: "18px" }}>
-      <Download
-        link
-        href={"iOS" === OS ? CONFIG.apple.href : CONFIG.google.href}
-        aria-label="Télécharger"
-      >
-        <ResponsiveLayout
-          breakpoint={421}
-          MobileLayout={() => (
-            <FeatherIcon name="download" color={style.primary500} />
-          )}
-          DesktopLayout={() => "Télécharger"}
-        />
-      </Download>
-    </div>
-  </StyledContainer>
-);
-
-DownloadApp.propTypes = {
-  onClick: PropTypes.func,
-};
-
-const ConnectedDownloadApp = () => {
+export const DownloadApp = () => {
   const [isBannerDownload, closeDownload] = useDownloadBanner();
 
   if (!isBannerDownload) return null;
 
-  return <DownloadApp onClick={closeDownload} />;
+  return (
+    <StyledContainer>
+      <div
+        style={{ padding: "0.5rem", cursor: "pointer" }}
+        onClick={closeDownload}
+      >
+        <StyledFeatherIcon
+          name="x"
+          color="#fff"
+          width="0.5rem"
+          height="0.5rem"
+          small
+        />
+      </div>
+      <AppLogo src={logo} width="52" height="52" alt="Logo Action Populaire" />
+      <Content>
+        <Title>ACTION POPULAIRE</Title>
+        <Description>
+          Téléchargez l’appli des actions près{" "}
+          <InlineBlock>de chez vous</InlineBlock>
+        </Description>
+      </Content>
+      <div style={{ paddingRight: "18px" }}>
+        <Download
+          link
+          href={"iOS" === OS ? CONFIG.apple.href : CONFIG.google.href}
+          aria-label="Télécharger"
+        >
+          <ResponsiveLayout
+            breakpoint={421}
+            MobileLayout={() => (
+              <FeatherIcon name="download" color={style.primary500} />
+            )}
+            DesktopLayout={() => "Télécharger"}
+          />
+        </Download>
+      </div>
+    </StyledContainer>
+  );
 };
 
-export default ConnectedDownloadApp;
+export default DownloadApp;

@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 import Button from "@agir/front/genericComponents/Button";
@@ -11,7 +11,6 @@ import LogoAP from "@agir/front/genericComponents/LogoAP";
 import checkCirclePrimary from "@agir/front/genericComponents/images/check-circle-primary.svg";
 
 import { updateProfile } from "@agir/front/authentication/api";
-import { getNewsletterOptions } from "@agir/front/authentication/common";
 
 const Container = styled.form`
   display: flex;
@@ -20,7 +19,6 @@ const Container = styled.form`
   text-align: center;
   padding: 7rem 2rem 1.5rem;
   width: 100%;
-  max-width: 640px;
   margin: 0 auto;
 
   @media (max-width: ${style.collapse}px) {
@@ -153,6 +151,39 @@ const InputRadio = styled.div`
   }
 `;
 
+const NEWSLETTER_OPTIONS = [
+  {
+    label: "Grands événements de la campagne",
+    value: "2022_exceptionnel",
+    selected: true,
+  },
+  {
+    label: "Lettres d'informations, environ une fois par semaine",
+    value: "2022",
+    selected: true,
+  },
+  {
+    label: "Actions en ligne",
+    value: "2022_en_ligne",
+    selected: false,
+  },
+  {
+    label: "Agir près de chez moi",
+    value: "2022_chez_moi",
+    selected: false,
+  },
+  {
+    label: "L’actualité sur le programme",
+    value: "2022_programme",
+    selected: false,
+  },
+  /*{
+    label: "Recevez des informations sur la France insoumise",
+    value: "LFI",
+    selected: false,
+  },*/
+];
+
 const CampaignOption = (props) => {
   const { value, img, label, selected, onChange } = props;
 
@@ -207,11 +238,9 @@ NewsletterOption.propTypes = {
   onChange: PropTypes.func,
 };
 
-const ChooseNewsletters = ({ user, dismiss }) => {
-  const [newsletters, setNewsletters] = useState(undefined);
+const ChooseNewsletters = ({ dismiss }) => {
+  const [newsletters, setNewsletters] = useState([]);
   const [submitted, setSubmitted] = useState(false);
-
-  const newsletterOptions = useMemo(() => getNewsletterOptions(user), [user]);
 
   const handleChangeNewsletter = useCallback((value, checked) => {
     if (checked) {
@@ -233,24 +262,16 @@ const ChooseNewsletters = ({ user, dismiss }) => {
   );
 
   useEffect(() => {
-    if (!user) {
-      return;
-    }
-
-    if (user.newsletters.length > 0) {
-      return setNewsletters(user.newsletters);
-    }
-
     setNewsletters(
-      newsletterOptions
-        .filter((option) => option.selected)
-        .map((option) => option.value)
+      NEWSLETTER_OPTIONS.filter((option) => option.selected).map(
+        (option) => option.value
+      )
     );
-  }, [user, newsletterOptions]);
+  }, []);
 
   return (
     <div>
-      <Hide $under>
+      <Hide under>
         <div style={{ position: "fixed" }}>
           <Link route="events">
             <LogoAP
@@ -260,19 +281,16 @@ const ChooseNewsletters = ({ user, dismiss }) => {
         </div>
       </Hide>
       <Container onSubmit={handleSubmit}>
-        <h2>Recevez l'actualité de la France insoumise</h2>
+        <h2>Recevez des informations sur la campagne</h2>
         <Spacer size="1rem" />
-        <p>
-          Choisissez parmi la liste ci-dessous les lettres d'information du
-          mouvement auxquelles vous souhaitez vous abonner
-        </p>
+        <p>Nous vous suggérerons des actions qui vous intéressent</p>
         <Spacer size="2rem" />
         <div style={{ textAlign: "left" }}>
-          {newsletterOptions.map((option) => (
+          {NEWSLETTER_OPTIONS.map((option) => (
             <NewsletterOption
               key={option.value}
               {...option}
-              selected={newsletters && newsletters.includes(option.value)}
+              selected={newsletters.includes(option.value)}
               onChange={handleChangeNewsletter}
             />
           ))}
@@ -291,6 +309,5 @@ const ChooseNewsletters = ({ user, dismiss }) => {
 };
 ChooseNewsletters.propTypes = {
   dismiss: PropTypes.func.isRequired,
-  user: PropTypes.object,
 };
 export default ChooseNewsletters;

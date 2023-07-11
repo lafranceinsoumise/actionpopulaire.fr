@@ -26,7 +26,7 @@ const StyledMuteButton = styled.button`
   cursor: pointer;
   ${({ disabled }) => (!disabled ? `opacity: 1;` : `opacity: 0.5;`)}
   ${RawFeatherIcon} {
-    ${({ $isMuted }) => $isMuted && `color: ${style.redNSP};`}
+    ${({ isMuted }) => isMuted && `color: ${style.redNSP};`}
   }
 
   @media (min-width: ${style.collapse}px) {
@@ -104,7 +104,7 @@ const ButtonMuteMessage = ({ message }) => {
         </Button>
       ) : (
         <StyledMuteButton
-          $isMuted={isMuted}
+          isMuted={isMuted}
           disabled={loading}
           onClick={handleSwitchNotification}
         >

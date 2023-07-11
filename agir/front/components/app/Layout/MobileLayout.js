@@ -7,8 +7,8 @@ import BottomBar from "@agir/front/app/Navigation/BottomBar";
 const StyledContainer = styled.div`
   padding-top: 24px;
   padding-bottom: 24px;
-  background-color: ${({ $smallBackgroundColor }) =>
-    $smallBackgroundColor || "transparent"};
+  background-color: ${({ smallBackgroundColor }) =>
+    smallBackgroundColor || "transparent"};
 `;
 
 const MobileLayout = (props) => {

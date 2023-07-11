@@ -207,7 +207,7 @@ const DateField = (props) => {
           </div>
         )}
       </Field>
-      <ErrorMessage>{error}</ErrorMessage>
+      <ErrorMessage under>{error}</ErrorMessage>
     </>
   );
 };

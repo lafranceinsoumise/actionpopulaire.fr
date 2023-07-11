@@ -80,7 +80,8 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
     list_display = (
         "__str__",
         "display_contact_phone",
-        "is_political_support",
+        "is_insoumise",
+        "is_2022",
         "newsletters",
         "location_city",
         "location_zip",
@@ -121,7 +122,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         ),
         (
             _("Paramètres de participation"),
-            {"fields": ("is_political_support", "draw_participation")},
+            {"fields": ("is_insoumise", "is_2022", "draw_participation")},
         ),
         (
             _("Profil"),
@@ -184,7 +185,8 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         CirconscriptionLegislativeFilter,
         DepartementListFilter,
         RegionListFilter,
-        "is_political_support",
+        "is_insoumise",
+        "is_2022",
         "subscribed_sms",
         "draw_participation",
         "gender",
@@ -944,13 +946,13 @@ class ContactAdmin(admin.ModelAdmin):
         "name",
         "short_address",
         "is_liaison",
-        "is_political_support",
+        "is_2022",
         "created",
         "subscriber",
     )
     list_filter = (
         filters.SegmentFilter,
-        "is_political_support",
+        "is_2022",
         ("created", DateRangeFilter),
     )
     search_fields = ["search", "contact_phone"]
@@ -979,7 +981,7 @@ class ContactAdmin(admin.ModelAdmin):
     short_address.short_description = "Adresse"
 
     def is_liaison(self, obj):
-        return obj.is_liaison
+        return obj.NEWSLETTER_2022_LIAISON in obj.newsletters
 
     is_liaison.short_description = "Correspondant·e d'immeuble"
     is_liaison.boolean = True

@@ -148,13 +148,22 @@ export const Footer = (props) => {
           </div>
 
           <div>
-            <h3>Le programme</h3>
+            <h3>La campagne législative</h3>
             <p>
+              <Link route="nupes" target="_blank">
+                La{" "}
+                <abbr title="Nouvelle Union Populaire Écologique et sociale">
+                  NUPES
+                </abbr>
+              </Link>
               <Link route="nupesPlatform" target="_blank">
                 Le programme de la{" "}
                 <abbr title="Nouvelle Union Populaire Écologique et sociale">
                   NUPES
                 </abbr>
+              </Link>
+              <Link route="agenda" target="_blank">
+                Agenda de la campagne
               </Link>
               <Link route="programme" target="_blank">
                 Le programme l'Avenir en commun
@@ -165,12 +174,6 @@ export const Footer = (props) => {
           <div>
             <h3>Les autres sites</h3>
             <p>
-              <Link route="nupes" target="_blank">
-                La{" "}
-                <abbr title="Nouvelle Union Populaire Écologique et sociale">
-                  NUPES
-                </abbr>
-              </Link>
               <Link route="lafranceinsoumise">La France insoumise</Link>
               <Link route="linsoumission">L'insoumission</Link>
               <Link route="jlmBlog">Le blog de Jean-Luc Mélenchon</Link>

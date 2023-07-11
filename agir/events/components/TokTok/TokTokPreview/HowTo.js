@@ -46,7 +46,7 @@ const StyledBody = styled(animated.ul)`
       font-size: 0.875rem;
       line-height: 1.5;
 
-      &:first-child {
+      :first-child {
         flex: 0 0 auto;
         margin-right: 1rem;
         color: ${(props) => props.theme.primary500};

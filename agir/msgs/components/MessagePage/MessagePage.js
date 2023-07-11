@@ -189,7 +189,7 @@ const MessagePage = ({ messagePk }) => {
           <NotFoundPage hasTopBar={false} reloadOnReconnection={false} />
         )}
       </StyledPage>
-      <Hide $over>
+      <Hide over>
         <BottomBar active="messages" />
       </Hide>
     </>

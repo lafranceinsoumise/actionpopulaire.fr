@@ -18,8 +18,8 @@ export const setSessionContext = (data) => ({
   ...data,
 });
 
-export const setisPoliticalSupport = () => ({
-  type: ACTION_TYPE.SET_IS_POLITICAL_SUPPORT_ACTION,
+export const setIs2022 = () => ({
+  type: ACTION_TYPE.SET_IS_2022_ACTION,
 });
 
 // TOASTS

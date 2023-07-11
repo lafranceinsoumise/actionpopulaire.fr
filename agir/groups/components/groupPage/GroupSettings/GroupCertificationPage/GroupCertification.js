@@ -127,7 +127,7 @@ const GroupCertification = (props) => {
         <Spacer size="1rem" />
         <ul>
           {criteria.map(({ value, label, description }) => (
-            <li key={label}>
+            <li key={description}>
               <RawFeatherIcon
                 name={value ? "check" : "chevron-right"}
                 css={`

@@ -41,7 +41,11 @@ const MessageThreadCard = (props) => {
     unreadCommentCount,
     lastComment,
     lastUpdate,
+    requiredMembershipType,
   } = message;
+
+  const isOrganizationMessage =
+    requiredMembershipType > MEMBERSHIP_TYPES.MEMBER;
 
   const handleClick = useCallback(() => {
     onClick && onClick(id);
@@ -63,6 +67,7 @@ const MessageThreadCard = (props) => {
       type="button"
       onClick={handleClick}
       $selected={isSelected}
+      isOrganizationMessage={isOrganizationMessage}
       disabled={isLoading}
     >
       <Avatars people={authors} />

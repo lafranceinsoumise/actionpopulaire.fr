@@ -163,7 +163,7 @@ const GroupCard = ({
             backLink={backLink}
           >
             Rejoindre
-            <Hide as="span" $under={800}>
+            <Hide as="span" under={800}>
               &nbsp;le groupe
             </Hide>
           </Button>

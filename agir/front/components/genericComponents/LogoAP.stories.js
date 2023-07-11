@@ -5,9 +5,6 @@ import LogoAP from "./LogoAP";
 export default {
   component: LogoAP,
   title: "Generic/Logo Action Populaire",
-  parameters: {
-    layout: "padded",
-  },
   decorators: [
     (story) => (
       <div

@@ -1,4 +1,3 @@
-import isPropValid from "@emotion/is-prop-valid";
 import ReactDOM from "react-dom";
 import React, { useState } from "react";
 import PropTypes from "prop-types";
@@ -92,8 +91,3 @@ export const mergeRefs = (...refs) => {
     }
   };
 };
-
-export const validProps = (props) =>
-  Object.entries(props)
-    .filter(([k]) => isPropValid(k))
-    .reduce((o, [k, v]) => ({ ...o, k: v }), {});

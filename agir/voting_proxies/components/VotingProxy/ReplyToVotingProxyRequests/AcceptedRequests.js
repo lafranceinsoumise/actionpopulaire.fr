@@ -54,7 +54,7 @@ const StyledRecap = styled.div`
 const StyledWrapper = styled.div`
   h2,
   p {
-    &::first-letter {
+    ::first-letter {
       text-transform: capitalize;
     }
   }

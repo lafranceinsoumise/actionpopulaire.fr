@@ -13,7 +13,10 @@ from agir.people.models import Person
 class GroupJoinAPITestCase(APITestCase):
     def setUp(self):
         self.person = Person.objects.create_person(
-            email="person@example.com", create_role=True, is_political_support=True
+            email="person@example.com",
+            create_role=True,
+            is_insoumise=True,
+            is_2022=True,
         )
 
     def test_anonymous_person_cannot_join(self):
@@ -21,6 +24,20 @@ class GroupJoinAPITestCase(APITestCase):
         group = SupportGroup.objects.create()
         res = self.client.post(f"/api/groupes/{group.pk}/rejoindre/")
         self.assertEqual(res.status_code, 401)
+
+    def test_2022_person_can_join_group(self):
+        person_2022 = Person.objects.create_person(
+            email="2022@example.com",
+            create_role=True,
+            is_insoumise=False,
+            is_2022=True,
+        )
+        group_insoumise = SupportGroup.objects.create(
+            type=SupportGroup.TYPE_LOCAL_GROUP
+        )
+        self.client.force_login(person_2022.role)
+        res = self.client.post(f"/api/groupes/{group_insoumise.pk}/rejoindre/")
+        self.assertEqual(res.status_code, 201)
 
     def test_person_cannot_join_closed_group(self):
         self.client.force_login(self.person.role)
@@ -104,7 +121,10 @@ class GroupJoinAPITestCase(APITestCase):
 class GroupFollowAPITestCase(APITestCase):
     def setUp(self):
         self.person = Person.objects.create_person(
-            email="person@example.com", create_role=True, is_political_support=True
+            email="person@example.com",
+            create_role=True,
+            is_insoumise=True,
+            is_2022=True,
         )
 
     def test_anonymous_person_cannot_follow(self):
@@ -1003,7 +1023,7 @@ class MemberPersonalInformationAPITestCase(APITestCase):
             "gender",
             "phone",
             "address",
-            "isPoliticalSupport",
+            "is2022",
             "isLiaison",
             "hasGroupNotifications",
         ]

@@ -14,7 +14,7 @@ const Template = (args) => <GroupMemberFacts {...args} />;
 
 export const Default = Template.bind({});
 Default.args = {
-  isPoliticalSupport: true,
+  is2022: true,
   isLiaison: true,
   hasGroupNotifications: true,
 };

@@ -158,7 +158,7 @@ export const ActionTools = () => {
           <strong>Commander du matériel</strong>
           <span>
             Commandez et recevez chez vous des tracts, des affiches et des
-            objets des campagnes du mouvement.
+            objets de campagnes du mouvement.
           </span>
         </span>
         <RawFeatherIcon aria-hidden="true" name="chevron-right" />

@@ -432,7 +432,7 @@ const EventHeader = (props) => {
   return (
     <EventHeaderContainer>
       <EventTitle>{name}</EventTitle>
-      <Hide $under>
+      <Hide under>
         <EventDate>{eventDate}</EventDate>
       </Hide>
       <Actions

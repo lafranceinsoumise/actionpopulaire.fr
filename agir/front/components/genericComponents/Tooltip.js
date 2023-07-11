@@ -46,7 +46,7 @@ const BaseTooltip = styled(animated.p)`
     font-size: 14px;
   }
 
-  &:after {
+  :after {
     content: "";
     position: absolute;
     border-style: solid;
@@ -59,7 +59,7 @@ const Tooltips = {
     left: 50%;
     transform: translate(-50%, -100%);
 
-    &:after {
+    :after {
       top: 100%;
       right: 50%;
       transform: translateX(3px);
@@ -72,7 +72,7 @@ const Tooltips = {
     right: 0;
     transform: translate(-26px, -100%);
 
-    &:after {
+    :after {
       top: 100%;
       right: 0;
       margin-left: -4px;
@@ -85,7 +85,7 @@ const Tooltips = {
     left: 0;
     transform: translate(26px, -100%);
 
-    &:after {
+    :after {
       top: 100%;
       left: 0;
       border-width: 4px;

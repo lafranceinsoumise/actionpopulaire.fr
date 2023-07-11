@@ -80,7 +80,7 @@ class SimpleLocationSerializer(serializers.Serializer):
     def to_representation(self, instance):
         data = super().to_representation(instance=instance)
         if not data["zip"] and not data["city"]:
-            return {}
+            return None
         return data
 
     def get_commune(self, obj):

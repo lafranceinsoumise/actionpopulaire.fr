@@ -15,7 +15,8 @@ def get_statistics_for_queryset(original_queryset):
     person_pks = original_queryset.values_list("pk", flat=True)
     stats = {
         "total": len(person_pks),
-        "is_political_support": 0,
+        "is_2022": 0,
+        "is_insoumise": 0,
         "contacts": 0,
         "known_phone_numbers": 0,
         "newsletter_subscribers": 0,
@@ -43,8 +44,10 @@ def get_statistics_for_queryset(original_queryset):
     user_ids = []
 
     for person in queryset:
-        if person.is_political_support:
-            stats["is_political_support"] += 1
+        if person.is_2022:
+            stats["is_2022"] += 1
+        if person.is_insoumise:
+            stats["is_insoumise"] += 1
         if person.date_of_birth:
             stats["ages"].append(current_year - person.date_of_birth.year)
         if person.contact_phone:

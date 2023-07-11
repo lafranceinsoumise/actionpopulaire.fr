@@ -53,7 +53,7 @@ const FileCard = (props) => {
   return (
     <StyledCard>
       <h5>
-        <RawFeatherIcon name={icon || "file-text"} />
+        <RawFeatherIcon name={icon || "file-text"} small />
         <span>{title}</span>
       </h5>
       <p>{text}</p>

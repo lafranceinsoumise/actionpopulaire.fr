@@ -1,12 +1,12 @@
 import PropTypes from "prop-types";
 import React, { useContext, useEffect, useMemo, Suspense } from "react";
 import { StateInspector, useReducer } from "reinspect";
+import { ThemeProvider } from "styled-components";
 import useSWR from "swr";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import QueryStringParamsActions from "./QueryStringParamsActions";
-import ThemeProvider from "@agir/front/theme/ThemeProvider";
 
 import rootReducer from "@agir/front/globalContext/reducers";
 import createDispatch, {
@@ -60,7 +60,7 @@ const ProdProvider = ({ hasRouter = false, hasToasts = false, children }) => {
 
   return (
     <GlobalContext.Provider value={{ state, dispatch: doDispatch }}>
-      <ThemeProvider>
+      <ThemeProvider theme={style}>
         <QueryStringParamsActions user={sessionContext?.user} />
         {children}
         {hasToasts && state.toasts?.length > 0 ? (

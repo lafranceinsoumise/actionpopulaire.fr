@@ -13,104 +13,28 @@ const StyledLabel = styled.span``;
 const StyledHelpText = styled.span``;
 const StyledError = styled.span``;
 
+const StyledSelectContainer = styled(components.SelectContainer)``;
+const StyledControl = styled(components.Control)``;
+const StyledMenu = styled(components.Menu)``;
 const StyledNoOptionsMessage = styled(components.NoOptionsMessage)``;
 const StyledLoadingMessage = styled(components.LoadingMessage)``;
-
-const StyledField = styled.label`
-  width: 100%;
-  display: flex;
-  flex-flow: column nowrap;
-  gap: 4px;
-  margin-bottom: 0;
-  align-items: stretch;
-  font-size: 1rem;
-  font-weight: 400;
-  line-height: 1.5;
-
-  ${StyledLabel} {
-    font-weight: 600;
-  }
-
-  .select-search-container {
-    .select-search__indicator-separator {
-      display: none;
-    }
-    .select-search__dropdown-indicator {
-      color: ${({ $invalid }) => ($invalid ? style.redNSP : style.black100)};
-    }
-  }
-
-  .select-search__control {
-    border-radius: ${style.softBorderRadius};
-    border: 1px solid;
-    max-width: 100%;
-    height: 40px;
-    font-size: 1rem;
-
-    &,
-    &:hover,
-    &:focus,
-    &.select-search__control--is-focused {
-      outline: none;
-      box-shadow: none;
-      border-color: ${({ $invalid }) =>
-        $invalid ? style.redNSP : style.black100};
-    }
-
-    &:focus,
-    &.select-search__control--is-focused {
-      border-color: ${({ $invalid }) =>
-        $invalid ? style.redNSP : style.black500};
-    }
-
-    .select-search__placeholder {
-      white-space: nowrap;
-      max-width: 100%;
-      text-overflow: ellipsis;
-      overflow: hidden;
-    }
-
-    ${RawFeatherIcon} {
-      color: ${style.black700};
-      width: 1.5rem;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      margin: 0;
-    }
-  }
-
-  .select-search__menu {
-    border: 1px solid ${style.black100};
-    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-    margin-top: -1px;
-    border-radius: 0;
-    padding: 0;
-  }
-
-  .select-search__option {
+const StyledOption = styled(components.Option)`
+  && {
     display: flex;
     flex-flow: row nowrap;
     align-items: center;
     font-size: 1rem;
     padding: 0.5rem 1rem;
-    color: ${style.black1000};
-    cursor: pointer;
-    background-color: transparent;
-
-    &.select-search__option--is-focused {
-      background-color: ${style.black50};
-    }
-
-    &.select-search__option--is-selected {
-      cursor: default;
-    }
-
-    &.select-search__option--is-selected {
-      color: ${style.primary500};
-      background-color: transparent;
-    }
+    color: ${({ isSelected }) =>
+      isSelected ? style.primary500 : style.black1000};
+    cursor: ${({ isSelected, isDisabled }) =>
+      isSelected || isDisabled ? "default" : "pointer"};
+    background-color: ${({ isFocused, isSelected }) => {
+      if (isFocused && !isSelected) {
+        return style.black50;
+      }
+      return "transparent";
+    }};
 
     ${RawFeatherIcon} {
       flex: 0 0 auto;
@@ -156,6 +80,80 @@ const StyledField = styled.label`
       height: 2rem;
     }
   }
+`;
+
+const StyledField = styled.label`
+  width: 100%;
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 4px;
+  margin-bottom: 0;
+  align-items: stretch;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+
+  ${StyledLabel} {
+    font-weight: 600;
+  }
+
+  ${StyledSelectContainer} {
+    .select__indicator-separator {
+      display: none;
+    }
+    .select__dropdown-indicator {
+      color: ${({ $invalid }) => ($invalid ? style.redNSP : style.black100)};
+    }
+  }
+
+  ${StyledControl} {
+    border-radius: ${style.softBorderRadius};
+    border: 1px solid;
+    max-width: 100%;
+    height: 40px;
+    font-size: 1rem;
+
+    &,
+    &:hover,
+    &:focus,
+    &.select__control--is-focused {
+      outline: none;
+      box-shadow: none;
+      border-color: ${({ $invalid }) =>
+        $invalid ? style.redNSP : style.black100};
+    }
+
+    &:focus,
+    &.select__control--is-focused {
+      border-color: ${({ $invalid }) =>
+        $invalid ? style.redNSP : style.black500};
+    }
+
+    .select-search__placeholder {
+      white-space: nowrap;
+      max-width: 100%;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    ${RawFeatherIcon} {
+      color: ${style.black700};
+      width: 1.5rem;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      margin: 0;
+    }
+  }
+
+  ${StyledMenu} {
+    border: 1px solid ${style.black100};
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    margin-top: -1px;
+    border-radius: 0;
+    padding: 0;
+  }
 
   ${StyledNoOptionsMessage},
   ${StyledLoadingMessage} {
@@ -169,10 +167,10 @@ const StyledField = styled.label`
 `;
 
 const Control = ({ children, ...props }) => (
-  <components.Control {...props}>
+  <StyledControl {...props}>
     <RawFeatherIcon name="search" width="1rem" height="1rem" />
     {children}
-  </components.Control>
+  </StyledControl>
 );
 Control.propTypes = {
   children: PropTypes.node,
@@ -185,7 +183,7 @@ const Option = (props) => {
   const icon = data.icon || null;
   const buttonLabel = data.buttonLabel || null;
   return (
-    <components.Option {...props}>
+    <StyledOption {...props}>
       {icon && <RawFeatherIcon name={icon} widht="1rem" height="1rem" />}
       <p>
         <strong>{label}</strong>
@@ -196,7 +194,7 @@ const Option = (props) => {
           {buttonLabel}
         </Button>
       )}
-    </components.Option>
+    </StyledOption>
   );
 };
 Option.propTypes = {
@@ -259,6 +257,11 @@ const SearchAndSelectField = (props) => {
         components={{
           Option,
           Control,
+          Menu: StyledMenu,
+          Container: StyledSelectContainer,
+          IndicatorSeparator: null,
+          LoadingMessage: StyledLoadingMessage,
+          NoOptionsMessage: StyledNoOptionsMessage,
         }}
       />
       <StyledError>{error}</StyledError>
@@ -276,7 +279,6 @@ SearchAndSelectField.propTypes = {
   helpText: PropTypes.string,
   error: PropTypes.string,
   isLoading: PropTypes.bool,
-  minSearchTermLength: PropTypes.number,
 };
 
 export default SearchAndSelectField;
