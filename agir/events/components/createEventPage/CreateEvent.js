@@ -28,7 +28,7 @@ const Illustration = styled.div`
   background-image: url(${illustration});
 `;
 
-const StyledInfoBlock = styled(Hide)`
+const StyledInfoBlock = styled.p`
   margin: 0;
   padding: 0;
 
@@ -101,7 +101,7 @@ const InfoBlock = (props) => (
   <StyledInfoBlock {...props}>
     <Illustration aria-hidden="true" />
     <Spacer size="1rem" />
-    <p>
+    <div>
       En publiant votre événement, ce dernier sera visible à toutes les
       personnes aux alentours.
       <Spacer size="0.5rem" />
@@ -112,8 +112,8 @@ const InfoBlock = (props) => (
       <Link route="help" target="_blank" rel="noopener noreferrer">
         Consulter le centre d'aide
       </Link>
-    </p>
-    <Hide under>
+    </div>
+    <Hide $under>
       <Spacer size="1.5rem" />
       <TokTokCard />
     </Hide>
@@ -132,13 +132,11 @@ const CreateEvent = () => {
           </BackLink>
           <Spacer size="1.5rem" />
           <h2>Nouvel événement</h2>
-          <InfoBlock over />
+          <Hide as={InfoBlock} $over />
           <Spacer size="1.5rem" />
           <EventForm />
         </div>
-        <div>
-          <InfoBlock under />
-        </div>
+        <Hide as={InfoBlock} $under />
       </StyledContainer>
     </PageFadeIn>
   );

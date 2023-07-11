@@ -13,6 +13,55 @@ const BOOKMARKED_EMAILS_COOKIE_OPTIONS = {
   sameSite: "Strict",
 };
 
+export const NEWSLETTERS = {
+  LFI_reguliere: {
+    label:
+      "Les informations régulières de la France insoumise, dont la lettre d'information hébdomadaire",
+    value: "LFI_reguliere",
+    selected: true,
+    visible: true,
+  },
+  LFI_exceptionnelle: {
+    label: "Les informations exceptionnelles de la France insoumise",
+    value: "LFI_exceptionnelle",
+    selected: true,
+    visible: true,
+  },
+  ELUES: {
+    label: "Les informations destinées aux élu·es",
+    value: "ELUES",
+    visible: (person) =>
+      !!person &&
+      (person.newsletters.includes("ELUES") || person.membreReseauElus),
+  },
+  LFI_jeunes_insoumise: {
+    label: "Les informations destinées aux Jeunes insoumis·es",
+    value: "LFI_jeunes_insoumises",
+    selected: false,
+    visible: true,
+  },
+  LFI_liaisons: {
+    label: "Correspondant·es d'immeuble ou de rue",
+    value: "LFI_liaisons",
+    visible: false,
+  },
+  ILB: {
+    label: "Les informations de l'Institut La Boétie",
+    value: "ILB",
+    selected: false,
+    visible: true,
+  },
+};
+
+export const LIAISON_NEWSLETTER = NEWSLETTERS.LFI_liaisons;
+
+export const NEWSLETTER_OPTIONS = Object.values(NEWSLETTERS);
+
+export const getNewsletterOptions = (person) =>
+  Object.values(NEWSLETTER_OPTIONS).filter((n) =>
+    typeof n.visible === "function" ? n.visible(person) : !!n.visible
+  );
+
 export const getBookmarkedEmails = () => {
   let cookieData = Cookies.get(BOOKMARKED_EMAILS_COOKIE_NAME);
   cookieData = cookieData && JSON.parse(cookieData);

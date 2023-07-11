@@ -9,6 +9,9 @@ import ConfirmMembershipTypeChange from "./ConfirmMembershipTypeChange.js";
 export default {
   component: ConfirmMembershipTypeChange,
   title: "GroupSettings/ConfirmMembershipTypeChange",
+  parameters: {
+    layout: "padded",
+  },
 };
 
 const Template = (args) => <ConfirmMembershipTypeChange {...args} />;

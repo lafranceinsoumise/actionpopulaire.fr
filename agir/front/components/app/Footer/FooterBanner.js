@@ -92,7 +92,7 @@ const FooterForm = styled.div`
   }
 
   & > p {
-    :last-child {
+    &:last-child {
       font-size: 14px;
     }
 

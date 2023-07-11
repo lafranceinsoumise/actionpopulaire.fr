@@ -71,7 +71,7 @@ export const StyledCard = styled.button`
         flex: 0 0 auto;
         margin: 0;
 
-        :first-child {
+        &:first-child {
           flex: 0 1 auto;
         }
       }

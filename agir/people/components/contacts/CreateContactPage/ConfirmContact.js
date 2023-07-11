@@ -7,6 +7,10 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import Button from "@agir/front/genericComponents/Button";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
+import {
+  LIAISON_NEWSLETTER,
+  NEWSLETTERS,
+} from "@agir/front/authentication/common";
 
 const StyledWrapper = styled.div`
   h2 {
@@ -50,13 +54,14 @@ const StyledWrapper = styled.div`
 const ConfirmContact = (props) => {
   const { data, onBack, onConfirm, isLoading } = props;
   const newsletters = [
-    data.newsletters.includes("2022_exceptionnel") &&
-      "les informations très importantes",
-    data.newsletters.includes("2022") && "hebdomadaires",
+    ...data.newsletters.map(
+      (n) => NEWSLETTERS[n]?.visible && NEWSLETTERS[n].label
+    ),
     data.group?.id &&
       data.hasGroupNotifications &&
-      "les actualités du groupe d'action",
+      "Les actualités du groupe d'action",
   ].filter(Boolean);
+
   return (
     <StyledWrapper>
       <h2>Confirmer les informations</h2>
@@ -71,11 +76,22 @@ const ConfirmContact = (props) => {
       </div>
       <Spacer size="1.5rem" />
       <ul>
-        {data.is2022 ? <li>Soutien Jean-Luc Mélenchon pour 2022</li> : null}
-        {newsletters.length > 0 ? (
-          <li>{`Recevra ${newsletters.join(", ")}`}</li>
+        {data.isPoliticalSupport ? (
+          <li>Veut rejoindre la France insoumise</li>
         ) : null}
-        {data.newsletters.includes("2022_liaison") ? (
+        {newsletters.length > 0 ? (
+          <li>
+            Recevra les lettres d'information suivantes&nbsp;:{" "}
+            <ul>
+              {newsletters.map((n) => (
+                <li key={n} style={{ fontSize: "0.875rem" }}>
+                  {n}
+                </li>
+              ))}
+            </ul>
+          </li>
+        ) : null}
+        {data.newsletters.includes(LIAISON_NEWSLETTER.value) ? (
           <li>Sera correspondant·e de l’immeuble ou de village</li>
         ) : null}
         {data.group?.id ? (
@@ -113,7 +129,7 @@ ConfirmContact.propTypes = {
     zip: PropTypes.string.isRequired,
     phone: PropTypes.string,
     email: PropTypes.string.isRequired,
-    is2022: PropTypes.bool.isRequired,
+    isPoliticalSupport: PropTypes.bool.isRequired,
     newsletters: PropTypes.arrayOf(PropTypes.string).isRequired,
     group: PropTypes.object,
     hasGroupNotifications: PropTypes.bool,

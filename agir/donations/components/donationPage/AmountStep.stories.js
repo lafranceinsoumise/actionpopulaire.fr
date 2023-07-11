@@ -9,6 +9,7 @@ import CONFIG from "@agir/donations/common/config";
 export default {
   component: AmountStep,
   title: "Donations/AmountStep",
+  argTypes: { selectGroup: { action: "selectGroup" } },
 };
 
 const Template = (args) => (

@@ -241,8 +241,7 @@ MERGE_STRATEGIES = {
     "location_country": merge_text_fields,
     "role": None,
     "auto_login_salt": None,
-    "is_insoumise": merge_boolean_field,
-    "is_2022": merge_boolean_field,
+    "is_political_support": merge_boolean_field,
     "membre_reseau_elus": merge_with_priority_ordering(
         [
             Person.MEMBRE_RESEAU_EXCLUS,

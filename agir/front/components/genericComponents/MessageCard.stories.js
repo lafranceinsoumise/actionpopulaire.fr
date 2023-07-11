@@ -68,7 +68,7 @@ Default.args = {
   user: {
     id: "Bill",
     displayName: "Bill Murray",
-    image: "https://www.fillmurray.com/200/200",
+    image: "https://loremflickr.com/200/200",
   },
   messageURL: "#message",
   groupURL: "#group",
@@ -81,7 +81,7 @@ Default.args = {
     author: {
       id: "Bill",
       displayName: "Bill Murray",
-      image: "https://www.fillmurray.com/200/200",
+      image: "https://loremflickr.com/200/200",
     },
     text: "Bonjour à tous les nouveaux membres ! Pour que tout le monde puisse vous connaître, je vous propose qu’on se rejoigne ensemble sur Zoom vendredi vers 20h.\n\nEst-ce que l’horaire convient à tout le monde ?",
     linkedEvent: {

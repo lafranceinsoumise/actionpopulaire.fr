@@ -148,7 +148,6 @@ ImageField.propTypes = {
   value: PropTypes.any,
   name: PropTypes.string,
   onChange: PropTypes.func.isRequired,
-  onDelete: PropTypes.func,
   id: PropTypes.string,
   label: PropTypes.string,
   helpText: PropTypes.string,

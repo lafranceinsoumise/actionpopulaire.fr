@@ -20,12 +20,8 @@ const slideIn = keyframes`
 
 const StyledLabel = styled.span``;
 const StyledHelpText = styled.span``;
-
-const StyledSelectContainer = styled(components.SelectContainer)``;
-const StyledControl = styled(components.Control)``;
-const StyledMenuList = styled.div``;
-const StyledOption = styled(components.Option)``;
 const StyledError = styled.span``;
+const StyledMenuList = styled.div``;
 
 const BackgroundOpacity = styled.div`
   @media (max-width: ${style.collapse}px) {
@@ -45,7 +41,6 @@ const CustomMenu = (props) => (
     <BackgroundOpacity />
   </components.Menu>
 );
-const StyledMenu = styled(CustomMenu)``;
 
 const StyledField = styled.label`
   display: flex;
@@ -64,16 +59,14 @@ const StyledField = styled.label`
     line-height: 1.5;
   }
 
-  ${StyledSelectContainer} {
-    .select__indicator-separator {
-      display: none;
-    }
-    .select__dropdown-indicator {
-      color: ${({ $invalid }) => ($invalid ? style.redNSP : style.black100)};
-    }
+  .select__indicator-separator {
+    display: none;
+  }
+  .select__dropdown-indicator {
+    color: ${({ $invalid }) => ($invalid ? style.redNSP : style.black100)};
   }
 
-  ${StyledControl} {
+  .select__control {
     border-radius: ${style.softBorderRadius};
     border: 1px solid;
     max-width: 100%;
@@ -109,7 +102,7 @@ const StyledField = styled.label`
     }
   }
 
-  ${StyledMenu} {
+  .select__menu {
     border: 1px solid ${style.black100};
     box-shadow: 0px 3px 2px rgba(0, 35, 44, 0.05);
     margin-top: 0;
@@ -129,15 +122,15 @@ const StyledField = styled.label`
       overflow-y: auto;
       animation: ${slideIn} 200ms ease-out;
     }
+  }
 
-    ${BackgroundOpacity} {
-      @media (max-width: ${style.collapse}px) {
-        display: ${(props) => (props.$searchable ? "none" : "block")};
-      }
+  ${BackgroundOpacity} {
+    @media (max-width: ${style.collapse}px) {
+      display: ${(props) => (props.$searchable ? "none" : "block")};
     }
   }
 
-  ${StyledMenuList} {
+  .select__menu-list {
     @media (max-width: ${style.collapse}px) {
       padding-bottom: 60px;
       max-height: 100%;
@@ -184,7 +177,7 @@ const StyledField = styled.label`
     }
   }
 
-  ${StyledOption} {
+  .select__option {
     padding: 10px 1rem;
     display: flex;
     align-items: center;
@@ -235,6 +228,7 @@ const selectFieldTheme = (theme) => ({
     primary25: style.black100,
   },
 });
+
 const SelectField = (props) => {
   const {
     id,
@@ -275,11 +269,7 @@ const SelectField = (props) => {
         theme={selectFieldTheme}
         captureMenuScroll={false}
         components={{
-          Control: StyledControl,
-          SelectContainer: StyledSelectContainer,
-          Menu: StyledMenu,
-          MenuList: SelectMenuList,
-          Option: StyledOption,
+          Menu: CustomMenu,
         }}
       />
       <StyledError>{error}</StyledError>

@@ -1,6 +1,6 @@
 import React from "react";
 
-import DownloadApp from "./DownloadApp.js";
+import { DownloadApp } from "./DownloadApp.js";
 
 export default {
   component: DownloadApp,

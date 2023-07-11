@@ -23,7 +23,6 @@ const MenuLink = styled(Link)`
   border-top: 2px solid
     ${({ $active }) => ($active ? style.primary500 : "transparent")};
 
-  &,
   &:hover,
   &:focus {
     color: ${({ $active }) => ($active ? style.primary500 : "inherit")};

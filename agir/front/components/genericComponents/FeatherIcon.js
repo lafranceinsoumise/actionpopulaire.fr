@@ -1,4 +1,5 @@
 import { icons } from "feather-icons";
+import isPropValid from "@emotion/is-prop-valid";
 import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
@@ -13,33 +14,37 @@ const getIconDataUrl = (icon) =>
 
 export const allIcons = Object.keys(icons);
 
-export const RawFeatherIcon = styled.span.attrs(
-  ({ name, strokeWidth, color, strokeLinecap, strokeLinejoin, svgStyle }) => {
-    const attrs = {
-      name,
-      "stroke-width": strokeWidth,
-      "stroke-linecap": strokeLinecap,
-      "stroke-linejoin": strokeLinejoin,
-    };
-    if (typeof color !== "undefined") {
-      attrs.color = color;
-    }
-    Object.keys(attrs).map((k) => attrs[k] === undefined && delete attrs[k]);
+export const RawFeatherIcon = styled.span
+  .withConfig({
+    shouldForwardProp: isPropValid,
+  })
+  .attrs(
+    ({ name, strokeWidth, color, strokeLinecap, strokeLinejoin, svgStyle }) => {
+      const attrs = {
+        name,
+        strokeWidth: strokeWidth,
+        "stroke-linecap": strokeLinecap,
+        "stroke-linejoin": strokeLinejoin,
+      };
+      if (typeof color !== "undefined") {
+        attrs.color = color;
+      }
+      Object.keys(attrs).map((k) => attrs[k] === undefined && delete attrs[k]);
 
-    if (svgStyle !== undefined) {
-      attrs.style = Object.keys(svgStyle)
-        .map((key) => {
-          const cssKey = key.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`);
-          return `${cssKey}:${svgStyle[key]}`;
-        })
-        .join(";");
-    }
+      if (svgStyle !== undefined) {
+        attrs.style = Object.keys(svgStyle)
+          .map((key) => {
+            const cssKey = key.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`);
+            return `${cssKey}:${svgStyle[key]}`;
+          })
+          .join(";");
+      }
 
-    return {
-      dangerouslySetInnerHTML: { __html: icons[name].toSvg(attrs) },
-    };
-  }
-)`
+      return {
+        dangerouslySetInnerHTML: { __html: icons[name].toSvg(attrs) },
+      };
+    }
+  )`
   display: inline-flex;
   align-items: center;
 

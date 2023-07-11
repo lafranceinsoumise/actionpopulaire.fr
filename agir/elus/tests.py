@@ -131,7 +131,6 @@ class AccesParrainagesTestCase(TestCase):
         p = Person.objects.create_person(
             email="conseiller@mairie.fr",
             create_role=True,
-            is_2022=True,
             meta={"subscriptions": {"NSP": {"mandat": "municipal"}}},
         )
         self.client.force_login(p.role)
@@ -148,7 +147,6 @@ class AccesParrainagesTestCase(TestCase):
         p = Person.objects.create_person(
             email="volontaire@groupe.fr",
             create_role=True,
-            is_2022=True,
         )
         self.client.force_login(p.role)
 
@@ -163,7 +161,6 @@ class AccesParrainagesTestCase(TestCase):
         p = Person.objects.create_person(
             email="volontaire@groupe.fr",
             create_role=True,
-            is_2022=True,
         )
         self.client.force_login(p.role)
 

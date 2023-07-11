@@ -256,6 +256,6 @@ GroupBanner.propTypes = {
     commune: PropTypes.shape({
       nameOf: PropTypes.string,
     }),
-  }).isRequired,
+  }),
 };
 export default GroupBanner;

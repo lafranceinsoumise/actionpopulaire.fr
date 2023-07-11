@@ -81,7 +81,8 @@ const HomeExternalLinks = () => {
   return (
     <StyledArticle>
       <h4>
-        <span>Retrouver</span> l'actualité <span>des campagnes</span>
+        <span>Retrouver</span> l'actualité{" "}
+        <span>et les campagnes du mouvement</span>
       </h4>
       <p>
         Action Populaire est le réseau social d’action de la France Insoumise et

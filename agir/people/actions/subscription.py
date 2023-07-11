@@ -44,9 +44,10 @@ SUBSCRIPTION_TYPE_CHOICES = (
     (SUBSCRIPTION_TYPE_LJI, "Les jeunes insoumis"),
 )
 SUBSCRIPTION_FIELD = {
-    SUBSCRIPTION_TYPE_LFI: "is_2022",
-    SUBSCRIPTION_TYPE_NSP: "is_2022",
-    SUBSCRIPTION_TYPE_LJI: "is_2022",
+    # TODO: Vérifier ce qui est encore utilisé et ce qui ne l'est plus
+    SUBSCRIPTION_TYPE_LFI: "is_political_support",
+    SUBSCRIPTION_TYPE_NSP: "is_political_support",
+    SUBSCRIPTION_TYPE_LJI: "is_political_support",
 }
 
 SUBSCRIPTIONS_EMAILS = {
@@ -100,8 +101,11 @@ SUBSCRIPTIONS_EMAILS = {
 }
 
 SUBSCRIPTION_NEWSLETTERS = {
-    SUBSCRIPTION_TYPE_LFI: {Person.NEWSLETTER_2022},
-    SUBSCRIPTION_TYPE_LJI: {Person.NEWSLETTER_2022, Person.NEWSLETTER_LJI},
+    SUBSCRIPTION_TYPE_LFI: {*Person.MAIN_NEWSLETTER_CHOICES},
+    SUBSCRIPTION_TYPE_LJI: {
+        *Person.MAIN_NEWSLETTER_CHOICES,
+        Person.Newsletter.LFI_LJI.value,
+    },
     SUBSCRIPTION_TYPE_NSP: set(),
     SUBSCRIPTION_TYPE_EXTERNAL: set(),
     SUBSCRIPTION_TYPE_AP: set(),
@@ -134,6 +138,7 @@ def save_subscription_information(person, type, data, new=False):
 
     if type in SUBSCRIPTION_FIELD and not getattr(person, SUBSCRIPTION_FIELD[type]):
         setattr(person, SUBSCRIPTION_FIELD[type], True)
+
     subscriptions = person.meta.setdefault("subscriptions", {})
     if type not in subscriptions:
         subscriptions[type] = {"date": timezone.now().isoformat()}
@@ -242,9 +247,8 @@ def save_contact_information(data):
             person = Person.objects.create_person(data.pop("email", ""), **data)
             is_new = True
 
-        if (
-            Person.NEWSLETTER_2022_LIAISON in person.newsletters
-            and not person.meta.get(DATE_2022_LIAISON_META_PROPERTY, None)
+        if person.is_liaison and not person.meta.get(
+            DATE_2022_LIAISON_META_PROPERTY, None
         ):
             person.meta[DATE_2022_LIAISON_META_PROPERTY] = timezone.now().isoformat(
                 timespec="seconds"

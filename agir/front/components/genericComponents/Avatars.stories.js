@@ -31,12 +31,12 @@ Default.args = {
     {
       id: "abc",
       displayName: "Jane Doe",
-      image: `https://www.fillmurray.com/160/160/`,
+      image: `https://loremflickr.com/160/160/`,
     },
     {
       id: "cba",
       displayName: "John Doe",
-      image: `https://www.fillmurray.com/161/161/`,
+      image: `https://loremflickr.com/161/161/`,
     },
   ],
 };

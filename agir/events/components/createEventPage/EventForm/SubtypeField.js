@@ -109,7 +109,6 @@ export const DefaultOption = (props) => {
       color="choose"
       onClick={handleClick}
       disabled={disabled}
-      small
     >
       <RawFeatherIcon
         name={selected ? "check" : "circle"}

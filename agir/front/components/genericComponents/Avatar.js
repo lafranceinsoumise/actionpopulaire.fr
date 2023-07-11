@@ -25,10 +25,15 @@ const getAvatarImageURL = (name, image) => {
   }
   return null;
 };
-const Avatar = styled.span.attrs(({ name, displayName, image }) => ({
-  image: getAvatarImageURL(name || displayName, image),
-  title: name || displayName,
-}))`
+const Avatar = styled.span
+  .withConfig({
+    shouldForwardProp: (prop) =>
+      !["name", "displayName", "image"].includes(prop),
+  })
+  .attrs(({ name, displayName, image }) => ({
+    image: getAvatarImageURL(name || displayName, image),
+    title: name || displayName,
+  }))`
   border-radius: 100%;
   background-repeat: no-repeat;
   background-size: cover;
