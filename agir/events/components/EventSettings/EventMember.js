@@ -135,7 +135,7 @@ const EventMember = (props) => {
   const [_, handleCopy] = useCopyToClipboard(
     email,
     2000,
-    "L'adresse e-mail a été copié"
+    "L'adresse e-mail a été copié",
   );
 
   const memberTypeConfig = useMemo(() => {

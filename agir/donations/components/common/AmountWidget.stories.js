@@ -23,7 +23,7 @@ const Template = (args) => {
   const [amount, setAmount] = React.useState(0);
   const [allocations, setAllocations] = React.useState();
   const [paymentTiming, setPaymentTiming] = React.useState(
-    args.allowedPaymentTimings[0]
+    args.allowedPaymentTimings[0],
   );
 
   const handleChangeAmount = React.useCallback(
@@ -31,7 +31,7 @@ const Template = (args) => {
       args.onChangeAmount(value);
       setAmount(value);
     },
-    [args]
+    [args],
   );
 
   const handleChangeAllocations = React.useCallback(
@@ -39,7 +39,7 @@ const Template = (args) => {
       args.onChangeAllocations(value);
       setAllocations(value);
     },
-    [args]
+    [args],
   );
 
   const handleChangePaymentTiming = React.useCallback(
@@ -47,7 +47,7 @@ const Template = (args) => {
       args.onChangePaymentTiming(value);
       setPaymentTiming(value);
     },
-    [args]
+    [args],
   );
 
   return (

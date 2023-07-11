@@ -22,7 +22,7 @@ class ContactStep extends FormStep {
       this.setError(
         "email",
         "Vous devez indiquer une adresse email de contact pour les personnes qui souhaiteraient" +
-          " se renseigner sur votre groupe"
+          " se renseigner sur votre groupe",
       );
       return false;
     }

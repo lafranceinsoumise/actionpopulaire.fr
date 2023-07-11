@@ -130,12 +130,12 @@ const GroupMemberCard = (props) => {
   const [_, handleCopy] = useCopyToClipboard(
     email,
     2000,
-    "L'adresse e-mail a été copié."
+    "L'adresse e-mail a été copié.",
   );
 
   const role = useMemo(
     () => getGenderedMembershipType(membershipType, gender),
-    [membershipType, gender]
+    [membershipType, gender],
   );
 
   const { description, group_id, group_name } = meta;

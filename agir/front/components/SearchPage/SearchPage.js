@@ -93,7 +93,7 @@ export const SearchPage = () => {
   const [groups, events, errors, isLoading] = useSearchResults(
     search,
     activeTab?.searchType,
-    filters
+    filters,
   );
 
   const handleSearch = (e) => {

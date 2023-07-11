@@ -164,13 +164,13 @@ const ProgressBar = (props) => {
             .map((goal) => parseInt(goal))
             .sort()
         : [],
-    [goals]
+    [goals],
   );
 
   const target = useMemo(() => getTarget(amount, steps), [amount, steps]);
   const targetTitle = useMemo(
     () => `${formatCurrency(amount)} / ${formatCurrency(target)}`,
-    [amount, target]
+    [amount, target],
   );
 
   const { width, animatedAmount } = useSpring({

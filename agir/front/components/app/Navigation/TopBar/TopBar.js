@@ -41,7 +41,7 @@ const RouterTopBar = (props) => {
 
   const route = useMemo(
     () => routes.find((route) => route.match(pathname)),
-    [pathname]
+    [pathname],
   );
 
   const hasTopBar =

@@ -5,7 +5,7 @@ import { getEventEndpoint } from "./api";
 
 export const useEventFormOptions = () => {
   const { data: eventOptions } = useSWR(
-    getEventEndpoint("eventPropertyOptions")
+    getEventEndpoint("eventPropertyOptions"),
   );
 
   const organizerGroup = useMemo(() => {

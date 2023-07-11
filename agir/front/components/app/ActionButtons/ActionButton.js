@@ -85,7 +85,7 @@ const ActionButton = (props) => {
 
   const visibileLabel = useResponsiveMemo(
     Array.isArray(label) ? label[0] : label,
-    Array.isArray(label) ? label[1] : label
+    Array.isArray(label) ? label[1] : label,
   );
 
   return (

@@ -28,7 +28,7 @@ const ProdProvider = ({ hasRouter = false, hasToasts = false, children }) => {
     rootReducer,
     rootReducer({}, init(hasRouter)),
     (state) => state,
-    "GC"
+    "GC",
   );
 
   const doDispatch = useMemo(() => createDispatch(dispatch), [dispatch]);
@@ -104,7 +104,7 @@ export const TestGlobalContextProvider = ({
       },
       dispatch: doDispatch,
     }),
-    [hasRouter, state, value, doDispatch]
+    [hasRouter, state, value, doDispatch],
   );
 
   return (

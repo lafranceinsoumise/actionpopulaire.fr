@@ -1,7 +1,7 @@
 export const getContrastYIQ = (
   hexcolor,
   light = "#FFFFFF",
-  dark = "#000000"
+  dark = "#000000",
 ) => {
   var r = parseInt(hexcolor.substring(1, 3), 16);
   var g = parseInt(hexcolor.substring(3, 5), 16);

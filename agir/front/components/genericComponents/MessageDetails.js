@@ -29,7 +29,7 @@ const MessageDetails = ({ message }) => {
   const [openParticipants, setOpenParticipants] = useState(false);
 
   const { data: participants } = useSWRImmutable(
-    getGroupEndpoint("messageParticipants", { messagePk: message?.id })
+    getGroupEndpoint("messageParticipants", { messagePk: message?.id }),
   );
 
   const closeParticipants = useCallback(() => {

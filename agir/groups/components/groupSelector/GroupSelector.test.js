@@ -22,7 +22,7 @@ test("GroupSelector dans son état initial", () => {
   };
 
   const component = render(
-    <GroupSelector groupChoices={choices} onChange={setLastValue} />
+    <GroupSelector groupChoices={choices} onChange={setLastValue} />,
   );
 
   // il existe un faux éléments placeholder

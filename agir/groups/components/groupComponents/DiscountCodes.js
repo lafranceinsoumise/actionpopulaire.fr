@@ -70,7 +70,7 @@ DiscountCode.propTypes = {
 const DiscountCodes = ({ discountCodes, ...rest }) => {
   const [codes, specialCodes] = useMemo(
     () => parseDiscountCodes(discountCodes),
-    [discountCodes]
+    [discountCodes],
   );
 
   if (!Array.isArray(codes) || codes.length === 0) {

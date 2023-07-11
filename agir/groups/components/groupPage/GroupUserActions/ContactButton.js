@@ -32,7 +32,7 @@ const ContactButton = (props) => {
 
   const urlParams = useMemo(
     () => new URLSearchParams(location.search),
-    [location]
+    [location],
   );
   const hasMessage = autoOpen && !!user && !!urlParams.get("contact", false);
 

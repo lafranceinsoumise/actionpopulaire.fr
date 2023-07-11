@@ -31,7 +31,7 @@ if (process.env.NODE_ENV === "production") {
         routingInstrumentation: reactRouterV5Instrumentation(
           history,
           routes.concat(groupPageRoutes),
-          matchPath
+          matchPath,
         ),
       }),
       new Replay(),

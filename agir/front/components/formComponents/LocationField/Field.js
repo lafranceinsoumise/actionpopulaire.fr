@@ -76,17 +76,17 @@ const LocationField = (props) => {
         onChange(
           props.name,
           e.target.name,
-          e.target.value.replace(/^\s+/g, "")
+          e.target.value.replace(/^\s+/g, ""),
         );
     },
-    [props.name, onChange]
+    [props.name, onChange],
   );
 
   const handleChangeCountry = useCallback(
     (country) => {
       onChange && onChange(props.name, "country", country);
     },
-    [props.name, onChange]
+    [props.name, onChange],
   );
 
   const displayAddress2 = useCallback(() => {

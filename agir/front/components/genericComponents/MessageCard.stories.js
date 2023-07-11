@@ -50,7 +50,7 @@ const Template = (args) => {
         }, 2000);
       });
     },
-    [args.user]
+    [args.user],
   );
   return (
     <MessageCard

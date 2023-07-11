@@ -68,7 +68,7 @@ Avatars.propTypes = {
       id: PropTypes.string,
       displayName: PropTypes.string.isRequired,
       image: PropTypes.string,
-    }).isRequired
+    }).isRequired,
   ).isRequired,
 };
 export default Avatars;

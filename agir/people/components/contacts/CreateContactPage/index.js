@@ -51,7 +51,7 @@ const CreateContactPage = () => {
       setData(formData);
       history.push(routeConfig.createContact.getLink({ step: STEPS[1] }));
     },
-    [history]
+    [history],
   );
 
   /**

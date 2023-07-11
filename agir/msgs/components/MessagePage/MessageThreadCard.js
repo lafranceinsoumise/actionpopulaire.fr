@@ -26,7 +26,10 @@ const StyledUnreadItemBadge = styled.span`
   color: ${({ $empty }) => ($empty ? style.redNSP : style.white)};
   opacity: ${({ $empty }) => ($empty ? "0" : "1")};
   transform: scale(${({ $empty }) => ($empty ? "0" : "1")});
-  transition: color, opacity, transform 150ms ease-out;
+  transition:
+    color,
+    opacity,
+    transform 150ms ease-out;
   will-change: color, opacity, transform;
 `;
 

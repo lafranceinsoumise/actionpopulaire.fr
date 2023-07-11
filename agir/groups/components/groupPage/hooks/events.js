@@ -15,7 +15,7 @@ export const useUpcomingEvents = (group) => {
       ? api.getGroupEndpoint("getUpcomingEvents", {
           groupPk: group.id,
         })
-      : null
+      : null,
   );
   log.debug("Group upcoming events", data);
   return group && group.hasUpcomingEvents && !error ? data : [];
@@ -31,7 +31,7 @@ export const usePastEvents = (group) => {
             page: pageIndex + 1,
             pageSize: 3,
           })
-        : null
+        : null,
   );
   const pastEvents = useMemo(() => {
     let events = [];
@@ -81,7 +81,7 @@ export const usePastEventReports = (group) => {
       ? api.getGroupEndpoint("getPastEventReports", {
           groupPk: group.id,
         })
-      : null
+      : null,
   );
   log.debug("Group past event reports", data);
 
@@ -93,7 +93,7 @@ export const useEventsJoinedByGroup = (group) => {
     group &&
       api.getGroupEndpoint("getEventsJoinedByGroup", {
         groupPk: group.id,
-      })
+      }),
   );
 
   if (error) {

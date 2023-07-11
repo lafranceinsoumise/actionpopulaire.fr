@@ -28,7 +28,7 @@ export const SearchGroupPage = () => {
   const [groups, __, errors, isLoading] = useSearchResults(
     search,
     type,
-    filters
+    filters,
   );
 
   return (

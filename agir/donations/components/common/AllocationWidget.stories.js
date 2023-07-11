@@ -17,7 +17,7 @@ const Template = ({ onChange, ...args }) => {
       onChange(newValue);
       setValue(newValue);
     },
-    [onChange]
+    [onChange],
   );
 
   return (

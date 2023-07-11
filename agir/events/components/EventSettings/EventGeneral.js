@@ -34,7 +34,7 @@ const EventGeneral = (props) => {
   const sendToast = useToast();
   const options = useEventFormOptions();
   const { data: event, mutate } = useSWR(
-    api.getEventEndpoint("getEvent", { eventPk })
+    api.getEventEndpoint("getEvent", { eventPk }),
   );
 
   const [formData, setFormData] = useState({
@@ -93,7 +93,7 @@ const EventGeneral = (props) => {
       value && value !== originalImage && setHasCheckedImageLicence(false);
       setFormData((formData) => ({ ...formData, image: value }));
     },
-    [originalImage]
+    [originalImage],
   );
 
   const handleCheckImageLicence = useCallback((event) => {
@@ -106,7 +106,7 @@ const EventGeneral = (props) => {
       handleChangeValue("startTime", startTime);
       handleChangeValue("endTime", endTime);
     },
-    [handleChangeValue]
+    [handleChangeValue],
   );
 
   const handleSubmit = async (e) => {
@@ -138,7 +138,7 @@ const EventGeneral = (props) => {
           (Array.isArray(res.error.subtype) && res.error.subtype[0]) ||
           "Une erreur est survenue, veuillez réessayer plus tard",
         "ERROR",
-        { autoClose: true }
+        { autoClose: true },
       );
       return;
     }

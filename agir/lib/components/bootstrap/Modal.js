@@ -50,7 +50,7 @@ export default class Modal extends React.Component {
                 className={classNames(
                   "modal-backdrop",
                   "fade",
-                  state === "entered" && "in"
+                  state === "entered" && "in",
                 )}
                 onClick={onHide}
               />

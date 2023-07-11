@@ -129,7 +129,7 @@ const SpendingRequests = ({ newSpendingRequestLink, spendingRequests }) => {
 SpendingRequests.propTypes = {
   newSpendingRequestLink: PropTypes.string,
   spendingRequests: PropTypes.arrayOf(
-    PropTypes.shape(SpendingRequest.propTypes)
+    PropTypes.shape(SpendingRequest.propTypes),
   ),
 };
 export default SpendingRequests;

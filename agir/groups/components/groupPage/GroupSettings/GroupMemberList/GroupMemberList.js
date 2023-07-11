@@ -95,7 +95,7 @@ const GroupMemberList = ({
       result = members.filter(
         ({ displayName, email }) =>
           displayName.toLowerCase().includes(searchTerm) ||
-          email.toLowerCase().includes(searchTerm)
+          email.toLowerCase().includes(searchTerm),
       );
     }
     if (members.length < 3) {

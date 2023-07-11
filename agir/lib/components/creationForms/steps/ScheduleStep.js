@@ -25,7 +25,7 @@ export default class ScheduleStep extends FormStep {
     } else if (startTime && startTime.isAfter(endTime)) {
       this.setError(
         "endTime",
-        "Votre événement ferait mieux de finir après avoir commencé !"
+        "Votre événement ferait mieux de finir après avoir commencé !",
       );
     }
 

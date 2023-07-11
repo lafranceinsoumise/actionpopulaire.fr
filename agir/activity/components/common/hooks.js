@@ -18,7 +18,7 @@ export const useActivities = () => {
       getActivityEndpoint("activities", {
         page: index + 1,
         pageSize: ACTIVITY_PAGE_SIZE,
-      })
+      }),
   );
 
   const activities = useMemo(() => {
@@ -86,7 +86,7 @@ export const useCustomAnnouncement = (slug, shouldPause = true) => {
   const { data, mutate, error } = useSWRImmutable(
     !isPaused && session?.user && slug
       ? getActivityEndpoint("customAnnouncement", { slug })
-      : null
+      : null,
   );
   const errorStatus = error?.response?.status;
   const announcement =
@@ -106,7 +106,7 @@ export const useCustomAnnouncement = (slug, shouldPause = true) => {
         ...announcement,
         status: ACTIVITY_STATUS.STATUS_INTERACTED,
       }),
-      false
+      false,
     );
   }, [activityId, mutate]);
 

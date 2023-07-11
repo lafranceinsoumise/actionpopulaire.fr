@@ -17,12 +17,12 @@ const DepartementField = (props) => {
     (departement) => {
       onChange && onChange(departement && departement.value);
     },
-    [onChange]
+    [onChange],
   );
 
   const selectedValue = useMemo(
     () => value && DEPARTEMENTS.find((d) => d.value === value),
-    [value]
+    [value],
   );
 
   return (

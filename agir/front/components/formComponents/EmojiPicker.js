@@ -43,7 +43,9 @@ const StyledTriggerIcon = styled(animated.span)`
     position: absolute;
     line-height: 1.5;
     transform-origin: center center;
-    transition: opacity, transform 100ms ease-in-out;
+    transition:
+      opacity,
+      transform 100ms ease-in-out;
   }
 
   & > :first-child {
@@ -173,14 +175,14 @@ const EmojiPicker = (props) => {
     (e) => {
       e.key === "Escape" && handleClose();
     },
-    [handleClose]
+    [handleClose],
   );
 
   const handleEmojiSelect = useCallback(
     (emoji) => {
       onSelect(emoji[format] || emoji.native);
     },
-    [onSelect, format]
+    [onSelect, format],
   );
 
   const transition = useTransition(isOpen, slideInTransition);
@@ -233,7 +235,7 @@ const EmojiPicker = (props) => {
                   onKeyDown={handleKeyClose}
                 />
               </StyledPickerWrapper>
-            )
+            ),
         )}
       </StyledWrapper>
     </>

@@ -132,7 +132,8 @@ const StyledEditor = styled(ReactQuill)`
       z-index: 1;
       border: none;
       background-color: white;
-      box-shadow: 0px -3px 3px rgba(0, 35, 44, 0.1),
+      box-shadow:
+        0px -3px 3px rgba(0, 35, 44, 0.1),
         0px 2px 0px rgba(0, 35, 44, 0.08);
     }
 

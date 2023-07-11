@@ -232,7 +232,7 @@ const SearchAndSelectField = (props) => {
             minSearchTermLength > 1 ? "s" : ""
           } pour chercher`
         : "Pas de résultats",
-    [minSearchTermLength]
+    [minSearchTermLength],
   );
 
   return (

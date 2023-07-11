@@ -133,7 +133,7 @@ const RadioField = (props) => {
     (e) => {
       onChange(e.target.value);
     },
-    [onChange]
+    [onChange],
   );
 
   return (
@@ -180,7 +180,7 @@ RadioField.propTypes = {
     PropTypes.shape({
       value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
       label: PropTypes.node,
-    })
+    }),
   ).isRequired,
   id: PropTypes.string,
   name: PropTypes.string,

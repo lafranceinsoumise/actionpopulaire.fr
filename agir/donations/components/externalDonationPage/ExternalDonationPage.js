@@ -48,7 +48,7 @@ const ExternalDonationPage = () => {
 
   const handleBack = useCallback(
     () => history.replace(routeConfig.donations.getLink(params) + search),
-    [history, params, search]
+    [history, params, search],
   );
 
   useEffect(() => {

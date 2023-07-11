@@ -44,7 +44,7 @@ export const useMessages = (group) => {
             pageSize: MESSAGES_PAGE_SIZE,
           })
         : null,
-    [hasMessages, group]
+    [hasMessages, group],
   );
 
   const { data, size, setSize } = useSWRInfinite(getMessagesEndpoint, {
@@ -54,7 +54,7 @@ export const useMessages = (group) => {
   const messagesCount = useMemo(
     () =>
       !hasMessages || !Array.isArray(data) || !data[0] ? 0 : data[0].count,
-    [hasMessages, data]
+    [hasMessages, data],
   );
 
   const messagesData = useMemo(() => {
@@ -102,7 +102,7 @@ export const useMessages = (group) => {
     () => () => {
       dispatch(messageActions.clearMessages());
     },
-    [dispatch]
+    [dispatch],
   );
 
   return {
@@ -117,7 +117,7 @@ export const useMessage = (group, messagePk) => {
 
   const getMessageEndpoint = useCallback(
     () => hasMessage && api.getGroupEndpoint("getMessage", { messagePk }),
-    [hasMessage, messagePk]
+    [hasMessage, messagePk],
   );
 
   const { data: message, error } = useSWR(getMessageEndpoint, {
@@ -184,7 +184,7 @@ export const useMessageActions = (props) => {
     (comment, message) => {
       dispatch(messageActions.createComment(comment, message));
     },
-    [dispatch]
+    [dispatch],
   );
 
   const saveMessage = useCallback(
@@ -197,7 +197,7 @@ export const useMessageActions = (props) => {
         dispatch(messageActions.createMessage(group, message));
       }
     },
-    [dispatch, group]
+    [dispatch, group],
   );
 
   const onDelete = useCallback(() => {

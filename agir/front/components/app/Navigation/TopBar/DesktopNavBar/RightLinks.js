@@ -49,7 +49,9 @@ const IconLink = styled(Link)`
     props.$active
       ? `0px -2px ${props.theme.primary500} inset`
       : `0px 0px ${props.theme.primary500}`};
-  transition: color, box-shadow 200ms ease-in-out;
+  transition:
+    color,
+    box-shadow 200ms ease-in-out;
 
   &:hover {
     color: ${(props) => props.theme.primary500};

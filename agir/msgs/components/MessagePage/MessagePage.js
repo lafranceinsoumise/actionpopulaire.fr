@@ -93,7 +93,7 @@ const MessagePage = ({ messagePk }) => {
     currentMessage,
     onSelectMessage,
     mutateMessages,
-    mutateComments
+    mutateComments,
   );
 
   // Pause messages' autorefresh while an action is ongoing

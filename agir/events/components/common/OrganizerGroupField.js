@@ -10,7 +10,7 @@ const OrganizerGroupField = (props) => {
     (selected) => {
       onChange && onChange(name, selected);
     },
-    [name, onChange]
+    [name, onChange],
   );
 
   return (

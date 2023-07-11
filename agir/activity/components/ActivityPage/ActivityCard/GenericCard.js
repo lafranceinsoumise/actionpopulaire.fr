@@ -16,7 +16,7 @@ const GenericCard = (props) => {
   const [_, copyEmail] = useCopyToClipboard(
     meta?.email,
     2000,
-    "L'adresse e-mail a été copié."
+    "L'adresse e-mail a été copié.",
   );
 
   const { Event, SupportGroup, Individual } = useMemo(
@@ -41,7 +41,7 @@ const GenericCard = (props) => {
       ),
       Individual: individual && <strong>{individual.displayName}</strong>,
     }),
-    [event, group, individual]
+    [event, group, individual],
   );
 
   const changedDataLabel = useMemo(() => {

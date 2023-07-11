@@ -61,7 +61,7 @@ const DesktopGroupPage = (props) => {
   const { group, groupSuggestions, allEvents, backLink } = props;
   const { hasTabs, tabs, activeTabId, activePathname, onTabChange } = useTabs(
     props,
-    false
+    false,
   );
 
   const goToAgendaTab = useMemo(() => {
@@ -87,7 +87,7 @@ const DesktopGroupPage = (props) => {
         groupPk: group.id,
         messagePk: messagePk,
       }),
-    [group]
+    [group],
   );
 
   const handleClickMessage = useCallback(
@@ -95,12 +95,12 @@ const DesktopGroupPage = (props) => {
       const link = getMessageURL(message.id);
       history && history.push(link);
     },
-    [history, getMessageURL]
+    [history, getMessageURL],
   );
 
   const groupSettingsLinks = useMemo(
     () => (group?.id ? getGroupSettingLinks(group, activePathname) : null),
-    [group, activePathname]
+    [group, activePathname],
   );
 
   if (!group) {

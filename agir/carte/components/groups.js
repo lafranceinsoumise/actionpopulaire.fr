@@ -4,11 +4,11 @@ import listMap from "@agir/carte/map/listMap";
 
 var types = JSON.parse(document.getElementById("typesConfig").textContent);
 var subtypes = JSON.parse(
-  document.getElementById("subtypesConfig").textContent
+  document.getElementById("subtypesConfig").textContent,
 );
 var bounds = JSON.parse(document.getElementById("boundsConfig").textContent);
 var queryParams = JSON.parse(
-  document.getElementById("queryParams").textContent
+  document.getElementById("queryParams").textContent,
 );
 
 var commune = null;

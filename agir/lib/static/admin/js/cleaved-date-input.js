@@ -20,7 +20,7 @@
       if ($(this).data("today")) {
         const input = this;
         $(
-          '<span class="datetimeshortcuts"><a href="#">Aujourd\'hui</button></span>'
+          '<span class="datetimeshortcuts"><a href="#">Aujourd\'hui</button></span>',
         )
           .click(function (e) {
             e.preventDefault();
@@ -42,6 +42,6 @@
       return function (_event, $newFormset) {
         return $newFormset.find(".cleaved-date-input").cleaveDateInput();
       };
-    })(this)
+    })(this),
   );
 }

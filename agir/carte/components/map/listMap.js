@@ -133,7 +133,7 @@ class Display {
         color: type.color,
         layer: this.layers[type.id],
       })),
-      (hideInactive) => this.updateFeatures(data, hideInactive)
+      (hideInactive) => this.updateFeatures(data, hideInactive),
     );
   }
 }
@@ -150,7 +150,7 @@ export default async function listMap(
     showSearch = true,
     showActiveControl = true,
     showLayerControl = true,
-  }
+  },
 ) {
   const display = new Display(types, subtypes, listType);
 
@@ -172,7 +172,7 @@ export default async function listMap(
         fill: new Fill({
           color: "rgba(255,234,28,0.1)",
         }),
-      })
+      }),
     );
     const source = new VectorSource();
     source.addFeature(feature);
@@ -184,7 +184,7 @@ export default async function listMap(
 
   const map = setUpMap(
     htmlElementId,
-    geometryLayers.concat(display.getLayers())
+    geometryLayers.concat(display.getLayers()),
   );
   fitBounds(map, bounds);
   setUpPopup(map);

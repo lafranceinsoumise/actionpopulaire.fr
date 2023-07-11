@@ -233,7 +233,7 @@ export const GroupFilters = ({ filters, setFilter }) => {
           onChange={({ target }) =>
             setFilter(
               "groupInactive",
-              target.checked ? undefined : { value: "1" }
+              target.checked ? undefined : { value: "1" },
             )
           }
         />

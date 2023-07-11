@@ -17,7 +17,9 @@ const StyledBanner = styled.header`
   width: 100%;
   height: 166px;
   background-image: url(${logoSmall}), url(${bannerBGSmall});
-  background-size: auto 76px, cover;
+  background-size:
+    auto 76px,
+    cover;
   background-position: center center;
   background-repeat: no-repeat;
   opacity: ${({ $isReady }) => ($isReady ? 1 : 0)};
@@ -26,7 +28,9 @@ const StyledBanner = styled.header`
   @media (min-width: ${(props) => props.theme.collapse}px) {
     height: 191px;
     background-image: url(${logoLarge}), url(${bannerBGLarge});
-    background-size: 680px 158px, cover;
+    background-size:
+      680px 158px,
+      cover;
     background-position: bottom center;
   }
 `;

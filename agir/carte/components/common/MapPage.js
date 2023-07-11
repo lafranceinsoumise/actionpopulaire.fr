@@ -133,7 +133,7 @@ const MapPage = (props) => {
   const defaultBounds = useMemo(() => getDefaultBoundsForUser(user), [user]);
   const mapSrc = useMemo(
     () => getMapUrl(mapBaseURL, defaultBounds),
-    [mapBaseURL, defaultBounds]
+    [mapBaseURL, defaultBounds],
   );
 
   return (

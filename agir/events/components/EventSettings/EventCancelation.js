@@ -27,7 +27,7 @@ const EventCancelation = (props) => {
       sendToast(
         error.detail || "Une erreur est survenue, veuillez réessayer plus tard",
         "ERROR",
-        { autoClose: true }
+        { autoClose: true },
       );
       return;
     }

@@ -13,7 +13,7 @@ import { getElectionEndpoint } from "@agir/elections/Common/api";
 const NewPollingStationOfficer = () => {
   const { data: session } = useSWRImmutable("/api/session/");
   const { data: initialData } = useSWRImmutable(
-    getElectionEndpoint("pollingStationOfficer")
+    getElectionEndpoint("pollingStationOfficer"),
   );
 
   return (

@@ -10,7 +10,7 @@ const EditMembershipDialog = (props) => {
   const { shouldShow, isLoading, onUpdate, onClose } = props;
 
   const [personalInfoConsent, setPersonalInfoConsent] = useState(
-    props?.personalInfoConsent || false
+    props?.personalInfoConsent || false,
   );
 
   const handleCheck = (e) => {

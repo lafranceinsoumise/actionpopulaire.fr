@@ -126,7 +126,7 @@ const DesktopThreadList = (props) => {
 
   const [scrollableRef, bottomRef] = useAutoScrollToBottom(
     selectedMessage?.comments?.length,
-    selectedMessagePk
+    selectedMessagePk,
   );
 
   const groupURL = selectedMessage
@@ -204,7 +204,7 @@ const MobileThreadList = (props) => {
 
   const [scrollableRef, bottomRef] = useAutoScrollToBottom(
     selectedMessage?.comments?.length,
-    selectedMessagePk
+    selectedMessagePk,
   );
   const groupURL = selectedMessage
     ? routeConfig.groupDetails.getLink({

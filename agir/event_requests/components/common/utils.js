@@ -8,7 +8,7 @@ export const parseEventSpeakerRequests = (speaker) => {
       ...obj,
       [request.id]: request,
     }),
-    {}
+    {},
   );
   const answerable = {};
   const unanswerable = {};
@@ -29,7 +29,7 @@ export const parseEventSpeakerRequests = (speaker) => {
         });
         return arr;
       },
-      []
+      [],
     ),
     unanswerable: Object.entries(unanswerable).reduce(
       (arr, [eventRequestId, eventSpeakerRequests]) => {
@@ -39,7 +39,7 @@ export const parseEventSpeakerRequests = (speaker) => {
         });
         return arr;
       },
-      []
+      [],
     ),
   };
 };

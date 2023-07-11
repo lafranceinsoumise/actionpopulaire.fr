@@ -64,16 +64,16 @@ export const useTabs = (props, isMobile = true) => {
         .filter((route) =>
           typeof route.hasRoute === "function"
             ? route.hasRoute(group, isMobile)
-            : route.hasRoute
+            : route.hasRoute,
         )
         .map(
           (route) =>
             new RouteConfig({
               ...route,
               params: { groupPk: group.id },
-            })
+            }),
         ),
-    [group, isMobile]
+    [group, isMobile],
   );
 
   const tabs = useMemo(() => routes.filter((route) => route.hasTab), [routes]);
@@ -94,7 +94,7 @@ export const useTabs = (props, isMobile = true) => {
       group?.id && group.isManager
         ? getSettingsRoute(activePathname).getLink()
         : null,
-    [group, activePathname]
+    [group, activePathname],
   );
 
   const activeTabIndex = useMemo(() => {
@@ -113,7 +113,7 @@ export const useTabs = (props, isMobile = true) => {
           : history.push(route.getLink(params));
       }
     },
-    [history]
+    [history],
   );
 
   const handleNextTab = useCallback(() => {
@@ -134,7 +134,7 @@ export const useTabs = (props, isMobile = true) => {
         setAdminLink({
           href: routes.admin,
           label: "Administration",
-        })
+        }),
       );
   }, [dispatch, group, activePathname]);
 
@@ -144,7 +144,7 @@ export const useTabs = (props, isMobile = true) => {
         setTopBarRightLink({
           to: settingsLink,
           label: "Gestion du groupe",
-        })
+        }),
       );
   }, [dispatch, settingsLink, location.pathname]);
 
@@ -171,7 +171,7 @@ export const useTabs = (props, isMobile = true) => {
       handleTabChange,
       handleNextTab,
       handlePrevTab,
-    ]
+    ],
   );
 
   return result;

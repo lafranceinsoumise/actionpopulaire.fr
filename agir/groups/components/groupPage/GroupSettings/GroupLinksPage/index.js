@@ -64,7 +64,7 @@ const GroupLinksPage = (props) => {
       setSelectedLink(null);
       mutate(getGroupEndpoint("getGroup", { groupPk }));
     },
-    [sendToast, groupPk]
+    [sendToast, groupPk],
   );
 
   const deleteLink = useCallback(
@@ -77,7 +77,7 @@ const GroupLinksPage = (props) => {
         sendToast(
           "Le lien n'a pas pu être supprimé. Veuillez ressayer.",
           "ERROR",
-          { autoClose: true }
+          { autoClose: true },
         );
         return;
       }
@@ -86,7 +86,7 @@ const GroupLinksPage = (props) => {
       setSelectedLink(null);
       mutate(getGroupEndpoint("getGroup", { groupPk }));
     },
-    [sendToast, groupPk]
+    [sendToast, groupPk],
   );
 
   const handleBack = useCallback(() => {
@@ -117,7 +117,7 @@ const GroupLinksPage = (props) => {
                 isLoading={isLoading}
               />
             </FormPanelWrapper>
-          )
+          ),
       )}
     </>
   );

@@ -13,8 +13,12 @@ const StyledLogo = styled.div`
   height: 110px;
   background-repeat: no-repeat;
   background-image: url(${logo}), url(${background});
-  background-position: center center, center center;
-  background-size: auto 55px, cover;
+  background-position:
+    center center,
+    center center;
+  background-size:
+    auto 55px,
+    cover;
 
   ${(props) =>
     props.$flex &&

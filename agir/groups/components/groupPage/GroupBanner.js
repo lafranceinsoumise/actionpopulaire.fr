@@ -167,7 +167,7 @@ const GroupBanner = (props) => {
 
   const subtitle = useMemo(
     () => getGroupTypeWithLocation(type, location),
-    [type, location]
+    [type, location],
   );
 
   const openModal = useCallback(() => {

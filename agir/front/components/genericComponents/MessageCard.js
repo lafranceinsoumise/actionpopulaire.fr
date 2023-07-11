@@ -511,7 +511,7 @@ const MessageCard = (props) => {
   }, [props.messageURL]);
   const encodedMessageURL = useMemo(
     () => messageURL && encodeURIComponent(messageURL),
-    [messageURL]
+    [messageURL],
   );
   const [isURLCopied, copyURL] = useCopyToClipboard(messageURL);
 
@@ -531,19 +531,19 @@ const MessageCard = (props) => {
     (comment) => {
       onComment && onComment(comment, message);
     },
-    [message, onComment]
+    [message, onComment],
   );
   const handleDeleteComment = useCallback(
     (comment) => {
       onDeleteComment && onDeleteComment(comment, message);
     },
-    [message, onDeleteComment]
+    [message, onDeleteComment],
   );
   const handleReportComment = useCallback(
     (comment) => {
       onReportComment && onReportComment(comment, message);
     },
-    [message, onReportComment]
+    [message, onReportComment],
   );
 
   useEffect(() => {

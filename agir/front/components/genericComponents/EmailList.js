@@ -70,7 +70,7 @@ const EmailList = (props) => {
 };
 EmailList.propTypes = {
   data: PropTypes.arrayOf(
-    PropTypes.oneOfType([PropTypes.object, PropTypes.string])
+    PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
   ),
   label: PropTypes.string,
 };

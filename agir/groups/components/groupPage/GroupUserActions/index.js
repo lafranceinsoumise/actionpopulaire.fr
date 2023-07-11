@@ -128,7 +128,7 @@ const ConnectedUserActions = (props) => {
         "ERROR",
         {
           autoClose: true,
-        }
+        },
       );
       return;
     }
@@ -149,7 +149,7 @@ const ConnectedUserActions = (props) => {
       "SUCCESS",
       {
         autoClose: true,
-      }
+      },
     );
   }, [id, name, sendToast]);
 
@@ -166,7 +166,7 @@ const ConnectedUserActions = (props) => {
       setIsLoading(false);
       joiningStep > 0 ? setJoiningStep(3) : setOpenDialog(null);
     },
-    [joiningStep, id]
+    [joiningStep, id],
   );
 
   const openMessageModal = useCallback(() => {
@@ -182,7 +182,7 @@ const ConnectedUserActions = (props) => {
       const result = await api.createPrivateMessage(id, { subject, text });
       onSelectMessage(result.data.id);
     },
-    [id, onSelectMessage]
+    [id, onSelectMessage],
   );
 
   return (

@@ -43,7 +43,7 @@ export const AddOrganizer = ({ eventPk, participants, onBack }) => {
       sendToast(
         res.errors?.detail || "L'invitation n'a pas pu être envoyée",
         "ERROR",
-        { autoClose: true }
+        { autoClose: true },
       );
       onBack();
       return;

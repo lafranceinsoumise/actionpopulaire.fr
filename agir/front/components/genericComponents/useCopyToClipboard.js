@@ -5,7 +5,7 @@ import { useToast } from "@agir/front/globalContext/hooks";
 const useCopyToClipboard = (
   text = "",
   resetInterval = 5000,
-  successToast = null
+  successToast = null,
 ) => {
   const sendToast = useToast();
   const [isCopied, setIsCopied] = useState(false);

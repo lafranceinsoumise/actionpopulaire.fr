@@ -22,7 +22,7 @@ const EventMemberList = ({ members, onAdd, addButtonLabel, isLoading }) => {
   const list = useMemo(
     () =>
       Array.isArray(members) ? _sortBy(members, "isOrganizer").reverse() : [],
-    [members]
+    [members],
   );
 
   return (

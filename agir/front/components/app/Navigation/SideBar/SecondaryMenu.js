@@ -74,7 +74,7 @@ SecondaryMenu.propTypes = {
       to: PropTypes.string,
       title: PropTypes.string,
       label: PropTypes.string,
-    })
+    }),
   ),
 };
 

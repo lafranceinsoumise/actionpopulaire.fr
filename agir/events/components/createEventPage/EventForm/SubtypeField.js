@@ -164,7 +164,7 @@ const SubtypeField = (props) => {
       onChange(name, subtype);
       closePanel();
     },
-    [onChange, name, closePanel]
+    [onChange, name, closePanel],
   );
 
   const subtypes = useMemo(() => {

@@ -90,7 +90,7 @@ export const WithComments = () => {
       author: {
         displayName: "Quelqu'un",
         image: `https://images.dicebear.com/api/human/${String(
-          Math.random()
+          Math.random(),
         ).replace(".", "")}.svg?background=%23ffffff`,
       },
       created: new Date().toUTCString(),

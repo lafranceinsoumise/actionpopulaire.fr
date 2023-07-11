@@ -31,7 +31,7 @@ const renderLegacyPageComponents = () => {
         </MemoryRouter>
       </GlobalContextProvider>
     </SWRContext>,
-    renderElement
+    renderElement,
   );
 };
 

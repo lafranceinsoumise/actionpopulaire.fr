@@ -56,13 +56,13 @@ const GroupEventList = (props) => {
                   ...event,
                   schedule: Interval.fromDateTimes(
                     DateTime.fromISO(event.startTime).setLocale("fr"),
-                    DateTime.fromISO(event.endTime).setLocale("fr")
+                    DateTime.fromISO(event.endTime).setLocale("fr"),
                   ),
                 }
-              : null
+              : null,
           )
         : null,
-    [events]
+    [events],
   );
   const isReady = Array.isArray(eventList);
   if (isReady && eventList.length === 0) {

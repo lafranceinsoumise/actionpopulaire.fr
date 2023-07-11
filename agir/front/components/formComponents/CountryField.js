@@ -33,12 +33,12 @@ const CountryField = (props) => {
     (country) => {
       onChange && onChange(country && country.value);
     },
-    [onChange]
+    [onChange],
   );
 
   const selectedCountry = useMemo(
     () => value && COUNTRIES.find((c) => c.value === value),
-    [value]
+    [value],
   );
 
   return (

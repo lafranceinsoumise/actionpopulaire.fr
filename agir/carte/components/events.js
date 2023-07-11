@@ -7,7 +7,7 @@ var subtypes = JSON.parse(document.getElementById("subtypeConfig").textContent);
 var bounds = JSON.parse(document.getElementById("boundsConfig").textContent);
 var controls = JSON.parse(document.getElementById("controls").textContent);
 var queryParams = JSON.parse(
-  document.getElementById("queryParams").textContent
+  document.getElementById("queryParams").textContent,
 );
 
 var commune = null;

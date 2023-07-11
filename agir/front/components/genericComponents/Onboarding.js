@@ -184,7 +184,7 @@ const Onboarding = (props) => {
 
   const mapIframe = useResponsiveMemo(
     null,
-    type && ONBOARDING_TYPE[type]?.mapIframe
+    type && ONBOARDING_TYPE[type]?.mapIframe,
   );
 
   if (!type || !ONBOARDING_TYPE[type]) {

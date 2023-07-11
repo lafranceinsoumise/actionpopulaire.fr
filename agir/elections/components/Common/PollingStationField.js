@@ -15,7 +15,7 @@ const ABROAD_POLLING_STATION_OPTIONS = ABROAD_POLLING_STATIONS.map(
       value: value,
       countryCodes,
     };
-  }
+  },
 );
 
 const HelpText = (
@@ -52,7 +52,7 @@ const sortOptionsByCountries = (countries) => {
 const AbroadPollingStationField = (props) => {
   const { value, name, onChange, countries } = props;
   const [selected, setSelected] = useState(
-    ABROAD_POLLING_STATION_OPTIONS.find((option) => option.value === value)
+    ABROAD_POLLING_STATION_OPTIONS.find((option) => option.value === value),
   );
   const options = useMemo(() => sortOptionsByCountries(countries), [countries]);
 

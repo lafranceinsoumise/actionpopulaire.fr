@@ -12,7 +12,7 @@ afterEach(cleanup);
 
 test("Render IBANField", () => {
   const component = render(
-    <IBANField id="id_iban" name="iban" placeholder={"mon placeholder"} />
+    <IBANField id="id_iban" name="iban" placeholder={"mon placeholder"} />,
   );
 
   const input = component.getByRole("textbox");
@@ -25,7 +25,7 @@ test("Render IBANField", () => {
 test("Entrer une donnée mal formatée", () => {
   const placeHolder = "Entrez votre IBAN.";
   const input = render(
-    <IBANField placeholder={placeHolder} />
+    <IBANField placeholder={placeHolder} />,
   ).getByPlaceholderText(placeHolder);
   fireEvent.change(input, {
     target: { value: "  abc   ;:,:;:! 'éDEF çàèçè--0123" },
@@ -36,7 +36,7 @@ test("Entrer une donnée mal formatée", () => {
 test("Un IBAN d'une nationalité non accepté", () => {
   const placeHolder = "Entrez votre IBAN.";
   const iban = render(
-    <IBANField allowedCountries={["FR"]} placeholder={placeHolder} />
+    <IBANField allowedCountries={["FR"]} placeholder={placeHolder} />,
   );
   const input = iban.getByRole("textbox");
   fireEvent.change(input, {
@@ -44,7 +44,7 @@ test("Un IBAN d'une nationalité non accepté", () => {
   });
   fireEvent.blur(input);
   const wrongCountry = iban.getByText(
-    "La nationalité de cet IBAN n'est pas acceptée."
+    "La nationalité de cet IBAN n'est pas acceptée.",
   );
   expect(wrongCountry).toBeInstanceOf(HTMLSpanElement);
 });
@@ -52,7 +52,7 @@ test("Un IBAN d'une nationalité non accepté", () => {
 test("Un IBAN invalide", () => {
   const placeHolder = "Entrez votre IBAN.";
   const iban = render(
-    <IBANField allowedCountry={["FR"]} placeholder={placeHolder} />
+    <IBANField allowedCountry={["FR"]} placeholder={placeHolder} />,
   );
   const input = iban.getByPlaceholderText(placeHolder);
   fireEvent.change(input, {

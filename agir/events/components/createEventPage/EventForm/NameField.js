@@ -14,7 +14,7 @@ const NameField = (props) => {
       setIsDefault(false);
       onChange && onChange(name, e.target.value);
     },
-    [name, onChange]
+    [name, onChange],
   );
 
   useEffect(() => {

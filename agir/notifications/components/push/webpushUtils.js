@@ -50,10 +50,10 @@ export function getSubscriptionData(pushSubscription) {
   return {
     browser: browser.name.toUpperCase(),
     p256dh: btoa(
-      String.fromCharCode(...new Uint8Array(pushSubscription.getKey("p256dh")))
+      String.fromCharCode(...new Uint8Array(pushSubscription.getKey("p256dh"))),
     ),
     auth: btoa(
-      String.fromCharCode(...new Uint8Array(pushSubscription.getKey("auth")))
+      String.fromCharCode(...new Uint8Array(pushSubscription.getKey("auth"))),
     ),
     name: "Action populaire",
     registration_id: registration_id,
@@ -62,11 +62,11 @@ export function getSubscriptionData(pushSubscription) {
 
 export async function webpushSubscribe(
   serviceWorkerRegistration,
-  pushSubscription
+  pushSubscription,
 ) {
   if (!process.env.WEBPUSH_PUBLIC_KEY) {
     log.error(
-      "WEBPUSH_PUBLIC_KEY must be define. You can generate keys at https://web-push-codelab.glitch.me/."
+      "WEBPUSH_PUBLIC_KEY must be define. You can generate keys at https://web-push-codelab.glitch.me/.",
     );
   }
 
@@ -75,7 +75,7 @@ export async function webpushSubscribe(
     (await serviceWorkerRegistration.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(
-        process.env.WEBPUSH_PUBLIC_KEY
+        process.env.WEBPUSH_PUBLIC_KEY,
       ),
     })) ||
     (await serviceWorkerRegistration.pushManager.getSubscription());

@@ -24,7 +24,7 @@ export const CHANGED_DATA_LABEL = {
 export const getUnread = (data) => {
   return Array.isArray(data)
     ? data.filter(
-        (activity) => activity.status === ACTIVITY_STATUS.STATUS_UNDISPLAYED
+        (activity) => activity.status === ACTIVITY_STATUS.STATUS_UNDISPLAYED,
       )
     : [];
 };
@@ -36,7 +36,7 @@ export const getUnreadCount = (data) => {
 export const getUninteracted = (data) => {
   return Array.isArray(data)
     ? data.filter(
-        (activity) => activity.status !== ACTIVITY_STATUS.STATUS_INTERACTED
+        (activity) => activity.status !== ACTIVITY_STATUS.STATUS_INTERACTED,
       )
     : [];
 };

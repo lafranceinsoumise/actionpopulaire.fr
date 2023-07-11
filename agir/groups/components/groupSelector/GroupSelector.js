@@ -38,7 +38,7 @@ const GroupSelector = ({
                 },
                 defaultOptions,
               ]
-            : []
+            : [],
         )
       }
       defaultOptions={[defaultOptions]}

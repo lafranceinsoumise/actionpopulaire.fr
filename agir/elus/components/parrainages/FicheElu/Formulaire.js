@@ -122,7 +122,7 @@ const Formulaire = ({ elu, onStatusChange }) => {
         setRequestState(RequestStatus.ERROR(e.message));
       }
     },
-    [elu, decision, onStatusChange]
+    [elu, decision, onStatusChange],
   );
 
   return (

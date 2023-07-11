@@ -77,7 +77,7 @@ const ChooseCampaign = ({ fromSignup, dismiss }) => {
       await dismiss();
       setSubmitted(false);
     },
-    [dismiss]
+    [dismiss],
   );
 
   return (

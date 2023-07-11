@@ -23,7 +23,7 @@ const init = () => {
     <SWRContext>
       <Progress {...data} />
     </SWRContext>,
-    renderElement
+    renderElement,
   );
 };
 onDOMReady(init);

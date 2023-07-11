@@ -36,10 +36,10 @@ export const GroupSettings = (props) => {
     () =>
       group?.type
         ? `Gestion de votre ${getGroupTypeWithLocation(
-            group.type
+            group.type,
           ).toLowerCase()}`
         : "",
-    [group]
+    [group],
   );
 
   const routeMenuMatch = useRouteMatch(menuRoute.path);

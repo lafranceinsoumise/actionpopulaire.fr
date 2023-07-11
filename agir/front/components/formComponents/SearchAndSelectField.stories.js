@@ -40,7 +40,7 @@ const Template = (args) => {
           resolve(options);
         }, 500);
       }),
-    []
+    [],
   );
 
   return (

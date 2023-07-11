@@ -120,7 +120,7 @@ const HookedCollapsibleAnnouncementCard = ({ slug, ...rest }) => {
   const [announcementData] = useCustomAnnouncement(slug, false);
   const [isInitiallyCollapsed, setIsInitiallyCollapsed] = useLocalStorage(
     `AP__cac__${slug}`,
-    false
+    false,
   );
   const handleClose = () => setIsInitiallyCollapsed(true);
 

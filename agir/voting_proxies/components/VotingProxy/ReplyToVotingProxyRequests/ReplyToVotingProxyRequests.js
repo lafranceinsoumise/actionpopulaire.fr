@@ -38,13 +38,13 @@ const ReplyToVotingProxyRequests = (props) => {
     getVotingProxyEndpoint(
       "replyToVotingProxyRequests",
       { votingProxyPk },
-      { vpr: votingProxyRequestsIds || undefined, ro: isReadOnly ? "1" : "0" }
+      { vpr: votingProxyRequestsIds || undefined, ro: isReadOnly ? "1" : "0" },
     ),
     {
       revalidateIfStale: false,
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
-    }
+    },
   );
 
   if (error?.response?.status === 404) {

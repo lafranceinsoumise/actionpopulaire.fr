@@ -55,7 +55,7 @@ const SelectedGroupWidget = (props) => {
       Array.isArray(groups)
         ? groups.map((g) => ({ ...g, value: g.id, label: g.name }))
         : [],
-    [groups]
+    [groups],
   );
 
   useEffect(() => {
@@ -115,7 +115,7 @@ SelectedGroupWidget.propTypes = {
     PropTypes.shape({
       id: PropTypes.string,
       name: PropTypes.string,
-    })
+    }),
   ),
   onChange: PropTypes.func,
 };

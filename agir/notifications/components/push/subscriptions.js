@@ -49,7 +49,7 @@ const useServerSubscription = (deviceType, token) => {
       subscribe,
       unsubscribe,
     }),
-    [ready, isSubscribed, subscribe, unsubscribe]
+    [ready, isSubscribed, subscribe, unsubscribe],
   );
 
   return state;
@@ -61,7 +61,7 @@ const useAndroidPush = () => {
 
   const { ready, isSubscribed, subscribe, unsubscribe } = useServerSubscription(
     API.DEVICE_TYPE.ANDROID,
-    token
+    token,
   );
 
   const state = useMemo(() => {
@@ -145,7 +145,7 @@ const useIOSPush = () => {
     // iOS device but no info yet about subscription
     if (!phoneReady) {
       log.debug(
-        `${API.DEVICE_TYPE.IOS}: Waiting for IOS device subscription status`
+        `${API.DEVICE_TYPE.IOS}: Waiting for IOS device subscription status`,
       );
       return {
         ready: false,

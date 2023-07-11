@@ -10,7 +10,7 @@ const Button = (props) => {
         "btn",
         `btn-${bsStyle}`,
         bsSize && `btn-${bsSize}`,
-        active && "active"
+        active && "active",
       )}
       type={type}
       {...otherProps}

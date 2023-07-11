@@ -11,7 +11,7 @@ export const debounce = (func, wait) => {
       currentResolve = null;
     },
     wait,
-    { leading: false, trailing: true }
+    { leading: false, trailing: true },
   );
 
   return (...args) => {

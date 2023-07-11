@@ -97,7 +97,7 @@ const CodeConnexion = () => {
 
   const isAuto = useMemo(
     () => !!location.state && location.state.auto === true,
-    [location]
+    [location],
   );
 
   const handleCode = useCallback((e) => {
@@ -127,7 +127,7 @@ const CodeConnexion = () => {
         window.location = DEFAULT_NEXT_PAGE;
       }
     },
-    [code, mutate]
+    [code, mutate],
   );
 
   useEffect(() => {

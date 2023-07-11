@@ -118,7 +118,7 @@ const JoiningDetails = (props) => {
 
   // Get managing groups attendees
   const managingGroupsAttendees = user?.groups.filter(
-    (group) => groupsId.includes(group.id) && group.isManager
+    (group) => groupsId.includes(group.id) && group.isManager,
   );
 
   if ((!rsvped || !logged) && !managingGroupsAttendees?.length) {
@@ -150,7 +150,7 @@ JoiningDetails.propTypes = {
       id: PropTypes.string,
       name: PropTypes.string,
       isManager: PropTypes.bool,
-    })
+    }),
   ),
   logged: PropTypes.bool,
   backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),

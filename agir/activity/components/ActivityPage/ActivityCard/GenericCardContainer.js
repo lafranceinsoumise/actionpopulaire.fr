@@ -148,7 +148,7 @@ export const GenericCardContainer = (props) => {
   } = props;
 
   const [isUnread, setIsUnread] = useState(
-    status !== ACTIVITY_STATUS.STATUS_INTERACTED
+    status !== ACTIVITY_STATUS.STATUS_INTERACTED,
   );
 
   const date = useMemo(
@@ -157,14 +157,14 @@ export const GenericCardContainer = (props) => {
         .split("")
         .map((ch, i) => (i ? ch : ch.toUpperCase()))
         .join(""),
-    [timestamp]
+    [timestamp],
   );
 
   const iconName = useMemo(() => config.icon || "info", [config]);
 
   const eventSchedule = useMemo(
     () => event && Interval.fromISO(`${event.startTime}/${event.endTime}`),
-    [event]
+    [event],
   );
 
   if (!config) {

@@ -20,7 +20,7 @@ precacheAndRoute(webpackAssets);
 registerRoute(
   // Check to see if the request is a navigation to a new page
   ({ request }) => request.mode === "navigate",
-  new NetworkOnly()
+  new NetworkOnly(),
 );
 
 // Use network first or stale cache for some API endpoints

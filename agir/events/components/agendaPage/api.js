@@ -45,7 +45,7 @@ const ACTION_RADIUS_MAX = 500;
 
 const useActionRadius = (initialValue) => {
   const { data, mutate, isLoading } = useSWRImmutable(
-    getAuthenticationEndpoint("getProfile")
+    getAuthenticationEndpoint("getProfile"),
   );
   const { actionRadius: remoteValue, hasLocation = false } = data || {};
   const [localValue, setLocalValue] = useState(initialValue);
@@ -64,7 +64,7 @@ const useActionRadius = (initialValue) => {
       }
     },
     500,
-    [localValue]
+    [localValue],
   );
 
   const actionRadiusRangeProps = useMemo(
@@ -76,7 +76,7 @@ const useActionRadius = (initialValue) => {
       min: ACTION_RADIUS_MIN,
       max: ACTION_RADIUS_MAX,
     }),
-    [hasLocation, localValue, setLocalValue, isLoading, remoteValue]
+    [hasLocation, localValue, setLocalValue, isLoading, remoteValue],
   );
 
   useUpdateEffect(() => {
@@ -96,7 +96,7 @@ const useActionRadius = (initialValue) => {
           ? data
           : { ...userProfile, actionRadius: debouncedLocalValue };
       },
-      { revalidate: false }
+      { revalidate: false },
     );
   }, [mutate, isLoading, debouncedLocalValue, remoteValue]);
 
@@ -110,10 +110,10 @@ export const useEventSuggestions = (isPaused = false) => {
   const { data: session } = useSWRImmutable("/api/session/");
   const { data: events, mutate } = useSWRImmutable(
     activeKey && getAgendaEndpoint(activeKey),
-    { isPaused }
+    { isPaused },
   );
   const { data: grandEvents } = useSWRImmutable(
-    getAgendaEndpoint("grandEvents")
+    getAgendaEndpoint("grandEvents"),
   );
   const { remoteValue: userActionRadius, ...actionRadiusRangeProps } =
     useActionRadius(session?.user?.actionRadius);
@@ -128,8 +128,8 @@ export const useEventSuggestions = (isPaused = false) => {
     [userID, userZip, userActionRadius, mutate],
     (previous, next) =>
       !Object.keys(previous).some(
-        (key) => previous[key] && previous[key] !== next[key]
-      )
+        (key) => previous[key] && previous[key] !== next[key],
+      ),
   );
 
   return [

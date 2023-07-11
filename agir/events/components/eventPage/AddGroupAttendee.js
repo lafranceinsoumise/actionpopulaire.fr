@@ -109,7 +109,7 @@ const AddGroupAttendee = ({ id, groups, groupsAttendees }) => {
   // Get managing groups not attendees
   const managingGroups =
     user?.groups?.filter(
-      (group) => group.isManager && !blackList.includes(group.id)
+      (group) => group.isManager && !blackList.includes(group.id),
     ) || [];
 
   const handleJoinAsGroup = async (group) => {
@@ -214,14 +214,14 @@ AddGroupAttendee.propTypes = {
       id: PropTypes.string,
       name: PropTypes.string,
       isManager: PropTypes.bool,
-    })
+    }),
   ),
   groupsAttendees: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string,
       name: PropTypes.string,
       isManager: PropTypes.bool,
-    })
+    }),
   ),
 };
 

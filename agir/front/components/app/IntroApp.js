@@ -219,7 +219,7 @@ const useImageLoad = () => {
   const [isReady, setIsReady] = useState(false);
   const images = useMemo(
     () => items.map((item) => item.header).filter(Boolean),
-    []
+    [],
   );
   useEffect(() => {
     const onReady = () => {
@@ -274,7 +274,7 @@ const IntroApp2 = () => {
         return { x, visibility: "visible" };
       });
     },
-    [set]
+    [set],
   );
 
   const bind = useDrag(
@@ -289,14 +289,14 @@ const IntroApp2 = () => {
         const newIndex = clamp(
           index.current + (xDirection > 0 ? -1 : 1),
           0,
-          items.length - 1
+          items.length - 1,
         );
         index.current = newIndex;
         setItemIndex(newIndex);
         cancel(newIndex);
       }
       handleSet(active, xMovement);
-    }
+    },
   );
 
   useEffect(() => {

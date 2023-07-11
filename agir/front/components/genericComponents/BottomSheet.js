@@ -74,7 +74,7 @@ export const BottomSheet = (props) => {
         });
       }
     },
-    [onDismiss, shouldDismissOnClick]
+    [onDismiss, shouldDismissOnClick],
   );
 
   useEffect(() => {

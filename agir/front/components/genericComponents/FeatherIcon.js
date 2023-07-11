@@ -43,7 +43,7 @@ export const RawFeatherIcon = styled.span
       return {
         dangerouslySetInnerHTML: { __html: icons[name].toSvg(attrs) },
       };
-    }
+    },
   )`
   display: inline-flex;
   align-items: center;

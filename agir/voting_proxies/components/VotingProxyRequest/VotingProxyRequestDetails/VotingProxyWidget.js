@@ -36,10 +36,10 @@ const VotingProxyWidget = (props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [isConfirmed, setIsConfirmed] = useState(
-    request.status === "confirmed"
+    request.status === "confirmed",
   );
   const [isCancelled, setIsCancelled] = useState(
-    request.status === "cancelled"
+    request.status === "cancelled",
   );
   const [shouldConfirm, setShouldConfirm] = useState(false);
 

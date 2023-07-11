@@ -10,7 +10,7 @@ const membershipTypeOptions = Object.entries(MEMBERSHIP_TYPES).reduce(
     ...options,
     [value]: key,
   }),
-  {}
+  {},
 );
 
 const genderOptions = Object.entries(GENDER).reduce(
@@ -18,7 +18,7 @@ const genderOptions = Object.entries(GENDER).reduce(
     ...options,
     [value]: key,
   }),
-  {}
+  {},
 );
 
 export default {

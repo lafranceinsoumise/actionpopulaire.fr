@@ -84,7 +84,7 @@ export default function (input) {
                 setCoordinates(d);
                 input.value = d.display_name;
                 form.submit();
-              })
+              }),
             );
           });
           dropdownDiv.appendChild(resultList);
@@ -96,13 +96,13 @@ export default function (input) {
       function (_error) {
         resultList.appendChild(
           createLinkElement(
-            "Erreur de connexion au serveur de géolocalisation... Réessayez plus tard."
-          )
+            "Erreur de connexion au serveur de géolocalisation... Réessayez plus tard.",
+          ),
         );
         dropdownDiv.appendChild(resultList);
         dropdownDiv.classList.add("open");
         submitButton.disabled = false;
-      }
+      },
     );
   });
 }

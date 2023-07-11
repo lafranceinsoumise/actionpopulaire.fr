@@ -16,7 +16,7 @@ export const stringifyQueryStringParams = (params = {}) => {
   }
 
   return new URLSearchParams(
-    Object.entries(params).filter(([_, value]) => typeof value !== "undefined")
+    Object.entries(params).filter(([_, value]) => typeof value !== "undefined"),
   ).toString();
 };
 

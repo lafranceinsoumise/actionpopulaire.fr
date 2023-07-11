@@ -163,7 +163,7 @@ HowTo.propTypes = {
 const ConnectedHowTo = (props) => {
   const [isInitiallyCollapsed, setIsInitiallyCollapsed] = useLocalStorage(
     "AP__contacthowto",
-    false
+    false,
   );
 
   return (

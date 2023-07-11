@@ -25,7 +25,7 @@ test("TypeWidget réagit quand on clique", () => {
     <TypeWidget
       typeChoices={typeChoices}
       onTypeChange={(t) => (currentType = t)}
-    />
+    />,
   );
 
   const input = component.getByLabelText("tous les mois");

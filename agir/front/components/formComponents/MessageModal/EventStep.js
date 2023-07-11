@@ -154,7 +154,7 @@ const EventStepOption = (props) => {
   const Icon = useMemo(
     () =>
       (event.type && EVENT_TYPE_ICONS[event.type]) || EVENT_TYPE_ICONS.default,
-    [event.type]
+    [event.type],
   );
 
   return (

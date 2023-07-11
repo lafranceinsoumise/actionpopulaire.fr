@@ -63,7 +63,7 @@ export const ConnectedEventPage = (props) => {
   const isSessionLoaded = useSelector(getIsSessionLoaded);
 
   const { data: eventData, error } = useSWR(
-    api.getEventEndpoint("getEvent", { eventPk })
+    api.getEventEndpoint("getEvent", { eventPk }),
   );
 
   const EventPage = useResponsiveMemo(MobileLayout, DesktopLayout);
@@ -79,7 +79,7 @@ export const ConnectedEventPage = (props) => {
         setTopBarRightLink({
           to: routeConfig.eventSettings.getLink({ eventPk: eventData.id }),
           label: "Gestion de l'événement",
-        })
+        }),
       );
     }
     if (eventData && eventData.routes && eventData.routes.admin) {
@@ -87,7 +87,7 @@ export const ConnectedEventPage = (props) => {
         setAdminLink({
           href: eventData.routes.admin,
           label: "Administration",
-        })
+        }),
       );
     }
   }, [eventData, dispatch]);

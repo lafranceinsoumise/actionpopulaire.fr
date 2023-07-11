@@ -22,7 +22,7 @@ const TokTokPreview = () => {
     () =>
       Array.isArray(session?.user?.groups) &&
       session.user.groups.some((group) => group.isManager),
-    [session]
+    [session],
   );
 
   return (

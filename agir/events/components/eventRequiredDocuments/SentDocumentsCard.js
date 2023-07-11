@@ -92,7 +92,7 @@ SentDocumentsCard.propTypes = {
       name: PropTypes.string.isRequired,
       type: PropTypes.string.isRequired,
       file: PropTypes.string.isRequired,
-    })
+    }),
   ),
 };
 

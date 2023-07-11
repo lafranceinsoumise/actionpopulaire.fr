@@ -19,7 +19,7 @@ const GroupContactsMainPanel = (props) => {
       return [];
     }
     return members.filter(
-      (member) => member.membershipType <= MEMBERSHIP_TYPES.FOLLOWER
+      (member) => member.membershipType <= MEMBERSHIP_TYPES.FOLLOWER,
     );
   }, [members]);
 
@@ -27,11 +27,11 @@ const GroupContactsMainPanel = (props) => {
     () =>
       followers
         .filter(
-          ({ hasGroupNotifications, email }) => hasGroupNotifications && email
+          ({ hasGroupNotifications, email }) => hasGroupNotifications && email,
         )
         .map(({ email }) => email)
         .join(", "),
-    [followers]
+    [followers],
   );
 
   return (

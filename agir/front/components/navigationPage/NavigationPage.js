@@ -124,7 +124,7 @@ const NavigationPage = ({ active }) => {
                     : undefined
                 }
               />
-            )
+            ),
         )}
       </Menu>
     </Navigation>

@@ -51,8 +51,8 @@ export const scheduleFromStartTimeAndDuration = (target) => (args) => {
           zone: "Europe/Paris",
           locale: "fr",
         }),
-        Duration.fromObject({ hours: duration })
-      )
+        Duration.fromObject({ hours: duration }),
+      ),
     ),
   ])(args);
 };
@@ -99,7 +99,7 @@ const getValue = (args, value) => {
         ...result,
         [key]: getValue(args, value[key]),
       }),
-      {}
+      {},
     );
   }
 };

@@ -190,7 +190,7 @@ const MembershipType = ({ gender, membershipType, hasGroupNotifications }) => {
 
 MembershipType.propTypes = {
   membershipType: PropTypes.oneOf(
-    Object.keys(MEMBERSHIP_TYPE_LABEL).map(Number)
+    Object.keys(MEMBERSHIP_TYPE_LABEL).map(Number),
   ).isRequired,
   gender: PropTypes.oneOf(["", ...Object.values(GENDER)]),
   hasGroupNotifications: PropTypes.bool,

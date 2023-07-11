@@ -104,7 +104,7 @@ export const TooltipContainer = (props) => {
         {children}
         {onClose ? <CloseButton aria-label="Cacher" onClick={onClose} /> : null}
       </Tooltip>
-    ) : null
+    ) : null,
   );
 };
 TooltipContainer.propTypes = {

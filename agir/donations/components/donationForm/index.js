@@ -22,8 +22,8 @@ function getChoices(select) {
           value: options[i].value,
           label: options[i].label,
         },
-        choiceAttrs ? choiceAttrs[i] || {} : {}
-      )
+        choiceAttrs ? choiceAttrs[i] || {} : {},
+      ),
     );
   }
 

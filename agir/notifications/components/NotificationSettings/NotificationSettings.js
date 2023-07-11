@@ -36,7 +36,7 @@ const NotificationSettings = (props) => {
       ...getNewsletterStatus(profile?.newsletters),
       ...getNotificationStatus(userNotifications),
     }),
-    [profile, userNotifications]
+    [profile, userNotifications],
   );
 
   const handleChange = useCallback(
@@ -55,7 +55,7 @@ const NotificationSettings = (props) => {
         setIsLoading(false);
         mutateProfile(
           (userProfile) => result?.data || { ...userProfile, newsletters },
-          false
+          false,
         );
         return;
       }
@@ -67,7 +67,7 @@ const NotificationSettings = (props) => {
             activityType,
             type: notification.type,
             group: notification.group,
-          }))
+          })),
         );
       }
       if (notification.action === "remove" && notification.subscriptionIds) {
@@ -83,11 +83,11 @@ const NotificationSettings = (props) => {
           ? [...state, ...result.data]
           : state.filter(
               (subscription) =>
-                !notification.subscriptionIds.includes(subscription.id)
-            )
+                !notification.subscriptionIds.includes(subscription.id),
+            ),
       );
     },
-    [mutate, profile]
+    [mutate, profile],
   );
 
   return (

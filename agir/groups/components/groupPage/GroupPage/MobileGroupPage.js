@@ -62,7 +62,7 @@ const MobileGroupPage = (props) => {
 
   const { hasTabs, tabs, activeTabId, activePathname, onTabChange } = useTabs(
     props,
-    true
+    true,
   );
 
   const goToAgendaTab = useMemo(() => {
@@ -88,7 +88,7 @@ const MobileGroupPage = (props) => {
         groupPk: group.id,
         messagePk: messagePk,
       }),
-    [group]
+    [group],
   );
 
   const handleClickMessage = useCallback(
@@ -96,12 +96,12 @@ const MobileGroupPage = (props) => {
       const link = getMessageURL(message.id);
       history && history.push(link);
     },
-    [history, getMessageURL]
+    [history, getMessageURL],
   );
 
   const groupSettingsLinks = useMemo(
     () => (group?.id ? getGroupSettingLinks(group, activePathname) : null),
-    [group, activePathname]
+    [group, activePathname],
   );
 
   if (!group) {

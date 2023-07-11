@@ -190,7 +190,7 @@ const TellMore = ({ dismiss }) => {
       }
       await dismiss();
     },
-    [dismiss, formData]
+    [dismiss, formData],
   );
 
   useEffect(() => {
@@ -321,7 +321,7 @@ const TellMore = ({ dismiss }) => {
                     label="Mandat"
                     name="mandat"
                     value={MANDAT_OPTIONS.find(
-                      (option) => option.value === formData.mandat
+                      (option) => option.value === formData.mandat,
                     )}
                     options={MANDAT_OPTIONS}
                     onChange={handleChangeMandat}

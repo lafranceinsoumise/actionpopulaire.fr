@@ -13,7 +13,7 @@ export const dealFromWeights = (weights, newTotal) => {
   }
 
   const newDeal = weights.map((weight) =>
-    Math.floor((weight * newTotal) / weightSum)
+    Math.floor((weight * newTotal) / weightSum),
   );
 
   newTotal -= newDeal.reduce((a, b) => a + b, 0);

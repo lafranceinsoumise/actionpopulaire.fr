@@ -25,7 +25,7 @@ export const useNotificationSettingLink = (root) => {
       root
         ? routeConfig.notificationSettings.getLink({ root })
         : routeConfig.notificationSettings.getLink(),
-    [root]
+    [root],
   );
 
   return decodeURIComponent(route);
@@ -42,7 +42,7 @@ const NotificationSettingLink = (props) => {
         label: routeConfig.notificationSettings.label,
         to: route,
         protected: true,
-      })
+      }),
     );
   }, [dispatch, route]);
 

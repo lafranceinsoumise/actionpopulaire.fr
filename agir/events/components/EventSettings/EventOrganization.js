@@ -31,7 +31,7 @@ const EventOrganization = (props) => {
   const { onBack, illustration, eventPk } = props;
 
   const { data: event } = useSWR(
-    api.getEventEndpoint("getDetailAdvanced", { eventPk })
+    api.getEventEndpoint("getDetailAdvanced", { eventPk }),
   );
 
   const [participants, organizers] = useMemo(() => {
@@ -146,7 +146,7 @@ const EventOrganization = (props) => {
                 />
               )}
             </PanelWrapper>
-          )
+          ),
       )}
     </>
   );

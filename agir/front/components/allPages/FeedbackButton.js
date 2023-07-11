@@ -93,7 +93,7 @@ export const FeedbackButton = (props) => {
           onMouseLeave={shouldPushTooltip ? undefined : hideTooltip}
         />
       </Wrapper>
-    ) : null
+    ) : null,
   );
 };
 FeedbackButton.propTypes = {

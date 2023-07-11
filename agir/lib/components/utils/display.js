@@ -46,7 +46,7 @@ export const getGenderedWord = (
   gender,
   inclusiveWord,
   feminineWord,
-  masculineWord
+  masculineWord,
 ) => {
   if (typeof inclusiveWord !== "string") {
     return "";
@@ -102,5 +102,5 @@ const COMMUNE_ARTICLES = {
 export const communeNameOfToIn = (nameOf) =>
   Object.entries(COMMUNE_ARTICLES).reduce(
     (string, [key, value]) => string.replace(new RegExp("^" + key, "i"), value),
-    nameOf
+    nameOf,
   );

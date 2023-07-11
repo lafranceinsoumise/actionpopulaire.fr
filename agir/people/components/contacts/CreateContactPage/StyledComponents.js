@@ -26,7 +26,9 @@ const StyledBanner = styled.header`
     height: 191px;
     background-position: bottom center;
     background-image: url(${bgLarge}), url(${bgSeaLarge});
-    background-size: 680px 158px, cover;
+    background-size:
+      680px 158px,
+      cover;
   }
 `;
 

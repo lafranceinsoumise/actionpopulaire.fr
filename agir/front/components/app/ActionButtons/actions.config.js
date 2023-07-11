@@ -247,7 +247,7 @@ export const getActionsForUser = (user) => {
 
   return actions
     .map((key) =>
-      typeof ACTIONS[key] === "function" ? ACTIONS[key](user) : ACTIONS[key]
+      typeof ACTIONS[key] === "function" ? ACTIONS[key](user) : ACTIONS[key],
     )
     .filter(Boolean);
 };

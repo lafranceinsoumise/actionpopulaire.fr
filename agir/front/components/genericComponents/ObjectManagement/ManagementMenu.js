@@ -210,9 +210,9 @@ const ManagementMenu = (props) => {
           }
           o[item.menuGroup].push(item);
           return o;
-        }, {})
+        }, {}),
       ),
-    [items]
+    [items],
   );
 
   return (

@@ -24,7 +24,7 @@ export const useGroupDetail = (groupPk) => {
 
   const allEvents = useMemo(
     () => [...(upcomingEvents || []), ...(pastEvents || [])],
-    [upcomingEvents, pastEvents]
+    [upcomingEvents, pastEvents],
   );
 
   return {
@@ -46,17 +46,17 @@ export const useGroupDetail = (groupPk) => {
 export const useGroupMessage = (groupPk, messagePk) => {
   const group = useGroup(groupPk);
   const upcomingEvents = useUpcomingEvents(
-    group && group.isMember ? group : null
+    group && group.isMember ? group : null,
   );
   const { pastEvents, loadMorePastEvents: loadMoreEvents } = usePastEvents(
-    group && group.isMember ? group : null
+    group && group.isMember ? group : null,
   );
 
   const { message, isLoading } = useMessage(group, messagePk);
 
   const events = useMemo(
     () => [...(upcomingEvents || []), ...(pastEvents || [])],
-    [upcomingEvents, pastEvents]
+    [upcomingEvents, pastEvents],
   );
 
   return {

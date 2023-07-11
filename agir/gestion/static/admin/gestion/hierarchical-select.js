@@ -11,7 +11,7 @@
           return data.text;
         },
       },
-      options
+      options,
     );
     $element.select2(settings);
   };
@@ -37,6 +37,6 @@
       return function (event, $newFormset) {
         return $newFormset.find(".hierarchical-select").hierarchicalSelect();
       };
-    })(this)
+    })(this),
   );
 }

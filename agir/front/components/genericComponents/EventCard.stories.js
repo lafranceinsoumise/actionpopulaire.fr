@@ -40,7 +40,7 @@ const Template = decorateArgs(
       coordinates: "locationCoordinates",
     },
   }),
-  EventCard
+  EventCard,
 );
 
 export const Default = Template.bind({});

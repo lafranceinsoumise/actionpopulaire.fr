@@ -84,7 +84,7 @@ const ConnectivityWarning = ({ hasTopBar }) => {
         >
           <div>{warning}</div>
         </StyledWarning>
-      )
+      ),
   );
 };
 

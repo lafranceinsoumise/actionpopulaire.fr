@@ -32,7 +32,7 @@ const CommuneField = ({
     onChange={onChange}
     loadOptions={(q) =>
       search(q, types).then((results) =>
-        results.map((c) => ({ value: valueGetter(c), label: labelGetter(c) }))
+        results.map((c) => ({ value: valueGetter(c), label: labelGetter(c) })),
       )
     }
     cacheOptions

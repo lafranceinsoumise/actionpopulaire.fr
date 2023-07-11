@@ -17,11 +17,11 @@ const GroupMemberMainPanel = (props) => {
     () =>
       members
         .filter(
-          ({ hasGroupNotifications, email }) => email && hasGroupNotifications
+          ({ hasGroupNotifications, email }) => email && hasGroupNotifications,
         )
         .map(({ email }) => email)
         .join(", "),
-    [members]
+    [members],
   );
 
   return (

@@ -27,7 +27,7 @@ export const useUnreadMessageCount = () => {
       focusThrottleInterval: 10000,
       shouldRetryOnError: false,
       revalidateIfStale: false,
-    }
+    },
   );
 
   return data?.unreadMessageCount && !isNaN(parseInt(data.unreadMessageCount))
@@ -46,7 +46,7 @@ export const useCommentsSWR = (messagePk) => {
       revalidateIfStale: false,
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
-    }
+    },
   );
 
   const comments = useMemo(() => {
@@ -120,10 +120,10 @@ export const useMessageSWR = (messagePk) => {
       revalidateIfStale: false,
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
-    }
+    },
   );
   const { data: messageRecipients } = useSWRImmutable(
-    data && "/api/user/messages/recipients/"
+    data && "/api/user/messages/recipients/",
   );
   const {
     data: currentMessage,
@@ -133,7 +133,7 @@ export const useMessageSWR = (messagePk) => {
   } = useSWRImmutable(
     data && messagePk && uuidValidate(messagePk)
       ? `/api/groupes/messages/${messagePk}/`
-      : null
+      : null,
   );
 
   const messages = useMemo(() => {
@@ -184,8 +184,8 @@ export const useMessageSWR = (messagePk) => {
           : {
               route: "events",
               label: "Retour à l'accueil",
-            }
-      )
+            },
+      ),
     );
   }, [dispatch, currentMessageId, pathname]);
 
@@ -236,7 +236,7 @@ export const useSelectMessage = () => {
         history.push(routeConfig.messages.getLink({ messagePk }));
       }
     },
-    [history]
+    [history],
   );
   return handleSelect;
 };
@@ -247,7 +247,7 @@ export const useMessageActions = (
   selectedMessage,
   onSelectMessage,
   mutateMessages,
-  mutateComments
+  mutateComments,
 ) => {
   const shouldDismissAction = useRef(false);
 
@@ -264,7 +264,7 @@ export const useMessageActions = (
       canWriteNewMessage &&
       selectedMessage?.group &&
       messageRecipients.some((r) => r.id === selectedMessage.group.id),
-    [canWriteNewMessage, messageRecipients, selectedMessage]
+    [canWriteNewMessage, messageRecipients, selectedMessage],
   );
 
   const isAuthor = useMemo(() => {
@@ -286,7 +286,7 @@ export const useMessageActions = (
     setSelectedGroupEvents([]);
     try {
       const { data: events } = await axios.get(
-        `/api/groupes/${group.id}/evenements/`
+        `/api/groupes/${group.id}/evenements/`,
       );
       setIsLoading(false);
       setSelectedGroupEvents(events);
@@ -309,7 +309,7 @@ export const useMessageActions = (
           mutate(
             `/api/groupes/messages/${message.id}/`,
             () => result.data,
-            false
+            false,
           );
         } else {
           onSelectMessage(result.data.id);
@@ -318,7 +318,7 @@ export const useMessageActions = (
         setIsLoading(false);
       }
     },
-    [onSelectMessage, mutateMessages]
+    [onSelectMessage, mutateMessages],
   );
 
   const writeNewComment = useCallback(
@@ -327,7 +327,7 @@ export const useMessageActions = (
       try {
         const response = await groupAPI.createComment(
           selectedMessage.id,
-          comment
+          comment,
         );
         setIsLoading(false);
         mutateComments();
@@ -336,7 +336,7 @@ export const useMessageActions = (
         setIsLoading(false);
       }
     },
-    [selectedMessage, onSelectMessage]
+    [selectedMessage, onSelectMessage],
   );
 
   const onDelete = useCallback(async () => {

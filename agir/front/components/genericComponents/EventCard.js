@@ -173,7 +173,7 @@ const EventCardIllustration = (props) => {
 
   const isVisible = useResponsiveMemo(
     !!image || Array.isArray(coordinates),
-    true
+    true,
   );
 
   const linkProps = useMemo(
@@ -182,7 +182,7 @@ const EventCardIllustration = (props) => {
       route: !eventPageLink ? "eventDetails" : undefined,
       routeParams: !eventPageLink ? { eventPk } : undefined,
     }),
-    [eventPageLink, eventPk]
+    [eventPageLink, eventPk],
   );
 
   if (!isVisible) {
@@ -261,7 +261,7 @@ const EventCard = (props) => {
       return [];
     }
     return props.groupsAttendees.filter(
-      (group) => !groups.some((g) => g.id === group.id)
+      (group) => !groups.some((g) => g.id === group.id),
     );
   }, [groups, props.groupsAttendees]);
 
@@ -285,10 +285,10 @@ const EventCard = (props) => {
                   ? " • " + location.shortLocation
                   : ""
               }${
-              location && distance && !isNaN(distance)
-                ? ` ⟷ ${Math.round(distance) / 1000} Km`.replace(".", ",")
-                : ""
-            }`.trim()}
+                location && distance && !isNaN(distance)
+                  ? ` ⟷ ${Math.round(distance) / 1000} Km`.replace(".", ",")
+                  : ""
+              }`.trim()}
           </h4>
           <StyledLink
             ref={linkRef}
@@ -350,13 +350,13 @@ EventCard.propTypes = {
     PropTypes.shape({
       id: PropTypes.string,
       name: PropTypes.string,
-    })
+    }),
   ),
   groupsAttendees: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string,
       name: PropTypes.string,
-    })
+    }),
   ),
   subtype: PropTypes.object,
   eventPageLink: PropTypes.string,

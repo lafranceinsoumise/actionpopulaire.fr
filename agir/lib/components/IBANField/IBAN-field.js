@@ -55,8 +55,8 @@ const IBANField = ({ id, name, initial, placeholder, allowedCountries }) => {
             formatInputContent(
               ref.current.value,
               ref.current.selectionStart,
-              e.nativeEvent.inputType === "deleteContentBackward"
-            )
+              e.nativeEvent.inputType === "deleteContentBackward",
+            ),
           );
         }}
         onBlur={() =>

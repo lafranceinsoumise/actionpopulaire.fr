@@ -24,7 +24,7 @@ const Template = (args) => {
             });
           }
         : undefined,
-    []
+    [],
   );
   const handleDelete = mockAction(args.onDelete);
   const handleReport = mockAction(args.onReport);

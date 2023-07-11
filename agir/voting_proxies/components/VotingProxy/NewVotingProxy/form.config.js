@@ -168,5 +168,5 @@ export const validateVotingProxy = (data, isAbroad = false) =>
     {
       format: "cleanMessage",
       fullMessages: false,
-    }
+    },
   );
