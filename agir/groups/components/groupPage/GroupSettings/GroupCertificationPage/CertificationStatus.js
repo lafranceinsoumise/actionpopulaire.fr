@@ -123,7 +123,7 @@ const CertificationStatus = (props) => {
 
   const criteria = useMemo(
     () => Object.values(certificationCriteria),
-    [certificationCriteria]
+    [certificationCriteria],
   );
 
   const [checkedCriteria, hasUncheckedCriteria] = useMemo(() => {
@@ -167,7 +167,7 @@ CertificationStatus.propTypes = {
     PropTypes.shape({
       id: PropTypes.string.isRequired,
       getLink: PropTypes.func.isRequired,
-    }).isRequired
+    }).isRequired,
   ).isRequired,
   certificationCriteria: PropTypes.shape({
     gender: PropTypes.shape({ value: PropTypes.bool }),

@@ -16,7 +16,8 @@ const StyledMenu = styled.nav`
   padding: 0 1rem;
   background-color: white;
   border-top: 1px solid #dfdfdf;
-  box-shadow: 0px 0px 3px rgba(0, 35, 44, 0.1),
+  box-shadow:
+    0px 0px 3px rgba(0, 35, 44, 0.1),
     0px 2px 1px rgba(0, 35, 44, 0.08);
   overflow-x: auto;
   overflow-x: overlay;
@@ -76,7 +77,7 @@ const useTabs = (props) => {
       onTabChange && onTabChange(tabs[index]);
       setActiveIndex(index);
     },
-    [tabs, onTabChange, isControlled]
+    [tabs, onTabChange, isControlled],
   );
 
   const handleNext = useCallback(() => {
@@ -97,7 +98,7 @@ const useTabs = (props) => {
 
   const active = useMemo(
     () => tabs[activeIndex] || tabs[0],
-    [activeIndex, tabs]
+    [activeIndex, tabs],
   );
 
   return {
@@ -141,7 +142,7 @@ export const Tabs = (props) => {
         x <= 0 ? handleNext() : handlePrev();
       }
     },
-    { axis: "lock" }
+    { axis: "lock" },
   );
 
   return (
@@ -180,7 +181,7 @@ Tabs.propTypes = {
     PropTypes.shape({
       id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
       label: PropTypes.string,
-    })
+    }),
   ).isRequired,
   activeTab: PropTypes.object,
   activeIndex: PropTypes.number,

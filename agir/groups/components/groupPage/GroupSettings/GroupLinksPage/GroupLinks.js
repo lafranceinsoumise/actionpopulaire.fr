@@ -84,7 +84,7 @@ GroupLinks.propTypes = {
       id: PropTypes.number,
       label: PropTypes.string,
       url: PropTypes.string,
-    })
+    }),
   ),
 };
 export default GroupLinks;

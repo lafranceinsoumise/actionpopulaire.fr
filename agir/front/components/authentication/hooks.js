@@ -29,7 +29,7 @@ export const useBookmarkedEmails = () => {
   const isSessionLoaded = useSelector(selector.getIsSessionLoaded);
   const legacyBookmarkedEmails = useSelector(selector.getBookmarkedEmails);
   const [bookmarkedEmails, setBookmarkedEmails] = useState(
-    getBookmarkedEmails()
+    getBookmarkedEmails(),
   );
 
   useEffect(() => {

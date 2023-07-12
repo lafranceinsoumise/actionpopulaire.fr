@@ -19,7 +19,7 @@ export function getStatefulRenderer(
     getInitial = defaultGetInitial,
     getProps = defaultGetProps,
     valueToString = defaultGetValue,
-  }
+  },
 ) {
   return () => {
     const fieldsToReplace = document.querySelectorAll(selector);
@@ -38,7 +38,7 @@ export function getStatefulRenderer(
           valueToString={valueToString}
           {...props}
         />,
-        insertingNode
+        insertingNode,
       );
     }
   };

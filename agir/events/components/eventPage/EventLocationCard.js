@@ -75,7 +75,7 @@ const EventLocationCard = (props) => {
     if (schedule.start.zoneName !== timezone) {
       localInterval = Interval.fromDateTimes(
         dateFromISOString(schedule.start.toISO(), timezone),
-        dateFromISOString(schedule.end.toISO(), timezone)
+        dateFromISOString(schedule.end.toISO(), timezone),
       );
       localInterval = displayInterval(localInterval);
       localInterval =

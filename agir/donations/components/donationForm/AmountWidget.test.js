@@ -42,7 +42,7 @@ test("Sélectionner des valeurs dans le AmountWidget", () => {
       amount={null}
       onAmountChange={(amount) => (currentValue = amount)}
       error={null}
-    />
+    />,
   );
   // let's click on the 20 € button
   const button50 = component.getByText(/50\s*€/);
@@ -60,6 +60,6 @@ test("utiliser des montants autres que ceux par défaut", () => {
   const buttons = component.queryAllByText(/[0-9]+\s*€/);
 
   expect(buttons.map((e) => +/([0-9]+)\s*€/.exec(e.textContent)[1])).toEqual(
-    choices
+    choices,
   );
 });

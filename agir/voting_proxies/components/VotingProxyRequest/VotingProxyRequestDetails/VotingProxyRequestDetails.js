@@ -35,13 +35,13 @@ const VotingProxyRequestDetails = () => {
     getVotingProxyEndpoint(
       "acceptedVotingProxyRequests",
       null,
-      votingProxyRequestsIds && { vpr: votingProxyRequestsIds }
+      votingProxyRequestsIds && { vpr: votingProxyRequestsIds },
     ),
     {
       revalidateIfStale: false,
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
-    }
+    },
   );
 
   if (error?.response?.status === 404) {

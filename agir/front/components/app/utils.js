@@ -45,7 +45,7 @@ export const lazy = (lazyImport, fallback) => {
           }
         }),
       //eslint-disable-next-line
-      [lazyImport, error, fallback]
+      [lazyImport, error, fallback],
     );
 
     useEffect(() => {
@@ -87,7 +87,7 @@ export const scrollToError = (errors, scrollerElement, marginTop = 30) => {
   let errorElement = null;
   for (let i = 0; i < keys.length; i += 1) {
     let elt = document.querySelector(
-      `[data-scroll="${keys[i]}"], [name="${keys[i]}"]`
+      `[data-scroll="${keys[i]}"], [name="${keys[i]}"]`,
     );
     if (!elt) {
       continue;

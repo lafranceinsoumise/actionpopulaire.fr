@@ -63,7 +63,7 @@ EventGroupsAttendees.propTypes = {
       id: PropTypes.string,
       name: PropTypes.string,
       isManager: PropTypes.bool,
-    })
+    }),
   ),
   isPast: PropTypes.bool,
 };

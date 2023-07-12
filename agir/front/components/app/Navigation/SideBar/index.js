@@ -37,7 +37,7 @@ const ConnectedSideBar = (props) => {
             })),
           }
         : routes,
-    [user, routes]
+    [user, routes],
   );
 
   return (

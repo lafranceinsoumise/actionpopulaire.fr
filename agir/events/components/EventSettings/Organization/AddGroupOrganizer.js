@@ -76,13 +76,13 @@ export const AddGroupOrganizer = ({ eventPk, groups, onBack }) => {
       sendToast(
         "Le groupe, dont vous êtes animateur·ice, a été ajouté à l'organisation de l'événement",
         "SUCCESS",
-        { autoClose: true }
+        { autoClose: true },
       );
     } else {
       sendToast(
         "Une invitation a été envoyée aux animateur·ices du groupe",
         "SUCCESS",
-        { autoClose: true }
+        { autoClose: true },
       );
     }
     mutate(api.getEventEndpoint("getDetailAdvanced", { eventPk }));
@@ -97,11 +97,11 @@ export const AddGroupOrganizer = ({ eventPk, groups, onBack }) => {
         setGroupSearchResults(
           data.results
             .filter((result) => !groups.some((group) => group.id === result.id))
-            .slice(0, MAX_RESULTS)
+            .slice(0, MAX_RESULTS),
         );
         setIsLoading(false);
       }, 300),
-    [groups]
+    [groups],
   );
 
   const handleChange = (e) => {

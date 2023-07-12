@@ -63,7 +63,7 @@ const ButtonLockMessage = ({ message }) => {
         ? "Le fil de conversation est verrouillé"
         : "Le fil de conversation est déverrouillé",
       "INFO",
-      { autoClose: true }
+      { autoClose: true },
     );
   }, [isLocked, messagePk, mutateLocked, sendToast]);
 

@@ -22,7 +22,7 @@ const Template = (args) => {
 
   const selected = React.useMemo(
     () => (selectedId ? messages.find(({ id }) => id === selectedId) : null),
-    [selectedId]
+    [selectedId],
   );
 
   return (
@@ -50,7 +50,7 @@ const messages = _sortBy(
       ? Math.round(Math.random() * 10)
       : 0,
   })),
-  ["unreadCommentCount"]
+  ["unreadCommentCount"],
 ).reverse();
 
 export const Default = Template.bind({});

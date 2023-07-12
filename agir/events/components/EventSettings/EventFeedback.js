@@ -20,7 +20,7 @@ const EventFeedback = (props) => {
   const { eventPk, onBack, illustration } = props;
   const sendToast = useToast();
   const { data: event, mutate } = useSWR(
-    api.getEventEndpoint("getEvent", { eventPk })
+    api.getEventEndpoint("getEvent", { eventPk }),
   );
 
   const [formData, setFormData] = useState({
@@ -45,7 +45,7 @@ const EventFeedback = (props) => {
       value && value !== originalImage && setHasCheckedImageLicence(false);
       setFormData((formData) => ({ ...formData, compteRenduPhoto: value }));
     },
-    [originalImage]
+    [originalImage],
   );
 
   const handleCheckImageLicence = useCallback((event) => {

@@ -153,7 +153,7 @@ export const DECISIONS = [
 ];
 
 export const REVERSE_DECISIONS = DECISIONS.filter(
-  (d) => d.value !== ISSUE.ENGAGEMENT
+  (d) => d.value !== ISSUE.ENGAGEMENT,
 ).reduce((acc, d) => Object.assign(acc, { [d.value]: d }), {});
 
 const StatutPillLayout = styled.span`

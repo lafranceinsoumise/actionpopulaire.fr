@@ -12,7 +12,7 @@ const Announcements = () => {
   const markAsDisplayed = routeConfig.activities.match(pathname) ? "0" : "1";
 
   const { data: announcements } = useSWR(
-    "/api/announcements/?mark_as_displayed=" + markAsDisplayed
+    "/api/announcements/?mark_as_displayed=" + markAsDisplayed,
   );
 
   if (!Array.isArray(announcements) || announcements.length === 0) return null;

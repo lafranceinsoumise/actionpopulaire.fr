@@ -80,7 +80,7 @@ const DonationLandingPageCard = (props) => {
       e.preventDefault();
       !disabled && linkRef.current && linkRef.current.click();
     },
-    [disabled]
+    [disabled],
   );
 
   return (

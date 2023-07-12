@@ -134,7 +134,7 @@ EventRequestCard.propTypes = {
   eventSpeakerRequests: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string.isRequired,
-    })
+    }),
   ),
 };
 

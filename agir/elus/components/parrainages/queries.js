@@ -64,7 +64,7 @@ export const creerRechercheParrainage = async (idElu) => {
         throw new Error(
           Object.keys(e.response.data)
             .map((k) => e.response.data[k])
-            .join("\n")
+            .join("\n"),
         );
       }
     }
@@ -103,7 +103,7 @@ export const modifierParrainage = async (id, data) => {
         throw new Error(
           Object.keys(e.response.data)
             .map((k) => `${k} : ${e.response.data[k]}.`)
-            .join("\n")
+            .join("\n"),
         );
       }
     }

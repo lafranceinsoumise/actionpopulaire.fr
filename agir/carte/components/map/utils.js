@@ -49,7 +49,7 @@ export function fontIsLoaded(fontName) {
     FontFaceOnload(fontName, {
       success: resolve,
       error: reject,
-    })
+    }),
   );
 }
 
@@ -103,7 +103,7 @@ export const parseURLSearchParams = () => {
       }
       return newParams;
     },
-    {}
+    {},
   );
 
   return newParams;

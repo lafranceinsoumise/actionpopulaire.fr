@@ -53,7 +53,7 @@ const AllocationsWidget = ({ groupChoices, value, onChange, maxAmount }) => {
             maxAmount={maxAmount}
             onChange={(newAmount) =>
               onChange(
-                changeSingleGroupAllocation(value, i, newAmount, maxAmount)
+                changeSingleGroupAllocation(value, i, newAmount, maxAmount),
               )
             }
             onRemove={() => {
@@ -107,14 +107,14 @@ const AllocationsWidget = ({ groupChoices, value, onChange, maxAmount }) => {
 
 AllocationsWidget.propTypes = {
   groupChoices: PropTypes.arrayOf(
-    PropTypes.shape({ id: PropTypes.string, name: PropTypes.string })
+    PropTypes.shape({ id: PropTypes.string, name: PropTypes.string }),
   ),
   value: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string,
       name: PropTypes.string,
       amount: PropTypes.number,
-    })
+    }),
   ),
   onChange: PropTypes.func,
   maxAmount: PropTypes.number,

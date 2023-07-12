@@ -108,11 +108,11 @@ export const WithTransition = (args) => {
   }, []);
   const color = React.useMemo(
     () => colors[state % colors.length],
-    [state, colors]
+    [state, colors],
   );
   const small = React.useMemo(
     () => Boolean(Math.floor(state / colors.length) % 2),
-    [state, colors]
+    [state, colors],
   );
 
   return (

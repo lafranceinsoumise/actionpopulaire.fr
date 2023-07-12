@@ -34,7 +34,7 @@ const Template = ({ message, html, type }) => {
           type,
         },
       ]),
-    [message, type]
+    [message, type],
   );
   return <Toast onClear={onClear} toasts={toasts} />;
 };

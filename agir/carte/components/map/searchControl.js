@@ -53,7 +53,7 @@ export default function makeSearchControl(view) {
     list.innerHTML = results
       .map(
         (r) =>
-          `<li><a href="#" data-cx="${r.x}" data-cy="${r.y}">${r.label}</a></li>`
+          `<li><a href="#" data-cx="${r.x}" data-cy="${r.y}">${r.label}</a></li>`,
       )
       .join("");
     list.classList.add("show");
@@ -75,15 +75,15 @@ export default function makeSearchControl(view) {
   const documentClicked$ = fromEvent(document, "click");
   const debouncedInputChange$ = fromEvent(input, "input").pipe(
     debounceTime(700),
-    filter((e) => e.target.value.length > 3)
+    filter((e) => e.target.value.length > 3),
   );
   const formSubmitted$ = fromEvent(form, "submit").pipe(
-    tap((e) => e.preventDefault())
+    tap((e) => e.preventDefault()),
   );
   const listLinkClicked$ = fromEvent(list, "click").pipe(
     filter((e) => e.target.tagName === "A"),
     tap((e) => e.preventDefault()),
-    map((e) => [+e.target.dataset.cx, +e.target.dataset.cy])
+    map((e) => [+e.target.dataset.cx, +e.target.dataset.cy]),
   );
 
   // l'observable des requêtes réalisées à partir du champ de recherche
@@ -93,11 +93,11 @@ export default function makeSearchControl(view) {
     formSubmitted$,
     formSubmitted$.pipe(
       startWith(null),
-      switchMap(() => debouncedInputChange$) // permet "d'annuler" le debounce si on valide le formulaire
-    )
+      switchMap(() => debouncedInputChange$), // permet "d'annuler" le debounce si on valide le formulaire
+    ),
   ).pipe(
     map(() => input.value), // la valeur du champ
-    switchMap((v) => from(search(v))) // le switchMap permet d'éviter d'afficher une requête précédente en cours
+    switchMap((v) => from(search(v))), // le switchMap permet d'éviter d'afficher une requête précédente en cours
   );
 
   // faire un switchMap depuis documentClicked$ permet d'annuler la recherche
@@ -105,10 +105,10 @@ export default function makeSearchControl(view) {
   documentClicked$
     .pipe(
       startWith(null),
-      switchMap(() => results$)
+      switchMap(() => results$),
     )
     .subscribe(({ error, results }) =>
-      error ? displayError(error) : updateResults(results)
+      error ? displayError(error) : updateResults(results),
     );
 
   listLinkClicked$.subscribe({

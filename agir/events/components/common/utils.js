@@ -68,7 +68,7 @@ export const getEventSubtypeInfo = (subtype) => {
   if (subtype.forGroupType) {
     info += `\n${FOR_GROUP_TYPE_EVENT_SUBTYPE_INFO.replace(
       ":type",
-      subtype.forGroupType
+      subtype.forGroupType,
     )}`;
   }
   if (subtype.forGroups && subtype.forGroups.length > 0) {
@@ -91,10 +91,10 @@ export const formatEvent = (event) => {
 
   try {
     const startDateTime = DateTime.fromJSDate(
-      new Date(event.startTime)
+      new Date(event.startTime),
     ).setLocale("fr");
     const endDateTime = DateTime.fromJSDate(new Date(event.endTime)).setLocale(
-      "fr"
+      "fr",
     );
     return {
       ...event,

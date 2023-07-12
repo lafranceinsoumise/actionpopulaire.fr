@@ -59,7 +59,7 @@ export const reducer = (state, action) => {
       elusProches: elusProches.filter((e) => e.id !== nouvelElu.id),
       // On intervertit le nouvel élu s'il était présent dans la liste des élus recherche
       elusRecherche: elusRecherche.map((e) =>
-        e.id === nouvelElu.id ? nouvelElu : e
+        e.id === nouvelElu.id ? nouvelElu : e,
       ),
       selection: selection.id === nouvelElu.id ? nouvelElu : selection,
     };

@@ -411,7 +411,7 @@ const Button = styled(
     const { color } = props;
     const B = color && variants[color] ? variants[color] : variants.default;
     return <B ref={ref} {...props} />;
-  })
+  }),
 )``;
 
 Button.icons = Object.keys(ICONS);

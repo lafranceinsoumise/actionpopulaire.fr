@@ -12,7 +12,7 @@
         },
         tags: true,
       },
-      options
+      options,
     );
     $element.select2(settings);
   };
@@ -40,7 +40,7 @@
                 const option = document.createElement("option");
                 $(option).text(s).attr("value", s);
                 return option;
-              })
+              }),
             )
             .attr({
               name: $element.attr("name"),
@@ -54,7 +54,7 @@
           return select;
         }
         return element;
-      })
+      }),
     );
   };
 
@@ -70,6 +70,6 @@
       return function (event, $newFormset) {
         return $newFormset.find(".with-suggestion").withSuggestions();
       };
-    })(this)
+    })(this),
   );
 }

@@ -31,7 +31,8 @@ const StyledCard = styled(Card)`
 
     @media (max-width: ${style.collapse}px) {
       padding: 1.5rem 1rem;
-      box-shadow: rgba(0, 35, 44, 0.5) 0px 0px 1px,
+      box-shadow:
+        rgba(0, 35, 44, 0.5) 0px 0px 1px,
         rgba(0, 35, 44, 0.08) 0px 2px 0px;
     }
   }

@@ -33,7 +33,7 @@ export const getFieldStepFromErrors = (errors) =>
   FORM_STEPS.findIndex(
     (stepFields) =>
       stepFields.length > 0 &&
-      stepFields.some((field) => typeof errors[field] !== "undefined")
+      stepFields.some((field) => typeof errors[field] !== "undefined"),
   );
 
 const VotingProxyRequestForm = (props) => {
@@ -139,7 +139,7 @@ const VotingProxyRequestForm = (props) => {
           options.data.votingDates.choices.map((choice) => ({
             value: choice.value,
             label: choice.display_name,
-          }))
+          })),
         );
       }
     };

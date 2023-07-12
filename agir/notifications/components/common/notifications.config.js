@@ -285,7 +285,7 @@ const getSingleGroupNotifications = (group) =>
 const getGroupNotifications = (groups = []) =>
   groups.reduce(
     (arr, group) => [...arr, ...getSingleGroupNotifications(group)],
-    []
+    [],
   );
 
 const getNewsletterNotifications = (user) => {
@@ -341,18 +341,18 @@ export const getNotificationStatus = (activeNotifications) => {
     const notification = activeNotification.group
       ? GROUP_NOTIFICATIONS.find((groupNotification) =>
           groupNotification.activityTypes.includes(
-            activeNotification.activityType
-          )
+            activeNotification.activityType,
+          ),
         )
       : PERSON_NOTIFICATIONS.find((notification) =>
-          notification.activityTypes.includes(activeNotification.activityType)
+          notification.activityTypes.includes(activeNotification.activityType),
         );
     if (!notification) {
       return;
     }
     notificationId = getNotificationId(
       notification.id,
-      activeNotification.group
+      activeNotification.group,
     );
     active[notificationId] = active[notificationId] || {
       email: false,

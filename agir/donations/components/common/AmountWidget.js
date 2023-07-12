@@ -80,7 +80,7 @@ const AmountWidget = (props) => {
   } = props;
 
   const [customAmount, setCustomAmount] = useState(
-    amount && !DEFAULT_AMOUNTS.includes(amount) ? amount : 0
+    amount && !DEFAULT_AMOUNTS.includes(amount) ? amount : 0,
   );
 
   const updateCustomAmount = useCallback(
@@ -95,7 +95,7 @@ const AmountWidget = (props) => {
       setCustomAmount(newAmount);
       onChangeAmount(newAmount);
     },
-    [onChangeAmount]
+    [onChangeAmount],
   );
 
   const selectDefaultAmount = useCallback(
@@ -103,7 +103,7 @@ const AmountWidget = (props) => {
       setCustomAmount(0);
       onChangeAmount(newAmount);
     },
-    [onChangeAmount]
+    [onChangeAmount],
   );
 
   const unit = paymentTiming === MONTHLY_PAYMENT ? "€/mois" : "€";

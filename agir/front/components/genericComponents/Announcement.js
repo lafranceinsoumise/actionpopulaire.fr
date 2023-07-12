@@ -8,7 +8,9 @@ const Image = styled.div`
   flex: 0 0 130px;
   width: 100%;
   background-repeat: no-repeat;
-  background-size: 0 0, cover;
+  background-size:
+    0 0,
+    cover;
   background-position: center center;
   border-radius: ${style.borderRadius};
 
@@ -16,7 +18,9 @@ const Image = styled.div`
     flex: 0 0 80px;
     height: 80px;
     border-radius: 0;
-    background-size: cover, 0 0;
+    background-size:
+      cover,
+      0 0;
   }
 `;
 

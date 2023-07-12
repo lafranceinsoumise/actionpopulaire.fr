@@ -26,7 +26,7 @@ const formatGroup = (types, subtypes) => (group) =>
       .map((subtype) =>
         subtypes[subtype] && !subtypes[subtype].hideLabel
           ? `<small style='display:block;'>${subtypes[subtype].description}</small>`
-          : ""
+          : "",
       )
       .join("")}
   `;
@@ -37,14 +37,14 @@ const getFormatPopups = (itemType, types, subtypes) => {
       ...o,
       [type.id]: type,
     }),
-    {}
+    {},
   );
   subtypes = subtypes.reduce(
     (o, subtype) => ({
       ...o,
       [subtype.id]: subtype,
     }),
-    {}
+    {},
   );
   return itemType === "groups"
     ? formatGroup(types, subtypes)

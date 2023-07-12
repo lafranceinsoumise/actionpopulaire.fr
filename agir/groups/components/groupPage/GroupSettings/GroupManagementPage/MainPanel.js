@@ -80,7 +80,7 @@ const GroupManagementPage = (props) => {
                 isLoading={isLoading}
               />
             </PanelWrapper>
-          )
+          ),
       )}
     </>
   );

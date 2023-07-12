@@ -102,17 +102,17 @@ const ContributionPage = () => {
         updateFormData(field, value);
       });
       history.push(
-        routeConfig.contributions.getLink({ step: "validation" }) + search
+        routeConfig.contributions.getLink({ step: "validation" }) + search,
       );
     },
-    [history, search, updateFormData]
+    [history, search, updateFormData],
   );
 
   const closeModal = useCallback(() => {
     history.push(
       routeConfig.contributions.getLink({
         step: null,
-      }) + search
+      }) + search,
     );
   }, [history, search]);
 
@@ -122,7 +122,7 @@ const ContributionPage = () => {
       history.replace(
         routeConfig.contributions.getLink({
           step: null,
-        }) + search
+        }) + search,
       );
   }, [amount, isModalOpen, history, search]);
 

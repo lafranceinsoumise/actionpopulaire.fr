@@ -166,7 +166,7 @@ export const ContactForm = (props) => {
       setGroupOptions(results);
       return results;
     },
-    [groupOptions]
+    [groupOptions],
   );
 
   const handleSubmit = useCallback(
@@ -174,7 +174,7 @@ export const ContactForm = (props) => {
       e.preventDefault();
       onSubmit(data);
     },
-    [onSubmit, data]
+    [onSubmit, data],
   );
 
   useEffect(() => {

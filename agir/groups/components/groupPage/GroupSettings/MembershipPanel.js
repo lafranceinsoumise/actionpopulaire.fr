@@ -66,7 +66,7 @@ export const ReadOnlyMembershipPanel = (props) => {
   const { groupPk, illustration, MainPanel, onBack } = props;
   const group = useGroup(groupPk);
   const { data: members, isLoading: groupIsLoading } = useSWR(
-    getGroupEndpoint("getMembers", { groupPk })
+    getGroupEndpoint("getMembers", { groupPk }),
   );
 
   const [selectedMember, setSelectedMember] = useState(null);
@@ -75,7 +75,7 @@ export const ReadOnlyMembershipPanel = (props) => {
     selectedMember?.id &&
       getGroupEndpoint("getMemberPersonalInformation", {
         memberPk: selectedMember?.id,
-      })
+      }),
   );
 
   const selectMember = useCallback(
@@ -83,7 +83,7 @@ export const ReadOnlyMembershipPanel = (props) => {
       const member = members.find((member) => member.id === memberId);
       setSelectedMember(member);
     },
-    [members]
+    [members],
   );
 
   const unselectMember = useCallback(() => {
@@ -92,7 +92,7 @@ export const ReadOnlyMembershipPanel = (props) => {
 
   const memberFileTransition = useTransition(
     !!selectedMemberData,
-    slideInTransition
+    slideInTransition,
   );
 
   return (
@@ -117,7 +117,7 @@ export const ReadOnlyMembershipPanel = (props) => {
                   onBack={unselectMember}
                 />
               </SecondaryPanel>
-            )
+            ),
         )}
       </PageFadeIn>
     </>
@@ -144,7 +144,7 @@ const EditableMembershipPanel = (props) => {
 
   const group = useGroup(groupPk);
   const { data: members, mutate: mutateMembers } = useSWR(
-    getGroupEndpoint("getMembers", { groupPk })
+    getGroupEndpoint("getMembers", { groupPk }),
   );
 
   const [selectedMembershipType, setSelectedMembershipType] = useState(null);
@@ -158,7 +158,7 @@ const EditableMembershipPanel = (props) => {
     selectedMember?.id &&
       getGroupEndpoint("getMemberPersonalInformation", {
         memberPk: selectedMember?.id,
-      })
+      }),
   );
 
   const updateMembershipType = useCallback(
@@ -175,7 +175,7 @@ const EditableMembershipPanel = (props) => {
           res.error?.membershipType ||
             "Une erreur est survenue. Veuillez ressayer.",
           "ERROR",
-          { autoClose: true }
+          { autoClose: true },
         );
         return;
       }
@@ -184,10 +184,12 @@ const EditableMembershipPanel = (props) => {
       });
       !unselectMemberAfterUpdate && mutateSelectedMember();
       mutateMembers((members) =>
-        members.map((member) => (member.id === res.data.id ? res.data : member))
+        members.map((member) =>
+          member.id === res.data.id ? res.data : member,
+        ),
       );
     },
-    [unselectMemberAfterUpdate, mutateMembers, mutateSelectedMember, sendToast]
+    [unselectMemberAfterUpdate, mutateMembers, mutateSelectedMember, sendToast],
   );
 
   const updateMembership = useCallback(() => {
@@ -199,7 +201,7 @@ const EditableMembershipPanel = (props) => {
       const member = members.find((member) => member.id === memberId);
       setSelectedMember(member);
     },
-    [members]
+    [members],
   );
 
   const unselectMember = useCallback(() => {
@@ -216,11 +218,11 @@ const EditableMembershipPanel = (props) => {
 
   const memberFileTransition = useTransition(
     !!selectedMemberPersonalInformation,
-    slideInTransition
+    slideInTransition,
   );
   const confirmTransition = useTransition(
     selectedMembershipType,
-    slideInTransition
+    slideInTransition,
   );
 
   return (
@@ -248,7 +250,7 @@ const EditableMembershipPanel = (props) => {
                 onChangeMembershipType={selectMembershipType}
               />
             </SecondaryPanel>
-          )
+          ),
       )}
       {confirmTransition(
         (style, item) =>
@@ -263,7 +265,7 @@ const EditableMembershipPanel = (props) => {
                 isLoading={isLoading}
               />
             </SecondaryPanel>
-          )
+          ),
       )}
     </>
   );

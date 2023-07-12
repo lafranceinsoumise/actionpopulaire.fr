@@ -104,10 +104,10 @@ const DonationPage = () => {
         routeConfig.donations.getLink({
           type: params?.type,
           step: "validation",
-        }) + search
+        }) + search,
       );
     },
-    [history, search, params, updateFormData]
+    [history, search, params, updateFormData],
   );
 
   const closeModal = useCallback(() => {
@@ -115,7 +115,7 @@ const DonationPage = () => {
       routeConfig.donations.getLink({
         type: params?.type,
         step: null,
-      }) + search
+      }) + search,
     );
   }, [history, search, params]);
 

@@ -15,7 +15,7 @@ const log = logger(__filename);
 export default async function itemMap(
   htmlElementId,
   coordinates,
-  iconConfiguration
+  iconConfiguration,
 ) {
   const style = makeStyle(iconConfiguration);
   const feature = new Feature({

@@ -35,7 +35,7 @@ export const getFieldStepFromErrors = (errors, isAbroad) =>
   FORM_STEPS(isAbroad).findIndex(
     (stepFields) =>
       stepFields.length > 0 &&
-      stepFields.some((field) => typeof errors[field] !== "undefined")
+      stepFields.some((field) => typeof errors[field] !== "undefined"),
   );
 
 const VotingProxyForm = (props) => {
@@ -87,7 +87,7 @@ const VotingProxyForm = (props) => {
         city: getInitialData(user)?.city,
       }));
     },
-    [user]
+    [user],
   );
 
   const handleChangePollingStation = useCallback((e) => {
@@ -159,7 +159,7 @@ const VotingProxyForm = (props) => {
           options.data.votingDates.choices.map((choice) => ({
             value: choice.value,
             label: choice.display_name,
-          }))
+          })),
         );
       }
     };

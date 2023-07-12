@@ -57,7 +57,7 @@ const FileField = forwardRef((props, ref) => {
         e?.target?.files && e.target.files[e.target.files.length - 1];
       file && onChange && onChange(file);
     },
-    [onChange]
+    [onChange],
   );
 
   const handleClick = useCallback(() => {

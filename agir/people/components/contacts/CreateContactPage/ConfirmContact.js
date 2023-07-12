@@ -55,7 +55,7 @@ const ConfirmContact = (props) => {
   const { data, onBack, onConfirm, isLoading } = props;
   const newsletters = [
     ...data.newsletters.map(
-      (n) => NEWSLETTERS[n]?.visible && NEWSLETTERS[n].label
+      (n) => NEWSLETTERS[n]?.visible && NEWSLETTERS[n].label,
     ),
     data.group?.id &&
       data.hasGroupNotifications &&

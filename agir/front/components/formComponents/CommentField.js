@@ -20,7 +20,7 @@ import TextField from "@agir/front/formComponents/TextField";
 import StaticToast from "@agir/front/genericComponents/StaticToast";
 
 const EmojiPicker = lazy(() =>
-  import("@agir/front/formComponents/EmojiPicker")
+  import("@agir/front/formComponents/EmojiPicker"),
 );
 
 const StyledCommentButton = styled.button`
@@ -101,7 +101,8 @@ const StyledWrapper = styled.form`
       overflow-y: auto;
       padding: 1rem;
       background-color: white;
-      box-shadow: 0px -3px 3px rgba(0, 35, 44, 0.1),
+      box-shadow:
+        0px -3px 3px rgba(0, 35, 44, 0.1),
         0px 2px 0px rgba(0, 35, 44, 0.08);
       align-items: ${({ $isExpanded }) =>
         $isExpanded ? "flex-start" : "center"};
@@ -339,7 +340,7 @@ const CommentField = (props) => {
       ];
       setValue(newValue);
     },
-    [value]
+    [value],
   );
 
   const handleEmojiOpen = useCallback(() => {
@@ -363,7 +364,7 @@ const CommentField = (props) => {
         hasSubmitted.current = true;
       }
     },
-    [blurOnClickOutside, maySend, onSend, value]
+    [blurOnClickOutside, maySend, onSend, value],
   );
 
   useEffect(() => {
@@ -380,7 +381,7 @@ const CommentField = (props) => {
         hasSubmitted.current = true;
       }
     },
-    [maySend, value, onSend]
+    [maySend, value, onSend],
   );
 
   useEffect(() => {

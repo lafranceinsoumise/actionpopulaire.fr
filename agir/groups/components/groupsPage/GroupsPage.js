@@ -32,10 +32,10 @@ const GroupsPage = () => {
   const user = useSelector(getUser);
   const hasOwnGroups = Array.isArray(user?.groups) && user.groups.length > 0;
   const { data: userGroups } = useSWR(
-    !!user && hasOwnGroups && "/api/groupes/"
+    !!user && hasOwnGroups && "/api/groupes/",
   );
   const { data: groupSuggestions } = useSWR(
-    !!user && !hasOwnGroups && "/api/groupes/suggestions/"
+    !!user && !hasOwnGroups && "/api/groupes/suggestions/",
   );
   const isReady = !!user && (userGroups || groupSuggestions);
 

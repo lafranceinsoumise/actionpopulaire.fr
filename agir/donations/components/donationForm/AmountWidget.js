@@ -33,7 +33,8 @@ const AmountButton = styled.button`
   font-weight: bold;
   border: none;
   height: 55px;
-  box-shadow: 0px 0px 3px rgba(0, 35, 44, 0.3),
+  box-shadow:
+    0px 0px 3px rgba(0, 35, 44, 0.3),
     0px 2px 0px rgba(0, 35, 44, 0.15);
 
   &.btn-unselected {

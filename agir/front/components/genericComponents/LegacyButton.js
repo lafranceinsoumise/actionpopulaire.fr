@@ -97,7 +97,7 @@ export const Button = styled.button.attrs(
     icon: null,
     ...buttonColors[color],
     as: as === "Link" ? Link : as,
-  })
+  }),
 )`
   display: ${({ $block }) => ($block ? "flex" : "inline-flex")};
   width: ${({ $block }) => ($block ? "100%" : "auto")};

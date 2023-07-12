@@ -24,21 +24,21 @@ const GroupContactPage = (props) => {
   const [isLoading, setIsloading] = useState(true);
 
   const { data: group, mutate } = useSWR(
-    getGroupEndpoint("getGroup", { groupPk })
+    getGroupEndpoint("getGroup", { groupPk }),
   );
 
   const handleCheckboxChange = useCallback(
     (e) => {
       setContact({ ...contact, [e.target.name]: e.target.checked });
     },
-    [contact]
+    [contact],
   );
 
   const handleChange = useCallback(
     (e) => {
       setContact({ ...contact, [e.target.name]: e.target.value });
     },
-    [contact]
+    [contact],
   );
 
   const handleSubmit = useCallback(
@@ -58,7 +58,7 @@ const GroupContactPage = (props) => {
         return { ...group, ...res.data };
       });
     },
-    [contact, groupPk, mutate, sendToast]
+    [contact, groupPk, mutate, sendToast],
   );
 
   useEffect(() => {

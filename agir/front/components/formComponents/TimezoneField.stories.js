@@ -76,7 +76,7 @@ Disabled.args = {
 
 export const WithDateTimeField = (args = Filled.args) => {
   const [tz, setTz] = React.useState(
-    args.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone
+    args.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
   );
   const [value, setValue] = React.useState(args.value);
   const [timezonedValue, setTimezonedValue] = React.useState();

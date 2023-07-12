@@ -204,7 +204,7 @@ const ConnectedUpdateAddressModal = (props) => {
       }));
       onClose && onClose();
     },
-    [onClose]
+    [onClose],
   );
 
   return (

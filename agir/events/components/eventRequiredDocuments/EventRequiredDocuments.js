@@ -145,7 +145,7 @@ const EventRequiredDocuments = (props) => {
       ? requiredDocumentTypes.filter(
           (type) =>
             !dismissedDocumentTypes.includes(type) &&
-            !sentDocumentTypes.includes(type)
+            !sentDocumentTypes.includes(type),
         )
       : [];
 

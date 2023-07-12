@@ -171,10 +171,10 @@ const Actions = (props) => {
         (event) => ({
           ...event,
           rsvped: true,
-        })
+        }),
       );
     },
-    [id, hasPrice, routes, hasSubscriptionForm]
+    [id, hasPrice, routes, hasSubscriptionForm],
   );
 
   if (past) {
@@ -308,14 +308,14 @@ Actions.propTypes = {
       id: PropTypes.string,
       name: PropTypes.string,
       isManager: PropTypes.bool,
-    })
+    }),
   ),
   groupsAttendees: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string,
       name: PropTypes.string,
       isManager: PropTypes.bool,
-    })
+    }),
   ),
   backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   volunteerApplicationFormLink: PropTypes.string,

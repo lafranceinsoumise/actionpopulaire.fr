@@ -30,8 +30,12 @@ const StyledMapWrapper = styled.div`
       rgba(230, 230, 230, 0) 100%
     ),
     linear-gradient(rgba(220, 220, 220, 1) 100%, transparent 0%);
-  background-size: 33% 100%, 100% 100%;
-  background-position: -150% 0, 0 0;
+  background-size:
+    33% 100%,
+    100% 100%;
+  background-position:
+    -150% 0,
+    0 0;
   background-repeat: no-repeat;
   animation: ${skeleton} 2.5s infinite ease-in;
   animation-play-state: ${({ $isLoaded }) =>
@@ -146,7 +150,7 @@ const OpenLayersMap = (props) => {
             zoom,
             mapElement,
             iconConfiguration,
-            isStatic
+            isStatic,
           );
           mapObject.current.map.once("postrender", () => {
             setIsLoaded(true);
@@ -156,7 +160,7 @@ const OpenLayersMap = (props) => {
         }
       }
     },
-    [center, zoom, iconConfiguration, isStatic]
+    [center, zoom, iconConfiguration, isStatic],
   );
 
   useEffect(() => {

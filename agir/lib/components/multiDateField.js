@@ -21,7 +21,7 @@ const renderField = (originalField) => {
       disabled={originalField.disabled}
       readOnly={originalField.readOnly}
     />,
-    renderingNode
+    renderingNode,
   );
 
   parent.classList.remove("progress");

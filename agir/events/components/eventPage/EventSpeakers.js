@@ -83,7 +83,7 @@ EventSpeakers.propTypes = {
       name: PropTypes.string,
       description: PropTypes.string,
       image: PropTypes.string,
-    })
+    }),
   ),
 };
 export default EventSpeakers;

@@ -55,7 +55,7 @@ const GroupInvitation = (props) => {
       sendToast("Invitation envoyée", "SUCCESS", { autoClose: true });
       setEmail("");
     },
-    [email, groupPk, sendToast]
+    [email, groupPk, sendToast],
   );
 
   return (

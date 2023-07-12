@@ -21,7 +21,7 @@ const ConnectedFooter = () => {
 
   const route = useMemo(
     () => routes.find((route) => route.match(pathname)),
-    [pathname]
+    [pathname],
   );
 
   if (!isSessionLoaded) {

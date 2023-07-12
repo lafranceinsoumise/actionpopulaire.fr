@@ -6,17 +6,17 @@ import { renderReactComponent } from "@agir/lib/utils/react";
 
 function render() {
   for (let spendingRequestDelete of document.querySelectorAll(
-    ".delete-spending-request"
+    ".delete-spending-request",
   )) {
     renderReactComponent(
       <DeleteSpendingRequest {...spendingRequestDelete.dataset} />,
-      spendingRequestDelete
+      spendingRequestDelete,
     );
   }
   for (let documentDelete of document.querySelectorAll(".delete-document")) {
     renderReactComponent(
       <DeleteDocumentButton {...documentDelete.dataset} />,
-      documentDelete
+      documentDelete,
     );
   }
 }

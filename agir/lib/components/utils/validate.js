@@ -8,7 +8,7 @@ validate.formatters.cleanMessage = (errors) => {
       ...obj,
       [error.attribute]: error && error.error,
     }),
-    {}
+    {},
   );
   for (var i in formattedError) {
     var keys = i.split(".");
@@ -51,7 +51,7 @@ validate.validators.optionalUrl = function (
   value,
   options,
   attribute,
-  attributes
+  attributes,
 ) {
   if (validate.isEmpty(value)) {
     return;

@@ -36,7 +36,7 @@ const Template = (args) => {
 
   const msgs = React.useMemo(
     () => (hasLimit ? args.messages.slice(0, 1) : args.messages),
-    [args.messages, hasLimit]
+    [args.messages, hasLimit],
   );
 
   return (

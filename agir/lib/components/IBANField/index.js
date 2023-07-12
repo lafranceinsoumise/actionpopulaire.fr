@@ -21,7 +21,7 @@ const renderIBANField = () => {
         placeholder={field.placeholder}
         initial={field.value}
       />,
-      renderingNode
+      renderingNode,
     );
     parent.insertBefore(renderingNode, field);
     parent.removeChild(field);

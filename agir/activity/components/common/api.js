@@ -30,7 +30,7 @@ export const getActivityEndpoint = (key, params) => {
 export const updateActivityStatus = async (
   activityId,
   status = ACTIVITY_STATUS.STATUS_INTERACTED,
-  fromPush = false
+  fromPush = false,
 ) => {
   let result = false;
   if (!activityId) {

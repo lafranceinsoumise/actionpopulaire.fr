@@ -46,12 +46,12 @@ const EditionPanel = (props) => {
         ? members.filter((m) =>
             selectedMembershipType === MEMBERSHIP_TYPES.REFERENT
               ? [MEMBERSHIP_TYPES.MEMBER, MEMBERSHIP_TYPES.MANAGER].includes(
-                  m.membershipType
+                  m.membershipType,
                 )
-              : m.membershipType === MEMBERSHIP_TYPES.MEMBER
+              : m.membershipType === MEMBERSHIP_TYPES.MEMBER,
           )
         : [],
-    [members, selectedMembershipType]
+    [members, selectedMembershipType],
   );
 
   return (

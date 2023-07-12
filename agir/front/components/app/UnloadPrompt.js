@@ -21,11 +21,11 @@ const UnloadPrompt = (props) => {
           .split(",")
           .some(
             (route) =>
-              routeConfig[route] && routeConfig[route].match(location.pathname)
+              routeConfig[route] && routeConfig[route].match(location.pathname),
           ) || message
       );
     },
-    [allowedRoutes, message]
+    [allowedRoutes, message],
   );
   return <Prompt when={enabled} message={msg} />;
 };

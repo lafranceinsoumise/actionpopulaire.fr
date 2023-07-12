@@ -11,52 +11,52 @@ import illustrationVisio from "@agir/front/genericComponents/images/video-confer
 const EventSettingsGeneral = lazy(() =>
   import(
     /* webpackChunkName: "r-eventsettingsgeneral" */ "@agir/events/EventSettings/EventGeneral"
-  )
+  ),
 );
 const EventSettingsParticipants = lazy(() =>
   import(
     /* webpackChunkName: "r-eventsettingsparticipants" */ "@agir/events/EventSettings/EventParticipants"
-  )
+  ),
 );
 const EventSettingsOrganization = lazy(() =>
   import(
     /* webpackChunkName: "r-eventsettingsorganization" */ "@agir/events/EventSettings/EventOrganization"
-  )
+  ),
 );
 const EventSettingsVisio = lazy(() =>
   import(
     /* webpackChunkName: "r-eventsettingsvisio" */ "@agir/events/EventSettings/EventVisio"
-  )
+  ),
 );
 const EventSettingsContact = lazy(() =>
   import(
     /* webpackChunkName: "r-eventsettingscontact" */ "@agir/events/EventSettings/EventContact"
-  )
+  ),
 );
 const EventSettingsLocation = lazy(() =>
   import(
     /* webpackChunkName: "r-eventsettingslocation" */ "@agir/events/EventSettings/EventLocation"
-  )
+  ),
 );
 const EventSettingsFeedback = lazy(() =>
   import(
     /* webpackChunkName: "r-eventsettingsfeedback" */ "@agir/events/EventSettings/EventFeedback"
-  )
+  ),
 );
 const EventSettingsCancelation = lazy(() =>
   import(
     /* webpackChunkName: "r-eventsettingscancelation" */ "@agir/events/EventSettings/EventCancelation"
-  )
+  ),
 );
 const EventSettingsDocuments = lazy(() =>
   import(
     /* webpackChunkName: "r-eventsettingsdocuments" */ "@agir/events/EventSettings/EventDocuments"
-  )
+  ),
 );
 const EventSettingsAssets = lazy(() =>
   import(
     /* webpackChunkName: "r-eventsettingsassets" */ "@agir/events/EventSettings/EventAssets"
-  )
+  ),
 );
 
 export const menuRoute = {
@@ -197,7 +197,7 @@ export const getRoutes = (basePath, event) =>
             ? route.disabled(event)
             : route.disabled === true,
         path: basePath + menuRoute.path + route.path,
-      })
+      }),
   );
 
 export const getEventSettingLinks = (event, basePath) => {

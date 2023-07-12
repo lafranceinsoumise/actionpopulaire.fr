@@ -40,7 +40,7 @@ const serializeAllocations = (allocations) => {
   return JSON.stringify(
     allocations
       .filter(({ amount }) => amount != 0)
-      .map(({ id, amount }) => ({ group: id, amount }))
+      .map(({ id, amount }) => ({ group: id, amount })),
   );
 };
 
@@ -60,7 +60,7 @@ const DonationForm = ({
 }) => {
   const [type, setType] = useState(initial.type || null);
   const [allocations, setAllocations] = useState(
-    addLabelToAllocations(initial.allocations, groupChoices)
+    addLabelToAllocations(initial.allocations, groupChoices),
   );
   const [amount, setAmount] = useState(initial.amount || null);
 
@@ -158,7 +158,7 @@ DonationForm.propTypes = {
     PropTypes.shape({
       value: PropTypes.string,
       label: PropTypes.string,
-    })
+    }),
   ),
   amountChoices: PropTypes.arrayOf(PropTypes.number),
   showTaxCredit: PropTypes.bool,
@@ -168,7 +168,7 @@ DonationForm.propTypes = {
     PropTypes.shape({
       name: PropTypes.string,
       id: PropTypes.string,
-    })
+    }),
   ),
   hiddenFields: PropTypes.objectOf(PropTypes.string),
   typeActe: PropTypes.string,

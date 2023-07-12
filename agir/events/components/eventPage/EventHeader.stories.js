@@ -46,7 +46,7 @@ const Template = decorateArgs(
   scheduleFromStartTimeAndDuration(),
   ({ rsvped, ...args }) => {
     return <EventHeader {...args} rsvp={rsvped ? "CO" : ""} />;
-  }
+  },
 );
 
 export const Default = Template.bind({});

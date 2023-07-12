@@ -123,7 +123,7 @@ const SignUp = () => {
       const route = routeConfig.codeSignup.getLink();
       history.push(route, { ...(location.state || {}), email: formData.email });
     },
-    [formData, history, location, rgpdChecked]
+    [formData, history, location, rgpdChecked],
   );
 
   return (

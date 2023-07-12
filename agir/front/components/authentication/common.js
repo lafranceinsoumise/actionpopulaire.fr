@@ -59,7 +59,7 @@ export const NEWSLETTER_OPTIONS = Object.values(NEWSLETTERS);
 
 export const getNewsletterOptions = (person) =>
   Object.values(NEWSLETTER_OPTIONS).filter((n) =>
-    typeof n.visible === "function" ? n.visible(person) : !!n.visible
+    typeof n.visible === "function" ? n.visible(person) : !!n.visible,
   );
 
 export const getBookmarkedEmails = () => {
@@ -72,7 +72,7 @@ export const bookmarkEmails = (emails) => {
   Cookies.set(
     BOOKMARKED_EMAILS_COOKIE_NAME,
     JSON.stringify(emails),
-    BOOKMARKED_EMAILS_COOKIE_OPTIONS
+    BOOKMARKED_EMAILS_COOKIE_OPTIONS,
   );
 
   return emails;
@@ -88,7 +88,7 @@ export const bookmarkEmail = (email) => {
   Cookies.set(
     BOOKMARKED_EMAILS_COOKIE_NAME,
     cookieData,
-    BOOKMARKED_EMAILS_COOKIE_OPTIONS
+    BOOKMARKED_EMAILS_COOKIE_OPTIONS,
   );
 
   return cookieData;

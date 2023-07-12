@@ -169,7 +169,7 @@ export const sendVotingProxyInformation = async (votingProxyRequests) => {
     error: null,
   };
   let votingProxyRequestPk = votingProxyRequests.find(
-    (request) => request.status === "accepted" && request.proxy
+    (request) => request.status === "accepted" && request.proxy,
   );
   votingProxyRequestPk = votingProxyRequestPk?.id || votingProxyRequests[0].id;
   const url = getVotingProxyEndpoint("sendVotingProxyInformation", {
@@ -236,7 +236,7 @@ export const cancelVotingProxyRequests = async (votingProxyRequests) => {
 };
 
 export const cancelVotingProxyRequestAcceptation = async (
-  votingProxyRequests
+  votingProxyRequests,
 ) => {
   const result = {
     data: null,

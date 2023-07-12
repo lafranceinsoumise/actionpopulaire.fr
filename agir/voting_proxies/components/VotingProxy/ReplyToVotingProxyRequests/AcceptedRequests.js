@@ -383,7 +383,7 @@ AcceptedRequests.propTypes = {
       pollingStationNumber: PropTypes.string.isRequired,
       commune: PropTypes.string,
       consulate: PropTypes.string,
-    })
+    }),
   ).isRequired,
   refreshRequests: PropTypes.func,
   hasMatchedRequests: PropTypes.bool,

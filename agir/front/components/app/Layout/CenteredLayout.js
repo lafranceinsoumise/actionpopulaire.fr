@@ -101,9 +101,9 @@ CenteredLayout.propTypes = {
           id: PropTypes.string,
           label: PropTypes.string,
           href: PropTypes.string,
-        })
+        }),
       ),
-    ])
+    ]),
   ),
   title: PropTypes.string,
   subtitle: PropTypes.string,

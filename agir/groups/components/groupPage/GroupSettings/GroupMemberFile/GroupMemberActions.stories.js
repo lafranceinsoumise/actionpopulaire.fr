@@ -9,7 +9,7 @@ const membershipTypeOptions = Object.entries(MEMBERSHIP_TYPES).reduce(
     ...options,
     [value]: key,
   }),
-  {}
+  {},
 );
 
 export default {

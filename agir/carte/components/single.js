@@ -4,7 +4,7 @@ import itemMap from "@agir/carte/map/itemMap";
 
 var subtype = JSON.parse(document.getElementById("subtypeConfig").textContent);
 var coordinates = JSON.parse(
-  document.getElementById("coordinates").textContent
+  document.getElementById("coordinates").textContent,
 );
 
 itemMap("map", coordinates, subtype);

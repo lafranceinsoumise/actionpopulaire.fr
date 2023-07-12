@@ -25,7 +25,8 @@ const StyledMenu = styled.nav`
     margin: 0;
     padding: 0 1rem;
     border-top: 1px solid ${style.black100};
-    box-shadow: 0px 0px 3px rgba(0, 35, 44, 0.1),
+    box-shadow:
+      0px 0px 3px rgba(0, 35, 44, 0.1),
       0px 2px 1px rgba(0, 35, 44, 0.08);
     overflow-x: auto;
     overflow-x: overlay;
@@ -86,7 +87,7 @@ const GroupPageMenu = (props) => {
             >
               {tab.label}
             </NavLink>
-          )
+          ),
       )}
     </StyledMenu>
   ) : null;

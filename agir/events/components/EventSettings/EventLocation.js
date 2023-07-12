@@ -27,7 +27,7 @@ const EventLocation = (props) => {
   const { onBack, illustration, eventPk } = props;
 
   let { data: event, mutate } = useSWR(
-    api.getEventEndpoint("getEvent", { eventPk })
+    api.getEventEndpoint("getEvent", { eventPk }),
   );
   const updateLocationUrl = api.getEventEndpoint("updateLocation", { eventPk });
   const sendToast = useToast();

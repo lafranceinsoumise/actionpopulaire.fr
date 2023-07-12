@@ -17,7 +17,7 @@ describe("GlobalContext/actions", function () {
       expect(mockDispatch.mock.calls).toHaveLength(1);
       expect(mockDispatch.mock.calls[0][0]).toHaveProperty(
         "type",
-        ACTION_TYPE.INIT_ACTION
+        ACTION_TYPE.INIT_ACTION,
       );
     });
   });
@@ -28,7 +28,7 @@ describe("GlobalContext/actions", function () {
       expect(mockDispatch.mock.calls).toHaveLength(1);
       expect(mockDispatch.mock.calls[0][0]).toHaveProperty(
         "type",
-        ACTION_TYPE.SET_IS_POLITICAL_SUPPORT_ACTION
+        ACTION_TYPE.SET_IS_POLITICAL_SUPPORT_ACTION,
       );
     });
   });

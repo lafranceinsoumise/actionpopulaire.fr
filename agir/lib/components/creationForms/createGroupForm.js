@@ -29,7 +29,7 @@ class CreateGroupForm extends React.Component {
     if (state.types.length === 1 && !state.types[0].disabled) {
       state.fields.type = state.types[0].id;
       const subtypes = this.props.subtypes.filter(
-        (s) => s.type === state.types[0].id
+        (s) => s.type === state.types[0].id,
       );
 
       if (subtypes.length < 2) {
@@ -385,7 +385,7 @@ class ValidateStep extends FormStep {
                     ([field, msg]) => {
                       captureMessage(`ValidationError: ${field} ${msg}`);
                       return <li key={field}>{msg}</li>;
-                    }
+                    },
                   )}
                 </ul>
               ) : (

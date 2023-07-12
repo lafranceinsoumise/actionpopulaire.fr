@@ -98,7 +98,7 @@ EventInfoCard.propTypes = {
       id: PropTypes.string,
       name: PropTypes.string,
       url: PropTypes.string,
-    })
+    }),
   ),
   subtype: PropTypes.shape({
     label: PropTypes.string,

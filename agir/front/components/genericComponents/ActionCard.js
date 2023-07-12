@@ -64,7 +64,7 @@ const ActionCard = (props) => {
         .split("")
         .map((ch, i) => (i ? ch : ch.toUpperCase()))
         .join(""),
-    [timestamp]
+    [timestamp],
   );
 
   return (

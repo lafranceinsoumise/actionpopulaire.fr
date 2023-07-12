@@ -47,7 +47,7 @@ const GroupMemberMainPanel = (props) => {
       return [];
     }
     return members.filter(
-      (member) => member.membershipType >= MEMBERSHIP_TYPES.MEMBER
+      (member) => member.membershipType >= MEMBERSHIP_TYPES.MEMBER,
     );
   }, [members]);
 
@@ -55,11 +55,11 @@ const GroupMemberMainPanel = (props) => {
     () =>
       activeMembers
         .filter(
-          ({ hasGroupNotifications, email }) => email && hasGroupNotifications
+          ({ hasGroupNotifications, email }) => email && hasGroupNotifications,
         )
         .map(({ email }) => email)
         .join(", "),
-    [activeMembers]
+    [activeMembers],
   );
 
   return (

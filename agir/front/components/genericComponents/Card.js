@@ -41,7 +41,9 @@ const Card = styled.div.withConfig({
   cursor: ${({ onClick }) => (onClick ? "pointer" : "default")};
   border: 1px solid;
   border-color: ${style.black100};
-  transition: border-color, background-color 300ms;
+  transition:
+    border-color,
+    background-color 300ms;
   border-radius: ${style.borderRadius};
 
   &:hover {

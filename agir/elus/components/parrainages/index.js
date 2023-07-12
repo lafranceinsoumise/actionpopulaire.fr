@@ -19,7 +19,7 @@ const displayInterface = () => {
     <GlobalContextProvider>
       <App elusProches={elusProchesData} />
     </GlobalContextProvider>,
-    document.getElementById("app")
+    document.getElementById("app"),
   );
 
   const appLoader = document.getElementById("app_loader");

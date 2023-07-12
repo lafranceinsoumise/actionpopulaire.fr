@@ -56,7 +56,7 @@ const ButtonMuteMessage = ({ message }) => {
     setIsMutedLoading(true);
     const { data: muted } = await updateMessageNotification(
       messagePk,
-      !isMuted
+      !isMuted,
     );
     setIsMutedLoading(false);
     setIsModalOpen(false);
@@ -67,7 +67,7 @@ const ButtonMuteMessage = ({ message }) => {
         ? "Vous ne recevrez plus de notifications reliées à ce fil de messages"
         : "Les notifications reliées à ce fil de message sont réactivées",
       "INFO",
-      { autoClose: true }
+      { autoClose: true },
     );
   }, [isMuted, messagePk, mutate, sendToast]);
 

@@ -19,7 +19,7 @@ const EventContact = (props) => {
   const { onBack, illustration, eventPk } = props;
 
   const { data: event, mutate: mutateAPI } = useSWR(
-    api.getEventEndpoint("getDetailAdvanced", { eventPk })
+    api.getEventEndpoint("getDetailAdvanced", { eventPk }),
   );
   const sendToast = useToast();
 
@@ -51,7 +51,7 @@ const EventContact = (props) => {
     (e) => {
       setContact({ ...contact, [e.target.name]: e.target.checked });
     },
-    [contact]
+    [contact],
   );
 
   const handleSubmit = async (e) => {

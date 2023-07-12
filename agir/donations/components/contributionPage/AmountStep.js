@@ -78,7 +78,7 @@ const AmountStep = (props) => {
 
   const remainder = useMemo(
     () => getReminder(allocations, amount),
-    [allocations, amount]
+    [allocations, amount],
   );
 
   const endDateString = useMemo(
@@ -86,7 +86,7 @@ const AmountStep = (props) => {
       DateTime.fromJSDate(new Date(endDate))
         .setLocale("fr")
         .toFormat("MMMM yyyy"),
-    [endDate]
+    [endDate],
   );
 
   const hasGroup = !!group?.id;

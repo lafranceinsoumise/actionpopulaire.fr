@@ -24,7 +24,7 @@ const GroupMemberFacts = (props) => {
   const { isPoliticalSupport, isLiaison, hasGroupNotifications } = props;
 
   return [isPoliticalSupport, hasGroupNotifications, isLiaison].some(
-    (i) => typeof i === "boolean"
+    (i) => typeof i === "boolean",
   ) ? (
     <StyledList>
       <h4>À propos</h4>

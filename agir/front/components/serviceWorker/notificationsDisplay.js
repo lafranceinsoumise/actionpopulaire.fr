@@ -59,10 +59,10 @@ self.addEventListener(
           if (!hasClient) {
             clients.openWindow(url);
           }
-        })
+        }),
     );
   },
-  false
+  false,
 );
 
 self.addEventListener(
@@ -70,5 +70,5 @@ self.addEventListener(
   function (event) {
     event.waitUntil(webpushSubscribe(self.registration, event.newSubscription));
   },
-  false
+  false,
 );

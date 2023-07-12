@@ -22,7 +22,7 @@ const GroupGeneralPage = (props) => {
   const sendToast = useToast();
 
   const { data: group, mutate } = useSWR(
-    getGroupEndpoint("getGroup", { groupPk })
+    getGroupEndpoint("getGroup", { groupPk }),
   );
 
   const [imageHasChanged, setImageHasChanged] = useState(false);
@@ -46,7 +46,7 @@ const GroupGeneralPage = (props) => {
       value && value !== originalImage && setHasCheckedImageLicence(false);
       setFormData((formData) => ({ ...formData, image: value }));
     },
-    [originalImage]
+    [originalImage],
   );
 
   const handleDescriptionChange = useCallback((value) => {
@@ -99,7 +99,7 @@ const GroupGeneralPage = (props) => {
       hasCheckedImageLicence,
       imageHasChanged,
       sendToast,
-    ]
+    ],
   );
 
   useEffect(() => {

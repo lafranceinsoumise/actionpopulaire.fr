@@ -19,7 +19,7 @@ export const GroupPage = (props) => {
       routeParams: { groupPk: group?.id },
       label: group?.name,
     }),
-    [group]
+    [group],
   );
 
   return (

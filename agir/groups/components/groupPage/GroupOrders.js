@@ -40,7 +40,7 @@ const GroupOrders = (props) => {
   const orderURL = routes && routes.orders;
   const [codes, specialCodes] = useMemo(
     () => parseDiscountCodes(discountCodes),
-    [discountCodes]
+    [discountCodes],
   );
 
   return isManager ? (
@@ -77,7 +77,7 @@ GroupOrders.propTypes = {
     PropTypes.shape({
       code: PropTypes.string,
       expiration: PropTypes.string,
-    })
+    }),
   ),
   isManager: PropTypes.bool,
   routes: PropTypes.shape({

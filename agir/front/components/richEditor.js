@@ -21,7 +21,7 @@ import onDOMReady from "@agir/lib/utils/onDOMReady";
 require.context(
   "file-loader?name=[path][name].[ext]&context=node_modules/tinymce!tinymce/skins",
   true,
-  /.*/
+  /.*/,
 );
 
 const config = {

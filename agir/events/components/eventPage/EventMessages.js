@@ -25,7 +25,7 @@ export const EventMessages = (props) => {
 
   const user = useSelector(getUser);
   const { data: messages } = useSWR(
-    !!user && getEventEndpoint("getEventMessages", { eventPk })
+    !!user && getEventEndpoint("getEventMessages", { eventPk }),
   );
 
   const history = useHistory();
@@ -37,7 +37,7 @@ export const EventMessages = (props) => {
       });
       history?.push(link);
     },
-    [history]
+    [history],
   );
 
   if (!(Array.isArray(messages) && !!messages.length)) {

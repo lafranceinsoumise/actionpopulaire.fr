@@ -13,17 +13,17 @@ export const DEVICE_TYPE = {
 export const getSubscription = async (deviceType, token) => {
   try {
     const deviceSubscription = await axios.get(
-      `/api/device/${deviceType}/${token}/`
+      `/api/device/${deviceType}/${token}/`,
     );
     log.debug(
       `${deviceType}: Retrieved push subscription for token ${token}`,
-      deviceSubscription.data.active
+      deviceSubscription.data.active,
     );
     return deviceSubscription.data.active;
   } catch (err) {
     log.error(
       `${deviceType}: Error while retrieving push subscription for token ${token}`,
-      err
+      err,
     );
     return err.response?.status === 404 ? undefined : false;
   }
@@ -43,7 +43,7 @@ export const subscribe = async (deviceType, token) => {
   } catch (err) {
     log.error(
       `${deviceType}: Error while creating push subscription for token ${token}`,
-      err
+      err,
     );
     return false;
   }
@@ -60,7 +60,7 @@ export const unsubscribe = async (deviceType, token) => {
   } catch (err) {
     log.error(
       `${deviceType}: Error while disabling push subscription for token ${token}`,
-      err
+      err,
     );
     return err.response?.status === 404;
   }

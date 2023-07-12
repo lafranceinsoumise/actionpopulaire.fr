@@ -14,7 +14,7 @@ export const useToast = () => {
       };
       dispatch(addToasts(toast));
     },
-    [dispatch]
+    [dispatch],
   );
 
   return sendToast;

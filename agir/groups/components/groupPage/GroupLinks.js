@@ -59,7 +59,7 @@ GroupLinks.propTypes = {
     PropTypes.shape({
       url: PropTypes.string.isRequired,
       label: PropTypes.string.isRequired,
-    })
+    }),
   ),
   editLinkTo: PropTypes.string,
 };

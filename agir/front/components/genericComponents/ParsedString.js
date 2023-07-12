@@ -31,7 +31,7 @@ const replaceSubstrings = (options) => {
     output.push(decoratedMatch);
     processedInput = processedInput.substring(
       matchStartAt + match.length,
-      processedInput.length + 1
+      processedInput.length + 1,
     );
     pattern.lastIndex = 0;
     result = pattern.exec(processedInput);

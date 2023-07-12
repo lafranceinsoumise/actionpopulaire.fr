@@ -20,7 +20,7 @@ import { routeConfig } from "@agir/front/app/routes.config";
 const EventRequiredDocumentsUploadPage = (props) => {
   const { eventPk, embedded } = props;
   const { data, mutate, error } = useSWR(
-    getEventEndpoint("eventProject", { eventPk })
+    getEventEndpoint("eventProject", { eventPk }),
   );
   const { subtype } = useEventFormOptions();
 
@@ -44,7 +44,7 @@ const EventRequiredDocumentsUploadPage = (props) => {
       setIsLoading(false);
       mutate();
     },
-    [eventPk, mutate]
+    [eventPk, mutate],
   );
 
   const saveDocument = useCallback(
@@ -59,7 +59,7 @@ const EventRequiredDocumentsUploadPage = (props) => {
       }
       setIsLoading(false);
     },
-    [eventPk, mutate]
+    [eventPk, mutate],
   );
 
   const dismissDocumentType = useCallback(
@@ -76,7 +76,7 @@ const EventRequiredDocumentsUploadPage = (props) => {
       }
       setIsLoading(false);
     },
-    [eventPk, dismissedDocumentTypes, mutate]
+    [eventPk, dismissedDocumentTypes, mutate],
   );
 
   if (error?.response?.status === 403 || error?.response?.status === 404) {
@@ -116,7 +116,7 @@ const EventRequiredDocumentsPage = (props) => {
   const { eventPk, embedded } = props;
 
   const { data: event, error } = useSWR(
-    getEventEndpoint("getDetailAdvanced", { eventPk })
+    getEventEndpoint("getDetailAdvanced", { eventPk }),
   );
 
   if (error?.response?.status === 403 || error?.response?.status === 404) {

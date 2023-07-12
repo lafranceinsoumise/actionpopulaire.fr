@@ -23,7 +23,7 @@ const LocationItems = (props) => {
 
   const haslocations = useMemo(
     () => Array.isArray(locations) && locations.length > 0,
-    [locations]
+    [locations],
   );
 
   if (!haslocations) {

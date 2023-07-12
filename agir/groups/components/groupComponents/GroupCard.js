@@ -82,7 +82,7 @@ const GroupCard = ({
           history.push(routeConfig.groupDetails.getLink({ groupPk: id }));
         });
     },
-    [history, id]
+    [history, id],
   );
 
   return (

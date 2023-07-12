@@ -70,7 +70,7 @@ export const PopinContainer = (props) => {
         onDismiss &&
         onDismiss();
     },
-    [onDismiss]
+    [onDismiss],
   );
 
   useKeyPressEvent("Escape", onDismiss);
@@ -94,7 +94,7 @@ export const PopinContainer = (props) => {
       >
         {children}
       </Popin>
-    ) : null
+    ) : null,
   );
 };
 PopinContainer.propTypes = {

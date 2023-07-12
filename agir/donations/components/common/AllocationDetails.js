@@ -51,7 +51,7 @@ const AllocationDetails = (props) => {
                   <em> {groupName}</em>
                 ) : null}
               </li>
-            )
+            ),
         )}
       </ul>
     </StyledAllocationDetails>
@@ -65,7 +65,7 @@ AllocationDetails.propTypes = {
     PropTypes.shape({
       type: PropTypes.string,
       value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    })
+    }),
   ),
   byMonth: PropTypes.bool,
 };

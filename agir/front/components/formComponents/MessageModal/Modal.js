@@ -164,7 +164,7 @@ const Modal = (props) => {
 
   const [hasBackButton, setHasBackButton] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(
-    (message && message.linkedEvent) || null
+    (message && message.linkedEvent) || null,
   );
   const [selectedGroup, setSelectedGroup] = useState(message?.group || null);
 
@@ -199,7 +199,7 @@ const Modal = (props) => {
       setSelectedGroup(group);
       onSelectGroup && onSelectGroup(group);
     },
-    [onSelectGroup]
+    [onSelectGroup],
   );
 
   const handleClearEvent = useCallback(() => {
@@ -269,7 +269,7 @@ const Modal = (props) => {
         handleSend();
       }
     },
-    [maySend, handleSend]
+    [maySend, handleSend],
   );
 
   const eventOptions = useMemo(() => {

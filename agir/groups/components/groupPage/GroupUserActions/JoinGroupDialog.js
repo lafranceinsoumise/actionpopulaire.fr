@@ -159,7 +159,7 @@ JoinGroup.propTypes = {
   groupReferents: PropTypes.arrayOf(
     PropTypes.shape({
       displayName: PropTypes.string.isRequired,
-    })
+    }),
   ).isRequired,
   personalInfoConsent: PropTypes.bool,
   onJoin: PropTypes.func.isRequired,

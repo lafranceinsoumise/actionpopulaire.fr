@@ -65,7 +65,7 @@ const EventSpeakerRequestForm = (props) => {
       setHasChanged(false);
       setIsNew(false);
     },
-    [sendToast, request]
+    [sendToast, request],
   );
 
   const handleChangeAvailable = useCallback((value) => {

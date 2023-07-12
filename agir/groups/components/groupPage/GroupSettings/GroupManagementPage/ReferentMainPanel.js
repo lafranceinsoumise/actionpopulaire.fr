@@ -19,17 +19,17 @@ export const ReferentMainPanel = (props) => {
   const referents = useMemo(
     () =>
       members.filter(
-        (member) => member.membershipType === MEMBERSHIP_TYPES.REFERENT
+        (member) => member.membershipType === MEMBERSHIP_TYPES.REFERENT,
       ),
-    [members]
+    [members],
   );
 
   const managers = useMemo(
     () =>
       members.filter(
-        (member) => member.membershipType === MEMBERSHIP_TYPES.MANAGER
+        (member) => member.membershipType === MEMBERSHIP_TYPES.MANAGER,
       ),
-    [members]
+    [members],
   );
 
   return (

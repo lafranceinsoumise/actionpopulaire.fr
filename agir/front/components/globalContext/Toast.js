@@ -122,7 +122,7 @@ export const Toast = (props) => {
           onClose: () => {
             onClear(t.toastId);
           },
-        }
+        },
       );
     });
   }, [toasts, onClear]);
@@ -138,7 +138,7 @@ const ConnectedToast = (props) => {
     (toastId) => {
       dispatch(clearToast(toastId));
     },
-    [dispatch]
+    [dispatch],
   );
 
   const [softLoginToast, toasts] = useMemo(() => {
@@ -178,7 +178,7 @@ Toast.propTypes = {
       type: PropTypes.oneOf(Object.keys(TOAST_TYPES)),
       autoClose: PropTypes.oneOfType([PropTypes.bool, PropTypes.number]),
       closeOnClick: PropTypes.bool,
-    })
+    }),
   ),
   onClear: PropTypes.func,
   autoClose: PropTypes.bool,

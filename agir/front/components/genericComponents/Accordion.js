@@ -110,7 +110,7 @@ const Accordion = memo((props) => {
   const contentRef = useRef();
   useEffect(() => {
     const controls = contentRef.current.querySelectorAll(
-      "a, input, select, textarea, button"
+      "a, input, select, textarea, button",
     );
     controls.forEach((control) => {
       control.tabIndex = isOpen ? "0" : "-1";

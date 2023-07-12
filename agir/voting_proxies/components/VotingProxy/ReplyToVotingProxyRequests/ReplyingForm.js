@@ -277,7 +277,7 @@ ReplyingForm.propTypes = {
       pollingStationNumber: PropTypes.string.isRequired,
       commune: PropTypes.string,
       consulate: PropTypes.string,
-    })
+    }),
   ).isRequired,
   readOnly: PropTypes.bool,
   refreshRequests: PropTypes.func,

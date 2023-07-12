@@ -48,7 +48,7 @@ const initAdminJsonWidget = () => {
     if (document.getElementById(e.dataset.fieldname + "-schema")) {
       try {
         schema = document.getElementById(
-          e.dataset.fieldname + "-schema"
+          e.dataset.fieldname + "-schema",
         ).textContent;
         schema = JSON.parse(schema);
       } catch (e) {
@@ -60,7 +60,7 @@ const initAdminJsonWidget = () => {
     if (document.getElementById(e.dataset.fieldname + "-templates")) {
       try {
         templates = document.getElementById(
-          e.dataset.fieldname + "-templates"
+          e.dataset.fieldname + "-templates",
         ).textContent;
         templates = JSON.parse(templates);
       } catch (e) {
@@ -72,7 +72,7 @@ const initAdminJsonWidget = () => {
     if (document.getElementById(e.dataset.fieldname + "-data").textContent) {
       try {
         data = document.getElementById(
-          e.dataset.fieldname + "-data"
+          e.dataset.fieldname + "-data",
         ).textContent;
         data = JSON.parse(data);
       } catch (e) {

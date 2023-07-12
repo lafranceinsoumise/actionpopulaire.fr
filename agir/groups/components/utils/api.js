@@ -513,7 +513,9 @@ export const updateGroupLink = async (groupPk, linkPk, body) => {
 export const saveGroupLink = (groupPk, link) => {
   const body = {
     url: encodeURI(
-      link.url.includes("http") ? link.url.trim() : `https://${link.url.trim()}`
+      link.url.includes("http")
+        ? link.url.trim()
+        : `https://${link.url.trim()}`,
     ),
     label: link.label,
   };

@@ -28,7 +28,7 @@ export const SearchEventPage = () => {
   const [__, events, errors, isLoading] = useSearchResults(
     search,
     type,
-    filters
+    filters,
   );
 
   return (

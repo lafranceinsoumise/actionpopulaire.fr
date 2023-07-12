@@ -66,7 +66,7 @@ ReportFormCard.propTypes = {
 
 const ConnectedReportFormCard = ({ eventPk }) => {
   const { data } = useSWRImmutable(
-    eventPk && getEventEndpoint("getEventReportForm", { eventPk })
+    eventPk && getEventEndpoint("getEventReportForm", { eventPk }),
   );
   return (
     <PageFadeIn ready={!!data?.url}>

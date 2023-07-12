@@ -65,7 +65,7 @@ const Template = (args) => {
                   <h3 key={paragraph}>{paragraph}</h3>
                 ) : (
                   <span key={paragraph}>{paragraph} </span>
-                )
+                ),
               )}
           </div>
         ))}

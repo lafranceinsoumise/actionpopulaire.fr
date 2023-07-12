@@ -249,8 +249,8 @@ const getInitialValue = (value) => {
     .map(
       (v) =>
         new DateObject(
-          new Date(v.length === 10 ? v + " 00:00:00" : convertIsoDateOffset(v))
-        )
+          new Date(v.length === 10 ? v + " 00:00:00" : convertIsoDateOffset(v)),
+        ),
     )
     .filter((v) => v.isValid);
 };
@@ -322,7 +322,7 @@ const MultiDateInput = (props) => {
         className={disabled || readOnly ? "rmdp-panel-disabled" : ""}
       />
     ),
-    [readOnly, disabled, hasTime]
+    [readOnly, disabled, hasTime],
   );
 
   const TimeInput = useMemo(
@@ -334,7 +334,7 @@ const MultiDateInput = (props) => {
         hideSeconds
       />
     ),
-    [readOnly, disabled]
+    [readOnly, disabled],
   );
 
   const initialDate = useMemo(
@@ -344,7 +344,7 @@ const MultiDateInput = (props) => {
         minute: 0,
         second: 0,
       }),
-    [value, minDate]
+    [value, minDate],
   );
 
   const outputValue = useMemo(
@@ -355,11 +355,11 @@ const MultiDateInput = (props) => {
               hasTime
                 ? // Cast dateObject to UTC string with datetimes
                   dateObject.toDate().toISOString().split(".")[0] + "Z"
-                : dateObject.format(format)
+                : dateObject.format(format),
             )
             .join(",")
         : "",
-    [value, format, hasTime]
+    [value, format, hasTime],
   );
 
   const handleChange = useCallback(
@@ -368,13 +368,13 @@ const MultiDateInput = (props) => {
         ? setValue(value.slice(0, maxLength))
         : setValue(value);
     },
-    [maxLength]
+    [maxLength],
   );
 
   const mapDays = useCallback(
     ({ date, isSameDate }) =>
       isSameDate(date, focusedDate) ? { className: "highlight" } : undefined,
-    [focusedDate]
+    [focusedDate],
   );
 
   return (

@@ -18,7 +18,7 @@ const EventAssets = (props) => {
   const { onBack, illustration, eventPk } = props;
 
   const { data: eventAssets, isLoading } = useSWRImmutable(
-    getEventEndpoint("getEventAssets", { eventPk })
+    getEventEndpoint("getEventAssets", { eventPk }),
   );
 
   return (

@@ -39,7 +39,7 @@ const GroupLocalizationPage = (props) => {
   const [isLoading, setIsLoading] = useState(true);
 
   const { data: group, mutate } = useSWR(
-    getGroupEndpoint("getGroup", { groupPk })
+    getGroupEndpoint("getGroup", { groupPk }),
   );
 
   const handleInputChange = useCallback((_, name, value) => {
@@ -63,7 +63,7 @@ const GroupLocalizationPage = (props) => {
         return { ...group, ...res.data };
       });
     },
-    [formLocation, groupPk, mutate, sendToast]
+    [formLocation, groupPk, mutate, sendToast],
   );
 
   useEffect(() => {

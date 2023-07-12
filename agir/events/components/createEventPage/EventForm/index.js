@@ -72,12 +72,12 @@ const formatErrors = (errors, fields = DEFAULT_FORM_DATA) => {
     (errors, [field, error]) => ({
       ...errors,
       [typeof fields[field] !== "undefined" ? field : "global"]: Array.isArray(
-        error
+        error,
       )
         ? error[0]
         : formatErrors(error, fields[field]),
     }),
-    {}
+    {},
   );
 };
 
@@ -149,7 +149,7 @@ const EventForm = () => {
                 formData.organizerGroup.contact[key] ||
                 DEFAULT_FORM_DATA.contact[key],
             }),
-            {}
+            {},
           )
         : DEFAULT_FORM_DATA.contact;
       setErrors((state) => ({
@@ -171,7 +171,7 @@ const EventForm = () => {
                 formData.organizerGroup.location[key] ||
                 DEFAULT_FORM_DATA.location[key],
             }),
-            {}
+            {},
           )
         : DEFAULT_FORM_DATA.location;
       setErrors((state) => ({
@@ -219,7 +219,7 @@ const EventForm = () => {
       }
       setNewEventPk(result.data.id);
     },
-    [formData]
+    [formData],
   );
 
   useEffect(() => {
@@ -240,7 +240,7 @@ const EventForm = () => {
       options.organizerGroup
     ) {
       const organizerGroup = options.organizerGroup.find(
-        (g) => g.id === params.get("group")
+        (g) => g.id === params.get("group"),
       );
       organizerGroup &&
         setFormData((state) => ({
@@ -250,7 +250,7 @@ const EventForm = () => {
     }
     if (!formData.subtype && params.get("subtype") && options.subtype) {
       const subtype = options.subtype.find(
-        (g) => g.label === params.get("subtype")
+        (g) => g.label === params.get("subtype"),
       );
       subtype &&
         setFormData((state) => ({

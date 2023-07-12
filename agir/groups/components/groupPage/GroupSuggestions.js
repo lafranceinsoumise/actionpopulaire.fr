@@ -176,7 +176,7 @@ GroupSuggestionCarousel.propTypes =
       groups: PropTypes.arrayOf(
         PropTypes.shape({
           id: PropTypes.string.isRequired,
-        })
+        }),
       ),
       backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
     };

@@ -14,10 +14,10 @@ import {
 export const useGroupDonation = (initialGroupPk, isActive = true) => {
   const [isReady, setIsReady] = useState(false);
   const { data: initialGroup, isValidating: isGroupLoading } = useSWRImmutable(
-    isActive && initialGroupPk && `/api/groupes/${initialGroupPk}/`
+    isActive && initialGroupPk && `/api/groupes/${initialGroupPk}/`,
   );
   const { data: groups, isValidating: areGroupsLoading } = useSWRImmutable(
-    isActive && `/api/groupes/`
+    isActive && `/api/groupes/`,
   );
 
   const [selectedGroup, setSelectedGroup] = useState(null);
@@ -60,7 +60,7 @@ export const useGroupDonation = (initialGroupPk, isActive = true) => {
 export const useDonations = (
   type = CONFIG.default.type,
   initialGroupPk,
-  defaults = {}
+  defaults = {},
 ) => {
   const config = CONFIG[type] || CONFIG.default;
 
@@ -79,7 +79,7 @@ export const useDonations = (
 
   const { group, groups, isGroupReady, selectGroup } = useGroupDonation(
     initialGroupPk,
-    config.hasAllocations
+    config.hasAllocations,
   );
 
   const [formErrors, setFormErrors] = useState({});
@@ -133,7 +133,7 @@ export const useDonations = (
 
       window.location.href = data.next;
     },
-    [formData]
+    [formData],
   );
 
   useEffect(() => {

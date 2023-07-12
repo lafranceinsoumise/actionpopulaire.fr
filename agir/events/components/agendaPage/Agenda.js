@@ -98,7 +98,7 @@ const Agenda = () => {
     !isDesktop && getAgendaEndpoint("rsvpedEvents"),
     {
       isPaused,
-    }
+    },
   );
   log.debug("Rsvped events ", rsvped);
 
@@ -109,11 +109,11 @@ const Agenda = () => {
             ...event,
             schedule: Interval.fromDateTimes(
               DateTime.fromISO(event.startTime).setLocale("fr"),
-              DateTime.fromISO(event.endTime).setLocale("fr")
+              DateTime.fromISO(event.endTime).setLocale("fr"),
             ),
           }))
         : [],
-    [rsvped]
+    [rsvped],
   );
 
   const isReady = isSessionLoaded && (isDesktop || !!rsvped);

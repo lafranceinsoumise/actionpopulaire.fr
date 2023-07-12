@@ -27,7 +27,7 @@ export const useGroupSuggestions = (group) => {
   const { data, error } = useSWR(
     hasSuggestions
       ? api.getGroupEndpoint("getGroupSuggestions", { groupPk: group.id })
-      : null
+      : null,
   );
   log.debug("Group suggestions", data);
 

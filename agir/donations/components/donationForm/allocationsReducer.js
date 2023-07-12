@@ -23,7 +23,7 @@ export const changeSingleGroupAllocation = (
   oldState,
   groupIndex,
   newValue,
-  maxAmount
+  maxAmount,
 ) => {
   const totalAllocated = oldState.reduce((acc, alloc) => acc + alloc.amount, 0);
   const maxAmountForThisGroup =

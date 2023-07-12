@@ -6,10 +6,10 @@ import { parseEventSpeakerRequests } from "./utils";
 
 export const useEventSpeaker = () => {
   const { data: speaker, isLoading } = useSWRImmutable(
-    getEventRequestEndpoint("getEventSpeaker")
+    getEventRequestEndpoint("getEventSpeaker"),
   );
   const { data: events, isLoading: isLoadingEvents } = useSWRImmutable(
-    !!speaker ? getEventRequestEndpoint("getEventSpeakerUpcomingEvents") : null
+    !!speaker ? getEventRequestEndpoint("getEventSpeakerUpcomingEvents") : null,
   );
 
   const requests = useMemo(() => parseEventSpeakerRequests(speaker), [speaker]);

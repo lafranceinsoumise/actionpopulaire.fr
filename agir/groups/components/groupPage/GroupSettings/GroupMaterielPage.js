@@ -29,7 +29,7 @@ const GroupMaterielPage = (props) => {
   const ordersURL = useMemo(() => group?.routes?.orders || "", [group]);
   const [discountCodes, specialDiscountCodes] = useMemo(
     () => parseDiscountCodes(group?.discountCodes),
-    [group]
+    [group],
   );
 
   return (

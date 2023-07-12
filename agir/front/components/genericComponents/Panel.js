@@ -56,7 +56,7 @@ const AnimatedOverlay = (props) => {
   const transitions = useTransition(!!shouldShow, fadeInTransition);
 
   return transitions((style, item) =>
-    item ? <Overlay style={style} onClick={onClick} /> : null
+    item ? <Overlay style={style} onClick={onClick} /> : null,
   );
 };
 
@@ -155,12 +155,12 @@ const getFocusableElements = (parent) => {
   }
   return [
     ...parent.querySelectorAll(
-      'a[href], button, textarea, input[type="text"], input[type="radio"], input[type="checkbox"], select'
+      'a[href], button, textarea, input[type="text"], input[type="radio"], input[type="checkbox"], select',
     ),
   ].filter(
     (elem) =>
       !elem.disabled &&
-      !!(elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length)
+      !!(elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length),
   );
 };
 
@@ -186,7 +186,7 @@ const useFocusTrap = (shouldShow) => {
 
   const keyListenersMap = useMemo(
     () => new Map([[9, handleTabKey]]),
-    [handleTabKey]
+    [handleTabKey],
   );
 
   useEffect(() => {
@@ -241,7 +241,7 @@ const Panel = (props) => {
     () => () => {
       panelParent && document.body.removeChild(panelParent);
     },
-    [panelParent]
+    [panelParent],
   );
 
   return createPortal(
@@ -274,10 +274,10 @@ const Panel = (props) => {
             {title && <h4>{title}</h4>}
             {children}
           </PanelContent>
-        ) : null
+        ) : null,
       )}
     </PanelFrame>,
-    panelParent
+    panelParent,
   );
 };
 Panel.propTypes = {

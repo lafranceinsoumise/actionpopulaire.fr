@@ -17,7 +17,7 @@ const EventVisio = (props) => {
   const { onBack, illustration, eventPk } = props;
 
   const { data: event, mutate } = useSWR(
-    api.getEventEndpoint("getEvent", { eventPk })
+    api.getEventEndpoint("getEvent", { eventPk }),
   );
 
   const sendToast = useToast();
@@ -46,7 +46,7 @@ const EventVisio = (props) => {
         res.error.detail ||
           "Une erreur est survenue, veuillez réessayer plus tard",
         "ERROR",
-        { autoClose: true }
+        { autoClose: true },
       );
       return;
     }

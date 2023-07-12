@@ -29,7 +29,7 @@ const LoginPage = () => {
   const autoLogin = useMemo(
     () =>
       (authentication === AUTHENTICATION.SOFT && user && user.email) || false,
-    [authentication, user]
+    [authentication, user],
   );
 
   useEffect(() => {

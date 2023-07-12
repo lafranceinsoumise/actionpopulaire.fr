@@ -100,7 +100,7 @@ const QuitEventButton = ({ eventPk, group, isOpen, setIsOpen }) => {
       }
       mutate(api.getEventEndpoint("getEvent", { eventPk }));
     },
-    [eventPk]
+    [eventPk],
   );
 
   const openDialog = useCallback((e) => {

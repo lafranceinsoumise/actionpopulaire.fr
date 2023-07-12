@@ -31,7 +31,7 @@ const AutoLogin = ({ email }) => {
         auto: true,
       });
     },
-    [next, history, location.state]
+    [next, history, location.state],
   );
 
   useEffect(() => {

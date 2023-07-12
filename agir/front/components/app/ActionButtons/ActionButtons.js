@@ -89,7 +89,7 @@ export const ActionButtonCarousel = (props) => {
   const { actions } = props;
   const breakpoints = useMemo(
     () => getSwiperBreakpoints(actions, 75 + 8),
-    [actions]
+    [actions],
   );
 
   const style = useSpring({

@@ -188,7 +188,7 @@ const NewsletterOption = (props) => {
     (e) => {
       onChange && onChange(value, e.target.checked);
     },
-    [value, onChange]
+    [value, onChange],
   );
 
   return (
@@ -229,7 +229,7 @@ const ChooseNewsletters = ({ user, dismiss }) => {
       await dismiss();
       setSubmitted(false);
     },
-    [dismiss, newsletters]
+    [dismiss, newsletters],
   );
 
   useEffect(() => {
@@ -244,7 +244,7 @@ const ChooseNewsletters = ({ user, dismiss }) => {
     setNewsletters(
       newsletterOptions
         .filter((option) => option.selected)
-        .map((option) => option.value)
+        .map((option) => option.value),
     );
   }, [user, newsletterOptions]);
 

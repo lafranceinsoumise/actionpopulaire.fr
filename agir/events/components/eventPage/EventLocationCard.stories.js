@@ -34,7 +34,7 @@ const Template = decorateArgs(
   reorganize({
     location: { name: "locationName", address: "locationAddress" },
   }),
-  EventLocationCard
+  EventLocationCard,
 );
 
 export const Default = Template.bind({});

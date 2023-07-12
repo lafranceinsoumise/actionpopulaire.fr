@@ -70,7 +70,7 @@ describe("agir.lib.utils.display", function () {
     ];
     testCases.forEach(({ args, expected }) => {
       it(`It should return "${expected}" with arguments (${args.join(
-        ","
+        ",",
       )})`, function () {
         const result = getGenderedWord(...args);
         expect(result).toEqual(expected);

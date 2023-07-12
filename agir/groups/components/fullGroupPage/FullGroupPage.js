@@ -54,10 +54,10 @@ const FullGroupPage = ({ groupPk }) => {
   const routes = useSelector(getRoutes);
 
   const { data: fullGroup } = useSWR(
-    groupPk ? `/api/groupes/${groupPk}/` : null
+    groupPk ? `/api/groupes/${groupPk}/` : null,
   );
   const { data: groupSuggestions } = useSWR(
-    groupPk ? `/api/groupes/${groupPk}/suggestions/` : null
+    groupPk ? `/api/groupes/${groupPk}/suggestions/` : null,
   );
 
   return (

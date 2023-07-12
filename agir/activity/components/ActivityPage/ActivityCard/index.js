@@ -48,7 +48,7 @@ const ConnectedActivityCard = (props) => {
       revalidateIfStale: false,
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
-    }
+    },
   );
 
   return config ? (

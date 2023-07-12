@@ -96,7 +96,7 @@ const Login = () => {
         code: result.data && result.data.code,
       });
     },
-    [next, history, location.state]
+    [next, history, location.state],
   );
 
   return (

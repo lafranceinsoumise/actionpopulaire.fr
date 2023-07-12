@@ -76,9 +76,9 @@ const Template = decorateArgs(
         shortAddress: "event.shortAddress",
       },
     },
-    true
+    true,
   ),
-  ActivityCardStory
+  ActivityCardStory,
 );
 
 export const Default = Template.bind({});

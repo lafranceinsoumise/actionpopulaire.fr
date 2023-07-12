@@ -27,7 +27,7 @@ const EventSubtypeField = (props) => {
       typeof value === "number"
         ? options.find((option) => option.id === value)
         : value,
-    [value, options]
+    [value, options],
   );
 
   const [isOpen, setIsOpen] = useState(false);
@@ -85,7 +85,7 @@ const EventSubtypeField = (props) => {
                 disabled={disabled}
               />
             </PanelWrapper>
-          )
+          ),
       )}
     </>
   );

@@ -49,11 +49,11 @@ const WithGroupStepModal = (args) => {
         events.filter(
           (event) =>
             Array.isArray(event.groups) &&
-            event.groups.some((group) => group.id === selectedGroup.id)
-        )
+            event.groups.some((group) => group.id === selectedGroup.id),
+        ),
       );
     },
-    [events]
+    [events],
   );
 
   return (

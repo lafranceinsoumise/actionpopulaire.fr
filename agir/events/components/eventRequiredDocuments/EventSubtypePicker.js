@@ -62,7 +62,7 @@ const EventSubtypePicker = (props) => {
 
   const subtypes = useMemo(
     () => (Array.isArray(props.options) ? props.options : []),
-    [props.options]
+    [props.options],
   );
 
   return (

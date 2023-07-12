@@ -9,7 +9,7 @@ test("strToArrayNumber", () => {
   expect(strToArrayNumber("123456789", 1)).toEqual([9, 8, 7, 6, 5, 4, 3, 2, 1]);
   expect(strToArrayNumber("11110000", 4)).toEqual([0, 1111]);
   expect(
-    strToArrayNumber("9999888877776666555544443333222211110000", 4)
+    strToArrayNumber("9999888877776666555544443333222211110000", 4),
   ).toEqual([0, 1111, 2222, 3333, 4444, 5555, 6666, 7777, 8888, 9999]);
 });
 

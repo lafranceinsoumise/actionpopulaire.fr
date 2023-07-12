@@ -81,7 +81,7 @@ const getDuration = (startTime, endTime) => {
 
   return (
     EVENT_DEFAULT_DURATIONS.find(
-      ({ value }) => value === (endDate.ts - startDate.ts) / 60000
+      ({ value }) => value === (endDate.ts - startDate.ts) / 60000,
     ) || EVENT_DEFAULT_DURATIONS[EVENT_DEFAULT_DURATIONS.length - 1]
   );
 };
@@ -118,7 +118,7 @@ const DateField = (props) => {
       end = end.format();
       onChange(start, end);
     },
-    [endTime, duration, onChange]
+    [endTime, duration, onChange],
   );
 
   const updateEndTime = useCallback(
@@ -133,7 +133,7 @@ const DateField = (props) => {
       duration && setDuration(duration);
       onChange(start, end);
     },
-    [startTime, onChange]
+    [startTime, onChange],
   );
 
   const updateDuration = useCallback(
@@ -141,13 +141,13 @@ const DateField = (props) => {
       if (duration && duration.value) {
         updateEndTime(
           moment(startTime).add(duration.value, "minutes"),
-          duration
+          duration,
         );
       } else {
         setDuration(duration);
       }
     },
-    [startTime, updateEndTime]
+    [startTime, updateEndTime],
   );
 
   useEffect(() => {

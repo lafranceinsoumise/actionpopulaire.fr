@@ -14,7 +14,7 @@ export const formatAllocations = (data) =>
   data?.allocations &&
   data.allocations
     .filter(
-      (allocation) => allocation.type !== TYPE_NATIONAL && allocation.value
+      (allocation) => allocation.type !== TYPE_NATIONAL && allocation.value,
     )
     .map((allocation) => {
       const formattedAllocation = {
@@ -38,7 +38,7 @@ export const getReminder = (value, totalAmount) => {
   const sum = value.reduce(
     (tot, allocation) =>
       isNaN(parseInt(allocation.value)) ? tot : tot + allocation.value,
-    0
+    0,
   );
   return totalAmount - sum;
 };
@@ -75,7 +75,7 @@ export const getDefaultAllocations = (totalAmount, options) => {
   const remainingTargets = options.filter((option) => !option.fixedRatio);
   const distribution = distributeInteger(totalAmount, remainingTargets.length);
   remainingTargets.forEach(
-    (option, i) => (result[option.type] = distribution[i] || 0)
+    (option, i) => (result[option.type] = distribution[i] || 0),
   );
 
   return result;
@@ -84,7 +84,7 @@ export const getDefaultAllocations = (totalAmount, options) => {
 export const getAllocationOptions = (
   totalAmount = 0,
   groupId = null,
-  fixedRatio = 0
+  fixedRatio = 0,
 ) => {
   const options = [
     fixedRatio
