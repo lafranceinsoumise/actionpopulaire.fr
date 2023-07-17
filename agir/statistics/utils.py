@@ -44,16 +44,16 @@ def get_absolute_statistics(date=None, as_kwargs=False, columns=None):
             .order_by("person_id")
         ),
         # PEOPLE
-        "political_support_person_count": Person.objects.with_active_role()
+        "political_support_person_count": Person.objects.exclude(role__is_active=False)
         .is_political_support()
         .filter(created__date__lte=date),
         "liaison_count": (
-            Person.objects.with_active_role()
+            Person.objects.exclude(role__is_active=False)
             .liaisons()
             .filter(liaison_date__date__lte=date)
         ),
         "lfi_newsletter_subscriber_count": (
-            Person.objects.with_active_role()
+            Person.objects.exclude(role__is_active=False)
             .filter(newsletters__contains=(Person.Newsletter.LFI_REGULIERE,))
             .filter(created__date__lte=date)
         ),
