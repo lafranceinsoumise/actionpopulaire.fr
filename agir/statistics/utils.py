@@ -54,7 +54,7 @@ def get_absolute_statistics(date=None, as_kwargs=False, columns=None):
         ),
         "lfi_newsletter_subscriber_count": (
             Person.objects.with_active_role()
-            .filter(newsletters__contains=(Person.Newsletter.LFI_EXCEPTIONNELLE.value,))
+            .filter(newsletters__contains=(Person.Newsletter.LFI_REGULIERE,))
             .filter(created__date__lte=date)
         ),
         # MAILING
