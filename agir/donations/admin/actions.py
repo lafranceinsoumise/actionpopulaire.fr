@@ -59,16 +59,18 @@ def format_spending_request_for_export(queryset):
         "Titre": "title",
         "Statut": T.get_status_display(),
         "Groupe": "group.name",
-        "Téléphone": Coalesce("group.contact_phone", default=None),
+        "Nom du contact": Coalesce("contact_name", "group.contact_phone", default=None),
+        "Téléphone": Coalesce("contact_phone", "group.contact_phone", default=None),
         "Événement lié à la dépense": "event",
         "Catégorie de demande": T.get_category_display(),
         "Précisions sur le type de demande": "category_precisions",
-        "Justification de la demande": "explanation",
+        "Motif de l'achat": "explanation",
+        "Dépense de campagne électorale": "campaign",
         "Date de la dépense": "spending_date",
         "Montant de la dépense": "amount",
-        "Raison sociale du prestataire": "provider",
-        "RIB (format IBAN)": "iban",
-        "Nom de la personne qui a payé": "payer_name",
+        "Raison sociale": "bank_account_name",
+        "IBAN": "bank_account_iban",
+        "BIC": "bank_account_bic",
         "Date de création": T.created.astimezone(timezone.get_current_timezone())
         .replace(microsecond=0)
         .isoformat(),
@@ -118,7 +120,7 @@ export_spending_requests_to_csv.select_across = True
 
 
 def mark_spending_request_as_paid(model_admin, request, queryset):
-    queryset.update(status=SpendingRequest.STATUS_PAID)
+    queryset.update(status=SpendingRequest.Status.PAID)
 
 
 mark_spending_request_as_paid.short_description = _(

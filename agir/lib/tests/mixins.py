@@ -352,7 +352,11 @@ def create_person_form():
                     {"id": "decimal", "type": "decimal", "label": "Decimal Field"},
                     {"id": "datetime", "type": "datetime", "label": "Datetime Field"},
                     {"id": "person", "type": "person", "label": "Person Field"},
-                    {"id": "iban", "type": "iban", "label": "Iban Field"},
+                    {
+                        "id": "iban",
+                        "type": "iban",
+                        "label": "Iban Field",
+                    },
                     {"id": "commune", "type": "commune", "label": "Commune Field"},
                     {"id": "group", "type": "group", "label": "Group Field"},
                 ],

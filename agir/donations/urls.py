@@ -58,4 +58,24 @@ urlpatterns = [
         views.CreateDonationAPIView.as_view(),
         name="api_donation_create",
     ),
+    path(
+        "api/financement/demande/",
+        views.SpendingRequestCreateAPIView.as_view(),
+        name="api_spending_request_create",
+    ),
+    path(
+        "api/financement/demande/<uuid:pk>/",
+        views.SpendingRequestRetrieveUpdateDestroyAPIView.as_view(),
+        name="api_spending_request_retrieve_update_delete",
+    ),
+    path(
+        "api/financement/document/<int:pk>/",
+        views.SpendingRequestDocumentRetrieveUpdateDestroyAPIView.as_view(),
+        name="api_spending_request_document_retrieve_update_delete",
+    ),
+    path(
+        "api/financement/demande/<uuid:pk>/valider/",
+        views.SpendingRequestApplyNextStatusAPIView.as_view(),
+        name="api_spending_request_apply_next_status",
+    ),
 ]

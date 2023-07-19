@@ -29,11 +29,9 @@ from agir.donations.forms import (
 )
 from agir.donations.models import SpendingRequest, Document
 from agir.donations.spending_requests import (
-    can_edit,
     get_current_action,
     summary,
     validate_action,
-    can_delete,
 )
 from agir.groups.models import SupportGroup
 
@@ -139,8 +137,8 @@ class ManageSpendingRequestView(
             spending_request=self.object,
             supportgroup=self.object.group,
             documents=self.object.documents.filter(deleted=False),
-            can_edit=can_edit(self.object),
-            can_delete=can_delete(self.object),
+            can_edit=self.object.editable,
+            can_delete=self.object.deletable,
             action=get_current_action(self.object, self.request.user),
             summary=summary(self.object),
             history=self.object.get_history(),
@@ -184,7 +182,7 @@ class EditSpendingRequestView(
         return reverse("manage_spending_request", args=(self.object.pk,))
 
     def dispatch(self, request, *args, **kwargs):
-        if not can_edit(self.get_object()):
+        if not self.get_object().editable:
             messages.add_message(
                 self.request,
                 messages.INFO,
@@ -195,11 +193,11 @@ class EditSpendingRequestView(
         return super().dispatch(request, *args, **kwargs)
 
     def render_to_response(self, context, **response_kwargs):
-        if self.object.status in SpendingRequest.STATUS_EDITION_MESSAGES:
+        if self.object.edition_message:
             messages.add_message(
                 self.request,
                 messages.WARNING,
-                SpendingRequest.STATUS_EDITION_MESSAGES[self.object.status],
+                self.object.edition_message,
             )
         return super().render_to_response(self.get_context_data(), **response_kwargs)
 
@@ -219,7 +217,7 @@ class DeleteSpendingRequestView(
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if not can_delete(self.object):
+        if not self.object.deletable:
             messages.add_message(
                 self.request,
                 messages.INFO,
@@ -269,11 +267,11 @@ class CreateDocumentView(
         return reverse("manage_spending_request", args=(self.spending_request.pk,))
 
     def render_to_response(self, context, **response_kwargs):
-        if self.spending_request.status in SpendingRequest.STATUS_EDITION_MESSAGES:
+        if self.spending_request.edition_message:
             messages.add_message(
                 self.request,
                 messages.WARNING,
-                SpendingRequest.STATUS_EDITION_MESSAGES[self.spending_request.status],
+                self.spending_request.edition_message,
             )
         return super().render_to_response(self.get_context_data(), **response_kwargs)
 
@@ -325,11 +323,11 @@ class EditDocumentView(AccessDocumentMixin, UpdateView):
         return reverse("manage_spending_request", args=(self.spending_request.pk,))
 
     def render_to_response(self, context, **response_kwargs):
-        if self.spending_request.status in SpendingRequest.STATUS_EDITION_MESSAGES:
+        if self.spending_request.edition_message:
             messages.add_message(
                 self.request,
                 messages.WARNING,
-                SpendingRequest.STATUS_EDITION_MESSAGES[self.object.request.status],
+                self.spending_request.edition_message,
             )
 
         return super().render_to_response(self.get_context_data(), **response_kwargs)

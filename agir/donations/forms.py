@@ -193,9 +193,8 @@ class SpendingRequestFormMixin(forms.Form):
                 Div("amount", css_class="col-md-4"),
                 Div("spending_date", css_class="col-md-8"),
             ),
-            "provider",
-            "iban",
-            "payer_name",
+            "bank_account_name",
+            "bank_account_iban",
         )
 
 
@@ -234,9 +233,12 @@ class SpendingRequestCreationForm(SpendingRequestFormMixin, forms.ModelForm):
             "explanation",
             "amount",
             "spending_date",
-            "provider",
-            "iban",
-            "payer_name",
+            "bank_account_name",
+            "bank_account_iban",
+            "bank_account_bic",
+            "bank_account_rib",
+            "contact_name",
+            "contact_phone",
         )
 
 
@@ -267,9 +269,9 @@ class SpendingRequestEditForm(SpendingRequestFormMixin, forms.ModelForm):
                 reversion.set_user(self.user)
                 reversion.set_comment(self.cleaned_data["comment"])
 
-                if self.instance.status in SpendingRequest.STATUS_EDITION_MESSAGES:
+                if self.instance.edition_message:
                     self.instance.status = (
-                        SpendingRequest.STATUS_AWAITING_SUPPLEMENTARY_INFORMATION
+                        SpendingRequest.Status.AWAITING_SUPPLEMENTARY_INFORMATION
                     )
 
                 return super().save()
@@ -284,9 +286,12 @@ class SpendingRequestEditForm(SpendingRequestFormMixin, forms.ModelForm):
             "explanation",
             "amount",
             "spending_date",
-            "provider",
-            "iban",
-            "payer_name",
+            "bank_account_name",
+            "bank_account_iban",
+            "bank_account_bic",
+            "bank_account_rib",
+            "contact_name",
+            "contact_phone",
         )
 
 
@@ -313,9 +318,9 @@ class DocumentForm(forms.ModelForm):
                 )
                 super().save()
 
-                if spending_request.status in SpendingRequest.STATUS_EDITION_MESSAGES:
+                if spending_request.edition_message:
                     spending_request.status = (
-                        SpendingRequest.STATUS_AWAITING_SUPPLEMENTARY_INFORMATION
+                        SpendingRequest.Status.AWAITING_SUPPLEMENTARY_INFORMATION
                     )
                     spending_request.save()
 

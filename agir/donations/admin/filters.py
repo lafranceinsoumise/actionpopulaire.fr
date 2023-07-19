@@ -63,14 +63,21 @@ class RequestStatusFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         if self.value() == "group":
-            return queryset.filter(status__in=SpendingRequest.STATUS_NEED_ACTION)
+            return queryset.filter(
+                status__in=(
+                    SpendingRequest.Status.DRAFT,
+                    SpendingRequest.Status.AWAITING_PEER_REVIEW,
+                    SpendingRequest.Status.AWAITING_SUPPLEMENTARY_INFORMATION,
+                    SpendingRequest.Status.VALIDATED,
+                )
+            )
         elif self.value() == "review":
-            return queryset.filter(status=SpendingRequest.STATUS_AWAITING_REVIEW)
+            return queryset.filter(status=SpendingRequest.Status.AWAITING_ADMIN_REVIEW)
         elif self.value() == "to_pay":
-            return queryset.filter(status=SpendingRequest.STATUS_TO_PAY)
+            return queryset.filter(status=SpendingRequest.Status.TO_PAY)
         elif self.value() == "finished":
             return queryset.filter(
-                status__in=[SpendingRequest.STATUS_PAID, SpendingRequest.STATUS_REFUSED]
+                status__in=(SpendingRequest.Status.PAID, SpendingRequest.Status.REFUSED)
             )
         else:
             return queryset.filter()

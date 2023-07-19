@@ -136,8 +136,10 @@
                     <small>Le {{ step.modified }}</small>
                     <br />
                     <strong>{{ step.title }}</strong>
-                    {% if step.user %}
-                      <br/><small>({{ step.user }})</small>
+                    {% if step.person and step.person.display_name %}
+                      <br/><small>({{ step.person.display_name }})</small>
+                    {% elif step.person %}
+                      <br/><small>({{ step.person }})</small>
                     {% endif %}
                   </p>
                   {% if step.comment %}

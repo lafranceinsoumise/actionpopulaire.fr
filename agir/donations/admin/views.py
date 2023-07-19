@@ -52,7 +52,7 @@ class HandleRequestView(AdminViewMixin, DetailView):
                 reversion.set_comment(form.cleaned_data["comment"])
                 self.object.status = form.cleaned_data["status"]
 
-                if self.object.status == SpendingRequest.STATUS_VALIDATED:
+                if self.object.status == SpendingRequest.Status.VALIDATED:
                     try:
                         with transaction.atomic():
                             self.object.operation = Spending.objects.create(
@@ -62,7 +62,7 @@ class HandleRequestView(AdminViewMixin, DetailView):
                     except IntegrityError as e:
                         pass
                     else:
-                        self.object.status = SpendingRequest.STATUS_TO_PAY
+                        self.object.status = SpendingRequest.Status.TO_PAY
 
                 self.object.save()
 

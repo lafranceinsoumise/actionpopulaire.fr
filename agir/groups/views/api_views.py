@@ -847,7 +847,7 @@ class GroupFinanceAPIView(GenericAPIView):
             }
             for spending_request in (
                 SpendingRequest.objects.filter(group=group)
-                .exclude(status=SpendingRequest.STATUS_PAID)
+                .exclude(status=SpendingRequest.Status.PAID)
                 .order_by("-spending_date")
                 .only("id", "title", "status", "spending_date")
             )

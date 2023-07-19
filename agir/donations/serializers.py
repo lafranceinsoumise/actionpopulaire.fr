@@ -1,6 +1,10 @@
+import reversion
 from django.conf import settings
+from django.core import validators
+from django.db import transaction
 from django.utils import timezone
 from rest_framework import serializers
+from rest_framework.fields import empty
 
 from agir.checks import DonationCheckPaymentMode
 from agir.donations.actions import (
@@ -9,11 +13,20 @@ from agir.donations.actions import (
     monthly_to_single_time_contribution,
 )
 from agir.donations.apps import DonsConfig
-from agir.donations.models import AllocationModelMixin
+from agir.donations.models import AllocationModelMixin, SpendingRequest, Document
+from agir.donations.spending_requests import (
+    get_spending_request_field_label,
+    get_spending_request_field_labels,
+    get_current_action,
+)
+from agir.donations.validators import IBANSerializerValidator, BICSerializerValidator
+from agir.events.models import Event
+from agir.events.serializers import EventListSerializer
 from agir.groups.models import SupportGroup
+from agir.groups.serializers import SupportGroupSerializer
 from agir.lib.data import departements_choices
 from agir.lib.display import display_price
-from agir.lib.serializers import PhoneField
+from agir.lib.serializers import PhoneField, CurrentPersonField
 from agir.payments import payment_modes
 from agir.people.models import Person
 
@@ -95,7 +108,6 @@ class DonationSerializer(serializers.ModelSerializer):
     paymentTiming = serializers.ChoiceField(
         source="payment_timing",
         choices=((SINGLE_TIME, "une seule fois"), (MONTHLY, "tous les mois")),
-        required=True,
     )
     allocations = serializers.ListField(
         child=DonationAllocationSerializer(),
@@ -242,4 +254,242 @@ class DonationSerializer(serializers.ModelSerializer):
             "paymentMode",
             "paymentTiming",
             "allocations",
+        )
+
+
+class ContactSerializer(serializers.Serializer):
+    name = serializers.CharField(
+        source="contact_name",
+        label="Nom du contact",
+        max_length=255,
+    )
+    email = serializers.EmailField(
+        source="contact_email",
+        label="Adresse email du contact",
+        required=False,
+        allow_blank=True,
+    )
+    phone = PhoneField(
+        source="contact_phone",
+        label="Numéro de téléphone du contact",
+        max_length=30,
+    )
+
+    def __init__(self, instance=None, data=empty, **kwargs):
+        kwargs.setdefault("source", "*")
+        super().__init__(instance, data, **kwargs)
+
+
+class IBANSerializer(serializers.CharField):
+    default_validators = [IBANSerializerValidator]
+
+
+class BICSerializer(serializers.CharField):
+    default_validators = [BICSerializerValidator]
+
+
+class BankAccountSerializer(serializers.Serializer):
+    name = serializers.CharField(
+        source="bank_account_name",
+        label="Nom du contact",
+        max_length=255,
+    )
+    iban = IBANSerializer(source="bank_account_iban", label="IBAN")
+    bic = BICSerializer(source="bank_account_bic", label="BIC")
+    rib = serializers.FileField(
+        source="bank_account_rib",
+        label="RIB",
+        validators=[validators.FileExtensionValidator(["pdf", "png", "jpeg", "jpg"])],
+        required=False,
+        allow_null=True,
+    )
+
+    def __init__(self, instance=None, data=empty, **kwargs):
+        kwargs.setdefault("source", "*")
+        super().__init__(instance, data, **kwargs)
+
+
+class SpendingRequestDocumentSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(label="Identifiant", read_only=False, required=False)
+    file = serializers.FileField(
+        label="Fichier", allow_null=False, allow_empty_file=False, required=True
+    )
+    request = serializers.PrimaryKeyRelatedField(
+        label="Demande de dépense",
+        queryset=SpendingRequest.objects.all(),
+        write_only=True,
+        required=False,
+    )
+
+    def create(self, validated_data):
+        with reversion.create_revision():
+            validated_data.pop("id", None)
+            reversion.set_user(self.context["request"].user)
+            reversion.set_comment(f"Ajout d'une pièce-jointe")
+            return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        # Set request only upon creation
+        validated_data.pop("request", None)
+        with reversion.create_revision():
+            reversion.set_user(self.context["request"].user)
+            reversion.set_comment(f"Mise à jour d'une pièce-jointe")
+            return super().update(instance, validated_data)
+
+    class Meta:
+        model = Document
+        fields = ("id", "title", "type", "file", "request")
+
+
+class SpendingRequestVersionSerializer(serializers.Serializer):
+    id = serializers.CharField()
+    modified = serializers.DateTimeField()
+    person = serializers.SerializerMethodField()
+    title = serializers.CharField()
+    comment = serializers.CharField()
+    diff = serializers.ListField()
+
+    def get_person(self, obj):
+        person = obj and obj.get("person")
+
+        if not person:
+            return None
+
+        if not isinstance(person, Person):
+            return person
+
+        return {
+            "id": person.id,
+            "displayName": person.display_name,
+            "gender": person.gender,
+            "image": person.image.thumbnail.url
+            if (person.image and person.image.thumbnail)
+            else None,
+        }
+
+
+class SpendingRequestSerializer(serializers.ModelSerializer):
+    id = serializers.ReadOnlyField(label="Identifiant")
+    created = serializers.ReadOnlyField(label="Date de création")
+    modified = serializers.ReadOnlyField(label="Dernière modification")
+    status = serializers.ReadOnlyField(label="Statut", source="get_status_display")
+    groupId = serializers.PrimaryKeyRelatedField(
+        source="group",
+        label="Groupe d'action",
+        queryset=SupportGroup.objects.active(),
+        write_only=True,
+    )
+    group = SupportGroupSerializer(read_only=True, fields=("id", "name"))
+    category = serializers.ChoiceField(
+        label="Catégorie", choices=SpendingRequest.Category.visible_choices
+    )
+    eventId = serializers.PrimaryKeyRelatedField(
+        source="event",
+        label="Événement lié à la dépense",
+        queryset=Event.objects.public(),
+        write_only=True,
+        required=False,
+        allow_null=True,
+    )
+    event = EventListSerializer(
+        read_only=True,
+        fields=(
+            "id",
+            "name",
+            "illustration",
+            "startTime",
+            "endTime",
+            "location",
+            "rsvp",
+            "subtype",
+        ),
+    )
+    spendingDate = serializers.DateField(source="spending_date")
+    contact = ContactSerializer(required=True)
+    bankAccount = BankAccountSerializer(required=True)
+    attachments = SpendingRequestDocumentSerializer(many=True, required=False)
+    comment = serializers.CharField(
+        label="Commentaire", required=False, write_only=True
+    )
+    history = SpendingRequestVersionSerializer(
+        label="Historique", source="get_history", read_only=True, many=True
+    )
+    action = serializers.SerializerMethodField(read_only=True)
+
+    def get_action(self, spending_request):
+        return get_current_action(spending_request, self.context["request"].user)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def save_attachments(self, validated_data, spending_request):
+        errors = []
+        for i, document in enumerate(validated_data):
+            document["request"] = spending_request.id
+            document_id = document.get("id", None)
+            instance = spending_request.documents.filter(id=document_id).first()
+            partial = self.partial and instance is not None
+            serializer = SpendingRequestDocumentSerializer(
+                instance, data=document, partial=partial, context=self.context
+            )
+            try:
+                serializer.is_valid(raise_exception=True)
+            except serializers.ValidationError as e:
+                errors.append([i, e.detail])
+            else:
+                serializer.save()
+
+        if errors:
+            raise serializers.ValidationError(detail={"attachments": errors})
+
+    def create(self, validated_data):
+        validated_data["creator"] = self.context["request"].user.person
+        reversion.set_comment("Création de la demande")
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        # Set group only upon creation
+        validated_data.pop("group", None)
+        return super().update(instance, validated_data)
+
+    def save(self, **kwargs):
+        comment = self.validated_data.pop("comment", "Mise à jour de la demande")
+        attachments = self.validated_data.pop("attachments", [])
+
+        with reversion.create_revision(atomic=True):
+            reversion.set_user(self.context["request"].user)
+            reversion.set_comment(comment)
+            spending_request = super().save(**kwargs)
+            reversion.is_manage_manually()
+
+            if attachments:
+                self.save_attachments(attachments, spending_request)
+
+            return spending_request
+
+    class Meta:
+        model = SpendingRequest
+        fields = (
+            "id",
+            "created",
+            "modified",
+            "title",
+            "campaign",
+            "amount",
+            "status",
+            "groupId",
+            "group",
+            "category",
+            "explanation",
+            "eventId",
+            "event",
+            "spendingDate",
+            "contact",
+            "bankAccount",
+            "attachments",
+            "editable",
+            "deletable",
+            "comment",
+            "history",
+            "action",
         )

@@ -1,4 +1,17 @@
-{% extends "admin/change_form.html" %}{% load crispy_forms_tags i18n admin_modify static %}
+{% extends "admin/change_form.html" %}
+{% load crispy_forms_tags i18n admin_urls static admin_modify %}
+
+{% if not is_popup %}
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+&rsaquo; {% if has_view_permission %}<a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>{% else %}{{ opts.verbose_name_plural|capfirst }}{% endif %}
+&rsaquo; {% if has_change_permission %}<a href="{% url opts|admin_urlname:'change' spending_request.id|admin_urlquote %}">{{ spending_request.id }}</a>{% else %}{{ spending_request.id }}{% endif %}
+&rsaquo; {% blocktrans %}Traiter la demande{% endblocktrans %}
+</div>
+{% endblock %}
+{% endif %}
 
 {% block extrastyle %}
   {{ block.super }}
@@ -24,7 +37,7 @@
 {% block coltype %}colMS{% endblock %}
 
 {% block content_title %}
-  <h1>Traiter la requête {{ request_id }}</h1>
+  <h1>Traiter la requête {{ spending_request.id }}</h1>
 {% endblock %}
 
 {% block content %}
@@ -97,8 +110,20 @@
       <h2>Historique de la demande</h2>
       {% for step in history %}
         <div class="request-history-step">
-          <h5>{{ step.title }}{% if step.user %}
-            <small>({{ step.user }})</small>{% endif %}</h5>
+          <h5>
+            {{ step.title }}
+            <small>(
+              {% if step.person and step.person.pk %}
+                <a href="{% url 'admin:people_person_change' step.person.pk %}">
+                  {{ step.person.display_name }}
+                </a>
+              {% elif step.person %}
+                {{ step.person }}
+              {% else %}
+                Utilisateur·ice inconnu·e
+              {% endif %}
+            )</small>
+          </h5>
           <div><em>Le {{ step.modified }}</em></div>
           {% if step.comment %}
             <blockquote>{{ step.comment }}</blockquote>

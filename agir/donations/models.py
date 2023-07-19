@@ -5,17 +5,17 @@ from django.contrib import admin
 from django.core import validators
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models.enums import ChoicesMeta
 from django.template.defaultfilters import floatformat
-from django.urls import reverse
-from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from dynamic_filenames import FilePattern
+from reversion.models import Version
 
 from agir.donations.model_fields import BalanceField
 from agir.lib.data import departements_choices
 from agir.lib.display import display_price
 from agir.lib.history import HistoryMixin
-from agir.lib.model_fields import IBANField
+from agir.lib.model_fields import IBANField, BICField
 from agir.lib.models import TimeStampedModel
 from agir.payments.model_fields import AmountField
 
@@ -29,6 +29,13 @@ __all__ = [
     "Document",
     "MonthlyAllocation",
 ]
+
+spending_request_rib_path = FilePattern(
+    filename_pattern="{app_label}/{model_name}/{instance.id}/{uuid:.8base32}{ext}"
+)
+spending_request_document_path = FilePattern(
+    filename_pattern="{app_label}/{model_name}/{instance.request_id}/{uuid:.8base32}{ext}"
+)
 
 
 class AllocationModelMixin(models.Model):
@@ -241,106 +248,164 @@ class Spending(Operation):
 
 @reversion.register(follow=["documents"])
 class SpendingRequest(HistoryMixin, TimeStampedModel):
-    DIFFED_FIELDS = [
+    class Status(models.TextChoices):
+        DRAFT = "D", "Brouillon à compléter"
+        AWAITING_PEER_REVIEW = (
+            "G",
+            "En attente de vérification par une autre personne",
+        )
+        AWAITING_ADMIN_REVIEW = (
+            "R",
+            "En attente de vérification par l'équipe de suivi des questions financières",
+        )
+        AWAITING_SUPPLEMENTARY_INFORMATION = (
+            "I",
+            "Informations supplémentaires requises",
+        )
+        VALIDATED = (
+            "V",
+            "Validée par l'équipe de suivi des questions financières, en attente des fonds",
+        )
+        TO_PAY = "T", "Décomptée de l'allocation du groupe, à payer"
+        PAID = "P", "Payée"
+        REFUSED = "B", "Cette demande a été refusée"
+
+        @property
+        def choice(self):
+            return self.value, self.label
+
+    class CategoryMeta(ChoicesMeta):
+        @property
+        def visible_choices(cls):
+            return tuple(
+                (value, label)
+                for value, label in cls.choices
+                if not value or len(value) == 2
+            )
+
+    class Category(models.TextChoices, metaclass=CategoryMeta):
+        # Legacy categories
+        HARDWARE = "H", "[Obsolète] Matériel militant"
+        SERVICE = "S", "[Obsolète] Prestation de service"
+        VENUE = "V", "[Obsolète] Location de salle"
+        OTHER = "O", "[Obsolète] Autres"
+        # Current categories
+        IMPRESSIONS = "IM", "Impressions"
+        CONSOMMABLES = "CO", "Achat de consommables (colles, feutres, … )"
+        ACHAT = "AC", "Achat de matériel (quincaillerie, matériel de collage, … )"
+        DEPLACEMENT = "DE", "Déplacement"
+        HEBERGEMENT = "HE", "Hébergement"
+        SALLE = "SA", "Location de salle"
+        LOCATION = "MA", "Location de matériel (mobilier, vaisselle, … )"
+        TECHNIQUE = "TE", "Location de matériel technique (sono, vidéo)"
+        VEHICULE = "VE", "Location de véhicule"
+
+    # List of fields that are required in order to send the request for review
+    REQUIRED_FOR_REVIEW_FIELDS = [
         "title",
-        "event",
-        "category",
-        "category_precisions",
-        "explanation",
+        "campaign",
         "amount",
+        "status",
+        "group",
+        "category",
+        "explanation",
         "spending_date",
-        "provider",
-        "iban",
+        "contact_name",
+        "contact_phone",
+        "bank_account_name",
+        "bank_account_iban",
+        "bank_account_bic",
+        "bank_account_rib",
+        "attachments",
     ]
 
-    STATUS_DRAFT = "D"
-    STATUS_AWAITING_GROUP_VALIDATION = "G"
-    STATUS_AWAITING_REVIEW = "R"
-    STATUS_AWAITING_SUPPLEMENTARY_INFORMATION = "I"
-    STATUS_VALIDATED = "V"
-    STATUS_TO_PAY = "T"
-    STATUS_PAID = "P"
-    STATUS_REFUSED = "B"
-    STATUS_CHOICES = (
-        (STATUS_DRAFT, _("Brouillon à compléter")),
-        (
-            STATUS_AWAITING_GROUP_VALIDATION,
-            _("En attente de validation par un autre animateur"),
-        ),
-        (
-            STATUS_AWAITING_REVIEW,
-            _(
-                "En attente de vérification par l'équipe de suivi des questions financières"
-            ),
-        ),
-        (
-            STATUS_AWAITING_SUPPLEMENTARY_INFORMATION,
-            _("Informations supplémentaires requises"),
-        ),
-        (STATUS_VALIDATED, _("Validée, en attente des fonds")),
-        (STATUS_TO_PAY, _("Décomptée de l'allocation du groupe, à payer")),
-        (STATUS_PAID, _("Payée")),
-        (STATUS_REFUSED, _("Cette demande a été refusée")),
-    )
-
-    STATUS_NEED_ACTION = {
-        STATUS_DRAFT,
-        STATUS_AWAITING_GROUP_VALIDATION,
-        STATUS_AWAITING_SUPPLEMENTARY_INFORMATION,
-        STATUS_VALIDATED,
-    }
-    STATUS_ADMINISTRATOR_ACTION = {STATUS_AWAITING_REVIEW, STATUS_TO_PAY}
-    STATUS_EDITION_MESSAGES = {
-        STATUS_AWAITING_REVIEW: "Votre requête a déjà été transmise ! Si vous l'éditez, il vous faudra la retransmettre à nouveau.",
-        STATUS_VALIDATED: "Votre requête a déjà été validée par l'équipe de suivi des questions financières. Si vous l'éditez, il vous faudra recommencer le processus de validation.",
-    }
-
-    CATEGORY_HARDWARE = "H"
-    CATEGORY_VENUE = "V"
-    CATEGORY_SERVICE = "S"
-    CATEGORY_OTHER = "O"
-    CATEGORY_CHOICES = (
-        (CATEGORY_HARDWARE, _("Matériel militant")),
-        (CATEGORY_VENUE, _("Location d'une salle")),
-        (CATEGORY_SERVICE, _("Prestation de service")),
-        (CATEGORY_SERVICE, _("Autres")),
-    )
+    DIFFED_FIELDS = [
+        "title",
+        "campaign",
+        "amount",
+        "category",
+        "category_preicision",
+        "explanation",
+        "event",
+        "spending_date",
+        "contact_name",
+        "contact_email",
+        "contact_phone",
+        "bank_account_name",
+        "bank_account_iban",
+        "bank_account_bic",
+        "bank_account_rib",
+        "documents",
+    ]
 
     HISTORY_MESSAGES = {
-        STATUS_DRAFT: "Création de la demande",
-        STATUS_AWAITING_GROUP_VALIDATION: "Validé par l'auteur d'origine",
-        STATUS_AWAITING_REVIEW: "Renvoyé pour validation à l'équipe de suivi des questions financières",
-        STATUS_AWAITING_SUPPLEMENTARY_INFORMATION: "Informations supplémentaires requises",
-        STATUS_VALIDATED: "Demande validée par l'équipe de suivi des questions financières",
-        STATUS_TO_PAY: "Demande en attente de réglement",
-        STATUS_PAID: "Demande réglée",
-        STATUS_REFUSED: "Demande rejetée par l'équipe de suivi des questions financières",
+        Status.DRAFT: "Création de la demande",
+        Status.AWAITING_PEER_REVIEW: "Validé par l'auteur d'origine",
+        Status.AWAITING_ADMIN_REVIEW: "Renvoyé pour validation à l'équipe de suivi des questions financières",
+        Status.AWAITING_SUPPLEMENTARY_INFORMATION: "Informations supplémentaires requises",
+        Status.VALIDATED: "Demande validée par l'équipe de suivi des questions financières",
+        Status.TO_PAY: "Demande en attente de réglement",
+        Status.PAID: "Demande réglée",
+        Status.REFUSED: "Demande rejetée par l'équipe de suivi des questions financières",
         (
-            STATUS_AWAITING_GROUP_VALIDATION,
-            STATUS_AWAITING_REVIEW,
+            Status.AWAITING_PEER_REVIEW,
+            Status.AWAITING_ADMIN_REVIEW,
         ): "Validé par un⋅e second⋅e animateur⋅rice",
     }
-    for status, label in STATUS_CHOICES:
-        HISTORY_MESSAGES[(status, status)] = "Modification de la demande"
 
     id = models.UUIDField(_("Identifiant"), primary_key=True, default=uuid.uuid4)
-
     title = models.CharField(_("Titre"), max_length=200)
-    status = models.CharField(
-        _("Statut"), max_length=1, default=STATUS_DRAFT, choices=STATUS_CHOICES
+    campaign = models.BooleanField(
+        "Dépense effectuée dans le cadre d'une campagne éléctorale",
+        default=False,
+        blank=False,
+        null=False,
     )
-
+    status = models.CharField(
+        _("Statut"),
+        max_length=1,
+        default=Status.DRAFT,
+        choices=Status.choices,
+        blank=False,
+        null=False,
+    )
     operation = models.ForeignKey(
         Operation, on_delete=models.PROTECT, related_name="spending_request", null=True
     )
-
+    creator = models.ForeignKey(
+        "people.Person",
+        verbose_name=_("Créateur·ice de la demande"),
+        on_delete=models.SET_NULL,
+        related_name="own_spending_requests",
+        related_query_name="own_spending_request",
+        blank=True,
+        null=True,
+        default=None,
+    )
     group = models.ForeignKey(
         "groups.SupportGroup",
+        verbose_name=_("Groupe lié la dépense"),
         on_delete=models.PROTECT,
         related_name="spending_requests",
         related_query_name="spending_request",
         blank=False,
         null=False,
+    )
+    category = models.CharField(
+        _("Catégorie"),
+        max_length=2,
+        blank=False,
+        null=False,
+        choices=Category.choices,
+    )
+    category_precisions = models.CharField(
+        _("Précisions sur le type de demande"), max_length=260, blank=True
+    )
+    explanation = models.TextField(
+        _("Motif de l'achat"),
+        max_length=1500,
+        null=False,
+        blank=False,
     )
     event = models.ForeignKey(
         "events.Event",
@@ -350,70 +415,59 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
         related_query_name="spending_request",
         blank=True,
         null=True,
-        help_text=_(
-            "Si c'est pertinent, l'événement concerné par la dépense. Il doit être organisé par le groupe pour"
-            " pouvoir être sélectionné."
-        ),
     )
-
-    category = models.CharField(
-        _("Catégorie de demande"),
-        max_length=1,
+    spending_date = models.DateField(
+        _("Date de l'achat"),
         blank=False,
         null=False,
-        choices=CATEGORY_CHOICES,
-    )
-    category_precisions = models.CharField(
-        _("Précisions sur le type de demande"), max_length=260, blank=False, null=False
-    )
-
-    explanation = models.TextField(
-        _("Justification de la demande"),
-        max_length=1500,
         help_text=_(
-            "Merci de justifier votre demande. Longueur conseillée : 500 signes."
+            "Si l'achat n'a pas encore été effectué, merci d'indiquer la date probable à laquelle celui-ci surviendra."
         ),
     )
-
+    contact_name = models.CharField(
+        _("Nom du contact"), max_length=255, blank=True, null=False, default=""
+    )
+    contact_email = models.EmailField(
+        _("Adresse e-mail du contact"), blank=True, null=False, default=""
+    )
+    contact_phone = models.CharField(
+        _("Numéro de téléphone du contact"),
+        max_length=30,
+        blank=True,
+        null=False,
+        default="",
+    )
     amount = AmountField(
         _("Montant de la dépense"),
         null=False,
         blank=False,
-        help_text=_(
-            "Pour que cette demande soit payée, la somme allouée à votre groupe doit être suffisante."
-        ),
     )
-
-    spending_date = models.DateField(
-        _("Date de la dépense"),
+    payer_name = models.CharField(
+        _("[Obsolète] Personne à payer"),
+        max_length=200,
+        null=True,
+        blank=True,
+    )
+    bank_account_name = models.CharField(
+        _("Titulaire du compte bancaire"), blank=False, null=False, max_length=200
+    )
+    bank_account_iban = IBANField(
+        _("IBAN"),
         blank=False,
         null=False,
-        help_text=_(
-            "Si la dépense n'a pas encore été effectuée, merci d'indiquer la date probable à laquelle elle surviendra."
-        ),
-    )
-
-    provider = models.CharField(
-        _("Raison sociale du prestataire"), blank=False, null=False, max_length=200
-    )
-
-    iban = IBANField(
-        _("RIB (format IBAN)"),
-        blank=False,
-        null=False,
-        help_text=_(
-            "Indiquez le RIB du prestataire s'il s'agit d'un réglement, ou le RIB de la personne qui a payé s'il s'agit"
-            " d'un remboursement."
-        ),
         allowed_countries=["FR"],
     )
-
-    payer_name = models.CharField(
-        _("Nom de la personne qui a payé"),
+    bank_account_bic = BICField(
+        _("BIC"),
+        blank=False,
+        null=False,
+    )
+    bank_account_rib = models.FileField(
+        _("RIB"),
+        upload_to=spending_request_rib_path,
+        validators=[validators.FileExtensionValidator(["pdf", "png", "jpeg", "jpg"])],
+        null=True,
         blank=True,
-        max_length=200,
-        help_text="S'il s'agit du remboursement d'une dépense déjà faite, indiquez le nom de la personne qui a payé"
-        " et à qui l'IBAN correspond. Sinon, laissez vide.",
     )
 
     class Meta:
@@ -423,88 +477,178 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
         verbose_name = "Demande de dépense ou remboursement"
         verbose_name_plural = "Demandes de dépense ou remboursement"
 
+    @property
+    def attachments(self):
+        return list(self.documents.filter(deleted=False))
+
+    @property
+    def need_action(self):
+        # Whether a user action is needed for the request
+        return self.status in (
+            self.Status.DRAFT,
+            self.Status.AWAITING_PEER_REVIEW,
+            self.Status.AWAITING_SUPPLEMENTARY_INFORMATION,
+            self.Status.VALIDATED,
+        )
+
+    @property
+    def need_admin_action(self):
+        # Whether an admin action is needed for the request
+        return self.status in (self.Status.AWAITING_ADMIN_REVIEW, self.Status.TO_PAY)
+
+    @property
+    def missing_fields(self):
+        missing_fields = [
+            field
+            for field in self.REQUIRED_FOR_REVIEW_FIELDS
+            if hasattr(self, field) and getattr(self, field) in [None, "", []]
+        ]
+
+        return missing_fields
+
+    @property
+    def editable(self):
+        return self.status in (
+            self.Status.DRAFT,
+            self.Status.AWAITING_PEER_REVIEW,
+            self.Status.AWAITING_SUPPLEMENTARY_INFORMATION,
+            self.Status.AWAITING_ADMIN_REVIEW,
+            self.Status.VALIDATED,
+        )
+
+    @property
+    def deletable(self):
+        return self.status in (
+            self.Status.DRAFT,
+            self.Status.AWAITING_PEER_REVIEW,
+        )
+
+    @property
+    def ready_for_review(self):
+        return len(self.missing_fields) == 0
+
+    @property
+    def done(self):
+        return self.status in (self.Status.PAID, self.Status.REFUSED)
+
+    @property
+    def edition_message(self):
+        if self.status == self.Status.AWAITING_ADMIN_REVIEW:
+            return (
+                "Votre requête a déjà été transmise ! "
+                "Si vous l'éditez, il vous faudra la retransmettre à nouveau."
+            )
+
+        if self.status == self.Status.VALIDATED:
+            return (
+                "Votre requête a déjà été validée par l'équipe de suivi des questions financières. "
+                "Si vous l'éditez, il vous faudra recommencer le processus de validation."
+            )
+
+        return None
+
+    @property
+    def peer_reviewers(self):
+        versions = (
+            Version.objects.get_for_object(self)
+            .order_by("pk")
+            .select_related("revision__user")
+        )
+        return [
+            version.revision.user
+            for version in versions
+            if version.field_dict["status"] == self.Status.AWAITING_PEER_REVIEW
+        ]
+
+    def next_status(self, user):
+        if self.status == self.Status.DRAFT and self.ready_for_review:
+            return self.Status.AWAITING_PEER_REVIEW
+
+        if (
+            self.status == self.Status.AWAITING_PEER_REVIEW
+            and self.peer_reviewers
+            and user != self.peer_reviewers[0]
+        ):
+            return self.Status.AWAITING_ADMIN_REVIEW
+
+        if (
+            self.status == self.Status.AWAITING_SUPPLEMENTARY_INFORMATION
+            and self.ready_for_review
+        ):
+            return self.Status.AWAITING_ADMIN_REVIEW
+
+        from agir.donations.allocations import get_supportgroup_balance
+
+        if (
+            self.status == self.Status.VALIDATED
+            and self.amount <= get_supportgroup_balance(self.group)
+        ):
+            return self.Status.TO_PAY
+
+        return None
+
     # noinspection PyMethodOverriding
     @classmethod
-    def get_history_step(cls, old, new, *, admin=False, **kwargs):
+    def get_history_step(cls, old, new, **kwargs):
+        step = super().get_history_step(old, new, **kwargs)
+
         old_fields = old.field_dict if old else {}
         new_fields = new.field_dict
-        old_status, new_status = old_fields.get("status"), new_fields["status"]
-        revision = new.revision
-        person = revision.user.person if revision and revision.user else None
-
-        res = {
-            "modified": new_fields["modified"],
-            "comment": revision.get_comment(),
-            "diff": cls.get_diff(old_fields, new_fields) if old_fields else [],
-        }
-
-        if person and admin:
-            res["user"] = format_html(
-                '<a href="{url}">{text}</a>',
-                url=reverse("admin:people_person_change", args=[person.pk]),
-                text=person.get_short_name(),
-            )
-        elif person:
-            res["user"] = person.get_short_name()
-        else:
-            res["user"] = "Équipe de suivi"
+        old_status, new_status = old_fields.get("status", None), new_fields["status"]
 
         # cas spécifique : si on revient à "attente d'informations supplémentaires suite à une modification par un non admin
         # c'est forcément une modification
         if (
-            new_status == cls.STATUS_AWAITING_SUPPLEMENTARY_INFORMATION
-            and person is not None
-        ):
-            res["title"] = "Modification de la demande"
+            step["person"]
+            and new_status == cls.Status.AWAITING_SUPPLEMENTARY_INFORMATION
+        ) or old_status == new_status:
+            step["title"] = "Mise à jour de la demande"
         # some couples (old_status, new_status)
         elif (old_status, new_status) in cls.HISTORY_MESSAGES:
-            res["title"] = cls.HISTORY_MESSAGES[(old_status, new_status)]
+            step["title"] = cls.HISTORY_MESSAGES[(old_status, new_status)]
         else:
-            res["title"] = cls.HISTORY_MESSAGES.get(
+            step["title"] = cls.HISTORY_MESSAGES.get(
                 new_status, "[Modification non identifiée]"
             )
 
-        return res
+        step["person"] = step["person"] or "Équipe de suivi"
 
+        return step
 
-document_path = FilePattern(
-    filename_pattern="financement/request/{instance.request_id}/{uuid:s}{ext}"
-)
+    @classmethod
+    def get_field_labels(cls, fields):
+        from agir.donations.spending_requests import get_spending_request_field_labels
+
+        return get_spending_request_field_labels(fields)
 
 
 @reversion.register()
 class Document(models.Model):
-    TYPE_INVOICE = "I"
-    TYPE_PICTURE = "P"
-    TYPE_OTHER = "O"
-    TYPE_CHOICES = (
-        (TYPE_INVOICE, _("Facture")),
-        (
-            TYPE_PICTURE,
-            _("Photo ou illustration de l'événement, de la salle, du matériel"),
-        ),
-        (TYPE_OTHER, _("Autre type de justificatif")),
-    )
+    class Type(models.TextChoices):
+        ESTIMATE = "E", "Devis"
+        INVOICE = "I", "Facture"
+        PRINT_MASTER = "B", "Impression"
+        PICTURE = "P", "Photo ou illustration de l'événement, de la salle, du matériel"
+        OTHER = "O", "Autre type de justificatif"
 
-    title = models.CharField(
-        _("Titre du document"), null=False, blank=False, max_length=200
-    )
     request = models.ForeignKey(
         SpendingRequest,
+        verbose_name="Demande de dépense",
         on_delete=models.CASCADE,
         related_name="documents",
         related_query_name="document",
         null=False,
         blank=False,
     )
-
-    type = models.CharField(
-        _("Type de document"), blank=False, max_length=1, choices=TYPE_CHOICES
+    title = models.CharField(
+        _("Titre du document"), null=False, blank=False, max_length=200
     )
-
+    type = models.CharField(
+        _("Type de document"), blank=False, max_length=1, choices=Type.choices
+    )
     file = models.FileField(
         _("Fichier"),
-        upload_to=document_path,
+        upload_to=spending_request_document_path,
         validators=[
             validators.FileExtensionValidator(
                 [
@@ -523,7 +667,6 @@ class Document(models.Model):
             )
         ],
     )
-
     deleted = models.BooleanField(_("Supprimé"), null=False, default=False)
 
 
