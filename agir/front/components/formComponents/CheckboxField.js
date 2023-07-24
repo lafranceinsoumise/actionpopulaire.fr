@@ -8,6 +8,7 @@ import { RawFeatherIcon as FeatherIcon } from "@agir/front/genericComponents/Fea
 
 const StyledLabel = styled.span``;
 const StyledBox = styled.span``;
+const StyledToggle = styled.span``;
 
 const StyledField = styled.label`
   position: relative;
@@ -63,10 +64,73 @@ const StyledField = styled.label`
       !$disabled ? `0 0 0 4px ${style.primary100}` : "none"};
   }
 
+  ${StyledToggle} {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: stretch;
+    justify-content: center;
+    font-size: inherit;
+    line-height: inherit;
+    position: relative;
+    height: 1.5em;
+    margin-right: 0.5em;
+
+    &::before,
+    &::after {
+      content: "";
+      flex: 0 0 auto;
+      display: block;
+      transition: opacity background 200ms;
+    }
+
+    &::before {
+      width: 2rem;
+      height: 0.75rem;
+      border-radius: 2.5rem;
+      background: ${(props) => props.theme.primary100};
+      background-color: ${({ $checked }) =>
+        $checked ? style.primary100 : "transparent"};
+      border: 1px solid;
+      border-color: ${({ $checked }) =>
+        $checked ? style.primary100 : style.black100};
+      opacity: ${({ $disabled }) => ($disabled ? 0.5 : 1)};
+    }
+
+    &::after {
+      position: absolute;
+      width: 1rem;
+      height: 1rem;
+      border-radius: 100%;
+      background: ${(props) => props.theme.primary500};
+      background-color: ${({ $checked, $disabled }) => {
+        if ($checked && $disabled) {
+          return style.primary150;
+        }
+        if ($checked) {
+          return style.primary500;
+        }
+        if ($disabled) {
+          return style.black100;
+        }
+
+        return style.black200;
+      }};
+      align-self: ${({ $checked }) => ($checked ? "end" : "start")};
+    }
+  }
+
+  input:focus + ${StyledToggle}::after {
+    box-shadow: ${({ $checked, $disabled }) =>
+      !$disabled
+        ? `0 0 0 3px ${$checked ? style.primary150 : style.primary100}`
+        : "none"};
+  }
+
   ${StyledLabel} {
     flex: 1 1 auto;
     font-weight: inherit;
     color: ${({ $disabled }) => ($disabled ? style.black500 : style.black1000)};
+
     &::first-letter {
       text-transform: uppercase;
     }
@@ -83,6 +147,7 @@ const CheckboxField = (props) => {
     className,
     style,
     small,
+    toggle = false,
     ...rest
   } = props;
 
@@ -103,17 +168,21 @@ const CheckboxField = (props) => {
         checked={!!value}
         value={inputValue}
       />
-      <StyledBox>
-        {!!value && (
-          <FeatherIcon
-            name="check"
-            color="white"
-            strokeWidth={4}
-            width="12px"
-            height="12px"
-          />
-        )}
-      </StyledBox>
+      {toggle ? (
+        <StyledToggle aria-hidden />
+      ) : (
+        <StyledBox aria-hidden>
+          {!!value && (
+            <FeatherIcon
+              name="check"
+              color="white"
+              strokeWidth={4}
+              width="12px"
+              height="12px"
+            />
+          )}
+        </StyledBox>
+      )}
       {label && <StyledLabel>{label}</StyledLabel>}
     </StyledField>
   );
@@ -129,6 +198,7 @@ CheckboxField.propTypes = {
   className: PropTypes.string,
   inputValue: PropTypes.string,
   small: PropTypes.bool,
+  toggle: PropTypes.bool,
 };
 
 export default CheckboxField;
