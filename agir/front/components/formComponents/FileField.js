@@ -15,12 +15,13 @@ const StyledError = styled.span`
 `;
 
 const StyledField = styled.div`
+  width: 100%;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
 
   label {
-    flex: 0 0 auto;
+    flex: 0 0 100%;
     display: flex;
     flex-flow: column nowrap;
     align-items: flex-start;
@@ -48,7 +49,17 @@ const StyledField = styled.div`
 `;
 
 const FileField = forwardRef((props, ref) => {
-  const { id, name, value, onChange, error, label, helpText, ...rest } = props;
+  const {
+    id,
+    name,
+    value,
+    onChange,
+    error,
+    label,
+    helpText,
+    disabled,
+    ...rest
+  } = props;
 
   const labelRef = useRef(null);
   const handleChange = useCallback(
@@ -57,7 +68,7 @@ const FileField = forwardRef((props, ref) => {
         e?.target?.files && e.target.files[e.target.files.length - 1];
       file && onChange && onChange(file);
     },
-    [onChange],
+    [onChange]
   );
 
   const handleClick = useCallback(() => {
@@ -75,37 +86,36 @@ const FileField = forwardRef((props, ref) => {
   }, [value]);
 
   return (
-    <>
-      <StyledField $valid={!error} $invalid={!!error} $empty={!!value}>
-        <label htmlFor={id} ref={labelRef}>
-          {label && <StyledLabel>{label}</StyledLabel>}
-          {helpText && <StyledHelpText>{helpText}</StyledHelpText>}
-          <input
-            {...rest}
-            ref={ref}
-            id={id}
-            name={name}
-            type="file"
-            onChange={handleChange}
-            value=""
+    <StyledField $valid={!error} $invalid={!!error} $empty={!!value}>
+      <label htmlFor={id} ref={labelRef}>
+        {label && <StyledLabel>{label}</StyledLabel>}
+        {helpText && <StyledHelpText>{helpText}</StyledHelpText>}
+        {!!error && <StyledError>{error}</StyledError>}
+        <input
+          {...rest}
+          ref={ref}
+          id={id}
+          name={name}
+          type="file"
+          onChange={handleChange}
+          value=""
+        />
+        <Button
+          color={error ? "danger" : fileName ? "primary" : "default"}
+          type="button"
+          wrap
+          onClick={handleClick}
+          title={fileName ? "Remplacer le document…" : "Parcourir…"}
+          disabled={disabled}
+        >
+          <RawFeatherIcon
+            name={fileName ? "file-text" : "upload"}
+            style={{ marginRight: "0.5rem" }}
           />
-          <Button
-            color={error ? "danger" : fileName ? "primary" : "default"}
-            type="button"
-            wrap
-            onClick={handleClick}
-            title={fileName ? "Remplacer le document" : "Ajouter un document"}
-          >
-            <RawFeatherIcon
-              name={fileName ? "file-text" : "upload"}
-              style={{ marginRight: "0.5rem" }}
-            />
-            {fileName || "Ajouter un document"}
-          </Button>
-        </label>
-      </StyledField>
-      {!!error && <StyledError>{error}</StyledError>}
-    </>
+          {fileName || "Parcourir…"}
+        </Button>
+      </label>
+    </StyledField>
   );
 });
 
@@ -117,6 +127,7 @@ FileField.propTypes = {
   label: PropTypes.string,
   helpText: PropTypes.string,
   error: PropTypes.string,
+  disabled: PropTypes.bool,
 };
 
 FileField.displayName = "FileField";

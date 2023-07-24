@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import React, { useCallback } from "react";
 import styled from "styled-components";
 
-import { TYPE_OPTIONS } from "./config";
+import { TYPE_OPTIONS } from "./form.config";
 
 const OPTIONS = Object.values(TYPE_OPTIONS);
 

@@ -1,7 +1,7 @@
 import React from "react";
 
 import TypeRadioField from "./TypeRadioField";
-import { TYPE_OPTIONS } from "./config";
+import { TYPE_OPTIONS } from "./form.config";
 
 export default {
   component: TypeRadioField,

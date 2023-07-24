@@ -7,7 +7,7 @@ import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 import Popin from "@agir/front/genericComponents/Popin";
 import BottomSheet from "@agir/front/genericComponents/BottomSheet";
 
-const Trigger = styled.button`
+const DefaultTrigger = styled.button`
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -29,60 +29,51 @@ const StyledInlineMenu = styled.div`
   position: relative;
 `;
 
-const MobileInlineMenu = (props) => (
-  <StyledInlineMenu>
-    <Trigger type="button" onClick={props.onOpen} $size={props.triggerSize}>
-      <RawFeatherIcon name={props.triggerIconName} />
-    </Trigger>
-    <BottomSheet {...props}>{props.children}</BottomSheet>
-  </StyledInlineMenu>
-);
-
-const DesktopInlineMenu = (props) => (
-  <StyledInlineMenu>
-    <Trigger type="button" onClick={props.onOpen} $size={props.triggerSize}>
-      <RawFeatherIcon name={props.triggerIconName} />
-    </Trigger>
-    <Popin {...props}>{props.children}</Popin>
-  </StyledInlineMenu>
-);
-
-MobileInlineMenu.propTypes = DesktopInlineMenu.propTypes = {
-  onOpen: PropTypes.func,
-  onDismiss: PropTypes.func,
-  children: PropTypes.node,
-  triggerIconName: PropTypes.string,
-  triggerSize: PropTypes.string,
-};
-
 export const InlineMenu = (props) => {
-  const { children, triggerIconName, triggerSize, shouldDismissOnClick } =
-    props;
+  const {
+    children,
+    Trigger = DefaultTrigger,
+    triggerIconName,
+    triggerTextContent,
+    triggerSize,
+    shouldDismissOnClick,
+    style,
+    className,
+  } = props;
   const [isOpen, setIsOpen] = useState(false);
 
   const handleOpen = React.useCallback(() => setIsOpen(true), []);
   const handleDismiss = React.useCallback(() => setIsOpen(false), []);
 
   return (
-    <ResponsiveLayout
-      MobileLayout={MobileInlineMenu}
-      DesktopLayout={DesktopInlineMenu}
-      triggerIconName={triggerIconName}
-      triggerSize={triggerSize}
-      isOpen={isOpen}
-      onOpen={handleOpen}
-      onDismiss={handleDismiss}
-      shouldDismissOnClick={shouldDismissOnClick}
-    >
-      {children}
-    </ResponsiveLayout>
+    <StyledInlineMenu style={style} className={className}>
+      <Trigger type="button" onClick={handleOpen} $size={triggerSize}>
+        {triggerIconName && <RawFeatherIcon name={triggerIconName} />}
+        {triggerTextContent && <span>{triggerTextContent}</span>}
+      </Trigger>
+      <ResponsiveLayout
+        MobileLayout={BottomSheet}
+        DesktopLayout={Popin}
+        isOpen={isOpen}
+        onOpen={handleOpen}
+        onDismiss={handleDismiss}
+        shouldDismissOnClick={shouldDismissOnClick}
+        {...props}
+      >
+        {children}
+      </ResponsiveLayout>
+    </StyledInlineMenu>
   );
 };
 InlineMenu.propTypes = {
   children: PropTypes.node,
+  Trigger: PropTypes.elementType,
   triggerIconName: PropTypes.string,
+  triggerTextContent: PropTypes.string,
   triggerSize: PropTypes.string,
   shouldDismissOnClick: PropTypes.bool,
+  style: PropTypes.object,
+  className: PropTypes.string,
 };
 InlineMenu.defaultProps = {
   triggerIconName: "more-vertical",
