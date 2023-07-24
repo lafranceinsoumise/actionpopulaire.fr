@@ -22,7 +22,7 @@ export const RawFeatherIcon = styled.span
     ({ name, strokeWidth, color, strokeLinecap, strokeLinejoin, svgStyle }) => {
       const attrs = {
         name,
-        strokeWidth: strokeWidth,
+        "stroke-width": strokeWidth,
         "stroke-linecap": strokeLinecap,
         "stroke-linejoin": strokeLinejoin,
       };
@@ -39,11 +39,12 @@ export const RawFeatherIcon = styled.span
           })
           .join(";");
       }
+      console.log(attrs);
 
       return {
         dangerouslySetInnerHTML: { __html: icons[name].toSvg(attrs) },
       };
-    },
+    }
   )`
   display: inline-flex;
   align-items: center;
