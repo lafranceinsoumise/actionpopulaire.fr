@@ -97,6 +97,11 @@ supportgroup_patterns = [
         views.BaseAppSoftAuthView.as_view(),
         name="view_group_message",
     ),
+    path(
+        "depenses/creer/",
+        views.CreateSupportGroupSpendingRequestView.as_view(),
+        name="create_group_spending_request",
+    ),
     path("agenda/", include(supportgroup_settings_patterns)),
     path("comptes-rendus/", include(supportgroup_settings_patterns)),
     path("messages/", include(supportgroup_settings_patterns)),

@@ -208,6 +208,22 @@ export const routeConfig = {
     Component: RouteComponents.GroupMessagePage,
     hideFeedbackButton: true,
   }),
+  createGroupSpendingRequest: new RouteConfig({
+    id: "createGroupSpendingRequest",
+    path: "/groupes/:groupPk/depenses/creer/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.HARD,
+    label: "Nouvelle dépense",
+    Component: RouteComponents.CreateSpendingRequest,
+    hideFeedbackButton: true,
+    backLink: {
+      label: "Gestion du groupe",
+      route: "groupSettings",
+      routeParams: {
+        activeTab: "finance",
+      },
+    },
+  }),
   groupDetails: new RouteConfig({
     id: "groupDetails",
     path: "/groupes/:groupPk/:activeTab?/",
@@ -568,7 +584,7 @@ export const routeConfig = {
 
 export const getRouteByPathname = (pathname) => {
   return Object.values(routeConfig).find(
-    (route) => route.path === pathname || route.match(pathname),
+    (route) => route.path === pathname || route.match(pathname)
   );
 };
 

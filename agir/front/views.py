@@ -28,10 +28,8 @@ from .view_mixins import (
     ReactBaseView,
     SimpleOpengraphMixin,
     ObjectOpengraphMixin,
-    ReactSerializerBaseView,
 )
 from ..donations.actions import can_make_contribution
-from ..event_requests.views.public_views import EventSpeakerViewMixin
 from ..events.models import EventSubtype
 from ..events.views.event_views import EventDetailMixin
 from ..groups.models import SupportGroupSubtype
@@ -333,6 +331,20 @@ class SupportGroupDetailView(
 
 class SupportGroupSettingsView(HardLoginRequiredMixin, SupportGroupDetailView):
     permission_required = "groups.change_supportgroup"
+
+
+class CreateSupportGroupSpendingRequestView(
+    HardLoginRequiredMixin, SupportGroupDetailView
+):
+    permission_required = "donations.add_spendingrequest"
+
+    def get_api_preloads(self):
+        return [
+            reverse_lazy("api_group_view", kwargs=self.kwargs),
+        ]
+
+    def get_meta_image(self):
+        return self.object.get_meta_image()
 
 
 ## REDIRECT / EXTERNAL VIEWS

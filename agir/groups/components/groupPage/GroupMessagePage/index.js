@@ -43,7 +43,7 @@ const Page = ({ groupPk, messagePk }) => {
 
   const { group, message, events, loadMoreEvents, isLoading } = useGroupMessage(
     groupPk,
-    messagePk,
+    messagePk
   );
 
   const messageURL = useMemo(
@@ -53,7 +53,7 @@ const Page = ({ groupPk, messagePk }) => {
         groupPk,
         messagePk,
       }),
-    [groupPk, messagePk],
+    [groupPk, messagePk]
   );
 
   const groupURL = useMemo(
@@ -63,7 +63,7 @@ const Page = ({ groupPk, messagePk }) => {
         groupPk,
         activeTab: "messages",
       }),
-    [groupPk],
+    [groupPk]
   );
 
   useEffect(() => {
@@ -77,8 +77,8 @@ const Page = ({ groupPk, messagePk }) => {
               }
             : {
                 route: "groups",
-              },
-        ),
+              }
+        )
       );
   }, [backLink, group, groupURL, dispatch]);
 
@@ -88,7 +88,7 @@ const Page = ({ groupPk, messagePk }) => {
         setAdminLink({
           href: group.routes.admin,
           label: "Administration",
-        }),
+        })
       );
     }
   }, [group, dispatch]);

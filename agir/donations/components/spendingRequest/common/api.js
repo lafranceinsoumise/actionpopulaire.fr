@@ -23,6 +23,24 @@ export const getSpendingRequestEndpoint = (key, params) => {
   return endpoint;
 };
 
+export const createSpendingRequestOptions = async () => {
+  const result = {
+    data: null,
+    error: null,
+  };
+
+  const url = getSpendingRequestEndpoint("createSpendingRequest");
+
+  try {
+    const response = await axios.options(url);
+    result.data = response.data;
+  } catch (e) {
+    result.error = (e.response && e.response.data) || e.message;
+  }
+
+  return result;
+};
+
 export const createSpendingRequest = async (data) => {
   const result = {
     data: null,

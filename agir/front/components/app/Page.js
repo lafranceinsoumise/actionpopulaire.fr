@@ -56,12 +56,33 @@ const Page = (props) => {
   }, [pathname, routeConfig]);
 
   useMemo(() => {
-    isSessionLoaded &&
-      routeConfig.backLink &&
-      dispatch(setBackLink(routeConfig.backLink));
-    isSessionLoaded &&
-      routeConfig.topBarRightLink &&
-      dispatch(setTopBarRightLink(routeConfig.topBarRightLink));
+    if (!isSessionLoaded || !routeConfig.backLink) {
+      return;
+    }
+    let link = routeConfig.backLink;
+    if (typeof link === "object" && !Array.isArray(link)) {
+      link.routeParams = {
+        ...routeParams,
+        ...(link.routeParams || {}),
+      };
+    }
+    dispatch(setBackLink(link));
+
+    //eslint-disable-next-line
+  }, [pathname, isSessionLoaded, dispatch, routeConfig]);
+
+  useMemo(() => {
+    if (!isSessionLoaded || !routeConfig.topBarRightLink) {
+      return;
+    }
+    let link = routeConfig.backLink;
+    if (typeof link === "object" && !Array.isArray(link)) {
+      link.routeParams = {
+        ...routeParams,
+        ...(link.routeParams || {}),
+      };
+    }
+    dispatch(setTopBarRightLink(routeConfig.topBarRightLink));
     //eslint-disable-next-line
   }, [pathname, isSessionLoaded, dispatch, routeConfig]);
 
@@ -69,7 +90,7 @@ const Page = (props) => {
     let unlisten = history.listen((location, action) => {
       log.debug(
         `Navigate ${action} ${location.pathname}${location.search}${location.hash}`,
-        JSON.stringify(history, null, 2),
+        JSON.stringify(history, null, 2)
       );
     });
 
