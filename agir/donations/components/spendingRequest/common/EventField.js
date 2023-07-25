@@ -52,7 +52,7 @@ const EventField = (props) => {
 
   return (
     <SearchAndSelectField
-      placeholder="Chercher un par nom, lieu …"
+      placeholder="Chercher par nom, lieu …"
       {...rest}
       isLoading={isLoading}
       value={currentValue}

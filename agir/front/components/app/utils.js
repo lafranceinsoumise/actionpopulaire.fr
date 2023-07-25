@@ -45,7 +45,7 @@ export const lazy = (lazyImport, fallback) => {
           }
         }),
       //eslint-disable-next-line
-      [lazyImport, error, fallback],
+      [lazyImport, error, fallback]
     );
 
     useEffect(() => {
@@ -69,6 +69,24 @@ export const lazy = (lazyImport, fallback) => {
   return LazyComponent;
 };
 
+export const scrollToElement = (
+  targetElement,
+  scrollerElement,
+  marginTop = 30
+) => {
+  if (!targetElement || !scrollerElement) {
+    return;
+  }
+
+  const scrollableElement = getScrollableParent(scrollerElement);
+
+  targetElement &&
+    scrollableElement &&
+    scrollableElement.scrollTo({
+      top: targetElement.offsetTop - marginTop,
+    });
+};
+
 export const scrollToError = (errors, scrollerElement, marginTop = 30) => {
   if (!errors) {
     return;
@@ -82,12 +100,10 @@ export const scrollToError = (errors, scrollerElement, marginTop = 30) => {
     .filter(([_, v]) => !!v)
     .map(([k]) => k);
 
-  const scrollableElement = getScrollableParent(scrollerElement);
-
   let errorElement = null;
   for (let i = 0; i < keys.length; i += 1) {
     let elt = document.querySelector(
-      `[data-scroll="${keys[i]}"], [name="${keys[i]}"]`,
+      `[data-scroll="${keys[i]}"], [name="${keys[i]}"]`
     );
     if (!elt) {
       continue;
@@ -100,11 +116,8 @@ export const scrollToError = (errors, scrollerElement, marginTop = 30) => {
       errorElement = elt;
     }
   }
-  errorElement &&
-    scrollableElement &&
-    scrollableElement.scrollTo({
-      top: errorElement.offsetTop - marginTop,
-    });
+
+  scrollToElement(errorElement, scrollerElement, marginTop);
 };
 
 export const useCurrentLocation = () => {

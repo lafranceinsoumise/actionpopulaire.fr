@@ -14,7 +14,7 @@ import {
   validateSpendingRequestDocument,
 } from "./form.config";
 
-const StyledForm = styled.form`
+const StyledForm = styled.div`
   footer {
     display: flex;
     justify-content: space-between;
@@ -50,19 +50,25 @@ const NewAttachmentField = (props) => {
     setAttachment((state) => ({ ...state, file }));
   }, []);
 
-  const handleSubmit = useCallback(
+  const handleSubmit = useCallback(() => {
+    const validationErrors = validateSpendingRequestDocument(attachment);
+    if (validationErrors) {
+      setErrors(validationErrors);
+      return;
+    }
+    onChange(attachment);
+    setAttachment({});
+    setErrors({});
+  }, [attachment, onChange]);
+
+  const handleKeyDown = useCallback(
     (e) => {
-      e.preventDefault();
-      const validationErrors = validateSpendingRequestDocument(attachment);
-      if (validationErrors) {
-        setErrors(validationErrors);
-        return;
+      if (!disabled && e.keyCode === 13) {
+        e.preventDefault();
+        handleSubmit();
       }
-      onChange(attachment);
-      setAttachment({});
-      setErrors({});
     },
-    [attachment, onChange]
+    [disabled, handleSubmit]
   );
 
   useEffect(() => {
@@ -77,10 +83,10 @@ const NewAttachmentField = (props) => {
   }, [error]);
 
   return (
-    <StyledForm onSubmit={handleSubmit}>
+    <StyledForm onKeyDown={handleKeyDown}>
       <RadioListField
         id="type"
-        label="Type de pièce jointe"
+        label="Type de pièce-jointe"
         options={Object.values(DOCUMENT_TYPE_OPTIONS)}
         onChange={handleChangeType}
         value={attachment.type}
@@ -95,6 +101,8 @@ const NewAttachmentField = (props) => {
         value={attachment.title}
         error={errors.title}
         disabled={disabled}
+        maxLength={200}
+        hasCounter={false}
       />
       <Spacer size="1rem" />
       <SpendingRequestHelp helpId="documentQuality" />
@@ -109,7 +117,7 @@ const NewAttachmentField = (props) => {
           error={errors.file}
           disabled={disabled}
         />
-        <Button type="submit" color="primary" disabled={disabled}>
+        <Button onClick={handleSubmit} color="primary" disabled={disabled}>
           Ajouter
         </Button>
       </footer>

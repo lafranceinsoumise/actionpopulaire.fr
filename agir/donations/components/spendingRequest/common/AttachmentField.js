@@ -27,21 +27,31 @@ const StyledField = styled.div`
 const AttachmentField = (props) => {
   const { value, onChange, error } = props;
 
-  const attachments = useMemo(
-    () => value.map((item, i) => ({ ...item, id: i })),
-    [value]
-  );
+  const attachments = useMemo(() => {
+    if (!Array.isArray(value)) {
+      return [];
+    }
+    if (!Array.isArray(error)) {
+      return value.map((item, i) => ({ ...item, id: i }));
+    }
+
+    return value.map((item, i) => ({ ...item, id: i, error: error[i] }));
+  }, [value, error]);
 
   const handleAdd = useCallback(
     (attachment) => {
-      onChange([...value, attachment]);
+      Array.isArray(value)
+        ? onChange([...value, attachment])
+        : onChange([attachment]);
     },
     [value, onChange]
   );
 
   const handleDelete = useCallback(
     (i) => {
-      onChange(value.splice(0, i).concat(value.splice(i + 1)));
+      Array.isArray(value)
+        ? onChange([...value.slice(0, i), ...value.slice(i + 1)], i)
+        : onChange([]);
     },
     [value, onChange]
   );
@@ -51,7 +61,7 @@ const AttachmentField = (props) => {
       <SpendingRequestHelp helpId="documentTypes" />
       <AttachmentList attachments={attachments} onDelete={handleDelete} />
       <NewAttachmentField onChange={handleAdd} />
-      <StyledError>{error}</StyledError>
+      <StyledError>{error && !Array.isArray(error) ? error : null}</StyledError>
     </StyledField>
   );
 };

@@ -4,9 +4,9 @@ import PropTypes from "prop-types";
 import React, { useCallback } from "react";
 import styled from "styled-components";
 
-import { TYPE_OPTIONS } from "./form.config";
+import { CATEGORY_OPTIONS } from "./form.config";
 
-const OPTIONS = Object.values(TYPE_OPTIONS);
+const OPTIONS = Object.values(CATEGORY_OPTIONS);
 
 const StyledIcon = styled.span``;
 const StyledOptionLabel = styled.span``;
@@ -167,7 +167,7 @@ const StyledField = styled.div`
   }
 `;
 
-const TypeRadioField = (props) => {
+const CategoryField = (props) => {
   const { id, onChange, value, label, error, disabled, ...rest } = props;
 
   const handleChange = useCallback(
@@ -228,7 +228,7 @@ const TypeRadioField = (props) => {
   );
 };
 
-TypeRadioField.propTypes = {
+CategoryField.propTypes = {
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   onChange: PropTypes.func.isRequired,
   id: PropTypes.string,
@@ -238,4 +238,4 @@ TypeRadioField.propTypes = {
   error: PropTypes.string,
 };
 
-export default TypeRadioField;
+export default CategoryField;

@@ -4,7 +4,11 @@ import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
 import CounterBadge from "@agir/front/app/Navigation/CounterBadge";
-import { Hide, ResponsiveLayout } from "@agir/front/genericComponents/grid";
+import {
+  Hide,
+  ResponsiveLayout,
+  useResponsiveMemo,
+} from "@agir/front/genericComponents/grid";
 
 const StepBadge = styled(CounterBadge).attrs((props) => ({
   ...props,
@@ -31,9 +35,12 @@ const StyledStep = styled.button.attrs((props) => ({
   ...props,
   type: "button",
 }))`
+  flex: 1 1 1rem;
   display: flex;
   flex-flow: column nowrap;
   align-items: center;
+  margin: 0;
+  padding: 0;
   gap: 0.5rem;
   background-color: transparent;
   border: none;
@@ -78,6 +85,7 @@ const StyledStep = styled.button.attrs((props) => ({
     color: ${(props) =>
       props.$active ? props.theme.primary500 : props.theme.black500};
     font-weight: ${(props) => (props.$active ? 600 : 400)};
+    overflow-wrap: normal;
 
     @media (max-width: ${(props) => props.theme.collapse}px) {
       font-size: 1.125rem;
@@ -90,7 +98,6 @@ const StyledSteps = styled.div`
   header {
     display: flex;
     flex-flow: row nowrap;
-    justify-content: space-between;
     align-items: start;
     gap: 6rem;
 
@@ -99,7 +106,8 @@ const StyledSteps = styled.div`
       display: flex;
       flex-flow: row nowrap;
       justify-content: space-between;
-      gap: 2rem;
+      align-items: stretch;
+      gap: 1rem;
       padding: 0;
       background: linear-gradient(
         transparent 0%,
@@ -117,7 +125,7 @@ const StyledSteps = styled.div`
   }
 
   article {
-    padding: 0.5rem 0 2rem;
+    padding: 1.5rem 0;
   }
 `;
 
@@ -132,6 +140,11 @@ const StepActions = (props) => {
     ...rest
   } = props;
 
+  const saveLabel = useResponsiveMemo(
+    "Enregistrer le brouillon",
+    "Enregistrer"
+  );
+
   return (
     <StyledActions {...rest}>
       {goToPrevious && (
@@ -140,7 +153,7 @@ const StepActions = (props) => {
           as={Button}
           type="button"
           onClick={goToPrevious}
-          disabled={disabled}
+          disabled={isLoading}
           color="choose"
         >
           Annuler
@@ -150,11 +163,11 @@ const StepActions = (props) => {
         <Button
           onClick={onSave}
           loading={isLoading}
-          disabled={disabled}
+          disabled={isLoading}
           color="default"
           icon="save"
         >
-          Enregistrer
+          {saveLabel}
         </Button>
       )}
       {goToNext && (
@@ -162,7 +175,7 @@ const StepActions = (props) => {
           type="button"
           color="primary"
           onClick={goToNext}
-          disabled={disabled}
+          disabled={isLoading}
           icon="arrow-right"
         >
           Continuer
@@ -241,7 +254,6 @@ MobileLayout.propTypes = {
   stepNames: PropTypes.arrayOf(PropTypes.string),
   goToPrevious: PropTypes.func.isRequired,
   goToNext: PropTypes.func.isRequired,
-  goToStep: PropTypes.func,
   onSubmit: PropTypes.func,
   onSave: PropTypes.func,
   isLoading: PropTypes.bool,
@@ -274,8 +286,8 @@ const DesktopLayout = (props) => {
             <StyledStep
               key={i}
               $active={i === current}
-              onClick={() => goToStep(i)}
-              disabled={i === current || disabled || !goToStep}
+              onClick={() => goToStep && goToStep(i)}
+              disabled={!goToStep || isLoading || i === current}
             >
               <StepBadge value={i + 1} $active={i === current} />
               <h5>{(stepNames && stepNames[i]) || null}</h5>

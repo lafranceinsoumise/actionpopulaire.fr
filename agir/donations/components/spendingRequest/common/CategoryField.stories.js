@@ -1,11 +1,11 @@
 import React from "react";
 
-import TypeRadioField from "./TypeRadioField";
-import { TYPE_OPTIONS } from "./form.config";
+import CategoryField from "./CategoryField";
+import { CATEGORY_OPTIONS } from "./form.config";
 
 export default {
-  component: TypeRadioField,
-  title: "Donations/SpendingRequest/TypeRadioField",
+  component: CategoryField,
+  title: "Donations/SpendingRequest/CategoryField",
   argTypes: {
     onChange: { table: { disable: true } },
   },
@@ -20,7 +20,7 @@ const Template = (args) => {
     setValue(value);
   }, []);
 
-  return <TypeRadioField {...args} value={value} onChange={handleChange} />;
+  return <CategoryField {...args} value={value} onChange={handleChange} />;
 };
 
 export const Default = Template.bind({});
@@ -40,7 +40,7 @@ Unchecked.args = {
 export const Checked = Template.bind({});
 Checked.args = {
   ...Default.args,
-  value: Object.values(TYPE_OPTIONS)[3].value,
+  value: Object.values(CATEGORY_OPTIONS)[3].value,
 };
 
 export const Disabled = Template.bind({});

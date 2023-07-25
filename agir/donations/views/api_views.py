@@ -3,6 +3,7 @@ import json
 import reversion
 from django.db import transaction
 from django.urls import reverse
+from nested_multipart_parser.drf import DrfNestedParser
 from rest_framework.generics import (
     GenericAPIView,
     RetrieveUpdateDestroyAPIView,
@@ -10,6 +11,7 @@ from rest_framework.generics import (
     RetrieveAPIView,
 )
 from rest_framework.mixins import UpdateModelMixin
+from rest_framework.parsers import JSONParser, FormParser, MultiPartParser
 from rest_framework.response import Response
 
 from agir.donations.models import SpendingRequest, Document
@@ -158,12 +160,16 @@ class SpendingRequestCreatePermissions(GlobalOrObjectPermissions):
 
 
 class SpendingRequestCreateAPIView(CreateAPIView):
+    parser_classes = (JSONParser, DrfNestedParser)
     permission_classes = (
         IsActionPopulaireClientPermission,
         SpendingRequestCreatePermissions,
     )
     serializer_class = SpendingRequestSerializer
     queryset = SpendingRequest.objects.all()
+
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
 
     def check_object_group_permission(self, group):
         if not self.request.user.has_perm("donations.add_spendingrequest", group):
@@ -262,9 +268,11 @@ class SpendingRequestApplyNextStatusAPIView(RetrieveAPIView):
     def get_object(self):
         spending_request = super().get_object()
         is_valid = validate_action(spending_request, self.request.user)
-        if not is_valid:
-            self.permission_denied(
-                self.request,
-                message="L'opération n'est pas autorisée pour cette demande de dépense",
-            )
-        return spending_request
+
+        if is_valid:
+            return spending_request
+
+        self.permission_denied(
+            self.request,
+            message="L'opération n'est pas autorisée pour cette demande de dépense",
+        )

@@ -9,6 +9,7 @@ import React, {
 
 import StepBar from "./StepBar";
 import StepIndex from "./StepIndex";
+import { scrollToElement } from "@agir/front/app/utils";
 
 export const STEPPER = {
   bar: StepBar,
@@ -20,13 +21,15 @@ export const useSteps = (initialStep = 0) => {
   const [step, setStep] = useState(initialStep);
   const goToPrevious = useCallback(() => setStep((step) => step - 1), []);
   const goToNext = useCallback(() => setStep((step) => step + 1), []);
+  const goToStep = useCallback((step) => {
+    setStep(step);
+  }, []);
 
-  return [step, goToPrevious, goToNext, setStep];
+  return [step, goToPrevious, goToNext, goToStep];
 };
 
 const ControlledSteps = (props) => {
   const { type, step, children, ...rest } = props;
-
   const topRef = useRef();
   const shouldScrollToTop = useRef(false);
   const steps = children.filter(Boolean);
@@ -36,7 +39,8 @@ const ControlledSteps = (props) => {
 
   useEffect(() => {
     if (shouldScrollToTop.current) {
-      topRef.current && topRef.current.scrollIntoView(true);
+      topRef.current &&
+        scrollToElement(topRef.current.parentElement, window, 150);
     } else {
       shouldScrollToTop.current = true;
     }
@@ -85,7 +89,7 @@ const UncontrolledSteps = (props) => {
 };
 
 const Steps = (props) =>
-  props.step && props.goToPrevious && props.goToNext ? (
+  typeof props.step === "number" && props.goToPrevious && props.goToNext ? (
     <ControlledSteps {...props} />
   ) : (
     <UncontrolledSteps {...props} />
@@ -96,6 +100,7 @@ Steps.propTypes = {
   step: PropTypes.number,
   goToPrevious: PropTypes.func,
   goToNext: PropTypes.func,
+  goToStep: PropTypes.func,
 };
 
 export default Steps;

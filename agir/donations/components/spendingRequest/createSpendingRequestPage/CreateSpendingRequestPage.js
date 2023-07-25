@@ -1,18 +1,20 @@
 import PropTypes from "prop-types";
-import React from "react";
-import useSWRImmutable from "swr/immutable";
+import React, { useMemo } from "react";
 import styled from "styled-components";
+import useSWRImmutable from "swr/immutable";
 
+import { Button } from "@agir/donations/common/StyledComponents";
+import BackLink from "@agir/front/app/Navigation/BackLink";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 import { getGroupEndpoint } from "@agir/groups/utils/api";
-import BackLink from "@agir/front/app/Navigation/BackLink";
-import { Button } from "@agir/donations/common/StyledComponents";
+import SpendingRequestForm from "./SpendingRequestForm";
 
 const StyledPage = styled.main`
   padding: 2rem;
   max-width: 70rem;
   margin: 0 auto;
+  min-height: 50vh;
 
   nav {
     display: flex;
@@ -46,28 +48,47 @@ const StyledPage = styled.main`
 `;
 
 const CreateSpendingRequestPage = ({ groupPk }) => {
-  const { data: group, isLoading } = useSWRImmutable([
+  const { data: session, isLoading: isSessionLoading } =
+    useSWRImmutable("/api/session/");
+
+  const { data: group, isLoading: isGroupLoading } = useSWRImmutable([
     getGroupEndpoint("getGroup", { groupPk }),
   ]);
 
-  console.log(group);
+  const { data: finance, isLoading: isFinanceLoading } = useSWRImmutable([
+    getGroupEndpoint("getFinance", { groupPk }),
+  ]);
+
+  const availableAmount = useMemo(
+    () => (finance?.donation ? finance.donation : 0),
+    [finance]
+  );
+
+  const isReady = !isFinanceLoading && !isGroupLoading && !isSessionLoading;
 
   return (
-    <PageFadeIn ready={!isLoading} wait={<Skeleton />}>
-      <StyledPage>
-        <nav>
-          <BackLink />
-          <Button
-            link
-            color="link"
-            icon="arrow-right"
-            route="spendingRequestHelp"
-          >
-            Un doute ? Consultez le <strong>centre d'aide</strong>
-          </Button>
-        </nav>
-        <h2>Nouvelle dépense</h2>
-      </StyledPage>
+    <PageFadeIn ready={isReady} wait={<Skeleton />}>
+      {isReady && (
+        <StyledPage>
+          <nav>
+            <BackLink />
+            <Button
+              link
+              color="link"
+              icon="arrow-right"
+              route="spendingRequestHelp"
+            >
+              Un doute ? Consultez le <strong>centre d'aide</strong>
+            </Button>
+          </nav>
+          <h2>Nouvelle dépense</h2>
+          <SpendingRequestForm
+            user={session?.user}
+            group={group}
+            availableAmount={availableAmount}
+          />
+        </StyledPage>
+      )}
     </PageFadeIn>
   );
 };

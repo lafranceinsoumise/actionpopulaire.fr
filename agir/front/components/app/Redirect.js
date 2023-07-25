@@ -7,10 +7,12 @@ import { addQueryStringParams } from "@agir/lib/utils/url";
 import { useRoute } from "./hooks";
 
 const ExternalRedirect = (props) => {
-  const { params, ...rest } = props;
+  const { params } = props;
   const href = params ? addQueryStringParams(props.href, params) : props.href;
 
-  return <Redirect {...rest} to={href} />;
+  window.location.replace(href);
+
+  return null;
 };
 ExternalRedirect.propTypes = {
   href: PropTypes.string.isRequired,

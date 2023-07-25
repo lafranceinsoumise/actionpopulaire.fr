@@ -12,11 +12,13 @@ from dynamic_filenames import FilePattern
 from reversion.models import Version
 
 from agir.donations.model_fields import BalanceField
+from agir.lib.admin.utils import admin_url
 from agir.lib.data import departements_choices
 from agir.lib.display import display_price
 from agir.lib.history import HistoryMixin
 from agir.lib.model_fields import IBANField, BICField
 from agir.lib.models import TimeStampedModel
+from agir.lib.utils import front_url
 from agir.payments.model_fields import AmountField
 
 __all__ = [
@@ -476,6 +478,16 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
         )
         verbose_name = "Demande de dépense ou remboursement"
         verbose_name_plural = "Demandes de dépense ou remboursement"
+
+    @property
+    def front_url(self):
+        return front_url("manage_spending_request", args=(self.pk,), absolute=True)
+
+    @property
+    def admin_url(self):
+        return admin_url(
+            "admin:donations_spendingrequest_change", args=(self.pk,), absolute=True
+        )
 
     @property
     def attachments(self):

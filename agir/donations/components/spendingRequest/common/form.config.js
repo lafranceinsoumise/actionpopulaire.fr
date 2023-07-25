@@ -1,6 +1,6 @@
 import validate from "@agir/lib/utils/validate";
 
-export const TYPE_OPTIONS = {
+export const CATEGORY_OPTIONS = {
   IM: {
     value: "IM",
     label: "Impressions",
@@ -59,6 +59,134 @@ export const DOCUMENT_TYPE_OPTIONS = {
   O: { value: "O", label: "Autre type de justificatif" },
 };
 
+const INITIAL_DATA = {
+  title: "",
+  campaign: false,
+  spendingDate: null,
+  attachments: [],
+};
+
+export const getInitialData = (user, group) => ({
+  ...INITIAL_DATA,
+  group,
+  contact: {
+    ...INITIAL_DATA.contact,
+    name: user?.displayName || "",
+    phone: user?.contactPhone || "",
+  },
+});
+
+export const SPENDING_REQUEST_DRAFT_CONSTRAINT = {
+  title: {
+    presence: {
+      allowEmpty: false,
+      message: "Ce champ est obligatoire",
+    },
+    length: {
+      maximum: 200,
+      tooLong:
+        "La valeur de ce champ ne peut pas dépasser les %{count} caractères",
+    },
+  },
+  category: {
+    presence: {
+      allowEmpty: false,
+      message: "Ce champ ne peut pas être vide.",
+    },
+    inclusion: {
+      within: Object.values(CATEGORY_OPTIONS)
+        .map((option) => option.value)
+        .filter(Boolean),
+      message: "Veuillez choisir une des options.",
+    },
+  },
+};
+
+export const SPENDING_REQUEST_VALIDATION_CONSTRAINT = {
+  ...SPENDING_REQUEST_DRAFT_CONSTRAINT,
+  explanation: {
+    presence: {
+      allowEmpty: false,
+      message: "Ce champ est obligatoire",
+    },
+    length: {
+      maximum: 1500,
+      tooLong:
+        "La valeur de ce champ ne peut pas dépasser les %{count} caractères",
+    },
+  },
+  spendingDate: {
+    presence: {
+      allowEmpty: false,
+      message: "Ce champ est obligatoire",
+    },
+    datetime: {
+      message: "Saisissez une date valide",
+    },
+  },
+  "contact.name": {
+    presence: {
+      allowEmpty: false,
+      message: "Ce champ est obligatoire",
+    },
+    length: {
+      maximum: 255,
+      tooLong:
+        "La valeur de ce champ ne peut pas dépasser les %{count} caractères",
+    },
+  },
+  "contact.phone": {
+    presence: {
+      allowEmpty: false,
+      message: "Ce champ est obligatoire",
+    },
+    phone: {
+      message: "Saisissez un numéro de téléphone valide.",
+    },
+  },
+  attachments: {
+    presence: {
+      allowEmpty: false,
+      message: "Ce champ est obligatoire",
+    },
+  },
+  amount: {
+    presence: {
+      allowEmpty: false,
+      message: "Ce champ est obligatoire",
+    },
+  },
+  "bankAccount.name": {
+    presence: {
+      allowEmpty: false,
+      message: "Ce champ est obligatoire",
+    },
+    length: {
+      maximum: 255,
+      tooLong:
+        "La valeur de ce champ ne peut pas dépasser les %{count} caractères",
+    },
+  },
+  "bankAccount.iban": {
+    presence: {
+      allowEmpty: false,
+      message: "Ce champ est obligatoire",
+    },
+  },
+  "bankAccount.bic": {
+    presence: {
+      allowEmpty: false,
+      message: "Ce champ est obligatoire",
+    },
+  },
+  "bankAccount.rib": {
+    presence: {
+      allowEmpty: false,
+      message: "Ce champ est obligatoire",
+    },
+  },
+};
+
 export const DOCUMENT_CONSTRAINT = {
   type: {
     presence: {
@@ -96,3 +224,26 @@ export const validateSpendingRequestDocument = (data) =>
     format: "cleanMessage",
     fullMessages: false,
   });
+
+export const validateSpendingRequest = (data, shouldValidate) => {
+  const result = validate(
+    data,
+    shouldValidate
+      ? SPENDING_REQUEST_VALIDATION_CONSTRAINT
+      : SPENDING_REQUEST_DRAFT_CONSTRAINT,
+    {
+      format: "cleanMessage",
+      fullMessages: false,
+    }
+  );
+
+  const attachments = data.attachments
+    .map(validateSpendingRequestDocument)
+    .filter(Boolean);
+
+  if (attachments.length > 0) {
+    result.attachments = attachments;
+  }
+
+  return result;
+};

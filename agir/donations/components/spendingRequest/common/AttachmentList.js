@@ -1,14 +1,9 @@
+import PropTypes from "prop-types";
+import React, { useCallback, useMemo } from "react";
+import styled from "styled-components";
+
 import Card from "@agir/front/genericComponents/Card";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-import PropTypes from "prop-types";
-import React, {
-  forwardRef,
-  useCallback,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import styled from "styled-components";
 
 import { DOCUMENT_TYPE_OPTIONS } from "./form.config";
 
@@ -16,6 +11,7 @@ const StyledItem = styled(Card).attrs((props) => ({
   ...props,
   bordered: true,
   as: "li",
+  type: props.$error ? "error" : "alert_dismissed",
 }))`
   flex: 0 0 auto;
   display: grid;
@@ -28,8 +24,9 @@ const StyledItem = styled(Card).attrs((props) => ({
 
   & > span,
   & > strong {
-    font-weight: 400;
     grid-column: 1/3;
+    color: ${(props) => props.theme.black1000};
+    font-weight: 400;
   }
 
   & > span {
@@ -42,6 +39,22 @@ const StyledItem = styled(Card).attrs((props) => ({
 
   & > strong {
     grid-row: 2/3;
+  }
+
+  & > strong + span {
+    grid-row: 3/4;
+    font-size: 0.875rem;
+    color: ${(props) => props.theme.redNSP};
+    white-space: normal;
+    overflow: unset;
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: stretch;
+    padding-top: 0.25rem;
+
+    &:empty {
+      display: none;
+    }
   }
 
   & > button,
@@ -77,32 +90,46 @@ const StyledList = styled.ul`
 `;
 
 const AttachmentItem = (props) => {
-  const { id, type, title, file, name, onEdit, onDelete, disabled } = props;
+  const { id, type, title, file, error, onEdit, onDelete, disabled } = props;
 
   const handleEdit = useCallback(() => {
     id && onEdit && onEdit(id);
   }, [id, onEdit]);
 
   const handleDelete = useCallback(() => {
-    id && onDelete && onDelete(id);
+    onDelete && onDelete(id);
   }, [id, onDelete]);
 
-  const typeLabel = useMemo(() => DOCUMENT_TYPE_OPTIONS[type]?.label || type);
+  const typeLabel = useMemo(
+    () => DOCUMENT_TYPE_OPTIONS[type]?.label || type,
+    [type]
+  );
+
+  const hasError = useMemo(
+    () => error && Object.values(error).filter(Boolean).length > 0,
+    [error]
+  );
 
   return (
-    <StyledItem>
+    <StyledItem $error={hasError}>
       <span title={typeLabel}>{typeLabel}</span>
       <strong title={title}>{title}</strong>
-      <button onClick={handleEdit} disabled={disabled}>
-        <RawFeatherIcon
-          title="Modifier la pièce-jointe"
-          name="edit-2"
-          width="1.5rem"
-          height="1.5rem"
-        />
-      </button>
+      <span>
+        {hasError &&
+          Object.values(error).map((err) => <span key={err}>{err}</span>)}
+      </span>
+      {onEdit && (
+        <button type="button" onClick={handleEdit} disabled={disabled}>
+          <RawFeatherIcon
+            title="Modifier la pièce-jointe"
+            name="edit-2"
+            width="1.5rem"
+            height="1.5rem"
+          />
+        </button>
+      )}
       {onDelete && (
-        <button onClick={handleDelete} disabled={disabled}>
+        <button type="button" onClick={handleDelete} disabled={disabled}>
           <RawFeatherIcon
             title="Supprimer la pièce-jointe"
             name="trash-2"
@@ -130,6 +157,17 @@ const AttachmentItem = (props) => {
   );
 };
 
+AttachmentItem.propTypes = {
+  id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  type: PropTypes.string,
+  title: PropTypes.string,
+  file: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  error: PropTypes.object,
+  onEdit: PropTypes.func,
+  onDelete: PropTypes.func,
+  disabled: PropTypes.bool,
+};
+
 const AttachmentList = (props) => {
   const { attachments, onEdit, onDelete, disabled } = props;
 
@@ -146,6 +184,13 @@ const AttachmentList = (props) => {
       ))}
     </StyledList>
   ) : null;
+};
+
+AttachmentList.propTypes = {
+  attachments: PropTypes.arrayOf(PropTypes.object),
+  onEdit: PropTypes.func,
+  onDelete: PropTypes.func,
+  disabled: PropTypes.bool,
 };
 
 export default AttachmentList;

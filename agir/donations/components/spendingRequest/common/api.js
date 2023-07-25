@@ -1,5 +1,6 @@
 import axios from "@agir/lib/utils/axios";
 import { objectToFormData } from "@agir/lib/utils/forms";
+import { addQueryStringParams } from "@agir/lib/utils/url";
 
 export const ENDPOINT = {
   createSpendingRequest: "/api/financement/demande/",
@@ -13,12 +14,15 @@ export const ENDPOINT = {
   deleteDocument: "/api/financement/document/:documentPk/",
 };
 
-export const getSpendingRequestEndpoint = (key, params) => {
+export const getSpendingRequestEndpoint = (key, params, searchParams) => {
   let endpoint = ENDPOINT[key] || "";
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
       endpoint = endpoint.replace(`:${key}`, value);
     });
+  }
+  if (searchParams) {
+    endpoint = addQueryStringParams(endpoint, searchParams, true);
   }
   return endpoint;
 };
@@ -41,14 +45,28 @@ export const createSpendingRequestOptions = async () => {
   return result;
 };
 
-export const createSpendingRequest = async (data) => {
+const formatSpendingRequestData = (data, validate = false) => {
+  const fData = { ...data, shouldValidate: !!validate };
+  // Send groupId instead of group object
+  fData.groupId = (fData.group && fData.group.id) || null;
+  fData.group = undefined;
+
+  // Send eventId instead of event object
+  fData.eventId = (fData.event && fData.event.id) || null;
+  fData.event = undefined;
+
+  return fData;
+};
+
+export const createSpendingRequest = async (data, validate) => {
   const result = {
     data: null,
     error: null,
   };
 
   const url = getSpendingRequestEndpoint("createSpendingRequest");
-  const body = objectToFormData(data);
+
+  const body = objectToFormData(formatSpendingRequestData(data, validate));
 
   try {
     const response = await axios.post(url, body);
@@ -69,7 +87,7 @@ export const updateSpendingRequest = async (spendingRequestPk, data) => {
   const url = getSpendingRequestEndpoint("updateSpendingRequest", {
     spendingRequestPk,
   });
-  const body = objectToFormData(data);
+  const body = objectToFormData(formatSpendingRequestData(data));
 
   try {
     const response = await axios.patch(url, body);
