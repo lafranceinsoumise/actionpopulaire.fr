@@ -1,18 +1,18 @@
 import React from "react";
 
-import Button from "@agir/front/genericComponents/Button";
-import Steps from "./Steps";
+import Steps from ".";
+import StepBar from "./StepBar";
 
 export default {
-  component: Steps,
-  title: "Generic/Steps",
+  component: StepBar,
+  title: "Generic/Steps/StepBar",
   parameters: {
     layout: "padded",
   },
 };
 
 const Template = (args) => (
-  <Steps {...args}>
+  <Steps type="bar" {...args}>
     <div>
       <h3>Arepas de choclo</h3>
       <p>
@@ -69,7 +69,6 @@ const Template = (args) => (
 export const Default = Template.bind({});
 Default.args = {
   title: "Arepas de choclo",
-  onSubmit: null,
 };
 
 export const AsForm = Template.bind({});
@@ -79,6 +78,6 @@ AsForm.args = {
   title: "Arepas de choclo",
   onSubmit: (e) => {
     e.preventDefault();
-    alert("Buen provecho !");
+    alert("Buen provecho!");
   },
 };
