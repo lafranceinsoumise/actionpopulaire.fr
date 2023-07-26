@@ -337,3 +337,21 @@ export const getEventMessages = async (eventPk) => {
 
   return result;
 };
+
+export const getOrganizedEvents = async (params) => {
+  const result = {
+    data: null,
+    errors: null,
+  };
+
+  const url = getEventEndpoint("getOrganizedEvents", null, params);
+
+  try {
+    const response = await axios.get(url);
+    result.data = response.data;
+  } catch (e) {
+    result.errors = (e.response && e.response.data) || { global: e.message };
+  }
+
+  return result;
+};

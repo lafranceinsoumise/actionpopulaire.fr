@@ -9,6 +9,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.timezone import now
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import exceptions, status
 from rest_framework.exceptions import NotFound, MethodNotAllowed
 from rest_framework.generics import (
@@ -84,6 +85,7 @@ from agir.lib.rest_framework_permissions import (
 )
 
 from agir.lib.tasks import geocode_person
+from ..filters import EventFilter
 from ..tasks import (
     send_cancellation_notification,
     send_group_coorganization_invitation_notification,
@@ -118,9 +120,12 @@ class EventListAPIView(ListAPIView):
     queryset = Event.objects.public()
 
     def get_queryset(self):
-        return self.queryset.with_serializer_prefetch(
-            self.request.user.person
-        ).select_related("subtype")
+        return (
+            super()
+            .get_queryset()
+            .with_serializer_prefetch(self.request.user.person)
+            .select_related("subtype")
+        )
 
     def get_serializer(self, *args, **kwargs):
         return super().get_serializer(
@@ -275,14 +280,21 @@ class UserGroupEventAPIView(EventListAPIView):
 
 
 class OrganizedEventAPIView(EventListAPIView):
+    queryset = Event.objects.exclude(visibility=Event.VISIBILITY_ADMIN)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = EventFilter
+
     def get_queryset(self):
-        person = self.request.user.person
-        return reversed(
-            Event.objects.exclude(visibility=Event.VISIBILITY_ADMIN)
-            .with_serializer_prefetch(person)
-            .filter(organizers=person)
-            .order_by("-start_time")[:10]
+        return (
+            super()
+            .get_queryset()
+            .organized_by_person(self.request.user.person)
+            .distinct()
+            .order_by("-start_time")
         )
+
+    def filter_queryset(self, queryset):
+        return super().filter_queryset(queryset)[:10]
 
 
 class GrandEventAPIView(EventListAPIView):

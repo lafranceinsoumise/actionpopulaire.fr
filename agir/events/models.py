@@ -109,6 +109,19 @@ class EventQuerySet(models.QuerySet):
             )
         )
 
+    def organized_by_person(self, person):
+        person_group_ids = (
+            Membership.objects.active()
+            .referents()
+            .filter(person=person)
+            .values_list("supportgroup_id", flat=True)
+        )
+
+        return self.filter(
+            Q(organizer_configs__person=person)
+            | Q(organizer_configs__as_group_id__in=person_group_ids)
+        )
+
     def with_person_organizer_configs(self, person):
         return self.prefetch_related(
             Prefetch(

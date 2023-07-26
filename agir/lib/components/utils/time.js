@@ -58,7 +58,7 @@ export function displayHumanDay(datetime, relativeTo, interval) {
     weekday: "long",
     month: "long",
     day: "numeric",
-    year: datetime < relativeTo ? "numeric" : undefined,
+    year: datetime.year !== relativeTo.year ? "numeric" : undefined,
   };
 
   return datetime.toLocaleString(format);
@@ -128,7 +128,7 @@ export function displayInterval(interval, relativeTo) {
   if (scheduleCalendarDays === 1) {
     const dayPart = interval.start.toLocaleString(dayPartFormat);
     const hourPart = `de ${interval.start.toLocaleString(
-      HOUR_ONLY_FORMAT,
+      HOUR_ONLY_FORMAT
     )} à ${interval.end.toLocaleString(HOUR_ONLY_FORMAT)}`;
     return `le ${dayPart}, ${hourPart}`;
   }

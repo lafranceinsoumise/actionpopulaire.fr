@@ -93,13 +93,13 @@ const useEventsByDay = (events) => {
               ...event,
               schedule: Interval.fromDateTimes(
                 dateFromISOString(event.startTime),
-                dateFromISOString(event.endTime),
+                dateFromISOString(event.endTime)
               ),
             });
             return days;
           }, {})
         : undefined,
-    [events],
+    [events]
   );
 
   return byDay;
@@ -182,7 +182,7 @@ const GrandEvents = (props) => {
                 {...event}
                 schedule={Interval.fromDateTimes(
                   dateFromISOString(event.startTime),
-                  dateFromISOString(event.endTime),
+                  dateFromISOString(event.endTime)
                 )}
               />
             </RenderIfVisible>
@@ -213,7 +213,7 @@ const GroupEventTab = (props) => {
           ...event,
           schedule: Interval.fromDateTimes(
             dateFromISOString(event.startTime),
-            dateFromISOString(event.endTime),
+            dateFromISOString(event.endTime)
           ),
         });
       });
