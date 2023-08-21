@@ -35,11 +35,13 @@ class Command(BaseCommand):
         )
 
         rsvps = event.rsvps.filter(form_submission__isnull=False).select_related(
-            "person", "form_submission"
+            "person",
+            "form_submission",
+            "payment",
         )
         guests = IdentifiedGuest.objects.filter(
             rsvp__event_id=event.id,
-        ).select_related("rsvp__person", "submission")
+        ).select_related("rsvp__person", "submission", "payment")
 
         # Pour éviter
         emails = PersonEmail.objects.raw(
@@ -71,7 +73,7 @@ class Command(BaseCommand):
                     emails.get(rsvp.person_id, None) or rsvp.person.email,
                     rsvp.person.gender or "",
                     rsvp.form_submission.data.get(category_field, ""),
-                    display_price(event.get_price(rsvp.form_submission.data)),
+                    display_price(rsvp.payment.price if rsvp.payment else 0),
                     "completed" if rsvp.status == RSVP.STATUS_CONFIRMED else "on-hold",
                     rsvp.created.isoformat()
                     if rsvp.form_submission.data.get("admin", False)
@@ -88,7 +90,7 @@ class Command(BaseCommand):
                     emails.get(guest.rsvp.person_id, None) or guest.rsvp.person.email,
                     guest.submission.data.get("gender", ""),
                     guest.submission.data.get(category_field, ""),
-                    display_price(event.get_price(guest.submission.data)),
+                    display_price(guest.payment.price if guest.payment else 0),
                     "completed" if guest.status == RSVP.STATUS_CONFIRMED else "on-hold",
                     None,
                 ]
