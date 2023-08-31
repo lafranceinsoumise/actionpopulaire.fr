@@ -65,7 +65,7 @@ TypeButton.propTypes = {
 
 const TypeWidget = ({ typeChoices, type, onTypeChange }) => (
   <div className="padtop padbottom">
-    <FlexContainer justifyContent="center">
+    <FlexContainer $justifyContent="center">
       {typeChoices.map(({ label, value, icon }) => (
         <TypeButton
           key={value}
@@ -85,7 +85,7 @@ TypeWidget.propTypes = {
     PropTypes.shape({
       value: PropTypes.string,
       label: PropTypes.string,
-    }).isRequired,
+    }).isRequired
   ),
   onTypeChange: PropTypes.func,
 };

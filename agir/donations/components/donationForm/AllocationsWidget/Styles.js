@@ -15,7 +15,7 @@ export const AllocationsArray = styled(MarginBox)`
 `;
 
 export const Row = (props) => (
-  <FlexContainer alignItems="center" {...props} s />
+  <FlexContainer $alignItems="center" {...props} s />
 );
 
 export const RecipientLabel = styled.div`
