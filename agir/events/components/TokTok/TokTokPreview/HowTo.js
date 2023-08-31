@@ -127,8 +127,8 @@ export const HowTo = (props) => {
           <li>
             <RawFeatherIcon strokeWidth={2} name="search" />
             <span>
-              <strong>Zoomez au niveau de votre ville et votre rue</strong> pour
-              voir les quartiers prioritaires où nos actions sont
+              <strong>Zoomez au niveau de votre commune et votre rue</strong>{" "}
+              pour voir les quartiers prioritaires où nos actions sont
               attendues&nbsp;!
             </span>
           </li>
@@ -145,7 +145,7 @@ HowTo.propTypes = {
 const ConnectedHowTo = (props) => {
   const [isInitiallyCollapsed, setIsInitiallyCollapsed] = useLocalStorage(
     "AP__toktokhowto",
-    false,
+    false
   );
 
   return (

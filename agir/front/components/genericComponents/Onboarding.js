@@ -33,7 +33,7 @@ const ONBOARDING_TYPE = {
       <>
         <p>
           Les groupes d'action permettent aux militants de s’organiser dans leur
-          quartier ou dans leur ville.
+          quartier ou dans leur commune.
         </p>
         <p>
           Rejoignez un groupe, agissez sur le terrain et organisez des moments
@@ -43,7 +43,7 @@ const ONBOARDING_TYPE = {
     ),
     mapIframe: "groupsMap",
     primaryLink: {
-      label: "Voir les groupes dans ma ville",
+      label: "Voir les groupes dans ma commune",
       route: "groupMap",
     },
   },
@@ -96,12 +96,12 @@ const ONBOARDING_TYPE = {
   group__action: {
     img: onboardingActionImage,
     title:
-      "Rejoignez un groupe d’action de votre ville pour militer localement",
+      "Rejoignez un groupe d’action de votre commune pour militer localement",
     body: (
       <>
         Les groupes d’actions permettent aux militants de s’organiser dans leur
-        quartier ou dans leur ville. Rejoignez un groupe, agissez sur le terrain
-        et organisez des moments de réflexions politiques&nbsp;!
+        quartier ou dans leur commune. Rejoignez un groupe, agissez sur le
+        terrain et organisez des moments de réflexions politiques&nbsp;!
       </>
     ),
     primaryLink: {
@@ -184,7 +184,7 @@ const Onboarding = (props) => {
 
   const mapIframe = useResponsiveMemo(
     null,
-    type && ONBOARDING_TYPE[type]?.mapIframe,
+    type && ONBOARDING_TYPE[type]?.mapIframe
   );
 
   if (!type || !ONBOARDING_TYPE[type]) {

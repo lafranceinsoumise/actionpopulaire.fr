@@ -9,8 +9,8 @@ const fullCountryList = countriesFirst
     Object.keys(countries)
       .map((code) => ({ code, label: countries[code], key: `${code}2` }))
       .sort(({ label: label1 }, { label: label2 }) =>
-        label1.localeCompare(label2),
-      ),
+        label1.localeCompare(label2)
+      )
   );
 
 import FormStep from "./FormStep";
@@ -137,7 +137,7 @@ export default class LocationStep extends FormStep {
                   (this.hasError("locationCity") ? " has-error" : "")
                 }
               >
-                <label className="control-label">Ville</label>
+                <label className="control-label">Commune</label>
                 <input
                   name="locationCity"
                   onChange={this.handleInputChange}

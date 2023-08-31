@@ -166,7 +166,7 @@ export const ContactForm = (props) => {
       setGroupOptions(results);
       return results;
     },
-    [groupOptions],
+    [groupOptions]
   );
 
   const handleSubmit = useCallback(
@@ -174,7 +174,7 @@ export const ContactForm = (props) => {
       e.preventDefault();
       onSubmit(data);
     },
-    [onSubmit, data],
+    [onSubmit, data]
   );
 
   useEffect(() => {
@@ -363,7 +363,7 @@ export const ContactForm = (props) => {
           />
           <Spacer data-scroll="city" size="1rem" />
           <TextField
-            label="Nom de la ville"
+            label="Nom de la commune"
             id="city"
             name="city"
             error={errors?.city}

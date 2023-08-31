@@ -83,7 +83,7 @@ const MESSAGE_INTRO = {
       Voici les élus les plus proches de votre adresse personnelle.{" "}
       <strong>
         Utilisez la barre de recherche ci-dessus pour rechercher un code postal,
-        une ville, un maire...
+        une commune, un maire...
       </strong>
     </>
   ),
@@ -186,7 +186,7 @@ export const Menu = ({
         recherche(e.target.value);
       }
     },
-    [recherche],
+    [recherche]
   );
 
   useEffect(() => {

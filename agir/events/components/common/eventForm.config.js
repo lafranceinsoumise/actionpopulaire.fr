@@ -111,7 +111,7 @@ export const FORM_FIELD_CONSTRAINTS = {
   "location.city": {
     presence: {
       allowEmpty: false,
-      message: "Indiquez la ville où se déroule l’événement",
+      message: "Indiquez la commune où se déroule l’événement",
     },
   },
   "location.zip": {

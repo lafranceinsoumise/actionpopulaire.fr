@@ -117,8 +117,8 @@ export const HeaderSearch = ({ querySearch, mapRoute }) => (
         {!querySearch && <Hide $under>Recherche : "{querySearch}"</Hide>}
       </h1>
       <Hide $under as="div" style={{ marginTop: "0.5rem" }}>
-        Recherchez des événements et des groupes d'actions par nom, ville, code
-        postal...
+        Recherchez des événements et des groupes d'actions par nom, commune,
+        code postal...
       </Hide>
     </div>
     {!!mapRoute && (
@@ -233,7 +233,7 @@ export const GroupFilters = ({ filters, setFilter }) => {
           onChange={({ target }) =>
             setFilter(
               "groupInactive",
-              target.checked ? undefined : { value: "1" },
+              target.checked ? undefined : { value: "1" }
             )
           }
         />
