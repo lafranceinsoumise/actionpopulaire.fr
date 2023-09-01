@@ -99,13 +99,16 @@ const FileField = forwardRef((props, ref) => {
           type="file"
           onChange={handleChange}
           value=""
+          disabled={disabled}
         />
         <Button
           color={error ? "danger" : fileName ? "primary" : "default"}
           type="button"
           wrap
           onClick={handleClick}
-          title={fileName ? "Remplacer le document…" : "Parcourir…"}
+          title={
+            disabled ? "" : fileName ? "Remplacer le document…" : "Parcourir…"
+          }
           disabled={disabled}
         >
           <RawFeatherIcon
@@ -124,9 +127,9 @@ FileField.propTypes = {
   name: PropTypes.string,
   onChange: PropTypes.func.isRequired,
   id: PropTypes.string,
-  label: PropTypes.string,
-  helpText: PropTypes.string,
-  error: PropTypes.string,
+  label: PropTypes.node,
+  helpText: PropTypes.node,
+  error: PropTypes.node,
   disabled: PropTypes.bool,
 };
 
