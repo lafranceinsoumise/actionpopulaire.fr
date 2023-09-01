@@ -685,10 +685,11 @@ class Event(
             nb_guests = RSVP.objects.filter(
                 Q(event_id=self.id) & ~Q(status=RSVP.STATUS_CANCELED)
             ).aggregate(
-                total=Sum("guests"),
-                confirmed=Sum("guests", filter=Q(status=RSVP.STATUS_CONFIRMED)),
+                total=Coalesce(Sum("guests"), 0),
+                confirmed=Coalesce(
+                    Sum("guests", filter=Q(status=RSVP.STATUS_CONFIRMED)), 0
+                ),
             )
-
         self.all_attendee_count = nb_rsvps["total"] + nb_guests["total"]
         self.confirmed_attendee_count = nb_rsvps["confirmed"] + nb_guests["confirmed"]
 
