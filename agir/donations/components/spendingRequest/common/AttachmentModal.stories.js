@@ -1,10 +1,10 @@
 import React from "react";
 
-import AttachmentField from "./AttachmentField";
+import AttachmentModal from "./AttachmentModal";
 
 export default {
-  component: AttachmentField,
-  title: "Donations/SpendingRequest/AttachmentField",
+  component: AttachmentModal,
+  title: "Donations/SpendingRequest/AttachmentModal",
   argTypes: {
     onChange: { table: { disable: true } },
   },
@@ -21,7 +21,7 @@ const Template = (args) => {
 
   return (
     <div>
-      <AttachmentField {...args} value={value} onChange={handleChange} />
+      <AttachmentModal {...args} value={value} onChange={handleChange} />
       <pre>
         Value:{" "}
         {value ? (
@@ -36,9 +36,9 @@ const Template = (args) => {
 
 export const Default = Template.bind({});
 Default.args = {
-  value: "",
+  value: null,
   id: "field",
-  label: "Image",
+  label: "Pièces-jointes",
   error: "",
   disabled: false,
 };
@@ -46,10 +46,12 @@ Default.args = {
 export const Filled = Template.bind({});
 Filled.args = {
   ...Default.args,
-  initialValue: {
+  value: {
     type: "I",
-    title: "La facture",
-    file: "file.png",
+    title: "Le ticket de caisse",
+    file: {
+      name: "ticket.pdf",
+    },
   },
 };
 
@@ -57,14 +59,15 @@ export const WithValidationError = Template.bind({});
 WithValidationError.args = {
   ...Filled.args,
   error: {
-    title: "Texte d’erreur sur le champ",
-    type: "Texte d’erreur sur le champ",
-    file: "Texte d’erreur sur le champ",
+    global: "Texte d’erreur générique",
+    type: "Vous avez triché avec un type qui n'existe même pas !",
+    title: "Ce nom ne fonctionne pas !",
+    file: "Le format est inutilisable !",
   },
 };
 
-export const Disabled = Template.bind({});
-Disabled.args = {
+export const Loading = Template.bind({});
+Loading.args = {
   ...Filled.args,
-  disabled: true,
+  isLoading: true,
 };

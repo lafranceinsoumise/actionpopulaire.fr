@@ -1,10 +1,10 @@
 import React from "react";
 
-import NewAttachmentField from "./NewAttachmentField";
+import AttachmentWidget from "./AttachmentWidget";
 
 export default {
-  component: NewAttachmentField,
-  title: "Donations/SpendingRequest/NewAttachmentField",
+  component: AttachmentWidget,
+  title: "Donations/SpendingRequest/AttachmentWidget",
   argTypes: {
     onChange: { table: { disable: true } },
   },
@@ -21,7 +21,7 @@ const Template = (args) => {
 
   return (
     <div>
-      <NewAttachmentField {...args} value={value} onChange={handleChange} />
+      <AttachmentWidget {...args} value={value} onChange={handleChange} />
       <pre>
         Value:{" "}
         {value ? (
@@ -36,9 +36,9 @@ const Template = (args) => {
 
 export const Default = Template.bind({});
 Default.args = {
-  value: "",
+  value: [],
   id: "field",
-  label: "Image",
+  label: "Pièces-jointes",
   error: "",
   disabled: false,
 };
@@ -46,21 +46,26 @@ Default.args = {
 export const Filled = Template.bind({});
 Filled.args = {
   ...Default.args,
-  initialValue: {
-    type: "I",
-    title: "La facture",
-    file: "file.png",
-  },
+  value: [
+    {
+      type: "I",
+      title: "Le ticket de caisse",
+      file: {
+        name: "ticket.pdf",
+      },
+    },
+    {
+      type: "P",
+      title: "Photo de la salle des fêtes",
+      file: "https://loremflickr.com/255/130",
+    },
+  ],
 };
 
 export const WithValidationError = Template.bind({});
 WithValidationError.args = {
   ...Filled.args,
-  error: {
-    title: "Texte d’erreur sur le champ",
-    type: "Texte d’erreur sur le champ",
-    file: "Texte d’erreur sur le champ",
-  },
+  error: "Texte d’erreur sur le champ",
 };
 
 export const Disabled = Template.bind({});

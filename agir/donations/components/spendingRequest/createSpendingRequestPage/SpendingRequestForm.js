@@ -14,7 +14,7 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 import Steps, { useSteps } from "@agir/front/genericComponents/Steps";
 import { Hide } from "@agir/front/genericComponents/grid";
 import { displayPrice } from "@agir/lib/utils/display";
-import AttachmentField from "../common/AttachmentField";
+import AttachmentWidget from "../common/AttachmentWidget";
 import BankAccountField from "../common/BankAccountField";
 import ContactField from "../common/ContactField";
 import EventField from "../common/EventField";
@@ -407,7 +407,7 @@ const SpendingRequestForm = (props) => {
         <Hide $under as={StyledLabel}>
           Pièces justificatives (obligatoire)
         </Hide>
-        <AttachmentField
+        <AttachmentWidget
           id="attachments"
           name="attachments"
           disabled={isLoading}

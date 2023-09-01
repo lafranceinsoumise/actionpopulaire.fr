@@ -1,77 +1,158 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+
 import styled from "styled-components";
 
-import AttachmentList from "./AttachmentList";
-import NewAttachmentField from "./NewAttachmentField";
+import FileField from "@agir/front/formComponents/FileField";
+import RadioListField from "@agir/front/formComponents/RadioListField";
+import TextField from "@agir/front/formComponents/TextField";
+import Button from "@agir/front/genericComponents/Button";
+import Spacer from "@agir/front/genericComponents/Spacer";
 import SpendingRequestHelp from "./SpendingRequestHelp";
+import {
+  DOCUMENT_TYPE_OPTIONS,
+  validateSpendingRequestDocument,
+} from "./form.config";
 
-const StyledError = styled.div``;
-
-const StyledField = styled.div`
-  display: flex;
-  flex-flow: column nowrap;
-  gap: 1rem;
-
-  ${StyledError} {
+const StyledForm = styled.div`
+  footer {
     display: flex;
-    gap: 0.5rem;
-    color: ${(props) => props.theme.redNSP};
+    justify-content: space-between;
+    align-items: end;
+    gap: 1rem;
 
-    &:empty {
-      display: none;
+    @media (max-width: ${(props) => props.theme.collapse}px) {
+      flex-flow: column nowrap;
+      justify-content: stretch;
+      align-items: start;
+    }
+
+    ${Button} {
+      @media (max-width: ${(props) => props.theme.collapse}px) {
+        width: 100%;
+      }
     }
   }
 `;
 
 const AttachmentField = (props) => {
-  const { value, onChange, error } = props;
+  const {
+    initialValue,
+    onChange,
+    resetOnChange = true,
+    error,
+    disabled,
+    isLoading,
+  } = props;
+  const [attachment, setAttachment] = useState(initialValue || {});
+  const [errors, setErrors] = useState({});
 
-  const attachments = useMemo(() => {
-    if (!Array.isArray(value)) {
-      return [];
+  const handleChangeType = useCallback((type) => {
+    setAttachment((state) => ({ ...state, type }));
+  }, []);
+  const handleChangeTitle = useCallback((e) => {
+    setAttachment((state) => ({ ...state, title: e.target.value }));
+  }, []);
+  const handleChangeFile = useCallback((file) => {
+    setAttachment((state) => ({ ...state, file }));
+  }, []);
+
+  const handleSubmit = useCallback(() => {
+    const validationErrors = validateSpendingRequestDocument(attachment);
+    if (validationErrors) {
+      setErrors(validationErrors);
+      return;
     }
-    if (!Array.isArray(error)) {
-      return value.map((item, i) => ({ ...item, id: i }));
-    }
 
-    return value.map((item, i) => ({ ...item, id: i, error: error[i] }));
-  }, [value, error]);
+    setErrors({});
+    onChange(attachment);
+    resetOnChange && setAttachment({});
+  }, [attachment, onChange, resetOnChange]);
 
-  const handleAdd = useCallback(
-    (attachment) => {
-      Array.isArray(value)
-        ? onChange([...value, attachment])
-        : onChange([attachment]);
+  const handleKeyDown = useCallback(
+    (e) => {
+      if (!disabled && e.keyCode === 13) {
+        e.preventDefault();
+        handleSubmit();
+      }
     },
-    [value, onChange]
+    [disabled, handleSubmit]
   );
 
-  const handleDelete = useCallback(
-    (i) => {
-      Array.isArray(value)
-        ? onChange([...value.slice(0, i), ...value.slice(i + 1)], i)
-        : onChange([]);
-    },
-    [value, onChange]
-  );
+  useEffect(() => {
+    if (!error) {
+      return;
+    }
+    error &&
+      setErrors((state) => ({
+        ...state,
+        ...(typeof error === "string" ? { file: error } : error),
+      }));
+  }, [error]);
 
   return (
-    <StyledField>
-      <SpendingRequestHelp helpId="documentTypes" />
-      <AttachmentList attachments={attachments} onDelete={handleDelete} />
-      <NewAttachmentField onChange={handleAdd} />
-      <StyledError>{error && !Array.isArray(error) ? error : null}</StyledError>
-    </StyledField>
+    <StyledForm onKeyDown={handleKeyDown}>
+      <RadioListField
+        id="type"
+        label="Type de pièce-jointe"
+        options={Object.values(DOCUMENT_TYPE_OPTIONS)}
+        onChange={handleChangeType}
+        value={attachment.type}
+        error={errors.type}
+        disabled={disabled}
+      />
+      <Spacer size="1.5rem" />
+      <TextField
+        id="title"
+        label="Titre de la pièce-jointe"
+        onChange={handleChangeTitle}
+        value={attachment.title}
+        error={errors.title}
+        disabled={disabled}
+        maxLength={200}
+        hasCounter={false}
+      />
+      <Spacer size="1rem" />
+      <SpendingRequestHelp helpId="documentQuality" />
+      <Spacer size="1rem" />
+      <footer>
+        <FileField
+          id="file"
+          label=""
+          helpText="Formats acceptés : PDF, JPEG, PNG."
+          onChange={handleChangeFile}
+          value={attachment.file}
+          error={errors.file}
+          disabled={disabled}
+        />
+        <Button
+          onClick={handleSubmit}
+          color="primary"
+          disabled={disabled}
+          loading={isLoading}
+        >
+          Ajouter
+        </Button>
+      </footer>
+    </StyledForm>
   );
 };
 
 AttachmentField.propTypes = {
-  value: PropTypes.any,
+  initialValue: PropTypes.shape({
+    type: PropTypes.string,
+    title: PropTypes.string,
+    file: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  }),
+  error: PropTypes.shape({
+    type: PropTypes.string,
+    title: PropTypes.string,
+    file: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  }),
   onChange: PropTypes.func.isRequired,
-  error: PropTypes.string,
+  disabled: PropTypes.bool,
+  isLoading: PropTypes.bool,
+  resetOnChange: PropTypes.bool,
 };
-
-AttachmentField.displayName = "AttachmentField";
 
 export default AttachmentField;
