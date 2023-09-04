@@ -145,7 +145,7 @@ export const FooterBanner = () => {
   return (
     <StyledBanner>
       <FooterForm>
-        <h3>Agissez dans votre ville!</h3>
+        <h3>Agissez dans votre ville !</h3>
         <article>
           <p>
             <strong>Action Populaire</strong> est le réseau social d’action de

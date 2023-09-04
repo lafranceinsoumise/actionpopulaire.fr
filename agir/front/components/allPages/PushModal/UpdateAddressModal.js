@@ -107,7 +107,7 @@ export const UpdateAddressModal = (props) => {
           />
           <Spacer size="1rem" />
           <TextField
-            label="Ville"
+            label="Commune"
             id="city"
             error={errors?.city}
             name="city"
@@ -204,7 +204,7 @@ const ConnectedUpdateAddressModal = (props) => {
       }));
       onClose && onClose();
     },
-    [onClose],
+    [onClose]
   );
 
   return (
