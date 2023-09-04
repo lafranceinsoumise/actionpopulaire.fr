@@ -504,8 +504,9 @@ class RSVPTestCase(TestCase):
         msgs = list(messages.get_messages(response.wsgi_request))
         self.assertEqual(msgs[0].level, messages.ERROR)
 
+    @mock.patch("agir.events.actions.rsvps.partial")
     @mock.patch("agir.events.actions.rsvps.send_rsvp_notification")
-    def test_can_rsvp_to_form_event(self, rsvp_notification):
+    def test_can_rsvp_to_form_event(self, rsvp_notification, mock_partial):
         self.client.force_login(self.person.role)
 
         event_url = reverse("view_event", kwargs={"pk": self.form_event.pk})
@@ -526,10 +527,11 @@ class RSVPTestCase(TestCase):
         self.assertEqual(self.person.meta["custom-field"], "another custom value")
         self.assertEqual(2, self.form_event.participants)
 
-        rsvp_notification.delay.assert_called_once()
+        mock_partial.assert_called_once()
+        self.assertIs(mock_partial.call_args[0][0], rsvp_notification.delay)
 
         rsvp = RSVP.objects.get(person=self.person, event=self.form_event)
-        self.assertEqual(rsvp_notification.delay.call_args[0][0], rsvp.pk)
+        self.assertEqual(mock_partial.call_args[0][1], rsvp.pk)
 
     def test_can_edit_rsvp_form(self):
         self.client.force_login(self.person.role)
@@ -851,8 +853,9 @@ class RSVPTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertNotIn("form", response.context_data)
 
+    @mock.patch("agir.events.actions.rsvps.partial")
     @mock.patch("agir.events.actions.rsvps.send_rsvp_notification")
-    def test_can_rsvp_if_authorized_for_form(self, rsvp_notification):
+    def test_can_rsvp_if_authorized_for_form(self, rsvp_notification, mock_partial):
         tag = PersonTag.objects.create(label="tag")
         self.person.tags.add(tag)
         self.subscription_form.required_tags.add(tag)
@@ -881,10 +884,11 @@ class RSVPTestCase(TestCase):
         self.assertEqual(self.person.meta["custom-field"], "another custom value")
         self.assertEqual(2, self.form_event.participants)
 
-        rsvp_notification.delay.assert_called_once()
+        mock_partial.assert_called_once()
+        self.assertIs(mock_partial.call_args[0][0], rsvp_notification.delay)
 
         rsvp = RSVP.objects.get(person=self.person, event=self.form_event)
-        self.assertEqual(rsvp_notification.delay.call_args[0][0], rsvp.pk)
+        self.assertEqual(mock_partial.call_args[0][1], rsvp.pk)
 
     def test_cannot_rsvp_if_form_is_closed(self):
         self.client.force_login(self.person.role)
@@ -918,8 +922,9 @@ class RSVPTestCase(TestCase):
         )
         self.assertContains(res, "est pas encore ouvert.")
 
+    @mock.patch("agir.events.actions.rsvps.partial")
     @mock.patch("agir.events.actions.rsvps.send_rsvp_notification")
-    def test_not_billed_if_free_pricing_to_zero(self, rsvp_notification):
+    def test_not_billed_if_free_pricing_to_zero(self, rsvp_notification, mock_partial):
         self.client.force_login(self.person.role)
 
         self.form_event.payment_parameters = {"free_pricing": "price"}
@@ -943,10 +948,11 @@ class RSVPTestCase(TestCase):
         self.assertEqual(self.person.meta["custom-field"], "another custom value")
         self.assertEqual(2, self.form_event.participants)
 
-        rsvp_notification.delay.assert_called_once()
+        mock_partial.assert_called_once()
+        self.assertIs(mock_partial.call_args[0][0], rsvp_notification.delay)
 
         rsvp = RSVP.objects.get(person=self.person, event=self.form_event)
-        self.assertEqual(rsvp_notification.delay.call_args[0][0], rsvp.pk)
+        self.assertEqual(mock_partial.call_args[0][1], rsvp.pk)
 
 
 class PricingTestCase(TestCase):

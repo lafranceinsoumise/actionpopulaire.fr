@@ -197,19 +197,27 @@ def maj_boucle_fe(circonscription, dry_run=False):
     except SupportGroup.DoesNotExist:
         return None
 
-    membres_animations, metas_animation = maj_boucle_par_animation(
+    membres_animation, metas_animation = maj_boucle_par_animation(
         Q(location_country__in=pays)
     )
     membres_tag, metas_tag = maj_boucle_par_tag(
         TAG_SUFFIX_FE.format(circonscription.code)
     )
+    membres_qualification, metas_qualification = maj_boucle_par_qualification(boucle)
 
-    return effectuer_changements(
-        boucle,
-        set(membres_animations).union(membres_tag),
-        {**metas_animation, **metas_tag},
-        dry_run=dry_run,
+    membres = set(membres_animation).union(membres_tag).union(membres_qualification)
+
+    # The order is import here, since the qualification description should override the tag description which should
+    # override the default description
+    metas = OrderedDict(
+        [
+            *metas_animation.items(),
+            *metas_tag.items(),
+            *metas_qualification.items(),
+        ]
     )
+
+    return effectuer_changements(boucle, membres, metas, dry_run=dry_run)
 
 
 def maj_boucles(codes=None, dry_run=False):

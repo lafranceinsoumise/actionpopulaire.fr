@@ -115,8 +115,8 @@ def maj_membres_boucles_departementales(model_admin, request, pk):
     if group.location_departement_id:
         code = group.location_departement_id
     else:
-        code = re.search("^\d\d?|$", group.name).group()
-        code = f"99-{int(code):02d}" if code else None
+        code = re.findall("(\d\d?)(?:ème|ère)", group.name, flags=re.IGNORECASE)
+        code = f"99-{int(code[0]):02d}" if code else None
 
     if not code:
         messages.warning(

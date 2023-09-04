@@ -186,48 +186,6 @@ class EventQuerySet(models.QuerySet):
             qs = qs.with_person_rsvps(person).with_person_organizer_configs(person)
         return qs
 
-    def with_participants(self):
-        confirmed_guests = Q(rsvps__identified_guests__status=RSVP.STATUS_CONFIRMED)
-        confirmed_rsvps = Q(rsvps__status=RSVP.STATUS_CONFIRMED)
-        canceled_guests = Q(rsvps__identified_guests__status=RSVP.STATUS_CANCELED)
-        canceled_rsvps = Q(rsvps__status=RSVP.STATUS_CANCELED)
-
-        return self.annotate(
-            all_attendee_count=Case(
-                When(
-                    subscription_form=None,
-                    then=Coalesce(
-                        Sum("rsvps__guests", filter=~canceled_rsvps)
-                        + Count("rsvps", filter=~canceled_rsvps),
-                        0,
-                    ),
-                ),
-                default=Coalesce(
-                    Count("rsvps__identified_guests", filter=~canceled_guests)
-                    + Count("rsvps", filter=~canceled_rsvps),
-                    0,
-                ),
-                output_field=CharField(),
-            ),
-            confirmed_attendee_count=Case(
-                When(payment_parameters=None, then=F("all_attendee_count")),
-                When(
-                    subscription_form=None,
-                    then=Coalesce(
-                        Sum("rsvps__guests", filter=confirmed_rsvps)
-                        + Count("rsvps", filter=confirmed_rsvps),
-                        0,
-                    ),
-                ),
-                default=Coalesce(
-                    Count("rsvps__identified_guests", filter=confirmed_guests)
-                    + Count("rsvps", filter=confirmed_rsvps),
-                    0,
-                ),
-                output_field=CharField(),
-            ),
-        )
-
     def search(self, query):
         """Recherche sur l'ensemble des champs texte de l'événement"""
         vector = (
@@ -709,11 +667,31 @@ class Event(
         return ics_event
 
     def _get_participants_counts(self):
-        self.all_attendee_count, self.confirmed_attendee_count = (
-            self.__class__.objects.with_participants()
-            .values_list("all_attendee_count", "confirmed_attendee_count")
-            .get(id=self.id)
+        nb_rsvps = RSVP.objects.filter(
+            Q(event_id=self.id) & ~Q(status=RSVP.STATUS_CANCELED)
+        ).aggregate(
+            total=Count("id"),
+            confirmed=Count("id", filter=Q(status=RSVP.STATUS_CONFIRMED)),
         )
+
+        if self.subscription_form is not None:
+            nb_guests = IdentifiedGuest.objects.filter(
+                Q(rsvp__event_id=self.id) & ~Q(status=RSVP.STATUS_CANCELED)
+            ).aggregate(
+                total=Count("id"),
+                confirmed=Count("id", filter=Q(status=RSVP.STATUS_CONFIRMED)),
+            )
+        else:
+            nb_guests = RSVP.objects.filter(
+                Q(event_id=self.id) & ~Q(status=RSVP.STATUS_CANCELED)
+            ).aggregate(
+                total=Coalesce(Sum("guests"), 0),
+                confirmed=Coalesce(
+                    Sum("guests", filter=Q(status=RSVP.STATUS_CONFIRMED)), 0
+                ),
+            )
+        self.all_attendee_count = nb_rsvps["total"] + nb_guests["total"]
+        self.confirmed_attendee_count = nb_rsvps["confirmed"] + nb_guests["confirmed"]
 
     @property
     def event_speaker(self):
