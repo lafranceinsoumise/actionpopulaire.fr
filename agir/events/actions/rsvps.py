@@ -139,10 +139,9 @@ def rsvp_to_free_event(event, person, form_submission=None):
         with transaction.atomic():
             rsvp = _get_rsvp_for_event(event, person, form_submission, False)
             rsvp.save()
+            transaction.on_commit(partial(send_rsvp_notification.delay, rsvp.pk))
     except IntegrityError:
         pass
-    else:
-        send_rsvp_notification.delay(rsvp.pk)
 
 
 def rsvp_to_paid_event_and_create_payment(
