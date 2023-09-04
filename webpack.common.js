@@ -186,10 +186,7 @@ const configureBabelLoader = (type) => ({
                     "safari > 12",
                   ],
                 },
-                include: [
-                  "esnext.string.replace-all",
-                  "@babel/plugin-proposal-class-properties",
-                ],
+                include: ["@babel/plugin-proposal-class-properties"],
               },
             ]
           : [
@@ -198,10 +195,6 @@ const configureBabelLoader = (type) => ({
                 development: type === CONFIG_TYPES.DEV,
                 modules: false,
                 include: ["@babel/plugin-proposal-class-properties"],
-                polyfill: {
-                  version: COREJS_VERSION,
-                  include: ["esnext.string.replace-all"],
-                },
               },
             ],
       ],
