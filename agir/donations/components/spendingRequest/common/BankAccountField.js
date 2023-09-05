@@ -77,7 +77,7 @@ const BankAccountField = (props) => {
   );
 };
 BankAccountField.propTypes = {
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   value: PropTypes.string,
   name: PropTypes.string.isRequired,
   value: PropTypes.shape({

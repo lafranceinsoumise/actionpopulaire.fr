@@ -1,10 +1,12 @@
 import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 import { Redirect } from "react-router-dom";
+import { useEffectOnce } from "react-use";
 
 import { routeConfig } from "@agir/front/app/routes.config";
 import { addQueryStringParams } from "@agir/lib/utils/url";
 import { useRoute } from "./hooks";
+import { useToast } from "@agir/front/globalContext/hooks";
 
 const ExternalRedirect = (props) => {
   const { params } = props;
@@ -20,7 +22,24 @@ ExternalRedirect.propTypes = {
 };
 
 const InternalRedirect = (props) => {
-  const { to, params, state, backLink, ...rest } = props;
+  const { to, params, state, backLink, toast, ...rest } = props;
+
+  const sendToast = useToast();
+
+  useEffectOnce(() => {
+    if (!toast) {
+      return;
+    }
+    if (typeof toast === "string") {
+      return sendToast(toast, "SUCCESS");
+    }
+    if (Array.isArray(toast)) {
+      return sendToast(...toast);
+    }
+    if (typeof toast === "object") {
+      return sendToast(undefined, undefined, toast);
+    }
+  }, [sendToast, toast]);
 
   const next = useMemo(() => {
     const pathname = params ? addQueryStringParams(pathname, params, true) : to;
@@ -48,6 +67,11 @@ InternalRedirect.propTypes = {
   state: PropTypes.object,
   params: PropTypes.object,
   backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  toast: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.array,
+    PropTypes.object,
+  ]),
 };
 
 const RouteRedirect = (props) => {
@@ -67,6 +91,7 @@ RouteRedirect.propTypes = {
 
 const AppRedirect = (props) => {
   const { route, href, to } = props;
+
   if (route) {
     return <RouteRedirect {...props} />;
   }

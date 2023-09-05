@@ -112,7 +112,7 @@ NotificationSettingItem.propTypes = {
     PropTypes.arrayOf(PropTypes.string),
     PropTypes.bool,
   ]),
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   disabled: PropTypes.bool,
 };
 

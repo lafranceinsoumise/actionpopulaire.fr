@@ -111,7 +111,7 @@
           <div class="padtop padbottommore">
             <h4>Statut de la demande</h4>
             <p class="padbottom">{{ action.explanation }}</p>
-            {% if action.button %}
+            {% if action.label %}
               <form method="post" style="display: inline;">
                 {% csrf_token %}
                 <input
@@ -121,7 +121,7 @@
                 />
                 <input
                   type="submit"
-                  value="{{ action.button }}"
+                  value="{{ action.label }}"
                   class="btn btn-block btn-primary"
                 />
               </form>

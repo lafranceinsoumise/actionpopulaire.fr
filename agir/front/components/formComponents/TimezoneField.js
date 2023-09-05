@@ -17,14 +17,14 @@ const TimezoneField = (props) => {
     (timezone) => {
       onChange && onChange(timezone?.value);
     },
-    [onChange],
+    [onChange]
   );
 
   let currentValue = value && timezones.find((tz) => tz.value === value);
   if (!value) {
     // Default to client timezone if props.value is falsy
     currentValue = timezones.find(
-      (tz) => tz.value === Intl.DateTimeFormat().resolvedOptions().timeZone,
+      (tz) => tz.value === Intl.DateTimeFormat().resolvedOptions().timeZone
     );
   }
 
@@ -39,7 +39,7 @@ const TimezoneField = (props) => {
   );
 };
 TimezoneField.propTypes = {
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   value: PropTypes.oneOf(["", ...TIMEZONES]),
 };
 export default TimezoneField;

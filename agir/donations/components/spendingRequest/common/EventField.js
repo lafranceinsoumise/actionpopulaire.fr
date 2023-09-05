@@ -66,7 +66,7 @@ const EventField = (props) => {
 EventField.propTypes = {
   groupPk: PropTypes.string,
   value: PropTypes.any,
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   id: PropTypes.string,
   name: PropTypes.string,
   label: PropTypes.node,

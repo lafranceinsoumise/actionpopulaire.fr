@@ -59,10 +59,10 @@ const PaymentTimingWidget = (props) => {
 
 PaymentTimingWidget.propTypes = {
   value: PropTypes.oneOf([MONTHLY_PAYMENT, SINGLE_TIME_PAYMENT]),
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   disabled: PropTypes.bool,
   allowedPaymentTimings: PropTypes.arrayOf(
-    PropTypes.oneOf([MONTHLY_PAYMENT, SINGLE_TIME_PAYMENT]),
+    PropTypes.oneOf([MONTHLY_PAYMENT, SINGLE_TIME_PAYMENT])
   ),
 };
 

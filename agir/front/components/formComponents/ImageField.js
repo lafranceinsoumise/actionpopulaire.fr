@@ -64,7 +64,7 @@ const ImageField = forwardRef((props, ref) => {
         e?.target?.files && e.target.files[e.target.files.length - 1];
       file && onChange && onChange(file);
     },
-    [onChange],
+    [onChange]
   );
 
   const deleteImage = useCallback(() => {
@@ -147,7 +147,7 @@ const ImageField = forwardRef((props, ref) => {
 ImageField.propTypes = {
   value: PropTypes.any,
   name: PropTypes.string,
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   id: PropTypes.string,
   label: PropTypes.string,
   helpText: PropTypes.string,

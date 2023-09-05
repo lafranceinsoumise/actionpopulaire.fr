@@ -119,6 +119,7 @@ const PrimaryButton = styled(BaseButton)`
   &[disabled]:hover,
   &[disabled]:focus,
   &[disabled]:active {
+    color: ${style.white + "B7"};
     background-color: ${style.primary500 + "B7"};
     border-color: ${style.primary500 + "B7"};
   }
@@ -279,7 +280,7 @@ const ChooseButton = styled(BaseButton)`
   &[disabled]:active {
     color: ${style.black1000 + "4D"};
     background-color: ${style.black50 + "B7"};
-    border-color: ${style.black200 + "B7"};
+    border-color: ${style.black50 + "B7"};
 
     &:before {
       background-image: ${getIconDataUrl({ color: style.black1000 + "4D" })};
@@ -411,7 +412,7 @@ const Button = styled(
     const { color } = props;
     const B = color && variants[color] ? variants[color] : variants.default;
     return <B ref={ref} {...props} />;
-  }),
+  })
 )``;
 
 Button.icons = Object.keys(ICONS);

@@ -2,7 +2,7 @@ import reversion
 from django.db import IntegrityError
 from django.urls import reverse
 from django.utils.html import format_html
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, ngettext
 from glom import glom, T
 
 from agir.donations.allocations import get_supportgroup_balance
@@ -134,7 +134,7 @@ STATUS_EXPLANATION = {
     " paiement de cette demande avec ce formulaire.",
     SpendingRequest.Status.TO_PAY: "Votre demande est en attente de paiement par l'équipe de suivi. Cela ne devrait pas tarder !",
     SpendingRequest.Status.PAID: "Votre demande a été correctement réglée.",
-    SpendingRequest.Status.REFUSED: "Votre demande a été refusée car elle ne rentrait pas dans le cadre des demandes de dépense/",
+    SpendingRequest.Status.REFUSED: "Votre demande a été refusée car elle ne rentrait pas dans le cadre des demandes de dépense",
 }
 
 NEXT_STATUS_EXPLANATION = {
@@ -143,7 +143,7 @@ NEXT_STATUS_EXPLANATION = {
     " animateurs ou gestionnaires de votre groupe d'action.",
     SpendingRequest.Status.AWAITING_ADMIN_REVIEW: {
         SpendingRequest.Status.AWAITING_PEER_REVIEW: "Cette demande a déjà été validé par un⋅e animateur⋅rice ou gestionnaire du groupe."
-        "Pour permettre sa transmission, elle doit encore être validée par un deuxième animateur⋅rice ou"
+        " Pour permettre sa transmission, elle doit encore être validée par un deuxième animateur⋅rice ou"
         " gestionnaire.",
         SpendingRequest.Status.AWAITING_SUPPLEMENTARY_INFORMATION: "Lorsque vous aurez intégré les modifications demandées, vous pourrez de nouveau"
         " transmettre cette demande à l'équipe de suivi.",
@@ -157,6 +157,21 @@ NEXT_STATUS_ACTION = {
     SpendingRequest.Status.AWAITING_ADMIN_REVIEW: "Transmettre",
     SpendingRequest.Status.PAID: "Demander le paiement",
 }
+
+
+def get_missing_field_error_message(spending_request):
+    missing_fields = get_spending_request_field_labels(spending_request.missing_fields)
+
+    if not missing_fields:
+        return None
+
+    message = ngettext(
+        f"Le champ suivant est obligatoire pour la validation : {missing_fields[0]}.",
+        f"Les champs suivants sont obligatoires pour la validation : {', '.join(missing_fields)}.",
+        len(missing_fields),
+    )
+
+    return message
 
 
 def get_status_explanation(spending_request, user):
@@ -175,22 +190,17 @@ def get_status_explanation(spending_request, user):
 
     explanation = "Avant de pouvoir être envoyée pour validation, votre demande doit être complète."
 
-    if spending_request.missing_fields:
-        missing_fields = get_spending_request_field_labels(
-            spending_request.missing_fields
-        )
-        return (
-            explanation
-            + f" Les champs suivants sont obligatoires : {', '.join(missing_fields)}."
-        )
+    if not spending_request.missing_fields:
+        return explanation
 
-    return explanation
+    return explanation + get_missing_field_error_message(spending_request)
 
 
 def get_current_action(spending_request, user):
     next_status = spending_request.next_status(user)
+    label = NEXT_STATUS_ACTION[next_status] if next_status else None
     return {
-        "button": NEXT_STATUS_ACTION[next_status] if next_status else None,
+        "label": label,
         "explanation": get_status_explanation(spending_request, user),
     }
 

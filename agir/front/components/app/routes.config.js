@@ -220,7 +220,7 @@ export const routeConfig = {
       label: "Gestion du groupe",
       route: "groupSettings",
       routeParams: {
-        activeTab: "finance",
+        activePanel: "finance",
       },
     },
   }),
@@ -235,6 +235,15 @@ export const routeConfig = {
       route: "groups",
       isProtected: true,
     },
+  }),
+  spendingRequestDetails: new RouteConfig({
+    id: "createGroupSpendingRequest",
+    path: "/financement/demande/:spendingRequestPk/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.HARD,
+    label: "Demande de dépense",
+    Component: RouteComponents.SpendingRequestDetails,
+    hideFeedbackButton: true,
   }),
   activities: new RouteConfig({
     id: "activities",

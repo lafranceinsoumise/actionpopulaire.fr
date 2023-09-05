@@ -14,7 +14,7 @@ const NameField = (props) => {
       setIsDefault(false);
       onChange && onChange(name, e.target.value);
     },
-    [name, onChange],
+    [name, onChange]
   );
 
   useEffect(() => {
@@ -40,7 +40,7 @@ const NameField = (props) => {
   );
 };
 NameField.propTypes = {
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   value: PropTypes.string,
   defaultValue: PropTypes.string,
   name: PropTypes.string.isRequired,

@@ -42,19 +42,19 @@ const VotingDateFields = (props) => {
       onChange(
         target.checked
           ? [...value, target.value]
-          : value.filter((item) => item !== target.value),
+          : value.filter((item) => item !== target.value)
       );
     },
-    [onChange, value],
+    [onChange, value]
   );
 
   const activeOptions = useMemo(
     () =>
       options.filter(
         (option) =>
-          new Date(option.value).toISOString() > new Date().toISOString(),
+          new Date(option.value).toISOString() > new Date().toISOString()
       ),
-    [options],
+    [options]
   );
 
   return (
@@ -81,12 +81,12 @@ const VotingDateFields = (props) => {
 VotingDateFields.propTypes = {
   name: PropTypes.string.isRequired,
   value: PropTypes.arrayOf(PropTypes.string).isRequired,
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   options: PropTypes.arrayOf(
     PropTypes.shape({
       value: PropTypes.string,
       label: PropTypes.string,
-    }),
+    })
   ).isRequired,
   id: PropTypes.string,
   required: PropTypes.bool,

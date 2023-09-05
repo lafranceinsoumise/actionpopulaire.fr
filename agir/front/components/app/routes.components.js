@@ -199,6 +199,11 @@ const Routes = {
       /* webpackChunkName: "r-createspendingrequest" */ "@agir/donations/spendingRequest/createSpendingRequestPage"
     )
   ),
+  SpendingRequestDetails: lazy(() =>
+    import(
+      /* webpackChunkName: "r-spendingrequestdetails" */ "@agir/donations/spendingRequest/spendingRequestPage"
+    )
+  ),
 };
 
 export default Routes;

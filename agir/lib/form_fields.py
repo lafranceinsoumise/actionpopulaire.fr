@@ -239,10 +239,17 @@ class IBANField(forms.Field):
 
     def validate(self, value):
         super().validate(value)
-        if value != self.empty_value and not value.is_valid():
+
+        is_empty = value == self.empty_value
+
+        if not is_empty and not value.is_valid():
             raise ValidationError(self.error_messages["invalid"], code="invalid")
 
-        if self.allowed_countries and value.country not in self.allowed_countries:
+        if (
+            not is_empty
+            and self.allowed_countries
+            and value.country not in self.allowed_countries
+        ):
             raise ValidationError(
                 self.allowed_countries_error_message(), code="forbidden_country"
             )

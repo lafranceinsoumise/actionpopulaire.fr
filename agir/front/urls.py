@@ -246,6 +246,14 @@ voting_proxy_patterns = [
     ),
 ]
 
+spending_request_patterns = [
+    path(
+        "<uuid:pk>/",
+        views.SpendingRequestDetailsView.as_view(),
+        name="spending_request_details",
+    ),
+]
+
 urlpatterns = [
     ## APP & AUTH VIEWS
     path("connexion/", views.LoginView.as_view(), name="short_code_login"),
@@ -400,6 +408,7 @@ urlpatterns = [
     path("dons/", include(donation_patterns)),
     path("n/dons/", include(donation_patterns)),
     path("contributions/", include(contribution_patterns)),
+    path("financement/demande/", include(spending_request_patterns)),
     path(
         "dons-mensuels/informations/",
         RedirectView.as_view(

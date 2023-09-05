@@ -68,7 +68,7 @@ const DescriptionField = (props) => {
 };
 
 DescriptionField.propTypes = {
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   name: PropTypes.string.isRequired,
   value: PropTypes.string,
   error: PropTypes.string,

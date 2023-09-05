@@ -30,6 +30,7 @@ from .view_mixins import (
     ObjectOpengraphMixin,
 )
 from ..donations.actions import can_make_contribution
+from ..donations.models import SpendingRequest
 from ..events.models import EventSubtype
 from ..events.views.event_views import EventDetailMixin
 from ..groups.models import SupportGroupSubtype
@@ -330,13 +331,13 @@ class SupportGroupDetailView(
 
 
 class SupportGroupSettingsView(HardLoginRequiredMixin, SupportGroupDetailView):
-    permission_required = "groups.change_supportgroup"
+    permission_required = ("groups.change_supportgroup",)
 
 
 class CreateSupportGroupSpendingRequestView(
     HardLoginRequiredMixin, SupportGroupDetailView
 ):
-    permission_required = "donations.add_spendingrequest"
+    permission_required = ("donations.add_spendingrequest",)
 
     def get_api_preloads(self):
         return [
@@ -345,6 +346,26 @@ class CreateSupportGroupSpendingRequestView(
 
     def get_meta_image(self):
         return self.object.get_meta_image()
+
+
+## SPENDING REQUEST VIEW
+
+
+class SpendingRequestDetailsView(
+    HardLoginRequiredMixin,
+    GlobalOrObjectPermissionRequiredMixin,
+    BaseDetailView,
+    ReactBaseView,
+):
+    model = SpendingRequest
+    permission_required = ("donations.view_spendingrequest",)
+
+    def get_api_preloads(self):
+        return [
+            reverse_lazy(
+                "api_spending_request_retrieve_update_delete", kwargs=self.kwargs
+            ),
+        ]
 
 
 ## REDIRECT / EXTERNAL VIEWS

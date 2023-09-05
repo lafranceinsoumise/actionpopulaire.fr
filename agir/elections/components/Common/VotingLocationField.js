@@ -40,7 +40,7 @@ const VotingLocationField = (props) => {
 
 VotingLocationField.propTypes = {
   value: PropTypes.any,
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   id: PropTypes.string,
   name: PropTypes.string,
   label: PropTypes.node,

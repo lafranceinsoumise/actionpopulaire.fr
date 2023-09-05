@@ -10,7 +10,7 @@ const OrganizerGroupField = (props) => {
     (selected) => {
       onChange && onChange(name, selected);
     },
-    [name, onChange],
+    [name, onChange]
   );
 
   return (
@@ -29,7 +29,7 @@ const OrganizerGroupField = (props) => {
   );
 };
 OrganizerGroupField.propTypes = {
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   value: PropTypes.object,
   name: PropTypes.string.isRequired,
   options: PropTypes.arrayOf(PropTypes.object),

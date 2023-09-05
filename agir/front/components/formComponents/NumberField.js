@@ -56,7 +56,7 @@ const NumberField = forwardRef((props, ref) => {
 
 NumberField.propTypes = {
   value: PropTypes.any,
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   currency: PropTypes.bool,
 };
 

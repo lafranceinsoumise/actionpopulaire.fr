@@ -102,7 +102,7 @@ const GroupFinancePage = (props) => {
         <Spacer size=".5rem" />
         <SpendingRequests
           spendingRequests={data?.spendingRequests}
-          newSpendingRequestLink={group?.routes?.createSpendingRequest}
+          groupPk={group?.id}
         />
       </PageFadeIn>
     </>

@@ -284,7 +284,7 @@ const RangeField = (props) => {
     (e) => {
       onChange(e.target.value);
     },
-    [onChange],
+    [onChange]
   );
 
   const inputProps = useMemo(() => validProps(rest), [rest]);
@@ -337,7 +337,7 @@ const RangeField = (props) => {
 };
 
 RangeField.propTypes = {
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   min: PropTypes.number,
   max: PropTypes.number,

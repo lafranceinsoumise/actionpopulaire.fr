@@ -1,5 +1,18 @@
 import validate from "@agir/lib/utils/validate";
 
+export const TIMING_OPTIONS = {
+  P: {
+    value: "P",
+    label: "Il s’agit d’un remboursement  (dépense passée)",
+    shortLabel: "Passée",
+  },
+  U: {
+    value: "U",
+    label: "Il s’agit d’une demande d’achat (dépense future)",
+    shortLabel: "Future",
+  },
+};
+
 export const CATEGORY_OPTIONS = {
   IM: {
     value: "IM",

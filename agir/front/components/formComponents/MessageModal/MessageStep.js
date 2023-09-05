@@ -12,7 +12,7 @@ import TextField from "@agir/front/formComponents/TextField";
 import StaticToast from "@agir/front/genericComponents/StaticToast";
 
 const EmojiPicker = lazy(() =>
-  import("@agir/front/formComponents/EmojiPicker"),
+  import("@agir/front/formComponents/EmojiPicker")
 );
 
 const StyledLabel = styled.div``;
@@ -190,7 +190,7 @@ const MessageStep = (props) => {
       ];
       onChange("text", newValue);
     },
-    [onChange, text],
+    [onChange, text]
   );
 
   const handleEmojiOpen = useCallback(() => {
@@ -321,7 +321,7 @@ MessageStep.propTypes = {
     displayName: PropTypes.string.isRequired,
     image: PropTypes.string,
   }).isRequired,
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   onClearEvent: PropTypes.func,
   maxLength: PropTypes.number,
   subjectMaxLength: PropTypes.number,

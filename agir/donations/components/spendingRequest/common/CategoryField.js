@@ -230,7 +230,7 @@ const CategoryField = (props) => {
 
 CategoryField.propTypes = {
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   id: PropTypes.string,
   name: PropTypes.string,
   label: PropTypes.node,

@@ -33,12 +33,12 @@ const CountryField = (props) => {
     (country) => {
       onChange && onChange(country && country.value);
     },
-    [onChange],
+    [onChange]
   );
 
   const selectedCountry = useMemo(
     () => value && COUNTRIES.find((c) => c.value === value),
-    [value],
+    [value]
   );
 
   return (
@@ -53,7 +53,7 @@ const CountryField = (props) => {
   );
 };
 CountryField.propTypes = {
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   value: PropTypes.oneOf(["", ...Object.keys(countries)]),
 };
 export default CountryField;

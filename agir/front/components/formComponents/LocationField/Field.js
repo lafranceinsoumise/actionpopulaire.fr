@@ -176,7 +176,7 @@ const LocationField = (props) => {
   );
 };
 LocationField.propTypes = {
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   value: PropTypes.string,
   name: PropTypes.string.isRequired,
   location: PropTypes.shape({

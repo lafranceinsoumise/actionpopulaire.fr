@@ -167,9 +167,9 @@ const NotificationSettingPanel = (props) => {
     () =>
       notifications.reduce(
         (byId, notification) => ({ ...byId, [notification.id]: notification }),
-        {},
+        {}
       ),
-    [notifications],
+    [notifications]
   );
 
   return (
@@ -240,10 +240,10 @@ NotificationSettingPanel.propTypes = {
       type: PropTypes.string,
       subtype: PropTypes.string,
       icon: PropTypes.string,
-    }).isRequired,
+    }).isRequired
   ),
   activeNotifications: PropTypes.object,
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   disabled: PropTypes.bool,
   ready: PropTypes.bool,
 };

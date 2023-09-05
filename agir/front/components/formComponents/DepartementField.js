@@ -17,12 +17,12 @@ const DepartementField = (props) => {
     (departement) => {
       onChange && onChange(departement && departement.value);
     },
-    [onChange],
+    [onChange]
   );
 
   const selectedValue = useMemo(
     () => value && DEPARTEMENTS.find((d) => d.value === value),
-    [value],
+    [value]
   );
 
   return (
@@ -36,7 +36,7 @@ const DepartementField = (props) => {
   );
 };
 DepartementField.propTypes = {
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   value: PropTypes.oneOf(["", ...DEPARTEMENTS.map((d) => d.value)]),
 };
 export default DepartementField;

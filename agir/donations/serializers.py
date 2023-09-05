@@ -339,18 +339,30 @@ class SpendingRequestDocumentSerializer(serializers.ModelSerializer):
     )
 
     def create(self, validated_data):
+        validated_data.pop("id", None)
+
+        if self.context.get("no_revision", False):
+            return super().create(validated_data)
+
         with reversion.create_revision():
-            validated_data.pop("id", None)
             reversion.set_user(self.context["request"].user)
-            reversion.set_comment(f"Ajout d'une pièce-jointe")
+            reversion.set_comment(
+                f"Ajout d'une pièce-jointe : {validated_data['title']}"
+            )
+            reversion.add_to_revision(validated_data["request"])
             return super().create(validated_data)
 
     def update(self, instance, validated_data):
         # Set request only upon creation
         validated_data.pop("request", None)
+
+        if self.context.get("no_revision", False):
+            return super().create(validated_data)
+
         with reversion.create_revision():
             reversion.set_user(self.context["request"].user)
-            reversion.set_comment(f"Mise à jour d'une pièce-jointe")
+            reversion.set_comment(f"Mise à jour d'une pièce-jointe : {instance.title}")
+            reversion.add_to_revision(instance.request)
             return super().update(instance, validated_data)
 
     class Meta:
@@ -387,9 +399,6 @@ class SpendingRequestVersionSerializer(serializers.Serializer):
 
 class SpendingRequestSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField(label="Identifiant")
-    manageUrl = serializers.ReadOnlyField(
-        source="front_url", label="Page de la demande"
-    )
     created = serializers.ReadOnlyField(label="Date de création")
     modified = serializers.ReadOnlyField(label="Dernière modification")
     title = serializers.CharField(
@@ -397,6 +406,13 @@ class SpendingRequestSerializer(serializers.ModelSerializer):
     )
     explanation = serializers.CharField(
         label="Motif de l'achat", max_length=1500, required=False
+    )
+    timing = serializers.ChoiceField(
+        label="Type de dépense",
+        choices=SpendingRequest.Timing.choices,
+        required=False,
+        allow_blank=False,
+        allow_null=False,
     )
     campaign = serializers.BooleanField(
         label="Dépense effectuée dans le cadre d'une campagne éléctorale",
@@ -454,8 +470,32 @@ class SpendingRequestSerializer(serializers.ModelSerializer):
     def get_action(self, spending_request):
         return get_current_action(spending_request, self.context["request"].user)
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+        if attrs.get("spending_date", None) and attrs.get("timing", None):
+            today = timezone.now().date()
+
+            if (
+                attrs["timing"] == SpendingRequest.Timing.PAST
+                and attrs["spending_date"] > today
+            ):
+                raise serializers.ValidationError(
+                    detail={
+                        "spendingDate": "Le type de dépense choisi nécessite le choix d'une date passée"
+                    }
+                )
+
+            if (
+                attrs["timing"] == SpendingRequest.Timing.UPCOMING
+                and attrs["spending_date"] <= today
+            ):
+                raise serializers.ValidationError(
+                    detail={
+                        "spendingDate": "Le type de dépense choisi nécessite le choix d'une date future"
+                    }
+                )
+
+        return attrs
 
     def save_attachments(self, validated_data, spending_request):
         with reversion.create_revision():
@@ -466,8 +506,9 @@ class SpendingRequestSerializer(serializers.ModelSerializer):
                 document_id = document.get("id", None)
                 instance = spending_request.documents.filter(id=document_id).first()
                 partial = self.partial and instance is not None
+                context = {**self.context, "no_revision": True}
                 serializer = SpendingRequestDocumentSerializer(
-                    instance, data=document, partial=partial, context=self.context
+                    instance, data=document, partial=partial, context=context
                 )
                 try:
                     serializer.is_valid(raise_exception=True)
@@ -542,10 +583,10 @@ class SpendingRequestSerializer(serializers.ModelSerializer):
         model = SpendingRequest
         fields = (
             "id",
-            "manageUrl",
             "created",
             "modified",
             "title",
+            "timing",
             "campaign",
             "amount",
             "status",

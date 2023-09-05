@@ -1,19 +1,39 @@
 import PropTypes from "prop-types";
-import React from "react";
-import styled from "styled-components";
+import React, { useMemo, useState } from "react";
+import { useSpring, animated } from "@react-spring/web";
+import { useUpdateEffect } from "react-use";
+import styled, { useTheme } from "styled-components";
 
 import { Button } from "@agir/donations/common/StyledComponents";
-import AttachmentList from "@agir/donations/spendingRequest/common/AttachmentList";
+import AttachmentList, {
+  AttachmentItem,
+} from "@agir/donations/spendingRequest/common/AttachmentList";
 import CategoryCard from "@agir/donations/spendingRequest/common/CategoryCard";
-import FileField from "@agir/front/formComponents/FileField";
 import PhoneField from "@agir/front/formComponents/PhoneField";
 import TextField from "@agir/front/formComponents/TextField";
 import Card from "@agir/front/genericComponents/Card";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
+import { TIMING_OPTIONS } from "@agir/donations/spendingRequest/common/form.config";
 import { displayPrice } from "@agir/lib/utils/display";
 import { simpleDate } from "@agir/lib/utils/time";
+
+const FlexLine = styled.div`
+  display: flex;
+  flex-flow: row wrap;
+  gap: 1rem;
+
+  & > * {
+    flex: 1 1 auto;
+  }
+
+  h4& {
+    span + span {
+      flex: 0 0 auto;
+    }
+  }
+`;
 
 const StyledStatus = styled(Card).attrs(() => ({
   bordered: true,
@@ -25,6 +45,7 @@ const StyledStatus = styled(Card).attrs(() => ({
   padding: 0.5rem;
   font-size: 0.875rem;
   font-weight: 400;
+  background-color: transparent;
 
   & > span {
     flex: 1 1 auto;
@@ -37,8 +58,7 @@ const StyledStatus = styled(Card).attrs(() => ({
 
   ${RawFeatherIcon} {
     flex: 0 0 auto;
-    color: ${({ name, theme }) =>
-      name === "clock" ? "#ffb734" : theme.black500};
+    color: ${({ name }) => (name === "clock" ? "#ffb734" : "currentcolor")};
   }
 `;
 
@@ -54,22 +74,27 @@ const StyledCard = styled(Card).attrs(() => ({
     display: flex;
     flex-flow: row nowrap;
     gap: 1rem;
+  }
 
-    h3,
-    h4 {
-      flex: 1 1 auto;
-      margin: 0;
-    }
+  h3,
+  h4,
+  p {
+    flex: 1 1 auto;
+    margin: 0;
+  }
 
-    h3 {
-      font-size: 1.375rem;
-      font-weight: 700;
-    }
+  h3 {
+    font-size: 1.375rem;
+    font-weight: 700;
+  }
 
-    h4 {
-      font-size: 1.125rem;
-      font-weight: 600;
-    }
+  h4 {
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+
+  p > strong {
+    font-weight: 600;
   }
 
   em {
@@ -77,6 +102,53 @@ const StyledCard = styled(Card).attrs(() => ({
     font-weight: 400;
   }
 `;
+
+const SpendingRequestStatus = (props) => {
+  const { editable, status } = props;
+
+  const theme = useTheme();
+  const [isHighlighted, setIsHighlighted] = useState();
+
+  useUpdateEffect(() => {
+    status && setIsHighlighted(true);
+  }, [status]);
+
+  const [style] = useSpring(
+    () => ({
+      from: {
+        backgroundColor: theme.secondary100,
+        borderColor: theme.black500,
+      },
+      to: {
+        backgroundColor: theme.white,
+        borderColor: theme.black100,
+      },
+      immediate: typeof isHighlighted === "undefined",
+      reverse: isHighlighted,
+      onRest: () => isHighlighted && setIsHighlighted(false),
+    }),
+    [theme, isHighlighted]
+  );
+
+  return (
+    <StyledStatus
+      style={style}
+      as={animated.div}
+      onDoubleClick={() => setIsHighlighted(true)}
+    >
+      <RawFeatherIcon
+        name={editable ? "edit-3" : "clock"}
+        width="1.5rem"
+        height="1.5rem"
+      />
+      <span>{status}</span>
+    </StyledStatus>
+  );
+};
+SpendingRequestStatus.propTypes = {
+  editable: PropTypes.bool,
+  status: PropTypes.string,
+};
 
 const SpendingRequestDetails = (props) => {
   const {
@@ -86,22 +158,32 @@ const SpendingRequestDetails = (props) => {
     onAttachmentDelete,
   } = props;
 
+  const { timing, spendingDate, amount } = spendingRequest;
+
+  const spendingRequestTiming = useMemo(
+    () => (timing && TIMING_OPTIONS[timing]?.shortLabel) || "",
+    [timing]
+  );
+  const spendingRequestSpendingDate = useMemo(
+    () => (spendingDate ? simpleDate(spendingDate, false) : ""),
+    [spendingDate]
+  );
+  const spendingRequestAmount = useMemo(
+    () => (amount ? displayPrice(amount, true) : "— €"),
+    [amount]
+  );
+
   return (
     <div>
-      <StyledStatus>
-        <RawFeatherIcon
-          name={spendingRequest.editable ? "edit-3" : "clock"}
-          width="1.5rem"
-          height="1.5rem"
-        />
-        <span>{spendingRequest.status}</span>
-      </StyledStatus>
+      <SpendingRequestStatus
+        editable={spendingRequest.editable}
+        status={spendingRequest.status}
+      />
       <Spacer size="2.5rem" />
       <StyledCard>
         <header>
           <h3>Détails</h3>
         </header>
-        <CategoryCard category={spendingRequest.category} />
         <TextField
           disabled
           readOnly
@@ -110,17 +192,32 @@ const SpendingRequestDetails = (props) => {
           label="Titre de la dépense"
           value={spendingRequest.title}
         />
+        <CategoryCard category={spendingRequest.category} />
+        <FlexLine>
+          <TextField
+            disabled
+            readOnly
+            id="timing"
+            name="timing"
+            label="Type de dépense"
+            value={spendingRequestTiming}
+          />
+          <TextField
+            disabled
+            readOnly
+            id="spendingDate"
+            name="spendingDate"
+            value={spendingRequestSpendingDate}
+            label="Date de l'achat"
+          />
+        </FlexLine>
         <TextField
           disabled
           readOnly
-          id="spendingDate"
-          name="spendingDate"
-          value={
-            spendingRequest.spendingDate
-              ? simpleDate(spendingRequest.spendingDate, false)
-              : ""
-          }
-          label="Date de l'achat"
+          id="event"
+          name="event"
+          label="Événement lié à la dépense"
+          value={spendingRequest.event?.name || ""}
         />
         <TextField
           disabled
@@ -130,22 +227,8 @@ const SpendingRequestDetails = (props) => {
           value={spendingRequest.explanation}
           label="Motif de l'achat"
           textArea
-          rows={3}
+          rows={1}
         />
-        <TextField
-          disabled
-          readOnly
-          id="event"
-          name="event"
-          label="Événement lié à la dépense"
-          value={spendingRequest.event?.name || ""}
-        />
-      </StyledCard>
-      <Spacer size="2.5rem" />
-      <StyledCard>
-        <header>
-          <h3>Contact</h3>
-        </header>
         <TextField
           disabled
           readOnly
@@ -168,26 +251,15 @@ const SpendingRequestDetails = (props) => {
         <header>
           <h3>Montant et financement</h3>
         </header>
-        <TextField
-          disabled
-          readOnly
-          id="amount"
-          name="amount"
-          label="Montant TTC"
-          value={
-            spendingRequest.amount
-              ? displayPrice(spendingRequest.amount, true)
-              : ""
-          }
-        />
-        <TextField
-          disabled
-          readOnly
-          id="group"
-          name="group"
-          label="Payé par le groupe d'action"
-          value={spendingRequest.group.name}
-        />
+        <Spacer size="0" />
+        <FlexLine as="h4">
+          <span>Total de la dépense</span>
+          <span>{spendingRequestAmount}</span>
+        </FlexLine>
+        <p style={{ fontSize: "0.875rem" }}>
+          Payé par le groupe&nbsp;:{" "}
+          <strong>{spendingRequest.group.name}</strong>
+        </p>
       </StyledCard>
       <Spacer size="2.5rem" />
       <StyledCard>
@@ -227,15 +299,19 @@ const SpendingRequestDetails = (props) => {
           name="bankAccountBic"
           value={spendingRequest.bankAccount?.bic}
         />
-        {spendingRequest.bankAccount?.rib && (
-          <FileField
-            disabled
-            readOnly
-            label={<abbr title="Relevé d'Identité Bancaire">RIB</abbr>}
-            id="bankAccountRib"
-            name="bankAccountRib"
-            value="Relevé d'Identité Bancaire"
+        {spendingRequest.bankAccount?.rib ? (
+          <AttachmentItem
+            id={spendingRequest.bankAccount.rib}
+            type="RIB"
+            title="Relevé d'Identité Bancare"
+            file={spendingRequest.bankAccount.rib}
           />
+        ) : (
+          <em>
+            &mdash;&nbsp;Pour la validation de la demande, vous devrez également
+            joindre le <abbr title="Relevé d'Identité Bancaire">RIB</abbr> du
+            compte bancaire au format PDF, JPEG ou PNG.
+          </em>
         )}
       </StyledCard>
       <Spacer size="2.5rem" />

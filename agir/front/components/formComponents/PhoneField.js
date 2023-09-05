@@ -113,7 +113,7 @@ const PhoneField = forwardRef((props, ref) => {
 
 PhoneField.propTypes = {
   value: PropTypes.any,
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   id: PropTypes.string,
   label: PropTypes.node,
   helpText: PropTypes.node,

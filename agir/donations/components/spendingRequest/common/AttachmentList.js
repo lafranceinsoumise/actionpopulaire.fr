@@ -89,7 +89,7 @@ const StyledList = styled.ul`
   padding: 0;
 `;
 
-const AttachmentItem = (props) => {
+export const AttachmentItem = (props) => {
   const { id, type, title, file, error, onEdit, onDelete, disabled } = props;
 
   const handleEdit = useCallback(() => {

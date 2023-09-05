@@ -250,6 +250,10 @@ class Spending(Operation):
 
 @reversion.register(follow=["documents"])
 class SpendingRequest(HistoryMixin, TimeStampedModel):
+    class Timing(models.TextChoices):
+        PAST = "P", "Passée"
+        UPCOMING = "U", "Future"
+
     class Status(models.TextChoices):
         DRAFT = "D", "Brouillon à compléter"
         AWAITING_PEER_REVIEW = (
@@ -342,21 +346,31 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
 
     HISTORY_MESSAGES = {
         Status.DRAFT: "Création de la demande",
-        Status.AWAITING_PEER_REVIEW: "Validé par l'auteur d'origine",
-        Status.AWAITING_ADMIN_REVIEW: "Renvoyé pour validation à l'équipe de suivi des questions financières",
+        Status.AWAITING_PEER_REVIEW: "Validée par l'auteur d'origine",
+        Status.AWAITING_ADMIN_REVIEW: "Renvoyée pour validation à l'équipe de suivi des questions financières",
         Status.AWAITING_SUPPLEMENTARY_INFORMATION: "Informations supplémentaires requises",
         Status.VALIDATED: "Demande validée par l'équipe de suivi des questions financières",
-        Status.TO_PAY: "Demande en attente de réglement",
+        Status.TO_PAY: "Demande en attente de règlement",
         Status.PAID: "Demande réglée",
         Status.REFUSED: "Demande rejetée par l'équipe de suivi des questions financières",
         (
             Status.AWAITING_PEER_REVIEW,
             Status.AWAITING_ADMIN_REVIEW,
-        ): "Validé par un⋅e second⋅e animateur⋅rice",
+        ): "Validée par un⋅e second⋅e animateur⋅rice",
     }
 
-    id = models.UUIDField(_("Identifiant"), primary_key=True, default=uuid.uuid4)
+    id = models.UUIDField(
+        _("Identifiant"), primary_key=True, default=uuid.uuid4, editable=False
+    )
     title = models.CharField(_("Titre"), max_length=200)
+    timing = models.CharField(
+        _("Type de dépense"),
+        max_length=1,
+        default="",
+        choices=Timing.choices,
+        blank=True,
+        null=False,
+    )
     campaign = models.BooleanField(
         "Dépense effectuée dans le cadre d'une campagne éléctorale",
         default=False,
@@ -407,7 +421,7 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
         _("Motif de l'achat"),
         max_length=1500,
         null=False,
-        blank=False,
+        blank=True,
     )
     event = models.ForeignKey(
         "events.Event",
@@ -420,7 +434,7 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
     )
     spending_date = models.DateField(
         _("Date de l'achat"),
-        blank=False,
+        blank=True,
         null=False,
         help_text=_(
             "Si l'achat n'a pas encore été effectué, merci d'indiquer la date probable à laquelle celui-ci surviendra."
@@ -451,19 +465,12 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
         blank=True,
     )
     bank_account_name = models.CharField(
-        _("Titulaire du compte bancaire"), blank=False, null=False, max_length=200
+        _("Titulaire du compte bancaire"), blank=True, null=False, max_length=200
     )
     bank_account_iban = IBANField(
-        _("IBAN"),
-        blank=False,
-        null=False,
-        allowed_countries=["FR"],
+        _("IBAN"), blank=True, null=False, allowed_countries=["FR"]
     )
-    bank_account_bic = BICField(
-        _("BIC"),
-        blank=False,
-        null=False,
-    )
+    bank_account_bic = BICField(_("BIC"), blank=True, null=False)
     bank_account_rib = models.FileField(
         _("RIB"),
         upload_to=spending_request_rib_path,
@@ -524,8 +531,8 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
             self.Status.DRAFT,
             self.Status.AWAITING_PEER_REVIEW,
             self.Status.AWAITING_SUPPLEMENTARY_INFORMATION,
-            self.Status.AWAITING_ADMIN_REVIEW,
-            self.Status.VALIDATED,
+            # self.Status.AWAITING_ADMIN_REVIEW,
+            # self.Status.VALIDATED,
         )
 
     @property

@@ -1,10 +1,11 @@
 import PropTypes from "prop-types";
 import React, { forwardRef, useCallback, useMemo, useRef } from "react";
+import { useDropArea } from "react-use";
+import styled from "styled-components";
+
+import style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
-import style from "@agir/front/genericComponents/_variables.scss";
-import styled from "styled-components";
-import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const StyledLabel = styled.span``;
 const StyledHelpText = styled.span`
@@ -28,6 +29,7 @@ const StyledField = styled.div`
     font-size: 1rem;
     font-weight: 400;
     line-height: 1.5;
+    margin: 0;
 
     & > * {
       margin: 0;
@@ -44,6 +46,8 @@ const StyledField = styled.div`
     ${Button} {
       margin-top: 0.5rem;
       text-align: left;
+      box-shadow: ${({ $dropping, $disabled }) =>
+        $dropping && !$disabled ? `0 0 0 4px ${style.primary600}` : "none"};
     }
   }
 `;
@@ -70,6 +74,17 @@ const FileField = forwardRef((props, ref) => {
     },
     [onChange]
   );
+  const handleDrop = useCallback(
+    (files) => {
+      const file = files && files[files.length - 1];
+      file && onChange && onChange(file);
+    },
+    [onChange]
+  );
+
+  const [bond, dropState] = useDropArea({
+    onFiles: handleDrop,
+  });
 
   const handleClick = useCallback(() => {
     labelRef.current && labelRef.current.click();
@@ -86,7 +101,13 @@ const FileField = forwardRef((props, ref) => {
   }, [value]);
 
   return (
-    <StyledField $valid={!error} $invalid={!!error} $empty={!!value}>
+    <StyledField
+      {...bond}
+      $valid={!error}
+      $invalid={!!error}
+      $empty={!!value}
+      $dropping={dropState.over}
+    >
       <label htmlFor={id} ref={labelRef}>
         {label && <StyledLabel>{label}</StyledLabel>}
         {helpText && <StyledHelpText>{helpText}</StyledHelpText>}
@@ -102,8 +123,9 @@ const FileField = forwardRef((props, ref) => {
           disabled={disabled}
         />
         <Button
-          color={error ? "danger" : fileName ? "primary" : "default"}
+          color={error ? "danger" : fileName ? "confirmed" : "default"}
           type="button"
+          icon={fileName ? "file-text" : "upload"}
           wrap
           onClick={handleClick}
           title={
@@ -111,10 +133,6 @@ const FileField = forwardRef((props, ref) => {
           }
           disabled={disabled}
         >
-          <RawFeatherIcon
-            name={fileName ? "file-text" : "upload"}
-            style={{ marginRight: "0.5rem" }}
-          />
           {fileName || "Parcourir…"}
         </Button>
       </label>

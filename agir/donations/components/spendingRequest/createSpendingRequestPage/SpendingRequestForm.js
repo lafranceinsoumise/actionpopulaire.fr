@@ -1,9 +1,15 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 
 import { Button } from "@agir/donations/common/StyledComponents";
-import CheckboxField from "@agir/front/formComponents/CheckboxField";
+import AttachmentWidget from "@agir/donations/spendingRequest/common/AttachmentWidget";
+import BankAccountField from "@agir/donations/spendingRequest/common/BankAccountField";
+import CategoryField from "@agir/donations/spendingRequest/common/CategoryField";
+import ContactField from "@agir/donations/spendingRequest/common/ContactField";
+import EventField from "@agir/donations/spendingRequest/common/EventField";
+import AgreementField from "@agir/donations/spendingRequest/common/SpendingRequestAgreement";
+import AppRedirect from "@agir/front/app/Redirect";
 import DateTimeField from "@agir/front/formComponents/DateTimeField";
 import NumberField from "@agir/front/formComponents/NumberField";
 import RadioField from "@agir/front/formComponents/RadioField";
@@ -13,14 +19,14 @@ import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import Steps, { useSteps } from "@agir/front/genericComponents/Steps";
 import { Hide } from "@agir/front/genericComponents/grid";
+
+import { createSpendingRequest } from "@agir/donations/spendingRequest/common/api";
+import {
+  TIMING_OPTIONS,
+  getInitialData,
+  validateSpendingRequest,
+} from "@agir/donations/spendingRequest/common/form.config";
 import { displayPrice } from "@agir/lib/utils/display";
-import AttachmentWidget from "../common/AttachmentWidget";
-import BankAccountField from "../common/BankAccountField";
-import ContactField from "../common/ContactField";
-import EventField from "../common/EventField";
-import CategoryField from "../common/CategoryField";
-import { createSpendingRequest } from "../common/api";
-import { getInitialData, validateSpendingRequest } from "../common/form.config";
 
 const FORM_STEP_NAMES = [
   "Détails",
@@ -45,6 +51,8 @@ const FORM_STEPS = [
   ["bankAccount"],
   ["agreement", "global"],
 ];
+
+const timingOptions = Object.values(TIMING_OPTIONS);
 
 const StyledGroupAmount = styled.div`
   display: flex;
@@ -122,15 +130,10 @@ const SpendingRequestForm = (props) => {
   const { user, group, availableAmount = 0 } = props;
   const [formStep, goToPreviousFormStep, goToNextFormStep, goToStep] =
     useSteps(0);
-  const [redirectTo, setRedirectTo] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState(getInitialData(user, group));
   const [errors, setErrors] = useState(null);
-  const [timing, setTiming] = useState(null);
-  const [agreements, setAgreements] = useState({
-    political: false,
-    legal: false,
-  });
+  const [hasAgreement, setHasAgreement] = useState();
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
@@ -158,6 +161,17 @@ const SpendingRequestForm = (props) => {
         ...((state && state[name]) || {}),
         [prop]: value,
       },
+    }));
+  }, []);
+
+  const handleChangeTiming = useCallback((value) => {
+    setErrors((state) => ({
+      ...state,
+      timing: undefined,
+    }));
+    setData((state) => ({
+      ...state,
+      timing: value,
     }));
   }, []);
 
@@ -223,13 +237,6 @@ const SpendingRequestForm = (props) => {
     }));
   }, []);
 
-  const handleChangeAgreement = (e) => {
-    setAgreements((state) => ({
-      ...state,
-      [e.target.name]: e.target.checked,
-    }));
-  };
-
   const handleErrors = useCallback(
     (errors) => {
       errors = typeof errors === "string" ? { global: errors } : errors;
@@ -255,11 +262,12 @@ const SpendingRequestForm = (props) => {
       setErrors(null);
       setIsLoading(true);
       const response = await createSpendingRequest(data, shouldValidate);
-      setIsLoading(false);
       if (response.error) {
-        return handleErrors(response.error);
+        handleErrors(response.error);
+      } else {
+        setData({ ...data, id: response.data.id });
       }
-      setRedirectTo(response.data.manageUrl);
+      setIsLoading(false);
     },
     [data, handleErrors]
   );
@@ -280,14 +288,17 @@ const SpendingRequestForm = (props) => {
     [saveRequest]
   );
 
-  useEffect(() => {
-    if (redirectTo) {
-      window.location.href = redirectTo;
-    }
-  }, [redirectTo]);
-
   const globalError = errors?.global || errors?.detail;
-  const hasAgreement = Object.values(agreements).every(Boolean);
+
+  if (data.id) {
+    return (
+      <AppRedirect
+        route="spendingRequestDetails"
+        routeParams={{ spendingRequestPk: data.id }}
+        toast="La demande a bien été enregistrée"
+      />
+    );
+  }
 
   return (
     <Steps
@@ -321,19 +332,10 @@ const SpendingRequestForm = (props) => {
           disabled={isLoading}
           id="timing"
           name="timing"
-          value={timing}
-          onChange={setTiming}
+          value={data.timing}
+          onChange={handleChangeTiming}
           label=""
-          options={[
-            {
-              value: "past",
-              label: "Il s’agit d’un remboursement  (dépense passée)",
-            },
-            {
-              value: "future",
-              label: "Il s’agit d’une demande d’achat (dépense future)",
-            },
-          ]}
+          options={timingOptions}
         />
         <Spacer size="2rem" />
         <TextField
@@ -470,22 +472,7 @@ const SpendingRequestForm = (props) => {
       </StyledFieldset>
       <StyledFieldset>
         <StyledLabel>Validation (obligatoire)</StyledLabel>
-        <CheckboxField
-          disabled={isLoading}
-          id="political"
-          name="political"
-          value={agreements.political}
-          onChange={handleChangeAgreement}
-          label="Je certifie que cette dépense est conforme à la charte des groupes d’action, aux principes, aux orientations politiques, stratégiques, programmatiques et électorales de la France Insoumise. "
-        />
-        <CheckboxField
-          disabled={isLoading}
-          id="legal"
-          name="legal"
-          value={agreements.legal}
-          onChange={handleChangeAgreement}
-          label="Je certifie sur l'honneur être une personne physique et la dépense ne porte pas atteinte à la législation encadrant l’activité des partis et groupements politiques."
-        />
+        <AgreementField onChange={setHasAgreement} disabled={isLoading} />
         {globalError && (
           <StyledGlobalError>
             {Array.isArray(globalError) ? globalError[0] : globalError}

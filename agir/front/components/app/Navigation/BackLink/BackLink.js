@@ -1,16 +1,20 @@
 import PropTypes from "prop-types";
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import styled from "styled-components";
 
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Link from "@agir/front/app/Link";
 
-import { useSelector } from "@agir/front/globalContext/GlobalContext";
+import {
+  useDispatch,
+  useSelector,
+} from "@agir/front/globalContext/GlobalContext";
 import { getBackLink } from "@agir/front/globalContext/reducers";
 import { routeConfig } from "@agir/front/app/routes.config";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import { useLocation } from "react-router-dom";
+import { setBackLink } from "@agir/front/globalContext/actions";
 
 const IconLink = styled(Link)`
   display: none;
@@ -50,6 +54,17 @@ const IconTextLink = styled(Link)`
 const DEFAULT_ROUTE = {
   route: "events",
   label: "Retour à l'accueil",
+};
+
+export const useBackLink = (link) => {
+  const backLink = useSelector(getBackLink);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(setBackLink(link));
+  }, [dispatch, link]);
+
+  return backLink;
 };
 
 const BackLink = (props) => {

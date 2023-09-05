@@ -69,6 +69,11 @@ urlpatterns = [
         name="api_spending_request_retrieve_update_delete",
     ),
     path(
+        "api/financement/demande/<uuid:pk>/document/",
+        views.SpendingRequestDocumentCreateAPIView.as_view(),
+        name="api_spending_request_document_create",
+    ),
+    path(
         "api/financement/document/<int:pk>/",
         views.SpendingRequestDocumentRetrieveUpdateDestroyAPIView.as_view(),
         name="api_spending_request_document_retrieve_update_delete",

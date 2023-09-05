@@ -2,10 +2,11 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
+import Link from "@agir/front/app/Link";
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
-const StyledSpendingRequest = styled.a`
+const StyledSpendingRequest = styled(Link)`
   display: flex;
   flex-flow: row nowrap;
   justify-content: space-between;
@@ -75,9 +76,13 @@ const StyledSpendingRequests = styled.div`
 `;
 
 const SpendingRequest = (props) => {
-  const { title, status, date, link } = props;
+  const { id, title, status, date } = props;
   return (
-    <StyledSpendingRequest href={link} aria-label="Voir la demande">
+    <StyledSpendingRequest
+      route="spendingRequestDetails"
+      routeParams={{ spendingRequestPk: id }}
+      aria-label="Voir la demande"
+    >
       <span>
         <strong>{title}</strong>
         <span>{date.slice(0, 10).split("-").reverse().join("/")}</span>
@@ -95,17 +100,17 @@ SpendingRequest.propTypes = {
   title: PropTypes.string.isRequired,
   status: PropTypes.string.isRequired,
   date: PropTypes.string.isRequired,
-  link: PropTypes.string.isRequired,
 };
 
-const SpendingRequests = ({ newSpendingRequestLink, spendingRequests }) => {
+const SpendingRequests = ({ groupPk, spendingRequests }) => {
   return (
     <StyledSpendingRequests>
-      {newSpendingRequestLink && (
+      {groupPk && (
         <Button
           link
           icon="mail"
-          href={newSpendingRequestLink}
+          route="createGroupSpendingRequest"
+          routeParams={{ groupPk }}
           color="secondary"
           wrap
         >
@@ -127,9 +132,9 @@ const SpendingRequests = ({ newSpendingRequestLink, spendingRequests }) => {
 };
 
 SpendingRequests.propTypes = {
-  newSpendingRequestLink: PropTypes.string,
+  groupPk: PropTypes.string,
   spendingRequests: PropTypes.arrayOf(
-    PropTypes.shape(SpendingRequest.propTypes),
+    PropTypes.shape(SpendingRequest.propTypes)
   ),
 };
 export default SpendingRequests;

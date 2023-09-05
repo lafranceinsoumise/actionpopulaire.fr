@@ -199,7 +199,7 @@ const TextField = forwardRef((props, ref) => {
 
 TextField.propTypes = {
   value: PropTypes.any,
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   type: PropTypes.oneOf(["text", "email", "password"]),
   id: PropTypes.string,
   label: PropTypes.node,

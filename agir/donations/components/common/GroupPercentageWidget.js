@@ -83,7 +83,7 @@ const GroupPercentageWidget = (props) => {
 
   const [hasCustomAmount, setHasCustomAmount] = useState(
     !!value &&
-      !DEFAULT_OPTIONS.some((option) => String(option.value) === String(value)),
+      !DEFAULT_OPTIONS.some((option) => String(option.value) === String(value))
   );
 
   const selectedOption =
@@ -92,7 +92,7 @@ const GroupPercentageWidget = (props) => {
       : hasCustomAmount
       ? DEFAULT_OPTIONS[DEFAULT_OPTIONS.length - 1]
       : DEFAULT_OPTIONS.find(
-          (option) => String(option.value) === String(value),
+          (option) => String(option.value) === String(value)
         );
 
   const nationalPercentage = 100 - value;
@@ -107,7 +107,7 @@ const GroupPercentageWidget = (props) => {
         onChange(50);
       }
     },
-    [onChange],
+    [onChange]
   );
 
   const handleGroupChange = useCallback(
@@ -122,7 +122,7 @@ const GroupPercentageWidget = (props) => {
       value = Math.max(value, 0);
       onChange(value);
     },
-    [onChange],
+    [onChange]
   );
 
   const handleNationalChange = useCallback(
@@ -137,7 +137,7 @@ const GroupPercentageWidget = (props) => {
       value = Math.max(value, 0);
       onChange(100 - value);
     },
-    [onChange],
+    [onChange]
   );
 
   useEffect(() => {
@@ -196,7 +196,7 @@ const GroupPercentageWidget = (props) => {
 
 GroupPercentageWidget.propTypes = {
   value: PropTypes.number,
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   disabled: PropTypes.bool,
 };
 

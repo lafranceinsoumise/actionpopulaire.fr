@@ -279,7 +279,7 @@ const SelectField = (props) => {
 
 SelectField.propTypes = {
   value: PropTypes.any,
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   options: PropTypes.arrayOf(PropTypes.object),
   id: PropTypes.string,
   label: PropTypes.node,

@@ -58,14 +58,14 @@ const ContactField = (props) => {
     (e) => {
       onChange && onChange(props.name, e.target.name, e.target.value);
     },
-    [props.name, onChange],
+    [props.name, onChange]
   );
 
   const handleChangeHidePhone = useCallback(
     (e) => {
       onChange && onChange(props.name, e.target.name, e.target.checked);
     },
-    [props.name, onChange],
+    [props.name, onChange]
   );
 
   return (
@@ -124,7 +124,7 @@ const ContactField = (props) => {
   );
 };
 ContactField.propTypes = {
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   value: PropTypes.string,
   name: PropTypes.string.isRequired,
   contact: PropTypes.shape({

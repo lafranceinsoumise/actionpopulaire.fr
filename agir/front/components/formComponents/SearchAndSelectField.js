@@ -294,7 +294,7 @@ const SearchAndSelectField = (props) => {
 
 SearchAndSelectField.propTypes = {
   value: PropTypes.any,
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   onSearch: PropTypes.func.isRequired,
   defaultOptions: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
   id: PropTypes.string,

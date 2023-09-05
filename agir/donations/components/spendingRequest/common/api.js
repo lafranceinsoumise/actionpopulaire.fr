@@ -9,6 +9,7 @@ export const ENDPOINT = {
   deleteSpendingRequest: "/api/financement/demande/:spendingRequestPk/",
   validateSpendingRequest:
     "/api/financement/demande/:spendingRequestPk/valider/",
+  createDocument: "/api/financement/demande/:spendingRequestPk/document/",
   retrieveDocument: "/api/financement/document/:documentPk/",
   updateDocument: "/api/financement/document/:documentPk/",
   deleteDocument: "/api/financement/document/:documentPk/",
@@ -81,7 +82,7 @@ export const createSpendingRequest = async (data, validate) => {
 export const updateSpendingRequest = async (spendingRequestPk, data) => {
   const result = {
     data: null,
-    errors: null,
+    error: null,
   };
 
   const url = getSpendingRequestEndpoint("updateSpendingRequest", {
@@ -93,7 +94,7 @@ export const updateSpendingRequest = async (spendingRequestPk, data) => {
     const response = await axios.patch(url, body);
     result.data = response.data;
   } catch (e) {
-    result.errors = (e.response && e.response.data) || { global: e.message };
+    result.error = (e.response && e.response.data) || { global: e.message };
   }
 
   return result;
@@ -111,9 +112,21 @@ export const deleteSpendingRequest = async (spendingRequestPk) => {
     const response = await axios.delete(url);
     result.data = response.data;
   } catch (e) {
-    result.error = (e.response && e.response.data) || e.message;
+    if (!e.response) {
+      result.error = e.message || "Une erreur est survenue";
+    } else {
+      switch (e.response.status) {
+        case 403:
+          result.error = "Cette demande ne peut pas être supprimée";
+          break;
+        case 404:
+          result.error = "La demande n'a pas pu être retrouvée";
+          break;
+        default:
+          result.error = e.response.data || "Une erreur est survenue";
+      }
+    }
   }
-
   return result;
 };
 
@@ -135,20 +148,45 @@ export const validateSpendingRequest = async (spendingRequestPk) => {
   return result;
 };
 
+export const createDocument = async (spendingRequestPk, data) => {
+  const result = {
+    data: null,
+    error: null,
+  };
+
+  const url = getSpendingRequestEndpoint("createDocument", {
+    spendingRequestPk,
+  });
+
+  const body = objectToFormData({ ...data, request: spendingRequestPk });
+
+  try {
+    const response = await axios.post(url, body);
+    result.data = response.data;
+  } catch (e) {
+    result.error = (e.response && e.response.data) || e.message;
+  }
+
+  return result;
+};
+
 export const updateDocument = async (documentPk, data) => {
   const result = {
     data: null,
-    errors: null,
+    error: null,
   };
 
   const url = getSpendingRequestEndpoint("updateDocument", { documentPk });
-  const body = objectToFormData(data);
+  const body =
+    typeof data.file === "string"
+      ? { ...data, file: undefined }
+      : objectToFormData(data);
 
   try {
     const response = await axios.patch(url, body);
     result.data = response.data;
   } catch (e) {
-    result.errors = (e.response && e.response.data) || { global: e.message };
+    result.error = (e.response && e.response.data) || { global: e.message };
   }
 
   return result;

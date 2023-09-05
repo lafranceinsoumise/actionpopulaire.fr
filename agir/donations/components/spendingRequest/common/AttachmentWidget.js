@@ -68,7 +68,7 @@ const AttachmentWidget = (props) => {
 
 AttachmentWidget.propTypes = {
   value: PropTypes.any,
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   error: PropTypes.string,
 };
 

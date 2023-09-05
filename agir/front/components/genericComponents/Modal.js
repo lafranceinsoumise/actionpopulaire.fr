@@ -6,6 +6,7 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import { useDisableBodyScroll, useFocusTrap } from "@agir/lib/utils/hooks";
+import { RawFeatherIcon } from "./FeatherIcon";
 
 const slideInTransition = {
   from: { opacity: 0, paddingTop: "2%" },
@@ -37,7 +38,7 @@ const AnimatedOverlay = (props) => {
   const transitions = useTransition(shouldShow, fadeInTransition);
 
   return transitions((style, item) =>
-    item ? <Overlay style={style} onClick={onClick} /> : null,
+    item ? <Overlay style={style} onClick={onClick} /> : null
   );
 };
 
@@ -78,6 +79,36 @@ const ModalFrame = styled.div`
   z-index: ${style.zindexModal};
 `;
 
+const StyledCloseButton = styled.button`
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0;
+  color: ${style.black700};
+  z-index: 1;
+  background-color: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+`;
+
+export const ModalCloseButton = ({ onClose, ...rest }) =>
+  onClose ? (
+    <StyledCloseButton
+      {...rest}
+      onClick={onClose}
+      aria-label="Fermer la modale"
+    >
+      <RawFeatherIcon name="x" width="2rem" height="2rem" />
+    </StyledCloseButton>
+  ) : null;
+
+ModalCloseButton.propTypes = {
+  onClose: PropTypes.func,
+};
+
 const Modal = (props) => {
   const { shouldShow = false, children, onClose, noScroll, className } = props;
 
@@ -98,7 +129,7 @@ const Modal = (props) => {
     () => () => {
       modalParent && document.body.removeChild(modalParent);
     },
-    [modalParent],
+    [modalParent]
   );
 
   return createPortal(
@@ -115,9 +146,9 @@ const Modal = (props) => {
             {children}
           </ModalContent>
         </ModalFrame>
-      ) : null,
+      ) : null
     ),
-    modalParent,
+    modalParent
   );
 };
 Modal.propTypes = {

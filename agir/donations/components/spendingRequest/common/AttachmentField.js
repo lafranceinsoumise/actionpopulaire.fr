@@ -128,10 +128,11 @@ const AttachmentField = (props) => {
         <Button
           onClick={handleSubmit}
           color="primary"
+          icon="send"
           disabled={disabled}
           loading={isLoading}
         >
-          Ajouter
+          {attachment.id ? "Enregistrer" : "Ajouter"}
         </Button>
       </footer>
     </StyledForm>
@@ -140,6 +141,7 @@ const AttachmentField = (props) => {
 
 AttachmentField.propTypes = {
   initialValue: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     type: PropTypes.string,
     title: PropTypes.string,
     file: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
@@ -147,9 +149,9 @@ AttachmentField.propTypes = {
   error: PropTypes.shape({
     type: PropTypes.string,
     title: PropTypes.string,
-    file: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+    file: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
   }),
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   disabled: PropTypes.bool,
   isLoading: PropTypes.bool,
   resetOnChange: PropTypes.bool,

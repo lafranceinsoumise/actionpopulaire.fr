@@ -49,6 +49,7 @@ class SpendingRequestAdmin(VersionAdmin):
                 "fields": (
                     "id",
                     "title",
+                    "timing",
                     "campaign",
                     "spending_date",
                     "amount",
@@ -81,6 +82,7 @@ class SpendingRequestAdmin(VersionAdmin):
         ),
     )
     readonly_fields = (
+        "id",
         "creator",
         "created",
         "modified",
@@ -92,7 +94,7 @@ class SpendingRequestAdmin(VersionAdmin):
     ordering = ("-modified",)
     sortable_by = ("title", "spending_date", "show_amount")
     search_fields = ("id", "title", "group__name", "event__name")
-    list_filter = (filters.RequestStatusFilter,)
+    list_filter = (filters.RequestStatusFilter, "timing", "category")
     actions = (
         export_spending_requests_to_csv,
         export_spending_requests_to_xlsx,

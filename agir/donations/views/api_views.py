@@ -21,7 +21,10 @@ from agir.donations.serializers import (
     SpendingRequestSerializer,
     SpendingRequestDocumentSerializer,
 )
-from agir.donations.spending_requests import validate_action
+from agir.donations.spending_requests import (
+    validate_action,
+    get_missing_field_error_message,
+)
 from agir.donations.tasks import send_monthly_donation_confirmation_email
 from agir.donations.views import DONATION_SESSION_NAMESPACE
 from agir.lib.rest_framework_permissions import (
@@ -215,6 +218,34 @@ class SpendingRequestRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
         "creator", "group", "event"
     ).prefetch_related("documents")
 
+    def check_object_permissions(self, request, obj):
+        super().check_object_permissions(request, obj)
+
+
+class SpendingRequestDocumentCreatePermissions(
+    SpendingRequestRetrieveUpdateDestroyPermissions
+):
+    perms_map = {
+        "OPTIONS": [],
+        "POST": [],
+    }
+    object_perms_map = {
+        "OPTIONS": [],
+        "POST": ["donations.change_spendingrequest"],
+    }
+
+
+class SpendingRequestDocumentCreateAPIView(CreateAPIView):
+    permission_classes = (
+        IsActionPopulaireClientPermission,
+        SpendingRequestDocumentCreatePermissions,
+    )
+    serializer_class = SpendingRequestDocumentSerializer
+    queryset = Document.objects.all()
+
+    def check_object_permissions(self, request, obj):
+        super().check_object_permissions(request, obj.request)
+
 
 class SpendingRequestDocumentRetrieveUpdateDestroyPermissions(
     SpendingRequestRetrieveUpdateDestroyPermissions
@@ -242,7 +273,8 @@ class SpendingRequestDocumentRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyA
     def perform_destroy(self, instance):
         with reversion.create_revision():
             reversion.set_user(self.request.user)
-            reversion.set_comment("Suppression d'une pièce-jointe")
+            reversion.set_comment(f"Suppression d'une pièce-jointe : {instance.title}")
+            reversion.add_to_revision(instance.request)
             instance.deleted = True
             instance.save()
 
@@ -272,7 +304,12 @@ class SpendingRequestApplyNextStatusAPIView(RetrieveAPIView):
         if is_valid:
             return spending_request
 
+        message = (
+            get_missing_field_error_message(spending_request)
+            or "L'opération n'est pas autorisée pour cette demande de dépense"
+        )
+
         self.permission_denied(
             self.request,
-            message="L'opération n'est pas autorisée pour cette demande de dépense",
+            message=message,
         )
