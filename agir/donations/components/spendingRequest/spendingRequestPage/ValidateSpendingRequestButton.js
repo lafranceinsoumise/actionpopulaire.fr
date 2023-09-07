@@ -75,6 +75,7 @@ const ValidateSpendingRequestButton = ({ spendingRequest, onValidate }) => {
     if (error) {
       return setError(error);
     }
+    setIsOpen(false);
     onValidate();
     sendToast("La demande a bien été validée !", "SUCCESS");
   }, [id, onValidate, sendToast]);
@@ -91,34 +92,32 @@ const ValidateSpendingRequestButton = ({ spendingRequest, onValidate }) => {
       >
         {label || "Valider"}
       </Button>
-      {hasAction && (
-        <ModalConfirmation
-          shouldShow={isOpen}
-          onClose={!isLoading ? handleClose : undefined}
-          title={<StyledModalTitle>Attention</StyledModalTitle>}
-          dismissLabel="Annuler"
-          confirmationLabel={label}
-          onConfirm={handleConfirm}
-          shouldDismissOnClick={false}
-          disabled={!hasAgreement}
-          isConfirming={isLoading}
-        >
-          <StyledModalContent>
-            <p>
-              Vous êtes sur le point de valider cette demande de dépense. Une
-              fois votre approbation donnée, elle ne sera plus modifiable.
-            </p>
-            <p>
-              <AgreementField
-                onChange={setHasAgreement}
-                disabled={isLoading}
-                reset={isOpen}
-              />
-            </p>
-            <StyledError>{error?.detail}</StyledError>
-          </StyledModalContent>
-        </ModalConfirmation>
-      )}
+      <ModalConfirmation
+        shouldShow={hasAction && isOpen}
+        onClose={!isLoading ? handleClose : undefined}
+        title={<StyledModalTitle>Attention</StyledModalTitle>}
+        dismissLabel="Annuler"
+        confirmationLabel={label}
+        onConfirm={handleConfirm}
+        shouldDismissOnClick={false}
+        disabled={!hasAgreement}
+        isConfirming={isLoading}
+      >
+        <StyledModalContent>
+          <p>
+            Vous êtes sur le point de valider cette demande de dépense. Une fois
+            votre approbation donnée, elle ne sera plus modifiable.
+          </p>
+          <p>
+            <AgreementField
+              onChange={setHasAgreement}
+              disabled={isLoading}
+              reset={isOpen}
+            />
+          </p>
+          <StyledError>{error?.detail}</StyledError>
+        </StyledModalContent>
+      </ModalConfirmation>
     </>
   );
 };

@@ -89,6 +89,20 @@ export const getInitialData = (user, group) => ({
   },
 });
 
+export const getInitialDataFromSpendingRequest = (spendingRequest) => ({
+  title: spendingRequest.title || "",
+  timing: spendingRequest.timing,
+  campaign: spendingRequest.campaign || false,
+  amount: spendingRequest.amount,
+  group: spendingRequest.group.id,
+  category: spendingRequest.category,
+  explanation: spendingRequest.explanation,
+  event: spendingRequest.event,
+  spendingDate: spendingRequest.spendingDate || null,
+  contact: spendingRequest.contact,
+  bankAccount: spendingRequest.bankAccount,
+});
+
 export const SPENDING_REQUEST_DRAFT_CONSTRAINT = {
   title: {
     presence: {
@@ -164,9 +178,11 @@ export const SPENDING_REQUEST_VALIDATION_CONSTRAINT = {
     },
   },
   amount: {
-    presence: {
-      allowEmpty: false,
-      message: "Ce champ est obligatoire",
+    presence: true,
+    numericality: {
+      greaterThan: 0,
+      notValid: "Le montant devrait être un nombre supérieur à 0",
+      notGreaterThan: "Le montant devrait être un nombre supérieur à 0",
     },
   },
   "bankAccount.name": {
@@ -238,24 +254,32 @@ export const validateSpendingRequestDocument = (data) =>
     fullMessages: false,
   });
 
-export const validateSpendingRequest = (data, shouldValidate) => {
-  const result = validate(
-    data,
-    shouldValidate
-      ? SPENDING_REQUEST_VALIDATION_CONSTRAINT
-      : SPENDING_REQUEST_DRAFT_CONSTRAINT,
-    {
-      format: "cleanMessage",
-      fullMessages: false,
+export const validateSpendingRequest = (
+  data,
+  shouldValidate,
+  hasAttachments = true
+) => {
+  const constraints = shouldValidate
+    ? { ...SPENDING_REQUEST_VALIDATION_CONSTRAINT }
+    : { ...SPENDING_REQUEST_DRAFT_CONSTRAINT };
+
+  if (!hasAttachments) {
+    constraints.attachments = false;
+  }
+
+  const result = validate(data, constraints, {
+    format: "cleanMessage",
+    fullMessages: false,
+  });
+
+  if (hasAttachments && data.attachments) {
+    const attachments = data.attachments
+      .map(validateSpendingRequestDocument)
+      .filter(Boolean);
+
+    if (attachments.length > 0) {
+      result.attachments = attachments;
     }
-  );
-
-  const attachments = data.attachments
-    .map(validateSpendingRequestDocument)
-    .filter(Boolean);
-
-  if (attachments.length > 0) {
-    result.attachments = attachments;
   }
 
   return result;

@@ -146,7 +146,7 @@ class SpendingRequestTestCase(TestCase):
                     "title": "Création de la demande",
                     "person": self.p1,
                     "modified": round_date_like_reversion(spending_request.modified),
-                    "comment": "Création de la demande",
+                    "comment": "",
                     "diff": [],
                 }
             ],
@@ -340,7 +340,7 @@ class SpendingRequestTestCase(TestCase):
         self.client.force_login(self.p1.role)
 
         # création
-        res = self.client.post(
+        _res = self.client.post(
             reverse("create_spending_request", args=(self.group1.pk,)),
             data=self.get_form_data(with_docs=True),
         )
@@ -356,20 +356,20 @@ class SpendingRequestTestCase(TestCase):
                 "comment": "J'ai renforcé mon explication !",
             }
         )
-        res = self.client.post(
+        _res = self.client.post(
             reverse("edit_spending_request", args=(spending_request_id,)),
             data=form_data,
         )
 
         # première validation
-        res = self.client.post(
+        _res = self.client.post(
             reverse("manage_spending_request", args=(spending_request_id,)),
             data={"validate": SpendingRequest.Status.DRAFT},
         )
 
         # seconde validation
         self.client.force_login(self.p2.role)
-        res = self.client.post(
+        _res = self.client.post(
             reverse("manage_spending_request", args=(spending_request_id,)),
             data={"validate": SpendingRequest.Status.AWAITING_PEER_REVIEW},
         )
@@ -380,7 +380,7 @@ class SpendingRequestTestCase(TestCase):
             b"Un faux fichier",
             content_type="application/vnd.oasis.opendocument.text",
         )
-        res = self.client.post(
+        _res = self.client.post(
             reverse("create_document", args=(spending_request_id,)),
             data={
                 "title": "Document complémentaire",
@@ -390,7 +390,7 @@ class SpendingRequestTestCase(TestCase):
         )
 
         # renvoi vers l'équipe de suivi
-        res = self.client.post(
+        _res = self.client.post(
             reverse("manage_spending_request", args=(spending_request_id,)),
             data={
                 "validate": SpendingRequest.Status.AWAITING_SUPPLEMENTARY_INFORMATION
@@ -401,7 +401,7 @@ class SpendingRequestTestCase(TestCase):
         self.client.force_login(
             self.treasurer.role, backend="agir.people.backend.PersonBackend"
         )
-        res = self.client.post(
+        _res = self.client.post(
             reverse(
                 "admin:donations_spendingrequest_review", args=(spending_request_id,)
             ),
@@ -419,13 +419,13 @@ class SpendingRequestTestCase(TestCase):
                 "comment": "J'ai corrigé le montant... j'avais mal lu !",
             }
         )
-        res = self.client.post(
+        _res = self.client.post(
             reverse("edit_spending_request", args=(spending_request_id,)),
             data=form_data,
         )
 
         # renvoi vers l'équipe de suivi
-        res = self.client.post(
+        _res = self.client.post(
             reverse("manage_spending_request", args=(spending_request_id,)),
             data={
                 "validate": SpendingRequest.Status.AWAITING_SUPPLEMENTARY_INFORMATION
@@ -436,7 +436,7 @@ class SpendingRequestTestCase(TestCase):
         self.client.force_login(
             self.treasurer.role, backend="agir.people.backend.PersonBackend"
         )
-        res = self.client.post(
+        _res = self.client.post(
             reverse(
                 "admin:donations_spendingrequest_review", args=(spending_request_id,)
             ),
@@ -461,9 +461,9 @@ class SpendingRequestTestCase(TestCase):
                     "person": "Équipe de suivi",
                 },
                 {
-                    "title": "Renvoyé pour validation à l'équipe de suivi des questions financières",
+                    "title": "Renvoyée pour validation à l'équipe de suivi des questions financières",
                     "person": self.p1,
-                    "comment": "Validation de la demande",
+                    "comment": "",
                     "diff": [],
                 },
                 {
@@ -479,9 +479,9 @@ class SpendingRequestTestCase(TestCase):
                     "diff": [],
                 },
                 {
-                    "title": "Renvoyé pour validation à l'équipe de suivi des questions financières",
+                    "title": "Renvoyée pour validation à l'équipe de suivi des questions financières",
                     "person": self.p2,
-                    "comment": "Validation de la demande",
+                    "comment": "",
                     "diff": [],
                 },
                 {
@@ -491,15 +491,15 @@ class SpendingRequestTestCase(TestCase):
                     "comment": "Ajout d'un document",
                 },
                 {
-                    "title": "Validé par un⋅e second⋅e animateur⋅rice",
+                    "title": "Validée par un⋅e second⋅e animateur⋅rice",
                     "person": self.p2,
-                    "comment": "Validation de la demande",
+                    "comment": "",
                     "diff": [],
                 },
                 {
-                    "title": "Validé par l'auteur d'origine",
+                    "title": "Validée par l'auteur d'origine",
                     "person": self.p1,
-                    "comment": "Validation de la demande",
+                    "comment": "",
                     "diff": [],
                 },
                 {
@@ -511,7 +511,7 @@ class SpendingRequestTestCase(TestCase):
                 {
                     "title": "Création de la demande",
                     "person": self.p1,
-                    "comment": "Création de la demande",
+                    "comment": "",
                     "diff": [],
                 },
             ],

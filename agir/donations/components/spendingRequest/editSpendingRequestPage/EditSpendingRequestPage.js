@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 import styled from "styled-components";
+import useSWR from "swr";
 import useSWRImmutable from "swr/immutable";
 
 import { Button } from "@agir/donations/common/StyledComponents";
@@ -8,7 +9,9 @@ import BackLink from "@agir/front/app/Navigation/BackLink";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 import { getGroupEndpoint } from "@agir/groups/utils/api";
-import CreateSpendingRequestForm from "./CreateSpendingRequestForm";
+import EditSpendingRequestForm from "./EditSpendingRequestForm";
+
+import { getSpendingRequestEndpoint } from "@agir/donations/spendingRequest/common/api";
 
 const StyledPage = styled.main`
   padding: 2rem;
@@ -47,16 +50,23 @@ const StyledPage = styled.main`
   }
 `;
 
-const CreateSpendingRequestPage = ({ groupPk }) => {
-  const { data: session, isLoading: isSessionLoading } =
+const EditSpendingRequestPage = ({ spendingRequestPk }) => {
+  const { data: _session, isLoading: isSessionLoading } =
     useSWRImmutable("/api/session/");
 
-  const { data: group, isLoading: isGroupLoading } = useSWRImmutable([
-    getGroupEndpoint("getGroup", { groupPk }),
-  ]);
+  const {
+    data: spendingRequest,
+    isLoading: isSpendingRequestLoading,
+    mutate,
+  } = useSWR(
+    getSpendingRequestEndpoint("getSpendingRequest", {
+      spendingRequestPk,
+    })
+  );
 
   const { data: finance, isLoading: isFinanceLoading } = useSWRImmutable([
-    getGroupEndpoint("getFinance", { groupPk }),
+    spendingRequest &&
+      getGroupEndpoint("getFinance", { groupPk: spendingRequest.group.id }),
   ]);
 
   const availableAmount = useMemo(
@@ -64,7 +74,8 @@ const CreateSpendingRequestPage = ({ groupPk }) => {
     [finance]
   );
 
-  const isReady = !isFinanceLoading && !isGroupLoading && !isSessionLoading;
+  const isReady =
+    !isSessionLoading && !isSpendingRequestLoading && !isFinanceLoading;
 
   return (
     <PageFadeIn ready={isReady} wait={<Skeleton />}>
@@ -81,11 +92,11 @@ const CreateSpendingRequestPage = ({ groupPk }) => {
               Un doute ? Consultez le <strong>centre d'aide</strong>
             </Button>
           </nav>
-          <h2>Nouvelle dépense</h2>
-          <CreateSpendingRequestForm
-            user={session?.user}
-            group={group}
+          <h2>Modification de la demande</h2>
+          <EditSpendingRequestForm
+            spendingRequest={spendingRequest}
             availableAmount={availableAmount}
+            onUpdate={mutate}
           />
         </StyledPage>
       )}
@@ -93,8 +104,8 @@ const CreateSpendingRequestPage = ({ groupPk }) => {
   );
 };
 
-CreateSpendingRequestPage.propTypes = {
-  groupPk: PropTypes.string,
+EditSpendingRequestPage.propTypes = {
+  spendingRequestPk: PropTypes.string,
 };
 
-export default CreateSpendingRequestPage;
+export default EditSpendingRequestPage;

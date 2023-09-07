@@ -193,11 +193,11 @@ class EditSpendingRequestView(
         return super().dispatch(request, *args, **kwargs)
 
     def render_to_response(self, context, **response_kwargs):
-        if self.object.edition_message:
+        if self.object.edition_warning:
             messages.add_message(
                 self.request,
                 messages.WARNING,
-                self.object.edition_message,
+                self.object.edition_warning,
             )
         return super().render_to_response(self.get_context_data(), **response_kwargs)
 
@@ -244,7 +244,7 @@ class CreateDocumentView(
 ):
     model = Document
     form_class = DocumentForm
-    permission_required = ("donations.change_spendingrequest",)
+    permission_required = ("donations.add_document_to_spending_request",)
     template_name = "donations/create_document.html"
     spending_request = None
 
@@ -267,11 +267,11 @@ class CreateDocumentView(
         return reverse("manage_spending_request", args=(self.spending_request.pk,))
 
     def render_to_response(self, context, **response_kwargs):
-        if self.spending_request.edition_message:
+        if self.spending_request.edition_warning:
             messages.add_message(
                 self.request,
                 messages.WARNING,
-                self.spending_request.edition_message,
+                self.spending_request.edition_warning,
             )
         return super().render_to_response(self.get_context_data(), **response_kwargs)
 
@@ -323,11 +323,11 @@ class EditDocumentView(AccessDocumentMixin, UpdateView):
         return reverse("manage_spending_request", args=(self.spending_request.pk,))
 
     def render_to_response(self, context, **response_kwargs):
-        if self.spending_request.edition_message:
+        if self.spending_request.edition_warning:
             messages.add_message(
                 self.request,
                 messages.WARNING,
-                self.spending_request.edition_message,
+                self.spending_request.edition_warning,
             )
 
         return super().render_to_response(self.get_context_data(), **response_kwargs)

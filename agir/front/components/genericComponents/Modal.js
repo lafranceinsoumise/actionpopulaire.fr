@@ -94,19 +94,25 @@ const StyledCloseButton = styled.button`
   cursor: pointer;
 `;
 
-export const ModalCloseButton = ({ onClose, ...rest }) =>
-  onClose ? (
+export const ModalCloseButton = ({ onClose, size = "2rem", ...rest }) => {
+  if (!onClose) {
+    return null;
+  }
+
+  return (
     <StyledCloseButton
       {...rest}
       onClick={onClose}
       aria-label="Fermer la modale"
     >
-      <RawFeatherIcon name="x" width="2rem" height="2rem" />
+      <RawFeatherIcon name="x" width={size} height={size} />
     </StyledCloseButton>
-  ) : null;
+  );
+};
 
 ModalCloseButton.propTypes = {
   onClose: PropTypes.func,
+  size: PropTypes.string,
 };
 
 const Modal = (props) => {

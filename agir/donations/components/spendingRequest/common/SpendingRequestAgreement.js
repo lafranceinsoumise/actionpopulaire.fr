@@ -3,10 +3,10 @@ import React, { useEffect, useState } from "react";
 
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
 
-const AgreementField = ({ onChange, disabled, reset }) => {
+const AgreementField = ({ initialValue, onChange, disabled, reset }) => {
   const [agreements, setAgreements] = useState({
-    political: false,
-    legal: false,
+    political: !!initialValue,
+    legal: !!initialValue,
   });
 
   const handleChangeAgreement = (e) => {
@@ -55,6 +55,7 @@ const AgreementField = ({ onChange, disabled, reset }) => {
 };
 
 AgreementField.propTypes = {
+  initialValue: PropTypes.bool,
   onChange: PropTypes.func,
   disabled: PropTypes.bool,
   reset: PropTypes.bool,

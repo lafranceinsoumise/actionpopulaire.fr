@@ -6,12 +6,37 @@ import AttachmentField from "./AttachmentField";
 import SpendingRequestHelp from "./SpendingRequestHelp";
 import Modal, { ModalCloseButton } from "@agir/front/genericComponents/Modal";
 import { Hide } from "@agir/front/genericComponents/grid";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const StyledError = styled.div``;
+const StyledCloseButton = styled(ModalCloseButton).attrs((props) => ({
+  ...props,
+  size: "1.5rem",
+}))`
+  top: 1rem;
+  right: 1rem;
+`;
+const StyledWarning = styled.div`
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  padding: 1rem;
+  gap: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: 0 0 0.5rem;
+  background-color: ${(props) => props.theme.redNSP + "44"};
+  border-radius: ${(props) => props.theme.borderRadius};
+
+  ${RawFeatherIcon} {
+    flex: 0 0 auto;
+    color: currentcolor;
+  }
+`;
 
 const StyledModalContent = styled.div`
   position: relative;
-  padding: 1.5rem;
+  padding: 2rem 2rem 1.5rem;
   max-width: 600px;
   margin: 40px auto;
   background-color: white;
@@ -48,6 +73,7 @@ const AttachmentModal = (props) => {
     onChange,
     onClose,
     error,
+    warning,
     isLoading,
   } = props;
 
@@ -60,8 +86,14 @@ const AttachmentModal = (props) => {
       onClose={isLoading ? onClose : undefined}
     >
       <StyledModalContent>
-        <Hide as={ModalCloseButton} onClose={onClose} disabled={isLoading} />
+        <Hide as={StyledCloseButton} onClose={onClose} disabled={isLoading} />
         <SpendingRequestHelp helpId="documentTypes" />
+        {warning && (
+          <StyledWarning>
+            <RawFeatherIcon name="alert-circle" />
+            {warning}
+          </StyledWarning>
+        )}
         <AttachmentField
           initialValue={value}
           onChange={onChange}
@@ -82,6 +114,7 @@ AttachmentModal.propTypes = {
   onChange: PropTypes.func,
   onClose: PropTypes.func,
   error: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  warning: PropTypes.string,
   isLoading: PropTypes.bool,
 };
 

@@ -104,6 +104,7 @@ const StyledField = styled.label`
     grid-row: 4;
     grid-column: ${({ $hasCounter }) => ($hasCounter ? "1/2" : "1/3")};
     color: ${style.redNSP};
+    line-height: 1.3;
   }
   ${StyledCounter} {
     grid-row: 4;

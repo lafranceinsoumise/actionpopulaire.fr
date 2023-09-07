@@ -11,7 +11,7 @@ from django.http import (
     HttpResponseRedirect,
 )
 from django.templatetags.static import static
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.utils.decorators import method_decorator
 from django.utils.safestring import mark_safe
 from django.views.decorators import cache
@@ -366,6 +366,23 @@ class SpendingRequestDetailsView(
                 "api_spending_request_retrieve_update_delete", kwargs=self.kwargs
             ),
         ]
+
+
+class SpendingRequestUpdateView(SpendingRequestDetailsView):
+    permission_required = ("donations.change_spendingrequest",)
+
+    def handle_no_permission(self):
+        if self.get_object().editable:
+            return super().handle_no_permission()
+
+        messages.add_message(
+            self.request,
+            messages.WARNING,
+            "Cette demande ne peut pas être modifiée",
+        )
+        return HttpResponseRedirect(
+            reverse("spending_request_details", kwargs=self.kwargs)
+        )
 
 
 ## REDIRECT / EXTERNAL VIEWS

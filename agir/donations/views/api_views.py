@@ -209,6 +209,7 @@ class SpendingRequestRetrieveUpdateDestroyPermissions(GlobalOrObjectPermissions)
 
 
 class SpendingRequestRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+    parser_classes = (JSONParser, DrfNestedParser)
     permission_classes = (
         IsActionPopulaireClientPermission,
         SpendingRequestRetrieveUpdateDestroyPermissions,
@@ -231,7 +232,7 @@ class SpendingRequestDocumentCreatePermissions(
     }
     object_perms_map = {
         "OPTIONS": [],
-        "POST": ["donations.change_spendingrequest"],
+        "POST": ["donations.add_document_to_spending_request"],
     }
 
 

@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useSpring, animated } from "@react-spring/web";
-import { useUpdateEffect } from "react-use";
+import { usePrevious } from "react-use";
 import styled, { useTheme } from "styled-components";
 
 import { Button } from "@agir/donations/common/StyledComponents";
@@ -109,22 +109,28 @@ const SpendingRequestStatus = (props) => {
   const theme = useTheme();
   const [isHighlighted, setIsHighlighted] = useState();
 
-  useUpdateEffect(() => {
-    status && setIsHighlighted(true);
-  }, [status]);
+  const previousStatus = usePrevious(status);
+
+  useEffect(() => {
+    if (previousStatus !== status && !!previousStatus && !!status) {
+      console.log("Boom");
+      setIsHighlighted(true);
+    }
+  }, [previousStatus, status]);
 
   const [style] = useSpring(
     () => ({
       from: {
-        backgroundColor: theme.secondary100,
-        borderColor: theme.black500,
-      },
-      to: {
         backgroundColor: theme.white,
         borderColor: theme.black100,
       },
+      to: {
+        backgroundColor: theme.secondary100,
+        borderColor: theme.black200,
+      },
       immediate: typeof isHighlighted === "undefined",
-      reverse: isHighlighted,
+      pause: typeof isHighlighted === "undefined",
+      reverse: isHighlighted === false,
       onRest: () => isHighlighted && setIsHighlighted(false),
     }),
     [theme, isHighlighted]
@@ -134,7 +140,7 @@ const SpendingRequestStatus = (props) => {
     <StyledStatus
       style={style}
       as={animated.div}
-      onDoubleClick={() => setIsHighlighted(true)}
+      onDoubleClick={() => !isHighlighted && setIsHighlighted(true)}
     >
       <RawFeatherIcon
         name={editable ? "edit-3" : "clock"}

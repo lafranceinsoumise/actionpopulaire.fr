@@ -1,9 +1,11 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useState } from "react";
 import styled from "styled-components";
+import useSWR from "swr";
 import useSWRImmutable from "swr/immutable";
 
 import * as api from "@agir/donations/spendingRequest/common/api";
+import { useToast } from "@agir/front/globalContext/hooks";
 
 import { Button } from "@agir/donations/common/StyledComponents";
 import AttachmentModal from "@agir/donations/spendingRequest/common/AttachmentModal";
@@ -74,7 +76,7 @@ const SpendingRequestPage = ({ spendingRequestPk }) => {
     data: spendingRequest,
     isLoading: isSpendingRequestLoading,
     mutate,
-  } = useSWRImmutable(
+  } = useSWR(
     api.getSpendingRequestEndpoint("getSpendingRequest", {
       spendingRequestPk,
     })
@@ -83,11 +85,14 @@ const SpendingRequestPage = ({ spendingRequestPk }) => {
   const isDesktop = useIsDesktop();
   const isReady = !isSpendingRequestLoading && !isSessionLoading;
   const attachments = spendingRequest?.attachments;
+  const status = spendingRequest?.status;
 
   const [selectedAttachment, setSelectedAttachment] = useState(null);
   const [attachmentAction, setAttachmentAction] = useState(null);
   const [isLoadingAttachment, setIsLoadingAttachment] = useState(false);
   const [attachmentError, setAttachmentError] = useState(null);
+
+  const sendToast = useToast();
 
   const handleEditAttachment = useCallback(
     (id) => {
@@ -118,7 +123,7 @@ const SpendingRequestPage = ({ spendingRequestPk }) => {
     async (attachment) => {
       setIsLoadingAttachment(true);
       setAttachmentError(null);
-      const { data, error } = attachment.id
+      const { _data, error } = attachment.id
         ? await api.updateDocument(attachment.id, attachment)
         : await api.createDocument(spendingRequestPk, attachment);
 
@@ -126,19 +131,17 @@ const SpendingRequestPage = ({ spendingRequestPk }) => {
         setIsLoadingAttachment(false);
         return setAttachmentError(error);
       }
-
-      mutate((spendingRequest) => ({
-        ...spendingRequest,
-        attachments: attachment.id
-          ? spendingRequest.attachments.map((a) =>
-              a.id === attachment.id ? data : a
-            )
-          : [...spendingRequest.attachments, data],
-      }));
       setSelectedAttachment(null);
       setIsLoadingAttachment(false);
+      const updatedRequest = await mutate();
+      sendToast(
+        updatedRequest.status !== status
+          ? "La pièce a été enregistrée et le statut de la demande mis à jour"
+          : "La pièce justificative a été enregistrée",
+        "SUCCESS"
+      );
     },
-    [mutate, spendingRequestPk]
+    [mutate, sendToast, spendingRequestPk, status]
   );
 
   const deleteAttachment = useCallback(
@@ -177,6 +180,9 @@ const SpendingRequestPage = ({ spendingRequestPk }) => {
                 disabled={!spendingRequest.deletable}
               />
               <Button
+                link
+                route="editSpendingRequest"
+                routeParams={{ spendingRequestPk }}
                 title={
                   !spendingRequest.editable
                     ? "Cette demande ne peut pas être modifiée"
@@ -199,8 +205,12 @@ const SpendingRequestPage = ({ spendingRequestPk }) => {
             <SpendingRequestDetails
               spendingRequest={spendingRequest}
               onAttachmentAdd={handleEditAttachment}
-              onAttachmentChange={handleEditAttachment}
-              onAttachmentDelete={handleDeleteAttachment}
+              onAttachmentChange={
+                spendingRequest?.editable ? handleEditAttachment : undefined
+              }
+              onAttachmentDelete={
+                spendingRequest?.editable ? handleDeleteAttachment : undefined
+              }
             />
           )}
           <AttachmentModal
@@ -210,6 +220,7 @@ const SpendingRequestPage = ({ spendingRequestPk }) => {
             onChange={saveAttachment}
             isLoading={isLoadingAttachment}
             error={attachmentError}
+            warning={spendingRequest?.editionWarning}
           />
           <DeleteAttachmmentModalConfirmation
             attachment={

@@ -269,7 +269,7 @@ class SpendingRequestEditForm(SpendingRequestFormMixin, forms.ModelForm):
                 reversion.set_user(self.user)
                 reversion.set_comment(self.cleaned_data["comment"])
 
-                if self.instance.edition_message:
+                if self.instance.edition_warning:
                     self.instance.status = (
                         SpendingRequest.Status.AWAITING_SUPPLEMENTARY_INFORMATION
                     )
@@ -318,7 +318,7 @@ class DocumentForm(forms.ModelForm):
                 )
                 super().save()
 
-                if spending_request.edition_message:
+                if spending_request.edition_warning:
                     spending_request.status = (
                         SpendingRequest.Status.AWAITING_SUPPLEMENTARY_INFORMATION
                     )

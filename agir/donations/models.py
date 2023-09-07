@@ -7,7 +7,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.enums import ChoicesMeta
 from django.template.defaultfilters import floatformat
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, ngettext
 from dynamic_filenames import FilePattern
 from reversion.models import Version
 
@@ -516,6 +516,12 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
         return self.status in (self.Status.AWAITING_ADMIN_REVIEW, self.Status.TO_PAY)
 
     @property
+    def is_valid_amount(self):
+        from agir.donations.allocations import get_supportgroup_balance
+
+        return 0 < self.amount <= get_supportgroup_balance(self.group)
+
+    @property
     def missing_fields(self):
         missing_fields = [
             field
@@ -544,14 +550,14 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
 
     @property
     def ready_for_review(self):
-        return len(self.missing_fields) == 0
+        return len(self.missing_fields) == 0 and self.is_valid_amount
 
     @property
     def done(self):
         return self.status in (self.Status.PAID, self.Status.REFUSED)
 
     @property
-    def edition_message(self):
+    def edition_warning(self):
         if self.status == self.Status.AWAITING_ADMIN_REVIEW:
             return (
                 "Votre requête a déjà été transmise ! "
@@ -585,6 +591,7 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
 
         if (
             self.status == self.Status.AWAITING_PEER_REVIEW
+            and self.ready_for_review
             and self.peer_reviewers
             and user != self.peer_reviewers[0]
         ):
@@ -596,12 +603,7 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
         ):
             return self.Status.AWAITING_ADMIN_REVIEW
 
-        from agir.donations.allocations import get_supportgroup_balance
-
-        if (
-            self.status == self.Status.VALIDATED
-            and self.amount <= get_supportgroup_balance(self.group)
-        ):
+        if self.status == self.Status.VALIDATED and self.is_valid_amount:
             return self.Status.TO_PAY
 
         return None
@@ -609,25 +611,24 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
     # noinspection PyMethodOverriding
     @classmethod
     def get_history_step(cls, old, new, **kwargs):
+        from agir.donations.spending_requests import get_revision_comment
+
         step = super().get_history_step(old, new, **kwargs)
 
         old_fields = old.field_dict if old else {}
         new_fields = new.field_dict
         old_status, new_status = old_fields.get("status", None), new_fields["status"]
 
-        # cas spécifique : si on revient à "attente d'informations supplémentaires suite à une modification par un non admin
-        # c'est forcément une modification
-        if (
-            step["person"]
-            and new_status == cls.Status.AWAITING_SUPPLEMENTARY_INFORMATION
-        ) or old_status == new_status:
-            step["title"] = "Mise à jour de la demande"
-        # some couples (old_status, new_status)
-        elif (old_status, new_status) in cls.HISTORY_MESSAGES:
-            step["title"] = cls.HISTORY_MESSAGES[(old_status, new_status)]
-        else:
-            step["title"] = cls.HISTORY_MESSAGES.get(
-                new_status, "[Modification non identifiée]"
+        step["title"] = get_revision_comment(old_status, new_status, step["person"])
+
+        if step["comment"] == step["title"]:
+            step["comment"] = ""
+
+        if step.get("diff", None) and not step["comment"]:
+            step["comment"] = ngettext(
+                f"Modification du champ : {step['diff'][0]}",
+                f"Modification des champs : {', '.join(step['diff'])}",
+                len(step["diff"]),
             )
 
         step["person"] = step["person"] or "Équipe de suivi"

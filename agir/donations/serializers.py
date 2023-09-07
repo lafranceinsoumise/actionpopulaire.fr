@@ -19,6 +19,7 @@ from agir.donations.spending_requests import (
     get_spending_request_field_labels,
     get_current_action,
     validate_action,
+    get_revision_comment,
 )
 from agir.donations.validators import IBANSerializerValidator, BICSerializerValidator
 from agir.events.models import Event
@@ -365,6 +366,26 @@ class SpendingRequestDocumentSerializer(serializers.ModelSerializer):
             reversion.add_to_revision(instance.request)
             return super().update(instance, validated_data)
 
+    def update_request_after_saving(self, instance):
+        if not instance.request.edition_warning:
+            return
+
+        with reversion.create_revision():
+            reversion.set_user(self.context["request"].user)
+            reversion.set_comment(
+                f"Mise à jour du statut de la demande après une modification"
+            )
+            instance.request.status = (
+                SpendingRequest.Status.AWAITING_SUPPLEMENTARY_INFORMATION
+            )
+            instance.request.save()
+
+    def save(self, **kwargs):
+        with transaction.atomic():
+            document = super().save(**kwargs)
+            self.update_request_after_saving(document)
+            return document
+
     class Meta:
         model = Document
         fields = ("id", "title", "type", "file", "request")
@@ -463,6 +484,7 @@ class SpendingRequestSerializer(serializers.ModelSerializer):
         label="Historique", source="get_history", read_only=True, many=True
     )
     action = serializers.SerializerMethodField(read_only=True)
+    editionWarning = serializers.CharField(source="edition_warning", read_only=True)
     shouldValidate = serializers.BooleanField(
         write_only=True, default=False, required=False
     )
@@ -522,18 +544,31 @@ class SpendingRequestSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data["creator"] = self.context["request"].user.person
-        reversion.set_comment("Création de la demande")
-        return super().create(validated_data)
+        with reversion.create_revision():
+            reversion.set_user(self.context["request"].user)
+            reversion.set_comment("Création de la demande")
+
+            return super().create(validated_data)
 
     def update(self, instance, validated_data):
         # Set group only upon creation
         validated_data.pop("group", None)
-        return super().update(instance, validated_data)
+        with reversion.create_revision():
+            reversion.set_user(self.context["request"].user)
+            comment = self.validated_data.pop(
+                "comment",
+                get_revision_comment(instance.status),
+            )
+            reversion.set_comment(comment)
+
+            return super().update(instance, validated_data)
 
     def validation_error(self, spending_request):
-        if not spending_request.missing_fields:
+        if spending_request.is_valid_amount and not spending_request.missing_fields:
             raise serializers.ValidationError(
-                detail={"global": "La demande n'a pas pu être validée."}
+                detail={
+                    "global": "La demande n'a pas pu être validée. Vérifiez les données saisies et ressayez."
+                }
             )
 
         errors = {}
@@ -554,19 +589,19 @@ class SpendingRequestSerializer(serializers.ModelSerializer):
 
             errors[snakecase_to_camelcase(field)] = self.error_messages["required"]
 
+        if not spending_request.is_valid_amount:
+            errors[
+                "amount"
+            ] = "Il n'est possible d'effectuer une demande que pour un montant inférieur ou égal au solde disponible"
+
         raise serializers.ValidationError(detail=errors)
 
     def save(self, **kwargs):
         apply_next_action = self.validated_data.pop("shouldValidate", False)
-        comment = self.validated_data.pop("comment", "Mise à jour de la demande")
         attachments = self.validated_data.pop("attachments", [])
 
         with transaction.atomic():
-            with reversion.create_revision():
-                reversion.set_user(self.context["request"].user)
-                reversion.set_comment(comment)
-                spending_request = super().save(**kwargs)
-                reversion.is_manage_manually()
+            spending_request = super().save(**kwargs)
 
             if attachments:
                 self.save_attachments(attachments, spending_request)
@@ -605,5 +640,6 @@ class SpendingRequestSerializer(serializers.ModelSerializer):
             "comment",
             "history",
             "action",
+            "editionWarning",
             "shouldValidate",
         )

@@ -38,6 +38,7 @@ const FORM_STEP_NAMES = [
 
 const FORM_STEPS = [
   [
+    "timing",
     "title",
     "campaign",
     "category",
@@ -126,7 +127,7 @@ export const getFieldStepFromErrors = (errors) =>
       stepFields.some((field) => typeof errors[field] !== "undefined")
   );
 
-const SpendingRequestForm = (props) => {
+const CreateSpendingRequestForm = (props) => {
   const { user, group, availableAmount = 0 } = props;
   const [formStep, goToPreviousFormStep, goToNextFormStep, goToStep] =
     useSteps(0);
@@ -483,10 +484,10 @@ const SpendingRequestForm = (props) => {
   );
 };
 
-SpendingRequestForm.propTypes = {
+CreateSpendingRequestForm.propTypes = {
   user: PropTypes.object,
   group: PropTypes.object,
   availableAmount: PropTypes.number,
 };
 
-export default SpendingRequestForm;
+export default CreateSpendingRequestForm;

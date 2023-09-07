@@ -237,13 +237,25 @@ export const routeConfig = {
     },
   }),
   spendingRequestDetails: new RouteConfig({
-    id: "createGroupSpendingRequest",
+    id: "spendingRequestDetails",
     path: "/financement/demande/:spendingRequestPk/",
     exact: true,
     neededAuthentication: AUTHENTICATION.HARD,
-    label: "Demande de dépense",
+    label: "Detail de la demande de dépense",
     Component: RouteComponents.SpendingRequestDetails,
+  }),
+  editSpendingRequest: new RouteConfig({
+    id: "editGroupSpendingRequest",
+    path: "/financement/demande/:spendingRequestPk/modifier/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.HARD,
+    label: "Modification de la dépense",
+    Component: RouteComponents.EditSpendingRequest,
     hideFeedbackButton: true,
+    backLink: {
+      label: "Détail de la demande",
+      route: "spendingRequestDetails",
+    },
   }),
   activities: new RouteConfig({
     id: "activities",

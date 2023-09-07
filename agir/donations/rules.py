@@ -66,3 +66,7 @@ rules.add_perm(
     & is_deletable_spending_request
     & is_finance_manager_of_spending_request_group,
 )
+rules.add_perm(
+    "donations.add_document_to_spending_request",
+    is_authenticated_person & is_finance_manager_of_spending_request_group,
+)

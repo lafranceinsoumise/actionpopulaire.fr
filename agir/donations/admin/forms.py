@@ -4,7 +4,9 @@ from agir.donations.models import SpendingRequest
 
 
 class HandleRequestForm(forms.Form):
-    comment = forms.CharField(label="Commentaire", widget=forms.Textarea, required=True)
+    comment = forms.CharField(
+        label="Commentaire", widget=forms.Textarea, required=False
+    )
     status = forms.ChoiceField(
         label="Décision",
         widget=forms.RadioSelect,

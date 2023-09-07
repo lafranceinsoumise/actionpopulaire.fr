@@ -162,16 +162,43 @@ NEXT_STATUS_ACTION = {
 def get_missing_field_error_message(spending_request):
     missing_fields = get_spending_request_field_labels(spending_request.missing_fields)
 
-    if not missing_fields:
+    if not missing_fields and spending_request.is_valid_amount:
         return None
 
-    message = ngettext(
-        f"Le champ suivant est obligatoire pour la validation : {missing_fields[0]}.",
-        f"Les champs suivants sont obligatoires pour la validation : {', '.join(missing_fields)}.",
-        len(missing_fields),
-    )
+    message = ""
 
-    return message
+    if not spending_request.is_valid_amount:
+        message += "Il n'est possible d'effectuer une demande que pour un montant inférieur ou égal au solde disponible. "
+
+    if missing_fields:
+        message = ngettext(
+            f"Le champ suivant est obligatoire pour la validation : {missing_fields[0]}.",
+            f"Les champs suivants sont obligatoires pour la validation : {', '.join(missing_fields)}.",
+            len(missing_fields),
+        )
+
+    return message.strip()
+
+
+def get_revision_comment(from_status, to_status=None, person=None):
+    # cas spécifique : si on revient à "attente d'informations supplémentaires suite à une modification par un non admin
+    # c'est forcément une modification
+    if (
+        person
+        and to_status == SpendingRequest.Status.AWAITING_SUPPLEMENTARY_INFORMATION
+    ):
+        return "Mise à jour de la demande"
+
+    if not to_status or from_status == to_status:
+        return "Mise à jour de la demande"
+
+    # some couples (from_status, to_status)
+    if (from_status, to_status) in SpendingRequest.HISTORY_MESSAGES:
+        return SpendingRequest.HISTORY_MESSAGES[(from_status, to_status)]
+
+    return SpendingRequest.HISTORY_MESSAGES.get(
+        to_status, "[Modification non identifiée]"
+    )
 
 
 def get_status_explanation(spending_request, user):
@@ -218,7 +245,9 @@ def validate_action(spending_request, user):
         return False
 
     with reversion.create_revision(atomic=True):
-        reversion.set_comment("Validation de la demande")
+        reversion.set_comment(
+            get_revision_comment(spending_request.status, next_status, user.person)
+        )
         reversion.set_user(user)
 
         spending_request.status = next_status
@@ -240,7 +269,7 @@ def validate_action(spending_request, user):
 
 def get_spending_request_field_label(field):
     if field in ("attachments", "documents"):
-        return "Pièces-jointes"
+        return "Pièces justificatives"
     model_field = SpendingRequest._meta.get_field(field)
     return str(model_field.verbose_name if model_field else field)
 

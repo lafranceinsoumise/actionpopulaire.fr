@@ -50,11 +50,16 @@ const formatSpendingRequestData = (data, validate = false) => {
   const fData = { ...data, shouldValidate: !!validate };
   // Send groupId instead of group object
   fData.groupId = (fData.group && fData.group.id) || null;
-  fData.group = undefined;
+  delete fData.group;
 
   // Send eventId instead of event object
   fData.eventId = (fData.event && fData.event.id) || null;
-  fData.event = undefined;
+  delete fData.event;
+
+  // Unchanged bankAccount.rib is a string and can be safely removed
+  if (typeof data.bankAccount.rib === "string") {
+    delete fData.bankAccount.rib;
+  }
 
   return fData;
 };
@@ -79,7 +84,11 @@ export const createSpendingRequest = async (data, validate) => {
   return result;
 };
 
-export const updateSpendingRequest = async (spendingRequestPk, data) => {
+export const updateSpendingRequest = async (
+  spendingRequestPk,
+  data,
+  validate
+) => {
   const result = {
     data: null,
     error: null,
@@ -88,7 +97,8 @@ export const updateSpendingRequest = async (spendingRequestPk, data) => {
   const url = getSpendingRequestEndpoint("updateSpendingRequest", {
     spendingRequestPk,
   });
-  const body = objectToFormData(formatSpendingRequestData(data));
+
+  const body = objectToFormData(formatSpendingRequestData(data, validate));
 
   try {
     const response = await axios.patch(url, body);
