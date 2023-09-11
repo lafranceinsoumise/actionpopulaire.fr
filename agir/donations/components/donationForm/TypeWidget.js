@@ -85,7 +85,7 @@ TypeWidget.propTypes = {
     PropTypes.shape({
       value: PropTypes.string,
       label: PropTypes.string,
-    }).isRequired
+    }).isRequired,
   ),
   onTypeChange: PropTypes.func,
 };

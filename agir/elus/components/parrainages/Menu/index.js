@@ -186,7 +186,7 @@ export const Menu = ({
         recherche(e.target.value);
       }
     },
-    [recherche]
+    [recherche],
   );
 
   useEffect(() => {

@@ -145,7 +145,7 @@ HowTo.propTypes = {
 const ConnectedHowTo = (props) => {
   const [isInitiallyCollapsed, setIsInitiallyCollapsed] = useLocalStorage(
     "AP__toktokhowto",
-    false
+    false,
   );
 
   return (

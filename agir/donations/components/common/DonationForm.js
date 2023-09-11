@@ -174,7 +174,7 @@ const DonationForm = ({
             label="Civilité*"
             onChange={handleChangeGender}
             value={GENDER_OPTIONS.find(
-              (option) => formData.gender === option.value
+              (option) => formData.gender === option.value,
             )}
             error={formErrors?.gender}
             helpText={FORM_HELP_TEXT.gender}
