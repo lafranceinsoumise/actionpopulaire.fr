@@ -42,7 +42,7 @@ export const useThrottle = (func, wait) => {
       leading: true,
       trailing: true,
     }),
-    [wait]
+    [wait],
   );
 };
 
@@ -75,7 +75,7 @@ export const useDebounce = (func, wait, deps = []) => {
       leading: false,
       trailing: true,
     }),
-    [wait, ...deps]
+    [wait, ...deps],
   );
 };
 
@@ -134,7 +134,7 @@ export function useMeasure() {
   const [bounds, set] = useState({ left: 0, top: 0, width: 0, height: 0 });
 
   const [resizeObserver] = useState(
-    () => new ResizeObserver(([entry]) => set(entry.contentRect))
+    () => new ResizeObserver(([entry]) => set(entry.contentRect)),
   );
 
   useEffect(() => {
@@ -237,12 +237,12 @@ const getFocusableElements = (parent) => {
   }
   return [
     ...parent.querySelectorAll(
-      'a[href], button, textarea, input[type="text"], input[type="radio"], input[type="checkbox"], select'
+      'a[href], button, textarea, input[type="text"], input[type="radio"], input[type="checkbox"], select',
     ),
   ].filter(
     (elem) =>
       !elem.disabled &&
-      !!(elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length)
+      !!(elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length),
   );
 };
 
@@ -253,7 +253,7 @@ export const useFocusTrap = (isTrapped) => {
       return;
     }
     const focusableModalElements = getFocusableElements(
-      targetElementRef.current
+      targetElementRef.current,
     );
     const firstElement = focusableModalElements[0];
     const lastElement =
@@ -270,7 +270,7 @@ export const useFocusTrap = (isTrapped) => {
 
   const keyListenersMap = useMemo(
     () => new Map([[9, handleTabKey]]),
-    [handleTabKey]
+    [handleTabKey],
   );
 
   useEffect(() => {
@@ -308,7 +308,7 @@ export const useResizeObserver = (ref, callback) => {
         callback(entry.contentRect);
       }
     },
-    [callback]
+    [callback],
   );
 
   useEffect(() => {

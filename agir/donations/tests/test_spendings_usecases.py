@@ -51,6 +51,7 @@ class SpendingRequestTestCase(TestCase):
 
         self.spending_request_data = {
             "title": "Ma demande de dépense",
+            "timing": SpendingRequest.Timing.UPCOMING,
             "event": None,
             "category": SpendingRequest.Category.HARDWARE.value,
             "category_precisions": "Super truc trop cool",
@@ -148,6 +149,7 @@ class SpendingRequestTestCase(TestCase):
                     "modified": round_date_like_reversion(spending_request.modified),
                     "comment": "",
                     "diff": [],
+                    "status": SpendingRequest.Status.DRAFT,
                 }
             ],
         )
@@ -348,6 +350,16 @@ class SpendingRequestTestCase(TestCase):
         spending_request = SpendingRequest.objects.get()
         spending_request_id = spending_request.pk
 
+        payment = Payment.objects.create(
+            status=Payment.STATUS_COMPLETED,
+            price=spending_request.amount,
+            type="don",
+            mode="system_pay",
+        )
+        Operation.objects.create(
+            payment=payment, amount=spending_request.amount, group=self.group1
+        )
+
         form_data = self.get_form_data()
         # modification d'un champ
         form_data.update(
@@ -415,7 +427,7 @@ class SpendingRequestTestCase(TestCase):
         self.client.force_login(self.p1.role)
         form_data.update(
             {
-                "amount": 8400,
+                "amount": "84.00",
                 "comment": "J'ai corrigé le montant... j'avais mal lu !",
             }
         )
@@ -455,64 +467,81 @@ class SpendingRequestTestCase(TestCase):
             hist,
             [
                 {
-                    "comment": "Tout est parfait !",
-                    "diff": [],
-                    "title": "Demande validée par l'équipe de suivi des questions financières",
-                    "person": "Équipe de suivi",
-                },
-                {
-                    "title": "Renvoyée pour validation à l'équipe de suivi des questions financières",
-                    "person": self.p1,
+                    "title": "Création de la demande",
                     "comment": "",
                     "diff": [],
-                },
-                {
-                    "comment": "J'ai corrigé le montant... j'avais mal lu !",
-                    "diff": ["Montant de la dépense"],
-                    "title": "Mise à jour de la demande",
                     "person": self.p1,
-                },
-                {
-                    "title": "Informations supplémentaires requises",
-                    "person": "Équipe de suivi",
-                    "comment": "Le montant ne correspond pas à la facture !",
-                    "diff": [],
-                },
-                {
-                    "title": "Renvoyée pour validation à l'équipe de suivi des questions financières",
-                    "person": self.p2,
-                    "comment": "",
-                    "diff": [],
+                    "status": SpendingRequest.Status.DRAFT,
                 },
                 {
                     "title": "Mise à jour de la demande",
-                    "person": self.p2,
-                    "diff": [],
-                    "comment": "Ajout d'un document",
-                },
-                {
-                    "title": "Validée par un⋅e second⋅e animateur⋅rice",
-                    "person": self.p2,
-                    "comment": "",
-                    "diff": [],
+                    "comment": "J'ai renforcé mon explication !",
+                    "diff": ["Motif de l'achat"],
+                    "person": self.p1,
+                    "status": SpendingRequest.Status.DRAFT,
                 },
                 {
                     "title": "Validée par l'auteur d'origine",
-                    "person": self.p1,
                     "comment": "",
                     "diff": [],
+                    "person": self.p1,
+                    "from_status": SpendingRequest.Status.DRAFT,
+                    "status": SpendingRequest.Status.AWAITING_PEER_REVIEW,
+                },
+                {
+                    "title": "Validée par un⋅e second⋅e animateur⋅rice",
+                    "comment": "",
+                    "diff": [],
+                    "person": self.p2,
+                    "from_status": SpendingRequest.Status.AWAITING_PEER_REVIEW,
+                    "status": SpendingRequest.Status.AWAITING_ADMIN_REVIEW,
                 },
                 {
                     "title": "Mise à jour de la demande",
-                    "person": self.p1,
-                    "comment": "J'ai renforcé mon explication !",
-                    "diff": ["Motif de l'achat"],
+                    "comment": "Ajout d'un document",
+                    "diff": [],
+                    "person": self.p2,
+                    "from_status": SpendingRequest.Status.AWAITING_ADMIN_REVIEW,
+                    "status": SpendingRequest.Status.AWAITING_SUPPLEMENTARY_INFORMATION,
                 },
                 {
-                    "title": "Création de la demande",
-                    "person": self.p1,
+                    "title": "Renvoyée pour validation à l'équipe de suivi des questions financières",
                     "comment": "",
                     "diff": [],
+                    "person": self.p2,
+                    "from_status": SpendingRequest.Status.AWAITING_SUPPLEMENTARY_INFORMATION,
+                    "status": SpendingRequest.Status.AWAITING_ADMIN_REVIEW,
+                },
+                {
+                    "title": "Informations supplémentaires requises",
+                    "comment": "Le montant ne correspond pas à la facture !",
+                    "diff": [],
+                    "person": "Équipe de suivi",
+                    "from_status": SpendingRequest.Status.AWAITING_ADMIN_REVIEW,
+                    "status": SpendingRequest.Status.AWAITING_SUPPLEMENTARY_INFORMATION,
+                },
+                {
+                    "title": "Mise à jour de la demande",
+                    "comment": "J'ai corrigé le montant... j'avais mal lu !",
+                    "diff": ["Montant de la dépense"],
+                    "person": self.p1,
+                    "status": SpendingRequest.Status.AWAITING_SUPPLEMENTARY_INFORMATION,
+                },
+                {
+                    "title": "Renvoyée pour validation à l'équipe de suivi des questions financières",
+                    "comment": "",
+                    "diff": [],
+                    "person": self.p1,
+                    "from_status": SpendingRequest.Status.AWAITING_SUPPLEMENTARY_INFORMATION,
+                    "status": SpendingRequest.Status.AWAITING_ADMIN_REVIEW,
+                },
+                {
+                    "title": "Demande en attente de règlement",
+                    "comment": "Tout est parfait !",
+                    "diff": [],
+                    "person": "Équipe de suivi",
+                    "from_status": SpendingRequest.Status.AWAITING_ADMIN_REVIEW,
+                    "status": SpendingRequest.Status.TO_PAY,
                 },
             ],
             hist,

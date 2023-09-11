@@ -40,7 +40,8 @@ const BankAccountField = (props) => {
         disabled={disabled}
         required={required}
         error={error && error.name}
-        maxLenght={255}
+        maxLength={255}
+        hasCounter={false}
       />
       <TextField
         label={<abbr title="International Bank Account Number">IBAN</abbr>}

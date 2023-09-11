@@ -103,8 +103,8 @@ const StepBar = (props) => {
 StepBar.propTypes = {
   as: PropTypes.string,
   title: PropTypes.string,
-  goToPrevious: PropTypes.func.isRequired,
-  goToNext: PropTypes.func.isRequired,
+  goToPrevious: PropTypes.func,
+  goToNext: PropTypes.func,
   onSubmit: PropTypes.func,
   isLoading: PropTypes.bool,
   disabled: PropTypes.bool,

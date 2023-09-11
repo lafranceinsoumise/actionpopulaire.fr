@@ -23,7 +23,7 @@ const DraggableContainer = React.forwardRef(
         {children}
       </Container>
     );
-  }
+  },
 );
 DraggableContainer.displayName = "DraggableContainer";
 DraggableContainer.propTypes = {

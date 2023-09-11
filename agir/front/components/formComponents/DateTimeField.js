@@ -139,7 +139,7 @@ const parseDatetime = (datetime) => {
 const stringifyDatetime = (datetime) => {
   return moment(
     datetime.date + " " + datetime.time,
-    "DD/MM/YYYY HH:mm"
+    "DD/MM/YYYY HH:mm",
   ).format();
 };
 
@@ -167,7 +167,7 @@ const DateTimeField = (props) => {
       setDate(value);
       isValid && onChange && onChange(stringifyDatetime({ date: value, time }));
     },
-    [onChange, time]
+    [onChange, time],
   );
 
   const handleChangeTime = useCallback(
@@ -177,7 +177,7 @@ const DateTimeField = (props) => {
       setTime(value);
       isValid && onChange && onChange(stringifyDatetime({ date, time: value }));
     },
-    [onChange, date]
+    [onChange, date],
   );
 
   useEffect(() => {

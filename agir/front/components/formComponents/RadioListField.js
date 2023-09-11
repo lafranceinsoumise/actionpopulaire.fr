@@ -95,7 +95,7 @@ const RadioListField = (props) => {
     (e) => {
       onChange(e.target.value);
     },
-    [onChange]
+    [onChange],
   );
 
   return (
@@ -151,7 +151,7 @@ RadioListField.propTypes = {
     PropTypes.shape({
       value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
       label: PropTypes.node,
-    })
+    }),
   ).isRequired,
   id: PropTypes.string,
   name: PropTypes.string,

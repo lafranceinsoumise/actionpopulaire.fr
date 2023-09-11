@@ -354,6 +354,7 @@ const EditSpendingRequestForm = (props) => {
           error={errors?.title}
           label="Titre de la dépense (obligatoire)"
           maxLength={200}
+          hasCounter={false}
         />
         <Spacer size="2rem" />
         <StyledLabel>Catégorie de dépense (obligatoire)</StyledLabel>

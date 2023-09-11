@@ -309,6 +309,7 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
     # List of fields that are required in order to send the request for review
     REQUIRED_FOR_REVIEW_FIELDS = [
         "title",
+        "timing",
         "campaign",
         "amount",
         "status",
@@ -327,10 +328,11 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
 
     DIFFED_FIELDS = [
         "title",
+        "timing",
         "campaign",
         "amount",
         "category",
-        "category_preicision",
+        "category_precision",
         "explanation",
         "event",
         "spending_date",
@@ -620,6 +622,11 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
         old_status, new_status = old_fields.get("status", None), new_fields["status"]
 
         step["title"] = get_revision_comment(old_status, new_status, step["person"])
+
+        step["status"] = new_status
+
+        if old_status and old_status != new_status:
+            step["from_status"] = old_status
 
         if step["comment"] == step["title"]:
             step["comment"] = ""

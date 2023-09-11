@@ -24,7 +24,7 @@ const NumberField = forwardRef((props, ref) => {
 
       onChange(newAmount);
     },
-    [onChange, currency]
+    [onChange, currency],
   );
 
   const currentValue = currency && value ? value / 100 : value ? value : "";

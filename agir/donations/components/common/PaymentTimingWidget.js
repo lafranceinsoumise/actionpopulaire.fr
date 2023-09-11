@@ -62,7 +62,7 @@ PaymentTimingWidget.propTypes = {
   onChange: PropTypes.func,
   disabled: PropTypes.bool,
   allowedPaymentTimings: PropTypes.arrayOf(
-    PropTypes.oneOf([MONTHLY_PAYMENT, SINGLE_TIME_PAYMENT])
+    PropTypes.oneOf([MONTHLY_PAYMENT, SINGLE_TIME_PAYMENT]),
   ),
 };
 

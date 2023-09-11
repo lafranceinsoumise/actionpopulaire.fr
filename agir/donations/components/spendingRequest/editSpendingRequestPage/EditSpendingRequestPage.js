@@ -61,7 +61,7 @@ const EditSpendingRequestPage = ({ spendingRequestPk }) => {
   } = useSWR(
     getSpendingRequestEndpoint("getSpendingRequest", {
       spendingRequestPk,
-    })
+    }),
   );
 
   const { data: finance, isLoading: isFinanceLoading } = useSWRImmutable([
@@ -71,7 +71,7 @@ const EditSpendingRequestPage = ({ spendingRequestPk }) => {
 
   const availableAmount = useMemo(
     () => (finance?.donation ? finance.donation : 0),
-    [finance]
+    [finance],
   );
 
   const isReady =

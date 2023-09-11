@@ -7,7 +7,6 @@ import { deleteSpendingRequest } from "@agir/donations/spendingRequest/common/ap
 import { useBackLink } from "@agir/front/app/Navigation/BackLink/BackLink";
 import AppRedirect from "@agir/front/app/Redirect";
 import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
-import { useIsDesktop } from "@agir/front/genericComponents/grid";
 
 const StyledError = styled.p`
   color: ${(props) => props.theme.redNSP};
@@ -42,7 +41,6 @@ const DeleteSpendingRequestButton = ({ spendingRequest, disabled }) => {
   const [error, setError] = useState(null);
   const [isDeleted, setIsDeleted] = useState(false);
 
-  const isDesktop = useIsDesktop();
   const redirectTo = useMemo(
     () =>
       group
@@ -87,7 +85,6 @@ const DeleteSpendingRequestButton = ({ spendingRequest, disabled }) => {
     <>
       <Button
         disabled={disabled || isLoading}
-        small={!isDesktop}
         color="choose"
         icon="trash-2"
         onClick={handleOpen}

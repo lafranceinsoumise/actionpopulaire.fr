@@ -87,7 +87,7 @@ export const createSpendingRequest = async (data, validate) => {
 export const updateSpendingRequest = async (
   spendingRequestPk,
   data,
-  validate
+  validate,
 ) => {
   const result = {
     data: null,

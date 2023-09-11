@@ -4,7 +4,6 @@ import styled from "styled-components";
 
 import { Button } from "@agir/donations/common/StyledComponents";
 import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
-import { useIsDesktop } from "@agir/front/genericComponents/grid";
 import AgreementField from "@agir/donations/spendingRequest/common/SpendingRequestAgreement";
 
 import { validateSpendingRequest } from "@agir/donations/spendingRequest/common/api";
@@ -44,18 +43,19 @@ const StyledModalContent = styled.div`
   }
 `;
 
-const ValidateSpendingRequestButton = ({ spendingRequest, onValidate }) => {
-  const { id, action } = spendingRequest;
-
-  const hasAction = !!action?.label;
-  const label = action?.label || "Valider";
+const ValidateSpendingRequestButton = ({
+  spendingRequestPk,
+  action,
+  onValidate,
+}) => {
+  const hasAction = !!action;
+  const label = action || "Valider";
 
   const [isOpen, setIsOpen] = useState(false);
   const [hasAgreement, setHasAgreement] = useState();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const isDesktop = useIsDesktop();
   const sendToast = useToast();
 
   const handleOpen = useCallback(() => {
@@ -70,7 +70,7 @@ const ValidateSpendingRequestButton = ({ spendingRequest, onValidate }) => {
   const handleConfirm = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-    const { error } = await validateSpendingRequest(id);
+    const { error } = await validateSpendingRequest(spendingRequestPk);
     setIsLoading(false);
     if (error) {
       return setError(error);
@@ -78,15 +78,13 @@ const ValidateSpendingRequestButton = ({ spendingRequest, onValidate }) => {
     setIsOpen(false);
     onValidate();
     sendToast("La demande a bien été validée !", "SUCCESS");
-  }, [id, onValidate, sendToast]);
+  }, [spendingRequestPk, onValidate, sendToast]);
 
   return (
     <>
       <Button
-        small={!isDesktop}
-        color="primary"
-        icon={hasAction ? "send" : "lock"}
-        title={action.explanation}
+        color="success"
+        icon="arrow-right"
         disabled={!hasAction}
         onClick={handleOpen}
       >
@@ -123,13 +121,8 @@ const ValidateSpendingRequestButton = ({ spendingRequest, onValidate }) => {
 };
 
 ValidateSpendingRequestButton.propTypes = {
-  spendingRequest: PropTypes.shape({
-    id: PropTypes.string,
-    action: PropTypes.shape({
-      label: PropTypes.string,
-      explanation: PropTypes.string,
-    }),
-  }),
+  spendingRequestPk: PropTypes.string,
+  action: PropTypes.string,
   onValidate: PropTypes.func,
 };
 

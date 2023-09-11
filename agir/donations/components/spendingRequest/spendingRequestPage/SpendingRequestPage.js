@@ -13,19 +13,57 @@ import BackLink from "@agir/front/app/Navigation/BackLink";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 import Spacer from "@agir/front/genericComponents/Spacer";
-import { useIsDesktop } from "@agir/front/genericComponents/grid";
+import { Hide } from "@agir/front/genericComponents/grid";
 import DeleteAttachmmentModalConfirmation from "./DeleteAttachmentModalConfirmation";
 import DeleteSpendingRequestButton from "./DeleteSpendingRequestButton";
 import SpendingRequestDetails from "./SpendingRequestDetails";
 import ValidateSpendingRequestButton from "./ValidateSpendingRequestButton";
+import { useInView } from "@react-spring/core";
+
+const StyledNav = styled(Hide).attrs((attrs) => ({
+  ...attrs,
+  as: "nav",
+}))`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-left: auto;
+
+  @media (max-width: ${(props) => props.theme.collapse}px) {
+    z-index: 10;
+    isolation: isolate;
+    position: sticky;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    width: 100%;
+    flex-flow: column nowrap;
+    align-items: stretch;
+    background-color: white;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 2rem 1.5rem;
+    box-shadow: ${(props) =>
+      props.$stuck ? props.theme.elaborateShadow : "none"};
+    border-top: ${(props) =>
+      props.$stuck ? "1px solid " + props.theme.black100 : "none"};
+    border-collapse: collapse;
+  }
+`;
 
 const StyledPage = styled.main`
-  padding: 2rem;
+  padding: 2rem 0;
   max-width: 70rem;
   margin: 0 auto;
   min-height: 50vh;
 
-  nav {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
+    padding: 1.5rem 0 0;
+    max-width: 100%;
+  }
+
+  & > header {
     display: flex;
     flex-flow: row nowrap;
     justify-content: space-between;
@@ -34,9 +72,8 @@ const StyledPage = styled.main`
     margin: 2rem 0 1rem;
 
     @media (max-width: ${(props) => props.theme.collapse}px) {
-      margin: 0 0 1.25rem;
-      flex-flow: column-reverse nowrap;
-      justify-content: space-between;
+      padding: 0 1.5rem;
+      margin: 0;
     }
 
     & > * {
@@ -51,18 +88,6 @@ const StyledPage = styled.main`
 
       @media (max-width: ${(props) => props.theme.collapse}px) {
         font-size: 1.375rem;
-      }
-    }
-
-    div {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 1rem;
-      margin-left: auto;
-
-      @media (max-width: ${(props) => props.theme.collapse}px) {
-        gap: 0.5rem;
       }
     }
   }
@@ -82,10 +107,9 @@ const SpendingRequestPage = ({ spendingRequestPk }) => {
     })
   );
 
-  const isDesktop = useIsDesktop();
   const isReady = !isSpendingRequestLoading && !isSessionLoading;
   const attachments = spendingRequest?.attachments;
-  const status = spendingRequest?.status;
+  const status = spendingRequest?.status.code;
 
   const [selectedAttachment, setSelectedAttachment] = useState(null);
   const [attachmentAction, setAttachmentAction] = useState(null);
@@ -93,6 +117,8 @@ const SpendingRequestPage = ({ spendingRequestPk }) => {
   const [attachmentError, setAttachmentError] = useState(null);
 
   const sendToast = useToast();
+  const [navRef, navIsInView] = useInView({ threshold: 1 });
+  console.log(navIsInView);
 
   const handleEditAttachment = useCallback(
     (id) => {
@@ -135,7 +161,7 @@ const SpendingRequestPage = ({ spendingRequestPk }) => {
       setIsLoadingAttachment(false);
       const updatedRequest = await mutate();
       sendToast(
-        updatedRequest.status !== status
+        updatedRequest.status.code !== status
           ? "La pièce a été enregistrée et le statut de la demande mis à jour"
           : "La pièce justificative a été enregistrée",
         "SUCCESS"
@@ -172,47 +198,76 @@ const SpendingRequestPage = ({ spendingRequestPk }) => {
       {isReady && spendingRequest && (
         <StyledPage>
           <BackLink style={{ marginLeft: 0 }} />
-          <nav>
+          <header>
             <h2>Demande de dépense</h2>
-            <div>
+            <StyledNav $under>
               <DeleteSpendingRequestButton
                 spendingRequest={spendingRequest}
-                disabled={!spendingRequest.deletable}
+                disabled={!spendingRequest.status.deletable}
               />
               <Button
                 link
                 route="editSpendingRequest"
                 routeParams={{ spendingRequestPk }}
                 title={
-                  !spendingRequest.editable
+                  !spendingRequest.status.editable
                     ? "Cette demande ne peut pas être modifiée"
                     : "Modifier la demande"
                 }
-                disabled={!spendingRequest.editable}
-                small={!isDesktop}
+                disabled={!spendingRequest.status.editable}
                 icon="edit-2"
               >
                 Modifier
               </Button>
               <ValidateSpendingRequestButton
-                spendingRequest={spendingRequest}
+                spendingRequestPk={spendingRequest.id}
+                action={spendingRequest.status.action}
                 onValidate={mutate}
               />
-            </div>
-          </nav>
-          <Spacer size="1rem" />
+            </StyledNav>
+          </header>
+          <Hide as={Spacer} size="1rem" $under />
           {spendingRequest && (
             <SpendingRequestDetails
               spendingRequest={spendingRequest}
               onAttachmentAdd={handleEditAttachment}
               onAttachmentChange={
-                spendingRequest?.editable ? handleEditAttachment : undefined
+                spendingRequest.status.editable
+                  ? handleEditAttachment
+                  : undefined
               }
               onAttachmentDelete={
-                spendingRequest?.editable ? handleDeleteAttachment : undefined
+                spendingRequest.status.editable
+                  ? handleDeleteAttachment
+                  : undefined
               }
             />
           )}
+          <StyledNav ref={navRef} $over $stuck={!navIsInView}>
+            <DeleteSpendingRequestButton
+              spendingRequest={spendingRequest}
+              disabled={!spendingRequest.status.deletable}
+            />
+            <Button
+              link
+              route="editSpendingRequest"
+              routeParams={{ spendingRequestPk }}
+              title={
+                !spendingRequest.status.editable
+                  ? "Cette demande ne peut pas être modifiée"
+                  : "Modifier la demande"
+              }
+              disabled={!spendingRequest.status.editable}
+              icon="edit-2"
+            >
+              Modifier
+            </Button>
+            <ValidateSpendingRequestButton
+              spendingRequestPk={spendingRequest.id}
+              action={spendingRequest.status.action}
+              onValidate={mutate}
+            />
+          </StyledNav>
           <AttachmentModal
             value={selectedAttachment}
             shouldShow={attachmentAction === "edit" && !!selectedAttachment}
@@ -220,7 +275,7 @@ const SpendingRequestPage = ({ spendingRequestPk }) => {
             onChange={saveAttachment}
             isLoading={isLoadingAttachment}
             error={attachmentError}
-            warning={spendingRequest?.editionWarning}
+            warning={spendingRequest.status.editionWarning}
           />
           <DeleteAttachmmentModalConfirmation
             attachment={

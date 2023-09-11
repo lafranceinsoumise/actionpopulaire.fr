@@ -72,14 +72,14 @@ const FileField = forwardRef((props, ref) => {
         e?.target?.files && e.target.files[e.target.files.length - 1];
       file && onChange && onChange(file);
     },
-    [onChange]
+    [onChange],
   );
   const handleDrop = useCallback(
     (files) => {
       const file = files && files[files.length - 1];
       file && onChange && onChange(file);
     },
-    [onChange]
+    [onChange],
   );
 
   const [bond, dropState] = useDropArea({

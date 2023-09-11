@@ -48,7 +48,7 @@ const ControlledSteps = (props) => {
 
   const Stepper = useMemo(
     () => (type && STEPPER[type] ? STEPPER[type] : STEPPER.default),
-    [type]
+    [type],
   );
 
   return (

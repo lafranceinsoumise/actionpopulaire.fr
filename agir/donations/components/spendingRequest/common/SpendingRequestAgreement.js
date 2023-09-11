@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import React, { useEffect, useState } from "react";
 
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
+import Link from "@agir/front/app/Link";
 
 const AgreementField = ({ initialValue, onChange, disabled, reset }) => {
   const [agreements, setAgreements] = useState({
@@ -40,7 +41,24 @@ const AgreementField = ({ initialValue, onChange, disabled, reset }) => {
         name="political"
         value={agreements.political}
         onChange={handleChangeAgreement}
-        label="Je certifie que cette dépense est conforme à la charte des groupes d’action, aux principes, aux orientations politiques, stratégiques, programmatiques et électorales de la France Insoumise. "
+        label={
+          <>
+            Je certifie que cette dépense est conforme à{" "}
+            <Link
+              route="charteEquipes"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              la charte des groupes d’action
+            </Link>{" "}
+            et aux principes, aux orientations politiques, stratégiques,
+            programmatiques et électorales de{" "}
+            <Link route="principes" target="_blank" rel="noopener noreferrer">
+              la France Insoumise
+            </Link>
+            .
+          </>
+        }
       />
       <CheckboxField
         disabled={disabled}

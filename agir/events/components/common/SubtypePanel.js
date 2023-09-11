@@ -137,7 +137,7 @@ SubtypeOption.propTypes = {
       PropTypes.shape({
         id: PropTypes.string,
         name: PropTypes.string,
-      })
+      }),
     ),
   }),
   onClick: PropTypes.func,
@@ -184,7 +184,7 @@ export const SubtypePicker = (props) => {
       return allSubtypes;
     }
     return allSubtypes.filter((subtype) =>
-      slugify(subtype.description).includes(term)
+      slugify(subtype.description).includes(term),
     );
   }, [options, term]);
 
@@ -197,7 +197,7 @@ export const SubtypePicker = (props) => {
           subtypes: [],
         },
       }),
-      {}
+      {},
     );
 
     [...subtypes].reverse().forEach((subtype) => {
@@ -213,7 +213,7 @@ export const SubtypePicker = (props) => {
 
     return Object.values(categories).filter(
       (category) =>
-        Array.isArray(category.subtypes) && category.subtypes.length > 0
+        Array.isArray(category.subtypes) && category.subtypes.length > 0,
     );
   }, [subtypes]);
 

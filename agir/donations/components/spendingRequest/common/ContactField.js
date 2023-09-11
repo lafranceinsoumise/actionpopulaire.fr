@@ -8,6 +8,7 @@ import TextField from "@agir/front/formComponents/TextField";
 const StyledField = styled.div`
   display: flex;
   flex-flow: row nowrap;
+  align-items: start;
   gap: 1rem;
 
   & > * {
@@ -43,7 +44,8 @@ const ContactField = (props) => {
         disabled={disabled}
         required={required}
         error={error && error.name}
-        maxLenght={255}
+        maxLength={255}
+        hasCounter={false}
       />
       <PhoneField
         label={`Numéro de téléphone ${required ? "(obligatoire)" : ""}`.trim()}
@@ -60,9 +62,8 @@ const ContactField = (props) => {
 };
 ContactField.propTypes = {
   onChange: PropTypes.func,
-  value: PropTypes.string,
   name: PropTypes.string.isRequired,
-  contact: PropTypes.shape({
+  value: PropTypes.shape({
     name: PropTypes.string,
     phone: PropTypes.string,
   }),

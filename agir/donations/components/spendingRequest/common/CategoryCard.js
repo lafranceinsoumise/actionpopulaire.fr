@@ -4,7 +4,6 @@ import styled from "styled-components";
 
 import { CATEGORY_OPTIONS } from "./form.config";
 
-import Card from "@agir/front/genericComponents/Card";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const OPTIONS = Object.values(CATEGORY_OPTIONS);
@@ -12,24 +11,28 @@ const OPTIONS = Object.values(CATEGORY_OPTIONS);
 const StyledIcon = styled.span``;
 const StyledCategory = styled.span``;
 
-const StyledCard = styled(Card)`
+const StyledCard = styled.div`
   display: flex;
   flex-flow: row nowrap;
-  align-items: center;
+  align-items: ${(props) => (props.$small ? "start" : "center")};
   margin-bottom: 0;
-  padding: 0.75rem 1rem;
-  gap: 1rem;
+  padding: ${(props) => (props.$small ? 0 : "0.75rem 1rem;")};
+  gap: ${(props) => (props.$small ? "0.5rem" : "1rem;")};
   color: ${(props) => props.theme.black1000};
   font-size: 1rem;
+  border: ${(props) =>
+    props.$small ? "none" : "1px solid " + props.theme.black100};
+  border-radius: ${(props) => (props.$small ? 0 : props.theme.borderRadius)};
 
   @media (max-width: ${(props) => props.theme.collapse}px) {
     font-size: 0.875rem;
+    line-height: 1.714;
   }
 
   ${StyledIcon} {
-    flex: 0 0 3rem;
-    width: 3rem;
-    height: 3rem;
+    flex: 0 0 ${(props) => (props.$small ? "1.5rem" : "3rem")};
+    width: ${(props) => (props.$small ? "1.5rem" : "3rem")};
+    height: ${(props) => (props.$small ? "1.5rem" : "3rem")};
     border-radius: 100%;
     padding: 0;
     margin: 0;
@@ -38,6 +41,11 @@ const StyledCard = styled(Card)`
     align-items: center;
     justify-content: center;
     background-color: ${(props) => props.theme.secondary500};
+
+    ${RawFeatherIcon} {
+      width: ${(props) => (props.$small ? "0.75rem" : "1.5rem")};
+      height: ${(props) => (props.$small ? "0.75rem" : "1.5rem")};
+    }
   }
 
   ${StyledCategory} {
@@ -53,7 +61,7 @@ const StyledCard = styled(Card)`
 `;
 
 const CategoryCard = (props) => {
-  const { category } = props;
+  const { category, small = false } = props;
 
   const option = useMemo(
     () => OPTIONS.find((option) => option.value === category),
@@ -61,13 +69,17 @@ const CategoryCard = (props) => {
   );
 
   return (
-    <StyledCard bordered>
+    <StyledCard $small={small}>
       <StyledIcon>
         <RawFeatherIcon width="1.5rem" height="1.5rem" name={option.icon} />
       </StyledIcon>
       <StyledCategory>
-        <small>Catégorie de dépense</small>
-        <br />
+        {!small && (
+          <>
+            <small>Catégorie de dépense</small>
+            <br />
+          </>
+        )}
         {option.label}
       </StyledCategory>
     </StyledCard>
@@ -76,6 +88,7 @@ const CategoryCard = (props) => {
 
 CategoryCard.propTypes = {
   category: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  small: PropTypes.bool,
 };
 
 export default CategoryCard;

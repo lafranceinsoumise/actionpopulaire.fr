@@ -36,7 +36,7 @@ export const useRemoteSearch = (fetcher, formatter) => {
         setOptions(options);
         return options;
       }, 600),
-    [fetcher, formatter]
+    [fetcher, formatter],
   );
 
   return [handleSearch, options, isLoading, error];
@@ -258,7 +258,7 @@ const SearchAndSelectField = (props) => {
             minSearchTermLength > 1 ? "s" : ""
           } pour chercher`
         : "Pas de résultats",
-    [minSearchTermLength]
+    [minSearchTermLength],
   );
 
   return (

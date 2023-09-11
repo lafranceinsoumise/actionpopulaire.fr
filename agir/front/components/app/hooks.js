@@ -3,7 +3,10 @@ import { useHistory } from "react-router-dom";
 import { createGlobalState } from "react-use";
 
 import { getRouteByPathname, routeConfig } from "@agir/front/app/routes.config";
-import { useIsDesktop } from "@agir/front/genericComponents/grid";
+import {
+  useIsDesktop,
+  useResponsiveMemo,
+} from "@agir/front/genericComponents/grid";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getHasRouter, getRoutes } from "@agir/front/globalContext/reducers";
 import { useLocalStorage } from "@agir/lib/utils/hooks";
@@ -100,7 +103,7 @@ export const useDownloadBanner = () => {
  */
 export const useAppLoader = (isReady = true) => {
   const [loader, setLoader] = useState(
-    isReady ? document.getElementById("app_loader") : null,
+    isReady ? document.getElementById("app_loader") : null
   );
 
   useEffect(() => {

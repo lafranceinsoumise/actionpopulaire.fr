@@ -15,11 +15,10 @@ from agir.donations.actions import (
 from agir.donations.apps import DonsConfig
 from agir.donations.models import AllocationModelMixin, SpendingRequest, Document
 from agir.donations.spending_requests import (
-    get_spending_request_field_label,
-    get_spending_request_field_labels,
-    get_current_action,
     validate_action,
     get_revision_comment,
+    get_status_explanation,
+    get_action_label,
 )
 from agir.donations.validators import IBANSerializerValidator, BICSerializerValidator
 from agir.events.models import Event
@@ -29,7 +28,7 @@ from agir.groups.serializers import SupportGroupSerializer
 from agir.lib.data import departements_choices
 from agir.lib.display import display_price
 from agir.lib.export import snakecase_to_camelcase
-from agir.lib.serializers import PhoneField, CurrentPersonField
+from agir.lib.serializers import PhoneField
 from agir.payments import payment_modes
 from agir.people.models import Person
 
@@ -299,16 +298,19 @@ class BankAccountSerializer(serializers.Serializer):
         label="Nom du contact",
         max_length=255,
         required=False,
+        allow_blank=True,
     )
     iban = IBANSerializer(
         source="bank_account_iban",
         label="IBAN",
         required=False,
+        allow_blank=True,
     )
     bic = BICSerializer(
         source="bank_account_bic",
         label="BIC",
         required=False,
+        allow_blank=True,
     )
     rib = serializers.FileField(
         source="bank_account_rib",
@@ -392,12 +394,16 @@ class SpendingRequestDocumentSerializer(serializers.ModelSerializer):
 
 
 class SpendingRequestVersionSerializer(serializers.Serializer):
-    id = serializers.CharField()
-    modified = serializers.DateTimeField()
-    person = serializers.SerializerMethodField()
-    title = serializers.CharField()
-    comment = serializers.CharField()
-    diff = serializers.ListField()
+    id = serializers.CharField(read_only=True)
+    modified = serializers.DateTimeField(read_only=True)
+    person = serializers.SerializerMethodField(read_only=True)
+    title = serializers.CharField(read_only=True)
+    comment = serializers.CharField(read_only=True)
+    diff = serializers.ListField(read_only=True)
+    status = serializers.CharField(read_only=True)
+    fromStatus = serializers.CharField(
+        read_only=True, source="from_status", default=None
+    )
 
     def get_person(self, obj):
         person = obj and obj.get("person")
@@ -418,6 +424,25 @@ class SpendingRequestVersionSerializer(serializers.Serializer):
         }
 
 
+class SpendingRequestStatusSerializer(serializers.Serializer):
+    code = serializers.ReadOnlyField(label="Code du statut", source="status")
+    label = serializers.ReadOnlyField(label="Statut", source="get_status_display")
+    action = serializers.SerializerMethodField(read_only=True)
+    explanation = serializers.SerializerMethodField(read_only=True)
+    editable = serializers.BooleanField(label="Modifiable")
+    deletable = serializers.BooleanField(label="Supprimable")
+    editionWarning = serializers.CharField(source="edition_warning", read_only=True)
+    shouldValidate = serializers.BooleanField(
+        write_only=True, default=False, required=False
+    )
+
+    def get_action(self, spending_request):
+        return get_action_label(spending_request, self.context["request"].user)
+
+    def get_explanation(self, spending_request):
+        return get_status_explanation(spending_request, self.context["request"].user)
+
+
 class SpendingRequestSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField(label="Identifiant")
     created = serializers.ReadOnlyField(label="Date de création")
@@ -426,7 +451,7 @@ class SpendingRequestSerializer(serializers.ModelSerializer):
         label="Titre de la demande", required=True, max_length=200
     )
     explanation = serializers.CharField(
-        label="Motif de l'achat", max_length=1500, required=False
+        label="Motif de l'achat", max_length=1500, required=False, allow_blank=True
     )
     timing = serializers.ChoiceField(
         label="Type de dépense",
@@ -440,7 +465,7 @@ class SpendingRequestSerializer(serializers.ModelSerializer):
         required=False,
         default=False,
     )
-    status = serializers.ReadOnlyField(label="Statut", source="get_status_display")
+    status = SpendingRequestStatusSerializer(source="*", read_only=True)
     groupId = serializers.PrimaryKeyRelatedField(
         source="group",
         label="Groupe d'action",
@@ -478,19 +503,14 @@ class SpendingRequestSerializer(serializers.ModelSerializer):
     bankAccount = BankAccountSerializer(required=False)
     attachments = SpendingRequestDocumentSerializer(many=True, required=False)
     comment = serializers.CharField(
-        label="Commentaire", required=False, write_only=True
+        label="Commentaire",
+        required=False,
+        write_only=True,
+        allow_blank=True,
     )
     history = SpendingRequestVersionSerializer(
         label="Historique", source="get_history", read_only=True, many=True
     )
-    action = serializers.SerializerMethodField(read_only=True)
-    editionWarning = serializers.CharField(source="edition_warning", read_only=True)
-    shouldValidate = serializers.BooleanField(
-        write_only=True, default=False, required=False
-    )
-
-    def get_action(self, spending_request):
-        return get_current_action(spending_request, self.context["request"].user)
 
     def validate(self, attrs):
         attrs = super().validate(attrs)
@@ -555,9 +575,8 @@ class SpendingRequestSerializer(serializers.ModelSerializer):
         validated_data.pop("group", None)
         with reversion.create_revision():
             reversion.set_user(self.context["request"].user)
-            comment = self.validated_data.pop(
-                "comment",
-                get_revision_comment(instance.status),
+            comment = self.validated_data.pop("comment", None) or get_revision_comment(
+                instance.status
             )
             reversion.set_comment(comment)
 
@@ -635,11 +654,6 @@ class SpendingRequestSerializer(serializers.ModelSerializer):
             "contact",
             "bankAccount",
             "attachments",
-            "editable",
-            "deletable",
             "comment",
             "history",
-            "action",
-            "editionWarning",
-            "shouldValidate",
         )

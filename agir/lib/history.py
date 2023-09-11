@@ -62,5 +62,4 @@ class HistoryMixin:
             for previous_version, version in zip(chain([None], versions[:-1]), versions)
         ]
 
-        # Reverse the list to have the most recent items first
-        return steps[::-1]
+        return steps

@@ -14,7 +14,7 @@ const EventField = (props) => {
   const search = useCallback(
     (searchTerm) =>
       getOrganizedEvents({ q: searchTerm, group: groupPk, include_past: 1 }),
-    [groupPk]
+    [groupPk],
   );
 
   const formatResults = useCallback((results) => {
@@ -37,7 +37,7 @@ const EventField = (props) => {
 
   const [handleSearch, _options, isLoading] = useRemoteSearch(
     search,
-    formatResults
+    formatResults,
   );
 
   const currentValue = useMemo(() => {

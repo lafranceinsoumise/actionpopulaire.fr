@@ -303,8 +303,8 @@ const SuccessButton = styled(BaseButton)`
   }
 
   &[disabled] {
-    background-color: ${style.green500 + "B7"};
-    border-color: ${style.green500 + "B7"};
+    background-color: ${style.green500 + "4D"};
+    border-color: ${style.green500 + "4D"};
   }
 
   &:before {
@@ -412,7 +412,7 @@ const Button = styled(
     const { color } = props;
     const B = color && variants[color] ? variants[color] : variants.default;
     return <B ref={ref} {...props} />;
-  })
+  }),
 )``;
 
 Button.icons = Object.keys(ICONS);

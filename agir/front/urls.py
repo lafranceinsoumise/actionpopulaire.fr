@@ -253,6 +253,11 @@ spending_request_patterns = [
         name="spending_request_details",
     ),
     path(
+        "<uuid:pk>/historique/",
+        views.SpendingRequestDetailsView.as_view(),
+        name="spending_request_history",
+    ),
+    path(
         "<uuid:pk>/modifier/",
         views.SpendingRequestUpdateView.as_view(),
         name="spending_request_update",

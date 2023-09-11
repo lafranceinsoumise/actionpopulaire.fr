@@ -18,8 +18,8 @@ const StyledItem = styled(Card).attrs((props) => ({
   grid-template-columns: 1fr;
   grid-template-rows: auto auto;
   align-items: center;
-  gap: 0 1rem;
-  font-size: 1rem;
+  gap: 0 0.5rem;
+  font-size: 0.875rem;
   line-height: 1.5;
 
   & > span,
@@ -41,7 +41,7 @@ const StyledItem = styled(Card).attrs((props) => ({
     grid-row: 2/3;
   }
 
-  & > strong + span {
+  & > strong + span:not(${RawFeatherIcon}) {
     grid-row: 3/4;
     font-size: 0.875rem;
     color: ${(props) => props.theme.redNSP};
@@ -50,7 +50,6 @@ const StyledItem = styled(Card).attrs((props) => ({
     display: flex;
     flex-flow: column nowrap;
     align-items: stretch;
-    padding-top: 0.25rem;
 
     &:empty {
       display: none;
@@ -77,6 +76,15 @@ const StyledItem = styled(Card).attrs((props) => ({
     &[disabled]:focus {
       cursor: default;
       color: ${(props) => props.theme.black200};
+    }
+
+    ${RawFeatherIcon} {
+      width: 1.5rem;
+
+      @media (max-width: ${(props) => props.theme.collapse}px) {
+        width: 1rem;
+        height: 1rem;
+      }
     }
   }
 `;

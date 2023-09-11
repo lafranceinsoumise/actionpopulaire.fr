@@ -227,6 +227,8 @@ class SpendingRequestCreationForm(SpendingRequestFormMixin, forms.ModelForm):
         model = SpendingRequest
         fields = (
             "title",
+            "timing",
+            "campaign",
             "event",
             "category",
             "category_precisions",
@@ -239,6 +241,7 @@ class SpendingRequestCreationForm(SpendingRequestFormMixin, forms.ModelForm):
             "bank_account_rib",
             "contact_name",
             "contact_phone",
+            "contact_email",
         )
 
 
@@ -280,6 +283,8 @@ class SpendingRequestEditForm(SpendingRequestFormMixin, forms.ModelForm):
         model = SpendingRequest
         fields = (
             "title",
+            "timing",
+            "campaign",
             "event",
             "category",
             "category_precisions",
@@ -292,6 +297,7 @@ class SpendingRequestEditForm(SpendingRequestFormMixin, forms.ModelForm):
             "bank_account_rib",
             "contact_name",
             "contact_phone",
+            "contact_email",
         )
 
 

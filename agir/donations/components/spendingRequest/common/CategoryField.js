@@ -174,7 +174,7 @@ const CategoryField = (props) => {
     (e) => {
       onChange(e.target.value);
     },
-    [onChange]
+    [onChange],
   );
 
   return (

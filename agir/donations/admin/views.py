@@ -8,7 +8,7 @@ from django.views.generic import DetailView
 
 from agir.donations.admin.forms import HandleRequestForm
 from agir.donations.models import SpendingRequest, Spending
-from agir.donations.spending_requests import admin_summary
+from agir.donations.spending_requests import admin_summary, get_revision_comment
 from agir.lib.admin.panels import AdminViewMixin
 
 
@@ -49,8 +49,12 @@ class HandleRequestView(AdminViewMixin, DetailView):
 
         if form.is_valid():
             with reversion.create_revision():
-                reversion.set_comment(form.cleaned_data["comment"])
-                self.object.status = form.cleaned_data["status"]
+                new_status = form.cleaned_data["status"]
+                comment = form.cleaned_data.get("comment") or get_revision_comment(
+                    from_status=self.object.status, to_status=new_status
+                )
+                reversion.set_comment(comment)
+                self.object.status = new_status
 
                 if self.object.status == SpendingRequest.Status.VALIDATED:
                     try:

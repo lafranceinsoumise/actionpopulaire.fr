@@ -224,7 +224,7 @@ export const addEventProjectDocument = async (eventPk, data) => {
           ...errors,
           [field]: Array.isArray(error) ? error[0] : error,
         }),
-        {}
+        {},
       );
     }
   }

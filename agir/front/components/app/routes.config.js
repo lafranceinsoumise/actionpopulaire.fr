@@ -241,8 +241,20 @@ export const routeConfig = {
     path: "/financement/demande/:spendingRequestPk/",
     exact: true,
     neededAuthentication: AUTHENTICATION.HARD,
-    label: "Detail de la demande de dépense",
+    label: "Details de la demande",
     Component: RouteComponents.SpendingRequestDetails,
+  }),
+  spendingRequestHistory: new RouteConfig({
+    id: "spendingRequestDetails",
+    path: "/financement/demande/:spendingRequestPk/historique/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.HARD,
+    label: "Historique de la demande",
+    Component: RouteComponents.SpendingRequestHistory,
+    backLink: {
+      label: "Détails de la demande",
+      route: "spendingRequestDetails",
+    },
   }),
   editSpendingRequest: new RouteConfig({
     id: "editGroupSpendingRequest",

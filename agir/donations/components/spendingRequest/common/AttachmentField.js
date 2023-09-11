@@ -76,7 +76,7 @@ const AttachmentField = (props) => {
         handleSubmit();
       }
     },
-    [disabled, handleSubmit]
+    [disabled, handleSubmit],
   );
 
   useEffect(() => {

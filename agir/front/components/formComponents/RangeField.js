@@ -284,7 +284,7 @@ const RangeField = (props) => {
     (e) => {
       onChange(e.target.value);
     },
-    [onChange]
+    [onChange],
   );
 
   const inputProps = useMemo(() => validProps(rest), [rest]);

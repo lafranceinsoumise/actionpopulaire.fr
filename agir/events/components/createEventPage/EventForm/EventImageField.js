@@ -12,14 +12,14 @@ const EventImageField = (props) => {
     (file) => {
       onChange(name, file && { file, hasLicense: false });
     },
-    [name, onChange]
+    [name, onChange],
   );
 
   const handleChangeLicense = useCallback(
     (e) => {
       onChange(name, { ...value, hasLicense: e.target.checked });
     },
-    [name, value, onChange]
+    [name, value, onChange],
   );
 
   return (

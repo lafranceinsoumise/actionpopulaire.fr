@@ -38,7 +38,7 @@ const AnimatedOverlay = (props) => {
   const transitions = useTransition(shouldShow, fadeInTransition);
 
   return transitions((style, item) =>
-    item ? <Overlay style={style} onClick={onClick} /> : null
+    item ? <Overlay style={style} onClick={onClick} /> : null,
   );
 };
 
@@ -135,7 +135,7 @@ const Modal = (props) => {
     () => () => {
       modalParent && document.body.removeChild(modalParent);
     },
-    [modalParent]
+    [modalParent],
   );
 
   return createPortal(
@@ -152,9 +152,9 @@ const Modal = (props) => {
             {children}
           </ModalContent>
         </ModalFrame>
-      ) : null
+      ) : null,
     ),
-    modalParent
+    modalParent,
   );
 };
 Modal.propTypes = {

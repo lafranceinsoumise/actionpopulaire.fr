@@ -115,7 +115,7 @@ const AllocationWidget = (props) => {
 
   const options = useMemo(
     () => getAllocationOptions(totalAmount, groupId, fixedRatio),
-    [totalAmount, groupId, fixedRatio]
+    [totalAmount, groupId, fixedRatio],
   );
 
   const currentValue = useMemo(
@@ -123,14 +123,14 @@ const AllocationWidget = (props) => {
       value &&
       value.reduce(
         (obj, option) => ({ ...obj, [option.type]: option.value }),
-        {}
+        {},
       ),
-    [value]
+    [value],
   );
 
   const remainder = useMemo(
     () => getReminder(value, totalAmount),
-    [value, totalAmount]
+    [value, totalAmount],
   );
 
   const handleSelectOption = useCallback(
@@ -140,10 +140,10 @@ const AllocationWidget = (props) => {
         options.map((option) => ({
           ...option,
           value: option.defaultValue,
-        }))
+        })),
       );
     },
-    [options, onChange]
+    [options, onChange],
   );
 
   const handleChange = useCallback(
@@ -154,7 +154,7 @@ const AllocationWidget = (props) => {
           ...obj,
           [option.type]: option,
         }),
-        {}
+        {},
       );
       newState[type].value = newValue;
       if (!isNaN(parseFloat(newState[type].value))) {
@@ -163,7 +163,7 @@ const AllocationWidget = (props) => {
       }
       onChange(Object.values(newState));
     },
-    [onChange, value]
+    [onChange, value],
   );
 
   useEffect(() => {
@@ -262,7 +262,7 @@ AllocationWidget.propTypes = {
     PropTypes.shape({
       type: PropTypes.string,
       value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    })
+    }),
   ),
   groupId: PropTypes.string,
   fixedRatio: PropTypes.number,

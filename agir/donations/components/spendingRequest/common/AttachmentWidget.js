@@ -44,7 +44,7 @@ const AttachmentWidget = (props) => {
         ? onChange([...value, attachment])
         : onChange([attachment]);
     },
-    [value, onChange]
+    [value, onChange],
   );
 
   const handleDelete = useCallback(
@@ -53,7 +53,7 @@ const AttachmentWidget = (props) => {
         ? onChange([...value.slice(0, i), ...value.slice(i + 1)], i)
         : onChange([]);
     },
-    [value, onChange]
+    [value, onChange],
   );
 
   return (

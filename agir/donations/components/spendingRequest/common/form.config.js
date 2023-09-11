@@ -257,7 +257,7 @@ export const validateSpendingRequestDocument = (data) =>
 export const validateSpendingRequest = (
   data,
   shouldValidate,
-  hasAttachments = true
+  hasAttachments = true,
 ) => {
   const constraints = shouldValidate
     ? { ...SPENDING_REQUEST_VALIDATION_CONSTRAINT }
