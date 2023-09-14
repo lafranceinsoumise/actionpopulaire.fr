@@ -20,7 +20,6 @@ from agir.donations.spending_requests import (
     get_status_explanation,
     get_action_label,
 )
-from agir.donations.validators import IBANSerializerValidator, BICSerializerValidator
 from agir.events.models import Event
 from agir.events.serializers import EventListSerializer
 from agir.groups.models import SupportGroup
@@ -28,6 +27,7 @@ from agir.groups.serializers import SupportGroupSerializer
 from agir.lib.data import departements_choices
 from agir.lib.display import display_price
 from agir.lib.export import snakecase_to_camelcase
+from agir.lib.serializers import IBANSerializerField, BICSerializerField
 from agir.lib.serializers import PhoneField
 from agir.payments import payment_modes
 from agir.people.models import Person
@@ -284,14 +284,6 @@ class ContactSerializer(serializers.Serializer):
         super().__init__(instance, data, **kwargs)
 
 
-class IBANSerializer(serializers.CharField):
-    default_validators = [IBANSerializerValidator]
-
-
-class BICSerializer(serializers.CharField):
-    default_validators = [BICSerializerValidator]
-
-
 class BankAccountSerializer(serializers.Serializer):
     name = serializers.CharField(
         source="bank_account_name",
@@ -300,17 +292,19 @@ class BankAccountSerializer(serializers.Serializer):
         required=False,
         allow_blank=True,
     )
-    iban = IBANSerializer(
+    iban = IBANSerializerField(
         source="bank_account_iban",
         label="IBAN",
         required=False,
         allow_blank=True,
+        allowed_countries=["FR"],
     )
-    bic = BICSerializer(
+    bic = BICSerializerField(
         source="bank_account_bic",
         label="BIC",
         required=False,
         allow_blank=True,
+        allowed_countries=["FR"],
     )
     rib = serializers.FileField(
         source="bank_account_rib",
@@ -320,9 +314,9 @@ class BankAccountSerializer(serializers.Serializer):
         allow_null=True,
     )
 
-    def __init__(self, instance=None, data=empty, **kwargs):
+    def __init__(self, **kwargs):
         kwargs.setdefault("source", "*")
-        super().__init__(instance, data, **kwargs)
+        super().__init__(**kwargs)
 
 
 class SpendingRequestDocumentSerializer(serializers.ModelSerializer):

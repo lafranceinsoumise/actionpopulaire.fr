@@ -7,11 +7,17 @@ from rest_framework.fields import empty
 from rest_framework.serializers import BaseSerializer
 from rest_framework_gis.fields import GeometryField
 
-from agir.lib.geo import get_commune
 from agir.carte.models import StaticMapImage
+from agir.lib.geo import get_commune
 from .data import code_postal_vers_code_departement
 from .geo import FRENCH_COUNTRY_CODES
+from .iban import to_iban, to_bic
 from .tasks import create_static_map_image_from_coordinates
+from .validators import (
+    IBANSerializerValidator,
+    BICSerializerValidator,
+    AllowedCountriesValidator,
+)
 
 
 class NullAsBlankMixin:
@@ -373,3 +379,42 @@ class CurrentPersonField(serializers.HiddenField):
     def __init__(self, **kwargs):
         kwargs["default"] = self.default
         super().__init__(**kwargs)
+
+
+class IBANSerializerField(serializers.CharField):
+    default_error_messages = {
+        "invalid": "Indiquez un numéro IBAN identifiant un compte existant. Ce numéro, composé de 14 à 34 chiffres et"
+        " lettres, commence par deux lettres identifiant le pays du compte.",
+        "invalid_country": "Seuls les comptes des pays suivants sont autorisés : {allowed_countries}.",
+    }
+
+    def __init__(self, allowed_countries=None, **kwargs):
+        super().__init__(**kwargs)
+        self.validators.append(IBANSerializerValidator())
+        if allowed_countries:
+            self.validators.append(
+                AllowedCountriesValidator(allowed_countries=allowed_countries)
+            )
+
+    def to_internal_value(self, data):
+        data = super().to_internal_value(data)
+        return to_iban(data)
+
+
+class BICSerializerField(serializers.CharField):
+    default_error_messages = {
+        "invalid": "Indiquez un BIC correct (8 ou 11 caractères et chiffres).",
+        "invalid_country": "Seuls les comptes des pays suivants sont autorisés : {allowed_countries}.",
+    }
+
+    def __init__(self, allowed_countries=None, **kwargs):
+        super().__init__(**kwargs)
+        self.validators.append(BICSerializerValidator())
+        if allowed_countries:
+            self.validators.append(
+                AllowedCountriesValidator(allowed_countries=allowed_countries)
+            )
+
+    def to_internal_value(self, data):
+        data = super().to_internal_value(data)
+        return to_bic(data)

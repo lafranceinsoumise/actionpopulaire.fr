@@ -21,7 +21,6 @@ from django.utils.translation import gettext_lazy as _, ngettext_lazy
 from django_countries import countries
 from phonenumber_field.phonenumber import PhoneNumber
 
-from agir.donations.validators import validate_iban
 from agir.lib.iban import IBAN, to_iban
 from agir.lib.time import dehumanize_naturaltime
 from agir.lib.validators import (
@@ -30,6 +29,7 @@ from agir.lib.validators import (
     MaxDaysDeltaValidator,
     MaxValueListValidator,
 )
+from agir.lib.validators import validate_iban
 
 
 class BootstrapDateTimePickerBaseWidget(DateTimeBaseInput):
