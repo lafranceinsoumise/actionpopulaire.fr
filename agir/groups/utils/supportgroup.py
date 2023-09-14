@@ -88,7 +88,7 @@ def get_supportgroup_routes(supportgroup, membership=None, user=None):
         "calendarExport": front_url("ics_group", kwargs={"pk": supportgroup.pk}),
         "createEvent": f'{front_url("create_event")}?group={str(supportgroup.pk)}',
         "createSpendingRequest": front_url(
-            "create_spending_request", kwargs={"group_id": supportgroup.pk}
+            "create_group_spending_request", kwargs={"pk": supportgroup.pk}
         ),
         "deleteGroup": "https://actionpopulaire.fr/formulaires/demande-suppression-ga/",
         "details": front_url("view_group", kwargs={"pk": supportgroup.pk}),

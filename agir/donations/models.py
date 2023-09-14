@@ -490,7 +490,7 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
 
     @property
     def front_url(self):
-        return front_url("manage_spending_request", args=(self.pk,), absolute=True)
+        return front_url("spending_request_details", args=(self.pk,), absolute=True)
 
     @property
     def admin_url(self):

@@ -1,8 +1,7 @@
 import reversion
 from django.db import IntegrityError
-from django.urls import reverse
 from django.utils.html import format_html
-from django.utils.translation import gettext_lazy as _, ngettext
+from django.utils.translation import ngettext
 from glom import glom, T
 
 from agir.donations.allocations import get_supportgroup_balance
@@ -48,77 +47,6 @@ def admin_summary(spending_request):
     return [
         {"label": get_spending_request_field_label(f), "value": values[f]} for f in spec
     ]
-
-
-def summary(spending_request):
-    """Renvoie un résumé de la demande de dépense pour l'affichage sur la page de gestion
-
-    :param spending_request: la demande de dépense à résumer
-    :return: un itérateur vers les différents champs constituant le résumé
-    """
-
-    other_display_fields = [
-        "explanation",
-        "spending_date",
-        "contact_name",
-        "contact_phone",
-        "bank_account_name",
-        "bank_account_iban",
-        "bank_account_bic",
-        "bank_account_rib",
-    ]
-
-    yield {"label": "Identifiant de la demande", "value": str(spending_request.pk)[:6]}
-    yield {
-        "label": get_spending_request_field_label("title"),
-        "value": spending_request.title,
-    }
-
-    status = spending_request.get_status_display()
-    if spending_request.ready_for_review:
-        status = _(
-            "Dès que votre brouillon est complet, vous pouvez le confirmer pour validation par l'équipe de suivi."
-        )
-
-    if spending_request.need_action:
-        status = format_html("<strong>{}</strong>", status)
-
-    yield {"label": get_spending_request_field_label("status"), "value": status}
-
-    balance = get_supportgroup_balance(spending_request.group)
-
-    amount_text = display_price(spending_request.amount)
-
-    if spending_request.amount > balance:
-        amount_text = format_html(
-            "{}<br><strong style=\"color: #BB1111;\">L'allocation de votre groupe est pour l'instant insuffisante, votre"
-            " demande ne pourra pas être validée</strong>",
-            amount_text,
-        )
-
-    yield {"label": get_spending_request_field_label("amount"), "value": amount_text}
-
-    yield {
-        "label": get_spending_request_field_label("event"),
-        "value": format_html(
-            '<a href="{link}">{name}</a>',
-            link=reverse("view_event", kwargs={"pk": spending_request.event.id}),
-            name=spending_request.event.name,
-        )
-        if spending_request.event
-        else _("Aucun"),
-    }
-
-    yield {
-        "label": get_spending_request_field_label("category"),
-        "value": spending_request.get_category_display(),
-    }
-
-    for f in other_display_fields:
-        yield {
-            "label": get_spending_request_field_label(f),
-            "value": getattr(spending_request, f),
-        }
 
 
 STATUS_EXPLANATION = {
@@ -228,11 +156,18 @@ def get_status_explanation(spending_request, user):
     return explanation + " " + get_missing_field_error_message(spending_request)
 
 
-def get_current_action(spending_request, user):
-    return {
-        "label": get_action_label(spending_request, user),
-        "explanation": get_status_explanation(spending_request, user),
-    }
+def get_spending_request_field_label(field):
+    if field in ("attachments", "documents"):
+        return "Pièces justificatives"
+    model_field = SpendingRequest._meta.get_field(field)
+    return str(model_field.verbose_name if model_field else field)
+
+
+def get_spending_request_field_labels(fields, join=False):
+    fields = [get_spending_request_field_label(field) for field in fields]
+    if not join:
+        return fields
+    return ", ".join(fields)
 
 
 def validate_action(spending_request, user):
@@ -268,17 +203,3 @@ def validate_action(spending_request, user):
             send_spending_request_to_review_email.delay(spending_request.pk)
 
         return True
-
-
-def get_spending_request_field_label(field):
-    if field in ("attachments", "documents"):
-        return "Pièces justificatives"
-    model_field = SpendingRequest._meta.get_field(field)
-    return str(model_field.verbose_name if model_field else field)
-
-
-def get_spending_request_field_labels(fields, join=False):
-    fields = [get_spending_request_field_label(field) for field in fields]
-    if not join:
-        return fields
-    return ", ".join(fields)

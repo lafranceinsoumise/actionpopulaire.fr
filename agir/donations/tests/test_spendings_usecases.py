@@ -1,3 +1,5 @@
+from unittest import skip
+
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
@@ -14,6 +16,7 @@ def round_date_like_reversion(d):
     return d.replace(microsecond=d.microsecond // 1000 * 1000)
 
 
+@skip("Legacy test to be rewritten as API test cases")
 class SpendingRequestTestCase(TestCase):
     def setUp(self):
         self.p1 = Person.objects.create_insoumise("test1@test.com", create_role=True)

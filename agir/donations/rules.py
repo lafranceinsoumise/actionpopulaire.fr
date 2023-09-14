@@ -51,10 +51,6 @@ rules.add_perm(
     is_authenticated_person & is_financeable_group & is_at_least_manager_for_group,
 )
 rules.add_perm(
-    "donations.create_spendingrequest",
-    is_authenticated_person & is_manager_of_at_least_one_financeable_group,
-)
-rules.add_perm(
     "donations.change_spendingrequest",
     is_authenticated_person
     & is_editable_spending_request
