@@ -36,7 +36,7 @@ class HandleRequestView(AdminViewMixin, DetailView):
         return super().get_context_data(
             title="Résumé des événements",
             spending_request=self.object,
-            documents=self.object.documents.all(),
+            documents=self.object.documents.filter(deleted=False),
             fields=admin_summary(self.object),
             history=self.object.get_history(admin=True),
             **self.get_admin_helpers(kwargs["form"], kwargs["form"].fields),

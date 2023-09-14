@@ -2,7 +2,7 @@ import reversion
 from django.db import IntegrityError
 from django.utils.html import format_html
 from django.utils.translation import ngettext
-from glom import glom, T
+from glom import glom, T, Coalesce
 
 from agir.donations.allocations import get_supportgroup_balance
 from agir.donations.models import SpendingRequest, Spending
@@ -22,6 +22,17 @@ def group_formatter(group):
     )
 
 
+def bank_account_rib_formatter(rib):
+    if not rib:
+        return "-"
+
+    return format_html(
+        '<a download={name} href="{url}">💾 Télécharger le RIB</a>',
+        name=rib.name,
+        url=rib.url,
+    )
+
+
 def admin_summary(spending_request):
     spec = {
         "id": "id",
@@ -34,10 +45,12 @@ def admin_summary(spending_request):
         "category_precisions": "category_precisions",
         "explanation": "explanation",
         "amount": ("amount", display_price),
+        "timing": T.get_timing_display(),
         "spending_date": "spending_date",
         "bank_account_name": "bank_account_name",
         "bank_account_iban": "bank_account_iban",
         "bank_account_bic": "bank_account_bic",
+        "bank_account_rib": ("bank_account_rib", bank_account_rib_formatter),
         "contact_name": "contact_name",
         "contact_phone": "contact_phone",
     }
