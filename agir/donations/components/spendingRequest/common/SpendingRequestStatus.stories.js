@@ -7,7 +7,7 @@ const labels = Object.values(STATUS_CONFIG).reduce(
     ...o,
     [v.id]: v.label,
   }),
-  {}
+  {},
 );
 
 export default {

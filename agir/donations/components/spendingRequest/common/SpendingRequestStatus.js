@@ -127,7 +127,7 @@ const SpendingRequestStatus = (props) => {
 
   const handleDoubleClick = useCallback(
     () => !isHighlighted && setIsHighlighted(true),
-    [isHighlighted]
+    [isHighlighted],
   );
 
   const [style] = useSpring(() => {

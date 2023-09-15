@@ -124,7 +124,7 @@ export const getFieldStepFromErrors = (errors) =>
   FORM_STEPS.findIndex(
     (stepFields) =>
       stepFields.length > 0 &&
-      stepFields.some((field) => typeof errors[field] !== "undefined")
+      stepFields.some((field) => typeof errors[field] !== "undefined"),
   );
 
 const CreateSpendingRequestForm = (props) => {
@@ -251,7 +251,7 @@ const CreateSpendingRequestForm = (props) => {
         goToStep(fieldStep);
       }
     },
-    [formStep, goToStep]
+    [formStep, goToStep],
   );
 
   const saveRequest = useCallback(
@@ -270,7 +270,7 @@ const CreateSpendingRequestForm = (props) => {
       }
       setIsLoading(false);
     },
-    [data, handleErrors]
+    [data, handleErrors],
   );
 
   const handleSave = useCallback(
@@ -278,7 +278,7 @@ const CreateSpendingRequestForm = (props) => {
       e.preventDefault();
       saveRequest(false);
     },
-    [saveRequest]
+    [saveRequest],
   );
 
   const handleSubmit = useCallback(
@@ -286,7 +286,7 @@ const CreateSpendingRequestForm = (props) => {
       e.preventDefault();
       saveRequest(true);
     },
-    [saveRequest]
+    [saveRequest],
   );
 
   const globalError = errors?.global || errors?.detail;

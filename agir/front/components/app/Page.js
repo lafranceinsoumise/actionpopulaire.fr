@@ -90,7 +90,7 @@ const Page = (props) => {
     let unlisten = history.listen((location, action) => {
       log.debug(
         `Navigate ${action} ${location.pathname}${location.search}${location.hash}`,
-        JSON.stringify(history, null, 2)
+        JSON.stringify(history, null, 2),
       );
     });
 

@@ -19,14 +19,14 @@ const BankAccountField = (props) => {
     (e) => {
       onChange && onChange(props.name, e.target.name, e.target.value);
     },
-    [props.name, onChange]
+    [props.name, onChange],
   );
 
   const handleChangeRib = useCallback(
     (value) => {
       onChange && onChange(props.name, "rib", value);
     },
-    [props.name, onChange]
+    [props.name, onChange],
   );
 
   return (

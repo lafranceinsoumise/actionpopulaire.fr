@@ -142,7 +142,7 @@ const StepActions = (props) => {
 
   const saveLabel = useResponsiveMemo(
     "Enregistrer le brouillon",
-    "Enregistrer"
+    "Enregistrer",
   );
 
   return (

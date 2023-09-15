@@ -25,7 +25,7 @@ const AgreementField = ({ initialValue, onChange, disabled, reset }) => {
         Object.keys(data).reduce((obj, key) => {
           obj[key] = false;
           return obj;
-        }, {})
+        }, {}),
       );
   }, [reset]);
 

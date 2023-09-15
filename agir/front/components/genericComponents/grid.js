@@ -179,7 +179,7 @@ export const useIsDesktop = (breakpoint) => {
 
   let refresh = useCallback(
     () => setDesktop(window.innerWidth > breakpoint),
-    [breakpoint]
+    [breakpoint],
   );
 
   useEffect(() => {
@@ -216,7 +216,7 @@ export const useResponsiveMemo = (mobileValue, desktopValue, breakpoint) => {
 
   const value = useMemo(
     () => (isDesktop ? desktopValue : mobileValue),
-    [isDesktop, mobileValue, desktopValue]
+    [isDesktop, mobileValue, desktopValue],
   );
 
   return value;

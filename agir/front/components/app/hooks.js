@@ -103,7 +103,7 @@ export const useDownloadBanner = () => {
  */
 export const useAppLoader = (isReady = true) => {
   const [loader, setLoader] = useState(
-    isReady ? document.getElementById("app_loader") : null
+    isReady ? document.getElementById("app_loader") : null,
   );
 
   useEffect(() => {

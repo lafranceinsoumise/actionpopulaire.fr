@@ -617,7 +617,7 @@ export const routeConfig = {
 
 export const getRouteByPathname = (pathname) => {
   return Object.values(routeConfig).find(
-    (route) => route.path === pathname || route.match(pathname)
+    (route) => route.path === pathname || route.match(pathname),
   );
 };
 

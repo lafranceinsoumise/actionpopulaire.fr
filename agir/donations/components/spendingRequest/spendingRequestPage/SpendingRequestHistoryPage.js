@@ -68,7 +68,7 @@ const SpendingRequestHistoryPage = ({ spendingRequestPk }) => {
   const { data: spendingRequest, isLoading: isSpendingRequestLoading } = useSWR(
     api.getSpendingRequestEndpoint("getSpendingRequest", {
       spendingRequestPk,
-    })
+    }),
   );
 
   const isDesktop = useIsDesktop();

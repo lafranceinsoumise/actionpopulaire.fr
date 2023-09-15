@@ -132,7 +132,7 @@ export const getFieldStepFromErrors = (errors) =>
   FORM_STEPS.findIndex(
     (stepFields) =>
       stepFields.length > 0 &&
-      stepFields.some((field) => typeof errors[field] !== "undefined")
+      stepFields.some((field) => typeof errors[field] !== "undefined"),
   );
 
 const EditSpendingRequestForm = (props) => {
@@ -144,7 +144,7 @@ const EditSpendingRequestForm = (props) => {
     useSteps(0);
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState(
-    getInitialDataFromSpendingRequest(spendingRequest)
+    getInitialDataFromSpendingRequest(spendingRequest),
   );
   const [errors, setErrors] = useState(null);
   const [hasAgreement, setHasAgreement] = useState();
@@ -248,7 +248,7 @@ const EditSpendingRequestForm = (props) => {
         goToStep(fieldStep);
       }
     },
-    [formStep, goToStep]
+    [formStep, goToStep],
   );
 
   const saveRequest = useCallback(
@@ -256,7 +256,7 @@ const EditSpendingRequestForm = (props) => {
       const validationErrors = validateSpendingRequest(
         data,
         shouldValidate,
-        false
+        false,
       );
       if (validationErrors) {
         return handleErrors(validationErrors);
@@ -266,7 +266,7 @@ const EditSpendingRequestForm = (props) => {
       const response = await updateSpendingRequest(
         spendingRequestPk,
         data,
-        shouldValidate
+        shouldValidate,
       );
       if (response.error) {
         handleErrors(response.error);
@@ -276,7 +276,7 @@ const EditSpendingRequestForm = (props) => {
       }
       setIsLoading(false);
     },
-    [spendingRequestPk, data, handleErrors, onUpdate]
+    [spendingRequestPk, data, handleErrors, onUpdate],
   );
 
   const handleSave = useCallback(
@@ -284,7 +284,7 @@ const EditSpendingRequestForm = (props) => {
       e.preventDefault();
       saveRequest(false);
     },
-    [saveRequest]
+    [saveRequest],
   );
 
   const handleSubmit = useCallback(
@@ -292,7 +292,7 @@ const EditSpendingRequestForm = (props) => {
       e.preventDefault();
       saveRequest(true);
     },
-    [saveRequest]
+    [saveRequest],
   );
 
   const globalError = errors?.global || errors?.detail;

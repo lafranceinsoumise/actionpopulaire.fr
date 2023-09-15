@@ -179,7 +179,7 @@ const SpendingRequestHistoryItem = (props) => {
       typeof props.person === "object"
         ? props.person
         : { displayName: props.person, isAdmin: true },
-    [props.person]
+    [props.person],
   );
   const statusConfig = STATUS_CONFIG[status];
   const icon = person.isAdmin
@@ -235,7 +235,7 @@ const SpendingRequestHistory = (props) => {
       Array.isArray(history)
         ? history.sort((a, b) => parseInt(b.id) - parseInt(a.id))
         : [],
-    [history]
+    [history],
   );
 
   return (
@@ -279,7 +279,7 @@ SpendingRequestHistory.propTypes = {
       diff: PropTypes.arrayOf(PropTypes.string),
       status: PropTypes.string,
       fromStatus: PropTypes.string,
-    })
+    }),
   ),
 };
 

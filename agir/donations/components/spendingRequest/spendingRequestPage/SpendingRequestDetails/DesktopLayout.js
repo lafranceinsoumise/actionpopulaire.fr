@@ -93,15 +93,15 @@ const SpendingRequestDetails = (props) => {
 
   const spendingRequestTiming = useMemo(
     () => (timing && TIMING_OPTIONS[timing]?.shortLabel) || "",
-    [timing]
+    [timing],
   );
   const spendingRequestSpendingDate = useMemo(
     () => (spendingDate ? simpleDate(spendingDate, false) : ""),
-    [spendingDate]
+    [spendingDate],
   );
   const spendingRequestAmount = useMemo(
     () => (amount ? displayPrice(amount, true) : "— €"),
-    [amount]
+    [amount],
   );
 
   return (

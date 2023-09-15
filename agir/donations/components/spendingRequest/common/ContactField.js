@@ -28,7 +28,7 @@ const ContactField = (props) => {
     (e) => {
       onChange && onChange(props.name, e.target.name, e.target.value);
     },
-    [props.name, onChange]
+    [props.name, onChange],
   );
 
   return (

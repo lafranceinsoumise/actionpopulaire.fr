@@ -53,7 +53,7 @@ const DeleteSpendingRequestButton = ({ spendingRequest, disabled }) => {
             },
           }
         : undefined,
-    [group]
+    [group],
   );
 
   useBackLink(redirectTo);

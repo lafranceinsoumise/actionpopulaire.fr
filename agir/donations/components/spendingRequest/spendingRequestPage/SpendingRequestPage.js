@@ -104,7 +104,7 @@ const SpendingRequestPage = ({ spendingRequestPk }) => {
   } = useSWR(
     api.getSpendingRequestEndpoint("getSpendingRequest", {
       spendingRequestPk,
-    })
+    }),
   );
 
   const isReady = !isSpendingRequestLoading && !isSessionLoading;
@@ -127,7 +127,7 @@ const SpendingRequestPage = ({ spendingRequestPk }) => {
       setSelectedAttachment(attachment || {});
       setAttachmentAction("edit");
     },
-    [attachments]
+    [attachments],
   );
 
   const handleDeleteAttachment = useCallback(
@@ -137,7 +137,7 @@ const SpendingRequestPage = ({ spendingRequestPk }) => {
       setSelectedAttachment(attachment || null);
       setAttachmentAction("delete");
     },
-    [attachments]
+    [attachments],
   );
 
   const handleUnselectAttachment = useCallback(() => {
@@ -164,10 +164,10 @@ const SpendingRequestPage = ({ spendingRequestPk }) => {
         updatedRequest.status.code !== status
           ? "La pièce a été enregistrée et le statut de la demande mis à jour"
           : "La pièce justificative a été enregistrée",
-        "SUCCESS"
+        "SUCCESS",
       );
     },
-    [mutate, sendToast, spendingRequestPk, status]
+    [mutate, sendToast, spendingRequestPk, status],
   );
 
   const deleteAttachment = useCallback(
@@ -184,13 +184,13 @@ const SpendingRequestPage = ({ spendingRequestPk }) => {
       mutate((spendingRequest) => ({
         ...spendingRequest,
         attachments: spendingRequest.attachments.filter(
-          (a) => a.id !== attachmentPk
+          (a) => a.id !== attachmentPk,
         ),
       }));
       setSelectedAttachment(null);
       setIsLoadingAttachment(false);
     },
-    [mutate]
+    [mutate],
   );
 
   return (

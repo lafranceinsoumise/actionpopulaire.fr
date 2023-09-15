@@ -110,12 +110,12 @@ export const AttachmentItem = (props) => {
 
   const typeLabel = useMemo(
     () => DOCUMENT_TYPE_OPTIONS[type]?.label || type,
-    [type]
+    [type],
   );
 
   const hasError = useMemo(
     () => error && Object.values(error).filter(Boolean).length > 0,
-    [error]
+    [error],
   );
 
   return (

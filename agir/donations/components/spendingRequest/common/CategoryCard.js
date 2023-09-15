@@ -65,7 +65,7 @@ const CategoryCard = (props) => {
 
   const option = useMemo(
     () => OPTIONS.find((option) => option.value === category),
-    [category]
+    [category],
   );
 
   return (
