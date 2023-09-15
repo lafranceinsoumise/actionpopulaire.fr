@@ -59,7 +59,7 @@ const StyledHistoryItem = styled.li`
 
   @media (max-width: ${(props) => props.theme.collapse}px) {
     --lineX: 1rem;
-    gap: 1.5rem;
+    gap: 1rem;
   }
 
   & > div:first-child {
@@ -117,6 +117,11 @@ const StyledHistoryItem = styled.li`
         flex: 0 0 auto;
         width: 3rem;
         height: 3rem;
+
+        @media (max-width: ${(props) => props.theme.collapse}px) {
+          width: 2rem;
+          height: 2rem;
+        }
       }
 
       ${StyledAvatarFaIcon} {
@@ -190,7 +195,13 @@ const SpendingRequestHistoryItem = (props) => {
 
   return (
     <StyledHistoryItem $admin={!!person.isAdmin}>
-      <div title={fromStatus ? "Changement de statut" : statusConfig.label}>
+      <div
+        title={
+          fromStatus
+            ? `Changement de statut ⟶ ${statusConfig.label}`
+            : statusConfig.label
+        }
+      >
         <FaIcon size="1rem" icon={icon} />
       </div>
       <Card bordered>

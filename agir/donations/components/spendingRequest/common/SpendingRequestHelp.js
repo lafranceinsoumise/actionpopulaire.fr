@@ -26,10 +26,19 @@ const StyledMenuTrigger = styled.button`
     text-decoration: underline;
   }
 
+  @media (max-width: ${style.collapse}px) {
+    font-size: 0.875rem;
+    align-items: start;
+  }
+
   ${RawFeatherIcon} {
     outline: none;
     width: 1rem;
     height: 1rem;
+
+    @media (max-width: ${style.collapse}px) {
+      margin-top: 3px;
+    }
   }
 `;
 
@@ -86,7 +95,7 @@ export const HELP_CONFIG = {
   },
   documentQuality: {
     trigger:
-      "Envoyez de préférence des documents numériques ou scannés : ils doivent être lisibles (exemple)",
+      "Envoyez de préférence des documents numériques ou scannés : ils doivent être lisibles (exemple)",
     menu: (
       <>
         <article style={{ textAlign: "center" }}>

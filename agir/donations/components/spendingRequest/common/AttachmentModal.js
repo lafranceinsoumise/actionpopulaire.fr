@@ -49,8 +49,7 @@ const StyledModalContent = styled.div`
     border-radius: 0;
     max-width: 100%;
     min-height: 100vh;
-    padding-top: 3rem;
-    padding-bottom: 1.5rem;
+    padding: 3.5rem 1rem 1.5rem;
     margin: 0;
     display: flex;
     flex-flow: column nowrap;

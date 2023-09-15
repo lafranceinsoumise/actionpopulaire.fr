@@ -1,6 +1,9 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useEffect } from "react";
 import Helmet from "react-helmet";
+
+import { useDispatch } from "@agir/front/globalContext/GlobalContext";
+import { setPageTitle } from "@agir/front/globalContext/actions";
 
 const DEFAULT_TYPE = "website";
 const DEFAULT_TITLE = "Action Populaire";
@@ -8,6 +11,14 @@ const DEFAULT_DESCRIPTION =
   "Action Populaire est le réseau social d'action de la France insoumise et de la NUPES.";
 const DEFAULT_URL = "https://actionpopulaire.fr/";
 const DEFAULT_IMAGE = "/static/front/assets/og_image_NSP.jpg";
+
+export const usePageTitle = (title) => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    title && dispatch(setPageTitle(title));
+  }, [dispatch, title]);
+};
 
 const OpenGraphTags = (props) => {
   const {

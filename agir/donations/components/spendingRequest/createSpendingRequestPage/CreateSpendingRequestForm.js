@@ -319,17 +319,20 @@ const CreateSpendingRequestForm = (props) => {
         <Hide
           $over
           as={Button}
+          wrap
           link
           color="link"
           icon="arrow-right"
           route="spendingRequestHelp"
+          style={{ textAlign: "left" }}
         >
-          Un doute ? Consultez le <strong>centre d'aide</strong>
+          Un doute ? Consultez le centre d'aide
         </Hide>
         <Hide $under as={StyledLabel}>
           Détails (obligatoire)
         </Hide>
         <RadioField
+          autoFocus
           disabled={isLoading}
           id="timing"
           name="timing"
@@ -427,7 +430,6 @@ const CreateSpendingRequestForm = (props) => {
         <NumberField
           currency
           large
-          type="number"
           disabled={isLoading}
           id="amount"
           name="amount"

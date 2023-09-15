@@ -31,6 +31,7 @@ from agir.lib.serializers import IBANSerializerField, BICSerializerField
 from agir.lib.serializers import PhoneField
 from agir.payments import payment_modes
 from agir.people.models import Person
+from agir.people.serializers import PersonSerializer
 
 SINGLE_TIME = "S"
 MONTHLY = "M"
@@ -426,9 +427,6 @@ class SpendingRequestStatusSerializer(serializers.Serializer):
     editable = serializers.BooleanField(label="Modifiable")
     deletable = serializers.BooleanField(label="Supprimable")
     editionWarning = serializers.CharField(source="edition_warning", read_only=True)
-    shouldValidate = serializers.BooleanField(
-        write_only=True, default=False, required=False
-    )
 
     def get_action(self, spending_request):
         return get_action_label(spending_request, self.context["request"].user)
@@ -441,6 +439,7 @@ class SpendingRequestSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField(label="Identifiant")
     created = serializers.ReadOnlyField(label="Date de création")
     modified = serializers.ReadOnlyField(label="Dernière modification")
+    creator = serializers.ReadOnlyField(source="creator.display_name")
     title = serializers.CharField(
         label="Titre de la demande", required=True, max_length=200
     )
@@ -504,6 +503,9 @@ class SpendingRequestSerializer(serializers.ModelSerializer):
     )
     history = SpendingRequestVersionSerializer(
         label="Historique", source="get_history", read_only=True, many=True
+    )
+    shouldValidate = serializers.BooleanField(
+        write_only=True, default=False, required=False
     )
 
     def validate(self, attrs):
@@ -632,6 +634,7 @@ class SpendingRequestSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "created",
+            "creator",
             "modified",
             "title",
             "timing",
@@ -650,4 +653,5 @@ class SpendingRequestSerializer(serializers.ModelSerializer):
             "attachments",
             "comment",
             "history",
+            "shouldValidate",
         )

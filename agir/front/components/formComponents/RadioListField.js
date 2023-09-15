@@ -1,9 +1,10 @@
 import PropTypes from "prop-types";
 import React, { useCallback } from "react";
 import styled from "styled-components";
-import { RawFeatherIcon } from "../genericComponents/FeatherIcon";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import { ResponsiveSpan } from "@agir/front/genericComponents/grid";
 
-const StyledOptionLabel = styled.span``;
+const StyledOptionLabel = styled(ResponsiveSpan)``;
 const StyledOption = styled.label`
   display: inline-flex;
   flex-flow: row nowrap;
@@ -126,6 +127,7 @@ const RadioListField = (props) => {
               $checked={value === option.value}
               $disabled={disabled}
               $small={small}
+              type="button"
             >
               {value === option.value && (
                 <RawFeatherIcon
@@ -135,7 +137,10 @@ const RadioListField = (props) => {
                   strokeWidth={1.33}
                 />
               )}
-              <StyledOptionLabel>{option.label}</StyledOptionLabel>
+              <StyledOptionLabel
+                small={option.smallLabel || option.label}
+                large={option.label}
+              />
             </StyledOption>
           </React.Fragment>
         ))}

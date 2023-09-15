@@ -37,28 +37,30 @@ def admin_summary(spending_request):
     spec = {
         "id": "id",
         "title": "title",
+        "created": "created",
         "status": T.get_status_display(),
-        "group": ("group", group_formatter),
-        "event": "event",
         "campaign": "campaign",
+        "timing": T.get_timing_display(),
+        "spending_date": "spending_date",
+        "amount": ("amount", display_price),
         "category": T.get_category_display(),
         "category_precisions": "category_precisions",
         "explanation": "explanation",
-        "amount": ("amount", display_price),
-        "timing": T.get_timing_display(),
-        "spending_date": "spending_date",
+        "contact_name": "contact_name",
+        "contact_phone": "contact_phone",
+        "group": ("group", group_formatter),
+        "event": Coalesce("event", default=""),
         "bank_account_name": "bank_account_name",
         "bank_account_iban": "bank_account_iban",
         "bank_account_bic": "bank_account_bic",
         "bank_account_rib": ("bank_account_rib", bank_account_rib_formatter),
-        "contact_name": "contact_name",
-        "contact_phone": "contact_phone",
     }
 
     values = glom(spending_request, spec)
 
     return [
-        {"label": get_spending_request_field_label(f), "value": values[f]} for f in spec
+        {"label": get_spending_request_field_label(key), "value": values[key] or "-"}
+        for key in spec
     ]
 
 
@@ -172,8 +174,14 @@ def get_status_explanation(spending_request, user):
 def get_spending_request_field_label(field):
     if field in ("attachments", "documents"):
         return "Pièces justificatives"
+
     model_field = SpendingRequest._meta.get_field(field)
-    return str(model_field.verbose_name if model_field else field)
+
+    if field == "category_precision":
+        return f"{model_field.verbose_name} (champ obsolète)"
+
+    label = str(model_field.verbose_name if model_field else field)
+    return label[0].upper() + label[1:]
 
 
 def get_spending_request_field_labels(fields, join=False):

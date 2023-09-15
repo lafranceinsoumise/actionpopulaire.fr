@@ -16,6 +16,12 @@ const StyledPage = styled.main`
   margin: 0 auto;
   min-height: 50vh;
 
+  @media (max-width: ${(props) => props.theme.collapse}px) {
+    padding: 1.5rem;
+    max-width: 100%;
+    min-height: calc(100vh - 300px);
+  }
+
   nav {
     display: flex;
     justify-content: space-between;

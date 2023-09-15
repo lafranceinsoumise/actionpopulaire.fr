@@ -71,7 +71,7 @@ const AttachmentField = (props) => {
 
   const handleKeyDown = useCallback(
     (e) => {
-      if (!disabled && e.keyCode === 13) {
+      if (!disabled && e.target.type !== "button" && e.keyCode === 13) {
         e.preventDefault();
         handleSubmit();
       }

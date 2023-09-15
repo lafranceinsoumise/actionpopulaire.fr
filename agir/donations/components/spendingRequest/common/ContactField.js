@@ -34,9 +34,7 @@ const ContactField = (props) => {
   return (
     <StyledField>
       <TextField
-        label={`Contact lié à la dépense ${
-          required ? "(obligatoire)" : ""
-        }`.trim()}
+        label="Contact lié à la dépense (obligatoire)"
         name="name"
         autoComplete="name"
         value={name}
@@ -48,7 +46,7 @@ const ContactField = (props) => {
         hasCounter={false}
       />
       <PhoneField
-        label={`Numéro de téléphone ${required ? "(obligatoire)" : ""}`.trim()}
+        label="Numéro de téléphone  (obligatoire)"
         name="phone"
         autoComplete="tel"
         value={phone}

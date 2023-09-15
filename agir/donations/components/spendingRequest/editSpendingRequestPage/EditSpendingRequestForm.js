@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
 import { Button } from "@agir/donations/common/StyledComponents";
@@ -139,13 +139,16 @@ const EditSpendingRequestForm = (props) => {
   const { spendingRequest, availableAmount = 0, onUpdate } = props;
 
   const spendingRequestPk = spendingRequest.id;
+  const initialData = useMemo(
+    () => getInitialDataFromSpendingRequest(spendingRequest),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
 
   const [formStep, goToPreviousFormStep, goToNextFormStep, goToStep] =
     useSteps(0);
   const [isLoading, setIsLoading] = useState(false);
-  const [data, setData] = useState(
-    getInitialDataFromSpendingRequest(spendingRequest),
-  );
+  const [data, setData] = useState(initialData);
   const [errors, setErrors] = useState(null);
   const [hasAgreement, setHasAgreement] = useState();
   const [isUpdated, setIsUpdated] = useState(false);
@@ -224,7 +227,6 @@ const EditSpendingRequestForm = (props) => {
   }, []);
 
   const handleChangeAmount = useCallback((amount) => {
-    console.log(amount);
     setErrors((state) => ({
       ...state,
       amount: undefined,
@@ -295,6 +297,7 @@ const EditSpendingRequestForm = (props) => {
     [saveRequest],
   );
 
+  const hasChanged = data !== initialData;
   const globalError = errors?.global || errors?.detail;
 
   if (isUpdated) {
@@ -316,6 +319,7 @@ const EditSpendingRequestForm = (props) => {
       onSubmit={handleSubmit}
       isLoading={isLoading}
       disabled={!hasAgreement}
+      saveDisabled={!hasChanged}
       step={formStep}
       goToPrevious={goToPreviousFormStep}
       goToNext={goToNextFormStep}
@@ -325,17 +329,20 @@ const EditSpendingRequestForm = (props) => {
         <Hide
           $over
           as={Button}
+          wrap
           link
           color="link"
           icon="arrow-right"
           route="spendingRequestHelp"
+          style={{ textAlign: "left" }}
         >
-          Un doute ? Consultez le <strong>centre d'aide</strong>
+          Un doute ? Consultez le centre d'aide
         </Hide>
         <Hide $under as={StyledLabel}>
           Détails (obligatoire)
         </Hide>
         <RadioField
+          autoFocus
           disabled={isLoading}
           id="timing"
           name="timing"
@@ -420,7 +427,6 @@ const EditSpendingRequestForm = (props) => {
         <NumberField
           currency
           large
-          type="number"
           disabled={isLoading}
           id="amount"
           name="amount"
@@ -443,7 +449,7 @@ const EditSpendingRequestForm = (props) => {
               <strong>Le solde de votre groupe est nul</strong>
             )}
           </Card>
-          <Button link color="link" route="spendingRequestHelp">
+          <Button wrap link color="link" route="spendingRequestHelp">
             Comment augmenter le solde du GA ?&ensp;
             <RawFeatherIcon
               name="external-link"

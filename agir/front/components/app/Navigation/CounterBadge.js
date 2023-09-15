@@ -28,7 +28,7 @@ const Counter = ({ value, ...rest }) =>
   ) : null;
 
 Counter.propTypes = {
-  value: PropTypes.number,
+  value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 };
 
 const CounterBadge = styled(Counter)`

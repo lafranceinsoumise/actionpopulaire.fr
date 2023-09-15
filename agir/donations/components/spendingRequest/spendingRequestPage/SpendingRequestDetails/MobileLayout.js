@@ -12,8 +12,12 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 
 import { TIMING_OPTIONS } from "@agir/donations/spendingRequest/common/form.config";
 import { displayPrice } from "@agir/lib/utils/display";
-import { simpleDate } from "@agir/lib/utils/time";
+import { simpleDate, timeAgo } from "@agir/lib/utils/time";
 import SpendingRequestHistory from "../SpendingRequestHistory";
+import {
+  ResponsiveLayout,
+  ResponsiveSpan,
+} from "@agir/front/genericComponents/grid";
 
 const FlexLine = styled.div`
   display: flex;
@@ -48,6 +52,7 @@ const StyledCard = styled(Card).attrs(() => ({
     display: flex;
     flex-flow: row nowrap;
     gap: 1rem;
+    align-items: center;
   }
 
   h3,
@@ -60,7 +65,7 @@ const StyledCard = styled(Card).attrs(() => ({
 
   h3 {
     font-size: 1.125rem;
-    line-height: 2;
+    line-height: 1.5;
     font-weight: 700;
   }
 
@@ -76,9 +81,16 @@ const StyledCard = styled(Card).attrs(() => ({
     font-weight: 600;
   }
 
-  em {
-    font-size: 0.875rem;
+  em,
+  small {
+    font-size: 0.75rem;
     font-weight: 400;
+  }
+
+  em {
+    &:before {
+      content: "— ";
+    }
   }
 `;
 
@@ -109,6 +121,7 @@ const SpendingRequestDetails = (props) => {
     <div>
       <StyledCard>
         <SpendingRequestHistory status={spendingRequest.status} />
+        <Spacer size="0" />
         <Button
           link
           route="spendingRequestHistory"
@@ -123,7 +136,18 @@ const SpendingRequestDetails = (props) => {
         <header>
           <h3>Détails</h3>
         </header>
-        <h4>{spendingRequest.title}</h4>
+
+        <h4 style={{ fontSize: "1rem" }}>
+          &laquo;&nbsp;{spendingRequest.title}&nbsp;&raquo;
+        </h4>
+        <p>
+          <small>
+            Demande créée {timeAgo(spendingRequest.created)}
+            {spendingRequest.creator && ` par ${spendingRequest.creator}`}
+          </small>
+        </p>
+
+        <h4>Type de dépense</h4>
         <p>Dépense {spendingRequestTiming.toLowerCase()}</p>
 
         <h4>Motif de l'achat</h4>
@@ -138,9 +162,13 @@ const SpendingRequestDetails = (props) => {
         <p>{spendingRequestSpendingDate || <em>Non renseignée</em>}</p>
 
         <h4>Événement lié à la dépense</h4>
-        <p>{spendingRequest.event?.name || <em>Pas d'évenement</em>}</p>
+        <p>
+          {spendingRequest.event?.name || (
+            <em>Pas d'évenement lié à cette dépense</em>
+          )}
+        </p>
 
-        <h4>Mode de paiement</h4>
+        <h4>Nom du contact</h4>
         <p>{spendingRequest.contact?.name || <em>Non renseigné</em>}</p>
 
         <h4>Numéro de téléphone</h4>
@@ -148,7 +176,13 @@ const SpendingRequestDetails = (props) => {
       </StyledCard>
       <StyledCard>
         <header>
-          <h3>Montant et financement</h3>
+          <h3>
+            <ResponsiveSpan
+              small="Financement"
+              large="Montant et financement"
+              breakpoint={360}
+            />
+          </h3>
         </header>
         <Spacer size="0" />
         <FlexLine as="h4">
@@ -188,8 +222,7 @@ const SpendingRequestDetails = (props) => {
             />
           ) : (
             <em>
-              &mdash;&nbsp;Pour la validation de la demande, vous devrez
-              également joindre le{" "}
+              Pour la validation de la demande, vous devrez également joindre le{" "}
               <abbr title="Relevé d'Identité Bancaire">RIB</abbr> du compte
               bancaire au format PDF, JPEG ou PNG.
             </em>
@@ -198,7 +231,13 @@ const SpendingRequestDetails = (props) => {
       </StyledCard>
       <StyledCard>
         <header>
-          <h3>Pièces justificatives</h3>
+          <h3>
+            <ResponsiveSpan
+              small="Justificatifs"
+              large="Pièces justificatives"
+              breakpoint={360}
+            />
+          </h3>
           <Button small icon="plus" onClick={onAttachmentAdd}>
             Ajouter
           </Button>
@@ -211,9 +250,7 @@ const SpendingRequestDetails = (props) => {
             onDelete={onAttachmentDelete}
           />
         ) : (
-          <em>
-            &mdash;&nbsp;Aucune pièce justificative n'a pas encore été ajoutée
-          </em>
+          <em>Aucune pièce justificative n'a pas encore été ajoutée</em>
         )}
       </StyledCard>
     </div>

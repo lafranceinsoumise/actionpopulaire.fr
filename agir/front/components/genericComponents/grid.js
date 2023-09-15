@@ -222,6 +222,19 @@ export const useResponsiveMemo = (mobileValue, desktopValue, breakpoint) => {
   return value;
 };
 
+export const ResponsiveSpan = styled(
+  ({ small, large, breakpoint, ...props }) => {
+    const value = useResponsiveMemo(small, large, breakpoint);
+    return <span {...props}>{value}</span>;
+  },
+)``;
+
+ResponsiveSpan.propTypes = {
+  small: PropTypes.string,
+  large: PropTypes.string,
+  breakpoint: PropTypes.number,
+};
+
 export const useStickyOffset = (extraOffset = 0) => {
   const hasDownloadBanner = useDownloadBanner();
   const stickyOffset = useResponsiveMemo(hasDownloadBanner ? 134 : 54, 72);

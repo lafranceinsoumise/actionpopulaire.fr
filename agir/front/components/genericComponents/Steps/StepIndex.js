@@ -78,6 +78,7 @@ const StyledStep = styled.button.attrs((props) => ({
     flex-direction: row;
     align-items: center;
     gap: 0.5rem;
+    cursor: default;
   }
 
   h5 {
@@ -137,6 +138,7 @@ const StepActions = (props) => {
     onSubmit,
     isLoading,
     disabled,
+    saveDisabled,
     ...rest
   } = props;
 
@@ -163,7 +165,8 @@ const StepActions = (props) => {
         <Button
           onClick={onSave}
           loading={isLoading}
-          disabled={isLoading}
+          disabled={isLoading || saveDisabled}
+          type="button"
           color="default"
           icon="save"
         >
@@ -184,7 +187,7 @@ const StepActions = (props) => {
       {!goToNext && onSubmit ? (
         <Button
           loading={isLoading}
-          disabled={disabled}
+          disabled={isLoading || disabled}
           type="submit"
           color="primary"
           icon="send"
@@ -204,6 +207,7 @@ StepActions.propTypes = {
   onSave: PropTypes.func,
   isLoading: PropTypes.bool,
   disabled: PropTypes.bool,
+  saveDisabled: PropTypes.bool,
 };
 
 const MobileLayout = (props) => {
@@ -215,6 +219,7 @@ const MobileLayout = (props) => {
     onSave,
     isLoading,
     disabled,
+    saveDisabled,
     steps,
     stepNames,
     current,
@@ -224,7 +229,7 @@ const MobileLayout = (props) => {
     <StyledSteps as={as} onSubmit={onSubmit}>
       <header>
         <nav>
-          <StyledStep $active>
+          <StyledStep as="div" $active>
             <StepBadge value={`${current + 1}/${steps.length}`} $active />
             <h5>{(stepNames && stepNames[current]) || null}</h5>
           </StyledStep>
@@ -243,6 +248,7 @@ const MobileLayout = (props) => {
         onSave={onSave}
         isLoading={isLoading}
         disabled={disabled}
+        saveDisabled={saveDisabled}
       />
     </StyledSteps>
   );
@@ -258,6 +264,7 @@ MobileLayout.propTypes = {
   onSave: PropTypes.func,
   isLoading: PropTypes.bool,
   disabled: PropTypes.bool,
+  saveDisabled: PropTypes.bool,
   steps: PropTypes.array,
   last: PropTypes.number,
   current: PropTypes.number,
@@ -273,6 +280,7 @@ const DesktopLayout = (props) => {
     onSave,
     isLoading,
     disabled,
+    saveDisabled,
     steps,
     stepNames,
     current,
@@ -305,6 +313,7 @@ const DesktopLayout = (props) => {
           onSave={onSave}
           isLoading={isLoading}
           disabled={disabled}
+          saveDisabled={saveDisabled}
         />
       </header>
       <article>{steps[current]}</article>
@@ -323,6 +332,7 @@ DesktopLayout.propTypes = {
   onSave: PropTypes.func,
   isLoading: PropTypes.bool,
   disabled: PropTypes.bool,
+  saveDisabled: PropTypes.bool,
   steps: PropTypes.array,
   last: PropTypes.number,
   current: PropTypes.number,
@@ -349,6 +359,7 @@ StepIndex.propTypes = {
   onSave: PropTypes.func,
   isLoading: PropTypes.bool,
   disabled: PropTypes.bool,
+  saveDisabled: PropTypes.bool,
   steps: PropTypes.array,
   last: PropTypes.number,
   current: PropTypes.number,

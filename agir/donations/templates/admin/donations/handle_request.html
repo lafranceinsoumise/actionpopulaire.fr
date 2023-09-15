@@ -32,7 +32,7 @@
     }
 
     #content-related {
-      flex: 1 1 320px;
+      flex: 1 1 240px;
       position: sticky;
       top: 1rem;
     }
@@ -40,10 +40,10 @@
     .request-history {
       background: linear-gradient(
         to right,
-        white calc(50% - 1px),
-        var(--selected-bg) calc(50% - 0.5px),
-        var(--selected-bg) calc(50% + 0.5px),
-        white calc(50% + 1px),
+        white calc(1.25rem - 1px),
+        var(--selected-bg) calc(1.25rem - 0.5px),
+        var(--selected-bg) calc(1.25rem + 0.5px),
+        white calc(1.25rem + 1px),
         white 100%
       );
       display: flex;
@@ -74,12 +74,12 @@
 
     #content-related .request-history-step h5 {
       font-size: 0.75rem;
-      color: black;
+      color: var(--body-quiet-color);
+      letter-spacing: 0;
     }
 
     #content-related .request-history-step p {
-      padding-left: 0.5rem;
-      padding-right: 0.5rem;
+      padding: 0;
     }
 
   </style>
@@ -120,7 +120,7 @@
               <tr class="form-row row{% cycle "1" "2" %}">
                 <td>{{ document.title }}</td>
                 <td>{{ document.get_type_display }}</td>
-                <td><a href="{{ document.file.url }}">Voir le document</a></td>
+                <td><a download href="{{ document.file.url }}">Voir le document</a></td>
               </tr>
             {% endfor %}
             </tbody>
@@ -162,7 +162,7 @@
     </div>
     <div id="content-related">
       <div class="request-history">
-        <h2>📖&ensp;HISTORIQUE DE LA DEMANDE</h2>
+        <h2>📖&ensp;Historique de la demande</h2>
         {% for step in history %}
           <div class="request-history-step">
             <h5>
@@ -179,7 +179,7 @@
                 {% endif %}
                 )</small>
             </h5>
-            <p>🗓️&ensp;<em>le {{ step.modified }}</em></p>
+            <p>🗓️&ensp;le {{ step.modified }}</p>
             {% if step.diff %}
               <p>
                 🖋️&ensp;Ont été modifiés : <strong>{{ step.diff|join:", " }}</strong>

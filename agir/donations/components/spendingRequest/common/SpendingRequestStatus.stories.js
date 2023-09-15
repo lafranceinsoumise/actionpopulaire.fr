@@ -36,6 +36,7 @@ const Template = (args) =>
         flexFlow: "column nowrap",
         alignItems: "start",
         gap: args.small ? "0.5rem" : "1rem",
+        maxWidth: 400,
       }}
     >
       {Object.keys(labels).map((code) => (

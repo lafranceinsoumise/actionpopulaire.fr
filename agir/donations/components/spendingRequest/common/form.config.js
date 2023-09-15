@@ -68,8 +68,9 @@ export const DOCUMENT_TYPE_OPTIONS = {
   P: {
     value: "P",
     label: "Photo ou illustration de l'événement, de la salle, du matériel",
+    smallLabel: "Photo / illustration",
   },
-  O: { value: "O", label: "Autre type de justificatif" },
+  O: { value: "O", label: "Autre type de justificatif", smallLabel: "Autre" },
 };
 
 const INITIAL_DATA = {

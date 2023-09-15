@@ -231,7 +231,7 @@ export const useImageLoad = (src) => {
   return isLoaded;
 };
 
-const getFocusableElements = (parent) => {
+export const getFocusableElements = (parent) => {
   if (!parent) {
     return [];
   }

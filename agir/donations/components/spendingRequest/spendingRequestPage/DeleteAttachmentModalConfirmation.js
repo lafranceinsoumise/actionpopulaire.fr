@@ -14,6 +14,12 @@ const StyledError = styled.p`
   }
 `;
 
+const StyledWarning = styled.p`
+  color: ${(props) => props.theme.vermillon};
+  font-weight: 600;
+  font-size: 0.875rem;
+`;
+
 const StyledModalContent = styled.div`
   display: flex;
   flex-flow: column nowrap;
@@ -22,10 +28,6 @@ const StyledModalContent = styled.div`
 
   & > * {
     margin: 0;
-  }
-
-  p strong {
-    font-weight: 600;
   }
 `;
 
@@ -51,11 +53,9 @@ const DeleteAttachmentModalConfirmation = (props) => {
           Confirmez-vous la suppression du document&nbsp;:{" "}
           <mark>{attachment?.title}</mark>&nbsp;?
         </p>
-        <p>
-          <strong>
-            ⚠&ensp;Attention&nbsp;: cette action est irréversible.
-          </strong>
-        </p>
+        <StyledWarning>
+          ⚠&ensp;Attention&nbsp;: cette action est irréversible&nbsp;!
+        </StyledWarning>
         <StyledError>{error}</StyledError>
       </StyledModalContent>
     </ModalConfirmation>

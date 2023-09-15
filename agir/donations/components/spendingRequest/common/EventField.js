@@ -59,6 +59,7 @@ const EventField = (props) => {
       onChange={onChange}
       onSearch={handleSearch}
       defaultOptions
+      isClearable
     />
   );
 };

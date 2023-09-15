@@ -19,7 +19,7 @@ export const STATUS_CONFIG = {
     id: "G",
     icon: "user-clock",
     label: "En attente de vérification par une autre personne",
-    color: "#FF5E35",
+    color: "vermillon",
   },
   // AWAITING_ADMIN_REVIEW
   R: {
@@ -34,7 +34,7 @@ export const STATUS_CONFIG = {
     id: "I",
     icon: "message-question",
     label: "Informations supplémentaires requises",
-    color: "#FF5E35",
+    color: "vermillon",
   },
   // VALIDATED
   V: {
@@ -81,6 +81,9 @@ const StyledStatus = styled.div`
 
   @media (max-width: ${(props) => props.theme.collapse}px) {
     font-size: 0.875rem;
+    padding: 0.5rem 2rem;
+    margin: 0 -1.5rem;
+    max-width: 100vw;
   }
 
   & > i {
@@ -90,14 +93,11 @@ const StyledStatus = styled.div`
 
   & > span {
     flex: 1 1 auto;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
 `;
 
 const StyledExplanation = styled.p`
-  padding: 0 0.5rem 0 3.5rem;
+  padding: 0 0 0 3.5rem;
   font-size: 0.875rem;
   margin: 0;
 
@@ -111,6 +111,7 @@ const StyledWrapper = styled.div`
   display: flex;
   flex-flow: column nowrap;
   gap: 0.5rem;
+  width: 100%;
 `;
 
 const SpendingRequestStatus = (props) => {

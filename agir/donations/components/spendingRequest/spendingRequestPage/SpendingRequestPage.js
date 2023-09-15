@@ -61,6 +61,7 @@ const StyledPage = styled.main`
   @media (max-width: ${(props) => props.theme.collapse}px) {
     padding: 1.5rem 0 0;
     max-width: 100%;
+    min-height: calc(100vh - 300px);
   }
 
   & > header {
@@ -83,8 +84,7 @@ const StyledPage = styled.main`
     h2 {
       font-size: 1.625rem;
       font-weight: 700;
-      margin: 0;
-      margin-right: auto;
+      margin: 0 auto 0 -2px;
 
       @media (max-width: ${(props) => props.theme.collapse}px) {
         font-size: 1.375rem;
@@ -118,7 +118,6 @@ const SpendingRequestPage = ({ spendingRequestPk }) => {
 
   const sendToast = useToast();
   const [navRef, navIsInView] = useInView({ threshold: 1 });
-  console.log(navIsInView);
 
   const handleEditAttachment = useCallback(
     (id) => {
@@ -189,8 +188,9 @@ const SpendingRequestPage = ({ spendingRequestPk }) => {
       }));
       setSelectedAttachment(null);
       setIsLoadingAttachment(false);
+      sendToast("La pièce justificative a été supprimée", "SUCCESS");
     },
-    [mutate],
+    [mutate, sendToast],
   );
 
   return (

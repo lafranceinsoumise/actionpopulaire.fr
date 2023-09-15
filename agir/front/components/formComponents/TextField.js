@@ -201,7 +201,7 @@ const TextField = forwardRef((props, ref) => {
 TextField.propTypes = {
   value: PropTypes.any,
   onChange: PropTypes.func,
-  type: PropTypes.oneOf(["text", "email", "password"]),
+  type: PropTypes.oneOf(["text", "email", "password", "number"]),
   id: PropTypes.string,
   label: PropTypes.node,
   helpText: PropTypes.node,

@@ -92,7 +92,7 @@ const FileField = forwardRef((props, ref) => {
 
   const fileName = useMemo(() => {
     if (value && typeof value === "string") {
-      return value;
+      return value.split("/").pop();
     }
     if (value && value.name) {
       return value.name;

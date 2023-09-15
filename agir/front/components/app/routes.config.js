@@ -241,7 +241,7 @@ export const routeConfig = {
     path: "/financement/demande/:spendingRequestPk/",
     exact: true,
     neededAuthentication: AUTHENTICATION.HARD,
-    label: "Details de la demande",
+    label: "Détails de la demande",
     Component: RouteComponents.SpendingRequestDetails,
   }),
   spendingRequestHistory: new RouteConfig({

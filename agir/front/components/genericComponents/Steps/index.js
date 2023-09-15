@@ -10,6 +10,7 @@ import React, {
 import StepBar from "./StepBar";
 import StepIndex from "./StepIndex";
 import { scrollToElement } from "@agir/front/app/utils";
+import { getFocusableElements } from "@agir/lib/utils/hooks";
 
 export const STEPPER = {
   bar: StepBar,
@@ -41,6 +42,8 @@ const ControlledSteps = (props) => {
     if (shouldScrollToTop.current) {
       topRef.current &&
         scrollToElement(topRef.current.parentElement, window, 150);
+      // Reset tab focus to first focusable element
+      getFocusableElements(topRef.current.nextElementSibling)[0].focus();
     } else {
       shouldScrollToTop.current = true;
     }
@@ -56,7 +59,6 @@ const ControlledSteps = (props) => {
       <div ref={topRef} aria-hidden />
       <Stepper
         {...rest}
-        topRef={topRef}
         steps={stepsArray}
         last={lastStep}
         current={currentStep}
