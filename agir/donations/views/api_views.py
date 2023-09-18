@@ -242,10 +242,15 @@ class SpendingRequestDocumentCreateAPIView(CreateAPIView):
         SpendingRequestDocumentCreatePermissions,
     )
     serializer_class = SpendingRequestDocumentSerializer
-    queryset = Document.objects.all()
+    queryset = SpendingRequest.objects.all()
 
-    def check_object_permissions(self, request, obj):
-        super().check_object_permissions(request, obj.request)
+    def create(self, request, *args, **kwargs):
+        self.spending_request = self.get_object()
+        return super().create(request, *args, **kwargs)
+
+    def get_serializer(self, *args, data, **kwargs):
+        data["request"] = self.spending_request.pk
+        return super().get_serializer(*args, data=data, **kwargs)
 
 
 class SpendingRequestDocumentRetrieveUpdateDestroyPermissions(

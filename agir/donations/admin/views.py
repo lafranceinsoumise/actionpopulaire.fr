@@ -49,11 +49,8 @@ class HandleRequestView(AdminViewMixin, DetailView):
 
         if form.is_valid():
             with reversion.create_revision():
+                from_status = self.object.status
                 new_status = form.cleaned_data["status"]
-                comment = form.cleaned_data.get("comment") or get_revision_comment(
-                    from_status=self.object.status, to_status=new_status
-                )
-                reversion.set_comment(comment)
                 self.object.status = new_status
 
                 if self.object.status == SpendingRequest.Status.VALIDATED:
@@ -68,6 +65,10 @@ class HandleRequestView(AdminViewMixin, DetailView):
                     else:
                         self.object.status = SpendingRequest.Status.TO_PAY
 
+                comment = form.cleaned_data.get("comment") or get_revision_comment(
+                    to_status=self.object.status, from_status=from_status
+                )
+                reversion.set_comment(comment)
                 self.object.save()
 
             return HttpResponseRedirect(

@@ -54,3 +54,33 @@ class YoutubeVideoIDfromURLTestCase(TestCase):
         for url in self.invalid_urls:
             with self.assertRaises(ValueError, msg=url):
                 get_youtube_video_id(url)
+
+
+def multipartify(data, parent_key=None, formatter: callable = None) -> dict:
+    """
+    https://gist.github.com/kazqvaizer/4cebebe5db654a414132809f9f88067b
+    :param data: The data dictionary
+    :param parent_key: The parent key to use as a suffix
+    :param formatter: A formatter function for the value
+    :return: A flatten dictionary
+    """
+    if formatter is None:
+        formatter = lambda v: (None, v)  # Multipart representation of value
+
+    if type(data) is not dict:
+        return {parent_key: formatter(data)}
+
+    converted = []
+
+    for key, value in data.items():
+        current_key = key if parent_key is None else f"{parent_key}.{key}"
+        if type(value) is dict:
+            converted.extend(multipartify(value, current_key, formatter).items())
+        elif type(value) is list:
+            for ind, list_value in enumerate(value):
+                iter_key = f"{current_key}[{ind}]"
+                converted.extend(multipartify(list_value, iter_key, formatter).items())
+        else:
+            converted.append((current_key, formatter(value)))
+
+    return dict(converted)
