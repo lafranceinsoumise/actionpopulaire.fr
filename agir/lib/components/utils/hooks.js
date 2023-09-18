@@ -2,7 +2,7 @@ import { disableBodyScroll, clearAllBodyScrollLocks } from "body-scroll-lock";
 import throttle from "lodash/throttle";
 import debounce from "lodash/debounce";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useIntersection } from "react-use";
+import { useIntersection, useUpdateEffect } from "react-use";
 import ResizeObserver from "resize-observer-polyfill";
 
 import logger from "@agir/lib/utils/logger";
@@ -231,7 +231,7 @@ export const useImageLoad = (src) => {
   return isLoaded;
 };
 
-const getFocusableElements = (parent) => {
+export const getFocusableElements = (parent) => {
   if (!parent) {
     return [];
   }

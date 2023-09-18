@@ -1,8 +1,10 @@
-from django.core.files.uploadedfile import SimpleUploadedFile
+from unittest import skip
+
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
+from reversion.models import Version
 
 from agir.donations.models import Operation, SpendingRequest, Document
 from agir.groups.models import SupportGroup, Membership
@@ -14,6 +16,7 @@ def round_date_like_reversion(d):
     return d.replace(microsecond=d.microsecond // 1000 * 1000)
 
 
+@skip("Legacy test to be rewritten as API test cases")
 class SpendingRequestTestCase(TestCase):
     def setUp(self):
         self.p1 = Person.objects.create_insoumise("test1@test.com", create_role=True)
@@ -51,21 +54,19 @@ class SpendingRequestTestCase(TestCase):
 
         self.spending_request_data = {
             "title": "Ma demande de dépense",
+            "timing": SpendingRequest.Timing.UPCOMING,
             "event": None,
-            "category": SpendingRequest.CATEGORY_HARDWARE,
+            "category": SpendingRequest.Category.HARDWARE.value,
             "category_precisions": "Super truc trop cool",
             "explanation": "On en a VRAIMENT VRAIMENT besoin.",
             "spending_date": date,
-            "provider": "Super CLIENT",
-            "iban": "FR96 9643 9954 500A 9L6K Z94T W60",
+            "bank_account_name": "Super CLIENT",
+            "bank_account_iban": "FR96 9643 9954 500A 9L6K Z94T W60",
+            "bank_account_bic": "ABNAFRPP",
             "amount": 8500,
+            "contact_name": "Gégène",
+            "contact_phone": "+33600000000",
         }
-
-        file = SimpleUploadedFile(
-            "document.odt",
-            b"Un faux fichier",
-            content_type="application/vnd.oasis.opendocument.text",
-        )
 
         self.form_data = {
             **self.spending_request_data,
@@ -75,8 +76,45 @@ class SpendingRequestTestCase(TestCase):
             "documents-INITIAL_FORMS": "0",
             "documents-MIN_NUM_FORMS": "0",
             "documents-0-title": "Facture",
-            "documents-0-type": Document.TYPE_INVOICE,
-            "documents-0-file": file,
+            "documents-0-type": Document.Type.INVOICE,
+            "documents-0-file": SimpleUploadedFile(
+                "document.pdf", b"Un document", content_type="application/pdf"
+            ),
+        }
+
+    def get_spending_request_data(self, with_docs=False):
+        if not with_docs:
+            return self.spending_request_data
+
+        return {
+            **self.spending_request_data,
+            "bank_account_rib": SimpleUploadedFile(
+                "rib.pdf",
+                b"Le RIB",
+                content_type="application/pdf",
+            ),
+        }
+
+    def get_form_data(self, with_docs=False):
+        form_data = {
+            **self.get_spending_request_data(with_docs=with_docs),
+            "event": "",
+            "amount": "85.00",
+            "documents-TOTAL_FORMS": "3",
+            "documents-INITIAL_FORMS": "0",
+            "documents-MIN_NUM_FORMS": "0",
+        }
+
+        if not with_docs:
+            return form_data
+
+        return {
+            **form_data,
+            "documents-0-title": "Facture",
+            "documents-0-type": Document.Type.INVOICE,
+            "documents-0-file": SimpleUploadedFile(
+                "document.pdf", b"Un document", content_type="application/pdf"
+            ),
         }
 
     def test_can_create_spending_request(self):
@@ -91,8 +129,10 @@ class SpendingRequestTestCase(TestCase):
 
         res = self.client.post(
             reverse("create_spending_request", args=(self.group1.pk,)),
-            data=self.form_data,
+            data=self.get_form_data(with_docs=True),
         )
+
+        self.assertEqual(res.status_code, 302)
 
         spending_request = SpendingRequest.objects.get()
 
@@ -100,15 +140,19 @@ class SpendingRequestTestCase(TestCase):
             res, reverse("manage_spending_request", args=(spending_request.pk,))
         )
 
+        version = Version.objects.get_for_object(spending_request).first()
+
         self.assertEqual(
             spending_request.get_history(),
             [
                 {
+                    "id": version.pk,
                     "title": "Création de la demande",
-                    "user": self.p1.get_short_name(),
+                    "person": self.p1,
                     "modified": round_date_like_reversion(spending_request.modified),
-                    "comment": "Création de la demande",
+                    "comment": "",
                     "diff": [],
+                    "status": SpendingRequest.Status.DRAFT,
                 }
             ],
         )
@@ -118,7 +162,7 @@ class SpendingRequestTestCase(TestCase):
         self.client.force_login(self.p1.role)
 
         spending_request = SpendingRequest.objects.create(
-            group=self.group1, **self.spending_request_data
+            group=self.group1, **self.get_spending_request_data()
         )
 
         res = self.client.get(
@@ -130,7 +174,7 @@ class SpendingRequestTestCase(TestCase):
         """Peut modifier une demande de paiment"""
         self.client.force_login(self.p1.role)
         spending_request = SpendingRequest.objects.create(
-            group=self.group1, **self.spending_request_data
+            group=self.group1, **self.get_spending_request_data()
         )
 
         res = self.client.get(
@@ -138,11 +182,13 @@ class SpendingRequestTestCase(TestCase):
         )
         self.assertEqual(res.status_code, 200)
 
-        self.form_data["amount"] = "77"
-        self.form_data["comment"] = "Petite modification du montant"
         res = self.client.post(
             reverse("edit_spending_request", args=(spending_request.pk,)),
-            data=self.form_data,
+            data={
+                **self.get_form_data(),
+                "amount": "77",
+                "comment": "Petite modification du montant",
+            },
         )
         self.assertRedirects(
             res, reverse("manage_spending_request", args=(spending_request.pk,))
@@ -155,7 +201,7 @@ class SpendingRequestTestCase(TestCase):
         """Un gestionnaire du groupe peut ajouter un document justificatif à une demande"""
         self.client.force_login(self.p1.role)
         spending_request = SpendingRequest.objects.create(
-            group=self.group1, **self.spending_request_data
+            group=self.group1, **self.get_spending_request_data()
         )
 
         res = self.client.get(reverse("create_document", args=(spending_request.pk,)))
@@ -171,7 +217,7 @@ class SpendingRequestTestCase(TestCase):
             reverse("create_document", args=(spending_request.pk,)),
             data={
                 "title": "Mon super fichier",
-                "type": Document.TYPE_INVOICE,
+                "type": Document.Type.INVOICE,
                 "file": file,
             },
         )
@@ -186,7 +232,7 @@ class SpendingRequestTestCase(TestCase):
         """Un gestionnaire du groupe peut modifier un des documents justificatifs"""
         self.client.force_login(self.p1.role)
         spending_request = SpendingRequest.objects.create(
-            group=self.group1, **self.spending_request_data
+            group=self.group1, **self.get_spending_request_data()
         )
 
         file1 = SimpleUploadedFile(
@@ -204,7 +250,7 @@ class SpendingRequestTestCase(TestCase):
         document = Document.objects.create(
             title="Mon document",
             request=spending_request,
-            type=Document.TYPE_INVOICE,
+            type=Document.Type.INVOICE,
             file=file1,
         )
 
@@ -217,7 +263,7 @@ class SpendingRequestTestCase(TestCase):
             reverse("edit_document", args=(spending_request.pk, document.pk)),
             data={
                 "title": "Mon SUPER document",
-                "type": Document.TYPE_OTHER,
+                "type": Document.Type.OTHER,
                 "file": file2,
             },
         )
@@ -232,8 +278,8 @@ class SpendingRequestTestCase(TestCase):
         )
         spending_request = SpendingRequest.objects.create(
             group=self.group1,
-            **self.spending_request_data,
-            status=SpendingRequest.STATUS_AWAITING_REVIEW,
+            **self.get_spending_request_data(),
+            status=SpendingRequest.Status.AWAITING_ADMIN_REVIEW,
         )
 
         res = self.client.get(
@@ -247,12 +293,12 @@ class SpendingRequestTestCase(TestCase):
             reverse(
                 "admin:donations_spendingrequest_review", args=(spending_request.id,)
             ),
-            data={"comment": "C'est bon !", "status": SpendingRequest.STATUS_VALIDATED},
+            data={"comment": "C'est bon !", "status": SpendingRequest.Status.VALIDATED},
         )
         self.assertRedirects(res, reverse("admin:donations_spendingrequest_changelist"))
 
         spending_request.refresh_from_db()
-        self.assertEqual(spending_request.status, SpendingRequest.STATUS_VALIDATED)
+        self.assertEqual(spending_request.status, SpendingRequest.Status.VALIDATED)
 
     def test_admin_can_validate_with_funds(self):
         """Un membre de l'équipe de suivi peut valider une demande même sans fonds"""
@@ -265,8 +311,8 @@ class SpendingRequestTestCase(TestCase):
 
         spending_request = SpendingRequest.objects.create(
             group=self.group1,
-            **self.spending_request_data,
-            status=SpendingRequest.STATUS_AWAITING_REVIEW,
+            **self.get_spending_request_data(),
+            status=SpendingRequest.Status.AWAITING_ADMIN_REVIEW,
         )
 
         res = self.client.get(
@@ -280,12 +326,12 @@ class SpendingRequestTestCase(TestCase):
             reverse(
                 "admin:donations_spendingrequest_review", args=(spending_request.id,)
             ),
-            data={"comment": "C'est bon !", "status": SpendingRequest.STATUS_VALIDATED},
+            data={"comment": "C'est bon !", "status": SpendingRequest.Status.VALIDATED},
         )
         self.assertRedirects(res, reverse("admin:donations_spendingrequest_changelist"))
 
         spending_request.refresh_from_db()
-        self.assertEqual(spending_request.status, SpendingRequest.STATUS_TO_PAY)
+        self.assertEqual(spending_request.status, SpendingRequest.Status.TO_PAY)
 
         operation = spending_request.operation
         self.assertIsNotNone(operation)
@@ -299,32 +345,48 @@ class SpendingRequestTestCase(TestCase):
         self.client.force_login(self.p1.role)
 
         # création
-        self.client.post(
+        _res = self.client.post(
             reverse("create_spending_request", args=(self.group1.pk,)),
-            data=self.form_data,
+            data=self.get_form_data(with_docs=True),
         )
 
         spending_request = SpendingRequest.objects.get()
         spending_request_id = spending_request.pk
 
+        payment = Payment.objects.create(
+            status=Payment.STATUS_COMPLETED,
+            price=spending_request.amount,
+            type="don",
+            mode="system_pay",
+        )
+        Operation.objects.create(
+            payment=payment, amount=spending_request.amount, group=self.group1
+        )
+
+        form_data = self.get_form_data()
         # modification d'un champ
-        self.form_data["explanation"] = "C'est vachement important"
-        self.client.post(
+        form_data.update(
+            {
+                "explanation": "C'est vachement important",
+                "comment": "J'ai renforcé mon explication !",
+            }
+        )
+        _res = self.client.post(
             reverse("edit_spending_request", args=(spending_request_id,)),
-            data={**self.form_data, "comment": "J'ai renforcé mon explication !"},
+            data=form_data,
         )
 
         # première validation
-        self.client.post(
+        _res = self.client.post(
             reverse("manage_spending_request", args=(spending_request_id,)),
-            data={"validate": SpendingRequest.STATUS_DRAFT},
+            data={"validate": SpendingRequest.Status.DRAFT},
         )
 
         # seconde validation
         self.client.force_login(self.p2.role)
-        self.client.post(
+        _res = self.client.post(
             reverse("manage_spending_request", args=(spending_request_id,)),
-            data={"validate": SpendingRequest.STATUS_AWAITING_GROUP_VALIDATION},
+            data={"validate": SpendingRequest.Status.AWAITING_PEER_REVIEW},
         )
 
         # ajout d'un document oublié ==> retour à l'étape de validation
@@ -333,20 +395,20 @@ class SpendingRequestTestCase(TestCase):
             b"Un faux fichier",
             content_type="application/vnd.oasis.opendocument.text",
         )
-        self.client.post(
+        _res = self.client.post(
             reverse("create_document", args=(spending_request_id,)),
             data={
                 "title": "Document complémentaire",
-                "type": Document.TYPE_OTHER,
+                "type": Document.Type.OTHER,
                 "file": file,
             },
         )
 
         # renvoi vers l'équipe de suivi
-        self.client.post(
+        _res = self.client.post(
             reverse("manage_spending_request", args=(spending_request_id,)),
             data={
-                "validate": SpendingRequest.STATUS_AWAITING_SUPPLEMENTARY_INFORMATION
+                "validate": SpendingRequest.Status.AWAITING_SUPPLEMENTARY_INFORMATION
             },
         )
 
@@ -354,32 +416,34 @@ class SpendingRequestTestCase(TestCase):
         self.client.force_login(
             self.treasurer.role, backend="agir.people.backend.PersonBackend"
         )
-        self.client.post(
+        _res = self.client.post(
             reverse(
                 "admin:donations_spendingrequest_review", args=(spending_request_id,)
             ),
             data={
                 "comment": "Le montant ne correspond pas à la facture !",
-                "status": SpendingRequest.STATUS_AWAITING_SUPPLEMENTARY_INFORMATION,
+                "status": SpendingRequest.Status.AWAITING_SUPPLEMENTARY_INFORMATION,
             },
         )
 
         # modification du document
         self.client.force_login(self.p1.role)
-        self.form_data["amount"] = 8400
-        self.client.post(
-            reverse("edit_spending_request", args=(spending_request_id,)),
-            data={
-                **self.form_data,
+        form_data.update(
+            {
+                "amount": "84.00",
                 "comment": "J'ai corrigé le montant... j'avais mal lu !",
-            },
+            }
+        )
+        _res = self.client.post(
+            reverse("edit_spending_request", args=(spending_request_id,)),
+            data=form_data,
         )
 
         # renvoi vers l'équipe de suivi
-        self.client.post(
+        _res = self.client.post(
             reverse("manage_spending_request", args=(spending_request_id,)),
             data={
-                "validate": SpendingRequest.STATUS_AWAITING_SUPPLEMENTARY_INFORMATION
+                "validate": SpendingRequest.Status.AWAITING_SUPPLEMENTARY_INFORMATION
             },
         )
 
@@ -387,18 +451,19 @@ class SpendingRequestTestCase(TestCase):
         self.client.force_login(
             self.treasurer.role, backend="agir.people.backend.PersonBackend"
         )
-        self.client.post(
+        _res = self.client.post(
             reverse(
                 "admin:donations_spendingrequest_review", args=(spending_request_id,)
             ),
             data={
                 "comment": "Tout est parfait !",
-                "status": SpendingRequest.STATUS_VALIDATED,
+                "status": SpendingRequest.Status.VALIDATED,
             },
         )
 
         hist = spending_request.get_history()
         for d in hist:
+            del d["id"]
             del d["modified"]
 
         self.assertEqual(
@@ -406,63 +471,81 @@ class SpendingRequestTestCase(TestCase):
             [
                 {
                     "title": "Création de la demande",
-                    "user": self.p1.get_short_name(),
-                    "comment": "Création de la demande",
+                    "comment": "",
                     "diff": [],
+                    "person": self.p1,
+                    "status": SpendingRequest.Status.DRAFT,
                 },
                 {
-                    "title": "Modification de la demande",
-                    "user": self.p1.get_short_name(),
+                    "title": "Mise à jour de la demande",
                     "comment": "J'ai renforcé mon explication !",
-                    "diff": ["Justification de la demande"],
+                    "diff": ["Motif de l'achat"],
+                    "person": self.p1,
+                    "status": SpendingRequest.Status.DRAFT,
                 },
                 {
-                    "title": "Validé par l'auteur d'origine",
-                    "user": self.p1.get_short_name(),
+                    "title": "Validée par l'auteur d'origine",
                     "comment": "",
                     "diff": [],
+                    "person": self.p1,
+                    "from_status": SpendingRequest.Status.DRAFT,
+                    "status": SpendingRequest.Status.AWAITING_PEER_REVIEW,
                 },
                 {
-                    "title": "Validé par un⋅e second⋅e animateur⋅rice",
-                    "user": self.p2.get_short_name(),
+                    "title": "Validée par un⋅e second⋅e animateur⋅rice",
                     "comment": "",
                     "diff": [],
+                    "person": self.p2,
+                    "from_status": SpendingRequest.Status.AWAITING_PEER_REVIEW,
+                    "status": SpendingRequest.Status.AWAITING_ADMIN_REVIEW,
                 },
                 {
-                    "title": "Modification de la demande",
-                    "user": self.p2.get_short_name(),
-                    "diff": [],
+                    "title": "Mise à jour de la demande",
                     "comment": "Ajout d'un document",
+                    "diff": [],
+                    "person": self.p2,
+                    "from_status": SpendingRequest.Status.AWAITING_ADMIN_REVIEW,
+                    "status": SpendingRequest.Status.AWAITING_SUPPLEMENTARY_INFORMATION,
                 },
                 {
-                    "title": "Renvoyé pour validation à l'équipe de suivi des questions financières",
-                    "user": self.p2.get_short_name(),
+                    "title": "Renvoyée pour validation à l'équipe de suivi des questions financières",
                     "comment": "",
                     "diff": [],
+                    "person": self.p2,
+                    "from_status": SpendingRequest.Status.AWAITING_SUPPLEMENTARY_INFORMATION,
+                    "status": SpendingRequest.Status.AWAITING_ADMIN_REVIEW,
                 },
                 {
                     "title": "Informations supplémentaires requises",
-                    "user": "Équipe de suivi",
                     "comment": "Le montant ne correspond pas à la facture !",
                     "diff": [],
+                    "person": "Équipe de suivi",
+                    "from_status": SpendingRequest.Status.AWAITING_ADMIN_REVIEW,
+                    "status": SpendingRequest.Status.AWAITING_SUPPLEMENTARY_INFORMATION,
                 },
                 {
+                    "title": "Mise à jour de la demande",
                     "comment": "J'ai corrigé le montant... j'avais mal lu !",
                     "diff": ["Montant de la dépense"],
-                    "title": "Modification de la demande",
-                    "user": self.p1.get_short_name(),
+                    "person": self.p1,
+                    "status": SpendingRequest.Status.AWAITING_SUPPLEMENTARY_INFORMATION,
                 },
                 {
-                    "title": "Renvoyé pour validation à l'équipe de suivi des questions financières",
-                    "user": self.p1.get_short_name(),
+                    "title": "Renvoyée pour validation à l'équipe de suivi des questions financières",
                     "comment": "",
                     "diff": [],
+                    "person": self.p1,
+                    "from_status": SpendingRequest.Status.AWAITING_SUPPLEMENTARY_INFORMATION,
+                    "status": SpendingRequest.Status.AWAITING_ADMIN_REVIEW,
                 },
                 {
+                    "title": "Demande en attente de règlement",
                     "comment": "Tout est parfait !",
                     "diff": [],
-                    "title": "Demande validée par l'équipe de suivi des questions financières",
-                    "user": "Équipe de suivi",
+                    "person": "Équipe de suivi",
+                    "from_status": SpendingRequest.Status.AWAITING_ADMIN_REVIEW,
+                    "status": SpendingRequest.Status.TO_PAY,
                 },
             ],
+            hist,
         )

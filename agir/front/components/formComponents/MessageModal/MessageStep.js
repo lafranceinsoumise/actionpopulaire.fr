@@ -321,7 +321,7 @@ MessageStep.propTypes = {
     displayName: PropTypes.string.isRequired,
     image: PropTypes.string,
   }).isRequired,
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   onClearEvent: PropTypes.func,
   maxLength: PropTypes.number,
   subjectMaxLength: PropTypes.number,

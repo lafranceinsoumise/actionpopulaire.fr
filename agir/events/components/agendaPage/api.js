@@ -26,7 +26,7 @@ const ENDPOINT = {
   groupEvents: "/api/evenements/mes-groupes/",
   ongoingEvents: "/api/evenements/rsvped/en-cours/",
   pastEvents: "/api/evenements/rsvped/passes/",
-  organizedEvents: "/api/evenements/organises/",
+  organizedEvents: "/api/evenements/organises/?include_past=1",
   grandEvents: "/api/evenements/grands-evenements/",
 };
 

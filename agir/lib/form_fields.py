@@ -21,7 +21,6 @@ from django.utils.translation import gettext_lazy as _, ngettext_lazy
 from django_countries import countries
 from phonenumber_field.phonenumber import PhoneNumber
 
-from agir.donations.validators import validate_iban
 from agir.lib.iban import IBAN, to_iban
 from agir.lib.time import dehumanize_naturaltime
 from agir.lib.validators import (
@@ -30,6 +29,7 @@ from agir.lib.validators import (
     MaxDaysDeltaValidator,
     MaxValueListValidator,
 )
+from agir.lib.validators import validate_iban
 
 
 class BootstrapDateTimePickerBaseWidget(DateTimeBaseInput):
@@ -239,10 +239,17 @@ class IBANField(forms.Field):
 
     def validate(self, value):
         super().validate(value)
-        if value != self.empty_value and not value.is_valid():
+
+        is_empty = value == self.empty_value
+
+        if not is_empty and not value.is_valid():
             raise ValidationError(self.error_messages["invalid"], code="invalid")
 
-        if self.allowed_countries and value.country not in self.allowed_countries:
+        if (
+            not is_empty
+            and self.allowed_countries
+            and value.country not in self.allowed_countries
+        ):
             raise ValidationError(
                 self.allowed_countries_error_message(), code="forbidden_country"
             )

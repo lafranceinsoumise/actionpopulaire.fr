@@ -97,6 +97,11 @@ supportgroup_patterns = [
         views.BaseAppSoftAuthView.as_view(),
         name="view_group_message",
     ),
+    path(
+        "depenses/creer/",
+        views.CreateSupportGroupSpendingRequestView.as_view(),
+        name="create_group_spending_request",
+    ),
     path("agenda/", include(supportgroup_settings_patterns)),
     path("comptes-rendus/", include(supportgroup_settings_patterns)),
     path("messages/", include(supportgroup_settings_patterns)),
@@ -238,6 +243,24 @@ voting_proxy_patterns = [
         "prendre-une-procuration/<uuid:pk>/demandes/",
         views.VotingProxyView.as_view(),
         name="accepted_voting_proxy_requests",
+    ),
+]
+
+spending_request_patterns = [
+    path(
+        "<uuid:pk>/",
+        views.SpendingRequestDetailsView.as_view(),
+        name="spending_request_details",
+    ),
+    path(
+        "<uuid:pk>/historique/",
+        views.SpendingRequestDetailsView.as_view(),
+        name="spending_request_history",
+    ),
+    path(
+        "<uuid:pk>/modifier/",
+        views.SpendingRequestUpdateView.as_view(),
+        name="spending_request_update",
     ),
 ]
 
@@ -395,6 +418,7 @@ urlpatterns = [
     path("dons/", include(donation_patterns)),
     path("n/dons/", include(donation_patterns)),
     path("contributions/", include(contribution_patterns)),
+    path("financement/demande/", include(spending_request_patterns)),
     path(
         "dons-mensuels/informations/",
         RedirectView.as_view(

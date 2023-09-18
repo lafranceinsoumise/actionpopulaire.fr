@@ -1,9 +1,10 @@
 import Async from "react-select/async";
 import { components } from "react-select";
 import PropTypes from "prop-types";
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
+import { debounce } from "@agir/lib/utils/promises";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
@@ -15,6 +16,31 @@ const StyledError = styled.span``;
 
 const StyledNoOptionsMessage = styled(components.NoOptionsMessage)``;
 const StyledLoadingMessage = styled(components.LoadingMessage)``;
+
+export const useRemoteSearch = (fetcher, formatter) => {
+  const [options, setOptions] = useState();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const handleSearch = useMemo(
+    () =>
+      debounce(async (searchTerm) => {
+        setIsLoading(true);
+        setOptions(undefined);
+        setError(null);
+        const { data, error } = await fetcher(searchTerm);
+        setIsLoading(false);
+        setError(error);
+        const options =
+          data && typeof formatter === "function" ? formatter(data) : data;
+        setOptions(options);
+        return options;
+      }, 600),
+    [fetcher, formatter],
+  );
+
+  return [handleSearch, options, isLoading, error];
+};
 
 const StyledField = styled.label`
   width: 100%;
@@ -268,7 +294,7 @@ const SearchAndSelectField = (props) => {
 
 SearchAndSelectField.propTypes = {
   value: PropTypes.any,
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   onSearch: PropTypes.func.isRequired,
   defaultOptions: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
   id: PropTypes.string,

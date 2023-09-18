@@ -38,6 +38,12 @@ Default.args = {
   disabled: false,
 };
 
+export const Toggle = Template.bind({});
+Toggle.args = {
+  ...Default.args,
+  toggle: true,
+};
+
 export const Unchecked = Template.bind({});
 Unchecked.args = {
   ...Default.args,

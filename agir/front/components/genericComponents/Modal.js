@@ -6,6 +6,7 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import { useDisableBodyScroll, useFocusTrap } from "@agir/lib/utils/hooks";
+import { RawFeatherIcon } from "./FeatherIcon";
 
 const slideInTransition = {
   from: { opacity: 0, paddingTop: "2%" },
@@ -77,6 +78,42 @@ const ModalFrame = styled.div`
   overflow-y: auto;
   z-index: ${style.zindexModal};
 `;
+
+const StyledCloseButton = styled.button`
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0;
+  color: ${style.black700};
+  z-index: 1;
+  background-color: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+`;
+
+export const ModalCloseButton = ({ onClose, size = "2rem", ...rest }) => {
+  if (!onClose) {
+    return null;
+  }
+
+  return (
+    <StyledCloseButton
+      {...rest}
+      onClick={onClose}
+      aria-label="Fermer la modale"
+    >
+      <RawFeatherIcon name="x" width={size} height={size} />
+    </StyledCloseButton>
+  );
+};
+
+ModalCloseButton.propTypes = {
+  onClose: PropTypes.func,
+  size: PropTypes.string,
+};
 
 const Modal = (props) => {
   const { shouldShow = false, children, onClose, noScroll, className } = props;

@@ -2,6 +2,7 @@ import { DateTime } from "luxon";
 
 import axios from "@agir/lib/utils/axios";
 import { objectToFormData } from "@agir/lib/utils/forms";
+import { addQueryStringParams } from "@agir/lib/utils/url";
 
 export const ENDPOINT = {
   getEventCard: "/api/evenements/:eventPk/",
@@ -27,9 +28,11 @@ export const ENDPOINT = {
 
   getEventReportForm: "/api/evenements/:eventPk/bilan/",
   getEventAssets: "/api/evenements/:eventPk/visuels/",
+
+  getOrganizedEvents: "/api/evenements/organises/",
 };
 
-export const getEventEndpoint = (key, params) => {
+export const getEventEndpoint = (key, params, searchParams) => {
   let endpoint = ENDPOINT[key] || "";
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
@@ -39,6 +42,9 @@ export const getEventEndpoint = (key, params) => {
         endpoint = endpoint.replace(`:${key}`, value);
       }
     });
+  }
+  if (searchParams) {
+    endpoint = addQueryStringParams(endpoint, searchParams, true);
   }
   return endpoint;
 };
@@ -296,8 +302,6 @@ export const getOrganizerGroupSuggestions = async (eventPk, data) => {
   }
 
   return result;
-
-  return result;
 };
 
 export const inviteGroupOrganizer = async (eventPk, data) => {
@@ -330,6 +334,24 @@ export const getEventMessages = async (eventPk) => {
   const url = getEventEndpoint("getEventMessages", { eventPk });
   try {
     const response = await axios.patch(url, data);
+    result.data = response.data;
+  } catch (e) {
+    result.errors = (e.response && e.response.data) || { global: e.message };
+  }
+
+  return result;
+};
+
+export const getOrganizedEvents = async (params) => {
+  const result = {
+    data: null,
+    errors: null,
+  };
+
+  const url = getEventEndpoint("getOrganizedEvents", null, params);
+
+  try {
+    const response = await axios.get(url);
     result.data = response.data;
   } catch (e) {
     result.errors = (e.response && e.response.data) || { global: e.message };

@@ -19,6 +19,10 @@ const cardTypes = {
     backgroundImage: `linear-gradient(90deg, transparent 0, transparent 3px, ${style.white} 3px)`,
     backgroundColor: style.white,
   },
+  error: {
+    backgroundImage: `linear-gradient(90deg, transparent 0, transparent 8px, ${style.white} 8px)`,
+    backgroundColor: style.redNSP,
+  },
 };
 
 const Card = styled.div.withConfig({

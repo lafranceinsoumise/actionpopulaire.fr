@@ -67,6 +67,12 @@ class SupportGroupQuerySet(models.QuerySet):
 
         return qs.filter(id__in=uncertifiable_group_ids)
 
+    def financeable(self):
+        return self.active().filter(
+            Q(certification_date__isnull=False)
+            | Q(type=SupportGroup.TYPE_BOUCLE_DEPARTEMENTALE)
+        )
+
     def search(self, query):
         vector = (
             SearchVector(models.F("name"), config="french_unaccented", weight="A")
@@ -466,6 +472,10 @@ class SupportGroup(
     def external_help_text(self):
         subtype = self.subtypes.filter(allow_external=True).first()
         return subtype.external_help_text or ""
+
+    @property
+    def is_financeable(self):
+        return self.is_certified or self.type == self.TYPE_BOUCLE_DEPARTEMENTALE
 
     def get_meta_image(self):
         if hasattr(self, "image") and self.image:

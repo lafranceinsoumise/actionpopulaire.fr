@@ -82,7 +82,7 @@ const EventSubtypePicker = (props) => {
   );
 };
 EventSubtypePicker.propTypes = {
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   value: PropTypes.object.isRequired,
   options: PropTypes.arrayOf(PropTypes.object),
   disabled: PropTypes.bool,

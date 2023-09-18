@@ -842,12 +842,12 @@ class GroupFinanceAPIView(GenericAPIView):
                 "status": spending_request.get_status_display(),
                 "date": spending_request.spending_date,
                 "link": front_url(
-                    "manage_spending_request", kwargs={"pk": spending_request.pk}
+                    "spending_request_details", kwargs={"pk": spending_request.pk}
                 ),
             }
             for spending_request in (
                 SpendingRequest.objects.filter(group=group)
-                .exclude(status=SpendingRequest.STATUS_PAID)
+                .exclude(status=SpendingRequest.Status.PAID)
                 .order_by("-spending_date")
                 .only("id", "title", "status", "spending_date")
             )

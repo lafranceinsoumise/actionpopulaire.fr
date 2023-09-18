@@ -119,6 +119,7 @@ const PrimaryButton = styled(BaseButton)`
   &[disabled]:hover,
   &[disabled]:focus,
   &[disabled]:active {
+    color: ${style.white + "B7"};
     background-color: ${style.primary500 + "B7"};
     border-color: ${style.primary500 + "B7"};
   }
@@ -279,7 +280,7 @@ const ChooseButton = styled(BaseButton)`
   &[disabled]:active {
     color: ${style.black1000 + "4D"};
     background-color: ${style.black50 + "B7"};
-    border-color: ${style.black200 + "B7"};
+    border-color: ${style.black50 + "B7"};
 
     &:before {
       background-image: ${getIconDataUrl({ color: style.black1000 + "4D" })};
@@ -302,8 +303,8 @@ const SuccessButton = styled(BaseButton)`
   }
 
   &[disabled] {
-    background-color: ${style.green500 + "B7"};
-    border-color: ${style.green500 + "B7"};
+    background-color: ${style.green500 + "4D"};
+    border-color: ${style.green500 + "4D"};
   }
 
   &:before {

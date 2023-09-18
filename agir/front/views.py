@@ -11,7 +11,7 @@ from django.http import (
     HttpResponseRedirect,
 )
 from django.templatetags.static import static
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.utils.decorators import method_decorator
 from django.utils.safestring import mark_safe
 from django.views.decorators import cache
@@ -28,10 +28,9 @@ from .view_mixins import (
     ReactBaseView,
     SimpleOpengraphMixin,
     ObjectOpengraphMixin,
-    ReactSerializerBaseView,
 )
 from ..donations.actions import can_make_contribution
-from ..event_requests.views.public_views import EventSpeakerViewMixin
+from ..donations.models import SpendingRequest
 from ..events.models import EventSubtype
 from ..events.views.event_views import EventDetailMixin
 from ..groups.models import SupportGroupSubtype
@@ -332,7 +331,58 @@ class SupportGroupDetailView(
 
 
 class SupportGroupSettingsView(HardLoginRequiredMixin, SupportGroupDetailView):
-    permission_required = "groups.change_supportgroup"
+    permission_required = ("groups.change_supportgroup",)
+
+
+class CreateSupportGroupSpendingRequestView(
+    HardLoginRequiredMixin, SupportGroupDetailView
+):
+    permission_required = ("donations.add_spendingrequest",)
+
+    def get_api_preloads(self):
+        return [
+            reverse_lazy("api_group_view", kwargs=self.kwargs),
+        ]
+
+    def get_meta_image(self):
+        return self.object.get_meta_image()
+
+
+## SPENDING REQUEST VIEW
+
+
+class SpendingRequestDetailsView(
+    HardLoginRequiredMixin,
+    GlobalOrObjectPermissionRequiredMixin,
+    BaseDetailView,
+    ReactBaseView,
+):
+    model = SpendingRequest
+    permission_required = ("donations.view_spendingrequest",)
+
+    def get_api_preloads(self):
+        return [
+            reverse_lazy(
+                "api_spending_request_retrieve_update_delete", kwargs=self.kwargs
+            ),
+        ]
+
+
+class SpendingRequestUpdateView(SpendingRequestDetailsView):
+    permission_required = ("donations.change_spendingrequest",)
+
+    def handle_no_permission(self):
+        if self.get_object().editable:
+            return super().handle_no_permission()
+
+        messages.add_message(
+            self.request,
+            messages.WARNING,
+            "Cette demande ne peut pas être modifiée",
+        )
+        return HttpResponseRedirect(
+            reverse("spending_request_details", kwargs=self.kwargs)
+        )
 
 
 ## REDIRECT / EXTERNAL VIEWS

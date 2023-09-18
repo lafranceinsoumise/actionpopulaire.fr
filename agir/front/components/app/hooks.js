@@ -3,7 +3,10 @@ import { useHistory } from "react-router-dom";
 import { createGlobalState } from "react-use";
 
 import { getRouteByPathname, routeConfig } from "@agir/front/app/routes.config";
-import { useIsDesktop } from "@agir/front/genericComponents/grid";
+import {
+  useIsDesktop,
+  useResponsiveMemo,
+} from "@agir/front/genericComponents/grid";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getHasRouter, getRoutes } from "@agir/front/globalContext/reducers";
 import { useLocalStorage } from "@agir/lib/utils/hooks";

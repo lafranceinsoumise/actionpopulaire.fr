@@ -1,18 +1,36 @@
 import json
 
+import reversion
 from django.db import transaction
 from django.urls import reverse
-from rest_framework.generics import GenericAPIView
+from nested_multipart_parser.drf import DrfNestedParser
+from rest_framework.generics import (
+    GenericAPIView,
+    RetrieveUpdateDestroyAPIView,
+    CreateAPIView,
+    RetrieveAPIView,
+)
 from rest_framework.mixins import UpdateModelMixin
+from rest_framework.parsers import JSONParser, FormParser, MultiPartParser
 from rest_framework.response import Response
 
+from agir.donations.models import SpendingRequest, Document
 from agir.donations.serializers import (
     DonationSerializer,
     MONTHLY,
+    SpendingRequestSerializer,
+    SpendingRequestDocumentSerializer,
+)
+from agir.donations.spending_requests import (
+    validate_action,
+    get_missing_field_error_message,
 )
 from agir.donations.tasks import send_monthly_donation_confirmation_email
 from agir.donations.views import DONATION_SESSION_NAMESPACE
-from agir.lib.rest_framework_permissions import IsActionPopulaireClientPermission
+from agir.lib.rest_framework_permissions import (
+    IsActionPopulaireClientPermission,
+    GlobalOrObjectPermissions,
+)
 from agir.payments.actions.payments import create_payment
 from agir.payments.actions.subscriptions import create_subscription
 from agir.payments.models import Subscription
@@ -131,3 +149,168 @@ class CreateDonationAPIView(UpdateModelMixin, GenericAPIView):
             return self.make_subscription()
 
         return self.make_payment()
+
+
+class SpendingRequestCreatePermissions(GlobalOrObjectPermissions):
+    perms_map = {
+        "OPTIONS": [],
+        "POST": [],
+    }
+    object_perms_map = {
+        "OPTIONS": [],
+        "POST": ["donations.view_spendingrequest"],
+    }
+
+
+class SpendingRequestCreateAPIView(CreateAPIView):
+    parser_classes = (JSONParser, DrfNestedParser)
+    permission_classes = (
+        IsActionPopulaireClientPermission,
+        SpendingRequestCreatePermissions,
+    )
+    serializer_class = SpendingRequestSerializer
+    queryset = SpendingRequest.objects.all()
+
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
+
+    def check_object_group_permission(self, group):
+        if not self.request.user.has_perm("donations.add_spendingrequest", group):
+            self.permission_denied(
+                self.request,
+                message="Vous ne pouvez pas créer de demande pour ce groupe",
+            )
+
+    def perform_create(self, serializer):
+        self.check_object_group_permission(serializer.validated_data.get("group", None))
+        super().perform_create(serializer)
+
+
+class SpendingRequestRetrieveUpdateDestroyPermissions(GlobalOrObjectPermissions):
+    message = (
+        "Vous n'avez pas la permission d'effectuer cette action."
+        "Veuillez contacter nos équipes à groupes@actionpopulaire.fr"
+    )
+
+    perms_map = {
+        "OPTIONS": [],
+        "GET": [],
+        "PUT": [],
+        "PATCH": [],
+        "DELETE": [],
+    }
+    object_perms_map = {
+        "OPTIONS": [],
+        "GET": ["donations.view_spendingrequest"],
+        "PUT": ["donations.change_spendingrequest"],
+        "PATCH": ["donations.change_spendingrequest"],
+        "DELETE": ["donations.delete_spendingrequest"],
+    }
+
+
+class SpendingRequestRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+    parser_classes = (JSONParser, DrfNestedParser)
+    permission_classes = (
+        IsActionPopulaireClientPermission,
+        SpendingRequestRetrieveUpdateDestroyPermissions,
+    )
+    serializer_class = SpendingRequestSerializer
+    queryset = SpendingRequest.objects.select_related(
+        "creator", "group", "event"
+    ).prefetch_related("documents")
+
+    def check_object_permissions(self, request, obj):
+        super().check_object_permissions(request, obj)
+
+
+class SpendingRequestDocumentCreatePermissions(
+    SpendingRequestRetrieveUpdateDestroyPermissions
+):
+    perms_map = {
+        "OPTIONS": [],
+        "POST": [],
+    }
+    object_perms_map = {
+        "OPTIONS": [],
+        "POST": ["donations.add_document_to_spending_request"],
+    }
+
+
+class SpendingRequestDocumentCreateAPIView(CreateAPIView):
+    permission_classes = (
+        IsActionPopulaireClientPermission,
+        SpendingRequestDocumentCreatePermissions,
+    )
+    serializer_class = SpendingRequestDocumentSerializer
+    queryset = Document.objects.all()
+
+    def check_object_permissions(self, request, obj):
+        super().check_object_permissions(request, obj.request)
+
+
+class SpendingRequestDocumentRetrieveUpdateDestroyPermissions(
+    SpendingRequestRetrieveUpdateDestroyPermissions
+):
+    object_perms_map = {
+        "OPTIONS": [],
+        "GET": ["donations.view_spendingrequest"],
+        "PUT": ["donations.change_spendingrequest"],
+        "PATCH": ["donations.change_spendingrequest"],
+        "DELETE": ["donations.change_spendingrequest"],
+    }
+
+
+class SpendingRequestDocumentRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+    permission_classes = (
+        IsActionPopulaireClientPermission,
+        SpendingRequestDocumentRetrieveUpdateDestroyPermissions,
+    )
+    serializer_class = SpendingRequestDocumentSerializer
+    queryset = Document.objects.filter(deleted=False)
+
+    def check_object_permissions(self, request, obj):
+        super().check_object_permissions(request, obj.request)
+
+    def perform_destroy(self, instance):
+        with reversion.create_revision():
+            reversion.set_user(self.request.user)
+            reversion.set_comment(f"Suppression d'une pièce-jointe : {instance.title}")
+            reversion.add_to_revision(instance.request)
+            instance.deleted = True
+            instance.save()
+
+
+class SpendingRequestApplyNextStatusPermissions(GlobalOrObjectPermissions):
+    perms_map = {
+        "OPTIONS": [],
+        "GET": [],
+    }
+    object_perms_map = {"OPTIONS": [], "GET": ["donations.change_spendingrequest"]}
+
+
+class SpendingRequestApplyNextStatusAPIView(RetrieveAPIView):
+    permission_classes = (
+        IsActionPopulaireClientPermission,
+        SpendingRequestApplyNextStatusPermissions,
+    )
+    serializer_class = SpendingRequestSerializer
+    queryset = SpendingRequest.objects.select_related(
+        "creator", "group", "event"
+    ).prefetch_related("documents")
+
+    def get_object(self):
+        spending_request = super().get_object()
+        is_valid = validate_action(spending_request, self.request.user)
+
+        if is_valid:
+            return spending_request
+
+        message = (
+            get_missing_field_error_message(spending_request)
+            or "L'opération n'est pas autorisée pour cette demande de dépense"
+        )
+
+        self.permission_denied(
+            self.request,
+            message=message,
+        )

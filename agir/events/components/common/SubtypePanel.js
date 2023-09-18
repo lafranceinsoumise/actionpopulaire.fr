@@ -283,7 +283,7 @@ export const SubtypePicker = (props) => {
   );
 };
 SubtypePicker.propTypes = {
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   value: PropTypes.object,
   options: PropTypes.arrayOf(PropTypes.object),
   lastUsedIds: PropTypes.arrayOf(PropTypes.number),

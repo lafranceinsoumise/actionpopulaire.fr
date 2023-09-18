@@ -243,7 +243,7 @@ NotificationSettingPanel.propTypes = {
     }).isRequired,
   ),
   activeNotifications: PropTypes.object,
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   disabled: PropTypes.bool,
   ready: PropTypes.bool,
 };

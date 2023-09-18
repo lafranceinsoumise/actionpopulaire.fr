@@ -269,7 +269,7 @@ AllocationWidget.propTypes = {
   error: PropTypes.string,
   unit: PropTypes.string,
   disabled: PropTypes.bool,
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
 };
 
 export default AllocationWidget;

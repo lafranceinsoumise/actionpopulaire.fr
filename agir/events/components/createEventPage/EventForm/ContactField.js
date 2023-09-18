@@ -124,7 +124,7 @@ const ContactField = (props) => {
   );
 };
 ContactField.propTypes = {
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   value: PropTypes.string,
   name: PropTypes.string.isRequired,
   contact: PropTypes.shape({

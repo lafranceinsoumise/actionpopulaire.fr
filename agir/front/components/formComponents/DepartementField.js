@@ -36,7 +36,7 @@ const DepartementField = (props) => {
   );
 };
 DepartementField.propTypes = {
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   value: PropTypes.oneOf(["", ...DEPARTEMENTS.map((d) => d.value)]),
 };
 export default DepartementField;

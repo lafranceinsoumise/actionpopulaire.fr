@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { useTransition, animated } from "@react-spring/web";
 import { useKeyPressEvent } from "react-use";
 import styled from "styled-components";
@@ -30,6 +30,11 @@ const BasePopin = styled(animated.div)`
 `;
 
 const Popins = {
+  "bottom-left": styled(BasePopin)`
+    left: 0;
+    bottom: -${(props) => props.$gap};
+    transform: translateY(100%);
+  `,
   "bottom-right": styled(BasePopin)`
     right: 0;
     bottom: -${(props) => props.$gap};

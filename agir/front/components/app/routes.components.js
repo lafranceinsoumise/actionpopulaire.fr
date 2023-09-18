@@ -196,6 +196,26 @@ const Routes = {
       /* webpackChunkName: "r-faicons" */ "@agir/front/genericComponents/FaIcons"
     ),
   ),
+  CreateSpendingRequest: lazy(() =>
+    import(
+      /* webpackChunkName: "r-createspendingrequest" */ "@agir/donations/spendingRequest/createSpendingRequestPage"
+    ),
+  ),
+  EditSpendingRequest: lazy(() =>
+    import(
+      /* webpackChunkName: "r-editspendingrequest" */ "@agir/donations/spendingRequest/editSpendingRequestPage"
+    ),
+  ),
+  SpendingRequestDetails: lazy(() =>
+    import(
+      /* webpackChunkName: "r-spendingrequestdetails" */ "@agir/donations/spendingRequest/spendingRequestPage"
+    ),
+  ),
+  SpendingRequestHistory: lazy(() =>
+    import(
+      /* webpackChunkName: "r-spendingrequesthistory" */ "@agir/donations/spendingRequest/spendingRequestPage/SpendingRequestHistoryPage"
+    ),
+  ),
 };
 
 export default Routes;

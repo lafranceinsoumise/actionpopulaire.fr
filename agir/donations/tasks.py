@@ -18,6 +18,9 @@ from agir.people.models import Person
 from agir.system_pay.models import SystemPaySubscription
 
 
+# DONATIONS
+
+
 @emailing_task(post_save=True)
 def send_donation_email(person_pk, payment_type):
     person = Person.objects.prefetch_related("emails").get(pk=person_pk)
@@ -53,30 +56,6 @@ def send_donation_email(person_pk, payment_type):
             bindings={"PROFILE_LINK": front_url("personal_information")},
             recipients=[person],
         )
-
-
-@emailing_task(post_save=True)
-def send_spending_request_to_review_email(spending_request_pk):
-    spending_request = SpendingRequest.objects.prefetch_related("group").get(
-        pk=spending_request_pk
-    )
-
-    send_mosaico_email(
-        code="SPENDING_REQUEST_TO_REVIEW_NOTIFICATION",
-        subject="Nouvelle demande de dépense ou de remboursement",
-        from_email=settings.EMAIL_FROM,
-        bindings={
-            "SPENDING_REQUEST_NAME": spending_request.title,
-            "GROUP_NAME": spending_request.group.name,
-            "SPENDING_REQUEST_ADMIN_LINK": urljoin(
-                settings.API_DOMAIN,
-                reverse(
-                    "admin:donations_spendingrequest_review", args=[spending_request_pk]
-                ),
-            ),
-        },
-        recipients=[settings.EMAIL_EQUIPE_FINANCE],
-    )
 
 
 @emailing_task()
@@ -153,4 +132,29 @@ def send_expiration_sms_reminder(sp_subscription_pk):
         f"mettez là à jour : {url}\n"
         f"Merci encore de votre soutien !",
         recipient.contact_phone,
+    )
+
+
+# SPENDING REQUESTS
+@emailing_task(post_save=True)
+def send_spending_request_to_review_email(spending_request_pk):
+    spending_request = SpendingRequest.objects.prefetch_related("group").get(
+        pk=spending_request_pk
+    )
+
+    send_mosaico_email(
+        code="SPENDING_REQUEST_TO_REVIEW_NOTIFICATION",
+        subject="Nouvelle demande de dépense ou de remboursement",
+        from_email=settings.EMAIL_FROM,
+        bindings={
+            "SPENDING_REQUEST_NAME": spending_request.title,
+            "GROUP_NAME": spending_request.group.name,
+            "SPENDING_REQUEST_ADMIN_LINK": urljoin(
+                settings.API_DOMAIN,
+                reverse(
+                    "admin:donations_spendingrequest_review", args=[spending_request_pk]
+                ),
+            ),
+        },
+        recipients=[settings.EMAIL_EQUIPE_FINANCE],
     )

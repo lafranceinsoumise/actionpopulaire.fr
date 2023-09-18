@@ -230,7 +230,7 @@ const DateTimeField = (props) => {
 
 DateTimeField.propTypes = {
   value: PropTypes.string,
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   type: PropTypes.oneOf(["date", "time", "datetime"]),
   id: PropTypes.string,
   label: PropTypes.string,

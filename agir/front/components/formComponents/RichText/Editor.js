@@ -207,7 +207,7 @@ const Editor = (props) => {
 };
 Editor.propTypes = {
   value: PropTypes.string,
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   disabled: PropTypes.bool,
   hasError: PropTypes.bool,
 };

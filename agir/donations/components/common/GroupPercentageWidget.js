@@ -196,7 +196,7 @@ const GroupPercentageWidget = (props) => {
 
 GroupPercentageWidget.propTypes = {
   value: PropTypes.number,
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   disabled: PropTypes.bool,
 };
 

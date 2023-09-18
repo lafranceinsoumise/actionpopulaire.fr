@@ -526,12 +526,13 @@ class GroupFinanceAPITestCase(APITestCase):
             group=self.group,
             title="Ma demande de dépense",
             event=None,
-            category=SpendingRequest.CATEGORY_HARDWARE,
+            category=SpendingRequest.Category.HARDWARE.value,
             category_precisions="Super truc trop cool",
             explanation="On en a VRAIMENT VRAIMENT besoin.",
             spending_date=timezone.now(),
-            provider="Super CLIENT",
-            iban="FR65 0382 9038 7327 9323 466",
+            bank_account_name="Super CLIENT",
+            bank_account_iban="FR65 0382 9038 7327 9323 466",
+            bank_account_bic="",
             amount=8500,
         )
 

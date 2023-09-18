@@ -7,20 +7,25 @@ from ..msgs.models import SupportGroupMessage, SupportGroupMessageComment
 
 
 @rules.predicate
-def is_published_group(role, supportgroup=None):
+def is_published_group(_role, supportgroup=None):
     return supportgroup is not None and supportgroup.published
 
 
 @rules.predicate
-def is_editable_group(role, object=None):
-    if object is None:
+def is_financeable_group(_role, supportgroup=None):
+    return supportgroup is not None and supportgroup.is_financeable
+
+
+@rules.predicate
+def is_editable_group(_role, obj=None):
+    if obj is None:
         return False
-    if isinstance(object, SupportGroup):
-        supportgroup = object
-    elif hasattr(object, "supportgroup"):
-        supportgroup = object.supportgroup
-    elif isinstance(object, SupportGroupMessageComment):
-        supportgroup = object.message.supportgroup
+    if isinstance(obj, SupportGroup):
+        supportgroup = obj
+    elif hasattr(obj, "supportgroup"):
+        supportgroup = obj.supportgroup
+    elif isinstance(obj, SupportGroupMessageComment):
+        supportgroup = obj.message.supportgroup
     else:
         return False
 
@@ -28,18 +33,18 @@ def is_editable_group(role, object=None):
 
 
 @rules.predicate
-def is_at_least_manager_for_group(role, object=None):
-    if object is None:
+def is_at_least_manager_for_group(role, obj=None):
+    if obj is None:
         return False
 
-    if isinstance(object, SupportGroup):
-        supportgroup = object
-    elif isinstance(object, SupportGroupMessage):
-        supportgroup = object.supportgroup
-    elif isinstance(object, SupportGroupMessageComment):
-        supportgroup = object.message.supportgroup
-    elif isinstance(object, Membership):
-        supportgroup = object.supportgroup
+    if isinstance(obj, SupportGroup):
+        supportgroup = obj
+    elif isinstance(obj, SupportGroupMessage):
+        supportgroup = obj.supportgroup
+    elif isinstance(obj, SupportGroupMessageComment):
+        supportgroup = obj.message.supportgroup
+    elif isinstance(obj, Membership):
+        supportgroup = obj.supportgroup
     else:
         return False
 
@@ -54,18 +59,18 @@ def is_at_least_manager_for_group(role, object=None):
 
 
 @rules.predicate
-def is_at_least_referent_for_group(role, object=None):
-    if object is None:
+def is_at_least_referent_for_group(role, obj=None):
+    if obj is None:
         return False
 
-    if isinstance(object, SupportGroup):
-        supportgroup = object
-    elif isinstance(object, SupportGroupMessage):
-        supportgroup = object.supportgroup
-    elif isinstance(object, SupportGroupMessageComment):
-        supportgroup = object.message.supportgroup
-    elif isinstance(object, Membership):
-        supportgroup = object.supportgroup
+    if isinstance(obj, SupportGroup):
+        supportgroup = obj
+    elif isinstance(obj, SupportGroupMessage):
+        supportgroup = obj.supportgroup
+    elif isinstance(obj, SupportGroupMessageComment):
+        supportgroup = obj.message.supportgroup
+    elif isinstance(obj, Membership):
+        supportgroup = obj.supportgroup
     else:
         return False
 
@@ -77,19 +82,19 @@ def is_at_least_referent_for_group(role, object=None):
 
 
 @rules.predicate
-def is_finance_manager(role, object=None):
-    if object is None:
+def is_finance_manager(role, obj=None):
+    if obj is None:
         return False
 
-    if isinstance(object, Membership):
-        return object.is_finance_manager
+    if isinstance(obj, Membership):
+        return obj.is_finance_manager
 
-    if isinstance(object, SupportGroup):
-        supportgroup = object
-    elif isinstance(object, SupportGroupMessage):
-        supportgroup = object.supportgroup
-    elif isinstance(object, SupportGroupMessageComment):
-        supportgroup = object.message.supportgroup
+    if isinstance(obj, SupportGroup):
+        supportgroup = obj
+    elif isinstance(obj, SupportGroupMessage):
+        supportgroup = obj.supportgroup
+    elif isinstance(obj, SupportGroupMessageComment):
+        supportgroup = obj.message.supportgroup
     else:
         return False
 
@@ -99,14 +104,14 @@ def is_finance_manager(role, object=None):
 
 
 @rules.predicate
-def is_group_only_referent(role, object=None):
-    if object is None:
+def is_group_only_referent(role, obj=None):
+    if obj is None:
         return False
 
-    if isinstance(object, Membership):
-        membership = object
+    if isinstance(obj, Membership):
+        membership = obj
     else:
-        membership = object.memberships.filter(person=role.person).first()
+        membership = obj.memberships.filter(person=role.person).first()
 
     return (
         membership is not None
@@ -142,13 +147,13 @@ def own_membership_has_higher_rights(role, membership=None):
 
 
 @rules.predicate
-def is_group_member(role, object=None):
-    if object is None:
+def is_group_member(role, obj=None):
+    if obj is None:
         return False
-    if isinstance(object, SupportGroup):
-        supportgroup_id = object.id
-    elif isinstance(object, SupportGroupMessage):
-        supportgroup_id = object.supportgroup_id
+    if isinstance(obj, SupportGroup):
+        supportgroup_id = obj.id
+    elif isinstance(obj, SupportGroupMessage):
+        supportgroup_id = obj.supportgroup_id
     else:
         return False
     return (

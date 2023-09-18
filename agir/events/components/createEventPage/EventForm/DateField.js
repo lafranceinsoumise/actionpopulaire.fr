@@ -212,7 +212,7 @@ const DateField = (props) => {
   );
 };
 DateField.propTypes = {
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   onChangeTimezone: PropTypes.func.isRequired,
   timezone: PropTypes.string,
   startTime: PropTypes.string,

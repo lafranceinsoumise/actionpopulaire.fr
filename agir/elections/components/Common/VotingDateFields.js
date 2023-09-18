@@ -81,7 +81,7 @@ const VotingDateFields = (props) => {
 VotingDateFields.propTypes = {
   name: PropTypes.string.isRequired,
   value: PropTypes.arrayOf(PropTypes.string).isRequired,
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   options: PropTypes.arrayOf(
     PropTypes.shape({
       value: PropTypes.string,

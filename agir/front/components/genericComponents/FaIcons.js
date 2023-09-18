@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
@@ -138,6 +139,10 @@ const Icon = ({ icon }) => {
       </figcaption>
     </figure>
   );
+};
+
+Icon.propTypes = {
+  icon: PropTypes.string,
 };
 
 export const FaIcons = () => {
