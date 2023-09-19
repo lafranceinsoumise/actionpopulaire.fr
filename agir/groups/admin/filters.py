@@ -1,17 +1,16 @@
 from datetime import timedelta
 
 from django.conf import settings
-from django.contrib.humanize.templatetags import humanize
-
-from agir.activity.models import Activity
 from django.contrib import admin
-from django.db.models import Count, Q, F, Max
+from django.contrib.humanize.templatetags import humanize
+from django.db.models import Count, Q, OuterRef
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from agir.events.models import Event
 from .. import models
 from ..models import Membership
+from ...lib.time import dehumanize_naturaltime
 
 
 class GroupHasEventsFilter(admin.SimpleListFilter):
@@ -126,3 +125,48 @@ class TooMuchMembersFilter(admin.SimpleListFilter):
             return queryset.filter(membership_count__lt=self.MEMBERS_LIMIT)
         if self.value() == "more_than_{}_members".format(self.MEMBERS_LIMIT):
             return queryset.filter(membership_count__gte=self.MEMBERS_LIMIT)
+
+
+class LastManagerLoginFilter(admin.SimpleListFilter):
+    title = "Dernière connexion d'un·e gestionnaire"
+    parameter_name = "last_manager_login"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("1_week_ago", "Il y a plus d'une semaine"),
+            ("1_month_ago", "Il y a plus d'un mois"),
+            ("2_months_ago", "Il y a plus de deux mois"),
+            ("3_months_ago", "Il y a plus de trois mois"),
+        )
+
+    def queryset(self, request, queryset):
+        if not self.value():
+            return queryset
+
+        today = timezone.now().date()
+        value = self.value().replace("_", " ")
+
+        try:
+            date = timezone.datetime.strptime(value, "%Y-%m-%d")
+        except ValueError:
+            try:
+                date = dehumanize_naturaltime(value)
+            except ValueError:
+                return queryset
+
+        if date is None or date.date() > today:
+            return queryset
+
+        date = date.date()
+
+        qs = queryset.exclude(
+            pk__in=(
+                Membership.objects.filter(supportgroup_id=OuterRef("pk"))
+                .managers()
+                .active()
+                .filter(person__role__last_login__date__gte=date)
+                .values_list("supportgroup_id", flat=True)
+            )
+        )
+
+        return qs
