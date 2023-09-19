@@ -277,7 +277,12 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
         if not obj:
             return "-"
 
-        return obj.get_last_manager_login() or "-"
+        last_login = obj.get_last_manager_login()
+
+        if last_login is None:
+            return "-"
+
+        return last_login.strftime("%d %B %Y à %H:%M")
 
     last_manager_login.short_description = _("Dernière connexion d'un·e gestionnaire")
 
