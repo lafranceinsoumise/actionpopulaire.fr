@@ -211,7 +211,6 @@ def validate_action(spending_request, user):
 
         spending_request.status = next_status
         spending_request.save()
-
         if spending_request.status == SpendingRequest.Status.TO_PAY:
             try:
                 spending_request.operation = Spending.objects.create(

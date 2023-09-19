@@ -30,7 +30,7 @@ const Container = styled.article`
   align-items: stretch;
   justify-content: flex-start;
   max-width: 255px;
-  cursor: ${({ isClickable }) => (isClickable ? "pointer" : "default")};
+  cursor: ${({ $isClickable }) => ($isClickable ? "pointer" : "default")};
 
   & + & {
     margin-top: 1.5rem;
@@ -101,7 +101,7 @@ const Announcement = (props) => {
     linkRef.current && linkRef.current.click();
   }, []);
   return (
-    <Container isClickable={!!link} onClick={handleClick}>
+    <Container $isClickable={!!link} onClick={handleClick}>
       {image && image.mobile && image.desktop ? (
         <Image
           aria-label={title}
