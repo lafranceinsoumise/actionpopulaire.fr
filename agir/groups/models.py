@@ -499,6 +499,14 @@ class SupportGroup(
             absolute=True,
         )
 
+    def get_last_manager_login(self):
+        return (
+            self.memberships.active()
+            .managers()
+            .aggregate(Max("person__role__last_login"))
+            .get("person__role__last_login__max")
+        )
+
     def front_url(self):
         return front_url("view_group", args=(self.pk,), absolute=True)
 

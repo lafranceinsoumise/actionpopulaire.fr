@@ -53,6 +53,7 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
                     "link",
                     "created",
                     "modified",
+                    "last_manager_login",
                     "action_buttons",
                     "promo_code",
                     "allocation",
@@ -137,6 +138,7 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
         "certification_criteria",
         "certification_actions",
         "export_buttons",
+        "last_manager_login",
     )
     date_hierarchy = "created"
 
@@ -166,6 +168,7 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
         "subtypes",
         "tags",
         filters.TooMuchMembersFilter,
+        filters.LastManagerLoginFilter,
     )
 
     search_fields = ("name", "description", "location_city")
@@ -269,6 +272,14 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
             return mark_safe("-")
 
     link.short_description = _("Page sur le site")
+
+    def last_manager_login(self, obj):
+        if not obj:
+            return "-"
+
+        return obj.get_last_manager_login() or "-"
+
+    last_manager_login.short_description = _("Dernière connexion d'un·e gestionnaire")
 
     @admin.display(description="Actions")
     def action_buttons(self, obj):
