@@ -121,7 +121,10 @@ export const AttachmentItem = (props) => {
   return (
     <StyledItem $error={hasError}>
       <span title={typeLabel}>{typeLabel}</span>
-      <strong title={title}>{title}</strong>
+      <strong title={title}>
+        {title}
+        {file?.name ? ` (${file.name})` : ""}
+      </strong>
       <span>
         {hasError &&
           Object.values(error).map((err) => <span key={err}>{err}</span>)}
