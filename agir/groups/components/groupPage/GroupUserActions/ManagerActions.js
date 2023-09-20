@@ -140,7 +140,7 @@ const ManagerActions = (props) => {
           {groupSettingsLinks?.finance && (
             <li>
               <RawFeatherIcon color={style.primary500} name="loader" />
-              <Link to={groupSettingsLinks.finance}>Financement</Link>
+              <Link to={groupSettingsLinks.finance}>Caisse du groupe</Link>
             </li>
           )}
           {groupSettingsLinks?.links && (
