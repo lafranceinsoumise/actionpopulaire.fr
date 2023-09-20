@@ -5,13 +5,12 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 import { mergeRefs } from "@agir/lib/utils/react";
 
-import FeatherIcon, {
-  RawFeatherIcon,
-} from "@agir/front/genericComponents/FeatherIcon";
+import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
+import FaIcon from "../genericComponents/FaIcon";
 
 const StyledLabel = styled.span``;
 const StyledHelpText = styled.span``;
-const StyledIcon = styled(RawFeatherIcon)``;
+const StyledIcon = styled(FaIcon)``;
 const StyledInput = styled.input``;
 const StyledTextArea = styled.textarea``;
 const StyledErrorIcon = styled.span``;
@@ -46,10 +45,10 @@ const StyledField = styled.label`
     grid-row: 3;
     grid-column: 1/1;
     width: 3rem;
-    margin-top: ${({ $large }) => ($large ? 0 : "0.5rem")};
-    align-items: ${({ $large }) => ($large ? "center" : "start")};
+    font-size: ${({ $large }) => ($large ? "2rem" : "1rem")};
     justify-content: center;
     color: ${({ $invalid }) => ($invalid ? style.redNSP : style.black500)};
+    z-index: 2;
   }
 
   ${StyledInput}, ${StyledTextArea} {
@@ -163,7 +162,7 @@ const TextField = forwardRef((props, ref) => {
     >
       {label && <StyledLabel>{label}</StyledLabel>}
       {helpText && <StyledHelpText>{helpText}</StyledHelpText>}
-      {icon && <StyledIcon name={icon} />}
+      {icon && <StyledIcon icon={icon} />}
       {textArea ? (
         <StyledTextArea
           {...rest}

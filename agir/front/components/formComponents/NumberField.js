@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { forwardRef, useCallback } from "react";
+import React, { forwardRef, useCallback, useState } from "react";
 // eslint-disable-next-line no-unused-vars
 import styled from "styled-components";
 
@@ -8,18 +8,24 @@ import TextField from "./TextField";
 const NumberField = forwardRef((props, ref) => {
   const { value, onChange, currency = false, ...rest } = props;
 
+  const [currentValue, setCurrentValue] = useState(
+    String(
+      typeof value !== "number" || isNaN(value) || !currency
+        ? value || ""
+        : (value / 100).toFixed(2),
+    ).replace(".", ","),
+  );
+
   const handleChange = useCallback(
     (e) => {
-      let numericValue =
-        ("valueAsNumber" in e.target && e.target.numericValue) ||
-        parseFloat(e.target.value);
-      const stringValue = e.target.value;
+      const stringValue = e.target.value.trim().replace(/[^0-9,.]/g, "");
 
-      if (
-        !numericValue ||
-        isNaN(numericValue) ||
-        stringValue.charAt(stringValue.length - 1) === "."
-      ) {
+      setCurrentValue(stringValue);
+
+      let numericValue =
+        e.target?.numericValue || parseFloat(stringValue.replace(",", "."));
+
+      if (!numericValue || isNaN(numericValue)) {
         return onChange(stringValue);
       }
 
@@ -31,37 +37,21 @@ const NumberField = forwardRef((props, ref) => {
 
       onChange(numericValue);
     },
-    [onChange, currency],
+    [currency, onChange],
   );
-
-  const currentValue =
-    typeof value !== "number" || isNaN(value) || !currency
-      ? value || ""
-      : value / 100;
 
   return (
     <TextField
       min="0"
       step="0.01"
-      inputmode="decimal"
-      type="number"
+      inputMode="decimal"
       lang="fr-FR"
       {...rest}
       ref={ref}
       onChange={handleChange}
       value={currentValue}
       textArea={false}
-      css={`
-        input {
-          -moz-appearance: textfield;
-
-          &::-webkit-outer-spin-button,
-          &::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-          }
-        }
-      `}
+      icon={currency ? "euro-sign" : undefined}
     />
   );
 });
