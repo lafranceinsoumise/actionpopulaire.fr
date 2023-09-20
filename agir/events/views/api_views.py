@@ -623,7 +623,8 @@ class RSVPEventAPIView(DestroyAPIView, CreateAPIView):
         # Delete current user as attendee
         try:
             rsvp = (
-                RSVP.objects.filter(event__end_time__gte=now())
+                RSVP.objects.confirmed()
+                .filter(event__end_time__gte=now())
                 .select_related("event")
                 .get(event=self.object, person=self.request.user.person)
             )

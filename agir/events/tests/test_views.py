@@ -523,7 +523,7 @@ class RSVPTestCase(TestCase):
         self.assertEqual(msgs[0].level, messages.SUCCESS)
 
         self.person.refresh_from_db()
-        self.assertIn(self.person, self.form_event.attendees.all())
+        self.assertIn(self.person, self.form_event.confirmed_attendees)
         self.assertEqual(self.person.meta["custom-field"], "another custom value")
         self.assertEqual(2, self.form_event.participants)
 
@@ -629,7 +629,7 @@ class RSVPTestCase(TestCase):
         complete_payment(payment)
         event_notification_listener(payment)
 
-        self.assertIn(self.person, self.simple_paying_event.attendees.all())
+        self.assertIn(self.person, self.simple_paying_event.confirmed_attendees)
 
         on_commit.assert_called_once()
         cb = on_commit.call_args[0][0]
@@ -731,7 +731,7 @@ class RSVPTestCase(TestCase):
         complete_payment(payment)
         event_notification_listener(payment)
 
-        self.assertIn(self.person, self.form_paying_event.attendees.all())
+        self.assertIn(self.person, self.form_paying_event.confirmed_attendees)
 
         on_commit.assert_called_once()
         cb = on_commit.call_args[0][0]
@@ -880,7 +880,7 @@ class RSVPTestCase(TestCase):
         self.assertEqual(msgs[0].level, messages.SUCCESS)
 
         self.person.refresh_from_db()
-        self.assertIn(self.person, self.form_event.attendees.all())
+        self.assertIn(self.person, self.form_event.confirmed_attendees)
         self.assertEqual(self.person.meta["custom-field"], "another custom value")
         self.assertEqual(2, self.form_event.participants)
 
@@ -944,7 +944,7 @@ class RSVPTestCase(TestCase):
         self.assertEqual(msgs[0].level, messages.SUCCESS)
 
         self.person.refresh_from_db()
-        self.assertIn(self.person, self.form_event.attendees.all())
+        self.assertIn(self.person, self.form_event.confirmed_attendees)
         self.assertEqual(self.person.meta["custom-field"], "another custom value")
         self.assertEqual(2, self.form_event.participants)
 

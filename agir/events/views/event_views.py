@@ -37,7 +37,7 @@ from agir.authentication.view_mixins import (
     SoftLoginRequiredMixin,
 )
 from agir.events import actions
-from agir.events.actions.rsvps import assign_jitsi_meeting
+from agir.events.actions.rsvps import assign_jitsi_meeting, cancel_rsvp
 from agir.front.view_mixins import (
     ChangeLocationBaseView,
     FilterView,
@@ -285,7 +285,7 @@ class QuitEventView(
     context_object_name = "rsvp"
 
     def get_queryset(self):
-        return RSVP.objects.filter(event__end_time__gte=timezone.now())
+        return RSVP.objects.confirmed().filter(event__end_time__gte=timezone.now())
 
     def get_object(self, queryset=None):
         try:
@@ -308,8 +308,9 @@ class QuitEventView(
         return context
 
     def delete(self, request, *args, **kwargs):
-        # first get response to make sure there's no error before adding message
-        res = super().delete(request, *args, **kwargs)
+        self.object = self.get_object()
+        success_url = self.get_success_url()
+        cancel_rsvp(self.object)
 
         messages.add_message(
             request,
@@ -320,7 +321,7 @@ class QuitEventView(
             ),
         )
 
-        return res
+        return HttpResponseRedirect(success_url)
 
 
 @method_decorator(never_cache, name="get")

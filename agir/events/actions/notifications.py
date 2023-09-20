@@ -100,7 +100,7 @@ def upcoming_event_start_reminder_notification(event_pk):
                 recipient=attendee,
                 event=event,
             )
-            for attendee in event.attendees.all()
+            for attendee in event.confirmed_attendees
         ],
         send_post_save_signal=True,
     )

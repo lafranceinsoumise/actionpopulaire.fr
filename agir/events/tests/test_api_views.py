@@ -589,18 +589,22 @@ class RSVPEventAPITestCase(APITestCase):
         event = self.create_event()
         self.client.force_login(self.person.role)
         self.assertFalse(
-            RSVP.objects.filter(
+            RSVP.objects.confirmed()
+            .filter(
                 event=event,
                 person=self.person,
-            ).exists()
+            )
+            .exists()
         )
         res = self.client.post(f"/api/evenements/{event.pk}/inscription/")
         self.assertEqual(res.status_code, 201, res.data)
         self.assertTrue(
-            RSVP.objects.filter(
+            RSVP.objects.confirmed()
+            .filter(
                 event=event,
                 person=self.person,
-            ).exists()
+            )
+            .exists()
         )
 
 

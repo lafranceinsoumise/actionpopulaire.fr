@@ -46,7 +46,7 @@ class RSVPTestCase(TestCase):
 
         self.assertCountEqual([rsvp], self.person.rsvps.all())
         self.assertCountEqual([rsvp], self.event.rsvps.all())
-        self.assertCountEqual([self.person], self.event.attendees.all())
+        self.assertCountEqual([self.person], self.event.confirmed_attendees)
 
     def test_cannot_create_without_person(self):
         with self.assertRaises(IntegrityError):

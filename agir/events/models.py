@@ -159,7 +159,7 @@ class EventQuerySet(models.QuerySet):
         return self.prefetch_related(
             Prefetch(
                 "rsvps",
-                queryset=RSVP.objects.filter(person=person),
+                queryset=RSVP.objects.filter(person=person).order_by("-created"),
                 to_attr="_pf_person_rsvps",
             )
         )
@@ -285,6 +285,9 @@ class EventQuerySet(models.QuerySet):
 
 
 class RSVPQuerySet(models.QuerySet):
+    def confirmed(self):
+        return self.filter(status=RSVP.STATUS_CONFIRMED)
+
     def upcoming(self, as_of=None, published_only=True):
         if as_of is None:
             as_of = timezone.now()
@@ -724,6 +727,10 @@ class Event(
             self._get_participants_counts()
 
         return self.confirmed_attendee_count
+
+    @property
+    def confirmed_attendees(self):
+        return self.attendees.filter(rsvps__in=self.rsvps.confirmed())
 
     def get_organizer_people(self):
         organizer_people = sum(
