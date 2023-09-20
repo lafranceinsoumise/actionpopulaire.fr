@@ -27,6 +27,7 @@ from rest_framework.views import APIView
 from agir.events.actions.rsvps import (
     rsvp_to_free_event,
     is_participant,
+    cancel_rsvp,
 )
 from agir.events.models import Event, GroupAttendee, OrganizerConfig, Invitation
 from agir.events.models import RSVP
@@ -629,7 +630,8 @@ class RSVPEventAPIView(DestroyAPIView, CreateAPIView):
         except RSVP.DoesNotExist:
             raise NotFound()
 
-        rsvp.delete()
+        cancel_rsvp(rsvp)
+
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 

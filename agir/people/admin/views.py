@@ -14,6 +14,7 @@ from django.views.generic import FormView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
 
 from agir.lib.admin.panels import AdminViewMixin
+from agir.lib.admin.utils import admin_url
 from agir.people.actions.management import merge_persons
 from agir.people.admin.forms import (
     AddPersonEmailForm,
@@ -42,7 +43,7 @@ class FormSubmissionViewsMixin:
 
         return {"form": form, "headers": headers, "submissions": submissions}
 
-    def view_results(self, request, pk, title=None):
+    def view_results(self, request, pk, title=None, download_url=None):
         if not self.has_change_permission(request) or not request.user.has_perm(
             "people.change_personform"
         ):
@@ -50,6 +51,10 @@ class FormSubmissionViewsMixin:
 
         form = PersonForm.objects.get(id=pk)
         table = self.generate_result_table(form)
+        if download_url is None:
+            download_url = admin_url(
+                "admin:people_personform_download_results", args=(form.pk,)
+            )
 
         context = {
             "has_change_permission": True,
@@ -58,20 +63,22 @@ class FormSubmissionViewsMixin:
             "form": table["form"],
             "headers": table["headers"],
             "submissions": table["submissions"],
+            "download_url": download_url,
         }
 
         return TemplateResponse(request, "admin/personforms/view_results.html", context)
 
-    def download_results(self, request, pk):
+    def download_results(self, request, pk, filename=None):
         if not self.has_change_permission(request):
             raise PermissionDenied()
 
         form = get_object_or_404(PersonForm, id=pk)
+        filename = filename or form.slug
         table = self.generate_result_table(form, html=False, fieldsets_titles=False)
 
         response = HttpResponse(content_type="text/csv")
         response["Content-Disposition"] = 'attachment; filename="{0}.csv"'.format(
-            form.slug
+            filename
         )
 
         writer = csv.writer(response)
