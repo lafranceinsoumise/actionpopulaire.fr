@@ -17,7 +17,7 @@ from django.views.generic import UpdateView, DetailView, RedirectView, FormView
 from agir.authentication.view_mixins import SoftLoginRequiredMixin
 from agir.payments.actions.payments import redirect_to_payment
 from agir.payments.models import Payment
-from agir.payments.payment_modes import PAYMENT_MODES
+from agir.people.actions.subscription import SUBSCRIPTION_TYPE_EXTERNAL
 from agir.people.models import PersonFormSubmission
 from agir.people.person_forms.actions import get_people_form_class
 from agir.people.person_forms.display import default_person_form_display
@@ -39,7 +39,6 @@ from ..actions.rsvps import (
 )
 from ..forms import BillingForm, GuestsForm, BaseRSVPForm, ExternalRSVPForm
 from ..models import Event, RSVP, IdentifiedGuest
-from ...people.actions.subscription import SUBSCRIPTION_TYPE_EXTERNAL
 
 
 class RSVPEventView(SoftLoginRequiredMixin, DetailView):
@@ -192,7 +191,15 @@ class RSVPEventView(SoftLoginRequiredMixin, DetailView):
             if form.cleaned_data["is_guest"]:
                 self.redirect_to_event(message=self.default_error_message)
 
-            if self.event.is_free or self.event.get_price(form.submission_data) == 0:
+            price = (
+                0 if self.event.is_free else self.event.get_price(form.submission_data)
+            )
+            cagnotte = (
+                self.event.payment_parameters
+                and self.event.payment_parameters.get("cagnotte")
+            )
+
+            if price == 0 or cagnotte:
                 with transaction.atomic():
                     form.save()
                     rsvp_to_free_event(
@@ -200,6 +207,14 @@ class RSVPEventView(SoftLoginRequiredMixin, DetailView):
                         self.request.user.person,
                         form_submission=form.submission,
                     )
+
+                    if price != 0:
+                        return HttpResponseRedirect(
+                            reverse(
+                                "cagnottes:personal_information",
+                                kwargs={"slug": cagnotte},
+                            )
+                        )
                     return self.redirect_to_event(
                         message=_(
                             "Merci de nous avoir signalé votre participation à cet événenement."
