@@ -175,11 +175,15 @@ export const SPENDING_REQUEST_VALIDATION_CONSTRAINT = {
   attachments: {
     presence: {
       allowEmpty: false,
-      message: "Ce champ est obligatoire",
+      message:
+        "Veuillez joindre au moins une pièce justificative à votre demande avant de pouvoir la valider",
     },
   },
   amount: {
-    presence: true,
+    presence: {
+      allowEmpty: false,
+      message: "Ce champ est obligatoire",
+    },
     numericality: {
       greaterThan: 0,
       notValid: "Le montant devrait être un nombre supérieur à 0",
