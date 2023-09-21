@@ -1,14 +1,21 @@
-import React from "react";
 import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
+import { initialize, mswDecorator } from "msw-storybook-addon";
+import React from "react";
 import { MemoryRouter } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
-import user from "@agir/front/mockData/user";
 import routes from "@agir/front/globalContext/nonReactRoutes.config";
+import user from "@agir/front/mockData/user";
 
-import "./style.css";
 import "@agir/front/genericComponents/style.scss";
+import "./style.css";
+
+initialize({
+  serviceWorker: {
+    url: "/apiMockServiceWorker.js",
+  },
+});
 
 export const parameters = {
   actions: { argTypesRegex: "^on[A-Z].*" },
@@ -74,6 +81,7 @@ export const globalTypes = {
 };
 
 export const decorators = [
+  mswDecorator,
   (Story, context) => (
     <TestGlobalContextProvider
       value={{
