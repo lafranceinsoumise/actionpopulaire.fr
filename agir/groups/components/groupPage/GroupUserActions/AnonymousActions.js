@@ -43,9 +43,8 @@ const AnonymousActions = ({ isOpen }) => {
           from: "group",
           next: location.pathname,
         }}
+        icon="plus"
       >
-        <RawFeatherIcon name="plus" width="1.5rem" height="1.5rem" />
-        <Spacer size="10px" />
         Rejoindre
       </Button>
       {isOpen && (
@@ -57,9 +56,8 @@ const AnonymousActions = ({ isOpen }) => {
             from: "group",
             next: location.pathname,
           }}
+          icon="rss"
         >
-          <RawFeatherIcon name="rss" width="1.5rem" height="1.5rem" />
-          <Spacer size="10px" />
           Suivre
         </Button>
       )}

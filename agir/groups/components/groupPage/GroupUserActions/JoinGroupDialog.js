@@ -126,9 +126,14 @@ export const JoinGroup = (props) => {
             <Spacer size="1rem" />
             <footer>
               {openMessageModal ? (
-                <Button color="primary" block wrap onClick={openMessageModal}>
-                  Je me présente&nbsp;! &nbsp;
-                  <RawFeatherIcon name="mail" width="1.5rem" height="1.5rem" />
+                <Button
+                  color="primary"
+                  block
+                  wrap
+                  onClick={openMessageModal}
+                  icon="mail"
+                >
+                  Je me présente&nbsp;!
                 </Button>
               ) : (
                 <ShareLink

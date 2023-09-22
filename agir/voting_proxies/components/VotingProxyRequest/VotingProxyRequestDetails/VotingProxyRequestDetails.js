@@ -103,6 +103,8 @@ const VotingProxyRequestDetails = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 color="success"
+                icon="external-link"
+                rightIcon
                 css={`
                   font-size: 1.25rem;
                   height: 4.25rem;
@@ -110,8 +112,7 @@ const VotingProxyRequestDetails = () => {
                   line-height: 1.2;
                 `}
               >
-                Établir la procuration&ensp;
-                <RawFeatherIcon name="external-link" />
+                Établir la procuration
               </Button>
               <p
                 css={`

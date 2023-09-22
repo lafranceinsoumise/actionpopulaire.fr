@@ -69,6 +69,7 @@ export const StyledLoader = styled(Button)`
   height: 60px;
   cursor: default;
   border-radius: 0;
+
   &:hover,
   &:focus {
     background-color: #eeeeeeb7;

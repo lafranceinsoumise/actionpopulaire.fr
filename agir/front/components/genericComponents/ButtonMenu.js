@@ -33,9 +33,14 @@ export const ButtonMenu = (props) => {
 
   return (
     <StyledButtonMenu className={className}>
-      <Button {...buttonProps} onClick={handleOpen} style={{ margin: 0 }}>
-        {text} &nbsp;
-        <RawFeatherIcon name="chevron-down" width="1rem" height="1rem" />
+      <Button
+        {...buttonProps}
+        onClick={handleOpen}
+        style={{ margin: 0 }}
+        icon="chevron-down"
+        rightIcon
+      >
+        {text}
       </Button>
       <ResponsiveLayout
         MobileLayout={MobileLayout || BottomSheet}

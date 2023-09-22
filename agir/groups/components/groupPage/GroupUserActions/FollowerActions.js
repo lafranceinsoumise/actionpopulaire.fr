@@ -15,13 +15,6 @@ const StyledWrapper = styled.div`
   width: 100%;
   flex-flow: column nowrap;
   gap: 0.5rem;
-
-  ${Button} {
-    ${"" /* TODO: remove after Button refactoring merge */}
-    width: 100%;
-    margin: 0;
-    justify-content: center;
-  }
 `;
 
 const FollowerActions = ({ isLoading, onJoin, onEdit, onQuit }) => {
@@ -32,12 +25,14 @@ const FollowerActions = ({ isLoading, onJoin, onEdit, onQuit }) => {
   return (
     <StyledWrapper>
       <div style={{ position: "relative" }}>
-        <Button block onClick={openMenu} color="confirmed">
-          <RawFeatherIcon name="rss" width="1.5rem" height="1.5rem" />
-          <Spacer size="10px" />
+        <Button
+          block
+          onClick={openMenu}
+          color="confirmed"
+          icon="chevron-down"
+          rightIcon
+        >
           Vous êtes abonné·e
-          <Spacer size="10px" />
-          <RawFeatherIcon name="chevron-down" widht="1rem" height="1rem" />
         </Button>
         <ResponsiveLayout
           MobileLayout={BottomSheet}
@@ -51,23 +46,25 @@ const FollowerActions = ({ isLoading, onJoin, onEdit, onQuit }) => {
             <li>
               <button type="button" onClick={onEdit}>
                 <RawFeatherIcon name="lock" width="1rem" height="1rem" />
-                <Spacer size=".5rem" />
                 Préférences de confidentialité
               </button>
             </li>
             <li>
               <button type="button" onClick={onQuit}>
                 <RawFeatherIcon name="x" width="1rem" height="1rem" />
-                <Spacer size=".5rem" />
                 Arrêter d’être abonné·e
               </button>
             </li>
           </StyledMenuList>
         </ResponsiveLayout>
       </div>
-      <Button block onClick={onJoin} loading={isLoading} disabled={isLoading}>
-        <RawFeatherIcon name="plus" width="1.5rem" height="1.5rem" />
-        <Spacer size="10px" />
+      <Button
+        block
+        onClick={onJoin}
+        loading={isLoading}
+        disabled={isLoading}
+        icon="plus"
+      >
         Rejoindre
       </Button>
     </StyledWrapper>
