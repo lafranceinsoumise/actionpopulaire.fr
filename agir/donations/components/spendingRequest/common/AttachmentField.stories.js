@@ -49,7 +49,7 @@ Filled.args = {
   initialValue: {
     type: "I",
     title: "La facture",
-    file: "file.png",
+    file: "C. B. Macpherson - The political theory of possessive individualism (1990, Oxford University Press) - libgen.li.pdf",
   },
 };
 

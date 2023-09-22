@@ -14,22 +14,17 @@ import {
   validateSpendingRequestDocument,
 } from "./form.config";
 
-const StyledForm = styled.div`
+const StyledWrapper = styled.div`
   footer {
     display: flex;
+    flex-flow: row wrap;
     justify-content: space-between;
     align-items: end;
     gap: 1rem;
 
-    @media (max-width: ${(props) => props.theme.collapse}px) {
-      flex-flow: column nowrap;
-      justify-content: stretch;
-      align-items: start;
-    }
-
     & > * {
-      flex: 0 0 auto;
-      width: auto;
+      flex: 0 1 auto;
+      max-width: 100%;
     }
 
     & > ${Button} {
@@ -96,7 +91,7 @@ const AttachmentField = (props) => {
   }, [error]);
 
   return (
-    <StyledForm onKeyDown={handleKeyDown}>
+    <StyledWrapper onKeyDown={handleKeyDown}>
       <RadioListField
         id="type"
         label="Type de pièce-jointe"
@@ -132,15 +127,15 @@ const AttachmentField = (props) => {
         />
         <Button
           onClick={handleSubmit}
-          color="primary"
-          icon="send"
+          color="secondary"
+          icon="folder-plus"
           disabled={disabled}
           loading={isLoading}
         >
           {attachment.id ? "Enregistrer" : "Ajouter"}
         </Button>
       </footer>
-    </StyledForm>
+    </StyledWrapper>
   );
 };
 

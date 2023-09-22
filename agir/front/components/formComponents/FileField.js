@@ -38,6 +38,7 @@ const StyledButtonWrapper = styled.span`
     flex: 1 1 auto;
     text-align: left;
     font-weight: 500;
+    border: none;
   }
 
   ${StyledClearButton} {
@@ -75,22 +76,15 @@ const StyledButtonWrapper = styled.span`
 `;
 
 const StyledField = styled.div`
-  width: 100%;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-
   label {
-    flex: 0 0 100%;
-    display: flex;
-    flex-flow: column nowrap;
-    align-items: flex-start;
+    display: block;
     font-size: 1rem;
     font-weight: 400;
     line-height: 1.5;
     margin: 0;
 
     & > * {
+      display: block;
       margin: 0;
     }
 
@@ -99,7 +93,9 @@ const StyledField = styled.div`
     }
 
     ${StyledButtonWrapper} {
+      display: inline-flex;
       margin-top: 0.5rem;
+      min-width: 1px;
     }
 
     input[type="file"] {
@@ -195,6 +191,7 @@ const FileField = forwardRef((props, ref) => {
             {fileName || "Parcourir…"}
           </Button>
           <StyledClearButton
+            type="button"
             disabled={!fileName || disabled}
             onClick={handleClear}
           >
