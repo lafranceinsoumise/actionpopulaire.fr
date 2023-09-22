@@ -149,7 +149,14 @@ export const BaseButton = styled.button
       flex: 0 0 auto;
     }
   }
-}}
+
+  & > span {
+    display: inline-block;
+    min-height: 1px;
+    white-space: inherit;
+    text-overflow: inherit;
+    overflow: inherit;
+  }
 `;
 
 BaseButton.propTypes = {
