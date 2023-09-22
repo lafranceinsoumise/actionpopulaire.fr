@@ -210,9 +210,12 @@ class RSVPEventView(SoftLoginRequiredMixin, DetailView):
 
                     if price != 0:
                         return HttpResponseRedirect(
-                            reverse(
-                                "cagnottes:personal_information",
-                                kwargs={"slug": cagnotte},
+                            "{}?amount={}".format(
+                                reverse(
+                                    "cagnottes:personal_information",
+                                    kwargs={"slug": cagnotte},
+                                ),
+                                price,
                             )
                         )
                     return self.redirect_to_event(
