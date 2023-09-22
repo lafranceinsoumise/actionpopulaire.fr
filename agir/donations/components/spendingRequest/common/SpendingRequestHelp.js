@@ -60,6 +60,10 @@ const StyledInlineMenu = styled.div`
   ul {
     padding-left: 1em;
   }
+
+  article {
+    padding: 0;
+  }
 `;
 
 export const HELP_CONFIG = {
@@ -150,6 +154,7 @@ const SpendingRequestHelp = ({ helpId }) => {
       triggerTextContent={trigger}
       triggerIconName="help-circle"
       position="bottom-left"
+      hasCloseButton
     >
       <StyledInlineMenu>{menu}</StyledInlineMenu>
     </InlineMenu>

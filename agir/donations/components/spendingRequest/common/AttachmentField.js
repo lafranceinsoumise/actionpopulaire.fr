@@ -27,7 +27,12 @@ const StyledForm = styled.div`
       align-items: start;
     }
 
-    ${Button} {
+    & > * {
+      flex: 0 0 auto;
+      width: auto;
+    }
+
+    & > ${Button} {
       @media (max-width: ${(props) => props.theme.collapse}px) {
         width: 100%;
       }

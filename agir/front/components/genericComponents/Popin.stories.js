@@ -80,3 +80,9 @@ OpenRight.args = {
   position: "right",
   shouldDismissOnClick: true,
 };
+
+export const WithCloseButton = OpenTemplate.bind({});
+WithCloseButton.args = {
+  ...Open.args,
+  hasCloseButton: true,
+};
