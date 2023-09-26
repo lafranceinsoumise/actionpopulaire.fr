@@ -74,6 +74,7 @@ export const HELP_CONFIG = {
         <article>
           <h5>Ce qui peut être une pièce comptable</h5>
           <ul>
+            <li>Facture</li>
             <li>Ticket de caisse (pas le reçu de carte bancaire)</li>
             <li>Devis</li>
             <li>
