@@ -18,19 +18,24 @@ const StyledWrapper = styled.div`
   footer {
     display: flex;
     flex-flow: row wrap;
-    justify-content: space-between;
+    justify-content: start;
     align-items: end;
-    gap: 1rem;
+    gap: 0.5rem 1rem;
+
+    @media (max-width: ${(props) => props.theme.collapse}px) {
+      flex-flow: column nowrap;
+      align-items: stretch;
+    }
 
     & > * {
       flex: 0 1 auto;
       max-width: 100%;
     }
 
-    & > ${Button} {
-      @media (max-width: ${(props) => props.theme.collapse}px) {
-        width: 100%;
-      }
+    & > p {
+      flex: 0 0 100%;
+      margin: 0 0 -0.5rem;
+      color: ${(props) => props.theme.black700};
     }
   }
 `;
@@ -48,12 +53,15 @@ const AttachmentField = (props) => {
   const [errors, setErrors] = useState({});
 
   const handleChangeType = useCallback((type) => {
+    setErrors((state) => ({ ...state, type: undefined }));
     setAttachment((state) => ({ ...state, type }));
   }, []);
   const handleChangeTitle = useCallback((e) => {
+    setErrors((state) => ({ ...state, title: undefined }));
     setAttachment((state) => ({ ...state, title: e.target.value }));
   }, []);
   const handleChangeFile = useCallback((file) => {
+    setErrors((state) => ({ ...state, file: undefined }));
     setAttachment((state) => ({ ...state, file }));
   }, []);
 
@@ -116,10 +124,10 @@ const AttachmentField = (props) => {
       <SpendingRequestHelp helpId="documentQuality" />
       <Spacer size="1rem" />
       <footer>
+        <p>Formats acceptés&nbsp;: PDF, PNG, JPEG</p>
         <FileField
           id="file"
           label=""
-          helpText="Formats acceptés : PDF, JPEG, PNG."
           onChange={handleChangeFile}
           value={attachment.file}
           error={errors.file}
@@ -128,7 +136,7 @@ const AttachmentField = (props) => {
         <Button
           onClick={handleSubmit}
           color="secondary"
-          icon="folder-plus"
+          icon="plus"
           disabled={disabled}
           loading={isLoading}
         >

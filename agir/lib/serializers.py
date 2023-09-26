@@ -418,3 +418,17 @@ class BICSerializerField(serializers.CharField):
     def to_internal_value(self, data):
         data = super().to_internal_value(data)
         return to_bic(data)
+
+
+class ClearableFileSerializerField(serializers.FileField):
+    empty_values = [None, ""]
+
+    def __init__(self, **kwargs):
+        kwargs["allow_null"] = True
+        super().__init__(**kwargs)
+
+    def validate_empty_values(self, data):
+        if data in self.empty_values:
+            return super().validate_empty_values(None)
+
+        return super().validate_empty_values(data)

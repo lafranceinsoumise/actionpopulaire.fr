@@ -91,7 +91,7 @@ BankAccountField.propTypes = {
     name: PropTypes.string,
     iban: PropTypes.string,
     bic: PropTypes.string,
-    rib: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+    rib: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
   }),
   disabled: PropTypes.bool,
   required: PropTypes.bool,

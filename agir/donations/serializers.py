@@ -27,7 +27,11 @@ from agir.groups.serializers import SupportGroupSerializer
 from agir.lib.data import departements_choices
 from agir.lib.display import display_price
 from agir.lib.export import snakecase_to_camelcase
-from agir.lib.serializers import IBANSerializerField, BICSerializerField
+from agir.lib.serializers import (
+    IBANSerializerField,
+    BICSerializerField,
+    ClearableFileSerializerField,
+)
 from agir.lib.serializers import PhoneField
 from agir.payments import payment_modes
 from agir.people.models import Person
@@ -307,12 +311,11 @@ class BankAccountSerializer(serializers.Serializer):
         allow_blank=True,
         allowed_countries=["FR"],
     )
-    rib = serializers.FileField(
+    rib = ClearableFileSerializerField(
         source="bank_account_rib",
         label="RIB",
         validators=[validators.FileExtensionValidator(["pdf", "png", "jpeg", "jpg"])],
         required=False,
-        allow_null=True,
     )
 
     def __init__(self, **kwargs):

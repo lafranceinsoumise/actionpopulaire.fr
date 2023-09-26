@@ -21,7 +21,7 @@ const StyledButtonWrapper = styled.span`
   gap: ${(props) => (props.$empty ? 0 : 0.5)}rem;
   padding: 0 ${(props) => (props.$empty ? 0 : 0.5)}rem 0
     ${(props) => (props.$empty ? 0 : 1)}rem;
-  border: 2px solid;
+  border: 1px solid;
   border-color: ${({ $empty, $invalid, theme }) =>
     !$empty && $invalid ? theme.redNSP : "transparent"};
   border-radius: ${(props) => props.theme.borderRadius};
@@ -94,7 +94,7 @@ const StyledField = styled.div`
 
     ${StyledButtonWrapper} {
       display: inline-flex;
-      margin-top: 0.5rem;
+      margin-top: 0.375rem;
       min-width: 1px;
     }
 
@@ -134,7 +134,7 @@ const FileField = forwardRef((props, ref) => {
     [onChange],
   );
   const handleClear = useCallback(() => {
-    onChange && onChange(null);
+    onChange && onChange("");
   }, [onChange]);
 
   const [bond, dropState] = useDropArea({
