@@ -14,23 +14,28 @@ import {
   validateSpendingRequestDocument,
 } from "./form.config";
 
-const StyledForm = styled.div`
+const StyledWrapper = styled.div`
   footer {
     display: flex;
-    justify-content: space-between;
+    flex-flow: row wrap;
+    justify-content: start;
     align-items: end;
-    gap: 1rem;
+    gap: 0.5rem 1rem;
 
     @media (max-width: ${(props) => props.theme.collapse}px) {
       flex-flow: column nowrap;
-      justify-content: stretch;
-      align-items: start;
+      align-items: stretch;
     }
 
-    ${Button} {
-      @media (max-width: ${(props) => props.theme.collapse}px) {
-        width: 100%;
-      }
+    & > * {
+      flex: 0 1 auto;
+      max-width: 100%;
+    }
+
+    & > p {
+      flex: 0 0 100%;
+      margin: 0 0 -0.5rem;
+      color: ${(props) => props.theme.black700};
     }
   }
 `;
@@ -48,12 +53,15 @@ const AttachmentField = (props) => {
   const [errors, setErrors] = useState({});
 
   const handleChangeType = useCallback((type) => {
+    setErrors((state) => ({ ...state, type: undefined }));
     setAttachment((state) => ({ ...state, type }));
   }, []);
   const handleChangeTitle = useCallback((e) => {
+    setErrors((state) => ({ ...state, title: undefined }));
     setAttachment((state) => ({ ...state, title: e.target.value }));
   }, []);
   const handleChangeFile = useCallback((file) => {
+    setErrors((state) => ({ ...state, file: undefined }));
     setAttachment((state) => ({ ...state, file }));
   }, []);
 
@@ -91,7 +99,7 @@ const AttachmentField = (props) => {
   }, [error]);
 
   return (
-    <StyledForm onKeyDown={handleKeyDown}>
+    <StyledWrapper onKeyDown={handleKeyDown}>
       <RadioListField
         id="type"
         label="Type de pièce-jointe"
@@ -116,10 +124,10 @@ const AttachmentField = (props) => {
       <SpendingRequestHelp helpId="documentQuality" />
       <Spacer size="1rem" />
       <footer>
+        <p>Formats acceptés&nbsp;: PDF, PNG, JPEG</p>
         <FileField
           id="file"
           label=""
-          helpText="Formats acceptés : PDF, JPEG, PNG."
           onChange={handleChangeFile}
           value={attachment.file}
           error={errors.file}
@@ -127,15 +135,15 @@ const AttachmentField = (props) => {
         />
         <Button
           onClick={handleSubmit}
-          color="primary"
-          icon="send"
+          color="secondary"
+          icon="plus"
           disabled={disabled}
           loading={isLoading}
         >
           {attachment.id ? "Enregistrer" : "Ajouter"}
         </Button>
       </footer>
-    </StyledForm>
+    </StyledWrapper>
   );
 };
 

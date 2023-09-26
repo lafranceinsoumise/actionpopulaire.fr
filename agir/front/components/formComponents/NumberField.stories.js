@@ -16,11 +16,16 @@ export default {
 
 const Template = (args) => {
   const [value, setValue] = React.useState(args.value);
-  const handleChange = React.useCallback((e) => {
-    setValue(e.target.value);
+  const handleChange = React.useCallback((newValue) => {
+    setValue(newValue);
   }, []);
 
-  return <NumberField {...args} value={value} onChange={handleChange} />;
+  return (
+    <>
+      <NumberField {...args} value={value} onChange={handleChange} />
+      <pre>Current value&nbsp;:&nbsp;{value}</pre>
+    </>
+  );
 };
 
 export const Empty = Template.bind({});
@@ -28,15 +33,18 @@ Empty.args = {
   value: "",
   type: "text",
   id: "field",
-  label: "Prénom",
+  label: "Montant",
   error: "",
   disabled: false,
+  currency: true,
 };
 
 export const Filled = Template.bind({});
 Filled.args = {
   ...Empty.args,
-  value: 15.5,
+  value: 1500,
+  currency: true,
+  large: true,
 };
 
 export const WithHelpText = Template.bind({});

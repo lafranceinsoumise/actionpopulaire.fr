@@ -57,7 +57,7 @@ const formatSpendingRequestData = (data, validate = false) => {
   delete fData.event;
 
   // Unchanged bankAccount.rib is a string and can be safely removed
-  if (typeof data?.bankAccount?.rib === "string") {
+  if (typeof data?.bankAccount?.rib === "string" && data.bankAccount.rib) {
     delete fData.bankAccount.rib;
   }
 

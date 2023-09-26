@@ -108,7 +108,7 @@ const SpendingRequests = ({ groupPk, spendingRequests }) => {
       {groupPk && (
         <Button
           link
-          icon="mail"
+          icon="plus"
           route="createGroupSpendingRequest"
           routeParams={{ groupPk }}
           color="secondary"

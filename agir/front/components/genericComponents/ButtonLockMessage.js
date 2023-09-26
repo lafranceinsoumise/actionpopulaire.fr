@@ -23,15 +23,10 @@ const StyledButton = styled.button`
   margin: 0;
   border: none;
   cursor: pointer;
-  ${({ disabled }) => (!disabled ? `opacity: 1;` : `opacity: 0.5;`)}
+  opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
+
   ${RawFeatherIcon} {
     ${({ $isLocked }) => $isLocked && `color: ${style.redNSP};`}
-  }
-
-  @media (min-width: ${style.collapse}px) {
-    ${RawFeatherIcon}:hover {
-      color: ${style.primary500};
-    }
   }
 `;
 
@@ -75,16 +70,12 @@ const ButtonLockMessage = ({ message }) => {
         <Button
           small
           color="choose"
+          icon={`${isLocked ? "un" : ""}lock`}
           disabled={loading}
           loading={loading}
           onClick={() => !loading && setIsModalOpen(true)}
         >
-          <RawFeatherIcon
-            width="1rem"
-            height="1rem"
-            name={`${isLocked ? "un" : ""}lock`}
-          />
-          &nbsp;{isLocked ? "Déverrouiller" : "Verrouiller"}
+          {isLocked ? "Déverrouiller" : "Verrouiller"}
         </Button>
       ) : (
         <StyledButton

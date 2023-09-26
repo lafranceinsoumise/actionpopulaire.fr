@@ -158,7 +158,7 @@ const StepActions = (props) => {
           disabled={isLoading}
           color="choose"
         >
-          Annuler
+          Retour
         </Hide>
       )}
       {onSave && (

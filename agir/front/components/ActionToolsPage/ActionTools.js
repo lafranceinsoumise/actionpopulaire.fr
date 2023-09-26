@@ -299,13 +299,8 @@ export const ActionTools = () => {
             <Button small link route="toktokPreview">
               En savoir plus
             </Button>
-            <Button small link route="toktok">
-              Ouvrir la carte&ensp;{" "}
-              <RawFeatherIcon
-                width="0.813rem"
-                height="0.813rem"
-                name="external-link"
-              />
+            <Button small link route="toktok" icon="external-link">
+              Ouvrir la carte
             </Button>
           </span>
         </span>

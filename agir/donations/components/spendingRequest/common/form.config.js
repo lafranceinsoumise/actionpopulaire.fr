@@ -21,12 +21,12 @@ export const CATEGORY_OPTIONS = {
   },
   CO: {
     value: "CO",
-    label: "Achat de consommables (colles, feutres, … )",
+    label: "Achat de consommables (colles, feutres, etc. )",
     icon: "pen-tool",
   },
   AC: {
     value: "AC",
-    label: "Achat de matériel (quincaillerie, matériel de collage, … )",
+    label: "Achat de matériel (quincaillerie, matériel de collage, etc. )",
     icon: "package",
   },
   DE: {
@@ -46,7 +46,7 @@ export const CATEGORY_OPTIONS = {
   },
   MA: {
     value: "MA",
-    label: "Location de matériel (mobilier, vaisselle, … )",
+    label: "Location de matériel (mobilier, vaisselle, etc. )",
     icon: "shopping-bag",
   },
   TE: {
@@ -175,11 +175,15 @@ export const SPENDING_REQUEST_VALIDATION_CONSTRAINT = {
   attachments: {
     presence: {
       allowEmpty: false,
-      message: "Ce champ est obligatoire",
+      message:
+        "Veuillez joindre au moins une pièce justificative à votre demande avant de pouvoir la valider",
     },
   },
   amount: {
-    presence: true,
+    presence: {
+      allowEmpty: false,
+      message: "Ce champ est obligatoire",
+    },
     numericality: {
       greaterThan: 0,
       notValid: "Le montant devrait être un nombre supérieur à 0",

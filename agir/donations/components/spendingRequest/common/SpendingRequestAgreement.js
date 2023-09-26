@@ -51,12 +51,12 @@ const AgreementField = ({ initialValue, onChange, disabled, reset }) => {
             >
               la charte des groupes d’action
             </Link>{" "}
-            et aux principes, aux orientations politiques, stratégiques,
-            programmatiques et électorales de{" "}
+            et{" "}
             <Link route="principes" target="_blank" rel="noopener noreferrer">
-              la France Insoumise
+              aux principes
             </Link>
-            .
+            , aux orientations politiques, stratégiques, programmatiques et
+            électorales de la France Insoumise .
           </>
         }
       />

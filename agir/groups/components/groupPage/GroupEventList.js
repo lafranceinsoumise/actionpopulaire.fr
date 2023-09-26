@@ -95,20 +95,14 @@ const GroupEventList = (props) => {
           eventList.map((event) => <EventCard key={event.id} {...event} />)}
       </PageFadeIn>
       {isReady && typeof loadMore === "function" ? (
-        <Button color="link" onClick={loadMore} disabled={isLoading}>
-          {loadMoreLabel ? (
-            loadMoreLabel
-          ) : (
-            <>
-              Charger plus d’événements
-              <RawFeatherIcon
-                name="chevron-down"
-                width="1em"
-                strokeWidth={3}
-                style={{ marginLeft: ".5rem" }}
-              />
-            </>
-          )}
+        <Button
+          color="link"
+          onClick={loadMore}
+          disabled={isLoading}
+          icon="chevron-down"
+          rightIcon
+        >
+          {loadMoreLabel || "Charger plus d’événements"}
         </Button>
       ) : null}
     </StyledList>

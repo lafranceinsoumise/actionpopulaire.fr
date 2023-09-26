@@ -31,7 +31,8 @@ const EventField = (props) => {
       ]
         .filter(Boolean)
         .join(" · "),
-      icon: "calendar",
+      icon: event?.subtype?.iconName || "calendar-days:light",
+      iconColor: event?.subtype?.color,
     }));
   }, []);
 

@@ -3,7 +3,6 @@ import React from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
-import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 
 const StyledButton = styled.button`
   color: ${style.primary500};
@@ -25,9 +24,13 @@ const StyledButton = styled.button`
 const ExpandButton = (props) => {
   const { onClick, disabled, label } = props;
   return (
-    <StyledButton onClick={onClick} disabled={disabled}>
-      {label}&nbsp;
-      <FeatherIcon name="chevron-down" small inline />
+    <StyledButton
+      onClick={onClick}
+      disabled={disabled}
+      icon="chevron-down"
+      rightIcon
+    >
+      {label}
     </StyledButton>
   );
 };

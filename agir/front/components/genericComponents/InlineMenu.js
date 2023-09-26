@@ -74,6 +74,7 @@ InlineMenu.propTypes = {
   shouldDismissOnClick: PropTypes.bool,
   style: PropTypes.object,
   className: PropTypes.string,
+  hasCloseButton: PropTypes.bool,
 };
 InlineMenu.defaultProps = {
   triggerIconName: "more-vertical",

@@ -11,19 +11,25 @@ const StyledList = styled.ul`
   list-style: none;
   color: ${(props) => props.theme.primary500};
   padding: 0;
+  margin: 0;
+  gap: 0.5rem;
 
   @media (max-width: ${(props) => props.theme.collapse}px) {
     margin: 0;
     padding: 1.5rem;
   }
 
-  li + li {
-    margin-top: 0.5rem;
+  li {
+    margin: 0;
   }
 
   button {
     display: flex;
-    align-items: center;
+    flex-flow: row nowrap;
+    align-items: start;
+    justify-content: start;
+    gap: 0.5rem;
+    text-align: left;
     border: none;
     padding: 0;
     margin: 0;
@@ -31,7 +37,6 @@ const StyledList = styled.ul`
     font-size: 0.875rem;
     font-weight: 400;
     color: ${(props) => props.theme.black1000};
-    height: 1.25rem;
 
     &,
     &:hover,
@@ -50,6 +55,7 @@ const StyledList = styled.ul`
 
     ${RawFeatherIcon} {
       color: ${(props) => props.theme.primary500};
+      height: 1.25rem;
     }
   }
 `;

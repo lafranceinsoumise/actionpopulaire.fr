@@ -60,6 +60,10 @@ const StyledInlineMenu = styled.div`
   ul {
     padding-left: 1em;
   }
+
+  article {
+    padding: 0;
+  }
 `;
 
 export const HELP_CONFIG = {
@@ -68,21 +72,23 @@ export const HELP_CONFIG = {
     menu: (
       <>
         <article>
-          <h5>Ce qui peut être une facture</h5>
+          <h5>Ce qui peut être une pièce comptable</h5>
           <ul>
             <li>Ticket de caisse (pas le reçu de carte bancaire)</li>
             <li>Devis</li>
-            <li>Facture pro-forma</li>
-            <li>Justificatif de transport SNCF</li>
+            <li>
+              Facture pro-forma (c'est-à-dire avant qu'elle ne soit acquittée)
+            </li>
+            <li>Justificatif de transport</li>
           </ul>
         </article>
         <article>
-          <h5>Ce qui peut être un justificatif</h5>
+          <h5>Ce qui peut être un complément de justificatif</h5>
           <ul>
-            <li>Photo de l'événement</li>
+            <li>Photographie de l'événement</li>
             <li>
-              Impression : <abbr title="Bon à tirer">BAT</abbr>, photo des
-              impressions, tract au format PDF
+              Impression : <abbr title="Bon à tirer">BAT</abbr>, photographie
+              des impressions, tract au format PDF
             </li>
             <li>
               Capture d'écran de la page de l'événement sur Action populaire ou
@@ -150,6 +156,7 @@ const SpendingRequestHelp = ({ helpId }) => {
       triggerTextContent={trigger}
       triggerIconName="help-circle"
       position="bottom-left"
+      hasCloseButton
     >
       <StyledInlineMenu>{menu}</StyledInlineMenu>
     </InlineMenu>

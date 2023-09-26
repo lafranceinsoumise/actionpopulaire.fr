@@ -47,26 +47,32 @@ Empty.args = {
   disabled: false,
 };
 
+export const Filled = Template.bind({});
+Filled.args = {
+  ...Empty.args,
+  value: "this_is_my_brand_new_file_s_filename.pdf",
+};
+
 export const WithHelpText = Template.bind({});
 WithHelpText.args = {
-  ...Empty.args,
+  ...Filled.args,
   helpText: "Texte d'aide si necessaire",
 };
 
 export const Focused = Template.bind({});
 Focused.args = {
-  ...Empty.args,
+  ...Filled.args,
   autoFocus: true,
 };
 
 export const WithValidationError = Template.bind({});
 WithValidationError.args = {
-  ...Empty.args,
+  ...Filled.args,
   error: "Texte d’erreur sur le champ",
 };
 
 export const Disabled = Template.bind({});
 Disabled.args = {
-  ...Empty.args,
+  ...Filled.args,
   disabled: true,
 };

@@ -27,7 +27,11 @@ from agir.groups.serializers import SupportGroupSerializer
 from agir.lib.data import departements_choices
 from agir.lib.display import display_price
 from agir.lib.export import snakecase_to_camelcase
-from agir.lib.serializers import IBANSerializerField, BICSerializerField
+from agir.lib.serializers import (
+    IBANSerializerField,
+    BICSerializerField,
+    ClearableFileSerializerField,
+)
 from agir.lib.serializers import PhoneField
 from agir.payments import payment_modes
 from agir.people.models import Person
@@ -307,12 +311,11 @@ class BankAccountSerializer(serializers.Serializer):
         allow_blank=True,
         allowed_countries=["FR"],
     )
-    rib = serializers.FileField(
+    rib = ClearableFileSerializerField(
         source="bank_account_rib",
         label="RIB",
         validators=[validators.FileExtensionValidator(["pdf", "png", "jpeg", "jpg"])],
         required=False,
-        allow_null=True,
     )
 
     def __init__(self, **kwargs):
@@ -436,6 +439,9 @@ class SpendingRequestStatusSerializer(serializers.Serializer):
 
 
 class SpendingRequestSerializer(serializers.ModelSerializer):
+    default_error_messages = {
+        "required_attachments": "Veuillez joindre au moins une pièce justificative à votre demande avant de pouvoir la valider"
+    }
     id = serializers.ReadOnlyField(label="Identifiant")
     created = serializers.ReadOnlyField(label="Date de création")
     modified = serializers.ReadOnlyField(label="Dernière modification")
@@ -578,6 +584,11 @@ class SpendingRequestSerializer(serializers.ModelSerializer):
 
             return super().update(instance, validated_data)
 
+    def required_field_error_message(self, field):
+        return self.error_messages.get(
+            f"required_{field}", self.error_messages["required"]
+        )
+
     def validation_error(self, spending_request):
         if spending_request.is_valid_amount and not spending_request.missing_fields:
             raise serializers.ValidationError(
@@ -592,17 +603,19 @@ class SpendingRequestSerializer(serializers.ModelSerializer):
                 errors["bankAccount"] = errors.get("bankAccount", {})
                 errors["bankAccount"][
                     field.replace("bank_account_", "")
-                ] = self.error_messages["required"]
+                ] = self.required_field_error_message(field)
                 continue
 
             if field.startswith("contact"):
                 errors["contact"] = errors.get("contact", {})
-                errors["contact"][field.replace("contact_", "")] = self.error_messages[
-                    "required"
-                ]
+                errors["contact"][
+                    field.replace("contact_", "")
+                ] = self.required_field_error_message(field)
                 continue
 
-            errors[snakecase_to_camelcase(field)] = self.error_messages["required"]
+            errors[snakecase_to_camelcase(field)] = self.required_field_error_message(
+                field
+            )
 
         if not spending_request.is_valid_amount:
             errors[

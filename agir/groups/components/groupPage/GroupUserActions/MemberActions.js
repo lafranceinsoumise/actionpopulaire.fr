@@ -25,12 +25,14 @@ const MemberActions = ({ onQuit, onEdit }) => {
 
   return (
     <StyledWrapper>
-      <Button $block onClick={openMenu} color="primary">
-        <RawFeatherIcon name="user" width="1.5rem" height="1.5rem" />
-        <Spacer size="10px" />
+      <Button
+        $block
+        onClick={openMenu}
+        color="primary"
+        icon="chevron-down"
+        rightIcon
+      >
         Vous êtes membre
-        <Spacer size="10px" />
-        <RawFeatherIcon name="chevron-down" widht="1rem" height="1rem" />
       </Button>
       <ResponsiveLayout
         MobileLayout={BottomSheet}
@@ -44,14 +46,12 @@ const MemberActions = ({ onQuit, onEdit }) => {
           <li>
             <button type="button" onClick={onEdit}>
               <RawFeatherIcon name="lock" width="1rem" height="1rem" />
-              <Spacer size=".5rem" />
               Préférences de confidentialité
             </button>
           </li>
           <li>
             <button type="button" onClick={onQuit}>
               <RawFeatherIcon name="x" width="1rem" height="1rem" />
-              <Spacer size=".5rem" />
               Quitter le groupe
             </button>
           </li>

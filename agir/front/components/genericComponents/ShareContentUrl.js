@@ -16,9 +16,15 @@ import {
 const StyledContainer = styled.div`
   display: inline-flex;
   flex-direction: column;
-  > ${Button} {
+
+  & > ${Button} {
     margin-bottom: 1rem;
     color: white;
+    line-height: 1.5rem;
+
+    & > span {
+      display: inline-flex;
+    }
   }
 `;
 
