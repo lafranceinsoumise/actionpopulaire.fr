@@ -1,7 +1,5 @@
 import PropTypes from "prop-types";
 import React, { forwardRef, useCallback, useState } from "react";
-// eslint-disable-next-line no-unused-vars
-import styled from "styled-components";
 
 import TextField from "./TextField";
 

@@ -67,6 +67,10 @@ const StyledField = styled.label`
       $dark ? style.black100 : "transparent"};
     -moz-appearance: textfield;
 
+    &::placeholder {
+      color: ${style.black500};
+    }
+
     &::-webkit-outer-spin-button,
     &::-webkit-inner-spin-button {
       -webkit-appearance: none;

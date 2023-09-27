@@ -3,6 +3,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
 import { Button } from "@agir/donations/common/StyledComponents";
+import AmountField from "@agir/donations/spendingRequest/common/AmountField";
 import BankAccountField from "@agir/donations/spendingRequest/common/BankAccountField";
 import CategoryField from "@agir/donations/spendingRequest/common/CategoryField";
 import ContactField from "@agir/donations/spendingRequest/common/ContactField";
@@ -10,7 +11,6 @@ import EventField from "@agir/donations/spendingRequest/common/EventField";
 import AgreementField from "@agir/donations/spendingRequest/common/SpendingRequestAgreement";
 import AppRedirect from "@agir/front/app/Redirect";
 import DateTimeField from "@agir/front/formComponents/DateTimeField";
-import NumberField from "@agir/front/formComponents/NumberField";
 import RadioField from "@agir/front/formComponents/RadioField";
 import TextField from "@agir/front/formComponents/TextField";
 import Card from "@agir/front/genericComponents/Card";
@@ -25,7 +25,6 @@ import {
   getInitialDataFromSpendingRequest,
   validateSpendingRequest,
 } from "@agir/donations/spendingRequest/common/form.config";
-import { displayPrice } from "@agir/lib/utils/display";
 
 const FORM_STEP_NAMES = [
   "Détails",
@@ -52,41 +51,6 @@ const FORM_STEPS = [
 ];
 
 const timingOptions = Object.values(TIMING_OPTIONS);
-
-const StyledGroupAmount = styled.div`
-  display: flex;
-  flex-flow: row wrap;
-  gap: 0.5rem 5rem;
-
-  @media (max-width: ${(props) => props.theme.collapse}px) {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  ${Card} {
-    flex: 1 1 auto;
-    display: inline-flex;
-    flex-flow: row nowrap;
-    gap: 1rem;
-    font-weight: 600;
-
-    @media (max-width: ${(props) => props.theme.collapse}px) {
-      flex: 0 0 auto;
-      font-size: 0.875rem;
-      font-weight: 700;
-      color: #ea610b;
-      border: none;
-      box-shadow: none;
-      padding: 0;
-      gap: 0.5rem;
-
-      ${RawFeatherIcon} {
-        width: 1.25rem;
-        height: 1.25rem;
-      }
-    }
-  }
-`;
 
 const StyledLabel = styled.h6`
   font-size: 1.375rem;
@@ -424,40 +388,13 @@ const EditSpendingRequestForm = (props) => {
         <Hide $under as={StyledLabel}>
           Montant et financement (obligatoire)
         </Hide>
-        <NumberField
-          currency
-          large
-          disabled={isLoading}
-          id="amount"
-          name="amount"
+        <AmountField
           value={data.amount}
           onChange={handleChangeAmount}
           error={errors?.amount}
-          label="Montant TTC (obligatoire)"
-          placeholder={displayPrice(availableAmount, true)}
+          disabled={isLoading}
+          availableAmount={availableAmount}
         />
-        <Spacer size="1rem" />
-        <StyledGroupAmount>
-          <Card $bordered>
-            <RawFeatherIcon name="info" />
-            {availableAmount > 0 ? (
-              <strong>
-                Vous n’avez que {displayPrice(availableAmount)} sur le solde de
-                votre groupe
-              </strong>
-            ) : (
-              <strong>Le solde de votre groupe est nul</strong>
-            )}
-          </Card>
-          <Button wrap link color="link" route="spendingRequestHelp">
-            Comment augmenter le solde du GA ?&ensp;
-            <RawFeatherIcon
-              name="external-link"
-              width="0.875rem"
-              height="0.875rem"
-            />
-          </Button>
-        </StyledGroupAmount>
       </StyledFieldset>
       <StyledFieldset>
         <Hide $under as={StyledLabel}>
