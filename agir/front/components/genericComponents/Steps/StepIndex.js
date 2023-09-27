@@ -4,11 +4,7 @@ import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
 import CounterBadge from "@agir/front/app/Navigation/CounterBadge";
-import {
-  Hide,
-  ResponsiveLayout,
-  useResponsiveMemo,
-} from "@agir/front/genericComponents/grid";
+import { Hide, ResponsiveLayout } from "@agir/front/genericComponents/grid";
 
 const StepBadge = styled(CounterBadge).attrs((props) => ({
   ...props,
@@ -139,13 +135,9 @@ const StepActions = (props) => {
     isLoading,
     disabled,
     saveDisabled,
+    submitLabel,
     ...rest
   } = props;
-
-  const saveLabel = useResponsiveMemo(
-    "Enregistrer le brouillon",
-    "Enregistrer",
-  );
 
   return (
     <StyledActions {...rest}>
@@ -170,7 +162,7 @@ const StepActions = (props) => {
           color="default"
           icon="save"
         >
-          {saveLabel}
+          Enregistrer
         </Button>
       )}
       {goToNext && (
@@ -189,10 +181,10 @@ const StepActions = (props) => {
           loading={isLoading}
           disabled={isLoading || disabled}
           type="submit"
-          color="primary"
+          color="success"
           icon="send"
         >
-          Envoyer
+          {submitLabel || "Envoyer"}
         </Button>
       ) : null}
     </StyledActions>
@@ -208,6 +200,7 @@ StepActions.propTypes = {
   isLoading: PropTypes.bool,
   disabled: PropTypes.bool,
   saveDisabled: PropTypes.bool,
+  submitLabel: PropTypes.string,
 };
 
 const MobileLayout = (props) => {
@@ -220,6 +213,7 @@ const MobileLayout = (props) => {
     isLoading,
     disabled,
     saveDisabled,
+    submitLabel,
     steps,
     stepNames,
     current,
@@ -249,6 +243,7 @@ const MobileLayout = (props) => {
         isLoading={isLoading}
         disabled={disabled}
         saveDisabled={saveDisabled}
+        submitLabel={submitLabel}
       />
     </StyledSteps>
   );
@@ -265,6 +260,7 @@ MobileLayout.propTypes = {
   isLoading: PropTypes.bool,
   disabled: PropTypes.bool,
   saveDisabled: PropTypes.bool,
+  submitLabel: PropTypes.string,
   steps: PropTypes.array,
   last: PropTypes.number,
   current: PropTypes.number,
@@ -281,6 +277,7 @@ const DesktopLayout = (props) => {
     isLoading,
     disabled,
     saveDisabled,
+    submitLabel,
     steps,
     stepNames,
     current,
@@ -314,6 +311,7 @@ const DesktopLayout = (props) => {
           isLoading={isLoading}
           disabled={disabled}
           saveDisabled={saveDisabled}
+          submitLabel={submitLabel}
         />
       </header>
       <article>{steps[current]}</article>
@@ -333,6 +331,7 @@ DesktopLayout.propTypes = {
   isLoading: PropTypes.bool,
   disabled: PropTypes.bool,
   saveDisabled: PropTypes.bool,
+  submitLabel: PropTypes.string,
   steps: PropTypes.array,
   last: PropTypes.number,
   current: PropTypes.number,
@@ -360,6 +359,7 @@ StepIndex.propTypes = {
   isLoading: PropTypes.bool,
   disabled: PropTypes.bool,
   saveDisabled: PropTypes.bool,
+  submitLabel: PropTypes.string,
   steps: PropTypes.array,
   last: PropTypes.number,
   current: PropTypes.number,

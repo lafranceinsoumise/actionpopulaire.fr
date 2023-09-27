@@ -13,8 +13,6 @@ import AppRedirect from "@agir/front/app/Redirect";
 import DateTimeField from "@agir/front/formComponents/DateTimeField";
 import RadioField from "@agir/front/formComponents/RadioField";
 import TextField from "@agir/front/formComponents/TextField";
-import Card from "@agir/front/genericComponents/Card";
-import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import Steps, { useSteps } from "@agir/front/genericComponents/Steps";
 import { Hide } from "@agir/front/genericComponents/grid";
@@ -281,6 +279,7 @@ const EditSpendingRequestForm = (props) => {
       stepNames={FORM_STEP_NAMES}
       onSave={handleSave}
       onSubmit={handleSubmit}
+      submitLabel={spendingRequest.status.action}
       isLoading={isLoading}
       disabled={!hasAgreement}
       saveDisabled={!hasChanged}
@@ -429,13 +428,7 @@ const EditSpendingRequestForm = (props) => {
             <small>
               Vous pouvez sauvegarder vos modifications en cliquant sur le
               bouton &laquo;&nbsp;
-              <em>
-                Enregistrer
-                <Hide $over as="span">
-                  {" "}
-                  le brouillon
-                </Hide>
-              </em>
+              <em>Enregistrer</em>
               &nbsp;&raquo;.
               <br />
               Vous pourrez ensuite ajouter les pièces nécessaires puis valider

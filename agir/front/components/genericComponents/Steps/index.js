@@ -43,7 +43,10 @@ const ControlledSteps = (props) => {
       topRef.current &&
         scrollToElement(topRef.current.parentElement, window, 150);
       // Reset tab focus to first focusable element
-      getFocusableElements(topRef.current.nextElementSibling)[0].focus();
+      const focusableElements = getFocusableElements(
+        topRef.current.nextElementSibling,
+      );
+      focusableElements[0] && focusableElements[0].focus();
     } else {
       shouldScrollToTop.current = true;
     }

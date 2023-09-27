@@ -136,7 +136,7 @@ const AttachmentField = (props) => {
         <Button
           onClick={handleSubmit}
           color="secondary"
-          icon="plus"
+          icon={attachment.id ? "check" : "plus"}
           disabled={disabled}
           loading={isLoading}
         >

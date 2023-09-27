@@ -27,6 +27,7 @@ from agir.groups.serializers import SupportGroupSerializer
 from agir.lib.data import departements_choices
 from agir.lib.display import display_price
 from agir.lib.export import snakecase_to_camelcase
+from agir.lib.geo import FRENCH_COUNTRY_CODES
 from agir.lib.serializers import (
     IBANSerializerField,
     BICSerializerField,
@@ -302,14 +303,14 @@ class BankAccountSerializer(serializers.Serializer):
         label="IBAN",
         required=False,
         allow_blank=True,
-        allowed_countries=["FR"],
+        allowed_countries=FRENCH_COUNTRY_CODES,
     )
     bic = BICSerializerField(
         source="bank_account_bic",
         label="BIC",
         required=False,
         allow_blank=True,
-        allowed_countries=["FR"],
+        allowed_countries=FRENCH_COUNTRY_CODES,
     )
     rib = ClearableFileSerializerField(
         source="bank_account_rib",
@@ -514,6 +515,11 @@ class SpendingRequestSerializer(serializers.ModelSerializer):
         write_only=True, default=False, required=False
     )
 
+    def required_field_error_message(self, field):
+        return self.error_messages.get(
+            f"required_{field}", self.error_messages["required"]
+        )
+
     def validate(self, attrs):
         attrs = super().validate(attrs)
         if attrs.get("spending_date", None) and attrs.get("timing", None):
@@ -584,20 +590,15 @@ class SpendingRequestSerializer(serializers.ModelSerializer):
 
             return super().update(instance, validated_data)
 
-    def required_field_error_message(self, field):
-        return self.error_messages.get(
-            f"required_{field}", self.error_messages["required"]
-        )
-
-    def validation_error(self, spending_request):
-        if spending_request.is_valid_amount and not spending_request.missing_fields:
-            raise serializers.ValidationError(
-                detail={
-                    "global": "La demande n'a pas pu être validée. Vérifiez les données saisies et ressayez."
-                }
-            )
+    def validate_instance(self, spending_request, apply_next_action):
+        if (
+            spending_request.status == SpendingRequest.Status.DRAFT
+            and not apply_next_action
+        ):
+            return
 
         errors = {}
+
         for field in spending_request.missing_fields:
             if field.startswith("bank_account_"):
                 errors["bankAccount"] = errors.get("bankAccount", {})
@@ -622,7 +623,8 @@ class SpendingRequestSerializer(serializers.ModelSerializer):
                 "amount"
             ] = "Il n'est possible d'effectuer une demande que pour un montant inférieur ou égal au solde disponible"
 
-        raise serializers.ValidationError(detail=errors)
+        if errors:
+            raise serializers.ValidationError(detail=errors)
 
     def save(self, **kwargs):
         apply_next_action = self.validated_data.pop("shouldValidate", False)
@@ -634,13 +636,27 @@ class SpendingRequestSerializer(serializers.ModelSerializer):
             if attachments:
                 self.save_attachments(attachments, spending_request)
 
+            self.validate_instance(spending_request, apply_next_action)
+
+            user = self.context["request"].user
+
             if not apply_next_action:
                 return spending_request
 
-            if validate_action(spending_request, self.context["request"].user):
+            if (
+                spending_request.status == spending_request.Status.AWAITING_PEER_REVIEW
+                and not spending_request.can_peer_review(user)
+            ):
                 return spending_request
 
-            self.validation_error(spending_request)
+            if validate_action(spending_request, user):
+                return spending_request
+
+            raise serializers.ValidationError(
+                detail={
+                    "global": "La demande n'a pas pu être validée. Vérifiez les données saisies et ressayez."
+                }
+            )
 
     class Meta:
         model = SpendingRequest

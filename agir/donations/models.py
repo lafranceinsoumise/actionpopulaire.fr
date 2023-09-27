@@ -539,8 +539,6 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
             self.Status.DRAFT,
             self.Status.AWAITING_PEER_REVIEW,
             self.Status.AWAITING_SUPPLEMENTARY_INFORMATION,
-            # self.Status.AWAITING_ADMIN_REVIEW,
-            # self.Status.VALIDATED,
         )
 
     @property
@@ -587,6 +585,9 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
             if version.field_dict["status"] == self.Status.AWAITING_PEER_REVIEW
         ]
 
+    def can_peer_review(self, user):
+        return self.peer_reviewers and user != self.peer_reviewers[0]
+
     def next_status(self, user):
         if self.status == self.Status.DRAFT and self.ready_for_review:
             return self.Status.AWAITING_PEER_REVIEW
@@ -594,8 +595,7 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
         if (
             self.status == self.Status.AWAITING_PEER_REVIEW
             and self.ready_for_review
-            and self.peer_reviewers
-            and user != self.peer_reviewers[0]
+            and self.can_peer_review(user)
         ):
             return self.Status.AWAITING_ADMIN_REVIEW
 

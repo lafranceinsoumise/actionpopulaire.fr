@@ -1,6 +1,7 @@
 import axios from "@agir/lib/utils/axios";
 import { objectToFormData } from "@agir/lib/utils/forms";
 import { addQueryStringParams } from "@agir/lib/utils/url";
+import _cloneDeep from "lodash/cloneDeep";
 
 export const ENDPOINT = {
   createSpendingRequest: "/api/financement/demande/",
@@ -46,8 +47,10 @@ export const createSpendingRequestOptions = async () => {
   return result;
 };
 
-const formatSpendingRequestData = (data, validate = false) => {
-  const fData = { ...data, shouldValidate: !!validate };
+const formatSpendingRequestData = (data, shouldValidate = false) => {
+  const fData = _cloneDeep(data);
+  fData.shouldValidate = !!shouldValidate;
+
   // Send groupId instead of group object
   fData.groupId = (fData.group && fData.group.id) || null;
   delete fData.group;

@@ -39,7 +39,9 @@ const BankAccountField = (props) => {
         onChange={handleChange}
         disabled={disabled}
         required={required}
-        error={error && error.name}
+        error={
+          error && Array.isArray(error.name) ? error.name[0] : error?.name || ""
+        }
         maxLength={255}
         hasCounter={false}
       />
@@ -51,7 +53,9 @@ const BankAccountField = (props) => {
         onChange={handleChange}
         disabled={disabled}
         required={required}
-        error={error && error.iban}
+        error={
+          error && Array.isArray(error.iban) ? error.iban[0] : error?.iban || ""
+        }
       />
       <TextField
         label={<abbr title="Bank Identifier Code">BIC</abbr>}
@@ -61,7 +65,9 @@ const BankAccountField = (props) => {
         onChange={handleChange}
         disabled={disabled}
         required={required}
-        error={error && error.bic}
+        error={
+          error && Array.isArray(error.bic) ? error.bic[0] : error?.bic || ""
+        }
       />
       <FileField
         label={<abbr title="Relevé d'Identité Bancaire">RIB</abbr>}
@@ -71,7 +77,9 @@ const BankAccountField = (props) => {
         onChange={handleChangeRib}
         disabled={disabled}
         required={required}
-        error={error && error.rib}
+        error={
+          error && Array.isArray(error.rib) ? error.rib[0] : error?.rib || ""
+        }
         helpText="Formats acceptés : PDF, JPEG, PNG."
       />
     </StyledField>
@@ -88,9 +96,9 @@ BankAccountField.propTypes = {
     rib: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   }),
   error: PropTypes.shape({
-    name: PropTypes.string,
-    iban: PropTypes.string,
-    bic: PropTypes.string,
+    name: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
+    iban: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
+    bic: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
     rib: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
   }),
   disabled: PropTypes.bool,

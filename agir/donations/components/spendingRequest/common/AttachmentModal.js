@@ -63,6 +63,12 @@ const StyledModalContent = styled.div`
       display: none;
     }
   }
+
+  footer {
+    @media (min-width: ${(props) => props.theme.collapse}px) {
+      justify-content: space-between;
+    }
+  }
 `;
 
 const AttachmentModal = (props) => {
