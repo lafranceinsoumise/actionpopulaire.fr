@@ -127,12 +127,12 @@ export const SPENDING_REQUEST_DRAFT_CONSTRAINT = {
       allowEmpty: false,
       message: "Ce champ ne peut pas être vide.",
     },
-    inclusion: {
-      within: Object.values(CATEGORY_OPTIONS)
-        .map((option) => option.value)
-        .filter(Boolean),
-      message: "Veuillez choisir une des options.",
-    },
+    // inclusion: {
+    //   within: Object.values(CATEGORY_OPTIONS)
+    //     .map((option) => option.value)
+    //     .filter(Boolean),
+    //   message: "Veuillez choisir une des options.",
+    // },
   },
 };
 
