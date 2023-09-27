@@ -9,9 +9,9 @@ import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 import { displayPrice } from "@agir/lib/utils/display";
+import { useIsDesktop } from "@agir/front/genericComponents/grid";
 
 const StyledGroupAmount = styled.div`
-  width: 100%;
   display: flex;
   flex-flow: row wrap;
   gap: 0.5rem 5rem;
@@ -49,6 +49,8 @@ const StyledGroupAmount = styled.div`
 const AmountField = (props) => {
   const { value, onChange, error, disabled, availableAmount = 0 } = props;
 
+  const isDesktop = useIsDesktop();
+
   return (
     <>
       <NumberField
@@ -78,7 +80,7 @@ const AmountField = (props) => {
         </Card>
         <Button
           link
-          block
+          block={!isDesktop}
           color="link"
           route="spendingRequestHelp"
           icon="external-link"
