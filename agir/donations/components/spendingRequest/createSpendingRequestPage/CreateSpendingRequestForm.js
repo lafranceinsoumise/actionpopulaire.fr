@@ -270,7 +270,6 @@ const CreateSpendingRequestForm = (props) => {
       stepNames={FORM_STEP_NAMES}
       onSave={handleSave}
       onSubmit={handleSubmit}
-      submitLabel={spendingRequest.status.action}
       isLoading={isLoading}
       disabled={!hasAgreement}
       step={formStep}
