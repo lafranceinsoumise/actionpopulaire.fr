@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
-import { CATEGORY_OPTIONS } from "./form.config";
+import { CATEGORY_OPTIONS, FALLBACK_CATEGORY } from "./form.config";
 
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
@@ -64,7 +64,11 @@ const CategoryCard = (props) => {
   const { category, small = false } = props;
 
   const option = useMemo(
-    () => OPTIONS.find((option) => option.value === category),
+    () =>
+      OPTIONS.find((option) => option.value === category) || {
+        ...FALLBACK_CATEGORY,
+        value: category,
+      },
     [category],
   );
 

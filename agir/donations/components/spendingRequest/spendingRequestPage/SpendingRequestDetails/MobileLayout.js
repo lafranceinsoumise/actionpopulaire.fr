@@ -14,10 +14,7 @@ import { TIMING_OPTIONS } from "@agir/donations/spendingRequest/common/form.conf
 import { displayPrice } from "@agir/lib/utils/display";
 import { simpleDate, timeAgo } from "@agir/lib/utils/time";
 import SpendingRequestHistory from "../SpendingRequestHistory";
-import {
-  ResponsiveLayout,
-  ResponsiveSpan,
-} from "@agir/front/genericComponents/grid";
+import { ResponsiveSpan } from "@agir/front/genericComponents/grid";
 
 const FlexLine = styled.div`
   display: flex;

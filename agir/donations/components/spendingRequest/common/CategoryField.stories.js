@@ -43,6 +43,12 @@ Checked.args = {
   value: Object.values(CATEGORY_OPTIONS)[3].value,
 };
 
+export const LegacyChecked = Template.bind({});
+LegacyChecked.args = {
+  ...Default.args,
+  value: "X",
+};
+
 export const Disabled = Template.bind({});
 Disabled.args = {
   ...Default.args,

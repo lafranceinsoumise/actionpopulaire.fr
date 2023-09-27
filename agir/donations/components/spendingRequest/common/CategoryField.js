@@ -1,10 +1,10 @@
 import Card from "@agir/front/genericComponents/Card";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import PropTypes from "prop-types";
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 
-import { CATEGORY_OPTIONS } from "./form.config";
+import { CATEGORY_OPTIONS, FALLBACK_CATEGORY } from "./form.config";
 
 const OPTIONS = Object.values(CATEGORY_OPTIONS);
 
@@ -177,6 +177,21 @@ const CategoryField = (props) => {
     [onChange],
   );
 
+  const options = useMemo(
+    () =>
+      value && !CATEGORY_OPTIONS[value]
+        ? [
+            ...OPTIONS,
+            {
+              ...FALLBACK_CATEGORY,
+              value,
+            },
+          ]
+        : OPTIONS,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+
   return (
     <StyledField
       $valid={!error}
@@ -194,7 +209,7 @@ const CategoryField = (props) => {
         catégorie dont la valeur est la plus significative.
       </StyledHelpText>
       <StyledOptions id={id}>
-        {OPTIONS.map((option) => (
+        {options.map((option) => (
           <StyledOption
             key={option.value}
             htmlFor={id + "_" + option.value}

@@ -13,6 +13,12 @@ export const TIMING_OPTIONS = {
   },
 };
 
+export const FALLBACK_CATEGORY = {
+  value: "O",
+  label: "Autre",
+  icon: "more-horizontal",
+};
+
 export const CATEGORY_OPTIONS = {
   IM: {
     value: "IM",

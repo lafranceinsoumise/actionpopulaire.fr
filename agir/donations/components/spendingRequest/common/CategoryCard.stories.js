@@ -17,3 +17,8 @@ export const Default = Template.bind({});
 Default.args = {
   category: Object.values(CATEGORY_OPTIONS)[3].value,
 };
+
+export const Legacy = Template.bind({});
+Legacy.args = {
+  category: "X",
+};
