@@ -1,13 +1,18 @@
+from functools import partial
 from io import BytesIO
 
 import pandas as pd
+import reversion
+from django.db import transaction, IntegrityError
 from django.http import HttpResponse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from glom import glom, T, Coalesce
 
 from agir.donations.apps import DonsConfig
-from agir.donations.models import SpendingRequest
+from agir.donations.models import SpendingRequest, Spending
+from agir.donations.spending_requests import get_revision_comment
+from agir.donations.tasks import spending_request_notify_group_managers
 from agir.payments.models import Payment
 
 
@@ -57,20 +62,22 @@ def format_spending_request_for_export(queryset):
     spec = {
         "Identifiant": "id",
         "Titre": "title",
-        "Statut": T.get_status_display(),
+        "Statut": "get_status_display",
         "Groupe": "group.name",
+        "Dépense de campagne électorale": "campaign",
+        "Type de dépense": "get_timing_display",
+        "Catégorie de demande": "get_category_display",
+        "Précisions sur le type de demande": "category_precisions",
+        "Motif de l'achat": "explanation",
         "Nom du contact": Coalesce("contact_name", "group.contact_phone", default=None),
         "Téléphone": Coalesce("contact_phone", "group.contact_phone", default=None),
         "Événement lié à la dépense": "event",
-        "Catégorie de demande": T.get_category_display(),
-        "Précisions sur le type de demande": "category_precisions",
-        "Motif de l'achat": "explanation",
-        "Dépense de campagne électorale": "campaign",
         "Date de la dépense": "spending_date",
         "Montant de la dépense": "amount",
         "Raison sociale": "bank_account_name",
         "IBAN": "bank_account_iban",
         "BIC": "bank_account_bic",
+        "RIB": "bank_account_rib",
         "Date de création": T.created.astimezone(timezone.get_current_timezone())
         .replace(microsecond=0)
         .isoformat(),
@@ -120,9 +127,47 @@ export_spending_requests_to_csv.select_across = True
 
 
 def mark_spending_request_as_paid(model_admin, request, queryset):
-    queryset.update(status=SpendingRequest.Status.PAID)
+    to_status = SpendingRequest.Status.PAID
+    queryset.update(status=to_status)
+
+    for spending_request_pk in queryset.values_list("id", flat=True):
+        spending_request_notify_group_managers.delay(
+            spending_request_pk, to_status=to_status
+        )
 
 
 mark_spending_request_as_paid.short_description = _(
     "Indiquer ces demandes comme payées"
 )
+
+
+def save_spending_request_admin_review(spending_request, to_status, comment=None):
+    with reversion.create_revision(atomic=True):
+        from_status = spending_request.status
+        if to_status == SpendingRequest.Status.VALIDATED:
+            try:
+                with transaction.atomic():
+                    spending_request.operation = Spending.objects.create(
+                        group=spending_request.group, amount=-spending_request.amount
+                    )
+            except IntegrityError:
+                pass
+            else:
+                to_status = SpendingRequest.Status.TO_PAY
+
+        reversion.set_comment(
+            comment
+            or get_revision_comment(to_status=to_status, from_status=from_status)
+        )
+        spending_request.status = to_status
+        spending_request.save()
+
+        transaction.on_commit(
+            partial(
+                spending_request_notify_group_managers.delay,
+                spending_request.pk,
+                to_status=to_status,
+                from_status=from_status,
+                comment=comment,
+            )
+        )

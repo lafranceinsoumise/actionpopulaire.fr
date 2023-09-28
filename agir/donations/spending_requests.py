@@ -1,12 +1,17 @@
+from functools import partial
+
 import reversion
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from django.utils.html import format_html
 from django.utils.translation import ngettext
 from glom import glom, T, Coalesce
 
 from agir.donations.allocations import get_supportgroup_balance
 from agir.donations.models import SpendingRequest, Spending
-from agir.donations.tasks import send_spending_request_to_review_email
+from agir.donations.tasks import (
+    spending_request_notify_admin,
+    spending_request_notify_group_managers,
+)
 from agir.lib.display import display_price
 from agir.lib.utils import front_url
 
@@ -188,6 +193,27 @@ def get_spending_request_field_labels(fields, join=False):
     return ", ".join(fields)
 
 
+def schedule_validation_notifications(spending_request, user=None, **kwargs):
+    person_pk = (
+        user.person.pk
+        if user and user.is_authenticated and user.person is not None
+        else None
+    )
+
+    spending_request_notify_group_managers.delay(
+        spending_request.pk,
+        person_pk=person_pk,
+        **kwargs,
+    )
+
+    if spending_request.status == SpendingRequest.Status.AWAITING_ADMIN_REVIEW:
+        spending_request_notify_admin.delay(
+            spending_request.pk,
+            person_pk=person_pk,
+            **kwargs,
+        )
+
+
 def validate_action(spending_request, user):
     """Valide la requête pour vérification pour l'administration, ou confirme la demande de paiement
 
@@ -195,6 +221,7 @@ def validate_action(spending_request, user):
     :param user:
     :return: whether the spending request was successfully sent for review
     """
+    current_status = spending_request.status
     next_status = spending_request.next_status(user)
 
     if not next_status:
@@ -216,7 +243,14 @@ def validate_action(spending_request, user):
             except IntegrityError:
                 return False
 
-        if spending_request.status == SpendingRequest.Status.AWAITING_ADMIN_REVIEW:
-            send_spending_request_to_review_email.delay(spending_request.pk)
+        transaction.on_commit(
+            partial(
+                schedule_validation_notifications,
+                spending_request,
+                to_status=next_status,
+                from_status=current_status,
+                user=user,
+            )
+        )
 
         return True

@@ -499,6 +499,12 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
         )
 
     @property
+    def admin_review_url(self):
+        return admin_url(
+            "admin:donations_spendingrequest_review", args=(self.pk,), absolute=True
+        )
+
+    @property
     def attachments(self):
         return list(self.documents.filter(deleted=False))
 
