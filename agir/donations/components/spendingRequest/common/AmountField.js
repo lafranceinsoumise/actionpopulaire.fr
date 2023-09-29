@@ -85,6 +85,8 @@ const AmountField = (props) => {
           route="spendingRequestHelp"
           icon="external-link"
           rightIcon
+          target={isDesktop ? "_blank" : undefined}
+          wrap={!isDesktop}
         >
           Comment augmenter le solde du GA ?
         </Button>

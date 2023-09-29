@@ -13,6 +13,7 @@ import {
   DOCUMENT_TYPE_OPTIONS,
   validateSpendingRequestDocument,
 } from "./form.config";
+import { useIsDesktop } from "@agir/front/genericComponents/grid";
 
 const StyledWrapper = styled.div`
   footer {
@@ -51,6 +52,8 @@ const AttachmentField = (props) => {
   } = props;
   const [attachment, setAttachment] = useState(initialValue || {});
   const [errors, setErrors] = useState({});
+
+  const isDesktop = useIsDesktop();
 
   const handleChangeType = useCallback((type) => {
     setErrors((state) => ({ ...state, type: undefined }));
@@ -132,6 +135,7 @@ const AttachmentField = (props) => {
           value={attachment.file}
           error={errors.file}
           disabled={disabled}
+          block={!isDesktop}
         />
         <Button
           onClick={handleSubmit}

@@ -15,9 +15,9 @@ const StyledError = styled.span`
 `;
 const StyledClearButton = styled.button``;
 const StyledButtonWrapper = styled.span`
-  display: inline-flex;
+  width: ${(props) => (props.$block ? "100%" : "auto")};
+  display: ${(props) => (props.$block ? "flex" : "inline-flex")};
   flex-flow: row nowrap;
-  width: auto;
   gap: ${(props) => (props.$empty ? 0 : 0.5)}rem;
   padding: 0 ${(props) => (props.$empty ? 0 : 0.5)}rem 0
     ${(props) => (props.$empty ? 0 : 1)}rem;
@@ -114,6 +114,7 @@ const FileField = forwardRef((props, ref) => {
     label,
     helpText,
     disabled,
+    block,
     ...rest
   } = props;
 
@@ -176,6 +177,7 @@ const FileField = forwardRef((props, ref) => {
           $empty={!fileName}
           $disabled={disabled}
           $dropping={dropState.over}
+          $block={block}
         >
           <Button
             link={!disabled && !!fileName}
@@ -187,6 +189,7 @@ const FileField = forwardRef((props, ref) => {
             href={fileName || undefined}
             disabled={disabled}
             download={!!fileName}
+            block={block}
           >
             {fileName || "Parcourir…"}
           </Button>

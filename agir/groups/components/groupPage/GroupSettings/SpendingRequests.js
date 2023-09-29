@@ -85,7 +85,6 @@ const StyledSpendingRequest = styled(Link)`
     flex-flow: column nowrap;
     align-items: start;
     gap: 0.25rem;
-    min-width: 0;
 
     & > * {
       margin: 0;
@@ -99,17 +98,13 @@ const StyledSpendingRequest = styled(Link)`
 
     small {
       font-size: 0.75em;
-      line-height: 2;
+      line-height: 1.5;
       font-weight: 600;
       text-transform: uppercase;
       color: ${(props) => props.theme.black500};
       border: 1px solid ${(props) => props.theme.black50};
       border-radius: 0.25rem;
-      padding: 0 0.5rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 100%;
+      padding: 0.25em 0.5rem;
     }
   }
 
