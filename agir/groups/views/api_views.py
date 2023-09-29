@@ -1,11 +1,13 @@
 import re
 
 import reversion
+from dateutil.relativedelta import relativedelta
 from django.contrib.gis.db.models.functions import Distance
 from django.core.validators import validate_email
 from django.db import transaction
 from django.db.models import Max, DateTimeField, Q
 from django.db.models.functions import Greatest
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django_filters.rest_framework import DjangoFilterBackend
@@ -835,22 +837,32 @@ class GroupFinanceAPIView(GenericAPIView):
     def get(self, request, *args, **kwargs):
         group = self.get_object()
         donation = get_supportgroup_balance(group)
+        current_spending_requests = (
+            SpendingRequest.objects.filter(group=group)
+            .exclude(status=SpendingRequest.Status.PAID)
+            .order_by("-spending_date")
+            .only("id", "title", "status", "spending_date", "amount")
+        )
+        last_year = timezone.now() - relativedelta(years=1)
+        past_spending_requests = (
+            SpendingRequest.objects.filter(group=group)
+            .filter(
+                status=SpendingRequest.Status.PAID,
+                modified__gte=last_year,
+            )
+            .order_by("-modified")
+            .only("id", "title", "status", "spending_date", "amount")
+        )
         spending_requests = [
             {
                 "id": spending_request.id,
                 "title": spending_request.title,
                 "status": spending_request.get_status_display(),
                 "date": spending_request.spending_date,
-                "link": front_url(
-                    "spending_request_details", kwargs={"pk": spending_request.pk}
-                ),
+                "amount": spending_request.amount,
+                "link": spending_request.front_url,
             }
-            for spending_request in (
-                SpendingRequest.objects.filter(group=group)
-                .exclude(status=SpendingRequest.Status.PAID)
-                .order_by("-spending_date")
-                .only("id", "title", "status", "spending_date")
-            )
+            for spending_request in current_spending_requests | past_spending_requests
         ]
 
         return Response(

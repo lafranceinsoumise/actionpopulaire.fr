@@ -5,6 +5,7 @@ import { usePrevious } from "react-use";
 import styled, { useTheme } from "styled-components";
 
 import FaIcon from "@agir/front/genericComponents/FaIcon";
+import ParsedString from "@agir/front/genericComponents/ParsedString";
 
 export const STATUS_CONFIG = {
   // DRAFT
@@ -96,7 +97,7 @@ const StyledStatus = styled.div`
   }
 `;
 
-const StyledExplanation = styled.p`
+const StyledExplanation = styled(ParsedString)`
   padding: 0 0 0 3.5rem;
   font-size: 0.875rem;
   margin: 0;

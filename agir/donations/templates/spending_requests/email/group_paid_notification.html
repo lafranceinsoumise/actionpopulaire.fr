@@ -15,6 +15,15 @@
     vient d’être effectué par l’équipe de suivi des questions financières.
   </p>
 
+  {% if spending_request.timing == spending_request.Timing.UPCOMING %}
+    <p style="line-height: 1.5;margin: 1.5em 0;">
+      <strong>
+        <u>Attention</u> : si cela n'a pas encore été fait, vous devez impérativement ajouter la facture aux pièces
+        justificatives de la demande pour la finaliser.
+      </strong>
+    </p>
+  {% endif %}
+
   <p style="line-height: 1.5;margin: 1.5em 0;font-family: Arial, Helvetica, sans-serif; text-align: center;">
     <a href="{{ spending_request.front_url }}" style="display: inline-block; text-decoration: none; color: #000A2C; font-weight: bold; padding: 14px; background-color: #F4ED0F; border-radius: 5px; font-size: 1.25em;">
       Voir le détail de la demande

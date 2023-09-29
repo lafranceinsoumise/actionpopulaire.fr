@@ -167,10 +167,22 @@ def get_status_explanation(spending_request, user):
     if not explanation and STATUS_EXPLANATION.get(current_status, None):
         explanation = STATUS_EXPLANATION[current_status]
 
-    if not spending_request.missing_fields:
-        return explanation
+    if (
+        spending_request.timing == SpendingRequest.Timing.UPCOMING
+        and spending_request.status
+        in [SpendingRequest.Status.TO_PAY, SpendingRequest.Status.PAID]
+    ):
+        explanation = (
+            f"{explanation}\n\n⚠ Attention : une fois le paiement effectué, vous devrez ajouter la facture aux pièces "
+            f"justificatives de la demande pour la finaliser."
+        )
 
-    return explanation + " " + get_missing_field_error_message(spending_request)
+    if spending_request.missing_fields:
+        explanation = (
+            f"{explanation}\n\n✎ {get_missing_field_error_message(spending_request)}"
+        )
+
+    return explanation
 
 
 def get_spending_request_field_label(field):
