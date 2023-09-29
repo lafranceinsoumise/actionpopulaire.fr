@@ -4,6 +4,7 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
+from django.utils.safestring import mark_safe
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.generic import RedirectView
 from django.views.generic.detail import BaseDetailView
@@ -111,11 +112,22 @@ class ProgressView(BaseDetailView, ReactBaseView):
             "slug": self.kwargs.get("slug"),
             "amountAPI": front_url("cagnottes:compteur", kwargs=self.kwargs),
         }
-        if self.object and "progress" in self.object.meta:
-            export_data.update({**self.object.meta.get("progress", {})})
+        for f in [
+            "title",
+            "titleLogo",
+            "apiRefreshInterval",
+            "goals",
+        ]:
+            if f in self.object.meta.get("progress", {}):
+                export_data[f] = self.object.meta["progress"][f]
 
-        if "height" in self.request.GET:
-            export_data["barHeight"] = self.request.GET["height"]
+        if "class_name" in self.request.GET:
+            export_data["className"] = self.request.GET["class_name"]
+
+        if self.object.meta.get("progress", {}).get("additional_css"):
+            kwargs["additional_css"] = mark_safe(
+                self.object.meta["progress"]["additional_css"]
+            )
 
         kwargs.update(
             {
