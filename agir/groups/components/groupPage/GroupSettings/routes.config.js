@@ -140,7 +140,7 @@ export const routeConfig = {
     path: "finance/",
     exact: true,
     label: "Caisse du groupe",
-    icon: "sun",
+    icon: "briefcase",
     Component: GroupSettingsFinance,
     illustration: illustrationFinance,
     isActive: (group) => group.isCertified,

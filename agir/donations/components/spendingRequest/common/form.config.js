@@ -8,7 +8,7 @@ export const TIMING_OPTIONS = {
   },
   U: {
     value: "U",
-    label: "Il s’agit d’une demande d’achat (dépense future)",
+    label: "Il s’agit d’une demande de paiement (dépense future)",
     shortLabel: "Future",
   },
 };

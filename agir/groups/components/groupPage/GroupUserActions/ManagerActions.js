@@ -131,7 +131,7 @@ const ManagerActions = (props) => {
           )}
           {routes?.createSpendingRequest && (
             <li>
-              <RawFeatherIcon color={style.primary500} name="folder" />
+              <RawFeatherIcon color={style.primary500} name="folder-plus" />
               <Link href={routes.createSpendingRequest}>
                 Remboursement et dépense
               </Link>
@@ -139,7 +139,7 @@ const ManagerActions = (props) => {
           )}
           {groupSettingsLinks?.finance && (
             <li>
-              <RawFeatherIcon color={style.primary500} name="loader" />
+              <RawFeatherIcon color={style.primary500} name="briefcase" />
               <Link to={groupSettingsLinks.finance}>Caisse du groupe</Link>
             </li>
           )}
