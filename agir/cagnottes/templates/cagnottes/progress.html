@@ -21,4 +21,14 @@
   {% endfor %}
 {% endblock %}
 
+{% block app_mount_target %}
+  {% if additional_css %}
+    <style>
+        /* additional */
+        {{ additional_css }}
+    </style>
+  {% endif %}
+{{ block.super }}
+{% endblock %}
+
 {% block page_loader %}{% endblock %}
