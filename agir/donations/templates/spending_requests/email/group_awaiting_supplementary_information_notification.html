@@ -12,8 +12,9 @@
   <p style="line-height: 1.5;margin: 1.5em 0;">
     La demande de dépense <strong><a href="{{ spending_request.front_url }}">{{ spending_request.title }}</a></strong> de votre groupe
     <a href="{{ spending_request.group.front_url }}">{{ spending_request.group.name }}</a>
-    vient d’être vérifiée par l’équipe de suivi des questions financières qui a indiqué <strong>avoir besoin de détails
-    supplémentaires suivants pour la valider</strong>{% if comment %}&nbsp;:{% else %}.{% endif %}
+    vient d’être vérifiée par l’équipe de suivi des questions financières qui a indiqué <strong>avoir besoin
+    {% if comment %}des détails supplémentaires suivants pour la valider&nbsp;:{% else %}de détails supplémentaires
+      pour la valider.{% endif %}</strong>
   </p>
 
   {% include "spending_requests/email/includes/spending_request_comment.html" %}
