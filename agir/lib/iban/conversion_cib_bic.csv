@@ -20,6 +20,7 @@ CIB,Raison légale,BIC
 11306,Caisse régionale de crédit agricole mutuel d'Alpes-Provence,AGRIFRPP
 11315,Caisse d'épargne et de prévoyance Provence-Alpes-Corse,CEPAFRPP
 11425,Caisse d'épargne et de prévoyance Normandie,CEPAFRPP
+11449,BANQUE FIDUCIAL,BDEIFRPP
 11658,Nouvelle Vague,NOVUFR21
 11706,Caisse régionale de crédit agricole mutuel Charente-Maritime Deux-Sèvres,AGRIFRPP
 11907,Banque populaire du Massif central,CCBPFRPP
@@ -109,6 +110,7 @@ CIB,Raison légale,BIC
 19906,Caisse régionale de crédit agricole mutuel de la Réunion,AGRIRERX
 20041,La Banque Postale,PSSTFRPP
 21570,Société financière de la N.E.F.,STFEFR21
+26733,SOGEXIA S.A,SOXAFR2L
 28233,Revolut Bank UAB,REVOFRP2
 30001,BANQUE DE FRANCE,BDFEFRPP
 30002,Crédit lyonnais,CRLYFRPP
