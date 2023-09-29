@@ -840,7 +840,7 @@ class GroupFinanceAPIView(GenericAPIView):
         current_spending_requests = (
             SpendingRequest.objects.filter(group=group)
             .exclude(status=SpendingRequest.Status.PAID)
-            .order_by("-spending_date")
+            .order_by("-modified")
             .only("id", "title", "status", "spending_date", "amount")
         )
         last_year = timezone.now() - relativedelta(years=1)
