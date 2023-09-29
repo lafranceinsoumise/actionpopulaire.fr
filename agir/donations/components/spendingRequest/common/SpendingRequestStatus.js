@@ -28,6 +28,7 @@ export const STATUS_CONFIG = {
     icon: "user-unlock",
     label:
       "En attente de vérification par l'équipe de suivi des questions financières",
+    shortLabel: "En attente de vérification par l'équipe de suivi",
     color: "black500",
   },
   // AWAITING_SUPPLEMENTARY_INFORMATION
@@ -43,6 +44,7 @@ export const STATUS_CONFIG = {
     icon: "check-double",
     label:
       "Validée par l'équipe de suivi des questions financières, en attente des fonds",
+    shortLabel: "Validée, en attente des fonds",
     color: "green500",
   },
   // TO_PAY
@@ -50,6 +52,7 @@ export const STATUS_CONFIG = {
     id: "T",
     icon: "euro-sign",
     label: "Décomptée de l'allocation du groupe, à payer",
+    shortLabel: "Validée, en attente de paiement",
     color: "redNSP",
   },
   // PAID
@@ -64,6 +67,7 @@ export const STATUS_CONFIG = {
     id: "B",
     icon: "xmark",
     label: "Cette demande a été refusée",
+    shortLabel: "Refusée",
     color: "redNSP",
   },
 };

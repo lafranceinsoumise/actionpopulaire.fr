@@ -18,7 +18,8 @@ Default.args = {
       title: "Achat d’un nouveau kakemono",
       status: "En attente de validation par un autre animateur",
       date: "2021-06-21T08:18:26.960861Z",
-      link: "http://agir.local:8000/financement/requete/3ae28ff9-6be9-43c7-b02a-76f99fa50821/",
+      category: "IM",
+      status: "D",
     },
     {
       id: "3ae28ff9-6be9-43c7-b02a-76f99fa50822",
@@ -26,14 +27,16 @@ Default.args = {
       status:
         "En attente de vérification par l'équipe de suivi des questions financières",
       date: "2021-06-21T08:18:26.960861Z",
-      link: "http://agir.local:8000/financement/requete/3ae28ff9-6be9-43c7-b02a-76f99fa50822/",
+      category: "IM",
+      status: "D",
     },
     {
       id: "3ae28ff9-6be9-43c7-b02a-76f99fa50823",
       title: "Achat d’un nouveau kakemono",
       status: "Brouillon à compléter",
       date: "2021-06-21T08:18:26.960861Z",
-      link: "http://agir.local:8000/financement/requete/3ae28ff9-6be9-43c7-b02a-76f99fa50823/",
+      category: "IM",
+      status: "D",
     },
   ],
 };

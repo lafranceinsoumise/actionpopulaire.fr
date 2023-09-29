@@ -857,10 +857,10 @@ class GroupFinanceAPIView(GenericAPIView):
             {
                 "id": spending_request.id,
                 "title": spending_request.title,
-                "status": spending_request.get_status_display(),
+                "status": spending_request.status,
+                "category": spending_request.category,
                 "date": spending_request.spending_date,
                 "amount": spending_request.amount,
-                "link": spending_request.front_url,
             }
             for spending_request in current_spending_requests | past_spending_requests
         ]
