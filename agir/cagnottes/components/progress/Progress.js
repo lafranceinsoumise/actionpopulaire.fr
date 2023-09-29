@@ -66,7 +66,7 @@ const ProgressBar = (props) => {
       </h2>}
       <div title={targetTitle} className="bar">
         <animated.div className="fill" style={{ width }} />
-        <animated.p className="text">{animatedAmount.to(formatCurrency)}</animated.p>
+        <animated.div className="text">{animatedAmount.to(formatCurrency)}</animated.div>
       </div>
     </>
   );
