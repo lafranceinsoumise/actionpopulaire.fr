@@ -1,0 +1,39 @@
+{% extends email_template %}
+
+{% load display_lib %}
+
+{% block subject %}
+  Mise à jour de la demande de dépense : {{ spending_request.title }}
+{% endblock %}
+
+{% block html_content %}
+  <p>{{ greetings }}</p>
+
+  <p style="line-height: 1.5;margin: 1.5em 0;">
+    La demande de dépense <strong><a href="{{ spending_request.front_url }}">{{ spending_request.title }}</a></strong> de votre groupe
+    <a href="{{ spending_request.group.front_url }}">{{ spending_request.group.name }}</a>
+    vient d’être vérifiée par l’équipe de suivi des questions financières qui a indiqué <strong>avoir besoin de détails
+    supplémentaires suivants pour la valider</strong>{% if comment %}&nbsp;:{% else %}.{% endif %}
+  </p>
+
+  {% include "spending_requests/email/includes/spending_request_comment.html" %}
+
+  <p style="line-height: 1.5;margin: 1.5em 0;">
+    Vous pouvez compléter votre demande et la retransmettre en cliquant sur le bouton ci-dessous&nbsp;:
+  </p>
+
+  <p style="line-height: 1.5;margin: 1.5em 0;font-family: Arial, Helvetica, sans-serif; text-align: center;">
+    <a href="{{ spending_request.front_url }}" style="display: inline-block; text-decoration: none; color: #000A2C; font-weight: bold; padding: 14px; background-color: #F4ED0F; border-radius: 5px; font-size: 1.25em;">
+      Voir le détail de la demande
+    </a>
+  </p>
+
+  <p>
+    Amitiés,
+    <br/>
+    <br/>
+    L'équipe d'Action populaire.
+  </p>
+{% endblock %}
+
+{% block html_footer %}{% endblock %}

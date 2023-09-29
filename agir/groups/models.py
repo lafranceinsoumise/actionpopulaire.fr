@@ -384,9 +384,14 @@ class SupportGroup(
     def managers(self):
         return [
             m.person
-            for m in self.memberships.filter(
-                membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER
-            )
+            for m in self.memberships.managers().select_related("person").with_email()
+        ]
+
+    @property
+    def finance_managers(self):
+        return [
+            m.person
+            for m in self.memberships.finance_managers()
             .select_related("person")
             .with_email()
         ]
@@ -395,11 +400,7 @@ class SupportGroup(
     def referents(self):
         return [
             m.person
-            for m in self.memberships.filter(
-                membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT
-            )
-            .select_related("person")
-            .with_email()
+            for m in self.memberships.referents().select_related("person").with_email()
         ]
 
     @property

@@ -1,9 +1,8 @@
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test.client import encode_multipart, MULTIPART_CONTENT, BOUNDARY
-from django.urls import reverse, resolve
+from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status
-from rest_framework.test import APITestCase, APIRequestFactory
+from rest_framework.test import APITestCase
 from reversion.models import Version
 
 from agir.donations.models import Operation, SpendingRequest, Document

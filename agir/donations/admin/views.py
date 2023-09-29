@@ -6,6 +6,7 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.views.generic import DetailView
 
+from agir.donations.admin.actions import save_spending_request_admin_review
 from agir.donations.admin.forms import HandleRequestForm
 from agir.donations.models import SpendingRequest, Spending
 from agir.donations.spending_requests import admin_summary, get_revision_comment
@@ -48,28 +49,11 @@ class HandleRequestView(AdminViewMixin, DetailView):
         form = self.get_form()
 
         if form.is_valid():
-            with reversion.create_revision():
-                from_status = self.object.status
-                new_status = form.cleaned_data["status"]
-                self.object.status = new_status
-
-                if self.object.status == SpendingRequest.Status.VALIDATED:
-                    try:
-                        with transaction.atomic():
-                            self.object.operation = Spending.objects.create(
-                                group=self.object.group, amount=-self.object.amount
-                            )
-
-                    except IntegrityError as e:
-                        pass
-                    else:
-                        self.object.status = SpendingRequest.Status.TO_PAY
-
-                comment = form.cleaned_data.get("comment") or get_revision_comment(
-                    to_status=self.object.status, from_status=from_status
-                )
-                reversion.set_comment(comment)
-                self.object.save()
+            to_status = form.cleaned_data["status"]
+            comment = form.cleaned_data.get("comment", None)
+            save_spending_request_admin_review(
+                self.object, to_status=to_status, comment=comment
+            )
 
             return HttpResponseRedirect(
                 reverse("admin:donations_spendingrequest_changelist")
