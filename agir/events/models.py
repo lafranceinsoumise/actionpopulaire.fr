@@ -17,8 +17,8 @@ from django.contrib.postgres.search import SearchVector, SearchRank
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models, transaction
-from django.db.models import Case, Sum, Count, When, CharField, F, Q, OuterRef, Subquery
 from django.db.models import JSONField, Prefetch
+from django.db.models import Sum, Count, Q, OuterRef, Subquery
 from django.db.models.functions import Coalesce
 from django.template.defaultfilters import floatformat
 from django.utils import formats, timezone

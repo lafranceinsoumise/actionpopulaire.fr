@@ -35,12 +35,12 @@ class SpendingRequestAdmin(VersionAdmin):
     list_display = [
         "title",
         "status",
-        "spending_date",
-        "group",
-        "show_amount",
         "category",
-        "spending_request_actions",
+        "show_amount",
+        "group_link",
+        "spending_date",
         "modified",
+        "spending_request_actions",
     ]
     fieldsets = (
         (
@@ -88,18 +88,32 @@ class SpendingRequestAdmin(VersionAdmin):
         "modified",
         "show_amount",
         "spending_request_actions",
+        "group_link",
     )
     autocomplete_fields = ("group", "event")
     inlines = (inlines.DocumentInline, inlines.DeletedDocumentInline)
     ordering = ("-modified",)
     sortable_by = ("title", "spending_date", "show_amount")
     search_fields = ("id", "title", "group__name", "event__name")
-    list_filter = (filters.RequestStatusFilter, "timing", "category")
+    list_filter = (
+        filters.RequestStatusFilter,
+        filters.SupportGroupFilter,
+        "category",
+        "timing",
+        ("spending_date", DateRangeFilter),
+    )
     actions = (
         export_spending_requests_to_csv,
         export_spending_requests_to_xlsx,
         mark_spending_request_as_paid,
     )
+
+    class Media:
+        pass
+
+    @admin.display(description="Groupe", ordering="group")
+    def group_link(self, obj):
+        return display_link(obj.group)
 
     @admin.display(description="Montant", ordering="amount")
     def show_amount(self, obj):
@@ -110,10 +124,10 @@ class SpendingRequestAdmin(VersionAdmin):
         if not obj or not obj.pk:
             return "-"
 
-        return format_html(
-            '<a href="{url}">{text}</a>',
-            url=reverse("admin:donations_spendingrequest_review", args=[obj.pk]),
-            text="Traiter",
+        return display_link(
+            reverse("admin:donations_spendingrequest_review", args=[obj.pk]),
+            text="📝 Traiter la demande",
+            button=True,
         )
 
     def get_urls(self):

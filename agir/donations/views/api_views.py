@@ -215,9 +215,7 @@ class SpendingRequestRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
         SpendingRequestRetrieveUpdateDestroyPermissions,
     )
     serializer_class = SpendingRequestSerializer
-    queryset = SpendingRequest.objects.select_related(
-        "creator", "group", "event"
-    ).prefetch_related("documents")
+    queryset = SpendingRequest.objects.with_serializer_prefetch()
 
     def check_object_permissions(self, request, obj):
         super().check_object_permissions(request, obj)
@@ -299,9 +297,7 @@ class SpendingRequestApplyNextStatusAPIView(RetrieveAPIView):
         SpendingRequestApplyNextStatusPermissions,
     )
     serializer_class = SpendingRequestSerializer
-    queryset = SpendingRequest.objects.select_related(
-        "creator", "group", "event"
-    ).prefetch_related("documents")
+    queryset = SpendingRequest.objects.with_serializer_prefetch()
 
     def get_object(self):
         spending_request = super().get_object()

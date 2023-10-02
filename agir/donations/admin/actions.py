@@ -6,8 +6,8 @@ import reversion
 from django.db import transaction, IntegrityError
 from django.http import HttpResponse
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
-from glom import glom, T, Coalesce
+from django.utils.translation import gettext_lazy as _, ngettext
+from glom import glom, T, Coalesce, Check, SKIP, STOP
 
 from agir.donations.apps import DonsConfig
 from agir.donations.models import SpendingRequest, Spending
@@ -58,15 +58,26 @@ def convert_to_donation(
     payment.save(update_fields=["first_name", "last_name", "email", "type", "meta"])
 
 
+def format_spending_request_attachments(docs):
+    if not docs:
+        return "-"
+
+    return ", ".join(
+        [f"{doc.file.url} ({doc.get_type_display()} : « {doc.title} »)" for doc in docs]
+    )
+
+
 def format_spending_request_for_export(queryset):
+    queryset = queryset.with_serializer_prefetch()
+
     spec = {
         "Identifiant": "id",
         "Titre": "title",
-        "Statut": "get_status_display",
+        "Statut": T.get_status_display(),
         "Groupe": "group.name",
         "Dépense de campagne électorale": "campaign",
-        "Type de dépense": "get_timing_display",
-        "Catégorie de demande": "get_category_display",
+        "Type de dépense": T.get_timing_display(),
+        "Catégorie de demande": T.get_category_display(),
         "Précisions sur le type de demande": "category_precisions",
         "Motif de l'achat": "explanation",
         "Nom du contact": Coalesce("contact_name", "group.contact_phone", default=None),
@@ -78,6 +89,10 @@ def format_spending_request_for_export(queryset):
         "IBAN": "bank_account_iban",
         "BIC": "bank_account_bic",
         "RIB": "bank_account_rib",
+        "Pièce justificatives": (
+            "attachments",
+            format_spending_request_attachments,
+        ),
         "Date de création": T.created.astimezone(timezone.get_current_timezone())
         .replace(microsecond=0)
         .isoformat(),

@@ -49,16 +49,16 @@ class MonthlyAllocationGroupFilter(AutocompleteRelatedModelFilter):
 
 
 class RequestStatusFilter(admin.SimpleListFilter):
-    title = _("Statut")
+    title = _("Statut de la demande")
 
     parameter_name = "status"
 
     def lookups(self, request, model_admin):
         return (
             ("group", _("En attente du groupe")),
-            ("review", _("À revoir")),
+            ("review", _("À traiter")),
             ("to_pay", _("À payer")),
-            ("finished", _("Terminées")),
+            ("finished", _("Terminée")),
         )
 
     def queryset(self, request, queryset):

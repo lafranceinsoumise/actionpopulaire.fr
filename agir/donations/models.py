@@ -5,6 +5,7 @@ from django.contrib import admin
 from django.core import validators
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Prefetch
 from django.db.models.enums import ChoicesMeta
 from django.template.defaultfilters import floatformat
 from django.utils.translation import gettext_lazy as _, ngettext
@@ -248,8 +249,21 @@ class Spending(Operation):
         proxy = True
 
 
+class SpendingRequestQuerySet(models.QuerySet):
+    def with_serializer_prefetch(self):
+        return self.select_related("creator", "group", "event").prefetch_related(
+            Prefetch(
+                "documents",
+                queryset=Document.objects.filter(deleted=False),
+                to_attr="_pf_attachments",
+            )
+        )
+
+
 @reversion.register(follow=["documents"])
 class SpendingRequest(HistoryMixin, TimeStampedModel):
+    objects = SpendingRequestQuerySet.as_manager()
+
     class Timing(models.TextChoices):
         PAST = "P", "Passée"
         UPCOMING = "U", "Future"
@@ -506,6 +520,9 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
 
     @property
     def attachments(self):
+        if hasattr(self, "_pf_attachments"):
+            return list(self._pf_attachments)
+
         return list(self.documents.filter(deleted=False))
 
     @property
