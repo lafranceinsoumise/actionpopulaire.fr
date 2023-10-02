@@ -476,7 +476,9 @@ class SupportGroup(
 
     @property
     def is_financeable(self):
-        return self.is_certified or self.type == self.TYPE_BOUCLE_DEPARTEMENTALE
+        return self.is_certified
+        # TODO: replace previous line with the following to allow bou-dep type groups to access the finance management views
+        # return self.is_certified or self.type == self.TYPE_BOUCLE_DEPARTEMENTALE
 
     def get_meta_image(self):
         if hasattr(self, "image") and self.image:

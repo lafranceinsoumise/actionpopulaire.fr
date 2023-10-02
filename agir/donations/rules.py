@@ -2,7 +2,11 @@ import rules
 
 from agir.donations.models import SpendingRequest
 from agir.groups.models import SupportGroup
-from agir.groups.rules import is_financeable_group, is_at_least_manager_for_group
+from agir.groups.rules import (
+    is_financeable_group,
+    is_at_least_manager_for_group,
+    is_finance_manager,
+)
 from agir.lib.rules import is_authenticated_person
 
 
@@ -17,11 +21,9 @@ def is_deletable_spending_request(_role, spending_request):
 
 
 @rules.predicate
-def is_manager_of_at_least_one_financeable_group(role):
+def is_finance_manager_of_at_least_one_financeable_group(role):
     for group in role.person.supportgroups.financeable():
-        if is_financeable_group(role, group) and is_at_least_manager_for_group(
-            role, group
-        ):
+        if is_financeable_group(role, group) and is_finance_manager(role, group):
             return True
     return False
 
@@ -37,9 +39,7 @@ def is_finance_manager_of_spending_request_group(role, obj=None):
     if group is None:
         return False
 
-    return is_financeable_group(role, group) and is_at_least_manager_for_group(
-        role, group
-    )
+    return is_financeable_group(role, group) and is_finance_manager(role, group)
 
 
 rules.add_perm(
