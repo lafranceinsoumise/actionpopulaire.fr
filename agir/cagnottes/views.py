@@ -27,6 +27,7 @@ from ..payments.payment_modes import PAYMENT_MODES
 
 
 class CompteurView(APIView):
+    authentication_classes = ()
     permission_classes = (AllowAny,)
 
     def get(self, request, slug):
