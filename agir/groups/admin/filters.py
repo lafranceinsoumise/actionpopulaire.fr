@@ -164,7 +164,7 @@ class LastManagerLoginFilter(admin.SimpleListFilter):
                 Membership.objects.filter(supportgroup_id=OuterRef("pk"))
                 .managers()
                 .active()
-                .filter(person__role__last_login__date__gte=date)
+                .filter(person__role__last_login__date__gt=date)
                 .values_list("supportgroup_id", flat=True)
             )
         )
