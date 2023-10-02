@@ -88,7 +88,7 @@ def format_spending_request_for_export(queryset):
         "Raison sociale": "bank_account_name",
         "IBAN": "bank_account_iban",
         "BIC": "bank_account_bic",
-        "RIB": "bank_account_rib",
+        "RIB": Coalesce("bank_account_rib.url", default=None),
         "Pièce justificatives": (
             "attachments",
             format_spending_request_attachments,
