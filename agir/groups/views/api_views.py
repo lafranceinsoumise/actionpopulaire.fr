@@ -57,7 +57,6 @@ from agir.groups.utils.supportgroup import is_active_group_filter
 from agir.lib.pagination import (
     APIPageNumberPagination,
 )
-from agir.lib.utils import front_url
 from agir.msgs.actions import update_recipient_message
 from agir.msgs.serializers import SupportGroupMessageParticipantSerializer
 from agir.people.models import Person
@@ -381,16 +380,18 @@ class GroupMessagesAPIView(ListCreateAPIView):
         GroupMessagesPermissions,
     )
     pagination_class = APIPageNumberPagination
-    membershipType = Membership.MEMBERSHIP_TYPE_FOLLOWER
+    required_membership_type = Membership.MEMBERSHIP_TYPE_FOLLOWER
+
+    def check_permissions(self, request):
+        super().check_permissions(request)
+        self.check_object_permissions(request, self.supportgroup)
 
     def initial(self, request, *args, **kwargs):
-        try:
-            self.supportgroup = SupportGroup.objects.get(pk=kwargs["pk"])
-        except SupportGroup.DoesNotExist:
-            raise NotFound()
-
+        self.supportgroup = get_object_or_404(SupportGroup.objects.active(), **kwargs)
         super().initial(request, *args, **kwargs)
-        self.check_object_permissions(request, self.supportgroup)
+
+    def get_required_membership_type(self):
+        return self.required_membership_type
 
     def get_queryset(self):
         person = self.request.user.person
@@ -418,7 +419,7 @@ class GroupMessagesAPIView(ListCreateAPIView):
             message = serializer.save(
                 author=self.request.user.person,
                 supportgroup=self.supportgroup,
-                required_membership_type=self.membershipType,
+                required_membership_type=self.get_required_membership_type(),
             )
 
             new_message_notifications(message)
@@ -428,10 +429,17 @@ class GroupMessagesAPIView(ListCreateAPIView):
 # Allow anyone to send private message
 class GroupMessagesPrivateAPIView(GroupMessagesAPIView):
     permission_classes = (IsPersonPermission,)
-    membershipType = Membership.MEMBERSHIP_TYPE_REFERENT
 
-    def get(self):
+    def get(self, *args, **kwargs):
         pass
+
+    def get_required_membership_type(self):
+        ## Fallback to managers if the group has no referents
+        return (
+            Membership.MEMBERSHIP_TYPE_REFERENT
+            if self.supportgroup.referents
+            else Membership.MEMBERSHIP_TYPE_MANAGER
+        )
 
 
 # Get or set muted notification in recipient_mutedlist
