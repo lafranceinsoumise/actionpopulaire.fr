@@ -16,7 +16,6 @@ from agir.payments.models import Subscription
 
 __all__ = (
     "AllocationDonationForm",
-    "AllocationDonationForm",
     "AlreadyHasSubscriptionForm",
 )
 

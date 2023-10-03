@@ -82,7 +82,7 @@ const AmountField = (props) => {
           link
           block={!isDesktop}
           color="link"
-          route="spendingRequestHelp"
+          route="groupDonationHelp"
           icon="external-link"
           rightIcon
           target={isDesktop ? "_blank" : undefined}
