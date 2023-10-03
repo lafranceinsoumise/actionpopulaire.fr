@@ -17,7 +17,7 @@ class EngagementAutomatique:
 
     def __getitem__(self, item):
         if item not in TypeDepense:
-            raise KeyError(f"{item} n'est pas un type de dépense ready_for_review")
+            raise KeyError(f"{item} n'est pas un type de dépense acceptable")
 
         # On convertit en chaîne pour le cas où on aurait un objet de type TypeDepense
         item = str(item)
@@ -42,7 +42,7 @@ class EngagementAutomatique:
 
     def __setitem__(self, key, value):
         if key not in TypeDepense:
-            raise KeyError(f"{key} n'est pas un type de dépense ready_for_review")
+            raise KeyError(f"{key} n'est pas un type de dépense acceptable")
 
         if not isinstance(value, decimal.Decimal):
             raise ValueError(f"{value!r} n'est pas un nombre décimal.")
