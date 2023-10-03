@@ -441,7 +441,11 @@ class SpendingRequestStatusSerializer(serializers.Serializer):
 
 class SpendingRequestSerializer(serializers.ModelSerializer):
     default_error_messages = {
-        "required_attachments": "Veuillez joindre au moins une pièce justificative à votre demande avant de pouvoir la valider"
+        "invalid_future_spending_date": "Le type de dépense choisi nécessite le choix d'une date passée",
+        "invalid_past_spending_date": "Le type de dépense choisi nécessite le choix d'une date future",
+        "required_attachments": "Veuillez joindre au moins une pièce justificative à votre demande avant de pouvoir la valider",
+        "invalid_amount": "Il n'est possible d'effectuer une demande que pour un montant inférieur ou égal au solde disponible",
+        "unknown_validation_failure": "La demande n'a pas pu être validée. Vérifiez les données saisies et ressayez.",
     }
     id = serializers.ReadOnlyField(label="Identifiant")
     created = serializers.ReadOnlyField(label="Date de création")
@@ -531,7 +535,9 @@ class SpendingRequestSerializer(serializers.ModelSerializer):
             ):
                 raise serializers.ValidationError(
                     detail={
-                        "spendingDate": "Le type de dépense choisi nécessite le choix d'une date passée"
+                        "spendingDate": self.error_messages.get(
+                            "invalid_future_spending_date"
+                        )
                     }
                 )
 
@@ -541,7 +547,9 @@ class SpendingRequestSerializer(serializers.ModelSerializer):
             ):
                 raise serializers.ValidationError(
                     detail={
-                        "spendingDate": "Le type de dépense choisi nécessite le choix d'une date future"
+                        "spendingDate": self.error_messages.get(
+                            "invalid_past_spending_date"
+                        )
                     }
                 )
 
@@ -619,9 +627,7 @@ class SpendingRequestSerializer(serializers.ModelSerializer):
             )
 
         if not spending_request.is_valid_amount:
-            errors[
-                "amount"
-            ] = "Il n'est possible d'effectuer une demande que pour un montant inférieur ou égal au solde disponible"
+            errors["amount"] = self.error_messages.get("invalid_amount")
 
         if errors:
             raise serializers.ValidationError(detail=errors)
@@ -653,9 +659,7 @@ class SpendingRequestSerializer(serializers.ModelSerializer):
                 return spending_request
 
             raise serializers.ValidationError(
-                detail={
-                    "global": "La demande n'a pas pu être validée. Vérifiez les données saisies et ressayez."
-                }
+                detail={"global": self.error_messages.get("unknown_validation_failure")}
             )
 
     class Meta:
