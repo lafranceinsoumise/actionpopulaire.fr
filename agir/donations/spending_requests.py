@@ -22,7 +22,7 @@ def group_formatter(group):
         group_name=group.name,
         group_email=group.contact_email,
         group_phone=group.contact_phone,
-        group_link=front_url("view_group", args=(group.id,)),
+        group_link=group.front_url(),
         group_balance=display_price(get_supportgroup_balance(group)),
     )
 
