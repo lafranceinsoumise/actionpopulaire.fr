@@ -1,4 +1,6 @@
 from django import forms
+from django.db.models import Q
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from agir.groups.models import SupportGroupSubtype, Membership
@@ -9,24 +11,34 @@ from .. import models
 from ...lib.admin.form_fields import AutocompleteSelectModel
 
 
+def subtype_label_from_instance(instance):
+    return mark_safe(
+        "<small>{}</small>&ensp;<strong>{}</strong>".format(
+            instance.get_type_display().upper(),
+            instance.label.capitalize(),
+        )
+    )
+
+
 class SupportGroupAdminForm(CoordinatesFormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.is_creation = self.instance._state.adding
 
-        self.fields[
-            "subtypes"
-        ].queryset = SupportGroupSubtype.objects.active().order_by("-type")
+        self.fields["subtypes"].label_from_instance = subtype_label_from_instance
+
         if self.is_creation:
             self.fields[
                 "subtypes"
-            ].label_from_instance = lambda instance: "{} ({})".format(
-                instance.label.capitalize(),
-                instance.get_type_display(),
-            )
+            ].queryset = SupportGroupSubtype.objects.active().order_by("-type")
         else:
-            self.fields["subtypes"].queryset = self.fields["subtypes"].queryset.filter(
-                type=self.instance.type
+            self.fields["subtypes"].queryset = (
+                SupportGroupSubtype.objects.active()
+                .filter(
+                    Q(type=self.instance.type)
+                    | Q(id__in=self.instance.subtypes.values_list("id", flat=True))
+                )
+                .order_by("-type")
             )
 
     class Meta:

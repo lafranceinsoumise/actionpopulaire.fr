@@ -561,6 +561,14 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
     def save_form(self, request, form, change):
         return form.save(commit=False, request=request)
 
+    def save_related(self, request, form, formsets, change):
+        super().save_related(request, form, formsets, change)
+        if change and "type" in form.changed_data:
+            # Remove all subtypes that are not related to the new type
+            form.instance.subtypes.remove(
+                *form.instance.subtypes.exclude(type=form.instance.type)
+            )
+
     class Media:
         # classe Media requise par le CirconscriptionLegislativeFilter, quand bien même elle est vide
         pass
