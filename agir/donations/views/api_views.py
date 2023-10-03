@@ -171,9 +171,6 @@ class SpendingRequestCreateAPIView(CreateAPIView):
     serializer_class = SpendingRequestSerializer
     queryset = SpendingRequest.objects.all()
 
-    def post(self, request, *args, **kwargs):
-        return super().post(request, *args, **kwargs)
-
     def check_object_group_permission(self, group):
         if not self.request.user.has_perm("donations.add_spendingrequest", group):
             self.permission_denied(
@@ -216,9 +213,6 @@ class SpendingRequestRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     )
     serializer_class = SpendingRequestSerializer
     queryset = SpendingRequest.objects.with_serializer_prefetch()
-
-    def check_object_permissions(self, request, obj):
-        super().check_object_permissions(request, obj)
 
 
 class SpendingRequestDocumentCreatePermissions(
