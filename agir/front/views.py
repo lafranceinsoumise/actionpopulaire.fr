@@ -267,6 +267,20 @@ class Donation2022View(DonationView):
     meta_title = "Faire un don - Mélenchon 2022"
 
 
+class SupportGroupDonationView(RedirectView):
+    permanent = False
+
+    def get_redirect_url(self, *args, pk=None, **kwargs):
+        return front_url("donation_amount", query={"group": pk})
+
+
+class SupportGroupContributionView(RedirectView):
+    permanent = False
+
+    def get_redirect_url(self, *args, pk=None, **kwargs):
+        return front_url("contribution_amount", query={"group": pk})
+
+
 ## EVENT VIEWS
 
 

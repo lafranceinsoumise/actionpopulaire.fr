@@ -756,9 +756,9 @@ def send_newly_certified_group_notifications(supportgroup_pk):
                     absolute=True,
                 ),
                 "contribution_amount": front_url(
-                    "contribution_amount",
+                    "supportgroup_contribution",
+                    kwargs={"pk": supportgroup.pk},
                     absolute=True,
-                    query={"group": supportgroup_pk},
                 ),
                 "create_event": front_url(
                     "create_event", absolute=True, query={"group": supportgroup_pk}

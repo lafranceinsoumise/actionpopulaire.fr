@@ -92,7 +92,10 @@ def get_supportgroup_routes(supportgroup, membership=None, user=None):
         ),
         "deleteGroup": "https://actionpopulaire.fr/formulaires/demande-suppression-ga/",
         "details": front_url("view_group", kwargs={"pk": supportgroup.pk}),
-        "donations": front_url("donation_amount", query={"group": supportgroup.pk}),
+        "donations": front_url("supportgroup_donation", kwargs={"pk": supportgroup.pk}),
+        "contributions": front_url(
+            "supportgroup_contribution", kwargs={"pk": supportgroup.pk}
+        ),
         "edit": front_url(
             "view_group_settings_general", kwargs={"pk": supportgroup.pk}
         ),

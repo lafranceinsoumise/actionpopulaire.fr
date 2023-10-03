@@ -102,6 +102,14 @@ supportgroup_patterns = [
         views.CreateSupportGroupSpendingRequestView.as_view(),
         name="create_group_spending_request",
     ),
+    path(
+        "dons/", views.SupportGroupDonationView.as_view(), name="supportgroup_donation"
+    ),
+    path(
+        "contributions/",
+        views.SupportGroupContributionView.as_view(),
+        name="supportgroup_contribution",
+    ),
     path("agenda/", include(supportgroup_settings_patterns)),
     path("comptes-rendus/", include(supportgroup_settings_patterns)),
     path("messages/", include(supportgroup_settings_patterns)),
