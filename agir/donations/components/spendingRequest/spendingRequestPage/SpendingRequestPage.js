@@ -207,7 +207,11 @@ const SpendingRequestPage = ({ spendingRequestPk }) => {
               />
               <Button
                 link
-                route="editSpendingRequest"
+                route={
+                  spendingRequest.status.editable
+                    ? "editSpendingRequest"
+                    : "spendingRequestDetails"
+                }
                 routeParams={{ spendingRequestPk }}
                 title={
                   !spendingRequest.status.editable

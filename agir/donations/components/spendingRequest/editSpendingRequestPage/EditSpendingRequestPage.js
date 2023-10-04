@@ -12,6 +12,7 @@ import { getGroupEndpoint } from "@agir/groups/utils/api";
 import EditSpendingRequestForm from "./EditSpendingRequestForm";
 
 import { getSpendingRequestEndpoint } from "@agir/donations/spendingRequest/common/api";
+import AppRedirect from "@agir/front/app/Redirect";
 
 const StyledPage = styled.main`
   padding: 2rem;
@@ -82,6 +83,16 @@ const EditSpendingRequestPage = ({ spendingRequestPk }) => {
 
   const isReady =
     !isSessionLoading && !isSpendingRequestLoading && !isFinanceLoading;
+
+  if (isReady && !spendingRequest?.status?.editable) {
+    return (
+      <AppRedirect
+        route="spendingRequestDetails"
+        routeParams={{ spendingRequestPk }}
+        toast="Cette demande ne peut plus être modifiée"
+      />
+    );
+  }
 
   return (
     <PageFadeIn ready={isReady} wait={<Skeleton />}>
