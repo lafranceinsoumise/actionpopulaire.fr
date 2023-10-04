@@ -75,7 +75,9 @@ export const ButtonLoader = styled.i
 export const BaseButton = styled.button
   .withConfig({
     shouldForwardProp: (prop) =>
-      ["loading", "link", "small", "block", "wrap"].includes(prop) === false,
+      ["loading", "link", "small", "block", "wrap", "rightIcon"].includes(
+        prop,
+      ) === false,
   })
   .attrs(({ link, as, loading, children, type, ...rest }) => ({
     ...rest,
@@ -103,6 +105,8 @@ export const BaseButton = styled.button
 
   display: ${({ block }) => (block ? "flex" : "inline-flex")};
   width: ${({ block }) => (block ? "100%" : "auto")};
+  gap: ${({ small }) => (small ? "0.375rem" : "0.5rem")};
+  flex-direction: ${({ rightIcon }) => (rightIcon ? "row-reverse" : "row")};
 
   padding: ${({ small }) => (small ? "0.5rem 0.75rem" : "0.75rem 1.5rem")};
   line-height: ${({ small }) => (small ? "1.25" : "1.5")};
@@ -127,18 +131,19 @@ export const BaseButton = styled.button
     cursor: not-allowed;
   }
 
+
   &:before {
-    flex: 0 0 auto;
-    background-image: ${getIconDataUrl({ color: style.black1000 })};
     content: "";
+    flex: 0 0 auto;
     height: 1rem;
     width: 1rem;
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center center;
-    margin-right: ${({ small }) => (small ? "0.375rem" : "0.5rem")};
+    background-image: ${getIconDataUrl({ color: style.black1000 })};
     display: ${({ icon }) => (icon && ICONS[icon] ? "inline-block" : "none")};
   }
+
 
   & > * {
     display: inline-flex;
@@ -149,7 +154,14 @@ export const BaseButton = styled.button
       flex: 0 0 auto;
     }
   }
-}}
+
+  & > span {
+    display: inline-block;
+    min-height: 1px;
+    white-space: inherit;
+    text-overflow: inherit;
+    overflow: inherit;
+  }
 `;
 
 BaseButton.propTypes = {
@@ -160,6 +172,7 @@ BaseButton.propTypes = {
   wrap: PropTypes.bool,
   loading: PropTypes.bool,
   icon: PropTypes.string,
+  rightIcon: PropTypes.bool,
 };
 BaseButton.defaultProps = {
   link: false,
@@ -168,6 +181,7 @@ BaseButton.defaultProps = {
   block: false,
   wrap: false,
   loading: false,
+  rightIcon: false,
 };
 
 export default BaseButton;

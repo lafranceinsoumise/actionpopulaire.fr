@@ -67,6 +67,12 @@ class SupportGroupQuerySet(models.QuerySet):
 
         return qs.filter(id__in=uncertifiable_group_ids)
 
+    def financeable(self):
+        return self.active().filter(
+            Q(certification_date__isnull=False)
+            | Q(type=SupportGroup.TYPE_BOUCLE_DEPARTEMENTALE)
+        )
+
     def search(self, query):
         vector = (
             SearchVector(models.F("name"), config="french_unaccented", weight="A")
@@ -378,9 +384,14 @@ class SupportGroup(
     def managers(self):
         return [
             m.person
-            for m in self.memberships.filter(
-                membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER
-            )
+            for m in self.memberships.managers().select_related("person").with_email()
+        ]
+
+    @property
+    def finance_managers(self):
+        return [
+            m.person
+            for m in self.memberships.finance_managers()
             .select_related("person")
             .with_email()
         ]
@@ -389,11 +400,7 @@ class SupportGroup(
     def referents(self):
         return [
             m.person
-            for m in self.memberships.filter(
-                membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT
-            )
-            .select_related("person")
-            .with_email()
+            for m in self.memberships.referents().select_related("person").with_email()
         ]
 
     @property
@@ -467,6 +474,12 @@ class SupportGroup(
         subtype = self.subtypes.filter(allow_external=True).first()
         return subtype.external_help_text or ""
 
+    @property
+    def is_financeable(self):
+        return self.is_certified
+        # TODO: replace previous line with the following to allow bou-dep type groups to access the finance management views
+        # return self.is_certified or self.type == self.TYPE_BOUCLE_DEPARTEMENTALE
+
     def get_meta_image(self):
         if hasattr(self, "image") and self.image:
             return urljoin(settings.FRONT_DOMAIN, self.image.url)
@@ -487,6 +500,14 @@ class SupportGroup(
             "view_og_image_supportgroup",
             kwargs={"pk": self.pk, "cache_key": content_hash},
             absolute=True,
+        )
+
+    def get_last_manager_login(self):
+        return (
+            self.memberships.active()
+            .managers()
+            .aggregate(Max("person__role__last_login"))
+            .get("person__role__last_login__max")
         )
 
     def front_url(self):

@@ -58,7 +58,7 @@ export function displayHumanDay(datetime, relativeTo, interval) {
     weekday: "long",
     month: "long",
     day: "numeric",
-    year: datetime < relativeTo ? "numeric" : undefined,
+    year: datetime.year !== relativeTo.year ? "numeric" : undefined,
   };
 
   return datetime.toLocaleString(format);

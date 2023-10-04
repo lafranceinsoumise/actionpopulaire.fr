@@ -4,11 +4,7 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import {
-  EVENT_TYPES,
-  PRIVATE_EVENT_SUBTYPE_INFO,
-  getEventSubtypeInfo,
-} from "@agir/events/common/utils";
+import { EVENT_TYPES, getEventSubtypeInfo } from "@agir/events/common/utils";
 import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
 
 import FaIcon from "@agir/front/genericComponents/FaIcon";
@@ -250,7 +246,7 @@ export const SubtypePicker = (props) => {
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="Rechercher un type d'événement"
           aria-label="Rechercher un type d'événement"
-          icon="search"
+          icon="magnifying-glass:solid"
           label=""
           dark
         />
@@ -283,7 +279,7 @@ export const SubtypePicker = (props) => {
   );
 };
 SubtypePicker.propTypes = {
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   value: PropTypes.object,
   options: PropTypes.arrayOf(PropTypes.object),
   lastUsedIds: PropTypes.arrayOf(PropTypes.number),

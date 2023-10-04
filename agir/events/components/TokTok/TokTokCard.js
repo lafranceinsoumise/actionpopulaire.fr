@@ -1,9 +1,7 @@
-import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
-import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 import background from "./images/TokTokBG.jpg";
 import logo from "./images/TokTok.svg";
@@ -77,13 +75,8 @@ const TokTokCard = ({ flex = false, ...rest }) => (
         <Button small link route="toktokPreview" color="primary">
           En savoir plus
         </Button>
-        <Button small link route="toktok">
-          Ouvrir la carte&ensp;
-          <RawFeatherIcon
-            width="0.813rem"
-            height="0.813rem"
-            name="external-link"
-          />
+        <Button small link route="toktok" icon="external-link" iconRight>
+          Ouvrir la carte
         </Button>
       </footer>
     </article>

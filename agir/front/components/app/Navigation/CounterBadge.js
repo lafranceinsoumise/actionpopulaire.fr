@@ -3,7 +3,7 @@ import React from "react";
 import styled from "styled-components";
 
 const Counter = ({ value, ...rest }) =>
-  !isNaN(value) && parseInt(value) > 0 ? (
+  !!value ? (
     <svg
       {...rest}
       width="16"
@@ -12,7 +12,7 @@ const Counter = ({ value, ...rest }) =>
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <circle cx="8" cy="8" r="8" fill="inherit" />
+      <circle cx="8" cy="8" r="8" fill="inherit" stroke="none" />
       <text
         x="8"
         y="8"
@@ -22,21 +22,26 @@ const Counter = ({ value, ...rest }) =>
         fontWeight="700"
         fill="#FFFFFF"
       >
-        {value > 20 ? "+20" : value}
+        {!isNaN(value) && parseInt(value) > 20 ? "+20" : value}
       </text>
     </svg>
   ) : null;
 
 Counter.propTypes = {
-  value: PropTypes.number,
+  value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 };
 
 const CounterBadge = styled(Counter)`
-  fill: ${(props) => props.theme.redNSP};
+  fill: ${(props) => props.$background || props.theme.redNSP};
   z-index: ${(props) => props.theme.zindexNavigationCounter};
 
+  circle {
+    stroke: ${(props) => props.$border || "none"};
+  }
+
   text {
-    fill: ${(props) => props.theme.white};
+    fill: ${(props) => props.$color || props.theme.white};
   }
 `;
+
 export default CounterBadge;

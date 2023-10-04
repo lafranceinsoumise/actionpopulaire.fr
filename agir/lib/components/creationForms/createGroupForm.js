@@ -141,7 +141,7 @@ class GroupTypeStep extends FormStep {
           <p>
             Chaque personne peut créer un groupe local et en rejoindre plusieurs
             dès lors qu'elle respecte le cadre et la démarche qui nous réunit
-            autour des propositions de la France insoumie et de la{" "}
+            autour des propositions de la France Insoumise et de la{" "}
             <em>NUPES</em>, dans un esprit d'ouverture, de bienveillance et de
             volonté de se projeter dans l'action.
           </p>

@@ -208,6 +208,22 @@ export const routeConfig = {
     Component: RouteComponents.GroupMessagePage,
     hideFeedbackButton: true,
   }),
+  createGroupSpendingRequest: new RouteConfig({
+    id: "createGroupSpendingRequest",
+    path: "/groupes/:groupPk/depenses/creer/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.HARD,
+    label: "Nouvelle dépense",
+    Component: RouteComponents.CreateSpendingRequest,
+    hideFeedbackButton: true,
+    backLink: {
+      label: "Gestion du groupe",
+      route: "groupSettings",
+      routeParams: {
+        activePanel: "finance",
+      },
+    },
+  }),
   groupDetails: new RouteConfig({
     id: "groupDetails",
     path: "/groupes/:groupPk/:activeTab?/",
@@ -218,6 +234,39 @@ export const routeConfig = {
     backLink: {
       route: "groups",
       isProtected: true,
+    },
+  }),
+  spendingRequestDetails: new RouteConfig({
+    id: "spendingRequestDetails",
+    path: "/financement/demande/:spendingRequestPk/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.HARD,
+    label: "Détails de la demande",
+    Component: RouteComponents.SpendingRequestDetails,
+  }),
+  spendingRequestHistory: new RouteConfig({
+    id: "spendingRequestDetails",
+    path: "/financement/demande/:spendingRequestPk/historique/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.HARD,
+    label: "Historique de la demande",
+    Component: RouteComponents.SpendingRequestHistory,
+    backLink: {
+      label: "Détails de la demande",
+      route: "spendingRequestDetails",
+    },
+  }),
+  editSpendingRequest: new RouteConfig({
+    id: "editGroupSpendingRequest",
+    path: "/financement/demande/:spendingRequestPk/modifier/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.HARD,
+    label: "Modification de la dépense",
+    Component: RouteComponents.EditSpendingRequest,
+    hideFeedbackButton: true,
+    backLink: {
+      label: "Détail de la demande",
+      route: "spendingRequestDetails",
     },
   }),
   activities: new RouteConfig({

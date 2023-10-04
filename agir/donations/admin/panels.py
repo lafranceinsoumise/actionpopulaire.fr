@@ -5,6 +5,7 @@ from django.urls import reverse, path
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from rangefilter.filters import DateRangeFilter
+from reversion.admin import VersionAdmin
 
 from agir.donations.admin import inlines, filters
 from agir.donations.admin.actions import (
@@ -24,32 +25,23 @@ from agir.donations.models import (
     DepartementOperation,
     CNSOperation,
 )
+from agir.lib.admin.utils import display_link
 from agir.lib.display import display_price
 from agir.lib.templatetags.display_lib import display_price_in_cent
 
 
 @admin.register(SpendingRequest)
-class SpendingRequestAdmin(admin.ModelAdmin):
+class SpendingRequestAdmin(VersionAdmin):
     list_display = [
         "title",
         "status",
-        "spending_date",
-        "group",
-        "show_amount",
         "category",
-        "spending_request_actions",
+        "show_amount",
+        "group_link",
+        "spending_date",
         "modified",
+        "spending_request_actions",
     ]
-    ordering = ("-modified",)
-    sortable_by = ("title", "spending_date", "show_amount")
-    search_fields = ("id", "title", "group__name")
-    list_filter = (filters.RequestStatusFilter,)
-    actions = (
-        export_spending_requests_to_csv,
-        export_spending_requests_to_xlsx,
-        mark_spending_request_as_paid,
-    )
-
     fieldsets = (
         (
             None,
@@ -57,11 +49,15 @@ class SpendingRequestAdmin(admin.ModelAdmin):
                 "fields": (
                     "id",
                     "title",
-                    "status",
+                    "timing",
+                    "campaign",
                     "spending_date",
                     "amount",
+                    "status",
+                    "creator",
                     "created",
                     "modified",
+                    "spending_request_actions",
                 )
             },
         ),
@@ -73,32 +69,66 @@ class SpendingRequestAdmin(admin.ModelAdmin):
                     "category",
                     "category_precisions",
                     "explanation",
-                    "provider",
-                    "iban",
-                    "payer_name",
+                    "bank_account_name",
+                    "bank_account_iban",
+                    "bank_account_bic",
+                    "bank_account_rib",
                 )
             },
         ),
+        (
+            _("Informations de contact"),
+            {"fields": ("contact_name", "contact_email", "contact_phone")},
+        ),
+    )
+    readonly_fields = (
+        "id",
+        "creator",
+        "created",
+        "modified",
+        "show_amount",
+        "spending_request_actions",
+        "group_link",
+    )
+    autocomplete_fields = ("group", "event")
+    inlines = (inlines.DocumentInline, inlines.DeletedDocumentInline)
+    ordering = ("-modified",)
+    sortable_by = ("title", "spending_date", "show_amount")
+    search_fields = ("id", "title", "group__name", "event__name")
+    list_filter = (
+        filters.RequestStatusFilter,
+        filters.SupportGroupFilter,
+        "category",
+        "timing",
+        ("spending_date", DateRangeFilter),
+    )
+    actions = (
+        export_spending_requests_to_csv,
+        export_spending_requests_to_xlsx,
+        mark_spending_request_as_paid,
     )
 
-    readonly_fields = ("created", "modified", "show_amount")
-    autocomplete_fields = ("group", "event")
-    inlines = (inlines.DocumentInline,)
+    class Media:
+        pass
 
+    @admin.display(description="Groupe", ordering="group")
+    def group_link(self, obj):
+        return display_link(obj.group)
+
+    @admin.display(description="Montant", ordering="amount")
     def show_amount(self, obj):
         return display_price(obj.amount)
 
-    show_amount.short_description = "Montant"
-    show_amount.admin_order_field = "amount"
-
+    @admin.display(description="Actions")
     def spending_request_actions(self, obj):
-        return format_html(
-            '<a href="{url}">{text}</a>',
-            url=reverse("admin:donations_spendingrequest_review", args=[obj.pk]),
-            text="Traiter",
-        )
+        if not obj or not obj.pk:
+            return "-"
 
-    spending_request_actions.short_description = "Actions"
+        return display_link(
+            reverse("admin:donations_spendingrequest_review", args=[obj.pk]),
+            text="📝 Traiter la demande",
+            button=True,
+        )
 
     def get_urls(self):
         return [

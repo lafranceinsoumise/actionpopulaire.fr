@@ -91,16 +91,12 @@ const ButtonMuteMessage = ({ message }) => {
         <Button
           small
           color="choose"
+          icon={`bell${isMuted ? "-off" : ""}`}
           disabled={loading}
           loading={loading}
           onClick={handleSwitchNotification}
         >
-          <RawFeatherIcon
-            width="1rem"
-            height="1rem"
-            name={`bell${isMuted ? "-off" : ""}`}
-          />
-          &nbsp;{isMuted ? "Réactiver" : "Rendre muet"}
+          {isMuted ? "Réactiver" : "Rendre muet"}
         </Button>
       ) : (
         <StyledMuteButton

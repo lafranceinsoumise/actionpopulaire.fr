@@ -102,7 +102,6 @@ const getMarkerIcons = (color = style.primary500) => [
     image: new Icon({
       opacity: 1,
       src: markerIcon,
-      imgSize: [40, 44],
       color,
       scale: 0.75,
       anchor: [0.5, 1],
@@ -112,7 +111,6 @@ const getMarkerIcons = (color = style.primary500) => [
     image: new Icon({
       opacity: 1,
       src: markerIconBg,
-      imgSize: [40, 44],
       scale: 0.75,
       anchor: [0.5, 1],
     }),

@@ -374,7 +374,7 @@ def send_event_report(event_pk):
     if event.report_summary_sent:
         return
 
-    recipients = event.attendees.filter(
+    recipients = event.confirmed_attendees.filter(
         notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
         notification_subscriptions__activity_type=Activity.TYPE_NEW_REPORT,
         notification_subscriptions__membership__supportgroup__in=event.organizers_groups.all(),
@@ -497,7 +497,7 @@ def notify_on_event_report(event_pk):
     Activity.objects.bulk_create(
         [
             Activity(type=Activity.TYPE_NEW_REPORT, recipient=r, event=event)
-            for r in event.attendees.all()
+            for r in event.confirmed_attendees
         ],
         send_post_save_signal=True,
     )

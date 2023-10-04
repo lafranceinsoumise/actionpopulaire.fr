@@ -64,6 +64,12 @@ WithIcon.args = {
   icon: Button.icons[Math.floor(Math.random() * Button.icons.length)],
 };
 
+export const WithIconRight = Template.bind({});
+WithIconRight.args = {
+  ...WithIcon.args,
+  rightIcon: true,
+};
+
 export const NotWrapping = Template.bind({});
 NotWrapping.args = {
   ...Default.args,

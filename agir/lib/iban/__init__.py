@@ -5,6 +5,10 @@ from importlib.resources import open_text
 
 from django.core import validators
 
+BIC_REGEX = re.compile(
+    r"^(?P<banque>[A-Z]{4})(?P<pays>[A-Z]{2})(?P<localisation>[A-Z0-9]{2})(?P<filiale>[A-Z0-9]{3})?"
+)
+
 
 def _iban_regex(s: str):
     raw = s.replace("d", "[0-9]").replace("l", "[A-Z]").replace("a", "[A-Z0-9]")
@@ -113,3 +117,65 @@ def to_iban(s):
         s = str(s)
 
     return IBAN(s)
+
+
+class BIC:
+    regex = BIC_REGEX
+    value = ""
+    match = None
+
+    @property
+    def parts(self):
+        if not self.match:
+            return {}
+
+        return self.match.groupdict()
+
+    @property
+    def business_party_prefix(self):
+        return self.parts.get("banque", None)
+
+    @property
+    def country(self):
+        return self.parts.get("pays", None)
+
+    @property
+    def business_party_suffix(self):
+        return self.parts.get("localisation", None)
+
+    @property
+    def branch(self):
+        return self.parts.get("filiale", None)
+
+    @property
+    def as_stored_value(self):
+        return self.value
+
+    def __init__(self, value):
+        self.value = re.sub(r"\s+", "", str(value)).upper()
+        self.match = self.regex.fullmatch(self.value)
+
+    def is_valid(self):
+        return self.match is not None
+
+    def __str__(self):
+        return self.value
+
+    def __repr__(self):
+        return "BIC('{}')".format(str(self))
+
+    def __eq__(self, other):
+        return isinstance(other, BIC) and self.value == other.value
+
+    def __len__(self):
+        return len(self.value)
+
+
+def to_bic(s):
+    if isinstance(s, BIC) or s in validators.EMPTY_VALUES:
+        return s
+
+    if not isinstance(s, str):
+        s = str(s)
+
+    return BIC(s)

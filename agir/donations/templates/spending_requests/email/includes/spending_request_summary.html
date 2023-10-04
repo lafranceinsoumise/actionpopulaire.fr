@@ -1,0 +1,18 @@
+{% load display_lib %}
+
+<p bgcolor="#fcfbd9" style="line-height:1.5;list-style:none;margin: 1.5em 0; padding: 1.5em; background:#fcfbd9; border-radius:0.5em;">
+  Titre&nbsp;:
+  <strong>{{ spending_request.title }}</strong>
+  <br/>
+  Catégorie : 
+  <strong>{{ spending_request.get_category_display }}</strong>
+  <br/>
+  Type de dépense : 
+  <strong>{{ spending_request.get_timing_display }}</strong>
+  <br/>
+  Montant : 
+  <strong>{{ spending_request.amount|display_price_in_cent }}</strong>
+  <br/>
+  Motif de l'achat : 
+  <em>{{ spending_request.explanation }}</em>
+</p>

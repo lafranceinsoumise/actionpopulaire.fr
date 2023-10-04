@@ -25,11 +25,16 @@ export function parsePrice(s) {
 }
 
 export function displayPrice(n, forceCents = false, unit = "€") {
-  if (!forceCents && n % 100 === 0) {
-    return `${displayNumber(n / 100, 0)}${NBSP}${unit}`;
+  let price =
+    !forceCents && n % 100 === 0
+      ? `${displayNumber(n / 100, 0)}`
+      : `${displayNumber(n / 100, 2)}`;
+
+  if (unit) {
+    price += `${NBSP}${unit}`;
   }
 
-  return `${displayNumber(n / 100, 2)}${NBSP}${unit}`;
+  return price;
 }
 
 export const GENDER = {

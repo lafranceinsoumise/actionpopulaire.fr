@@ -241,7 +241,7 @@ const SubtypeField = (props) => {
   );
 };
 SubtypeField.propTypes = {
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   value: PropTypes.object,
   name: PropTypes.string.isRequired,
   options: PropTypes.arrayOf(PropTypes.object),

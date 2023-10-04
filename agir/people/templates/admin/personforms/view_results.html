@@ -48,7 +48,7 @@
 {% block content %}
   <div class="navbar" id="nav">
     <p class="navbar-text navbar-right">
-        <a class="btn btn-default" href="{% url 'admin:people_personform_download_results' form.pk|admin_urlquote %}">
+        <a class="btn btn-default" href="{{ download_url }}">
           <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>&nbsp;
           Télécharger les résultats
         </a>

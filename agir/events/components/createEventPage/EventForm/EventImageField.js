@@ -84,7 +84,7 @@ const EventImageField = (props) => {
   );
 };
 EventImageField.propTypes = {
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   name: PropTypes.string.isRequired,
   value: PropTypes.object,
   error: PropTypes.string,

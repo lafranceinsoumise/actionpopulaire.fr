@@ -5,13 +5,12 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 import { mergeRefs } from "@agir/lib/utils/react";
 
-import FeatherIcon, {
-  RawFeatherIcon,
-} from "@agir/front/genericComponents/FeatherIcon";
+import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
+import FaIcon from "../genericComponents/FaIcon";
 
 const StyledLabel = styled.span``;
 const StyledHelpText = styled.span``;
-const StyledIcon = styled(RawFeatherIcon)``;
+const StyledIcon = styled(FaIcon)``;
 const StyledInput = styled.input``;
 const StyledTextArea = styled.textarea``;
 const StyledErrorIcon = styled.span``;
@@ -46,10 +45,10 @@ const StyledField = styled.label`
     grid-row: 3;
     grid-column: 1/1;
     width: 3rem;
-    margin-top: 0.5rem;
-    align-items: start;
+    font-size: ${({ $large }) => ($large ? "2rem" : "1rem")};
     justify-content: center;
     color: ${({ $invalid }) => ($invalid ? style.redNSP : style.black500)};
+    z-index: 2;
   }
 
   ${StyledInput}, ${StyledTextArea} {
@@ -61,10 +60,22 @@ const StyledField = styled.label`
       $invalid ? style.redNSP : style.black100};
     max-width: 100%;
     padding: 0.5rem;
-    padding-left: ${({ $icon }) => ($icon ? "3rem" : "0.5rem")};
+    padding-left: ${({ $icon, $large }) =>
+      $icon ? "3rem" : $large ? "0.75rem" : "0.5rem"};
     padding-right: ${({ $invalid }) => ($invalid ? "3rem" : "0.5rem")};
     background-color: ${({ $dark }) =>
       $dark ? style.black100 : "transparent"};
+    -moz-appearance: textfield;
+
+    &::placeholder {
+      color: ${style.black500};
+    }
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
 
     &:focus {
       outline: none;
@@ -73,8 +84,10 @@ const StyledField = styled.label`
     }
   }
   ${StyledInput} {
-    height: 40px;
-    font-size: ${({ $small }) => ($small ? "0.875rem" : "1rem")};
+    height: ${({ $large }) => ($large ? "auto" : "2.5rem")};
+    font-size: ${({ $small, $large }) =>
+      $small ? "0.875rem" : $large ? "2.5rem" : "1rem"};
+    font-weight: ${({ $large }) => ($large ? "400" : "inherit")};
   }
   ${StyledTextArea} {
     resize: none;
@@ -84,7 +97,7 @@ const StyledField = styled.label`
     display: ${({ $invalid }) => ($invalid ? "flex" : "none")};
     grid-row: 3;
     grid-column: 2/3;
-    align-items: flex-start;
+    align-items: ${({ $large }) => ($large ? "center" : "start")};
     justify-content: flex-end;
     padding: 0.5rem;
     color: ${style.redNSP};
@@ -94,6 +107,7 @@ const StyledField = styled.label`
     grid-row: 4;
     grid-column: ${({ $hasCounter }) => ($hasCounter ? "1/2" : "1/3")};
     color: ${style.redNSP};
+    line-height: 1.3;
   }
   ${StyledCounter} {
     grid-row: 4;
@@ -119,6 +133,7 @@ const TextField = forwardRef((props, ref) => {
     hasCounter,
     autoComplete,
     small,
+    large,
     dark,
     icon,
     ...rest
@@ -145,12 +160,13 @@ const TextField = forwardRef((props, ref) => {
       $empty={!!value}
       $hasCounter={!!maxLength && !!hasCounter}
       $small={!!small}
+      $large={!textArea && !!large}
       $dark={!!dark}
       $icon={!!icon}
     >
       {label && <StyledLabel>{label}</StyledLabel>}
       {helpText && <StyledHelpText>{helpText}</StyledHelpText>}
-      {icon && <StyledIcon name={icon} />}
+      {icon && <StyledIcon icon={icon} />}
       {textArea ? (
         <StyledTextArea
           {...rest}
@@ -187,8 +203,8 @@ const TextField = forwardRef((props, ref) => {
 
 TextField.propTypes = {
   value: PropTypes.any,
-  onChange: PropTypes.func.isRequired,
-  type: PropTypes.oneOf(["text", "email", "password"]),
+  onChange: PropTypes.func,
+  type: PropTypes.oneOf(["text", "email", "password", "number"]),
   id: PropTypes.string,
   label: PropTypes.node,
   helpText: PropTypes.node,
@@ -199,6 +215,7 @@ TextField.propTypes = {
   hasCounter: PropTypes.bool,
   autoComplete: PropTypes.string,
   small: PropTypes.bool,
+  large: PropTypes.bool,
   dark: PropTypes.bool,
   icon: PropTypes.string,
 };
@@ -209,6 +226,7 @@ TextField.defaultProps = {
   hasCounter: true,
   autoComplete: "on",
   small: false,
+  large: false,
 };
 
 TextField.displayName = "TextField";

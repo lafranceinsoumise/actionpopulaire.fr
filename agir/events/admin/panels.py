@@ -171,6 +171,10 @@ class EventImageInline(admin.TabularInline):
 
 
 class EventRsvpPersonFormDisplay(PersonFormDisplay):
+    def __init__(self, event=None):
+        self.event = event
+        super().__init__()
+
     def get_submission_rsvp_or_guest(self, submission):
         try:
             return submission.rsvp
@@ -180,19 +184,18 @@ class EventRsvpPersonFormDisplay(PersonFormDisplay):
     def get_admin_fields_label(self, form, *args, **kwargs):
         fields = super().get_admin_fields_label(form, *args, **kwargs)
 
-        if not form.subscription_form_event.is_free:
+        if not self.event.is_free:
             fields.append("Paiement")
 
-        if form.subscription_form_event.allow_guests:
+        if self.event.allow_guests:
             fields.append("Invité⋅e par")
 
         return fields
 
     def _get_admin_fields(self, submissions, html=True):
         results = super()._get_admin_fields(submissions, html)
-        event = submissions[0].form.subscription_form_event
 
-        if not event.is_free:
+        if not self.event.is_free:
             for s, r in zip(submissions, results):
                 r.append(
                     format_html(
@@ -209,7 +212,7 @@ class EventRsvpPersonFormDisplay(PersonFormDisplay):
                     else self.get_submission_rsvp_or_guest(s).get_status_display()
                 )
 
-        if event.allow_guests:
+        if self.event.allow_guests:
             for s, r in zip(submissions, results):
                 try:
                     r.append(
@@ -579,15 +582,24 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
     # noinspection PyMethodOverriding
     def view_results(self, request, pk):
         self.instance = models.Event.objects.get(pk=pk)
+        self.person_form_display = EventRsvpPersonFormDisplay(event=self.instance)
         return super().view_results(
             request,
             self.instance.subscription_form.id,
             title="Inscriptions à l'événement %s" % self.instance.name,
+            download_url=admin_url(
+                "admin:events_event_rsvps_download_results", args=(self.instance.pk,)
+            ),
         )
 
     def download_results(self, request, pk):
         self.instance = models.Event.objects.get(pk=pk)
-        return super().download_results(request, self.instance.subscription_form.id)
+        self.person_form_display = EventRsvpPersonFormDisplay(event=self.instance)
+        return super().download_results(
+            request,
+            self.instance.subscription_form.id,
+            filename=slugify(self.instance.name),
+        )
 
     def export_summary(self, request):
         return views.EventSummaryView.as_view()(request, model_admin=self)

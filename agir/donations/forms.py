@@ -1,10 +1,6 @@
 import json
 import logging
 
-import reversion
-from crispy_forms import layout
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Row, Submit
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -16,17 +12,11 @@ from agir.donations.base_forms import SimpleDonationForm
 from agir.donations.form_fields import AskAmountField, AllocationsField
 from agir.groups.models import SupportGroup
 from agir.lib.display import display_price
-from agir.lib.form_components import *
 from agir.payments.models import Subscription
-from .models import SpendingRequest, Document
 
 __all__ = (
     "AllocationDonationForm",
     "AlreadyHasSubscriptionForm",
-    "SpendingRequestCreationForm",
-    "SpendingRequestEditForm",
-    "DocumentForm",
-    "DocumentOnCreationFormset",
 )
 
 logger = logging.getLogger(__name__)
@@ -167,161 +157,6 @@ class AllocationSubscriptionForm(AllocationMixin, SimpleDonationForm):
         ):
             return "Modifier ce don mensuel"
         return "Mettre en place le don mensuel"
-
-
-class SpendingRequestFormMixin(forms.Form):
-    def __init__(self, *args, user, group, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        condition = Q(organizer_configs__person=user.person) | Q(
-            organizer_configs__as_group=group
-        )
-        self.fields["event"].queryset = (
-            self.fields["event"].queryset.filter(condition).distinct().order_by("name")
-        )
-
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
-            "title",
-            "event",
-            Row(
-                Div("category", css_class="col-md-4"),
-                Div("category_precisions", css_class="col-md-8"),
-            ),
-            "explanation",
-            Row(
-                Div("amount", css_class="col-md-4"),
-                Div("spending_date", css_class="col-md-8"),
-            ),
-            "provider",
-            "iban",
-            "payer_name",
-        )
-
-
-class DocumentHelper(FormHelper):
-    template = "bootstrap/table_inline_formset.html"
-    # Pas de tag de formulaire ni de CSRF car doit être posté
-    # en même temps qu'un autre formulaire
-    # le tag et le CSRF sont ajouté manuellement dans le template
-    form_tag = False
-    disable_csrf = True
-
-
-DocumentOnCreationFormset = forms.inlineformset_factory(
-    SpendingRequest, Document, fields=["title", "type", "file"], can_delete=False
-)
-
-
-class SpendingRequestCreationForm(SpendingRequestFormMixin, forms.ModelForm):
-    def __init__(self, *args, group, **kwargs):
-        super().__init__(*args, group=group, **kwargs)
-
-        self.instance.group = group
-        # Pas de tag de formulaire ni de CSRF car doit être posté
-        # en même temps qu'un autre formulaire
-        # le tag et le CSRF sont ajouté manuellement dans le template
-        self.helper.form_tag = False
-        self.helper.disable_csrf = True
-
-    class Meta:
-        model = SpendingRequest
-        fields = (
-            "title",
-            "event",
-            "category",
-            "category_precisions",
-            "explanation",
-            "amount",
-            "spending_date",
-            "provider",
-            "iban",
-            "payer_name",
-        )
-
-
-class SpendingRequestEditForm(SpendingRequestFormMixin, forms.ModelForm):
-    comment = forms.CharField(
-        label="Commentaire",
-        widget=forms.Textarea,
-        required=True,
-        strip=True,
-        help_text=_(
-            "Merci de bien vouloir justifier les changements que vous avez apporté à votre demande."
-        ),
-    )
-
-    def __init__(self, *args, instance, user, **kwargs):
-        self.user = user
-        super().__init__(
-            *args, user=user, group=instance.group, instance=instance, **kwargs
-        )
-
-        self.helper.add_input(Submit("submit", _("Modifier")))
-        self.helper.layout.fields.append("comment")
-
-    # noinspection PyMethodOverriding
-    def save(self):
-        if self.has_changed():
-            with reversion.create_revision():
-                reversion.set_user(self.user)
-                reversion.set_comment(self.cleaned_data["comment"])
-
-                if self.instance.status in SpendingRequest.STATUS_EDITION_MESSAGES:
-                    self.instance.status = (
-                        SpendingRequest.STATUS_AWAITING_SUPPLEMENTARY_INFORMATION
-                    )
-
-                return super().save()
-
-    class Meta:
-        model = SpendingRequest
-        fields = (
-            "title",
-            "event",
-            "category",
-            "category_precisions",
-            "explanation",
-            "amount",
-            "spending_date",
-            "provider",
-            "iban",
-            "payer_name",
-        )
-
-
-class DocumentForm(forms.ModelForm):
-    def __init__(self, *args, user, spending_request=None, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.user = user
-        if spending_request is not None:
-            self.instance.request = spending_request
-
-        self.helper = FormHelper()
-        self.helper.add_input(layout.Submit("valider", "Valider"))
-
-    # noinspection PyMethodOverriding
-    def save(self):
-        creating = self.instance._state.adding
-        spending_request = self.instance.request
-
-        if creating or self.has_changed():
-            with reversion.create_revision():
-                reversion.set_user(self.user)
-                reversion.set_comment(
-                    "Ajout d'un document" if creating else "Modification d'un document"
-                )
-                super().save()
-
-                if spending_request.status in SpendingRequest.STATUS_EDITION_MESSAGES:
-                    spending_request.status = (
-                        SpendingRequest.STATUS_AWAITING_SUPPLEMENTARY_INFORMATION
-                    )
-                    spending_request.save()
-
-    class Meta:
-        model = Document
-        fields = ("title", "type", "file")
 
 
 class AlreadyHasSubscriptionForm(forms.Form):

@@ -14,11 +14,11 @@ const VotingLocationField = (props) => {
   const handleSearch = debounce(async (searchTerm) => {
     setIsLoading(true);
     setOptions(undefined);
-    const { data, error } = await searchVotingLocation(searchTerm);
+    const { data, _error } = await searchVotingLocation(searchTerm);
     setIsLoading(false);
     const results = data.map((choice) => ({
       ...choice,
-      icon: choice.type === "commune" ? "map-pin" : "globe",
+      icon: choice.type === "commune" ? "location-dot" : "globe:regular",
     }));
     setOptions(results);
     return results;
@@ -40,7 +40,7 @@ const VotingLocationField = (props) => {
 
 VotingLocationField.propTypes = {
   value: PropTypes.any,
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   id: PropTypes.string,
   name: PropTypes.string,
   label: PropTypes.node,

@@ -83,7 +83,7 @@ const RichTextField = (props) => {
 
 RichTextField.propTypes = {
   value: PropTypes.any,
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   id: PropTypes.string,
   label: PropTypes.string,
   helpText: PropTypes.string,

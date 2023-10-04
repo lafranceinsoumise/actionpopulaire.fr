@@ -1,11 +1,13 @@
 import re
 
 import reversion
+from dateutil.relativedelta import relativedelta
 from django.contrib.gis.db.models.functions import Distance
 from django.core.validators import validate_email
 from django.db import transaction
 from django.db.models import Max, DateTimeField, Q
 from django.db.models.functions import Greatest
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django_filters.rest_framework import DjangoFilterBackend
@@ -55,7 +57,6 @@ from agir.groups.utils.supportgroup import is_active_group_filter
 from agir.lib.pagination import (
     APIPageNumberPagination,
 )
-from agir.lib.utils import front_url
 from agir.msgs.actions import update_recipient_message
 from agir.msgs.serializers import SupportGroupMessageParticipantSerializer
 from agir.people.models import Person
@@ -379,16 +380,18 @@ class GroupMessagesAPIView(ListCreateAPIView):
         GroupMessagesPermissions,
     )
     pagination_class = APIPageNumberPagination
-    membershipType = Membership.MEMBERSHIP_TYPE_FOLLOWER
+    required_membership_type = Membership.MEMBERSHIP_TYPE_FOLLOWER
+
+    def check_permissions(self, request):
+        super().check_permissions(request)
+        self.check_object_permissions(request, self.supportgroup)
 
     def initial(self, request, *args, **kwargs):
-        try:
-            self.supportgroup = SupportGroup.objects.get(pk=kwargs["pk"])
-        except SupportGroup.DoesNotExist:
-            raise NotFound()
-
+        self.supportgroup = get_object_or_404(SupportGroup.objects.active(), **kwargs)
         super().initial(request, *args, **kwargs)
-        self.check_object_permissions(request, self.supportgroup)
+
+    def get_required_membership_type(self):
+        return self.required_membership_type
 
     def get_queryset(self):
         person = self.request.user.person
@@ -416,7 +419,7 @@ class GroupMessagesAPIView(ListCreateAPIView):
             message = serializer.save(
                 author=self.request.user.person,
                 supportgroup=self.supportgroup,
-                required_membership_type=self.membershipType,
+                required_membership_type=self.get_required_membership_type(),
             )
 
             new_message_notifications(message)
@@ -426,10 +429,17 @@ class GroupMessagesAPIView(ListCreateAPIView):
 # Allow anyone to send private message
 class GroupMessagesPrivateAPIView(GroupMessagesAPIView):
     permission_classes = (IsPersonPermission,)
-    membershipType = Membership.MEMBERSHIP_TYPE_REFERENT
 
-    def get(self):
+    def get(self, *args, **kwargs):
         pass
+
+    def get_required_membership_type(self):
+        ## Fallback to managers if the group has no referents
+        return (
+            Membership.MEMBERSHIP_TYPE_REFERENT
+            if self.supportgroup.referents
+            else Membership.MEMBERSHIP_TYPE_MANAGER
+        )
 
 
 # Get or set muted notification in recipient_mutedlist
@@ -835,22 +845,32 @@ class GroupFinanceAPIView(GenericAPIView):
     def get(self, request, *args, **kwargs):
         group = self.get_object()
         donation = get_supportgroup_balance(group)
+        current_spending_requests = (
+            SpendingRequest.objects.filter(group=group)
+            .exclude(status=SpendingRequest.Status.PAID)
+            .order_by("-modified")
+            .only("id", "title", "status", "spending_date", "amount")
+        )
+        last_year = timezone.now() - relativedelta(years=1)
+        past_spending_requests = (
+            SpendingRequest.objects.filter(group=group)
+            .filter(
+                status=SpendingRequest.Status.PAID,
+                modified__gte=last_year,
+            )
+            .order_by("-modified")
+            .only("id", "title", "status", "spending_date", "amount")
+        )
         spending_requests = [
             {
                 "id": spending_request.id,
                 "title": spending_request.title,
-                "status": spending_request.get_status_display(),
+                "status": spending_request.status,
+                "category": spending_request.category,
                 "date": spending_request.spending_date,
-                "link": front_url(
-                    "manage_spending_request", kwargs={"pk": spending_request.pk}
-                ),
+                "amount": spending_request.amount,
             }
-            for spending_request in (
-                SpendingRequest.objects.filter(group=group)
-                .exclude(status=SpendingRequest.STATUS_PAID)
-                .order_by("-spending_date")
-                .only("id", "title", "status", "spending_date")
-            )
+            for spending_request in current_spending_requests | past_spending_requests
         ]
 
         return Response(

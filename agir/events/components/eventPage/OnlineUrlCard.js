@@ -66,9 +66,14 @@ const OnlineUrlCard = (props) => {
     return (
       <StyledFigure as="figure">
         <figcaption>
-          <Button link href={onlineUrl} target="_blank" color="secondary">
-            <RawFeatherIcon name="video" />
-            &emsp;Rejoindre en ligne
+          <Button
+            icon="video"
+            link
+            href={onlineUrl}
+            target="_blank"
+            color="secondary"
+          >
+            Rejoindre en ligne
           </Button>
           <span>{onlineUrl}</span>
         </figcaption>

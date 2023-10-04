@@ -609,6 +609,8 @@ REST_FRAMEWORK = {
     "EXCEPTION_HANDLER": "agir.api.handlers.exception_handler",
 }
 
+DRF_NESTED_MULTIPART_PARSER = {"querydict": False}
+
 # Access tokens
 
 REDIS_AUTH_URL = os.environ.get("REDIS_AUTH_URL", "redis://localhost?db=0")

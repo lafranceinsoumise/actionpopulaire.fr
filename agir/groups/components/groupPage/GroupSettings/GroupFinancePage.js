@@ -24,6 +24,12 @@ const DonationSkeleton = styled.p`
   background-color: ${style.black50};
 `;
 
+const StyledButtons = styled.p`
+  display: flex;
+  flex-flow: row wrap;
+  gap: 0.5rem;
+`;
+
 const GroupFinancePage = (props) => {
   const { onBack, illustration, groupPk } = props;
 
@@ -54,7 +60,7 @@ const GroupFinancePage = (props) => {
         Vous pouvez allouer des dons à vos actions de manière ponctuelle ou avec
         une contribution financière sur l'année.
       </p>
-      <p>
+      <StyledButtons>
         <Button
           link
           route="contributions"
@@ -62,7 +68,7 @@ const GroupFinancePage = (props) => {
           color="secondary"
         >
           Devenir financeur·euse
-        </Button>{" "}
+        </Button>
         <Button
           link
           route="donations"
@@ -71,7 +77,7 @@ const GroupFinancePage = (props) => {
         >
           Allouer un don
         </Button>
-      </p>
+      </StyledButtons>
 
       <Spacer size="2rem" />
 
@@ -96,13 +102,19 @@ const GroupFinancePage = (props) => {
           Demandes de dépense
         </StyledTitle>
         <p style={{ color: style.black700 }}>
-          Vous pouvez déjà créer une demande, mais vous ne pourrez la faire
-          valider que lorsque votre allocation sera suffisante.
+          Vous pouvez créer une demande de remboursement ou de paiement à tout
+          moment et en enregistrer le brouillon.
+        </p>
+        <p style={{ color: style.black700 }}>
+          Si la demande est complète et l'allocation de votre groupe suffisante,
+          vous pourrez la transmettre pour vérification à un·e autre
+          animateur·ice ou gestionnaire de votre groupe, et ensuite la faire
+          valider par l'équipe de suivi des questions financières.
         </p>
         <Spacer size=".5rem" />
         <SpendingRequests
           spendingRequests={data?.spendingRequests}
-          newSpendingRequestLink={group?.routes?.createSpendingRequest}
+          groupPk={group?.id}
         />
       </PageFadeIn>
     </>

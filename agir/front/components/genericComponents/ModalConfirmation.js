@@ -2,13 +2,13 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
-import Button from "@agir/front/genericComponents/Button";
-import Spacer from "@agir/front/genericComponents/Spacer";
-import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
+import style from "@agir/front/genericComponents/_variables.scss";
 
 import BottomSheet from "@agir/front/genericComponents/BottomSheet";
+import Button from "@agir/front/genericComponents/Button";
 import Modal from "@agir/front/genericComponents/Modal";
-import style from "@agir/front/genericComponents/_variables.scss";
+import Spacer from "@agir/front/genericComponents/Spacer";
+import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 
 const ModalContainer = styled.div`
   background: white;
@@ -29,7 +29,7 @@ const ModalContainer = styled.div`
 const ModalContent = styled.div`
   display: inline-flex;
   flex-direction: column;
-  padding: 1rem;
+  padding: 1rem 1.5rem;
 
   h3 {
     font-size: 1rem;
@@ -58,6 +58,7 @@ const ModalConfirmation = (props) => {
     onConfirm = null,
     shouldDismissOnClick = true,
     isConfirming = false,
+    disabled = false,
   } = props;
 
   return (
@@ -79,11 +80,11 @@ const ModalConfirmation = (props) => {
           {!!confirmationUrl && (
             <Button
               wrap
-              style={{ backgroundColor: style.primary500 }}
+              color="primary"
               type="button"
               link
               route={confirmationUrl}
-              disabled={isConfirming}
+              disabled={disabled || isConfirming}
               loading={isConfirming}
             >
               {confirmationLabel}
@@ -92,10 +93,10 @@ const ModalConfirmation = (props) => {
           {!!onConfirm && (
             <Button
               wrap
-              style={{ backgroundColor: style.primary500 }}
+              color="primary"
               type="button"
               onClick={onConfirm}
-              disabled={isConfirming}
+              disabled={disabled || isConfirming}
               loading={isConfirming}
             >
               {confirmationLabel}
@@ -129,6 +130,7 @@ ModalConfirmation.propTypes = {
   onConfirm: PropTypes.func,
   shouldDismissOnClick: PropTypes.bool,
   isConfirming: PropTypes.bool,
+  disabled: PropTypes.bool,
 };
 
 export default ModalConfirmation;

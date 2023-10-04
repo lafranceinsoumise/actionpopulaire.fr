@@ -30,7 +30,7 @@ def display_link(link_or_instance, text=None, empty_text="-", button=False):
     else:
         link = link_or_instance
 
-    classname = "button" if button else ""
+    classname = "button nowrap" if button else ""
 
     return format_html('<a class="{}" href="{}">{}</a>', classname, link, text)
 

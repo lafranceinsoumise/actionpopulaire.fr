@@ -53,7 +53,7 @@ const CountryField = (props) => {
   );
 };
 CountryField.propTypes = {
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   value: PropTypes.oneOf(["", ...Object.keys(countries)]),
 };
 export default CountryField;

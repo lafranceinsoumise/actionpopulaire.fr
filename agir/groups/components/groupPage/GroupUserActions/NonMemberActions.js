@@ -31,9 +31,8 @@ const NonMemberActions = (props) => {
         color="success"
         disabled={isLoading}
         onClick={onJoin}
+        icon="plus"
       >
-        <RawFeatherIcon name="plus" width="1.5rem" height="1.5rem" />
-        <Spacer size="10px" />
         Rejoindre
       </Button>
       {isOpen && (
@@ -42,9 +41,8 @@ const NonMemberActions = (props) => {
           loading={isLoading}
           disabled={isLoading}
           onClick={onFollow}
+          icon="rss"
         >
-          <RawFeatherIcon name="rss" width="1.5rem" height="1.5rem" />
-          <Spacer size="10px" />
           Suivre
         </Button>
       )}

@@ -4,13 +4,19 @@ import { SWRConfig } from "swr";
 
 import axios from "@agir/lib/utils/axios";
 
-const fetcher = async (url) => {
+const fetcher = async (args) => {
+  if (!Array.isArray(args)) {
+    args = [args];
+  }
+
+  const [url, method = "GET"] = args;
+
   if (
     // Check if a preload link exists for the requested URL
     document.querySelector(`link[rel="preload"][as="fetch"][href="${url}"]`)
   ) {
     const res = await fetch(url, {
-      method: "GET",
+      method,
       credentials: "include",
       mode: "no-cors",
     });
@@ -23,7 +29,7 @@ const fetcher = async (url) => {
 
     return res.json();
   }
-  const res = await axios.get(url);
+  const res = await axios({ method, url });
   return res.data;
 };
 

@@ -4,6 +4,7 @@ import Card from "./Card";
 import style from "@agir/front/genericComponents/_variables.scss";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import React from "react";
+import { useDownloadBanner } from "../app/hooks";
 
 /**
  * Accessibility
@@ -219,4 +220,43 @@ export const useResponsiveMemo = (mobileValue, desktopValue, breakpoint) => {
   );
 
   return value;
+};
+
+export const ResponsiveSpan = styled(
+  ({ small, large, breakpoint, ...props }) => {
+    const value = useResponsiveMemo(small, large, breakpoint);
+    return <span {...props}>{value}</span>;
+  },
+)``;
+
+ResponsiveSpan.propTypes = {
+  small: PropTypes.string,
+  large: PropTypes.string,
+  breakpoint: PropTypes.number,
+};
+
+export const useStickyOffset = (extraOffset = 0) => {
+  const hasDownloadBanner = useDownloadBanner();
+  const stickyOffset = useResponsiveMemo(hasDownloadBanner ? 134 : 54, 72);
+
+  return stickyOffset + extraOffset;
+};
+
+const StickyDiv = styled.div.attrs((props) => ({
+  $offset:
+    typeof props.offset === "number" ? `${props.offset}px` : props.offset || 0,
+  $extra:
+    typeof props.extra === "number" ? `${props.extra}px` : props.extra || 0,
+}))`
+  position: sticky;
+  top: calc(${(props) => props.$offset} + ${(props) => props.$extra});
+`;
+
+export const Sticky = ({ extraOffset, ...rest }) => {
+  const stickyOffset = useStickyOffset();
+  return <StickyDiv offset={stickyOffset} extra={extraOffset} {...rest} />;
+};
+
+Sticky.propTypes = {
+  extraOffset: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 };

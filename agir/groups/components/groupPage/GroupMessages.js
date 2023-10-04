@@ -186,13 +186,10 @@ export const GroupMessages = (props) => {
                 color="white"
                 onClick={loadMoreMessages}
                 disabled={isLoading}
+                icon="chevron-down"
+                rightIcon
               >
-                Charger plus de messages&ensp;
-                <RawFeatherIcon
-                  name="chevron-down"
-                  width="1em"
-                  strokeWidth={3}
-                />
+                Charger plus de messages
               </Button>
             </StyledButton>
           ) : null}

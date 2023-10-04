@@ -1,8 +1,14 @@
+from django import forms
 from django.core import validators
 from django.core.exceptions import ValidationError
 from django.template.defaultfilters import filesizeformat
 from django.utils.deconstruct import deconstructible
-from django.utils.translation import gettext_lazy as _, ngettext_lazy
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext_lazy
+from django_countries import countries
+from rest_framework import serializers
+
+from agir.lib.iban import IBAN, BIC
 
 
 class ListValidatorMixin:
@@ -73,3 +79,77 @@ class FileSizeValidator:
                 code=self.code,
                 params={"max_size": filesizeformat(self.max_size)},
             )
+
+
+@deconstructible
+class AllowedCountriesValidator:
+    message = _(
+        "Seuls les comptes des pays suivants sont autorisés : {allowed_countries}."
+    )
+    code = "invalid_country"
+    validation_error_class = forms.ValidationError
+
+    def __init__(self, allowed_countries=None):
+        self.allowed_countries = allowed_countries
+
+    def __call__(self, value):
+        if self.allowed_countries and value.country not in self.allowed_countries:
+            message = self.message.format(
+                allowed_countries=", ".join(
+                    countries.name(code) or code for code in self.allowed_countries
+                )
+            )
+            raise self.validation_error_class(message, self.code)
+
+
+validate_allowed_countries = AllowedCountriesValidator()
+
+
+@deconstructible
+class IBANValidator:
+    message = _(
+        "Votre IBAN n'est pas au format correct. Un IBAN comprend entre 14 et 34 caractères (27 pour un compte français),"
+        " commence par deux lettres correspondant au code du pays de votre compte ('FR' pour la France) et se"
+        " présente généralement groupé par blocs de 4 caractères."
+    )
+    code = "invalid"
+    validation_error_class = forms.ValidationError
+
+    def __call__(self, iban):
+        if not isinstance(iban, IBAN):
+            iban = IBAN(iban)
+        if not iban.is_valid():
+            raise self.validation_error_class(self.message, self.code)
+
+
+validate_iban = IBANValidator()
+
+
+@deconstructible
+class BICValidator:
+    message = _(
+        "Votre BIC n'est pas au format correct. Le BIC comprend 8 ou 11 caractères et chiffres."
+    )
+    code = "invalid"
+    validation_error_class = forms.ValidationError
+
+    def __call__(self, bic):
+        if not isinstance(bic, BIC):
+            bic = BIC(bic)
+        if not bic.is_valid():
+            raise self.validation_error_class(self.message, self.code)
+
+
+validate_bic = BICValidator()
+
+
+class AllowedCountriesSerializerValidator(AllowedCountriesValidator):
+    validation_error_class = serializers.ValidationError
+
+
+class IBANSerializerValidator(IBANValidator):
+    validation_error_class = serializers.ValidationError
+
+
+class BICSerializerValidator(BICValidator):
+    validation_error_class = serializers.ValidationError

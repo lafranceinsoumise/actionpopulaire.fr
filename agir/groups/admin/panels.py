@@ -53,6 +53,7 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
                     "link",
                     "created",
                     "modified",
+                    "last_manager_login",
                     "action_buttons",
                     "promo_code",
                     "allocation",
@@ -137,6 +138,7 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
         "certification_criteria",
         "certification_actions",
         "export_buttons",
+        "last_manager_login",
     )
     date_hierarchy = "created"
 
@@ -166,6 +168,7 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
         "subtypes",
         "tags",
         filters.TooMuchMembersFilter,
+        filters.LastManagerLoginFilter,
     )
 
     search_fields = ("name", "description", "location_city")
@@ -269,6 +272,19 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
             return mark_safe("-")
 
     link.short_description = _("Page sur le site")
+
+    def last_manager_login(self, obj):
+        if not obj:
+            return "-"
+
+        last_login = obj.get_last_manager_login()
+
+        if last_login is None:
+            return "-"
+
+        return last_login.strftime("%d %B %Y à %H:%M")
+
+    last_manager_login.short_description = _("Dernière connexion d'un·e gestionnaire")
 
     @admin.display(description="Actions")
     def action_buttons(self, obj):
@@ -544,6 +560,14 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
 
     def save_form(self, request, form, change):
         return form.save(commit=False, request=request)
+
+    def save_related(self, request, form, formsets, change):
+        super().save_related(request, form, formsets, change)
+        if change and "type" in form.changed_data:
+            # Remove all subtypes that are not related to the new type
+            form.instance.subtypes.remove(
+                *form.instance.subtypes.exclude(type=form.instance.type)
+            )
 
     class Media:
         # classe Media requise par le CirconscriptionLegislativeFilter, quand bien même elle est vide

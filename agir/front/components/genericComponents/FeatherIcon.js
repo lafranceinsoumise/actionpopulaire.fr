@@ -22,7 +22,7 @@ export const RawFeatherIcon = styled.span
     ({ name, strokeWidth, color, strokeLinecap, strokeLinejoin, svgStyle }) => {
       const attrs = {
         name,
-        strokeWidth: strokeWidth,
+        "stroke-width": strokeWidth,
         "stroke-linecap": strokeLinecap,
         "stroke-linejoin": strokeLinejoin,
       };

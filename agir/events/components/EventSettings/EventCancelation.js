@@ -5,11 +5,11 @@ import useSWR from "swr";
 import * as api from "@agir/events/common/api";
 
 import Button from "@agir/front/genericComponents/Button";
-import Spacer from "@agir/front/genericComponents/Spacer.js";
+import Spacer from "@agir/front/genericComponents/Spacer";
 
-import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents.js";
-import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel.js";
-import { useToast } from "@agir/front/globalContext/hooks.js";
+import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
+import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
+import { useToast } from "@agir/front/globalContext/hooks";
 import { routeConfig } from "@agir/front/app/routes.config";
 import { useHistory } from "react-router-dom";
 

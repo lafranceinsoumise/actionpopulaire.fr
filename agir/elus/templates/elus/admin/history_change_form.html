@@ -20,8 +20,18 @@
         <div>
           {% for step in original.get_history %}
             <div class="request-history-step">
-              <h5>{{ step.title }}{% if step.user %}
-                <small>({{ step.user }})</small>{% endif %}</h5>
+              <h5>
+                {{ step.title }}
+                <small>(
+                {% if step.person %}
+                  <a href="{% url 'admin:people_person_change' step.person.pk %}">
+                    {{ step.person.display_name }}
+                  </a>
+                {% else %}
+                  Utilisateur·ice inconnu·e
+                {% endif %}
+                )</small>
+              </h5>
               <div><em>Le {{ step.modified }}</em></div>
               {% if step.comment %}
                 <blockquote>{{ step.comment }}</blockquote>

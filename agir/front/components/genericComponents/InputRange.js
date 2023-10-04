@@ -170,7 +170,7 @@ InputRange.propTypes = {
   minValue: PropTypes.number,
   maxValue: PropTypes.number,
   step: PropTypes.number,
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   disabled: PropTypes.bool,
 };
 

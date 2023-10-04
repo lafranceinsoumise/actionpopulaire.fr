@@ -256,13 +256,7 @@ export const PromoMessage = (props) => {
 
       <StyledContent>{items[itemIndex].content}</StyledContent>
 
-      <Button color="confirmed" onClick={handleClick} wrap>
-        <RawFeatherIcon
-          name="edit"
-          width="1.5rem"
-          height="1.5rem"
-          style={{ marginRight: "0.5rem" }}
-        />
+      <Button color="confirmed" onClick={handleClick} wrap icon="edit">
         {goToMessages ? "Voir l'onglet messages" : "Nouveau message de groupe"}
       </Button>
     </Container>

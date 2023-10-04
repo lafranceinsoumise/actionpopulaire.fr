@@ -6,9 +6,10 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.views.generic import DetailView
 
+from agir.donations.admin.actions import save_spending_request_admin_review
 from agir.donations.admin.forms import HandleRequestForm
 from agir.donations.models import SpendingRequest, Spending
-from agir.donations.spending_requests import admin_summary
+from agir.donations.spending_requests import admin_summary, get_revision_comment
 from agir.lib.admin.panels import AdminViewMixin
 
 
@@ -36,7 +37,7 @@ class HandleRequestView(AdminViewMixin, DetailView):
         return super().get_context_data(
             title="Résumé des événements",
             spending_request=self.object,
-            documents=self.object.documents.all(),
+            documents=self.object.documents.filter(deleted=False),
             fields=admin_summary(self.object),
             history=self.object.get_history(admin=True),
             **self.get_admin_helpers(kwargs["form"], kwargs["form"].fields),
@@ -48,23 +49,11 @@ class HandleRequestView(AdminViewMixin, DetailView):
         form = self.get_form()
 
         if form.is_valid():
-            with reversion.create_revision():
-                reversion.set_comment(form.cleaned_data["comment"])
-                self.object.status = form.cleaned_data["status"]
-
-                if self.object.status == SpendingRequest.STATUS_VALIDATED:
-                    try:
-                        with transaction.atomic():
-                            self.object.operation = Spending.objects.create(
-                                group=self.object.group, amount=-self.object.amount
-                            )
-
-                    except IntegrityError as e:
-                        pass
-                    else:
-                        self.object.status = SpendingRequest.STATUS_TO_PAY
-
-                self.object.save()
+            to_status = form.cleaned_data["status"]
+            comment = form.cleaned_data.get("comment", None)
+            save_spending_request_admin_review(
+                self.object, to_status=to_status, comment=comment
+            )
 
             return HttpResponseRedirect(
                 reverse("admin:donations_spendingrequest_changelist")

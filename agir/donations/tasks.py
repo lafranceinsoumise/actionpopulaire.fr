@@ -18,6 +18,9 @@ from agir.people.models import Person
 from agir.system_pay.models import SystemPaySubscription
 
 
+# DONATIONS
+
+
 @emailing_task(post_save=True)
 def send_donation_email(person_pk, payment_type):
     person = Person.objects.prefetch_related("emails").get(pk=person_pk)
@@ -53,30 +56,6 @@ def send_donation_email(person_pk, payment_type):
             bindings={"PROFILE_LINK": front_url("personal_information")},
             recipients=[person],
         )
-
-
-@emailing_task(post_save=True)
-def send_spending_request_to_review_email(spending_request_pk):
-    spending_request = SpendingRequest.objects.prefetch_related("group").get(
-        pk=spending_request_pk
-    )
-
-    send_mosaico_email(
-        code="SPENDING_REQUEST_TO_REVIEW_NOTIFICATION",
-        subject="Nouvelle demande de dépense ou de remboursement",
-        from_email=settings.EMAIL_FROM,
-        bindings={
-            "SPENDING_REQUEST_NAME": spending_request.title,
-            "GROUP_NAME": spending_request.group.name,
-            "SPENDING_REQUEST_ADMIN_LINK": urljoin(
-                settings.API_DOMAIN,
-                reverse(
-                    "admin:donations_spendingrequest_review", args=[spending_request_pk]
-                ),
-            ),
-        },
-        recipients=[settings.EMAIL_EQUIPE_FINANCE],
-    )
 
 
 @emailing_task()
@@ -153,4 +132,70 @@ def send_expiration_sms_reminder(sp_subscription_pk):
         f"mettez là à jour : {url}\n"
         f"Merci encore de votre soutien !",
         recipient.contact_phone,
+    )
+
+
+# SPENDING REQUESTS
+SPENDING_REQUEST_NOTIFICATION_TEMPLATES = {
+    SpendingRequest.Status.AWAITING_PEER_REVIEW: "spending_requests/email/group_awaiting_peer_review_notification.html",
+    SpendingRequest.Status.AWAITING_ADMIN_REVIEW: {
+        SpendingRequest.Status.AWAITING_PEER_REVIEW: "spending_requests/email/group_awaiting_admin_review_notification.html"
+    },
+    SpendingRequest.Status.AWAITING_SUPPLEMENTARY_INFORMATION: "spending_requests/email/group_awaiting_supplementary_information_notification.html",
+    SpendingRequest.Status.TO_PAY: "spending_requests/email/group_to_pay_notification.html",
+    SpendingRequest.Status.PAID: "spending_requests/email/group_paid_notification.html",
+    SpendingRequest.Status.REFUSED: "spending_requests/email/group_refused_notification.html",
+}
+
+
+@emailing_task(post_save=True)
+def spending_request_notify_admin(
+    spending_request_pk, to_status=None, from_status=None, person_pk=None
+):
+    spending_request = SpendingRequest.objects.select_related("group").get(
+        pk=spending_request_pk
+    )
+
+    send_template_email(
+        template_name="spending_requests/email/admin_notification.html",
+        recipients=[settings.EMAIL_EQUIPE_FINANCE],
+        bindings={
+            "spending_request": spending_request,
+            "person": person_pk and Person.objects.filter(pk=person_pk).first(),
+            "from_status": from_status and SpendingRequest.Status(from_status),
+        },
+    )
+
+
+@emailing_task(post_save=True)
+def spending_request_notify_group_managers(
+    spending_request_pk, to_status=None, from_status=None, person_pk=None, comment=""
+):
+    spending_request = SpendingRequest.objects.select_related("group").get(
+        pk=spending_request_pk
+    )
+
+    to_status = to_status or spending_request.status
+    template_name = SPENDING_REQUEST_NOTIFICATION_TEMPLATES.get(to_status, None)
+
+    if isinstance(template_name, dict):
+        template_name = from_status and template_name.get(from_status, None)
+
+    if not template_name:
+        return
+
+    send_template_email(
+        template_name=template_name,
+        recipients=spending_request.group.finance_managers,
+        bindings={
+            "spending_request": spending_request,
+            "person": person_pk and Person.objects.filter(pk=person_pk).first(),
+            "from_status": from_status and SpendingRequest.Status(from_status),
+            "comment": comment,
+            "group_finance_management_url": front_url(
+                "view_group_settings_finance",
+                kwargs={"pk": spending_request.group.pk},
+                absolute=True,
+            ),
+        },
     )

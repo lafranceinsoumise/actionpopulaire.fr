@@ -27,6 +27,7 @@ const PaymentTimingWidget = (props) => {
     <div style={{ display: "flex", marginTop: "2rem" }}>
       <Button
         type="button"
+        icon={value === MONTHLY_PAYMENT ? "check" : undefined}
         as={value === MONTHLY_PAYMENT ? SelectedButton : Button}
         disabled={disabled}
         onClick={() => onChange(MONTHLY_PAYMENT)}
@@ -36,11 +37,11 @@ const PaymentTimingWidget = (props) => {
           borderBottomRightRadius: 0,
         }}
       >
-        {value === MONTHLY_PAYMENT ? <RawFeatherIcon name="check" /> : null}
         Tous les mois
       </Button>
       <Button
         type="button"
+        icon={value === SINGLE_TIME_PAYMENT ? "check" : undefined}
         as={value === SINGLE_TIME_PAYMENT ? SelectedButton : Button}
         disabled={disabled}
         onClick={() => onChange(SINGLE_TIME_PAYMENT)}
@@ -50,7 +51,6 @@ const PaymentTimingWidget = (props) => {
           borderBottomLeftRadius: 0,
         }}
       >
-        {value === SINGLE_TIME_PAYMENT ? <RawFeatherIcon name="check" /> : null}
         Une seule fois
       </Button>
     </div>
@@ -59,7 +59,7 @@ const PaymentTimingWidget = (props) => {
 
 PaymentTimingWidget.propTypes = {
   value: PropTypes.oneOf([MONTHLY_PAYMENT, SINGLE_TIME_PAYMENT]),
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   disabled: PropTypes.bool,
   allowedPaymentTimings: PropTypes.arrayOf(
     PropTypes.oneOf([MONTHLY_PAYMENT, SINGLE_TIME_PAYMENT]),

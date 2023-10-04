@@ -1,6 +1,5 @@
 import re
 
-from agir.lib import form_fields
 from django import forms
 from django.contrib.postgres.fields import ArrayField
 from django.core import checks, exceptions
@@ -9,13 +8,13 @@ from django.db import models
 from django.utils.itercompat import is_iterable
 from django.utils.translation import gettext_lazy as _
 
-from agir.donations.validators import validate_iban
 from agir.lib.form_fields import IBANField as FormIBANField
-from agir.lib.iban import to_iban, IBAN
+from agir.lib.iban import to_iban, IBAN, BIC_REGEX, to_bic, BIC
 from agir.lib.utils import (
     validate_facebook_event_url,
     INVALID_FACEBOOK_EVENT_LINK_MESSAGE,
 )
+from agir.lib.validators import validate_iban
 
 
 class IBANFieldDescriptor:
@@ -105,28 +104,40 @@ class IBANField(models.Field):
 
 
 class BICField(models.CharField):
-    BIC_RE = re.compile(
-        r"^(?P<banque>[A-Z]{4})(?P<pays>[A-Z]{2})(?P<localisation>[A-Z0-9]{2})(?P<filiale>[A-Z0-9]{3})?"
-    )
     message = "Indiquez un BIC correct (8 ou 11 caractères et chiffres)."
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, max_length=11, **kwargs)
         self.validators.append(
             RegexValidator(
-                regex=self.BIC_RE,
+                regex=BIC_REGEX,
                 message=self.message,
             )
         )
 
+    def get_internal_type(self):
+        return "CharField"
+
+    def to_python(self, value):
+        return to_bic(value)
+
+    def get_prep_value(self, value):
+        value = super().get_prep_value(value)
+        value = self.to_python(value)
+
+        if isinstance(value, BIC):
+            return value.as_stored_value
+
+        return value
+
     def deconstruct(self):
         *res, keywords = super().deconstruct()
         del keywords["max_length"]
-        return (*res, keywords)
+        return *res, keywords
 
     def formfield(self, **kwargs):
         kwargs["validators"] = (
-            RegexValidator(regex=self.BIC_RE, message=self.message),
+            RegexValidator(regex=BIC_REGEX, message=self.message),
             *kwargs.get("validators", ()),
         )
         return super().formfield(**kwargs)

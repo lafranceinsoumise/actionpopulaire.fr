@@ -144,6 +144,11 @@ def rsvp_to_free_event(event, person, form_submission=None):
         pass
 
 
+def cancel_rsvp(rsvp):
+    rsvp.status = RSVP.STATUS_CANCELED
+    rsvp.save()
+
+
 def rsvp_to_paid_event_and_create_payment(
     event, person, payment_mode, form_submission=None
 ):
@@ -232,8 +237,8 @@ def cancel_payment_for_rsvp(payment):
     except RSVP.DoesNotExist:
         return
 
-    rsvp.status = RSVP.STATUS_CANCELED
-    rsvp.save()
+    cancel_rsvp(rsvp)
+
     return rsvp
 
 

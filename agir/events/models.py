@@ -17,8 +17,8 @@ from django.contrib.postgres.search import SearchVector, SearchRank
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models, transaction
-from django.db.models import Case, Sum, Count, When, CharField, F, Q, OuterRef, Subquery
 from django.db.models import JSONField, Prefetch
+from django.db.models import Sum, Count, Q, OuterRef, Subquery
 from django.db.models.functions import Coalesce
 from django.template.defaultfilters import floatformat
 from django.utils import formats, timezone
@@ -109,6 +109,19 @@ class EventQuerySet(models.QuerySet):
             )
         )
 
+    def organized_by_person(self, person):
+        person_group_ids = (
+            Membership.objects.active()
+            .referents()
+            .filter(person=person)
+            .values_list("supportgroup_id", flat=True)
+        )
+
+        return self.filter(
+            Q(organizer_configs__person=person)
+            | Q(organizer_configs__as_group_id__in=person_group_ids)
+        )
+
     def with_person_organizer_configs(self, person):
         return self.prefetch_related(
             Prefetch(
@@ -146,7 +159,7 @@ class EventQuerySet(models.QuerySet):
         return self.prefetch_related(
             Prefetch(
                 "rsvps",
-                queryset=RSVP.objects.filter(person=person),
+                queryset=RSVP.objects.filter(person=person).order_by("-created"),
                 to_attr="_pf_person_rsvps",
             )
         )
@@ -272,6 +285,9 @@ class EventQuerySet(models.QuerySet):
 
 
 class RSVPQuerySet(models.QuerySet):
+    def confirmed(self):
+        return self.filter(status=RSVP.STATUS_CONFIRMED)
+
     def upcoming(self, as_of=None, published_only=True):
         if as_of is None:
             as_of = timezone.now()
@@ -711,6 +727,10 @@ class Event(
             self._get_participants_counts()
 
         return self.confirmed_attendee_count
+
+    @property
+    def confirmed_attendees(self):
+        return self.attendees.filter(rsvps__in=self.rsvps.confirmed())
 
     def get_organizer_people(self):
         organizer_people = sum(

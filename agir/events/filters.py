@@ -52,6 +52,10 @@ class EventFilter(django_filters.rest_framework.FilterSet):
         label="Date", method="filter_by_date", widget=forms.DateInput
     )
 
+    group = django_filters.UUIDFilter(
+        method="filter_group", label="Groupe organisateur"
+    )
+
     def __init__(self, data=None, *args, **kwargs):
         if data is not None:
             data = data.copy()
@@ -77,6 +81,11 @@ class EventFilter(django_filters.rest_framework.FilterSet):
     def filter_search(self, qs, name, terms):
         if terms:
             return qs.search(terms)
+        return qs
+
+    def filter_group(self, qs, name, group):
+        if group:
+            return qs.filter(organizers_groups__id=group)
         return qs
 
     class Meta:

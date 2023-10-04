@@ -1,21 +1,85 @@
-{% extends "admin/change_form.html" %}{% load crispy_forms_tags i18n admin_modify static %}
+{% extends "admin/change_form.html" %}
+{% load crispy_forms_tags i18n admin_urls static admin_modify %}
+
+{% if not is_popup %}
+  {% block breadcrumbs %}
+    <div class="breadcrumbs">
+      <a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+      &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+      &rsaquo; {% if has_view_permission %}
+      <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>{% else %}
+      {{ opts.verbose_name_plural|capfirst }}{% endif %}
+      &rsaquo; {% if has_change_permission %}<a
+      href="{% url opts|admin_urlname:'change' spending_request.id|admin_urlquote %}">{{ spending_request.id }}</a>{% else %}
+      {{ spending_request.id }}{% endif %}
+      &rsaquo; {% blocktrans %}Traiter la demande{% endblocktrans %}
+    </div>
+  {% endblock %}
+{% endif %}
 
 {% block extrastyle %}
   {{ block.super }}
   <style>
-    .request-history h2 {
+    #content-flex {
+      display: flex;
+      flex-flow: row wrap;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    #content-main {
+      flex: 1 2 720px;
+    }
+
+    #content-related {
+      flex: 1 1 240px;
+      position: sticky;
+      top: 1rem;
+    }
+
+    .request-history {
+      background: linear-gradient(
+        to right,
+        white calc(1.25rem - 1px),
+        var(--selected-bg) calc(1.25rem - 0.5px),
+        var(--selected-bg) calc(1.25rem + 0.5px),
+        white calc(1.25rem + 1px),
+        white 100%
+      );
+      display: flex;
+      flex-flow: column nowrap;
+      gap: 1rem;
+    }
+
+    #content-related .request-history h2,
+    #content-related .request-history-step {
       margin: 0;
-      padding: 5px 10px 5px;
-      border-bottom: 5px solid white;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      background-color: var(--darkened-bg);
+      border: 1px solid var(--selected-bg);
+      display: flex;
+      flex-flow: column nowrap;
+      gap: 0.5rem;
     }
 
-    .request-history h5 {
-      margin: 0 auto 5px;
+    #content-related .request-history-step > * {
+      margin: 0;
     }
 
-    .request-history-step {
-      padding: 5px 10px 5px;
-      border-top: 5px solid white;
+    #content-related .request-history-step {
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+
+    #content-related .request-history-step h5 {
+      font-size: 0.75rem;
+      color: var(--body-quiet-color);
+      letter-spacing: 0;
+    }
+
+    #content-related .request-history-step p {
+      padding: 0;
     }
 
   </style>
@@ -24,97 +88,109 @@
 {% block coltype %}colMS{% endblock %}
 
 {% block content_title %}
-  <h1>Traiter la requête {{ request_id }}</h1>
+  <h1>Traiter la requête {{ spending_request.id }}</h1>
 {% endblock %}
 
 {% block content %}
-  <div id="content-main">
+  <div id="content-flex">
+    <div id="content-main">
+      <fieldset class="module aligned">
+        <h2>DÉTAILS DE LA DEMANDE</h2>
+        {% for field in fields %}
+          <div class="form-row">
+            <label>{{ field.label }}</label>
+            <div class="readonly">{{ field.value }}</div>
+          </div>
+        {% endfor %}
+      </fieldset>
 
-    <fieldset class="module aligned">
-      <h2>Informations de la demande</h2>
-      {% for field in fields %}
-        <div class="form-row">
-          <label>{{ field.label }}</label>
-          <div class="readonly">{{ field.value }}</div>
-        </div>
-      {% endfor %}
-    </fieldset>
-
-    <div class="tabular inline-related">
-      <fieldset class="module">
-        <h2>Documents justificatifs</h2>
-        <table>
-          <thead>
-          <tr>
-            <th>Titre</th>
-            <th>Type</th>
-            <th>Voir le document</th>
-          </tr>
-          </thead>
-          <tbody>
-          {% for document in documents %}
-            <tr class="form-row row{% cycle "1" "2" %}">
-              <td>{{ document.title }}</td>
-              <td>{{ document.get_type_display }}</td>
-              <td><a href="{{ document.file.url }}">Voir le document</a></td>
+      <div class="tabular inline-related module aligned">
+        <fieldset class="module">
+          <h2>PIÈCES JUSTIFICATIVES</h2>
+          <table>
+            <thead>
+            <tr>
+              <th>Titre</th>
+              <th>Type</th>
+              <th>Voir le document</th>
             </tr>
+            </thead>
+            <tbody>
+            {% for document in documents %}
+              <tr class="form-row row{% cycle "1" "2" %}">
+                <td>{{ document.title }}</td>
+                <td>{{ document.get_type_display }}</td>
+                <td><a download href="{{ document.file.url }}">Voir le document</a></td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+
+        </fieldset>
+      </div>
+
+      <fieldset class="module aligned">
+        <h2>TRAITEMENT DE LA DEMANDE</h2>
+        <form method="post" id="export_summary_form" novalidate>{% csrf_token %}
+
+          {% if errors %}
+            <p class="errornote">
+              {% if errors|length == 1 %}{% trans "Please correct the error below." %}{% else %}
+                {% trans "Please correct the errors below." %}{% endif %}
+            </p>
+            {{ adminform.form.non_field_errors }}
+          {% endif %}
+
+          {% for fieldset in adminform %}
+            {% include "admin/includes/fieldset.html" %}
           {% endfor %}
-          </tbody>
-        </table>
+
+          <input type="submit" value="Valider">
+
+          {% block admin_change_form_document_ready %}
+            <script type="text/javascript" id="django-admin-form-add-constants"
+                    src="{% static 'admin/js/change_form.js' %}"
+              {% if adminform and add %}
+                    data-model-name="{{ opts.model_name }}"
+              {% endif %}></script>
+          {% endblock %}
+
+          {# JavaScript for prepopulated fields #} {% prepopulated_fields_js %}
+
+        </form>
       </fieldset>
     </div>
-
-    <form method="post" id="export_summary_form" novalidate>{% csrf_token %}
-
-      {% if errors %}
-        <p class="errornote">
-          {% if errors|length == 1 %}{% trans "Please correct the error below." %}{% else %}
-            {% trans "Please correct the errors below." %}{% endif %}
-        </p>
-        {{ adminform.form.non_field_errors }}
-      {% endif %}
-
-      {% for fieldset in adminform %}
-        {% include "admin/includes/fieldset.html" %}
-      {% endfor %}
-
-      <input type="submit" value="Valider">
-
-      {% block admin_change_form_document_ready %}
-        <script type="text/javascript" id="django-admin-form-add-constants"
-                src="{% static 'admin/js/change_form.js' %}"
-          {% if adminform and add %}
-                data-model-name="{{ opts.model_name }}"
-          {% endif %}></script>
-      {% endblock %}
-
-      {# JavaScript for prepopulated fields #} {% prepopulated_fields_js %}
-
-    </form>
-  </div>
-  <div id="content-related">
-    <div class="request-history">
-      <h2>Historique de la demande</h2>
-      {% for step in history %}
-        <div class="request-history-step">
-          <h5>{{ step.title }}{% if step.user %}
-            <small>({{ step.user }})</small>{% endif %}</h5>
-          <div><em>Le {{ step.modified }}</em></div>
-          {% if step.comment %}
-            <blockquote>{{ step.comment }}</blockquote>
-          {% endif %}
-          {% if step.diff %}
-            <div>
-              Ont été modifiés :
-              <ul>
-                {% for field in step.diff %}
-                  <li>{{ field }}</li>
-                {% endfor %}
-              </ul>
-            </div>
-          {% endif %}
-        </div>
-      {% endfor %}
+    <div id="content-related">
+      <div class="request-history">
+        <h2>📖&ensp;Historique de la demande</h2>
+        {% for step in history %}
+          <div class="request-history-step">
+            <h5>
+              {{ step.title }}
+              <small>(
+                {% if step.person and step.person.pk %}
+                  <a href="{% url 'admin:people_person_change' step.person.pk %}">
+                    {{ step.person.display_name }}
+                  </a>
+                {% elif step.person %}
+                  {{ step.person }}
+                {% else %}
+                  Utilisateur·ice inconnu·e
+                {% endif %}
+                )</small>
+            </h5>
+            <p>🗓️&ensp;le {{ step.modified }}</p>
+            {% if step.diff %}
+              <p>
+                🖋️&ensp;Ont été modifiés : <strong>{{ step.diff|join:", " }}</strong>
+              </p>
+            {% endif %}
+            {% if step.comment %}
+              <p>💬&ensp;<em>{{ step.comment }}</em></p>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
     </div>
   </div>
 {% endblock %}

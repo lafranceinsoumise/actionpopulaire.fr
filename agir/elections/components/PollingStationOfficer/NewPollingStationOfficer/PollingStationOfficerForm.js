@@ -57,8 +57,8 @@ export const getFieldStepFromErrors = (errors) =>
       stepFields.some((field) =>
         Array.isArray(field)
           ? field.some((subfield) => typeof errors[subfield] !== "undefined")
-          : typeof errors[field] !== "undefined"
-      )
+          : typeof errors[field] !== "undefined",
+      ),
   );
 
 const PollingStationOfficerForm = (props) => {
@@ -163,7 +163,7 @@ const PollingStationOfficerForm = (props) => {
         votingCirconscriptionLegislative,
       }));
     },
-    []
+    [],
   );
 
   const handleChangeRole = useCallback((role) => {
@@ -199,7 +199,7 @@ const PollingStationOfficerForm = (props) => {
         availableVotingDates,
       }));
     },
-    []
+    [],
   );
 
   const handleChangeDataAgreement = (e) => {

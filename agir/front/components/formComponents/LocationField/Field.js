@@ -76,17 +76,17 @@ const LocationField = (props) => {
         onChange(
           props.name,
           e.target.name,
-          e.target.value.replace(/^\s+/g, "")
+          e.target.value.replace(/^\s+/g, ""),
         );
     },
-    [props.name, onChange]
+    [props.name, onChange],
   );
 
   const handleChangeCountry = useCallback(
     (country) => {
       onChange && onChange(props.name, "country", country);
     },
-    [props.name, onChange]
+    [props.name, onChange],
   );
 
   const displayAddress2 = useCallback(() => {
@@ -176,7 +176,7 @@ const LocationField = (props) => {
   );
 };
 LocationField.propTypes = {
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   value: PropTypes.string,
   name: PropTypes.string.isRequired,
   location: PropTypes.shape({

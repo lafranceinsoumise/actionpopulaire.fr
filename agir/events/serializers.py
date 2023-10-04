@@ -256,9 +256,11 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
                     else None
                 )
             if not hasattr(instance, "_pf_person_rsvps"):
-                self.rsvp = RSVP.objects.filter(
-                    event=instance, person=self.person
-                ).first()
+                self.rsvp = (
+                    RSVP.objects.filter(event=instance, person=self.person)
+                    .order_by("-created")
+                    .first()
+                )
             else:
                 self.rsvp = (
                     instance._pf_person_rsvps[0]
@@ -494,7 +496,7 @@ class EventAdvancedSerializer(EventSerializer):
                 "isOrganizer": False,
                 "isEventSpeaker": person.id in speaker_person_ids,
             }
-            for person in obj.attendees.exclude(id__in=organizers.keys())
+            for person in obj.confirmed_attendees.exclude(id__in=organizers.keys())
         }
 
         participants = {
@@ -997,7 +999,7 @@ class UpdateEventSerializer(serializers.ModelSerializer):
             geocode_event.delay(event.pk)
 
         # Notify participants if important data changed
-        for r in event.attendees.all():
+        for r in event.confirmed_attendees:
             activity = Activity.objects.filter(
                 type=Activity.TYPE_EVENT_UPDATE,
                 recipient=r,
