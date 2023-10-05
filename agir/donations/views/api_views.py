@@ -2,6 +2,7 @@ import json
 
 import reversion
 from django.db import transaction
+from django.http import Http404
 from django.urls import reverse
 from nested_multipart_parser.drf import DrfNestedParser
 from rest_framework.generics import (
@@ -9,17 +10,21 @@ from rest_framework.generics import (
     RetrieveUpdateDestroyAPIView,
     CreateAPIView,
     RetrieveAPIView,
+    get_object_or_404,
 )
 from rest_framework.mixins import UpdateModelMixin
 from rest_framework.parsers import JSONParser, FormParser, MultiPartParser
 from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
 
+from agir.donations.actions import get_active_contribution_for_person
 from agir.donations.models import SpendingRequest, Document
 from agir.donations.serializers import (
     DonationSerializer,
     MONTHLY,
     SpendingRequestSerializer,
     SpendingRequestDocumentSerializer,
+    ContributionSerializer,
 )
 from agir.donations.spending_requests import (
     validate_action,
@@ -30,6 +35,7 @@ from agir.donations.views import DONATION_SESSION_NAMESPACE
 from agir.lib.rest_framework_permissions import (
     IsActionPopulaireClientPermission,
     GlobalOrObjectPermissions,
+    IsPersonPermission,
 )
 from agir.payments.actions.payments import create_payment
 from agir.payments.actions.subscriptions import create_subscription
@@ -151,6 +157,31 @@ class CreateDonationAPIView(UpdateModelMixin, GenericAPIView):
         return self.make_payment()
 
 
+class ActiveSubscriptionRetrievePermissions(GlobalOrObjectPermissions):
+    perms_map = {"GET": []}
+    object_perms_map = {"GET": ["donations.view_active_contribution"]}
+
+
+class ActiveSubscriptionRetrieveAPIView(RetrieveAPIView):
+    serializer_class = ContributionSerializer
+    queryset = Subscription.objects.contributions().active()
+    permission_classes = (
+        IsPersonPermission,
+        ActiveSubscriptionRetrievePermissions,
+    )
+
+    def get_object(self):
+        person = self.request.user.person
+        obj = get_active_contribution_for_person(person)
+
+        if obj is None:
+            raise Http404
+
+        self.check_object_permissions(self.request, obj)
+
+        return obj
+
+
 class SpendingRequestCreatePermissions(GlobalOrObjectPermissions):
     perms_map = {
         "OPTIONS": [],
@@ -165,7 +196,7 @@ class SpendingRequestCreatePermissions(GlobalOrObjectPermissions):
 class SpendingRequestCreateAPIView(CreateAPIView):
     parser_classes = (JSONParser, DrfNestedParser)
     permission_classes = (
-        IsActionPopulaireClientPermission,
+        IsPersonPermission,
         SpendingRequestCreatePermissions,
     )
     serializer_class = SpendingRequestSerializer
@@ -208,7 +239,7 @@ class SpendingRequestRetrieveUpdateDestroyPermissions(GlobalOrObjectPermissions)
 class SpendingRequestRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     parser_classes = (JSONParser, DrfNestedParser)
     permission_classes = (
-        IsActionPopulaireClientPermission,
+        IsPersonPermission,
         SpendingRequestRetrieveUpdateDestroyPermissions,
     )
     serializer_class = SpendingRequestSerializer
@@ -230,7 +261,7 @@ class SpendingRequestDocumentCreatePermissions(
 
 class SpendingRequestDocumentCreateAPIView(CreateAPIView):
     permission_classes = (
-        IsActionPopulaireClientPermission,
+        IsPersonPermission,
         SpendingRequestDocumentCreatePermissions,
     )
     serializer_class = SpendingRequestDocumentSerializer
@@ -259,7 +290,7 @@ class SpendingRequestDocumentRetrieveUpdateDestroyPermissions(
 
 class SpendingRequestDocumentRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     permission_classes = (
-        IsActionPopulaireClientPermission,
+        IsPersonPermission,
         SpendingRequestDocumentRetrieveUpdateDestroyPermissions,
     )
     serializer_class = SpendingRequestDocumentSerializer
@@ -287,7 +318,7 @@ class SpendingRequestApplyNextStatusPermissions(GlobalOrObjectPermissions):
 
 class SpendingRequestApplyNextStatusAPIView(RetrieveAPIView):
     permission_classes = (
-        IsActionPopulaireClientPermission,
+        IsPersonPermission,
         SpendingRequestApplyNextStatusPermissions,
     )
     serializer_class = SpendingRequestSerializer

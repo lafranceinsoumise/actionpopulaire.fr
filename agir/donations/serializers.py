@@ -11,7 +11,10 @@ from agir.donations.actions import (
     can_make_contribution,
     get_end_date_from_datetime,
     monthly_to_single_time_contribution,
+    is_renawable_contribution,
+    get_contribution_end_date,
 )
+from agir.donations.allocations import get_allocation_list
 from agir.donations.apps import DonsConfig
 from agir.donations.models import AllocationModelMixin, SpendingRequest, Document
 from agir.donations.spending_requests import (
@@ -35,8 +38,8 @@ from agir.lib.serializers import (
 )
 from agir.lib.serializers import PhoneField
 from agir.payments import payment_modes
+from agir.payments.models import Subscription
 from agir.people.models import Person
-from agir.people.serializers import PersonSerializer
 
 SINGLE_TIME = "S"
 MONTHLY = "M"
@@ -262,6 +265,91 @@ class DonationSerializer(serializers.ModelSerializer):
             "paymentMode",
             "paymentTiming",
             "allocations",
+        )
+
+
+class ContributionSerializer(serializers.ModelSerializer):
+    amount = serializers.IntegerField(source="price")
+    to = serializers.ReadOnlyField(default=DonsConfig.CONTRIBUTION_TYPE)
+    paymentMode = serializers.CharField(max_length=20, source="mode")
+    paymentTiming = serializers.SerializerMethodField(method_name="get_payment_timing")
+    allocations = serializers.SerializerMethodField()
+    endDate = serializers.SerializerMethodField(method_name="get_end_date")
+    renewable = serializers.SerializerMethodField(method_name="is_renewable")
+
+    email = serializers.SerializerMethodField()
+    firstName = serializers.CharField(source="meta.first_name")
+    lastName = serializers.CharField(source="meta.last_name")
+    gender = serializers.CharField(source="meta.gender")
+    locationAddress1 = serializers.CharField(source="meta.location_address1")
+    locationAddress2 = serializers.CharField(source="meta.location_address2")
+    locationCity = serializers.CharField(source="meta.location_city")
+    locationZip = serializers.CharField(source="meta.location_zip")
+    locationCountry = serializers.CharField(source="meta.location_country")
+    contactPhone = PhoneField(source="meta.contact_phone")
+    nationality = serializers.CharField(source="meta.nationality")
+
+    def get_payment_timing(self, obj):
+        return MONTHLY if isinstance(obj, Subscription) else SINGLE_TIME
+
+    def get_allocations(self, obj):
+        allocation_list = get_allocation_list(
+            obj.meta.get("allocations", []), with_labels=True
+        )
+
+        for allocation in allocation_list:
+            if isinstance(allocation.get("group"), SupportGroup):
+                allocation["group"] = SupportGroupSerializer(
+                    allocation["group"],
+                    fields=("id", "name", "isActive", "isCertified"),
+                    context=self.context,
+                ).data
+
+            if allocation.get("departement", None):
+                allocation["departement"] = {
+                    "id": dict(
+                        [departement[::-1] for departement in departements_choices]
+                    ).get(allocation["departement"]),
+                    "name": allocation["departement"],
+                }
+
+        return allocation_list
+
+    def get_end_date(self, obj):
+        return get_contribution_end_date(obj)
+
+    def is_renewable(self, obj):
+        return is_renawable_contribution(obj)
+
+    def get_email(self, obj):
+        if hasattr(obj, "email"):
+            return obj.email
+
+        return obj.person.email
+
+    class Meta:
+        model = Subscription
+        fields = read_only_fields = (
+            "id",
+            "created",
+            "amount",
+            "to",
+            "paymentMode",
+            "paymentTiming",
+            "endDate",
+            "allocations",
+            "renewable",
+            "email",
+            "firstName",
+            "lastName",
+            "gender",
+            "locationAddress1",
+            "locationAddress2",
+            "locationCity",
+            "locationZip",
+            "locationCountry",
+            "contactPhone",
+            "nationality",
         )
 
 

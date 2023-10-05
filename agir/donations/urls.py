@@ -49,6 +49,11 @@ api_urlpatterns = [
         name="api_donation_create",
     ),
     path(
+        "dons/ma-contribution/",
+        views.ActiveSubscriptionRetrieveAPIView.as_view(),
+        name="api_active_contribution_retrieve",
+    ),
+    path(
         "financement/demande/",
         views.SpendingRequestCreateAPIView.as_view(),
         name="api_spending_request_create",

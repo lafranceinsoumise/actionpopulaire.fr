@@ -1,4 +1,9 @@
+import datetime
+from time import strptime
+
 import pandas as pd
+from dateutil.relativedelta import relativedelta
+from django.conf import settings
 from django.utils import timezone
 
 from agir.payments.models import Subscription, Payment
@@ -39,9 +44,46 @@ def monthly_to_single_time_contribution(data):
     return data
 
 
-def can_make_contribution(email=None, person=None):
-    from agir.donations.apps import DonsConfig
+def get_active_contribution_for_person(person=None):
+    return (
+        # Monthly contribution
+        Subscription.objects.active_contributions().filter(person=person).first()
+        or
+        # Single-time contribution
+        Payment.objects.active_contribution()
+        .filter(email__in=person.emails.values_list("address", flat=True))
+        .first()
+    )
 
+
+def get_contribution_end_date(contribution):
+    end_date = None
+
+    if isinstance(contribution, Subscription):
+        end_date = contribution.end_date
+
+    if isinstance(contribution, Payment):
+        end_date = contribution.meta.get("end_date", None)
+        end_date = end_date and datetime.datetime.strptime(end_date, "%Y-%m-%d").date()
+
+    return end_date
+
+
+def is_renawable_contribution(contribution):
+    renewal_start = (
+        timezone.now()
+        + relativedelta(months=settings.CONTRIBUTION_MONTHS_BEFORE_END_RENEWAL_START)
+    ).date()
+
+    end_date = get_contribution_end_date(contribution)
+
+    if not end_date:
+        return False
+
+    return end_date <= renewal_start
+
+
+def can_make_contribution(email=None, person=None):
     if not email and not person:
         return False
 
@@ -51,24 +93,6 @@ def can_make_contribution(email=None, person=None):
         except Person.DoesNotExist:
             return True
 
-    if Subscription.objects.filter(
-        status=Subscription.STATUS_ACTIVE,
-        type=DonsConfig.CONTRIBUTION_TYPE,
-        person=person,
-    ).exists():
-        return False
+    active_contribution = get_active_contribution_for_person(person)
 
-    if (
-        Payment.objects.exclude(meta__end_date__isnull=True)
-        .filter(
-            status=Payment.STATUS_COMPLETED,
-            type=DonsConfig.CONTRIBUTION_TYPE,
-            email__in=person.emails.values_list("address", flat=True),
-            # TODO: handle renewals from september on (this condition will prevent them)
-            meta__end_date__gte=timezone.now().isoformat(),
-        )
-        .exists()
-    ):
-        return False
-
-    return True
+    return active_contribution is None or is_renawable_contribution(active_contribution)
