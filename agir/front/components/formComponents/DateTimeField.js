@@ -1,6 +1,12 @@
 import moment from "moment";
 import PropTypes from "prop-types";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import Datetime from "react-datetime";
 import styled from "styled-components";
 
@@ -157,8 +163,13 @@ const DateTimeField = (props) => {
     ...rest
   } = props;
   const parsedValue = useMemo(() => parseDatetime(value), [value]);
+
   const [time, setTime] = useState(parsedValue.time);
   const [date, setDate] = useState(parsedValue.date);
+  const [cursorPosition, setCursorPosition] = useState(0);
+
+  const dateInputElement = useRef(null);
+  const timeInputElement = useRef(null);
 
   const handleChangeDate = useCallback(
     (value) => {
@@ -180,6 +191,10 @@ const DateTimeField = (props) => {
     [onChange, date],
   );
 
+  const onInput = useCallback((e) => {
+    setCursorPosition(e.target.selectionStart);
+  }, []);
+
   useEffect(() => {
     if (!value) {
       onChange && onChange(stringifyDatetime(parseDatetime(value)));
@@ -190,6 +205,24 @@ const DateTimeField = (props) => {
     }
   }, [value, onChange]);
 
+  useEffect(() => {
+    dateInputElement.current === document.activeElement &&
+      dateInputElement.selectionStart !== cursorPosition &&
+      dateInputElement.current.setSelectionRange(
+        cursorPosition,
+        cursorPosition,
+      );
+  }, [date, cursorPosition]);
+
+  useEffect(() => {
+    timeInputElement.current === document.activeElement &&
+      timeInputElement.selectionStart !== cursorPosition &&
+      timeInputElement.current.setSelectionRange(
+        cursorPosition,
+        cursorPosition,
+      );
+  }, [time, cursorPosition]);
+
   return (
     <StyledField $valid={!error} $invalid={!!error} $empty={!!value}>
       {label && <StyledLabel htmlFor={id}>{label}</StyledLabel>}
@@ -199,7 +232,11 @@ const DateTimeField = (props) => {
           <StyledInput
             $type="date"
             locale="fr"
-            inputProps={rest}
+            inputProps={{
+              ...rest,
+              onInput,
+              ref: dateInputElement,
+            }}
             {...dateFieldProps}
             onChange={handleChangeDate}
             value={date}
@@ -211,7 +248,11 @@ const DateTimeField = (props) => {
           <StyledInput
             $type="time"
             locale="fr"
-            inputProps={rest}
+            inputProps={{
+              ...rest,
+              onInput,
+              ref: timeInputElement,
+            }}
             {...timeFieldProps}
             onChange={handleChangeTime}
             value={time}
