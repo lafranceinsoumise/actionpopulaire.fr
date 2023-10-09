@@ -144,7 +144,6 @@ def get_supportgroup_routes(supportgroup, membership=None, user=None):
 
     if not supportgroup.is_certified:
         routes["donations"] = None
-        routes["financemement"] = None
 
     if not supportgroup.tags.filter(label=settings.PROMO_CODE_TAG).exists():
         routes["materiel"] = None
@@ -162,6 +161,14 @@ def get_supportgroup_routes(supportgroup, membership=None, user=None):
     elif membership.membership_type < Membership.MEMBERSHIP_TYPE_REFERENT:
         for k in REFERENT_ONLY_ROUTES:
             routes[k] = None
+
+    if (
+        user.is_anonymous
+        or not user.person
+        or not supportgroup.is_financeable
+        or not user.has_perm("groups.view_group_finance", supportgroup)
+    ):
+        routes["financemement"] = None
 
     if (
         user.is_anonymous

@@ -30,10 +30,6 @@ def get_cns_balance():
     return get_balance(CNSOperation.objects.all())
 
 
-def group_can_handle_allocation(group):
-    return group.is_certified
-
-
 def get_allocation_list(allocations, limit_to_type=None, with_labels=False):
     allocation_list = allocations
 

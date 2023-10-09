@@ -71,29 +71,25 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
     name = serializers.CharField(read_only=True)
     description = serializers.CharField(source="html_description", read_only=True)
     type = serializers.CharField(read_only=True)
-    typeLabel = serializers.SerializerMethodField(read_only=True)
-
+    typeLabel = serializers.CharField(source="get_type_display", read_only=True)
     url = serializers.HyperlinkedIdentityField(view_name="view_group", read_only=True)
-
-    eventCount = serializers.SerializerMethodField(read_only=True)
-    membersCount = serializers.SerializerMethodField(read_only=True)
-    isMember = serializers.SerializerMethodField(read_only=True)
-    isActiveMember = serializers.SerializerMethodField(
-        read_only=True,
+    eventCount = serializers.IntegerField(source="events_count", read_only=True)
+    membersCount = serializers.IntegerField(
+        source="active_members_count", read_only=True
     )
+    isMember = serializers.SerializerMethodField(read_only=True)
+    isActiveMember = serializers.SerializerMethodField(read_only=True)
     isManager = serializers.SerializerMethodField(read_only=True)
     labels = serializers.SerializerMethodField(read_only=True)
-
-    discountCodes = serializers.SerializerMethodField(read_only=True)
+    discountCodes = serializers.SerializerMethodField()
     isFull = serializers.BooleanField(source="is_full", read_only=True)
     isOpen = serializers.BooleanField(source="open", read_only=True)
     isEditable = serializers.BooleanField(source="editable", read_only=True)
-
+    isPublished = serializers.BooleanField(source="published", read_only=True)
     routes = RoutesField(routes=GROUP_ROUTES, read_only=True)
-    isCertified = serializers.SerializerMethodField(
-        read_only=True, method_name="get_is_certified"
-    )
-    location = SimpleLocationSerializer(source="*", read_only=True, with_address=False)
+    isCertified = serializers.BooleanField(source="is_certified", read_only=True)
+    isFinanceable = serializers.BooleanField(source="is_financeable", read_only=True)
+    location = SimpleLocationSerializer(source="*", with_address=False)
 
     def to_representation(self, instance):
         user = self.context["request"].user
@@ -118,9 +114,6 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
         return super().to_representation(instance)
 
-    def get_membersCount(self, obj):
-        return obj.active_members_count
-
     def get_isMember(self, obj):
         return self.membership is not None
 
@@ -132,9 +125,6 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
             self.membership is not None
             and self.membership.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER
         )
-
-    def get_typeLabel(self, obj):
-        return obj.get_type_display()
 
     def get_labels(self, obj):
         return [
@@ -160,16 +150,6 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
             return []
 
         return get_promo_codes(obj)
-
-    def get_eventCount(self, obj):
-        return obj.events_count
-
-    def get_is_certified(self, obj):
-        if obj.type != SupportGroup.TYPE_LOCAL_GROUP:
-            return False
-        if hasattr(obj, "has_certification_subtype"):
-            return obj.has_certification_subtype
-        return obj.is_certified
 
 
 class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
@@ -204,80 +184,38 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
         "isMessagingEnabled",
         "isBoucleDepartementale",
     )
-    id = serializers.UUIDField(
-        read_only=True,
-    )
-
-    isMember = serializers.SerializerMethodField(
-        read_only=True,
-    )
-    isActiveMember = serializers.SerializerMethodField(
-        read_only=True,
-    )
-    isManager = serializers.SerializerMethodField(
-        read_only=True,
-    )
-    isReferent = serializers.SerializerMethodField(
-        read_only=True,
-    )
+    id = serializers.UUIDField(read_only=True)
+    isMember = serializers.SerializerMethodField(read_only=True)
+    isActiveMember = serializers.SerializerMethodField(read_only=True)
+    isManager = serializers.SerializerMethodField(read_only=True)
+    isReferent = serializers.SerializerMethodField(read_only=True)
     personalInfoConsent = serializers.SerializerMethodField(read_only=True)
-
-    name = serializers.CharField(
-        read_only=True,
-    )
-    type = serializers.SerializerMethodField(
-        read_only=True,
-    )
+    name = serializers.CharField(read_only=True)
+    type = serializers.CharField(source="get_type_display", read_only=True)
     subtypes = serializers.SerializerMethodField(read_only=True)
-    description = serializers.CharField(read_only=True, source="html_description")
+    description = serializers.CharField(source="html_description", read_only=True)
     textDescription = serializers.SerializerMethodField(read_only=True)
     isFull = serializers.BooleanField(source="is_full", read_only=True)
     isOpen = serializers.BooleanField(source="open", read_only=True)
     isEditable = serializers.BooleanField(source="editable", read_only=True)
-    isCertifiable = serializers.BooleanField(read_only=True, source="is_certifiable")
+    isPublished = serializers.BooleanField(source="published", read_only=True)
+    isCertifiable = serializers.BooleanField(source="is_certifiable", read_only=True)
     certificationCriteria = serializers.SerializerMethodField(read_only=True)
-    isCertified = serializers.SerializerMethodField(
-        read_only=True, method_name="get_is_certified"
-    )
+    isCertified = serializers.BooleanField(source="is_certified", read_only=True)
+    isFinanceable = serializers.BooleanField(source="is_financeable", read_only=True)
     location = serializers.SerializerMethodField(read_only=True)
-    contact = serializers.SerializerMethodField(
-        read_only=True,
-    )
+    contact = serializers.SerializerMethodField(read_only=True)
     image = serializers.ImageField(read_only=True)
-
-    referents = serializers.SerializerMethodField(
-        read_only=True,
-    )
-    links = serializers.SerializerMethodField(
-        read_only=True,
-    )
-
-    facts = serializers.SerializerMethodField(
-        read_only=True,
-    )
-    iconConfiguration = serializers.SerializerMethodField(
-        read_only=True,
-    )
-
-    routes = serializers.SerializerMethodField(
-        read_only=True,
-    )
-    discountCodes = serializers.SerializerMethodField(
-        read_only=True,
-    )
-
-    hasUpcomingEvents = serializers.SerializerMethodField(
-        read_only=True,
-    )
-    hasPastEvents = serializers.SerializerMethodField(
-        read_only=True,
-    )
-    hasPastEventReports = serializers.SerializerMethodField(
-        read_only=True,
-    )
-    hasMessages = serializers.SerializerMethodField(
-        read_only=True,
-    )
+    referents = serializers.SerializerMethodField(read_only=True)
+    links = serializers.SerializerMethodField(read_only=True)
+    facts = serializers.SerializerMethodField(read_only=True)
+    iconConfiguration = serializers.SerializerMethodField(read_only=True)
+    routes = serializers.SerializerMethodField(read_only=True)
+    discountCodes = serializers.SerializerMethodField(read_only=True)
+    hasUpcomingEvents = serializers.SerializerMethodField(read_only=True)
+    hasPastEvents = serializers.SerializerMethodField(read_only=True)
+    hasPastEventReports = serializers.SerializerMethodField(read_only=True)
+    hasMessages = serializers.SerializerMethodField(read_only=True)
     isMessagingEnabled = serializers.BooleanField(
         source="is_private_messaging_enabled", read_only=True
     )
@@ -338,9 +276,6 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
         return ContactMixinSerializer(
             source="*", context=self.context
         ).to_representation(obj)
-
-    def get_type(self, obj):
-        return obj.get_type_display()
 
     def get_subtypes(self, obj):
         return (
@@ -418,13 +353,6 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def get_certificationCriteria(self, obj):
         return check_certification_criteria(obj, with_labels=True)
-
-    def get_is_certified(self, obj):
-        if obj.type != SupportGroup.TYPE_LOCAL_GROUP:
-            return False
-        if hasattr(obj, "has_certification_subtype"):
-            return obj.has_certification_subtype
-        return obj.is_certified
 
     def get_is_boucle_departementale(self, obj):
         return obj.type == SupportGroup.TYPE_BOUCLE_DEPARTEMENTALE
