@@ -483,6 +483,9 @@ class SupportGroup(
         # TODO: replace previous line with the following to allow bou-dep type groups to access the finance management views
         # return self.is_certified or self.type == self.TYPE_BOUCLE_DEPARTEMENTALE
 
+    def get_icon_configuration(self):
+        return self.TYPE_PARAMETERS.get(self.type, None)
+
     def get_meta_image(self):
         if hasattr(self, "image") and self.image:
             return urljoin(settings.FRONT_DOMAIN, self.image.url)

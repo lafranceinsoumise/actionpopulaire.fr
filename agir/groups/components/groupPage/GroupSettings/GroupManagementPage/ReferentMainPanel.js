@@ -4,7 +4,6 @@ import React, { useMemo } from "react";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import GroupMemberList from "@agir/groups/groupPage/GroupSettings/GroupMemberList";
-import Button from "@agir/front/genericComponents/Button";
 import { RawFeatherIcon as FeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
