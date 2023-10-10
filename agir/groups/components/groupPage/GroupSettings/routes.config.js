@@ -143,7 +143,7 @@ export const routeConfig = {
     icon: "briefcase",
     Component: GroupSettingsFinance,
     illustration: illustrationFinance,
-    isActive: (group) => group.isCertified,
+    isActive: (group) => group.isFinanceable,
     menuGroup: 1,
   },
   general: {

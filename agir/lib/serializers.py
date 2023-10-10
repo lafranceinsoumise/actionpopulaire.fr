@@ -10,6 +10,7 @@ from rest_framework_gis.fields import GeometryField
 from agir.carte.models import StaticMapImage
 from agir.lib.geo import get_commune
 from .data import code_postal_vers_code_departement
+from .export import dict_to_camelcase, dict_to_snakecase
 from .geo import FRENCH_COUNTRY_CODES
 from .iban import to_iban, to_bic
 from .tasks import create_static_map_image_from_coordinates
@@ -50,6 +51,24 @@ class NullableCountryField(NullAsBlankMixin, CountryField):
     """CharField that interprets a `null` input as the empty string."""
 
     pass
+
+
+class SnakeToCamelCaseDictField(serializers.DictField):
+    def to_representation(self, value):
+        representation = super().to_representation(value)
+
+        if not representation:
+            return representation
+
+        return dict_to_camelcase(representation)
+
+    def to_internal_value(self, data):
+        internal_value = super().to_internal_value(data)
+
+        if not internal_value:
+            return internal_value
+
+        return dict_to_snakecase(internal_value)
 
 
 class SimpleLocationSerializer(serializers.Serializer):

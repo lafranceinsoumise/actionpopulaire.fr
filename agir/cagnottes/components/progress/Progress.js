@@ -3,7 +3,6 @@ import React, { useMemo } from "react";
 import { animated, useSpring } from "@react-spring/web";
 import useSWR from "swr";
 
-
 import lfiNupesLogo from "@agir/front/genericComponents/logos/lfi-nupes.svg";
 
 const formatCurrency = (amount) =>
@@ -28,12 +27,7 @@ const getTarget = (amount, goals) => {
 };
 
 const ProgressBar = (props) => {
-  const {
-    amount,
-    title,
-    titleLogo = false,
-    goals,
-  } = props;
+  const { amount, title, titleLogo = false, goals } = props;
 
   const steps = useMemo(
     () =>
@@ -59,14 +53,18 @@ const ProgressBar = (props) => {
   });
 
   return (
-    <>{title &&
-      <h2>
-        <span>{title}</span>
-        {!!titleLogo && <img src={lfiNupesLogo} alt={"Logo LFI/NUPES"} />}
-      </h2>}
+    <>
+      {title && (
+        <h2>
+          <span>{title}</span>
+          {!!titleLogo && <img src={lfiNupesLogo} alt={"Logo LFI/NUPES"} />}
+        </h2>
+      )}
       <div title={targetTitle} className="bar">
         <animated.div className="fill" style={{ width }} />
-        <animated.div className="text">{animatedAmount.to(formatCurrency)}</animated.div>
+        <animated.div className="text">
+          {animatedAmount.to(formatCurrency)}
+        </animated.div>
       </div>
     </>
   );
@@ -83,7 +81,12 @@ ProgressBar.propTypes = {
 };
 
 const Progress = (props) => {
-  const { amountAPI = null, apiRefreshInterval, className = '',...rest } = props;
+  const {
+    amountAPI = null,
+    apiRefreshInterval,
+    className = "",
+    ...rest
+  } = props;
   const refreshInterval =
     apiRefreshInterval && !isNaN(parseInt(apiRefreshInterval))
       ? Math.max(Math.abs(parseInt(apiRefreshInterval)), 1000)

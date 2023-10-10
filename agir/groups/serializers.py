@@ -16,6 +16,7 @@ from agir.lib.serializers import (
     NestedLocationSerializer,
     PhoneField,
     SimpleLocationSerializer,
+    SnakeToCamelCaseDictField,
 )
 from agir.people.serializers import PersonSerializer
 from . import models
@@ -66,75 +67,105 @@ class SupportGroupSubtypeSerializer(serializers.ModelSerializer):
         fields = ("label", "description", "color", "icon", "type")
 
 
-class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
+class SupportGroupExternalLinkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SupportGroupExternalLink
+        fields = ["id", "label", "url"]
+
+
+class SupportGroupSerializerMixin(FlexibleFieldsMixin, serializers.Serializer):
     id = serializers.UUIDField(read_only=True)
     name = serializers.CharField(read_only=True)
     description = serializers.CharField(source="html_description", read_only=True)
     type = serializers.CharField(read_only=True)
-    typeLabel = serializers.SerializerMethodField(read_only=True)
-
-    url = serializers.HyperlinkedIdentityField(view_name="view_group", read_only=True)
-
-    eventCount = serializers.SerializerMethodField(read_only=True)
-    membersCount = serializers.SerializerMethodField(read_only=True)
-    isMember = serializers.SerializerMethodField(read_only=True)
-    isActiveMember = serializers.SerializerMethodField(
-        read_only=True,
+    typeLabel = serializers.CharField(source="get_type_display", read_only=True)
+    discountCodes = serializers.SerializerMethodField(
+        source="get_discount_codes", read_only=True
     )
-    isManager = serializers.SerializerMethodField(read_only=True)
-    labels = serializers.SerializerMethodField(read_only=True)
-
-    discountCodes = serializers.SerializerMethodField(read_only=True)
+    isMember = serializers.SerializerMethodField(
+        method_name="is_member", read_only=True
+    )
+    isActiveMember = serializers.SerializerMethodField(
+        method_name="is_active_member", read_only=True
+    )
+    isManager = serializers.SerializerMethodField(
+        method_name="is_manager", read_only=True
+    )
+    isFinanceManager = serializers.SerializerMethodField(
+        method_name="is_finance_manager", read_only=True
+    )
+    isReferent = serializers.SerializerMethodField(
+        method_name="is_referent", read_only=True
+    )
     isFull = serializers.BooleanField(source="is_full", read_only=True)
     isOpen = serializers.BooleanField(source="open", read_only=True)
     isEditable = serializers.BooleanField(source="editable", read_only=True)
+    isPublished = serializers.BooleanField(source="published", read_only=True)
+    isCertified = serializers.BooleanField(source="is_certified", read_only=True)
+    isFinanceable = serializers.BooleanField(source="is_financeable", read_only=True)
 
-    routes = RoutesField(routes=GROUP_ROUTES, read_only=True)
-    isCertified = serializers.SerializerMethodField(
-        read_only=True, method_name="get_is_certified"
-    )
-    location = SimpleLocationSerializer(source="*", read_only=True, with_address=False)
+    @property
+    def user(self):
+        return self.context["request"].user
 
-    def to_representation(self, instance):
-        user = self.context["request"].user
-        self.membership = None
+    def get_membership(self, obj):
+        if getattr(self, "_membership", None):
+            return self._membership
+
+        self._membership = None
+
         if (
-            hasattr(instance, "person_membership_type")
-            and instance.person_membership_type is not None
+            not self.user.is_anonymous
+            and hasattr(self.user, "person")
+            and self.user.person is not None
         ):
-            self.membership = Membership(
-                person=user.person,
-                supportgroup=instance,
-                membership_type=instance.person_membership_type,
-            )
-        elif (
-            not user.is_anonymous
-            and hasattr(user, "person")
-            and user.person is not None
-        ):
-            self.membership = (
-                instance.memberships.active().filter(person=user.person).first()
+            self._membership = (
+                obj.memberships.active().filter(person=self.user.person).first()
             )
 
-        return super().to_representation(instance)
+        return self._membership
 
-    def get_membersCount(self, obj):
-        return obj.active_members_count
+    def is_member(self, obj):
+        membership = self.get_membership(obj)
+        return membership is not None
 
-    def get_isMember(self, obj):
-        return self.membership is not None
+    def is_active_member(self, obj):
+        membership = self.get_membership(obj)
+        return membership is not None and membership.is_active_member
 
-    def get_isActiveMember(self, obj):
-        return self.membership is not None and self.membership.is_active_member
+    def is_manager(self, obj):
+        membership = self.get_membership(obj)
+        return membership is not None and membership.is_manager
 
-    def get_isManager(self, obj):
-        return (
-            self.membership is not None
-            and self.membership.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER
-        )
+    def is_finance_manager(self, obj):
+        membership = self.get_membership(obj)
+        return membership is not None and membership.is_finance_manager
 
-    def get_typeLabel(self, obj):
-        return obj.get_type_display()
+    def is_referent(self, obj):
+        membership = self.get_membership(obj)
+        return membership is not None and membership.is_referent
+
+    def get_discount_codes(self, obj):
+        membership = self.get_membership(obj)
+        if (
+            membership is not None
+            and membership.is_manager
+            and obj.tags.filter(label=settings.PROMO_CODE_TAG).exists()
+        ):
+            return get_promo_codes(obj)
+
+        return []
+
+
+class SupportGroupSerializer(SupportGroupSerializerMixin):
+    url = serializers.HyperlinkedIdentityField(view_name="view_group", read_only=True)
+    location = SimpleLocationSerializer(source="*", with_address=False)
+    eventCount = serializers.IntegerField(source="events_count", read_only=True)
+    membersCount = serializers.IntegerField(
+        source="active_members_count", read_only=True
+    )
+    labels = serializers.SerializerMethodField(read_only=True)
+    routes = RoutesField(routes=GROUP_ROUTES, read_only=True)
 
     def get_labels(self, obj):
         return [
@@ -143,36 +174,8 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
             if s.description and not s.hide_text_label
         ]
 
-    def get_discountCodes(self, obj):
-        if (
-            self.membership is None
-            or self.membership.membership_type < Membership.MEMBERSHIP_TYPE_MANAGER
-        ):
-            return []
 
-        has_promo_codes = (
-            obj.has_promo_codes
-            if hasattr(obj, "has_promo_codes")
-            else obj.tags.filter(label=settings.PROMO_CODE_TAG).exists()
-        )
-
-        if not has_promo_codes:
-            return []
-
-        return get_promo_codes(obj)
-
-    def get_eventCount(self, obj):
-        return obj.events_count
-
-    def get_is_certified(self, obj):
-        if obj.type != SupportGroup.TYPE_LOCAL_GROUP:
-            return False
-        if hasattr(obj, "has_certification_subtype"):
-            return obj.has_certification_subtype
-        return obj.is_certified
-
-
-class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
+class SupportGroupDetailSerializer(SupportGroupSerializerMixin):
     NON_MANAGER_FIELDS = (
         "id",
         "isMember",
@@ -204,121 +207,47 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
         "isMessagingEnabled",
         "isBoucleDepartementale",
     )
-    id = serializers.UUIDField(
-        read_only=True,
-    )
-
-    isMember = serializers.SerializerMethodField(
-        read_only=True,
-    )
-    isActiveMember = serializers.SerializerMethodField(
-        read_only=True,
-    )
-    isManager = serializers.SerializerMethodField(
-        read_only=True,
-    )
-    isReferent = serializers.SerializerMethodField(
-        read_only=True,
-    )
-    personalInfoConsent = serializers.SerializerMethodField(read_only=True)
-
-    name = serializers.CharField(
-        read_only=True,
-    )
-    type = serializers.SerializerMethodField(
-        read_only=True,
-    )
-    subtypes = serializers.SerializerMethodField(read_only=True)
-    description = serializers.CharField(read_only=True, source="html_description")
-    textDescription = serializers.SerializerMethodField(read_only=True)
-    isFull = serializers.BooleanField(source="is_full", read_only=True)
-    isOpen = serializers.BooleanField(source="open", read_only=True)
-    isEditable = serializers.BooleanField(source="editable", read_only=True)
-    isCertifiable = serializers.BooleanField(read_only=True, source="is_certifiable")
-    certificationCriteria = serializers.SerializerMethodField(read_only=True)
-    isCertified = serializers.SerializerMethodField(
-        read_only=True, method_name="get_is_certified"
+    image = serializers.ImageField(read_only=True)
+    personalInfoConsent = serializers.SerializerMethodField(
+        method_name="get_personal_info_consent", read_only=True
     )
     location = serializers.SerializerMethodField(read_only=True)
-    contact = serializers.SerializerMethodField(
-        read_only=True,
+    contact = serializers.SerializerMethodField(read_only=True)
+    subtypes = serializers.SerializerMethodField(read_only=True)
+    referents = serializers.SerializerMethodField(read_only=True)
+    facts = serializers.SerializerMethodField(read_only=True)
+    iconConfiguration = SnakeToCamelCaseDictField(
+        source="get_icon_configuration", read_only=True
     )
-    image = serializers.ImageField(read_only=True)
-
-    referents = serializers.SerializerMethodField(
-        read_only=True,
+    routes = serializers.SerializerMethodField(read_only=True)
+    links = SupportGroupExternalLinkSerializer(many=True, read_only=True)
+    textDescription = serializers.SerializerMethodField(
+        method_name="get_text_description", read_only=True
     )
-    links = serializers.SerializerMethodField(
-        read_only=True,
+    certificationCriteria = serializers.SerializerMethodField(
+        method_name="get_certification_criteria", read_only=True
     )
-
-    facts = serializers.SerializerMethodField(
-        read_only=True,
-    )
-    iconConfiguration = serializers.SerializerMethodField(
-        read_only=True,
-    )
-
-    routes = serializers.SerializerMethodField(
-        read_only=True,
-    )
-    discountCodes = serializers.SerializerMethodField(
-        read_only=True,
-    )
-
+    isCertifiable = serializers.BooleanField(source="is_certifiable", read_only=True)
     hasUpcomingEvents = serializers.SerializerMethodField(
-        read_only=True,
+        method_name="has_upcoming_events", read_only=True
     )
     hasPastEvents = serializers.SerializerMethodField(
-        read_only=True,
+        method_name="has_past_events", read_only=True
     )
     hasPastEventReports = serializers.SerializerMethodField(
-        read_only=True,
+        method_name="has_past_event_reports", read_only=True
     )
     hasMessages = serializers.SerializerMethodField(
-        read_only=True,
+        method_name="has_messages", read_only=True
+    )
+    isBoucleDepartementale = serializers.SerializerMethodField(
+        method_name="is_boucle_departementale", read_only=True
     )
     isMessagingEnabled = serializers.BooleanField(
         source="is_private_messaging_enabled", read_only=True
     )
-    isBoucleDepartementale = serializers.SerializerMethodField(
-        method_name="get_is_boucle_departementale", read_only=True
-    )
 
-    def get_membership(self, obj):
-        user = self.context["request"].user
-        self.user = user
-        if hasattr(self, "membership"):
-            return self.membership
-
-        self.membership = None
-        if (
-            not user.is_anonymous
-            and hasattr(user, "person")
-            and user.person is not None
-        ):
-            self.membership = (
-                obj.memberships.active().filter(person_id=user.person.id).first()
-            )
-        return self.membership
-
-    def get_isMember(self, obj):
-        membership = self.get_membership(obj)
-        return membership is not None
-
-    def get_isActiveMember(self, obj):
-        membership = self.get_membership(obj)
-        return membership is not None and membership.is_active_member
-
-    def get_isManager(self, obj):
-        membership = self.get_membership(obj)
-        return membership is not None and membership.is_manager
-
-    def get_isReferent(self, obj):
-        membership = self.get_membership(obj)
-        return membership is not None and membership.is_referent
-
-    def get_personalInfoConsent(self, obj):
+    def get_personal_info_consent(self, obj):
         membership = self.get_membership(obj)
         return (
             membership is not None and membership.personal_information_sharing_consent
@@ -326,11 +255,11 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def get_location(self, obj):
         return LocationSerializer(
-            source="*", read_only=True, with_address=self.get_isManager(obj)
+            source="*", read_only=True, with_address=self.is_manager(obj)
         ).to_representation(obj)
 
     def get_contact(self, obj):
-        if self.get_isManager(obj):
+        if self.is_manager(obj):
             return NestedContactSerializer(
                 source="*", context=self.context
             ).to_representation(obj)
@@ -338,9 +267,6 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
         return ContactMixinSerializer(
             source="*", context=self.context
         ).to_representation(obj)
-
-    def get_type(self, obj):
-        return obj.get_type_display()
 
     def get_subtypes(self, obj):
         return (
@@ -373,76 +299,39 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
         }
         return facts
 
-    def get_iconConfiguration(self, obj):
-        if obj.type in models.SupportGroup.TYPE_PARAMETERS:
-            configuration = models.SupportGroup.TYPE_PARAMETERS[obj.type]
-            return {
-                "color": configuration["color"],
-                "iconName": configuration["icon_name"],
-            }
-
     def get_routes(self, obj):
-        membership = self.get_membership(obj)
-        return get_supportgroup_routes(obj, membership, self.user)
+        return get_supportgroup_routes(obj, self.get_membership(obj), self.user)
 
-    def get_discountCodes(self, obj):
-        membership = self.get_membership(obj)
-        if (
-            membership is not None
-            and membership.is_manager
-            and obj.tags.filter(label=settings.PROMO_CODE_TAG).exists()
-        ):
-            return get_promo_codes(obj)
-        return []
-
-    def get_hasUpcomingEvents(self, obj):
-        return obj.organized_events.upcoming().exists()
-
-    def get_hasPastEvents(self, obj):
-        return obj.organized_events.past().exists()
-
-    def get_hasPastEventReports(self, obj):
-        return obj.organized_events.past().exclude(report_content="").exists()
-
-    def get_hasMessages(self, obj):
-        membership = self.get_membership(obj)
-        return membership is not None and obj.messages.filter(deleted=False).exists()
-
-    def get_links(self, obj):
-        return obj.links.values("id", "label", "url")
-
-    def get_textDescription(self, obj):
+    def get_text_description(self, obj):
         if isinstance(obj.description, str):
             return textify(obj.description)
         return ""
 
-    def get_certificationCriteria(self, obj):
+    def get_certification_criteria(self, obj):
         return check_certification_criteria(obj, with_labels=True)
 
-    def get_is_certified(self, obj):
-        if obj.type != SupportGroup.TYPE_LOCAL_GROUP:
-            return False
-        if hasattr(obj, "has_certification_subtype"):
-            return obj.has_certification_subtype
-        return obj.is_certified
+    def has_upcoming_events(self, obj):
+        return obj.organized_events.upcoming().exists()
 
-    def get_is_boucle_departementale(self, obj):
+    def has_past_events(self, obj):
+        return obj.organized_events.past().exists()
+
+    def has_past_event_reports(self, obj):
+        return obj.organized_events.past().exclude(report_content="").exists()
+
+    def has_messages(self, obj):
+        membership = self.get_membership(obj)
+        return membership is not None and obj.messages.filter(deleted=False).exists()
+
+    def is_boucle_departementale(self, obj):
         return obj.type == SupportGroup.TYPE_BOUCLE_DEPARTEMENTALE
 
 
 class SupportGroupSearchResultSerializer(serializers.ModelSerializer):
     location = LocationSerializer(read_only=True, source="*", with_address=False)
-    iconConfiguration = serializers.SerializerMethodField(
-        read_only=True, method_name="get_icon_configuration"
+    iconConfiguration = SnakeToCamelCaseDictField(
+        source="get_icon_configuration", read_only=True
     )
-
-    def get_icon_configuration(self, obj):
-        if obj.type in models.SupportGroup.TYPE_PARAMETERS:
-            configuration = models.SupportGroup.TYPE_PARAMETERS[obj.type]
-            return {
-                "color": configuration["color"],
-                "iconName": configuration["icon_name"],
-            }
 
     class Meta:
         model = SupportGroup
@@ -494,7 +383,9 @@ class SupportGroupUpdateSerializer(serializers.ModelSerializer):
 
 class MembershipSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
-    displayName = serializers.SerializerMethodField(read_only=True)
+    displayName = serializers.SerializerMethodField(
+        method_name="get_display_name", read_only=True
+    )
     email = serializers.SerializerMethodField(read_only=True)
     image = serializers.ImageField(source="person.image", read_only=True)
     gender = serializers.CharField(source="person.gender", read_only=True)
@@ -505,9 +396,14 @@ class MembershipSerializer(serializers.ModelSerializer):
     personalInfoConsent = serializers.BooleanField(
         source="personal_information_sharing_consent"
     )
-    hasGroupNotifications = serializers.SerializerMethodField(read_only=True)
+    hasGroupNotifications = serializers.SerializerMethodField(
+        method_name="has_group_notifications", read_only=True
+    )
+    isFinanceManager = serializers.BooleanField(
+        source="is_finance_manager", read_only=True
+    )
 
-    def get_displayName(self, membership):
+    def get_display_name(self, membership):
         if membership.personal_information_sharing_consent:
             return membership.person.get_full_name()
 
@@ -518,7 +414,7 @@ class MembershipSerializer(serializers.ModelSerializer):
             return membership.email
         return membership.person.display_email
 
-    def get_hasGroupNotifications(self, membership):
+    def has_group_notifications(self, membership):
         return membership.subscription_set.exists()
 
     def validate(self, data):
@@ -561,6 +457,7 @@ class MembershipSerializer(serializers.ModelSerializer):
             "gender",
             "description",
             "membershipType",
+            "isFinanceManager",
             "personalInfoConsent",
             "hasGroupNotifications",
             "created",
@@ -580,6 +477,9 @@ class MemberPersonalInformationSerializer(serializers.ModelSerializer):
     email = serializers.SerializerMethodField(read_only=True)
     phone = PhoneField(source="person.contact_phone", read_only=True)
     address = serializers.CharField(source="person.short_address", read_only=True)
+    isFinanceManager = serializers.BooleanField(
+        source="is_finance_manager", read_only=True
+    )
     isPoliticalSupport = serializers.BooleanField(
         source="person.is_political_support", read_only=True
     )
@@ -643,6 +543,7 @@ class MemberPersonalInformationSerializer(serializers.ModelSerializer):
             "membershipType",
             "subscriber",
             "isPoliticalSupport",
+            "isFinanceManager",
             "isLiaison",
             "hasGroupNotifications",
             "personalInfoConsent",
@@ -658,9 +559,3 @@ class MemberPersonalInformationSerializer(serializers.ModelSerializer):
             "isLiaison",
             "hasGroupNotifications",
         )
-
-
-class SupportGroupExternalLinkSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SupportGroupExternalLink
-        fields = ["id", "label", "url"]
