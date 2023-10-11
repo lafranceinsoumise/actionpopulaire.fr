@@ -82,7 +82,9 @@ const GroupMemberActions = (props) => {
         <h4>Modifier les droits</h4>
         <p>
           <Button onClick={setAsFollower}>Passer en contact</Button>
-          <Button onClick={setAsManager}>Passer en gestionnaire</Button>
+          {isReferent && (
+            <Button onClick={setAsManager}>Passer en gestionnaire</Button>
+          )}
         </p>
       </StyledWrapper>
     );
