@@ -111,20 +111,20 @@ class SupportGroupSerializerMixin(FlexibleFieldsMixin, serializers.Serializer):
     def user(self):
         return self.context["request"].user
 
-    _membership = None
-
     def to_representation(self, obj):
-        if self._membership and self._membership.supportgroup != obj:
+        if getattr(self, "_membership", None) and self._membership.supportgroup != obj:
             # Reset cached current user membership if supportgroup has changed (for many=True usage)
-            self._membership = None
+            del self._membership
 
         return super().to_representation(obj)
 
     def get_membership(self, obj):
-        if self._membership is not None:
+        if hasattr(self, "_membership"):
             return self._membership
 
-        if hasattr(obj, "_pf_person_membership"):
+        self._membership = None
+
+        if getattr(obj, "_pf_person_membership", None):
             self._membership = obj._pf_person_membership[0]
         elif (
             not self.user.is_anonymous
