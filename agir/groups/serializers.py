@@ -82,6 +82,9 @@ class SupportGroupSerializerMixin(FlexibleFieldsMixin, serializers.Serializer):
     discountCodes = serializers.SerializerMethodField(
         method_name="get_discount_codes", read_only=True
     )
+    membershipType = serializers.SerializerMethodField(
+        method_name="get_membership_type", read_only=True
+    )
     isMember = serializers.SerializerMethodField(
         method_name="is_member", read_only=True
     )
@@ -108,13 +111,22 @@ class SupportGroupSerializerMixin(FlexibleFieldsMixin, serializers.Serializer):
     def user(self):
         return self.context["request"].user
 
+    _membership = None
+
+    def to_representation(self, obj):
+        if self._membership and self._membership.supportgroup != obj:
+            # Reset cached current user membership if supportgroup has changed (for many=True usage)
+            self._membership = None
+
+        return super().to_representation(obj)
+
     def get_membership(self, obj):
-        if getattr(self, "_membership", None):
+        if self._membership is not None:
             return self._membership
 
-        self._membership = None
-
-        if (
+        if hasattr(obj, "_pf_person_membership"):
+            self._membership = obj._pf_person_membership[0]
+        elif (
             not self.user.is_anonymous
             and hasattr(self.user, "person")
             and self.user.person is not None
@@ -124,6 +136,10 @@ class SupportGroupSerializerMixin(FlexibleFieldsMixin, serializers.Serializer):
             )
 
         return self._membership
+
+    def get_membership_type(self, obj):
+        membership = self.get_membership(obj)
+        return membership.membership_type if membership is not None else 0
 
     def is_member(self, obj):
         membership = self.get_membership(obj)
@@ -147,14 +163,20 @@ class SupportGroupSerializerMixin(FlexibleFieldsMixin, serializers.Serializer):
 
     def get_discount_codes(self, obj):
         membership = self.get_membership(obj)
-        if (
-            membership is not None
-            and membership.is_manager
-            and obj.tags.filter(label=settings.PROMO_CODE_TAG).exists()
-        ):
-            return get_promo_codes(obj)
 
-        return []
+        if membership is None or not membership.is_manager:
+            return []
+
+        has_promo_codes = (
+            obj.has_promo_codes
+            if hasattr(obj, "has_promo_codes")
+            else obj.tags.filter(label=settings.PROMO_CODE_TAG).exists()
+        )
+
+        if not has_promo_codes:
+            return []
+
+        return get_promo_codes(obj)
 
 
 class SupportGroupSerializer(SupportGroupSerializerMixin):
@@ -178,6 +200,7 @@ class SupportGroupSerializer(SupportGroupSerializerMixin):
 class SupportGroupDetailSerializer(SupportGroupSerializerMixin):
     NON_MANAGER_FIELDS = (
         "id",
+        "membershipType",
         "isMember",
         "isActiveMember",
         "isManager",

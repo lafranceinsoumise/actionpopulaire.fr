@@ -9,7 +9,7 @@ from django.contrib.gis.measure import D
 from django.contrib.postgres.search import SearchVector, SearchRank
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
-from django.db.models import Subquery, OuterRef, Count, Q, Exists, Max, F
+from django.db.models import Subquery, OuterRef, Count, Q, Exists, Max, F, Prefetch
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -145,10 +145,12 @@ class SupportGroupQuerySet(models.QuerySet):
             )
         )
 
-    def with_person_membership_type(self, person=None):
-        return self.annotate(
-            person_membership_type=Max(
-                "memberships__membership_type", filter=Q(memberships__person=person)
+    def with_person_membership(self, person=None):
+        return self.prefetch_related(
+            Prefetch(
+                "memberships",
+                queryset=person.memberships.active(),
+                to_attr="_pf_person_membership",
             )
         )
 
@@ -158,7 +160,7 @@ class SupportGroupQuerySet(models.QuerySet):
             .with_promo_code_tag_exists()
             .with_organized_event_count()
             .with_membership_count()
-            .with_person_membership_type(person)
+            .with_person_membership(person)
         )
         return qs
 

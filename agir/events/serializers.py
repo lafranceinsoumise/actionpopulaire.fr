@@ -379,7 +379,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
                 obj.organizers_groups.distinct()
                 .with_organized_event_count()
                 .with_membership_count()
-                .with_person_membership_type(person=self.person)
+                .with_person_membership(person=self.person)
             ),
             context=self.context,
             many=True,

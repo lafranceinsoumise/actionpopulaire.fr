@@ -10,6 +10,66 @@ from agir.lib.tests.mixins import create_membership
 from agir.people.models import Person
 
 
+class UserGroupsAPITestCase(APITestCase):
+    def setUp(self):
+        self.person = Person.objects.create_person(
+            email="person@example.com", create_role=True, is_political_support=True
+        )
+        for membership_type, _ in Membership.MEMBERSHIP_TYPE_CHOICES:
+            Membership.objects.create(
+                supportgroup=SupportGroup.objects.create(),
+                person=self.person,
+                membership_type=membership_type,
+            )
+        self.another_group = SupportGroup.objects.create()
+
+    def test_anonymous_cannot_list_own_groups(self):
+        self.client.logout()
+        res = self.client.get(f"/api/groupes/")
+        self.assertEqual(res.status_code, 401)
+
+    def test_person_can_list_own_groups(self):
+        self.client.force_login(self.person.role)
+        res = self.client.get(f"/api/groupes/")
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(len(res.data), self.person.supportgroups.count())
+        for group in res.data:
+            membership = (
+                self.person.memberships.active()
+                .filter(supportgroup_id=group["id"])
+                .first()
+            )
+            self.assertIsNotNone(membership)
+            self.assertEqual(membership.membership_type, group["membershipType"])
+
+
+class GroupDetailAPITestCase(APITestCase):
+    def setUp(self):
+        self.person = Person.objects.create_person(
+            email="person@example.com", create_role=True, is_political_support=True
+        )
+        self.person_group = SupportGroup.objects.create()
+        self.another_group = SupportGroup.objects.create()
+        self.membership = Membership.objects.create(
+            supportgroup=self.person_group, person=self.person
+        )
+
+    def test_anonymous_can_access_a_group(self):
+        self.client.logout()
+        res = self.client.get(f"/api/groupes/{self.person_group.pk}/")
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.data.get("membershipType"), 0)
+
+    def test_person_can_access_a_group(self):
+        self.client.force_login(self.person.role)
+        for membership_type, _ in Membership.MEMBERSHIP_TYPE_CHOICES:
+            self.membership.membership_type = membership_type
+            self.membership.save()
+            res = self.client.get(f"/api/groupes/{self.person_group.pk}/")
+            self.assertEqual(res.status_code, 200)
+            self.assertEqual(res.data.get("membershipType"), membership_type)
+
+
 class GroupJoinAPITestCase(APITestCase):
     def setUp(self):
         self.person = Person.objects.create_person(

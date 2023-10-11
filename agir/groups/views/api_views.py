@@ -12,7 +12,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, exceptions
-from rest_framework.exceptions import NotFound, PermissionDenied, ValidationError
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.generics import (
     GenericAPIView,
     ListAPIView,
@@ -165,7 +165,7 @@ class UserGroupsView(ListAPIView):
                     "id", flat=True
                 )
             )
-            .order_by("-person_membership_type", "name")
+            .order_by("name")
         )
 
 

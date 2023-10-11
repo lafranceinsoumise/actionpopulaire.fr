@@ -14,7 +14,13 @@ const GroupsPage = ({ groups }) => {
     groups.forEach((group) => {
       group.isActiveMember ? joined.push(group) : followed.push(group);
     });
-    return [joined, followed];
+
+    return [
+      joined.sort(
+        (a, b) => parseInt(b.membershipType) - parseInt(a.membershipType),
+      ),
+      followed,
+    ];
   }, [groups]);
 
   if (!Array.isArray(groups) || groups.length === 0) {
