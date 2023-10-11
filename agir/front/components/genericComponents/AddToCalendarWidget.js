@@ -5,11 +5,12 @@ import styled from "styled-components";
 import googleLogo from "@agir/front/genericComponents/images/Google.svg";
 import outlookLogo from "@agir/front/genericComponents/images/Outlook.svg";
 
-import BottomSheet from "@agir/front/genericComponents/BottomSheet";
-import Popin from "@agir/front/genericComponents/Popin";
-import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 import { useMobileApp } from "@agir/front/app/hooks";
+import BottomSheet from "@agir/front/genericComponents/BottomSheet";
+import Button from "@agir/front/genericComponents/Button";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import Popin from "@agir/front/genericComponents/Popin";
+import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 
 import { slugify } from "@agir/lib/utils/url";
 
@@ -69,21 +70,8 @@ const StyledWrapper = styled.div`
   display: inline-block;
   position: relative;
 
-  & > button {
-    padding: 0;
-    cursor: pointer;
-    background-color: transparent;
-    border: none;
-    color: ${(props) => props.theme.primary500};
+  ${Button} {
     font-weight: 500;
-    display: inline-flex;
-    align-items: center;
-
-    ${RawFeatherIcon} {
-      @media (max-width: ${(props) => props.theme.collapse}px) {
-        display: none;
-      }
-    }
   }
 `;
 
@@ -100,10 +88,9 @@ const AddToCalendarWidget = (props) => {
 
   return (
     <StyledWrapper>
-      <button onClick={openMenu} color="link">
-        {children}&ensp;
-        <RawFeatherIcon name="chevron-down" width="1rem" height="1rem" />
-      </button>
+      <Button onClick={openMenu} color="link" icon="chevron-down" rightIcon>
+        {children}
+      </Button>
       <ResponsiveLayout
         MobileLayout={BottomSheet}
         DesktopLayout={Popin}
@@ -132,7 +119,8 @@ const AddToCalendarWidget = (props) => {
                   rel="noopener noreferrer"
                 >
                   <RawFeatherIcon
-                    aria-hidden="true"
+                    a
+                    ria-hidden="true"
                     name="download"
                     width="1rem"
                     height="1rem"
