@@ -112,8 +112,8 @@ class SupportGroupSerializerMixin(FlexibleFieldsMixin, serializers.Serializer):
         return self.context["request"].user
 
     def to_representation(self, obj):
-        if getattr(self, "_membership", None) and self._membership.supportgroup != obj:
-            # Reset cached current user membership if supportgroup has changed (for many=True usage)
+        if getattr(self, "_membership", None):
+            # Reset cached current user membership (to allow many=True usage)
             del self._membership
 
         return super().to_representation(obj)

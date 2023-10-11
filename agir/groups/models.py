@@ -146,6 +146,9 @@ class SupportGroupQuerySet(models.QuerySet):
         )
 
     def with_person_membership(self, person=None):
+        if not person:
+            return self
+
         return self.prefetch_related(
             Prefetch(
                 "memberships",
