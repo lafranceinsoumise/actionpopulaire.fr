@@ -80,7 +80,7 @@ class SupportGroupSerializerMixin(FlexibleFieldsMixin, serializers.Serializer):
     type = serializers.CharField(read_only=True)
     typeLabel = serializers.CharField(source="get_type_display", read_only=True)
     discountCodes = serializers.SerializerMethodField(
-        source="get_discount_codes", read_only=True
+        method_name="get_discount_codes", read_only=True
     )
     isMember = serializers.SerializerMethodField(
         method_name="is_member", read_only=True
