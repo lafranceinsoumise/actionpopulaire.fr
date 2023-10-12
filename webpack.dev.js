@@ -21,6 +21,7 @@ module.exports = merge.merge(common("dev"), {
   optimization: {
     removeAvailableModules: false,
     removeEmptyChunks: false,
+    runtimeChunk: "single",
     splitChunks: false,
     moduleIds: "named",
     chunkIds: "named",

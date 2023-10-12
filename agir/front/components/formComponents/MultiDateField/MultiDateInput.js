@@ -141,25 +141,29 @@ const StyledCalendar = styled(Calendar)`
       background-color: transparent;
       border-radius: 0.25rem;
 
-      & > span {
+      .b-date {
         background-color: ${style.primary100};
         color: ${style.black1000};
         padding: 0.25rem 0.75rem;
         font-size: 0.75rem;
         text-align: left;
-        font-weight: 500;
+        font-weight: 400;
         flex: 1 1 auto;
         margin: 0;
 
+        &:focus,
         &:hover {
           background-color: ${style.primary150};
         }
       }
 
-      &.last-selected-day {
-        & > span {
-          border-left: 0.5rem solid ${style.primary500};
-          font-weight: 600;
+      &.last-selected-day .b-date {
+        border-left: 0.5rem solid ${style.primary150};
+        font-weight: 500;
+
+        &:focus,
+        &:hover {
+          border-color: ${style.primary500};
         }
       }
 
@@ -182,6 +186,7 @@ const StyledCalendar = styled(Calendar)`
         background-repeat: no-repeat;
         background-position: center center;
 
+        &:focus,
         &:hover {
           background-color: ${style.black200};
         }
