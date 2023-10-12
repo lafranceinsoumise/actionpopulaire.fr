@@ -45,10 +45,10 @@ const components = applications
   .flatMap((dir) =>
     fs
       .readdirSync(path.resolve(dir, "components"))
-      .map((f) => [path.basename(dir), path.resolve(dir, "components", f)])
+      .map((f) => [path.basename(dir), path.resolve(dir, "components", f)]),
   )
   .filter(([_app, f]) =>
-    isDirectory(f) ? directoryHasFile("index.js")(f) : f.endsWith(".js")
+    isDirectory(f) ? directoryHasFile("index.js")(f) : f.endsWith(".js"),
   )
   .map(([app, f]) => [app + "/" + path.basename(f, ".js"), f])
   .reduce((obj, [name, file]) => {
@@ -87,59 +87,54 @@ const htmlPlugins = (type) => [
                 .map((file) => `<script nomodule src="${file}"></script>`)
                 .join("") + `{% include "${entry}.modules.html" %}`
             : htmlWebpackPlugin.tags.headTags + htmlWebpackPlugin.tags.bodyTags,
-      })
+      }),
   ),
 ];
 
 // List all chunks on which main app depends for preloading by service worker
 let _cachedAppEntryFiles;
 const getAppEntryFiles = (compilation) => {
-  if (_cachedAppEntryFiles) {
-    return _cachedAppEntryFiles;
-  }
-
-  _cachedAppEntryFiles = compilation.namedChunkGroups
-    .get("front/app")
-    .chunks.map((c) => Array.from(c.files))
-    .flat();
+  _cachedAppEntryFiles =
+    _cachedAppEntryFiles ||
+    compilation.namedChunkGroups
+      .get("front/app")
+      .chunks.map((c) => Array.from(c.files))
+      .flat();
 
   return _cachedAppEntryFiles;
 };
 
-// List all chunks on which other apps depends for preload exclusion if not in main app
-let _cachedOtherEntryFiles;
-const getOtherEntryFiles = (compilation) => {
-  if (_cachedOtherEntryFiles) {
-    return _cachedOtherEntryFiles;
-  }
+// List all chunks on which other apps depends for preload and chunking exclusion if not in main app
+const OTHER_ENTRIES = [
+  "cagnottes/progress",
+  "donations/donationForm",
+  "donations/spendingRequestLib",
+  "elus/parrainages",
+  "front/legacyPages",
+  "front/richEditor",
+  "groups/groupSelector",
+  "lib/adminJsonWidget",
+  "lib/communeField",
+  "lib/creationForms",
+  "lib/IBANField",
+  "lib/locationSearchField",
+  "lib/multiDateField",
+  "theme",
+];
 
-  _cachedOtherEntryFiles = [
-    "cagnottes/progress",
-    "donations/donationForm",
-    "donations/spendingRequestLib",
-    "elus/parrainages",
-    "front/legacyPages",
-    "front/richEditor",
-    "groups/groupSelector",
-    "lib/adminJsonWidget",
-    "lib/communeField",
-    "lib/creationForms",
-    "lib/IBANField",
-    "lib/locationSearchField",
-    "lib/multiDateField",
-    "theme",
-  ]
-    .map((name) =>
+let _cachedOtherEntryFiles;
+
+const getOtherEntryFiles = (compilation) => {
+  _cachedOtherEntryFiles =
+    _cachedOtherEntryFiles ||
+    OTHER_ENTRIES.map((name) =>
       compilation.namedChunkGroups
         .get(name)
         .chunks.map((c) => Array.from(c.files))
-        .flat()
+        .flat(),
     )
-    .flat();
-
-  _cachedOtherEntryFiles = _cachedOtherEntryFiles.filter(
-    (file) => !getAppEntryFiles(compilation).includes(file)
-  );
+      .flat()
+      .filter((file) => !getAppEntryFiles(compilation).includes(file));
 
   return _cachedOtherEntryFiles;
 };
@@ -162,7 +157,7 @@ const configureBabelLoader = (type) => ({
       cacheDirectory: path.join(
         process.env.BABEL_CACHE_DIRECTORY ||
           "node_modules/.cache/babel-loader/",
-        type
+        type,
       ),
       exclude: [/core-js/, /regenerator-runtime/, /webpack[\\/]buildin/],
       presets: [
@@ -238,7 +233,7 @@ module.exports = (type = CONFIG_TYPES.ES5) => ({
     {
       theme: path.resolve(__dirname, "agir/front/components/theme/theme.scss"),
     },
-    components
+    components,
   ),
   plugins: [
     ...htmlPlugins(type),
@@ -252,7 +247,7 @@ module.exports = (type = CONFIG_TYPES.ES5) => ({
       new InjectManifest({
         swSrc: path.resolve(
           __dirname,
-          "agir/front/components/serviceWorker/serviceWorker.js"
+          "agir/front/components/serviceWorker/serviceWorker.js",
         ),
         swDest: "service-worker.js",
         maximumFileSizeToCacheInBytes: 7000000,
@@ -377,6 +372,7 @@ module.exports = (type = CONFIG_TYPES.ES5) => ({
     ],
   },
   optimization: {
+    runtimeChunk: "single",
     splitChunks: {
       chunks: "all",
       cacheGroups: {
@@ -403,6 +399,11 @@ module.exports = (type = CONFIG_TYPES.ES5) => ({
         sentry: {
           test: /[\\/]node_modules[\\/]@sentry[\\/]/,
           name: "sy",
+          chunks: "all",
+        },
+        "style-components": {
+          test: /[\\/]node_modules[\\/]styled-components[\\/]/,
+          name: "sc",
           chunks: "all",
         },
       },
