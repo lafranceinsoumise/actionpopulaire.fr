@@ -1,3 +1,5 @@
+import { parse } from "url";
+
 export const TYPE_CNS = "cns";
 export const TYPE_GROUP = "group";
 export const TYPE_DEPARTMENT = "departement";
@@ -6,8 +8,9 @@ export const TYPE_NATIONAL = "national";
 export const TYPE_LABEL = {
   [TYPE_CNS]: "à la caisse nationale de solidarité",
   [TYPE_GROUP]: "au groupe d'action",
-  [TYPE_DEPARTMENT]: "aux activités de mon département",
-  [TYPE_NATIONAL]: "aux activités nationales",
+  [TYPE_DEPARTMENT]: "aux activités de votre département",
+  [TYPE_NATIONAL]:
+    "aux actions et campagnes nationales, ainsi qu'aux outils mis à la disposition des insoumis⋅es (comme Action populaire !).",
 };
 
 export const formatAllocations = (data) =>
@@ -22,13 +25,46 @@ export const formatAllocations = (data) =>
         amount: allocation.value || 0,
       };
       if (formattedAllocation.type === TYPE_GROUP) {
-        formattedAllocation.group = allocation.group;
+        formattedAllocation.group = allocation.group?.id || allocation.group;
       }
       if (formattedAllocation.type === TYPE_DEPARTMENT) {
-        formattedAllocation.departement = data.departement;
+        formattedAllocation.departement =
+          allocation?.departement?.id || data.departement;
       }
       return formattedAllocation;
     });
+
+export const parseAllocations = (data) => {
+  let parsedAllocations = [];
+  let nonRenewableGroupAllocation = null;
+
+  if (!data || !Array.isArray(data.allocations)) {
+    return [parsedAllocations, nonRenewableGroupAllocation];
+  }
+
+  data.allocations
+    .map((allocation) => ({
+      ...allocation,
+      value: allocation.amount,
+    }))
+    .forEach((allocation) => {
+      if (
+        !allocation.group ||
+        (allocation.group.isPublished && allocation.group.isCertified)
+      ) {
+        parsedAllocations.push(allocation);
+        return;
+      }
+      nonRenewableGroupAllocation = allocation;
+    });
+
+  parsedAllocations.push({
+    type: TYPE_NATIONAL,
+    value: getReminder(parsedAllocations, data.amount),
+  });
+
+  return [parsedAllocations, nonRenewableGroupAllocation];
+};
 
 export const getReminder = (value, totalAmount) => {
   if (!value) {

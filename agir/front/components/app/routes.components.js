@@ -131,6 +131,11 @@ const Routes = {
       /* webpackChunkName: "r-contributionSuccessPage" */ "@agir/donations/contributionSuccessPage/ContributionSuccessPage"
     ),
   ),
+  ContributionRenewalPage: lazy(() =>
+    import(
+      /* webpackChunkName: "r-contributionrenewalpage" */ "@agir/donations/contributionRenewalPage/ContributionRenewalPage"
+    ),
+  ),
   ActionToolsPage: lazy(() =>
     import(
       /* webpackChunkName: "r-actiontoolspage" */ "@agir/front/ActionToolsPage/ActionToolsPage"

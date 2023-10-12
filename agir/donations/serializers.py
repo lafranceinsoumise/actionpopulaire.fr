@@ -301,7 +301,7 @@ class ContributionSerializer(serializers.ModelSerializer):
             if isinstance(allocation.get("group"), SupportGroup):
                 allocation["group"] = SupportGroupSerializer(
                     allocation["group"],
-                    fields=("id", "name", "isActive", "isCertified"),
+                    fields=("id", "name", "isPublished", "isCertified"),
                     context=self.context,
                 ).data
 

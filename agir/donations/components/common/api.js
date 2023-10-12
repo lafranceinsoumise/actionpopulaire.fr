@@ -3,6 +3,7 @@ import axios from "@agir/lib/utils/axios";
 import { formatAllocations } from "./allocations.config";
 export const ENDPOINT = {
   createDonation: "/api/dons/",
+  getActiveContribution: "/api/dons/ma-contribution/",
 };
 
 export const getDonationEndpoint = (key, params) => {
