@@ -2,6 +2,7 @@ import calendar
 import json
 import math
 
+from agir.lib.form_fields import CustomJSONEncoder
 from django.db import models
 from django.db.models import JSONField, TextChoices, Q
 from django.template.defaultfilters import floatformat
@@ -294,9 +295,12 @@ class Subscription(ExportModelOperationsMixin("subscription"), TimeStampedModel)
     status = models.IntegerField(
         "status", choices=STATUS_CHOICES, default=STATUS_WAITING
     )
-    meta = JSONField(blank=True, default=dict)
+    meta = JSONField(blank=True, default=dict, encoder=CustomJSONEncoder)
 
-    end_date = models.DateField("Fin de l'abonnement", blank=True, null=True)
+    effect_date = models.DateTimeField(
+        _("Début de l'abonnement"), blank=True, null=True
+    )
+    end_date = models.DateField(_("Fin de l'abonnement"), blank=True, null=True)
 
     def get_price_display(self):
         return display_price(self.price)

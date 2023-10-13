@@ -1,3 +1,4 @@
+from agir.donations.allocations import get_allocation_list
 from django.contrib import admin, messages
 from django.contrib.admin.views.main import ChangeList
 from django.db import transaction
@@ -126,7 +127,16 @@ class PaymentAdmin(PaymentManagementAdminMixin, AddRelatedLinkMixin, admin.Model
 
     @admin.display(description="Meta", ordering="meta")
     def meta_data(self, obj):
-        return display_json_details(obj.meta, "Données de paiement", is_open=True)
+        return display_json_details(
+            {
+                **obj.meta,
+                "allocations": get_allocation_list(
+                    obj.meta.get("allocations", []), with_labels=False
+                ),
+            },
+            "Données de paiement",
+            is_open=True,
+        )
 
     @admin.display(description="Événements", ordering="events")
     def event_data(self, obj):
@@ -182,7 +192,9 @@ class SubscriptionAdmin(PersonLinkMixin, admin.ModelAdmin):
         "created",
         "mode",
         "day_of_month",
+        "effect_date",
         "end_date",
+        "metadata",
     )
     readonly_fields = (
         "id",
@@ -193,8 +205,10 @@ class SubscriptionAdmin(PersonLinkMixin, admin.ModelAdmin):
         "get_allocations_display",
         "status",
         "terminate_button",
+        "effect_date",
         "end_date",
         "day_of_month",
+        "metadata",
     )
     fields = readonly_fields
     list_filter = ("status", "mode", ("created", DateRangeFilter))
@@ -206,6 +220,21 @@ class SubscriptionAdmin(PersonLinkMixin, admin.ModelAdmin):
 
     def get_changelist(self, request, **kwargs):
         return PaymentChangeList
+
+    def metadata(self, subscription):
+        if not subscription:
+            return "-"
+
+        return display_json_details(
+            {
+                **subscription.meta,
+                "allocations": get_allocation_list(
+                    subscription.meta.get("allocations", []), with_labels=False
+                ),
+            },
+            "Données de paiement",
+            is_open=True,
+        )
 
     def get_urls(self):
         return [

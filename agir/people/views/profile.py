@@ -18,7 +18,11 @@ from agir.authentication.view_mixins import (
     SoftLoginRequiredMixin,
     HardLoginRequiredMixin,
 )
-from agir.donations.actions import can_make_contribution
+from agir.donations.actions import (
+    can_make_contribution,
+    get_active_contribution_for_person,
+    is_renewable_contribution,
+)
 from agir.donations.allocations import get_allocation_list
 from agir.donations.forms import AllocationSubscriptionForm
 from agir.donations.views import DONATION_SESSION_NAMESPACE, AskAmountView
@@ -332,9 +336,16 @@ class PaymentsView(AskAmountView, ProfileViewMixin, TemplateView):
                 user=self.request.user,
                 initial=self.get_initial_for_subscription(subscription),
             )
+
         kwargs["can_make_contribution"] = can_make_contribution(
             person=self.request.user.person
         )
+        active_contribution = get_active_contribution_for_person(
+            self.request.user.person
+        )
+
+        if is_renewable_contribution(active_contribution):
+            kwargs["renewable_active_contribution"] = active_contribution
 
         kwargs["recus_fiscaux"] = self.request.user.person.documents.filter(
             type=Document.Type.RECU_FISCAL,

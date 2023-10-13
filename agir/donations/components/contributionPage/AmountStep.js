@@ -16,9 +16,11 @@ import {
   StyledLogo,
   StyledMain,
 } from "@agir/donations/common/StyledComponents";
+import StaticToast from "@agir/front/genericComponents/StaticToast";
 
 import acceptedPaymentMethods from "@agir/donations/common/images/accepted-payment-methods.svg";
 import SelectedGroupWidget from "@agir/donations/common/SelectedGroupWidget";
+import Spacer from "@agir/front/genericComponents/Spacer";
 
 const StyledErrorMessage = styled.p`
   text-align: center;
@@ -68,8 +70,10 @@ const AmountStep = (props) => {
     maxAmountWarning,
     initialAmount = 0,
     initialPaymentTiming,
+    effectDate,
     endDate,
     fixedRatio,
+    isRenewal,
   } = props;
 
   const [amount, setAmount] = useState(initialAmount);
@@ -79,6 +83,16 @@ const AmountStep = (props) => {
   const remainder = useMemo(
     () => getReminder(allocations, amount),
     [allocations, amount],
+  );
+
+  const effectDateString = useMemo(
+    () =>
+      effectDate
+        ? DateTime.fromJSDate(new Date(effectDate))
+            .setLocale("fr")
+            .toFormat("dd MMMM yyyy")
+        : "",
+    [effectDate],
   );
 
   const endDateString = useMemo(
@@ -118,6 +132,28 @@ const AmountStep = (props) => {
           />
           <h2>Devenir financeur·euse</h2>
           <h4>de {beneficiary}</h4>
+          {isRenewal && (
+            <StaticToast
+              style={{ margin: 0, fontSize: "0.875rem" }}
+              $color="vermillon"
+            >
+              <p>
+                Votre contribution volontaire pour cette année arrive à son
+                terme <strong>le {effectDateString}</strong>.
+                <Spacer size="0.5rem" />
+                En validant le formulaire ci-dessous vous pouvez la renouveller
+                et mettre à jour certaines informations (le montant, la
+                répartition, vos coordonnées, etc.).
+                <Spacer size="0.5rem" />
+                Si vous souhaitez renouveller votre contribution à l'identique,
+                une{" "}
+                <Link route="contributionRenewal">
+                  page de renouvellement simplifié
+                </Link>{" "}
+                est également à votre disposition.
+              </p>
+            </StaticToast>
+          )}
           <SelectedGroupWidget
             group={group}
             groups={groups}
@@ -133,8 +169,8 @@ const AmountStep = (props) => {
           <p>
             Par votre engagement, vous permettrez à notre mouvement de mieux
             planifier et organiser ses activités au niveau local et/ou national,
-            tout au long de l’année. C'est pourquoi, dès le mois de décembre
-            prochain, vous serez sollicité·e pour reconduire votre contribution
+            tout au long de l’année. C'est pourquoi, à la fin de l'année
+            prochaine, vous serez sollicité·e pour reconduire votre contribution
             volontaire pour l'année suivante.
           </p>
           {fixedRatio && (
@@ -229,8 +265,10 @@ AmountStep.propTypes = {
   initialAmount: PropTypes.number,
   initialPaymentTiming: PropTypes.string,
   allowedPaymentModes: PropTypes.object.isRequired,
+  effectDate: PropTypes.string,
   endDate: PropTypes.string,
   fixedRatio: PropTypes.number,
+  isRenewal: PropTypes.bool,
 };
 
 export default AmountStep;

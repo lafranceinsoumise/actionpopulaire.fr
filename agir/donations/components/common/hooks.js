@@ -4,6 +4,8 @@ import useSWRImmutable from "swr/immutable";
 import CONFIG from "@agir/donations/common/config";
 import * as api from "@agir/donations/common/api";
 import {
+  getAllocationDepartement,
+  getAllocationGroup,
   getReminder,
   parseAllocations,
 } from "@agir/donations/common/allocations.config";
@@ -11,6 +13,7 @@ import {
 import {
   INITIAL_DATA,
   setFormDataForUser,
+  setFormDataFromExistingDonation,
   validateContributionRenewal,
   validateDonationData,
 } from "@agir/donations/common/form.config";
@@ -72,6 +75,10 @@ export const useDonations = (
   const [isLoading, setIsLoading] = useState(false);
   const { data: session, isValidating: isSessionLoading } =
     useSWRImmutable("/api/session/");
+
+  const { data: existingDonation, isLoading: isLoadingExistingDonation } =
+    useSWRImmutable(config.existingDonationEndpoint);
+
   const [formData, setFormData] = useState({
     ...INITIAL_DATA,
     ...defaults,
@@ -148,15 +155,29 @@ export const useDonations = (
   }, [session]);
 
   useEffect(() => {
-    if (!group?.location?.departement) {
-      return;
-    }
-    updateFormData("departement", group.location.departement);
+    group?.location?.departement &&
+      updateFormData("departement", group.location.departement);
   }, [group, updateFormData]);
 
   useEffect(() => {
-    !isReady && !isSessionLoading && isGroupReady && setIsReady(true);
-  }, [isReady, isSessionLoading, isGroupReady]);
+    if (!existingDonation) {
+      return;
+    }
+    setFormData(setFormDataFromExistingDonation(existingDonation));
+
+    const group = getAllocationGroup(existingDonation.allocations);
+    if (group && group.isPublished && group.isCertified) {
+      selectGroup(group);
+    }
+  }, [existingDonation, selectGroup]);
+
+  useEffect(() => {
+    !isReady &&
+      !isSessionLoading &&
+      !isLoadingExistingDonation &&
+      isGroupReady &&
+      setIsReady(true);
+  }, [isReady, isSessionLoading, isLoadingExistingDonation, isGroupReady]);
 
   return {
     config,
@@ -167,6 +188,7 @@ export const useDonations = (
     groups,
     isReady,
     isLoading,
+    isRenewal: Boolean(existingDonation && existingDonation.renewable),
     updateFormData,
     handleSubmit,
     selectGroup,
@@ -183,7 +205,7 @@ export const useContributionRenewal = (type = CONFIG.contribution.type) => {
     useSWRImmutable("/api/session/");
 
   const { data: activeContribution, isLoading: isActiveContributionLoading } =
-    useSWRImmutable(api.getDonationEndpoint("getActiveContribution"));
+    useSWRImmutable(config.existingDonationEndpoint);
 
   const endDate =
     typeof config.getEndDate === "function" ? config.getEndDate() : null;

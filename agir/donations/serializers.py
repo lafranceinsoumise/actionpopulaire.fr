@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import reversion
 from django.conf import settings
 from django.core import validators
@@ -11,8 +13,10 @@ from agir.donations.actions import (
     can_make_contribution,
     get_end_date_from_datetime,
     monthly_to_single_time_contribution,
-    is_renawable_contribution,
+    is_renewable_contribution,
     get_contribution_end_date,
+    single_time_to_monthly_contribution,
+    get_active_contribution_for_person,
 )
 from agir.donations.allocations import get_allocation_list
 from agir.donations.apps import DonsConfig
@@ -208,17 +212,20 @@ class DonationSerializer(serializers.ModelSerializer):
                 }
             )
 
+        existing_contribution = get_active_contribution_for_person(attrs.get("email"))
+        effect_date = get_contribution_end_date(existing_contribution)
         payment_mode = attrs.get("payment_mode")
 
         attrs["end_date"] = get_end_date_from_datetime(attrs["end_date"])
 
         if payment_mode not in MONTHLY_PAYMENT_MODES:
             # Force single time payment for checks and update amounts
-            attrs = monthly_to_single_time_contribution(attrs)
+            attrs = monthly_to_single_time_contribution(attrs, from_date=effect_date)
             attrs["payment_timing"] = SINGLE_TIME
         else:
             # Force monthly payment for system pay
             attrs["payment_timing"] = MONTHLY
+            attrs["effect_date"] = effect_date
 
         return attrs
 
@@ -289,6 +296,16 @@ class ContributionSerializer(serializers.ModelSerializer):
     contactPhone = PhoneField(source="meta.contact_phone")
     nationality = serializers.CharField(source="meta.nationality")
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+
+        if representation["paymentTiming"] == SINGLE_TIME:
+            representation = single_time_to_monthly_contribution(
+                representation, from_date=instance.created.date()
+            )
+
+        return representation
+
     def get_payment_timing(self, obj):
         return MONTHLY if isinstance(obj, Subscription) else SINGLE_TIME
 
@@ -319,7 +336,7 @@ class ContributionSerializer(serializers.ModelSerializer):
         return get_contribution_end_date(obj)
 
     def is_renewable(self, obj):
-        return is_renawable_contribution(obj)
+        return is_renewable_contribution(obj)
 
     def get_email(self, obj):
         if hasattr(obj, "email"):

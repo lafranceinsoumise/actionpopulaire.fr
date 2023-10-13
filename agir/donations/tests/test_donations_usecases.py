@@ -512,15 +512,15 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
             self.donation_information_payload["locationCountry"],
         )
 
-    @mock.patch("agir.donations.views.donations_views.replace_subscription")
-    def test_can_modify_subscription(self, replace_subscription):
+    @mock.patch("agir.donations.views.donations_views.create_and_replace_subscription")
+    def test_can_modify_subscription(self, create_and_replace_subscription):
         s = self.create_subscription(
             person=self.p1, amount=1000, allocations={self.group: 600}
         )
 
         self.client.force_login(self.p1.role)
 
-        res = self.client.post(
+        _res = self.client.post(
             reverse("view_payments"),
             {
                 "amount": "1200",
@@ -550,14 +550,18 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
             content_type="application/x-www-form-urlencoded",
         )
 
-        new_sub = Subscription.objects.exclude(pk=s.id).get()
-
         self.assertRedirects(res, reverse("view_payments"))
-        replace_subscription.assert_called_once()
+        create_and_replace_subscription.assert_called_once()
+        call_args = create_and_replace_subscription.call_args[0]
+        self.maxDiff = None
+        self.assertEqual(call_args[0].get("amount", None), 700)
+        self.assertEqual(call_args[0].get("person", None), self.p1)
         self.assertEqual(
-            tuple(replace_subscription.call_args),
-            ((), {"previous_subscription": s, "new_subscription": new_sub}),
+            call_args[0].get("meta", {}).get("payment_timing", None),
+            donations.serializers.MONTHLY,
+            call_args[0],
         )
+        self.assertEqual(call_args[1], s)
 
     @mock.patch(
         "agir.donations.views.api_views.send_monthly_donation_confirmation_email"

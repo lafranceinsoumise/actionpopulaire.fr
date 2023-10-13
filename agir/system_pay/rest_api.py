@@ -210,15 +210,18 @@ class SystemPayRestAPI:
         if not alias.active:
             raise ValueError("L'alias doit être actif.")
 
+        effect_date = (
+            subscription.effect_date if subscription.effect_date else timezone.now()
+        )
+
         answer = self._make_request(
             "Charge/CreateSubscription",
             data={
                 "paymentMethodToken": alias.identifier.hex,
                 "amount": subscription.price,
                 "currency": CURRENCIES[self.sp_config.currency],
-                "effectDate": timezone.now().isoformat("T", "seconds"),
+                "effectDate": effect_date.isoformat("T", "seconds"),
                 "rrule": get_recurrence_rule(subscription),
-                # "installmentNumber": count_installments(subscription),  # ça fait pas doublon avec la rrule ?
             },
         )
 

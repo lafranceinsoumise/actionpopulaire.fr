@@ -1,4 +1,8 @@
 import validate from "@agir/lib/utils/validate";
+import {
+  getAllocationDepartement,
+  parseAllocations,
+} from "./allocations.config";
 
 export const SINGLE_TIME_PAYMENT = "S";
 export const MONTHLY_PAYMENT = "M";
@@ -52,6 +56,35 @@ export const setFormDataForUser = (user) => (data) => ({
     ? user.gender
     : INITIAL_DATA.gender,
 });
+
+export const setFormDataFromExistingDonation = (existingDonation) => (data) => {
+  if (!existingDonation) {
+    return data;
+  }
+  const newData = { ...data };
+
+  Object.entries(existingDonation).forEach(([key, value]) => {
+    switch (key) {
+      case "id":
+      case "created":
+      case "renewable":
+      case "allocations":
+        return;
+      case "endDate":
+        newData.effectDate = value;
+        break;
+      default:
+        newData[key] = value || data[value] || INITIAL_DATA[value];
+    }
+  });
+
+  const departement = getAllocationDepartement(existingDonation.allocations);
+  if (departement) {
+    newData["departement"] = departement.id;
+  }
+
+  return newData;
+};
 
 export const DONATION_DATA_CONSTRAINTS = {
   email: {

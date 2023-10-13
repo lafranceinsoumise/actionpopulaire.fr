@@ -1,5 +1,3 @@
-import { parse } from "url";
-
 export const TYPE_CNS = "cns";
 export const TYPE_GROUP = "group";
 export const TYPE_DEPARTMENT = "departement";
@@ -10,7 +8,7 @@ export const TYPE_LABEL = {
   [TYPE_GROUP]: "au groupe d'action",
   [TYPE_DEPARTMENT]: "aux activités de votre département",
   [TYPE_NATIONAL]:
-    "aux actions et campagnes nationales, ainsi qu'aux outils mis à la disposition des insoumis⋅es (comme Action populaire !).",
+    "aux actions et campagnes nationales, ainsi qu'aux outils mis à la disposition des insoumis⋅es (comme Action populaire !)",
 };
 
 export const formatAllocations = (data) =>
@@ -157,4 +155,36 @@ export const getAllocationOptions = (
     ...option,
     defaultValue: defaults[option.type] || option.defaultValue,
   }));
+};
+
+export const getAllocationGroup = (allocations) => {
+  if (!Array.isArray(allocations)) {
+    return null;
+  }
+
+  const allocation = allocations.find(
+    (allocation) => allocation.type === TYPE_GROUP,
+  );
+
+  if (!allocation || !allocation.group) {
+    return null;
+  }
+
+  return allocation.group;
+};
+
+export const getAllocationDepartement = (allocations) => {
+  if (!Array.isArray(allocations)) {
+    return null;
+  }
+
+  const allocation = allocations.find(
+    (allocation) => allocation.type === TYPE_DEPARTMENT,
+  );
+
+  if (!allocation || !allocation.departement) {
+    return null;
+  }
+
+  return allocation.departement;
 };

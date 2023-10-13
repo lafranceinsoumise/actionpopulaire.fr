@@ -78,6 +78,7 @@ const ContributionPage = () => {
     formErrors,
     isLoading,
     isReady,
+    isRenewal,
     sessionUser,
     group,
     groups,
@@ -136,18 +137,23 @@ const ContributionPage = () => {
     <Theme type={formData.to} theme={theme}>
       <OpenGraphTags title={title} />
       <PageFadeIn ready={isReady} wait={<Skeleton />}>
-        <AmountStep
-          {...config}
-          group={group}
-          isLoading={isLoading}
-          error={formErrors.amount}
-          initialAmount={formData.amount}
-          initialPaymentTiming={formData.paymentTiming}
-          onSubmit={openModal}
-          groups={groups}
-          selectGroup={selectGroup}
-          endDate={formData.endDate}
-        />
+        {isReady && (
+          <AmountStep
+            {...config}
+            group={group}
+            isLoading={isLoading}
+            error={formErrors.amount}
+            initialAmount={formData.amount}
+            initialPaymentTiming={formData.paymentTiming}
+            initialAllocations={formData.allocations}
+            onSubmit={openModal}
+            groups={groups}
+            selectGroup={selectGroup}
+            effectDate={formData.effectDate}
+            endDate={formData.endDate}
+            isRenewal={isRenewal}
+          />
+        )}
         <StyledModal shouldShow={isModalOpen} onClose={closeModal}>
           <ModalContainer>
             <ModalCloseButton>

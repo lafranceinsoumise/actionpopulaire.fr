@@ -10,14 +10,16 @@ from rest_framework.generics import (
     RetrieveUpdateDestroyAPIView,
     CreateAPIView,
     RetrieveAPIView,
-    get_object_or_404,
 )
 from rest_framework.mixins import UpdateModelMixin
-from rest_framework.parsers import JSONParser, FormParser, MultiPartParser
+from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
 
-from agir.donations.actions import get_active_contribution_for_person
+from agir.donations.actions import (
+    get_active_contribution_for_person,
+    is_renewable_contribution,
+    get_contribution_end_date,
+)
 from agir.donations.models import SpendingRequest, Document
 from agir.donations.serializers import (
     DonationSerializer,
@@ -38,7 +40,9 @@ from agir.lib.rest_framework_permissions import (
     IsPersonPermission,
 )
 from agir.payments.actions.payments import create_payment
-from agir.payments.actions.subscriptions import create_subscription
+from agir.payments.actions.subscriptions import (
+    create_subscription,
+)
 from agir.payments.models import Subscription
 
 
@@ -54,12 +58,18 @@ class CreateDonationAPIView(UpdateModelMixin, GenericAPIView):
         if DONATION_SESSION_NAMESPACE in self.request.session:
             del self.request.session[DONATION_SESSION_NAMESPACE]
 
+    def get_existing_subscription(self, **kwargs):
+        return Subscription.objects.filter(
+            person=self.person, status=Subscription.STATUS_ACTIVE, **kwargs
+        ).first()
+
     def make_subscription(self):
         validated_data = self.validated_data
         payment_type = validated_data.get("payment_type")
         payment_mode = validated_data.get("payment_mode")
         amount = validated_data.get("amount")
         allocations = validated_data.get("allocations", [])
+        effect_date = validated_data.get("effect_date", None)
         end_date = validated_data.get("end_date")
 
         # Confirm email if the user is unknown
@@ -76,16 +86,9 @@ class CreateDonationAPIView(UpdateModelMixin, GenericAPIView):
                 {"next": reverse("monthly_donation_confirmation_email_sent")}
             )
 
-        existing_subscription = Subscription.objects.filter(
-            person=self.person,
-            status=Subscription.STATUS_ACTIVE,
-            mode=payment_mode,
-        ).first()
-
-        # TODO: handle renewals from september on if existing_subscription is a contribution
-
-        # Redirect if user already monthly donator
-        if existing_subscription is not None:
+        existing_subscription = self.get_existing_subscription(mode=payment_mode)
+        # Redirect to a specific page if the existing subscription is not a contribution
+        if existing_subscription and existing_subscription.type != payment_type:
             # stocker toutes les infos en session
             # attention à ne pas juste modifier le dictionnaire existant,
             # parce que la session ne se "rendrait pas compte" qu'elle a changé
@@ -97,12 +100,20 @@ class CreateDonationAPIView(UpdateModelMixin, GenericAPIView):
                     "mode": payment_mode,
                     "amount": amount,
                     "meta": validated_data,
+                    "effect_date": effect_date,
                     "end_date": end_date,
                 },
                 **self.request.session.get(DONATION_SESSION_NAMESPACE, {}),
             }
 
             return Response({"next": reverse("already_has_subscription")})
+
+        existing_contribution = get_active_contribution_for_person(person=self.person)
+
+        if existing_contribution and not is_renewable_contribution(
+            existing_contribution
+        ):
+            return Response({"next": reverse("already_contributor")})
 
         with transaction.atomic():
             subscription = create_subscription(
@@ -112,10 +123,12 @@ class CreateDonationAPIView(UpdateModelMixin, GenericAPIView):
                 amount=amount,
                 allocations=allocations,
                 meta=validated_data,
+                effect_date=effect_date,
                 end_date=end_date,
             )
 
-        self.clear_session()
+            self.clear_session()
+
         return Response({"next": reverse("subscription_page", args=[subscription.pk])})
 
     def make_payment(self):

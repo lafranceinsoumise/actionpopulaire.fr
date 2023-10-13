@@ -3,6 +3,7 @@ import React from "react";
 import themeLFI from "@agir/front/genericComponents/themes/LFI";
 
 import { MONTHLY_PAYMENT, SINGLE_TIME_PAYMENT } from "./form.config";
+import * as api from "./api";
 
 const don = {
   type: "don",
@@ -70,6 +71,7 @@ const contribution = {
   allowedPaymentModes: {
     [MONTHLY_PAYMENT]: ["system_pay", "check_donations"],
   },
+  existingDonationEndpoint: api.getDonationEndpoint("getActiveContribution"),
 };
 
 const CONFIG = {

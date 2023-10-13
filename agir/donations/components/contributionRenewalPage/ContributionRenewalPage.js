@@ -1,6 +1,6 @@
 import countries from "localized-countries/data/fr";
 import { DateTime } from "luxon";
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import {
@@ -210,12 +210,7 @@ const ContributionPage = () => {
   }
 
   if (isReady && !activeContribution.renewable) {
-    return (
-      <AppRedirect
-        route="personalPayments"
-        toast="Vous avez déjà effectuée une contribution financière pour cette année ! Merci de votre soutien !"
-      />
-    );
+    return <AppRedirect route="alreadyContributor" />;
   }
 
   return (
@@ -257,7 +252,7 @@ const ContributionPage = () => {
                       .map((element) => (
                         <span key={element}>{element}</span>
                       ))}
-                    {isMonthly && <small>par mois</small>}
+                    <small>par mois</small>
                   </StyledAmount>
                   {allocations.length > 0 && (
                     <>
@@ -270,7 +265,7 @@ const ContributionPage = () => {
                         <AllocationDetails
                           allocations={allocations}
                           groupName={group?.name}
-                          byMonth={isMonthly}
+                          byMonth
                         />
                       </StyledAllocations>
                     </>
@@ -348,7 +343,7 @@ const ContributionPage = () => {
                       color="secondary"
                       icon="edit-2"
                       route="contributions"
-                      params={activeContribution}
+                      params={group ? { group: group.id } : undefined}
                       disabled={isLoading}
                     >
                       Modifier

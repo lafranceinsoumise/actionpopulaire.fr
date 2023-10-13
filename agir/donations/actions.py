@@ -24,12 +24,16 @@ def get_end_date_from_datetime(end_date):
     return end_date.isoformat()[0:10]
 
 
-def monthly_to_single_time_contribution(data):
-    today = timezone.now().isoformat()[0:10]
+def monthly_to_single_time_contribution(data, from_date=None):
+    if from_date is None:
+        from_date = timezone.now()
+
+    from_date = from_date.isoformat()[0:10]
+
     # The multiplier is the number of month ends between today and the end date
     multiplier = len(
         pd.date_range(
-            start=today,
+            start=from_date,
             end=data.get("end_date"),
             freq="MS",
         )
@@ -44,7 +48,35 @@ def monthly_to_single_time_contribution(data):
     return data
 
 
+def single_time_to_monthly_contribution(data, from_date):
+    # The multiplier is the number of month ends between today and the end date
+    multiplier = len(
+        pd.date_range(
+            start=from_date,
+            end=data.get("endDate"),
+            freq="MS",
+        )
+    )
+    data["amount"] /= multiplier
+    if data.get("allocations"):
+        data["allocations"] = [
+            {**allocation, "amount": allocation["amount"] / multiplier}
+            for allocation in data.get("allocations")
+        ]
+
+    return data
+
+
 def get_active_contribution_for_person(person=None):
+    if isinstance(person, str):
+        try:
+            person = Person.objects.get_by_natural_key(email=person)
+        except Person.DoesNotExist:
+            person = None
+
+    if not person:
+        return None
+
     return (
         # Monthly contribution
         Subscription.objects.active_contributions().filter(person=person).first()
@@ -69,7 +101,7 @@ def get_contribution_end_date(contribution):
     return end_date
 
 
-def is_renawable_contribution(contribution):
+def is_renewable_contribution(contribution):
     renewal_start = (
         timezone.now()
         + relativedelta(months=settings.CONTRIBUTION_MONTHS_BEFORE_END_RENEWAL_START)
@@ -95,4 +127,4 @@ def can_make_contribution(email=None, person=None):
 
     active_contribution = get_active_contribution_for_person(person)
 
-    return active_contribution is None or is_renawable_contribution(active_contribution)
+    return active_contribution is None or is_renewable_contribution(active_contribution)
