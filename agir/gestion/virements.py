@@ -5,6 +5,7 @@ from typing import Optional, List
 
 import base64
 
+import pandas as pd
 from lxml import etree
 from sepaxml import SepaTransfer
 
@@ -96,7 +97,7 @@ def generer_fichier_virement(
 
 
 def virements_depuis_dataframe(
-    df, *, iban, nom, description, montant, date_execution=None
+    df, *, iban, nom, description, montant, bic=None, date_execution=None
 ):
     if date_execution is None:
         date_execution = date.today()
@@ -105,6 +106,7 @@ def virements_depuis_dataframe(
         Partie(
             nom=r[nom],
             iban=IBAN(r[iban]),
+            bic=r[bic] if bic and r[bic] and not pd.isna(r[bic]) else None,
         )
         for _, r in df.iterrows()
     ]
@@ -119,7 +121,9 @@ def virements_depuis_dataframe(
 
         raise ValueError(f"{base_message}\n{message}")
 
-    bic_inconnu = [i for i, p in enumerate(recipients) if not hasattr(p.iban, "bic")]
+    bic_inconnu = [
+        i for i, p in enumerate(recipients) if not p.bic and not hasattr(p.iban, "bic")
+    ]
 
     if bic_inconnu:
         base_message = "Les BIC ne sont pas connus pour les IBAN suivants :"
