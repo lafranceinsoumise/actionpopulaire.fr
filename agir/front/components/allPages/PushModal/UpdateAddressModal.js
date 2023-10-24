@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
-import { mutate } from "swr";
+import useSWRImmutable from "swr/immutable";
 
 import { updateProfile } from "@agir/front/authentication/api";
 
@@ -175,10 +175,24 @@ UpdateAddressModal.propTypes = {
   }),
 };
 
-const ConnectedUpdateAddressModal = (props) => {
-  const { shouldShow, onClose, user } = props;
-  const [isLoading, setIsLoading] = useState(false);
+const ConnectedUpdateAddressModal = () => {
+  const [shouldShow, setShouldShow] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   const [errors, setErrors] = useState(null);
+
+  const { data: session, isLoading, mutate } = useSWRImmutable("/api/session");
+
+  const user = session?.user;
+
+  const close = useCallback(() => {
+    setShouldShow(false);
+  }, []);
+
+  useEffect(() => {
+    if (user && !user.zip) {
+      setShouldShow(true);
+    }
+  }, [user]);
 
   const handleSubmit = useCallback(
     async (data) => {
@@ -191,26 +205,27 @@ const ConnectedUpdateAddressModal = (props) => {
         return;
       }
       setErrors(null);
-      setIsLoading(true);
-      const { error } = await updateProfile(data);
-      setIsLoading(false);
+      setIsUpdating(true);
+      const { data: userData, error } = await updateProfile(data);
+      setIsUpdating(false);
       if (error) {
         setErrors(error);
         return;
       }
-      mutate("/api/session/", (session) => ({
+      await mutate((session) => ({
         ...session,
-        user: { ...session.user, zip },
+        user: { ...session.user, ...userData },
       }));
-      onClose && onClose();
+
+      close();
     },
-    [onClose],
+    [close, mutate],
   );
 
   return (
     <UpdateAddressModal
       shouldShow={shouldShow}
-      isLoading={isLoading}
+      isLoading={isLoading || isUpdating}
       errors={errors}
       onSubmit={handleSubmit}
       initialData={user}
