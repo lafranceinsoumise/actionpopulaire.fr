@@ -146,7 +146,11 @@ def get_revision_comment(from_status, to_status=None, person=None):
 
 def get_action_label(spending_request, user):
     next_status = spending_request.next_status(user)
-    return NEXT_STATUS_ACTION[next_status] if next_status else None
+
+    if not next_status:
+        return None
+
+    return NEXT_STATUS_ACTION.get(next_status, None)
 
 
 def get_status_explanation(spending_request, user):

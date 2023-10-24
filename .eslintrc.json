@@ -19,6 +19,7 @@
   },
   "plugins": ["react", "react-hooks", "prettier"],
   "rules": {
+    "react/no-unknown-property": ["error", { "ignore": ["css"] }],
     "react/no-unescaped-entities": ["error", {
       "forbid": [">", "}"]
     }],
