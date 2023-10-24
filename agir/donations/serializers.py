@@ -478,7 +478,7 @@ class SpendingRequestSerializer(serializers.ModelSerializer):
     )
     group = SupportGroupSerializer(read_only=True, fields=("id", "name"))
     category = serializers.ChoiceField(
-        label="Catégorie", choices=SpendingRequest.Category.visible_choices
+        label="Catégorie", choices=SpendingRequest.Category.choices
     )
     eventId = serializers.PrimaryKeyRelatedField(
         source="event",
