@@ -1,4 +1,4 @@
-import { rest } from "msw";
+import { http, HttpResponse } from "msw";
 import React, { useState } from "react";
 
 import VotingLocationField from "./VotingLocationField";
@@ -12,21 +12,14 @@ export default {
     layout: "padded",
     msw: {
       handlers: [
-        rest.get(
-          getElectionEndpoint("searchVotingLocation"),
-          (req, res, ctx) => {
-            const search = req.url.searchParams.get("q");
-            return res(
-              ctx.json(
-                TEST_DATA.filter((o) =>
-                  new RegExp(search, "gi").test(
-                    JSON.stringify(Object.values(o)),
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
+        http.get(getElectionEndpoint("searchVotingLocation"), ({ request }) => {
+          const url = new URL(request.url);
+          const search = url.searchParams.get("q");
+          const results = TEST_DATA.filter((o) =>
+            new RegExp(search, "gi").test(JSON.stringify(Object.values(o))),
+          );
+          return HttpResponse.json(results);
+        }),
       ],
     },
   },
