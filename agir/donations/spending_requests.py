@@ -98,7 +98,7 @@ NEXT_STATUS_EXPLANATION = {
 NEXT_STATUS_ACTION = {
     SpendingRequest.Status.AWAITING_PEER_REVIEW: "Valider",
     SpendingRequest.Status.AWAITING_ADMIN_REVIEW: "Transmettre",
-    SpendingRequest.Status.PAID: "Demander le paiement",
+    SpendingRequest.Status.TO_PAY: "Demander le paiement",
 }
 
 
