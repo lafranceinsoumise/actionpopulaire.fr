@@ -1,16 +1,14 @@
 import PropTypes from "prop-types";
-import React, { useState } from "react";
+import React from "react";
 
 import Button from "@agir/front/genericComponents/Button";
 import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 import ShareLink from "@agir/front/genericComponents/ShareLink";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import StyledDialog from "./StyledDialog";
-import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 export const JoinGroup = (props) => {
   const {
-    id,
     step,
     isLoading,
     groupName,
@@ -110,43 +108,64 @@ export const JoinGroup = (props) => {
       );
     }
     case 3: {
+      const canContact = !!openMessageModal || !!groupContact?.email;
       return (
         <StyledDialog>
           <header>
-            <h3>Présentez-vous&nbsp;!</h3>
+            {canContact ? (
+              <h3>Présentez-vous&nbsp;!</h3>
+            ) : (
+              <h3>Bienvenue&nbsp;!</h3>
+            )}
           </header>
           <article>
             <strong>
+              C’est noté ! Les gestionnaires du groupe pourront vous contacter
+              sur la messagerie d’Action Populaire,{" "}
               {personalInfoConsent
-                ? "C’est noté, les gestionnaires du groupe pourront vous contacter sur la messagerie d’Action Populaire, par e-mail et par téléphone."
-                : "C’est noté, les gestionnaires du groupe pourront vous contacter sur la messagerie d’Action Populaire et par e-mail."}
+                ? "par e-mail et par téléphone"
+                : "et par e-mail"}
+              .
             </strong>
-            <Spacer size=".5rem" />
-            Envoyez-leur un message pour vous présenter&nbsp;:
-            <Spacer size="1rem" />
-            <footer>
-              {openMessageModal ? (
-                <Button
-                  color="primary"
-                  block
-                  wrap
-                  onClick={openMessageModal}
-                  icon="mail"
-                >
-                  Je me présente&nbsp;!
-                </Button>
-              ) : (
-                <ShareLink
-                  label="Copier"
-                  color="primary"
-                  url={groupContact.email}
-                  $wrap
-                />
-              )}
-              <Button disabled={isLoading} onClick={onClose} block wrap>
-                Plus tard
-              </Button>
-            </footer>
+            {canContact ? (
+              <>
+                <Spacer size=".5rem" />
+                Envoyez-leur un message pour vous présenter&nbsp;:
+                <Spacer size="1rem" />
+                <footer>
+                  {openMessageModal ? (
+                    <Button
+                      color="primary"
+                      block
+                      wrap
+                      onClick={openMessageModal}
+                      icon="mail"
+                    >
+                      Je me présente&nbsp;!
+                    </Button>
+                  ) : (
+                    <ShareLink
+                      label="Copier"
+                      color="primary"
+                      url={groupContact?.email}
+                      $wrap
+                    />
+                  )}
+                  <Button disabled={isLoading} onClick={onClose} block wrap>
+                    Plus tard
+                  </Button>
+                </footer>
+              </>
+            ) : (
+              <>
+                <Spacer size="1rem" />
+                <footer>
+                  <Button disabled={isLoading} onClick={onClose} block wrap>
+                    J'ai compris
+                  </Button>
+                </footer>
+              </>
+            )}
           </article>
         </StyledDialog>
       );
@@ -166,6 +185,9 @@ JoinGroup.propTypes = {
       displayName: PropTypes.string.isRequired,
     }),
   ).isRequired,
+  groupContact: PropTypes.shape({
+    email: PropTypes.string,
+  }),
   personalInfoConsent: PropTypes.bool,
   onJoin: PropTypes.func.isRequired,
   onUpdate: PropTypes.func.isRequired,
