@@ -1,5 +1,12 @@
 <!doctype html>
 <html>
+<head>
+  <!--
+    resolve sentry.io and matomo DNS and do TLS+TCP handshakes so the first requests are faster
+  -->
+  <link rel="preconnect" href="https://sentry.io">
+  <link rel="preconnect" href="https://matomo.lafranceinsoumise.fr">
+</head>
 <body>
 <form action="{{ form.form_action }}" method="post" id="payment-form">
   {{ form }}
