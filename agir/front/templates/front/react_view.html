@@ -8,7 +8,6 @@
     </script>
   {% endif %}
 
-  <link rel="preconnect" href="https://erreurs.lafranceinsoumise.fr" />
   {% include "front/includes/fontawesome.html" %}
   <link rel="preload" href="{% url "api_session" %}" as="fetch" type="application/json"></link>
   {% for href in api_preloads %}
