@@ -28,6 +28,8 @@ COLORED_TEXT = "\033[{color}m{text}\033[0m"
 
 EMAILS_BY_CONNECTION = 500
 
+DEFAULT_EMAIL_FROM = "La France insoumise <nepasrepondre@lafranceinsoumise.fr>"
+
 
 def colored_text(text, color):
     return COLORED_TEXT.format(color=color, text=text)
@@ -90,7 +92,7 @@ def get_current_status(config):
 
     event = Event.objects.get(pk=config["event_id"])
 
-    all_persons = {
+    all_people = {
         str(uuid)
         for uuid in Person.objects.filter(id__in=status["id"]).values_list(
             "id", flat=True
@@ -117,7 +119,7 @@ def get_current_status(config):
 
     now = timezone.now().astimezone(timezone.get_default_timezone())
 
-    status["_exists"] = status.id.isin(all_persons)
+    status["_exists"] = status.id.isin(all_people)
     status["_drawn"] = status.subscribe_limit.notnull()
     status["_subscribed"] = status.id.isin(subscribed_ids)
     status["_designated"] = status.id.isin(designated_ids)
@@ -232,15 +234,16 @@ def get_stats(status, config):
     return res
 
 
-def config_file(string):
-    p = Path(string)
-
-    with p.open("r") as c:
-        config = yaml.load(c, Loader=yaml.SafeLoader)
-
-    current_dir = p.parent
-
-    for k in ["status_file", "email_html_file", "email_text_file", "email_sent_file"]:
+def relative_to_absolute_config_file_paths(config, current_dir):
+    for k in [
+        "status_file",
+        "email_html_file",
+        "email_text_file",
+        "email_sent_file",
+        "html_file",
+        "text_file",
+        "sent_file",
+    ]:
         if k in config:
             config[k] = Path(config[k])
             if not config[k].is_absolute():
@@ -249,7 +252,43 @@ def config_file(string):
     return config
 
 
+def download_email(source_url, target_file):
+    r = requests.get(source_url)
+    with open(target_file, "wb") as f:
+        f.write(r.content)
+
+
+def config_file(string):
+    p = Path(string)
+
+    with p.open("r") as c:
+        config = yaml.load(c, Loader=yaml.SafeLoader)
+
+    current_dir = p.parent
+    relative_to_absolute_config_file_paths(config, current_dir)
+    for key, subconfig in config.get("college_specific_email", {}).items():
+        config[key] = relative_to_absolute_config_file_paths(subconfig, current_dir)
+
+    return config
+
+
+def get_email_property(config, key, college=None, default=None):
+    default = config.get(key, default)
+    value = default
+
+    if college:
+        value = (
+            config.get("college_specific_email", {})
+            .get(college, {})
+            .get(key.replace("email_", ""), default)
+        )
+
+    return value
+
+
 class Command(BaseCommand):
+    _template_cache = {}
+
     def add_arguments(self, parser):
         parser.add_argument("config", type=config_file)
         subparsers = parser.add_subparsers(
@@ -277,15 +316,15 @@ class Command(BaseCommand):
         update_parser.set_defaults(command=self.update_and_draw)
 
         refresh_email_parser = subparsers.add_parser(
-            "download-email", help="(re)télécharger l'email", aliases=["re"]
+            "download-emails", help="(re)télécharger les emails", aliases=["re"]
         )
-        refresh_email_parser.set_defaults(command=self.download_email)
+        refresh_email_parser.set_defaults(command=self.download_emails)
 
     def handle(self, *args, config, command, verbosity, **options):
         self.verbosity = verbosity
         return command(config, **options)
 
-    def print_stats(self, config, columns=None, colors=False, **options):
+    def print_stats(self, config, columns=None, colors=False, **_options):
         status = get_current_status(config)
 
         self.stdout.write(
@@ -296,12 +335,52 @@ class Command(BaseCommand):
         self.stdout.write(df_to_table(stats, columns, colors))
         self.stdout.write("\n")
 
-    def download_email(self, config, **options):
-        r = requests.get(config["email_link"])
-        with open(config["email_html_file"], "wb") as f:
-            f.write(r.content)
+    def get_email_template(self, config, as_html=True, college=None):
+        template_key = "email_html_file" if as_html else "email_text_file"
+        template_file = get_email_property(config, template_key, college=college)
 
-    def update_and_draw(self, config, do_it=False, college=None, **options):
+        if template_file in self._template_cache:
+            if self.verbosity >= 3:
+                self.stdout.write(
+                    f"Chargement du template e-mail “{template_file}” depuis le cache"
+                )
+
+            return self._template_cache[template_file]
+
+        if self.verbosity >= 3:
+            self.stdout.write(
+                f"Chargement du template e-mail “{template_file}” depuis le fichier “{template_file}”"
+            )
+
+        with open(template_file) as f:
+            template_content = Template(f.read())
+            self._template_cache[template_file] = template_content
+
+            return template_content
+
+    def download_emails(self, config, **_options):
+        emails = set(
+            [(config["email_link"], config["email_html_file"])]
+            + [
+                (subconfig["link"], subconfig["html_file"])
+                for subconfig in config.get("college_specific_email", {}).values()
+                if subconfig.get("link", None) and subconfig.get("html_file", None)
+            ]
+        )
+
+        if self.verbosity >= 3:
+            self.stdout.write(
+                f"Téléchargement de {len(emails)} e-mail(s) depuis l'origine distante."
+            )
+
+        for source_url, target_file in emails:
+            if self.verbosity >= 3:
+                self.stdout.write(
+                    f"Téléchargement depuis “{source_url}” vers le fichier “{target_file}”."
+                )
+            download_email(source_url, target_file)
+
+    def update_and_draw(self, config, do_it=False, college=None, **_options):
         status = get_current_status(config)
         stats = get_stats(status, config)
 
@@ -356,29 +435,33 @@ class Command(BaseCommand):
         if self.verbosity >= 1 and sending.sum():
             self.stdout.write(f"{sending.sum()} emails à envoyer.\n")
 
-        persons = {
+        people = {
             str(p.id): p
             for p in Person.objects.filter(id__in=status.loc[sending, "id"])
         }
 
-        with open(config["email_html_file"]) as f:
-            html_template = Template(f.read())
-        with open(config["email_text_file"]) as f:
-            text_template = Template(f.read())
-
         locale.setlocale(locale.LC_TIME, "fr_FR.UTF-8")
+
+        if sending.sum() == 0:
+            self.stdout.write(
+                "✖ Aucune personne en attende d'invitation n'a été trouvée. Aucun e-mail sera envoyé."
+            )
+            return
 
         with open(config["email_sent_file"], mode="a") as f:
             for g in grouper(
                 tqdm(
-                    status.loc[sending].itertuples(), total=sending.sum(), disable=None
+                    status.loc[sending].itertuples(),
+                    total=sending.sum(),
+                    disable=None,
                 ),
                 EMAILS_BY_CONNECTION,
             ):
                 connection = get_connection()
                 with connection:
                     for i, row in enumerate(g):
-                        person = persons[row.id]
+                        person = people[row.id]
+                        college = row.college
 
                         context = Context(
                             {
@@ -390,14 +473,23 @@ class Command(BaseCommand):
                             }
                         )
 
-                        html_message = html_template.render(context)
-                        text_message = text_template.render(context)
+                        html_message = self.get_email_template(
+                            config, as_html=True, college=college
+                        ).render(context)
+
+                        text_message = self.get_email_template(
+                            config, as_html=False, college=college
+                        ).render(context)
 
                         send_message(
-                            subject=config["email_subject"],
-                            from_email=config.get(
+                            subject=get_email_property(
+                                config, "email_subject", college=college
+                            ),
+                            from_email=get_email_property(
+                                config,
                                 "email_from",
-                                "La France insoumise <nepasrepondre@lafranceinsoumise.fr>",
+                                college=college,
+                                default=DEFAULT_EMAIL_FROM,
                             ),
                             text=text_message,
                             html=html_message,
