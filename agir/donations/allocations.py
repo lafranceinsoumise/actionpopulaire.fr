@@ -9,9 +9,26 @@ from agir.donations.models import (
     DepartementOperation,
     CNSOperation,
     AllocationModelMixin,
+    AccountOperation,
 )
 from agir.groups.models import SupportGroup
 from agir.lib.data import departements_choices
+
+
+def get_account_balance(account: str):
+    incomes = (
+        AccountOperation.objects.filter(destination=account).aggregate(
+            sum=Sum("amount")
+        )["sum"]
+        or 0
+    )
+    outcomes = (
+        AccountOperation.objects.filter(source=account).aggregate(sum=Sum("amount"))[
+            "sum"
+        ]
+        or 0
+    )
+    return incomes - outcomes
 
 
 def get_balance(qs):
