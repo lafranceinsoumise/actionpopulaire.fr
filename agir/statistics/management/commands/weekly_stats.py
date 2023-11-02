@@ -203,6 +203,20 @@ class Command(BaseCommand):
             if campaign["sent_email_count"] != 0 and campaign["open_email_count"] != 0:
                 open_ratio = campaign["open_email_count"] / campaign["sent_email_count"]
             self.print_value_line("Taux d'ouverture", f"{open_ratio : >.2%}")
+
+            self.print_value_line("Non remis", campaign["undelivered_email_count"])
+            undelivered_ratio = 0
+            if (
+                campaign["sent_email_count"] != 0
+                and campaign["undelivered_email_count"] != 0
+            ):
+                undelivered_ratio = (
+                    campaign["undelivered_email_count"] / campaign["sent_email_count"]
+                )
+            self.print_value_line(
+                "Taux de messages non remis", f"{undelivered_ratio : >.2%}"
+            )
+
             self.end_section()
 
     def handle(self, *args, **options):
@@ -232,6 +246,7 @@ class Command(BaseCommand):
         self.print_stock("lfi_newsletter_subscriber_count")
         self.print_flux("sent_campaign_count")
         self.print_flux("sent_campaign_email_count")
+        self.print_flux("undelivered_campaign_email_count")
 
         self.print_section_title("Gros envois d'emails ( >10000 personnes )")
         self.print_largest_campaigns(week_start, week_end)

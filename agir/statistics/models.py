@@ -99,6 +99,7 @@ class AbsoluteStatistics(TimeStampedModel):
         "lfi_newsletter_subscriber_count",
         "sent_campaign_count",
         "sent_campaign_email_count",
+        "undelivered_campaign_email_count",
     )
 
     objects = AbsoluteStatisticsQueryset.as_manager()
@@ -159,6 +160,9 @@ class AbsoluteStatistics(TimeStampedModel):
     )
     sent_campaign_email_count = models.IntegerField(
         verbose_name="E-mails envoyés", null=False, blank=False, default=0
+    )
+    undelivered_campaign_email_count = models.IntegerField(
+        verbose_name="E-mails non remis", null=False, blank=False, default=0
     )
 
     def __str__(self):

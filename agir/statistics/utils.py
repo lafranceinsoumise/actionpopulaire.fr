@@ -2,7 +2,7 @@ import datetime
 
 from data_france.models import Commune
 from django.db.models import Q, Case, When, Subquery, OuterRef, IntegerField, Count
-from nuntius.models import CampaignSentEvent
+from nuntius.models import CampaignSentEvent, CampaignSentStatusType
 
 from agir.events.models import Event
 from agir.groups.models import SupportGroup, Membership
@@ -82,6 +82,13 @@ def get_absolute_statistics(date=None, as_kwargs=False, columns=None):
         "sent_campaign_email_count": CampaignSentEvent.objects.filter(
             datetime__date__lte=date
         ),
+        "undelivered_campaign_email_count": CampaignSentEvent.objects.exclude(
+            result__in=(
+                CampaignSentStatusType.PENDING,
+                CampaignSentStatusType.OK,
+                CampaignSentStatusType.UNKNOWN,
+            )
+        ).filter(datetime__date__lte=date),
     }
 
     if columns:

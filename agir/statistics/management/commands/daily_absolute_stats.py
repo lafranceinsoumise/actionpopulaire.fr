@@ -50,17 +50,6 @@ class Command(BaseCommand):
             self.success(
                 f"An AbsoluteStatistics instance for the selected date ({date}) has been successfully created!"
             )
-        try:
-            MaterielStatistics.objects.create(date=date)
-        except IntegrityError:
-            self.error(
-                "A MaterielStatistics instance for the current date already exists. "
-                "If you would like to update the current instance, re-run the commande with the --force flag."
-            )
-        else:
-            self.success(
-                f"A MaterielStatistics instance for the selected date ({date}) has been successfully created!"
-            )
 
         try:
             CommuneStatistics.objects.create_all_for_date(date=date)
@@ -74,6 +63,18 @@ class Command(BaseCommand):
                 f"CommuneStatistics instances for the selected date ({date}) have been successfully created!"
             )
 
+        try:
+            MaterielStatistics.objects.create(date=date)
+        except IntegrityError:
+            self.error(
+                "A MaterielStatistics instance for the current date already exists. "
+                "If you would like to update the current instance, re-run the commande with the --force flag."
+            )
+        else:
+            self.success(
+                f"A MaterielStatistics instance for the selected date ({date}) has been successfully created!"
+            )
+
     def update_or_create(self, date):
         _, created = AbsoluteStatistics.objects.update_or_create(date=date)
         if created:
@@ -85,6 +86,11 @@ class Command(BaseCommand):
                 f"The AbsoluteStatistics instance for the selected date ({date}) has been successfully updated!"
             )
 
+        CommuneStatistics.objects.update_or_create_all_for_date(date=date)
+        self.success(
+            f"The CommuneStatistics instance for the selected date ({date}) has been successfully created / updated!"
+        )
+
         _, created = MaterielStatistics.objects.update_or_create(date=date)
         if created:
             self.success(
@@ -94,11 +100,6 @@ class Command(BaseCommand):
             self.success(
                 f"The MaterielStatistics instance for the selected date ({date}) has been successfully updated!"
             )
-
-        CommuneStatistics.objects.update_or_create_all_for_date(date=date)
-        self.success(
-            f"The CommuneStatistics instance for the selected date ({date}) has been successfully created / updated!"
-        )
 
     def handle(
         self,

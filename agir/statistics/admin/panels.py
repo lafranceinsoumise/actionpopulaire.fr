@@ -96,6 +96,7 @@ class AbsoluteStatisticsAdmin(StatisticsModelAdmin):
         "lfi_newsletter_subscriber_count",
         "sent_campaign_count",
         "sent_campaign_email_count",
+        "undelivered_campaign_email_count",
         "created",
         "modified",
     )
