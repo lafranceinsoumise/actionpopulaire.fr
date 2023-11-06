@@ -100,6 +100,7 @@ class Command(BaseCommand):
             stats = self.absolute_statistics
 
         label = stats["model"]._meta.get_field(key).verbose_name
+        week_start, _week_end = self.week
 
         self.start_section(label, stats["instant"][key])
         self.print_value_line(
@@ -111,14 +112,16 @@ class Command(BaseCommand):
             relative=True,
             currency=currency,
         )
+        current_month = stats["current_month"]["period"][0].strftime("%b")
         self.print_value_line(
-            f"depuis début {self.date.strftime('%b')}",
+            f"depuis début {current_month}",
             stats["current_month"][key],
             relative=True,
             currency=currency,
         )
+        current_year = stats["current_year"]["period"][0].year
         self.print_value_line(
-            f"en {self.date.year}",
+            f"en {current_year}",
             stats["current_year"][key],
             relative=True,
             currency=currency,
@@ -164,13 +167,15 @@ class Command(BaseCommand):
             relative=True,
             currency=currency,
         )
+        current_month = stats["current_month"]["period"][0].strftime("%b")
         self.print_value_line(
-            f"depuis début {self.date.strftime('%b')}",
+            f"depuis début {current_month}",
             stats["current_month"][key],
             currency=currency,
         )
+        current_year = stats["current_year"]["period"][0].year
         self.print_value_line(
-            f"en {self.date.year}", stats["current_year"][key], currency=currency
+            f"en {current_year}", stats["current_year"][key], currency=currency
         )
         self.print_value_line(
             "moyenne par semaine depuis le début du mois",
