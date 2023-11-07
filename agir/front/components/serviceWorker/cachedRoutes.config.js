@@ -24,6 +24,7 @@ const config = [
 
   "/api/groupes/",
   "/api/groupes/suggestions/",
+  "/api/groupes/thematiques/",
   new RegExp("/api/groupes/[0-9a-f-]+/$"),
   new RegExp("/api/groupes/[0-9a-f-]+/suggestions/$"),
   new RegExp("/api/groupes/[0-9a-f-]+/evenements/a-venir/$"),

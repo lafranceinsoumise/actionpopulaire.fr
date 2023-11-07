@@ -3,8 +3,8 @@ from django.contrib.sitemaps.views import sitemap, index as sitemap_index
 from django.urls import reverse_lazy, path, re_path, include
 from django.views.generic import RedirectView
 
-from . import views
 from . import api_views
+from . import views
 from ..front.sitemaps import sitemaps
 
 supportgroup_settings_patterns = [
@@ -326,6 +326,11 @@ urlpatterns = [
         name="api_search_supportgroup_and_events",
     ),
     path("mes-groupes/", views.UserSupportGroupsView.as_view(), name="list_my_groups"),
+    path(
+        "equipes-thematiques/",
+        views.ThematicGroupsView.as_view(),
+        name="thematic_groups",
+    ),
     path(
         "activite/",
         views.BaseAppSoftAuthView.as_view(),

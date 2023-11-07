@@ -185,6 +185,14 @@ class UserSupportGroupsView(BaseAppSoftAuthView):
         return [reverse_lazy("api_user_group_suggestions")]
 
 
+class ThematicGroupsView(BaseAppCachedView):
+    meta_title = "Les équipes thématiques de l'espace programme - La France insoumise"
+    meta_image = urljoin(settings.FRONT_DOMAIN, static("front/images/AEC-mini.png"))
+
+    def get_api_preloads(self):
+        return [*super().get_api_preloads(), reverse_lazy("api_thematic_groups")]
+
+
 class UserMessagesView(BaseAppHardAuthView):
     def get_api_preloads(self):
         return [f"{reverse_lazy('api_user_messages')}?page=1&page_size=10"]

@@ -3,6 +3,7 @@ from django_countries.serializers import CountryFieldMixin
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from agir.groups.proxys import ThematicGroup
 from agir.groups.tasks import (
     send_support_group_changed_notification,
     geocode_support_group,
@@ -195,6 +196,46 @@ class SupportGroupSerializer(SupportGroupSerializerMixin):
             for s in obj.subtypes.all()
             if s.description and not s.hide_text_label
         ]
+
+
+class ThematicGroupSerializer(serializers.ModelSerializer):
+    description = serializers.CharField(source="html_description")
+    image = serializers.ImageField()
+    subtype = serializers.SerializerMethodField()
+    externalLink = serializers.SerializerMethodField(method_name="get_external_link")
+
+    def get_subtype(self, obj):
+        if not obj.subtypes.all():
+            return None
+
+        for subtype in obj.subtypes.all():
+            if subtype.label.startswith("#"):
+                return {
+                    "id": subtype.id,
+                    "label": subtype.label,
+                    "description": subtype.description,
+                }
+
+        return None
+
+    def get_external_link(self, obj):
+        if not obj.links.all():
+            return None
+
+        for link in obj.links.all():
+            if link.label.lower() == "Lire le livret".lower():
+                return link.url
+
+    class Meta:
+        model = ThematicGroup
+        fields = read_only_fields = (
+            "id",
+            "name",
+            "description",
+            "image",
+            "subtype",
+            "externalLink",
+        )
 
 
 class SupportGroupDetailSerializer(SupportGroupSerializerMixin):

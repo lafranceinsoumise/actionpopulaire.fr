@@ -20,7 +20,7 @@ from django.utils.decorators import method_decorator
 from django.utils.html import format_html
 from django.utils.translation import gettext as _
 from django.views.decorators.cache import never_cache
-from django.views.generic import DetailView, DeleteView, ListView
+from django.views.generic import DetailView, DeleteView
 
 from agir.authentication.view_mixins import (
     GlobalOrObjectPermissionRequiredMixin,
@@ -30,7 +30,7 @@ from agir.carte.models import StaticMapImage
 from agir.front.view_mixins import FilterView
 from agir.groups.actions.notifications import someone_joined_notification
 from agir.groups.filters import GroupFilterSet
-from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
+from agir.groups.models import SupportGroup, Membership
 from agir.lib.geo import get_commune
 from agir.lib.tasks import create_static_map_image_from_coordinates
 from agir.lib.utils import front_url
@@ -39,7 +39,6 @@ __all__ = [
     "SupportGroupListView",
     "SupportGroupIcsView",
     "QuitSupportGroupView",
-    "ThematicTeamsViews",
     "SupportGroupDetailMixin",
     "SuppportGroupOGImageView",
 ]
@@ -122,20 +121,6 @@ class QuitSupportGroupView(
         )
 
         return HttpResponseRedirect(success_url)
-
-
-class ThematicTeamsViews(ListView):
-    template_name = "groups/thematic_teams.html"
-    context_object_name = "groups"
-
-    def get_queryset(self):
-        subtype = SupportGroupSubtype.objects.get(label="rédaction du livret")
-        return SupportGroup.objects.active().filter(subtypes=subtype).order_by("name")
-
-    def get_context_data(self, **kwargs):
-        return super().get_context_data(
-            **kwargs, default_image="front/images/AEC-mini.png"
-        )
 
 
 class SupportGroupDetailMixin(GlobalOrObjectPermissionRequiredMixin):
