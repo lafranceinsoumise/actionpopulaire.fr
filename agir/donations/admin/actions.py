@@ -11,6 +11,7 @@ from glom import glom, T, Coalesce
 
 from agir.donations.allocations import (
     create_spending_for_group,
+    get_supportgroup_balance,
 )
 from agir.donations.apps import DonsConfig
 from agir.donations.models import SpendingRequest
@@ -162,15 +163,14 @@ mark_spending_request_as_paid.short_description = _(
 def save_spending_request_admin_review(spending_request, to_status, comment=None):
     with reversion.create_revision(atomic=True):
         from_status = spending_request.status
-        if to_status == SpendingRequest.Status.VALIDATED:
-            try:
-                with transaction.atomic():
-                    spending_request.account_operation = create_spending_for_group(
-                        group=spending_request.group, amount=spending_request.amount
-                    )
-            except IntegrityError:
-                pass
-            else:
+        if to_status == SpendingRequest.Status.VALIDATED and spending_request:
+            if (
+                get_supportgroup_balance(spending_request.group)
+                >= spending_request.amount
+            ):
+                spending_request.account_operation = create_spending_for_group(
+                    group=spending_request.group, amount=spending_request.amount
+                )
                 to_status = SpendingRequest.Status.TO_PAY
 
         reversion.set_comment(
