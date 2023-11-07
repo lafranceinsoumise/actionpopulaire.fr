@@ -157,7 +157,7 @@ class AccountOperationAdmin(admin.ModelAdmin):
         ("created", DateRangeFilter),
     )
 
-    search_fields = ("group__name", "comment")
+    search_fields = ("comment",)
 
     fields = (
         "created",
@@ -165,9 +165,10 @@ class AccountOperationAdmin(admin.ModelAdmin):
         "destination",
         "amount",
         "comment",
-        "group_link",
         "payment_link",
     )
+
+    readonly_fields = ("created", "payment_link")
 
     def has_change_permission(self, request, obj=None):
         return request.user.is_superuser
@@ -192,3 +193,6 @@ class AccountOperationAdmin(admin.ModelAdmin):
             return "-"
 
         return display_price_in_cent(obj.amount)
+
+    class Media:
+        pass

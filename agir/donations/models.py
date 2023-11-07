@@ -118,10 +118,10 @@ class AccountOperation(TimeStampedModel):
     )
 
     destination = models.CharField(
-        _("Source"),
+        _("Destination"),
         null=False,
         blank=False,
-        help_text=_("Le compte crédité, celui d'où vient la ressource"),
+        help_text=_("Le compte debité, celui vers où va la ressource"),
         max_length=200,
     )
 
