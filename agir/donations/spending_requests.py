@@ -6,14 +6,17 @@ from django.utils.html import format_html
 from django.utils.translation import ngettext
 from glom import glom, T, Coalesce
 
-from agir.donations.allocations import get_supportgroup_balance
-from agir.donations.models import SpendingRequest, Spending
+from agir.donations.allocations import (
+    get_supportgroup_balance,
+    get_account_name_for_group,
+    SPENDING_ACCOUNT,
+)
+from agir.donations.models import SpendingRequest, AccountOperation
 from agir.donations.tasks import (
     spending_request_notify_admin,
     spending_request_notify_group_managers,
 )
 from agir.lib.display import display_price
-from agir.lib.utils import front_url
 
 
 def group_formatter(group):
@@ -253,8 +256,10 @@ def validate_action(spending_request, user):
         spending_request.save()
         if spending_request.status == SpendingRequest.Status.TO_PAY:
             try:
-                spending_request.operation = Spending.objects.create(
-                    group=spending_request.group, amount=-spending_request.amount
+                spending_request.operation = AccountOperation.objects.create(
+                    amount=-spending_request.amount,
+                    source=get_account_name_for_group(spending_request.group),
+                    destination=SPENDING_ACCOUNT,
                 )
             except IntegrityError:
                 return False

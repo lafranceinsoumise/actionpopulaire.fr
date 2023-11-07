@@ -4,7 +4,6 @@ from django.db import transaction
 from django.db.models import Sum
 
 from agir.donations.models import (
-    Operation,
     MonthlyAllocation,
     AllocationModelMixin,
     AccountOperation,
@@ -14,6 +13,7 @@ from agir.lib.data import departements_choices
 
 DONATIONS_ACCOUNT = "revenu:dons"
 CNS_ACCOUNT = "actif:cns"
+SPENDING_ACCOUNT = "depenses"
 
 
 def get_account_name_for_departement(d):
@@ -160,3 +160,11 @@ def cancel_payment_allocations(payment):
                 amount=operation.amount,
                 comment=f"Annule l'opération #{operation.id} ({str(payment)})",
             )
+
+
+def create_spending_for_group(*, group, amount):
+    return AccountOperation.objects.create(
+        amount=amount,
+        source=get_account_name_for_group(group),
+        destination=SPENDING_ACCOUNT,
+    )

@@ -4,7 +4,7 @@ from unittest.mock import patch
 from django.utils import timezone
 from rest_framework.test import APITestCase
 
-from agir.donations.models import SpendingRequest, Operation
+from agir.donations.models import SpendingRequest, AccountOperation
 from agir.groups.models import SupportGroup, Membership, SupportGroupExternalLink
 from agir.lib.tests.mixins import create_membership
 from agir.people.models import Person
@@ -581,7 +581,11 @@ class GroupFinanceAPITestCase(APITestCase):
             person=self.manager_member,
             membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
         )
-        self.donation_operation = Operation.objects.create(group=self.group, amount=10)
+        self.donation_operation = AccountOperation.objects.create(
+            source="revenu:dons",
+            destination=f"actif:groupe:{self.group.id}",
+            amount=10,
+        )
         self.spending_request = SpendingRequest.objects.create(
             group=self.group,
             title="Ma demande de dépense",

@@ -1,6 +1,4 @@
-import reversion
 from django.core.exceptions import PermissionDenied
-from django.db import transaction, IntegrityError
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
@@ -8,8 +6,8 @@ from django.views.generic import DetailView
 
 from agir.donations.admin.actions import save_spending_request_admin_review
 from agir.donations.admin.forms import HandleRequestForm
-from agir.donations.models import SpendingRequest, Spending
-from agir.donations.spending_requests import admin_summary, get_revision_comment
+from agir.donations.models import SpendingRequest
+from agir.donations.spending_requests import admin_summary
 from agir.lib.admin.panels import AdminViewMixin
 
 
