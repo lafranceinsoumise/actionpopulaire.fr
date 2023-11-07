@@ -65,10 +65,7 @@ const CreateSpendingRequestPage = ({ groupPk }) => {
     getGroupEndpoint("getFinance", { groupPk }),
   ]);
 
-  const availableAmount = useMemo(
-    () => (finance?.donation ? finance.donation : 0),
-    [finance],
-  );
+  const availableAmount = useMemo(() => finance?.allocation || 0, [finance]);
 
   const isReady = !isFinanceLoading && !isGroupLoading && !isSessionLoading;
 

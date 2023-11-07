@@ -621,14 +621,14 @@ class GroupFinanceAPITestCase(APITestCase):
         )
         self.assertEqual(res.status_code, 200)
 
-    def test_api_response_contains_a_donation_property(self):
+    def test_api_response_contains_the_allocation_property(self):
         self.client.force_login(self.manager_member.role)
         res = self.client.get(
             f"/api/groupes/{self.group.pk}/finance/",
         )
         self.assertEqual(res.status_code, 200)
-        self.assertIn("donation", res.data)
-        self.assertEqual(res.data["donation"], 10)
+        self.assertIn("allocation", res.data)
+        self.assertEqual(res.data["allocation"], 10)
 
     def test_api_response_contains_the_list_of_the_group_spending_requests(self):
         self.client.force_login(self.manager_member.role)

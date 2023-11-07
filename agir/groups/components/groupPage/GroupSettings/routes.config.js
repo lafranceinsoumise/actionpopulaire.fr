@@ -36,9 +36,14 @@ const GroupSettingsMateriel = lazy(() =>
     /* webpackChunkName: "r-groupsettingsmateriel" */ "@agir/groups/groupPage/GroupSettings/GroupMaterielPage"
   ),
 );
-const GroupSettingsFinance = lazy(() =>
+const GroupSettingsFinance__Group = lazy(() =>
   import(
-    /* webpackChunkName: "r-groupsettingsfinance" */ "@agir/groups/groupPage/GroupSettings/GroupFinancePage"
+    /* webpackChunkName: "r-groupsettingsfinancegroup" */ "@agir/groups/groupPage/GroupSettings/GroupFinancePage/Group"
+  ),
+);
+const GroupSettingsFinance__BouDep = lazy(() =>
+  import(
+    /* webpackChunkName: "r-groupsettingsfinanceboudep" */ "@agir/groups/groupPage/GroupSettings/GroupFinancePage/BouDep"
   ),
 );
 const GroupSettingsGeneral = lazy(() =>
@@ -139,11 +144,15 @@ export const routeConfig = {
     id: "finance",
     path: "finance/",
     exact: true,
-    label: "Caisse du groupe",
+    label: (group) =>
+      group.isBoucleDepartementale ? "Caisse de la boucle" : "Caisse du groupe",
     icon: "briefcase",
-    Component: GroupSettingsFinance,
+    getComponent: (group) =>
+      group.isBoucleDepartementale
+        ? GroupSettingsFinance__BouDep
+        : GroupSettingsFinance__Group,
     illustration: illustrationFinance,
-    isActive: (group) => group.isFinanceable,
+    isActive: (group) => group.isFinanceable && group.isFinanceManager,
     menuGroup: 1,
   },
   general: {
@@ -224,6 +233,8 @@ export const getRoutes = (basePath, group) =>
     (route) =>
       new RouteConfig({
         ...route,
+        label:
+          typeof route.label === "function" ? route.label(group) : route.label,
         Component:
           typeof route.getComponent === "function"
             ? route.getComponent(group)

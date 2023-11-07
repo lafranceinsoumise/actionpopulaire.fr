@@ -1129,7 +1129,7 @@ class SpendingRequestTestCase(APITestCase):
                     "status": SpendingRequest.Status.AWAITING_PEER_REVIEW.value,
                 },
                 {
-                    "title": "Validée par un⋅e second⋅e animateur⋅rice",
+                    "title": "Validée par un⋅e autre gestionnaire",
                     "comment": "",
                     "diff": [],
                     "person": self.another_group_finance_admin,

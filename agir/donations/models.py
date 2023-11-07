@@ -424,7 +424,7 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
         (
             Status.AWAITING_PEER_REVIEW,
             Status.AWAITING_ADMIN_REVIEW,
-        ): "Validée par un⋅e second⋅e animateur⋅rice",
+        ): "Validée par un⋅e autre gestionnaire",
     }
 
     id = models.UUIDField(

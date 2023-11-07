@@ -73,8 +73,8 @@ def admin_summary(spending_request):
 
 
 STATUS_EXPLANATION = {
-    SpendingRequest.Status.DRAFT: "Une fois votre demande complétée, vous pourrez l'envoyer pour validation par un⋅e autre animateur⋅rice ou gestionnaire.",
-    SpendingRequest.Status.AWAITING_PEER_REVIEW: "Vous avez déjà validé cette demande. Avant sa transmission à l'équipe de suivi des questions financières, elle doit tout d'abord être validée par un⋅e autre animateur⋅rice ou gestionnaire.",
+    SpendingRequest.Status.DRAFT: "Une fois votre demande complétée, vous pourrez l'envoyer pour validation par un⋅e autre gestionnaire.",
+    SpendingRequest.Status.AWAITING_PEER_REVIEW: "Vous avez déjà validé cette demande. Avant sa transmission à l'équipe de suivi des questions financières, elle doit tout d'abord être validée par un⋅e autre gestionnaire.",
     SpendingRequest.Status.AWAITING_ADMIN_REVIEW: "Votre demande est en cours d'évaluation par l'équipe de suivi des questions financières. Vous serez prévenus une fois celle-ci traitée.",
     SpendingRequest.Status.AWAITING_SUPPLEMENTARY_INFORMATION: "Lorsque vous aurez intégré les modifications demandées, vous pourrez de nouveau transmettre cette demande à l'équipe de suivi.",
     SpendingRequest.Status.VALIDATED: "Votre groupe ne dispose pas d'une allocation suffisante pour obtenir le réglement de cette demande pour le moment. Dès que votre allocation sera suffisante, vous pourrez demander le paiement de cette demande avec ce formulaire.",
@@ -85,14 +85,14 @@ STATUS_EXPLANATION = {
 
 NOT_READY_FOR_REVIEW_STATUS_EXPLANATION = {
     SpendingRequest.Status.DRAFT: "Avant de pouvoir être envoyée pour validation, votre demande doit être complète.",
-    SpendingRequest.Status.AWAITING_PEER_REVIEW: "Cette demande a déjà été validée par un⋅e animateur⋅rice ou gestionnaire du groupe. Pour permettre sa transmission, elle doit encore être validée par un·e deuxième animateur⋅rice ou gestionnaire. Attention : avant de pouvoir être validée, votre demande doit être complète.",
+    SpendingRequest.Status.AWAITING_PEER_REVIEW: "Cette demande a déjà été validée par une personne. Pour permettre sa transmission, elle doit encore être validée par un·e deuxième gestionnaire. Attention : avant de pouvoir être validée, votre demande doit être complète.",
     SpendingRequest.Status.AWAITING_SUPPLEMENTARY_INFORMATION: "Lorsque vous aurez intégré les modifications demandées, vous pourrez de nouveau transmettre cette demande à l'équipe de suivi.",
 }
 
 NEXT_STATUS_EXPLANATION = {
-    SpendingRequest.Status.AWAITING_PEER_REVIEW: "Une fois votre brouillon terminé, vous pouvez le valider ci-dessous. Avant qu'il ne soit transmis à l'équipe de suivi des questions financières, il devra d'abord être validé par un autre des animateurs ou gestionnaires de votre groupe d'action.",
+    SpendingRequest.Status.AWAITING_PEER_REVIEW: "Une fois votre brouillon terminé, vous pouvez le valider ci-dessous. Avant qu'il ne soit transmis à l'équipe de suivi des questions financières, il devra d'abord être validé par un·e autre gestionnaire financier de votre groupe.",
     SpendingRequest.Status.AWAITING_ADMIN_REVIEW: {
-        SpendingRequest.Status.AWAITING_PEER_REVIEW: "Cette demande a déjà été validée par un⋅e animateur⋅rice ou gestionnaire du groupe. Pour permettre sa transmission, elle doit encore être validée par un·e deuxième animateur⋅rice ou gestionnaire.",
+        SpendingRequest.Status.AWAITING_PEER_REVIEW: "Cette demande a déjà été validée par une personne. Pour permettre sa transmission, elle doit encore être validée par un·e deuxième gestionnaire.",
         SpendingRequest.Status.AWAITING_SUPPLEMENTARY_INFORMATION: "Lorsque vous aurez intégré les modifications demandées, vous pourrez de nouveau transmettre cette demande à l'équipe de suivi.",
     },
     SpendingRequest.Status.TO_PAY: "L'allocation de votre groupe est maintenant suffisante pour permettre le paiement de cette demande.",
