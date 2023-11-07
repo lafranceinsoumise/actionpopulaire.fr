@@ -24,10 +24,7 @@ from agir.payments.model_fields import AmountField
 
 __all__ = [
     "AllocationModelMixin",
-    "Operation",
-    "DepartementOperation",
-    "CNSOperation",
-    "Spending",
+    "AccountOperation",
     "SpendingRequest",
     "Document",
     "MonthlyAllocation",
@@ -121,7 +118,7 @@ class AccountOperation(TimeStampedModel):
         _("Destination"),
         null=False,
         blank=False,
-        help_text=_("Le compte debité, celui vers où va la ressource"),
+        help_text=_("Le compte débité, celui où va la ressource"),
         max_length=200,
     )
 
@@ -133,11 +130,14 @@ class AccountOperation(TimeStampedModel):
         on_delete=models.PROTECT,
     )
 
-    groups = models.ManyToManyField(
-        to="groups.SupportGroup",
-    )
-
     comment = models.TextField("Commentaire", blank=True, null=False)
+
+    @admin.display(description="Montant")
+    def get_amount_display(self):
+        if not isinstance(self.amount, int):
+            return "-"
+
+        return "{} €".format(floatformat(self.amount / 100, 2))
 
     class Meta:
         # pas besoin d'ajouter la source au deuxième index : si on veut chercher par source ET destination le premier

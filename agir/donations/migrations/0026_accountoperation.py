@@ -39,17 +39,6 @@ INSERT INTO public.donations_accountoperation (id, created, modified, amount, co
   ON o.id = r.operation_id
 );
 
--- grâce à la table de référence, on peut recréer les foreign keys liées aux groupes
-INSERT INTO donations_accountoperation_groups (accountoperation_id, supportgroup_id)
-(
-  SELECT
-  r.accountoperation_id AS accountoperation_id,
-  o.group_id AS group_id
-  FROM public.donations_operation AS o
-  JOIN operation_reference AS r
-  ON o.id = r.operation_id
-);
-
 INSERT INTO donations_accountoperation (created, modified, amount, payment_id, comment, source, destination)
 (
   SELECT
@@ -131,13 +120,12 @@ class Migration(migrations.Migration):
                 (
                     "destination",
                     models.CharField(
-                        help_text="Le compte crédité, celui d'où vient la ressource",
+                        help_text="Le compte débité, celui où va la ressource",
                         max_length=200,
-                        verbose_name="Source",
+                        verbose_name="Destination",
                     ),
                 ),
                 ("comment", models.TextField(blank=True, verbose_name="Commentaire")),
-                ("groups", models.ManyToManyField(to="groups.SupportGroup")),
                 (
                     "payment",
                     models.ForeignKey(
