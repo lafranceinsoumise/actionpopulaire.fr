@@ -128,6 +128,8 @@ class AccountOperation(TimeStampedModel):
         editable=False,
         blank=True,
         on_delete=models.PROTECT,
+        related_name="account_operations",
+        related_query_name="account_operation",
     )
 
     comment = models.TextField("Commentaire", blank=True, null=False)

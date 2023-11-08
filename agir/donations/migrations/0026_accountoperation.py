@@ -39,6 +39,12 @@ INSERT INTO public.donations_accountoperation (id, created, modified, amount, co
   ON o.id = r.operation_id
 );
 
+UPDATE donations_spendingrequest s
+SET account_operation_id = r.accountoperation_id
+FROM operation_reference r
+WHERE r.operation_id = s.operation_id;
+
+
 INSERT INTO donations_accountoperation (created, modified, amount, payment_id, comment, source, destination)
 (
   SELECT
@@ -65,8 +71,6 @@ INSERT INTO donations_accountoperation (created, modified, amount, payment_id, c
   FROM donations_departementoperation
 );
 """
-
-REVERSE_SQL = "TRUNCATE donations_accountoperation;"
 
 
 class Migration(migrations.Migration):
@@ -133,6 +137,8 @@ class Migration(migrations.Migration):
                         editable=False,
                         null=True,
                         on_delete=django.db.models.deletion.PROTECT,
+                        related_name="account_operations",
+                        related_query_name="account_operation",
                         to="payments.payment",
                     ),
                 ),
@@ -148,7 +154,7 @@ class Migration(migrations.Migration):
                 to="donations.accountoperation",
             ),
         ),
-        migrations.RunSQL(sql=SQL, reverse_sql=REVERSE_SQL),
+        migrations.RunSQL(sql=SQL, reverse_sql=migrations.RunSQL.noop),
         migrations.AddIndex(
             model_name="accountoperation",
             index=models.Index(

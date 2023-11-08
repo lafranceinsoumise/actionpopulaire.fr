@@ -256,7 +256,7 @@ def validate_action(spending_request, user):
         spending_request.save()
         if spending_request.status == SpendingRequest.Status.TO_PAY:
             try:
-                spending_request.operation = AccountOperation.objects.create(
+                spending_request.account_operation = AccountOperation.objects.create(
                     amount=-spending_request.amount,
                     source=get_account_name_for_group(spending_request.group),
                     destination=SPENDING_ACCOUNT,

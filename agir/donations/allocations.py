@@ -12,6 +12,7 @@ from agir.groups.models import SupportGroup
 from agir.lib.data import departements_choices
 
 DONATIONS_ACCOUNT = "revenu:dons"
+COTISATIONS_ACCOUNT = "revenu:cotisations"
 CNS_ACCOUNT = "actif:cns"
 SPENDING_ACCOUNT = "depenses"
 
@@ -154,7 +155,7 @@ def apply_payment_allocations(payment):
 
 def cancel_payment_allocations(payment):
     with transaction.atomic():
-        for operation in payment.operation_set.all():
+        for operation in payment.account_operations.all():
             AccountOperation.objects.create(
                 source=operation.destination,
                 destination=operation.source,
