@@ -587,12 +587,13 @@ class SpendingRequestSerializer(serializers.ModelSerializer):
             return super().create(validated_data)
 
     def update(self, instance, validated_data):
-        # Set group only upon creation
+        # do not allow changing group on update
         validated_data.pop("group", None)
+
         with reversion.create_revision():
             reversion.set_user(self.context["request"].user)
             comment = self.validated_data.pop("comment", None) or get_revision_comment(
-                instance.status
+                instance.status, instance.status, self.context["request"].user.person
             )
             reversion.set_comment(comment)
 

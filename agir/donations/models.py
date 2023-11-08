@@ -154,6 +154,8 @@ class AccountOperation(TimeStampedModel):
         return f"Opération "
 
     class Meta:
+        verbose_name = _("opération financière")
+        verbose_name_plural = _("opérations financières")
         # pas besoin d'ajouter la source au deuxième index : si on veut chercher par source ET destination le premier
         # index suffit.
         indexes = [

@@ -1,7 +1,7 @@
 from functools import partial
 
 import reversion
-from django.db import IntegrityError, transaction
+from django.db import transaction
 from django.utils.html import format_html
 from django.utils.translation import ngettext
 from glom import glom, T, Coalesce
@@ -127,6 +127,10 @@ def get_missing_field_error_message(spending_request):
 
 
 def get_revision_comment(from_status, to_status=None, person=None):
+    """Renvoie un commentaire qui décrit le type d'opération en fonction des seuls statuts de départ et d'arrivée
+
+    Cette fonction est destinée à être utilisée pour de l'affichage dans l'admin.
+    """
     # cas spécifique : si on revient à "attente d'informations supplémentaires suite à une modification par un non admin
     # c'est forcément une modification
     if (
@@ -255,14 +259,18 @@ def validate_action(spending_request, user):
         spending_request.status = next_status
         spending_request.save()
         if spending_request.status == SpendingRequest.Status.TO_PAY:
-            try:
-                spending_request.account_operation = AccountOperation.objects.create(
-                    amount=-spending_request.amount,
-                    source=get_account_name_for_group(spending_request.group),
-                    destination=SPENDING_ACCOUNT,
-                )
-            except IntegrityError:
+            # si les fonds ne sont pas disponibles, on ne peut pas progresser vers ce statut
+            if spending_request.amount > get_supportgroup_balance(
+                spending_request.group
+            ):
                 return False
+
+            # l'argent est engagé, on crée l'opération.
+            spending_request.account_operation = AccountOperation.objects.create(
+                amount=-spending_request.amount,
+                source=get_account_name_for_group(spending_request.group),
+                destination=SPENDING_ACCOUNT,
+            )
 
         transaction.on_commit(
             partial(
