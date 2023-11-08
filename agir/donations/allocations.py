@@ -16,13 +16,14 @@ CNS_ACCOUNT = "actif:cns"
 SPENDING_ACCOUNT = "depenses"
 
 
-def get_account_name_for_departement(d):
-    d = d.zfill(2)
-    return f"actif:departement:{d}"
+def get_account_name_for_departement(departement):
+    departement = departement.zfill(2)
+    return f"actif:departement:{departement}"
 
 
-def get_account_name_for_group(g):
-    return f"actif:groupe:{g.id}"
+def get_account_name_for_group(group):
+    group_id = group.id if isinstance(group, SupportGroup) else group
+    return f"actif:groupe:{group_id}"
 
 
 def get_account_balance(account: str):
