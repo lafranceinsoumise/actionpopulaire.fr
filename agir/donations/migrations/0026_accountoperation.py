@@ -17,12 +17,13 @@ INSERT INTO operation_reference (operation_id, accountoperation_id)
 );
 
 -- on crée les nouvelles opérations
-INSERT INTO public.donations_accountoperation (id, created, modified, amount, comment, source, destination, payment_id) 
+INSERT INTO public.donations_accountoperation (id, created, modified, datetime, amount, comment, source, destination, payment_id) 
 (
   SELECT
   r.accountoperation_id AS id,
   o.created AS created,
   o.modified AS modified,
+  o.created AS datetime,
   ABS(o.amount) AS amount,
   o.comment AS comment,
   CASE 
@@ -45,11 +46,12 @@ FROM operation_reference r
 WHERE r.operation_id = s.operation_id;
 
 
-INSERT INTO donations_accountoperation (created, modified, amount, payment_id, comment, source, destination)
+INSERT INTO donations_accountoperation (created, modified, datetime, amount, payment_id, comment, source, destination)
 (
   SELECT
   created,
   modified,
+  created AS datetime,
   amount,
   payment_id,
   comment,
@@ -58,11 +60,12 @@ INSERT INTO donations_accountoperation (created, modified, amount, payment_id, c
   FROM donations_cnsoperation
 );
 
-INSERT INTO donations_accountoperation (created, modified, amount, payment_id, comment, source, destination)
+INSERT INTO donations_accountoperation (created, modified, datetime, amount, payment_id, comment, source, destination)
 (
   SELECT
   created,
   modified,
+  created AS datetime,
   amount,
   payment_id,
   comment,
@@ -105,6 +108,13 @@ class Migration(migrations.Migration):
                     "modified",
                     models.DateTimeField(
                         auto_now=True, verbose_name="dernière modification"
+                    ),
+                ),
+                (
+                    "datetime",
+                    models.DateTimeField(
+                        default=django.utils.timezone.now,
+                        verbose_name="Date de l'opération",
                     ),
                 ),
                 (

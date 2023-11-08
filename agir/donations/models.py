@@ -8,6 +8,7 @@ from django.db import models
 from django.db.models import Prefetch
 from django.db.models.enums import ChoicesMeta
 from django.template.defaultfilters import floatformat
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _, ngettext
 from dynamic_filenames import FilePattern
 from reversion.models import Version
@@ -100,6 +101,11 @@ class AllocationModelMixin(models.Model):
 
 
 class AccountOperation(TimeStampedModel):
+    datetime = models.DateTimeField(
+        _("Date de l'opération"),
+        default=timezone.now,
+        null=False,
+    )
     amount = PositiveBalanceField(
         _("montant"),
         null=False,

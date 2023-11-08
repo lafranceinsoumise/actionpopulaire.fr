@@ -144,7 +144,7 @@ class AccountOperationAdmin(admin.ModelAdmin):
     change_list_template = "admin/operations/change_list.html"
 
     list_display = (
-        "created",
+        "datetime",
         "source",
         "destination",
         "amount_display",
@@ -153,14 +153,15 @@ class AccountOperationAdmin(admin.ModelAdmin):
 
     list_filter = (
         filters.SupportGroupFilter,
-        ("created", admin.DateFieldListFilter),
-        ("created", DateRangeFilter),
+        ("datetime", admin.DateFieldListFilter),
+        ("datetime", DateRangeFilter),
     )
 
     search_fields = ("comment",)
 
     fields = (
         "created",
+        "datetime",
         "source",
         "destination",
         "amount",
