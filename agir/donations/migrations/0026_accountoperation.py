@@ -52,11 +52,17 @@ INSERT INTO donations_accountoperation (created, modified, datetime, amount, pay
   created,
   modified,
   created AS datetime,
-  amount,
+  ABS(amount),
   payment_id,
   comment,
-  'revenu:dons' AS source,
-  'actif:cns' AS destination
+  CASE
+   WHEN amount > 0 THEN 'revenu:dons'
+   ELSE 'actif:cns'
+  END AS source,
+  CASE
+   WHEN amount > 0 THEN 'actif:cns'
+   ELSE 'revenu:dons'
+  END AS destination
   FROM donations_cnsoperation
 );
 
@@ -66,11 +72,17 @@ INSERT INTO donations_accountoperation (created, modified, datetime, amount, pay
   created,
   modified,
   created AS datetime,
-  amount,
+  ABS(amount),
   payment_id,
   comment,
-  'revenu:dons' AS source,
-  'actif:departement:' || departement AS destination
+    CASE
+   WHEN amount > 0 THEN 'revenu:dons'
+   ELSE 'actif:departement:' || departement
+  END AS source,
+  CASE
+   WHEN amount > 0 THEN 'actif:departement:' || departement
+   ELSE 'revenu:dons'
+  END AS destination
   FROM donations_departementoperation
 );
 """
