@@ -141,6 +141,12 @@ class AccountOperation(TimeStampedModel):
 
         return "{} €".format(floatformat(self.amount / 100, 2))
 
+    def __repr__(self):
+        return f"AccountOperation(amount={self.amount!r}, source={self.source!r}, destination={self.destination!r})"
+
+    def __str__(self):
+        return f"Opération "
+
     class Meta:
         # pas besoin d'ajouter la source au deuxième index : si on veut chercher par source ET destination le premier
         # index suffit.

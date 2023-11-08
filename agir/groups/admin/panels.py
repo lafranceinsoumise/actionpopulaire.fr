@@ -36,7 +36,11 @@ from ..models import SupportGroup
 from ..utils.certification import (
     check_certification_criteria,
 )
-from ...donations.allocations import get_account_name_for_group
+from ...donations.allocations import (
+    get_account_name_for_group,
+    DONATIONS_ACCOUNT,
+    SPENDING_ACCOUNT,
+)
 from ...lib.admin.utils import admin_url
 
 
@@ -251,13 +255,13 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
         value = display_price(allocation) if allocation else "-"
 
         if show_add_button:
+            add_operation_link = reverse("admin:donations_accountoperation_add")
             group_account = get_account_name_for_group(obj)
             value = format_html(
-                '{value} (<a href="{link}">Changer</a>)',
+                '{value} (<a href="{increase_link}">Augmenter</a> ou <a href="{decrease_link}">diminuer</a>)',
                 value=value,
-                link=reverse("admin:donations_accountoperation_add")
-                + "?destination="
-                + group_account,
+                increase_link=f"{add_operation_link}?source={DONATIONS_ACCOUNT}&destination={group_account}",
+                decrease_link=f"{add_operation_link}?source={group_account}&destination={SPENDING_ACCOUNT}",
             )
 
         return value
