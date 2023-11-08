@@ -10,7 +10,7 @@ import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import ShareLink from "@agir/front/genericComponents/ShareLink";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
-import SpendingRequests from "./SpendingRequests";
+import SpendingRequests from "../SpendingRequests";
 
 import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
 
@@ -44,13 +44,14 @@ const GroupFinancePage = (props) => {
       </StyledTitle>
       <PageFadeIn ready={!!data} wait={<DonationSkeleton />}>
         <p style={{ fontSize: "2rem", margin: 0 }}>
-          {new Intl.NumberFormat("fr-FR", {
-            style: "currency",
-            currency: "EUR",
-          }).format(data?.donation / 100)}
+          {data &&
+            new Intl.NumberFormat("fr-FR", {
+              style: "currency",
+              currency: "EUR",
+            }).format(data.allocation / 100)}
         </p>
         <Spacer size=".5rem" />
-        {data?.donation === 0 && (
+        {data && data.allocation === 0 && (
           <p style={{ color: style.black700 }}>
             Personne n'a encore alloué de dons à vos actions.
           </p>

@@ -12,7 +12,7 @@ from django.utils.translation import gettext_lazy as _, ngettext
 from dynamic_filenames import FilePattern
 from reversion.models import Version
 
-from agir.donations.model_fields import BalanceField
+from agir.donations.model_fields import BalanceField, PositiveBalanceField
 from agir.lib.admin.utils import admin_url
 from agir.lib.data import departements_choices
 from agir.lib.display import display_price
@@ -24,10 +24,7 @@ from agir.payments.model_fields import AmountField
 
 __all__ = [
     "AllocationModelMixin",
-    "Operation",
-    "DepartementOperation",
-    "CNSOperation",
-    "Spending",
+    "AccountOperation",
     "SpendingRequest",
     "Document",
     "MonthlyAllocation",
@@ -100,6 +97,61 @@ class AllocationModelMixin(models.Model):
 
     class Meta:
         abstract = True
+
+
+class AccountOperation(TimeStampedModel):
+    amount = PositiveBalanceField(
+        _("montant"),
+        null=False,
+        blank=False,
+    )
+
+    source = models.CharField(
+        _("Source"),
+        null=False,
+        blank=False,
+        help_text=_("Le compte crédité, celui d'où vient la ressource"),
+        max_length=200,
+    )
+
+    destination = models.CharField(
+        _("Destination"),
+        null=False,
+        blank=False,
+        help_text=_("Le compte débité, celui où va la ressource"),
+        max_length=200,
+    )
+
+    payment = models.ForeignKey(
+        to="payments.Payment",
+        null=True,
+        editable=False,
+        blank=True,
+        on_delete=models.PROTECT,
+    )
+
+    comment = models.TextField("Commentaire", blank=True, null=False)
+
+    @admin.display(description="Montant")
+    def get_amount_display(self):
+        if not isinstance(self.amount, int):
+            return "-"
+
+        return "{} €".format(floatformat(self.amount / 100, 2))
+
+    class Meta:
+        # pas besoin d'ajouter la source au deuxième index : si on veut chercher par source ET destination le premier
+        # index suffit.
+        indexes = [
+            models.Index(
+                fields=("source", "destination", "amount"),
+                name="donations_accountop_source",
+            ),
+            models.Index(
+                fields=("destination", "amount"),
+                name="donations_accountop_dest",
+            ),
+        ]
 
 
 class OperationModelMixin(TimeStampedModel):
@@ -372,7 +424,7 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
         (
             Status.AWAITING_PEER_REVIEW,
             Status.AWAITING_ADMIN_REVIEW,
-        ): "Validée par un⋅e second⋅e animateur⋅rice",
+        ): "Validée par un⋅e autre gestionnaire",
     }
 
     id = models.UUIDField(
@@ -401,6 +453,14 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
         blank=False,
         null=False,
     )
+
+    account_operation = models.ForeignKey(
+        AccountOperation,
+        on_delete=models.PROTECT,
+        related_name="spending_request",
+        null=True,
+    )
+
     operation = models.ForeignKey(
         Operation, on_delete=models.PROTECT, related_name="spending_request", null=True
     )

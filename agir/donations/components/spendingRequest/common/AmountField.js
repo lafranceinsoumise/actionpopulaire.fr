@@ -71,8 +71,7 @@ const AmountField = (props) => {
           <RawFeatherIcon name="info" />
           {availableAmount > 0 ? (
             <strong>
-              Le solde de votre groupe d'action est de{" "}
-              {displayPrice(availableAmount)}
+              Le solde de votre groupe est de {displayPrice(availableAmount)}
             </strong>
           ) : (
             <strong>Le solde de votre groupe est nul</strong>

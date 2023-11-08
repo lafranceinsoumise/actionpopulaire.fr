@@ -13,17 +13,10 @@ from agir.donations.admin.actions import (
     export_spending_requests_to_csv,
     mark_spending_request_as_paid,
 )
-from agir.donations.admin.filters import (
-    MonthlyAllocationGroupFilter,
-    MonthlyAllocationSubscriptionPersonFilter,
-)
 from agir.donations.admin.views import HandleRequestView
 from agir.donations.models import (
     SpendingRequest,
-    Operation,
-    MonthlyAllocation,
-    DepartementOperation,
-    CNSOperation,
+    AccountOperation,
 )
 from agir.lib.admin.utils import display_link
 from agir.lib.display import display_price
@@ -146,16 +139,36 @@ class OperationChangeList(ChangeList):
         self.sum = self.queryset.aggregate(sum=Sum("amount"))["sum"] or 0
 
 
-class OperationAdminMixin(admin.ModelAdmin):
+@admin.register(AccountOperation)
+class AccountOperationAdmin(admin.ModelAdmin):
     change_list_template = "admin/operations/change_list.html"
-    list_display = ("amount_display", "payment_link", "created", "comment")
+
+    list_display = (
+        "created",
+        "source",
+        "destination",
+        "amount_display",
+        "payment_link",
+    )
+
     list_filter = (
+        filters.SupportGroupFilter,
         ("created", admin.DateFieldListFilter),
         ("created", DateRangeFilter),
     )
+
     search_fields = ("comment",)
-    fields = ("amount", "payment_link", "comment")
-    readonly_fields = ("payment_link",)
+
+    fields = (
+        "created",
+        "source",
+        "destination",
+        "amount",
+        "comment",
+        "payment_link",
+    )
+
+    readonly_fields = ("created", "payment_link")
 
     def has_change_permission(self, request, obj=None):
         return request.user.is_superuser
@@ -174,62 +187,12 @@ class OperationAdminMixin(admin.ModelAdmin):
             text=str(obj.payment),
         )
 
-    @admin.display(description="Montant net", ordering="amount")
+    @admin.display(description="", ordering="amount")
     def amount_display(self, obj):
         if not obj or not obj.amount:
             return "-"
 
         return display_price_in_cent(obj.amount)
-
-    class Media:
-        pass
-
-
-@admin.register(Operation)
-class OperationAdmin(OperationAdminMixin):
-    list_display = ("group", "amount_display", "payment_link", "created", "comment")
-    list_filter = (
-        filters.SupportGroupFilter,
-        ("created", admin.DateFieldListFilter),
-        ("created", DateRangeFilter),
-    )
-    search_fields = ("group__name",)
-    fields = ("group", "amount", "payment_link", "comment")
-    autocomplete_fields = ("group",)
-
-
-@admin.register(DepartementOperation)
-class DepartementOperationAdmin(OperationAdminMixin):
-    list_display = (
-        "departement",
-        "amount_display",
-        "payment_link",
-        "created",
-        "comment",
-    )
-    list_filter = (
-        filters.DepartementFilter,
-        ("created", admin.DateFieldListFilter),
-        ("created", DateRangeFilter),
-    )
-    search_fields = ("departement",)
-    fields = ("departement", "amount", "payment_link", "comment")
-
-
-@admin.register(CNSOperation)
-class CNSOperationAdmin(OperationAdminMixin):
-    pass
-
-
-@admin.register(MonthlyAllocation)
-class MonthlyAllocationAdmin(admin.ModelAdmin):
-    list_display = ("__str__", "type", "group", "departement", "amount", "subscription")
-    list_filter = (
-        MonthlyAllocationGroupFilter,
-        MonthlyAllocationSubscriptionPersonFilter,
-        "subscription__status",
-    )
-    readonly_fields = ("type", "group", "departement", "subscription", "amount")
 
     class Media:
         pass

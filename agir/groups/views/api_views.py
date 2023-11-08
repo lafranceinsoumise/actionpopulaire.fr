@@ -844,7 +844,7 @@ class GroupFinanceAPIView(GenericAPIView):
 
     def get(self, request, *args, **kwargs):
         group = self.get_object()
-        donation = get_supportgroup_balance(group)
+        allocation = get_supportgroup_balance(group)
         current_spending_requests = (
             SpendingRequest.objects.filter(group=group)
             .exclude(status=SpendingRequest.Status.PAID)
@@ -875,7 +875,7 @@ class GroupFinanceAPIView(GenericAPIView):
 
         return Response(
             status=status.HTTP_200_OK,
-            data={"donation": donation, "spendingRequests": spending_requests},
+            data={"allocation": allocation, "spendingRequests": spending_requests},
         )
 
 

@@ -4,14 +4,41 @@ from django.db import transaction
 from django.db.models import Sum
 
 from agir.donations.models import (
-    Operation,
     MonthlyAllocation,
-    DepartementOperation,
-    CNSOperation,
     AllocationModelMixin,
+    AccountOperation,
 )
 from agir.groups.models import SupportGroup
 from agir.lib.data import departements_choices
+
+DONATIONS_ACCOUNT = "revenu:dons"
+CNS_ACCOUNT = "actif:cns"
+SPENDING_ACCOUNT = "depenses"
+
+
+def get_account_name_for_departement(d):
+    d = d.zfill(2)
+    return f"actif:departement:{d}"
+
+
+def get_account_name_for_group(g):
+    return f"actif:groupe:{g.id}"
+
+
+def get_account_balance(account: str):
+    incomes = (
+        AccountOperation.objects.filter(destination=account).aggregate(
+            sum=Sum("amount")
+        )["sum"]
+        or 0
+    )
+    outcomes = (
+        AccountOperation.objects.filter(source=account).aggregate(sum=Sum("amount"))[
+            "sum"
+        ]
+        or 0
+    )
+    return incomes - outcomes
 
 
 def get_balance(qs):
@@ -19,15 +46,15 @@ def get_balance(qs):
 
 
 def get_supportgroup_balance(group):
-    return get_balance(Operation.objects.filter(group=group))
+    return get_account_balance(get_account_name_for_group(group))
 
 
 def get_departement_balance(departement):
-    return get_balance(DepartementOperation.objects.filter(departement=departement))
+    return get_account_balance(get_account_name_for_departement(departement))
 
 
 def get_cns_balance():
-    return get_balance(CNSOperation.objects.all())
+    return get_account_balance(CNS_ACCOUNT)
 
 
 def get_allocation_list(allocations, limit_to_type=None, with_labels=False):
@@ -89,21 +116,25 @@ def apply_payment_allocation(payment, allocation):
                 group = SupportGroup.objects.get(pk=group)
             except SupportGroup.DoesNotExist:
                 return
-        Operation.objects.update_or_create(
+        AccountOperation.objects.update_or_create(
             payment=payment,
-            group=group,
-            defaults={"amount": allocation.get("amount")},
+            source=DONATIONS_ACCOUNT,
+            destination=get_account_name_for_group(group),
+            defaults={"amount": allocation["amount"]},
         )
     elif allocation_type == AllocationModelMixin.TYPE_DEPARTEMENT:
-        DepartementOperation.objects.update_or_create(
+        AccountOperation.objects.update_or_create(
             payment=payment,
-            departement=allocation.get("departement"),
-            defaults={"amount": allocation.get("amount")},
+            source=DONATIONS_ACCOUNT,
+            destination=get_account_name_for_departement(allocation["departement"]),
+            defaults={"amount": allocation["amount"]},
         )
     elif allocation_type == AllocationModelMixin.TYPE_CNS:
-        CNSOperation.objects.update_or_create(
+        AccountOperation.objects.update_or_create(
             payment=payment,
-            defaults={"amount": allocation.get("amount")},
+            source=DONATIONS_ACCOUNT,
+            destination=CNS_ACCOUNT,
+            defaults={"amount": allocation["amount"]},
         )
 
 
@@ -123,19 +154,17 @@ def apply_payment_allocations(payment):
 def cancel_payment_allocations(payment):
     with transaction.atomic():
         for operation in payment.operation_set.all():
-            Operation.objects.create(
-                group=operation.group,
-                amount=-operation.amount,
+            AccountOperation.objects.create(
+                source=operation.destination,
+                destination=operation.source,
+                amount=operation.amount,
                 comment=f"Annule l'opération #{operation.id} ({str(payment)})",
             )
-        for operation in payment.departementoperation_set.all():
-            DepartementOperation.objects.create(
-                departement=operation.departement,
-                amount=-operation.amount,
-                comment=f"Annule l'opération #{operation.id} ({str(payment)})",
-            )
-        for operation in payment.cnsoperation_set.all():
-            CNSOperation.objects.create(
-                amount=-operation.amount,
-                comment=f"Annule l'opération #{operation.id} ({str(payment)})",
-            )
+
+
+def create_spending_for_group(*, group, amount):
+    return AccountOperation.objects.create(
+        amount=amount,
+        source=get_account_name_for_group(group),
+        destination=SPENDING_ACCOUNT,
+    )

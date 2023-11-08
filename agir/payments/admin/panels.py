@@ -24,9 +24,6 @@ from agir.payments.admin.forms import PaymentAdminForm
 from agir.payments.admin.inlines import (
     PaymentInline,
     MonthlyAllocationInline,
-    OperationInline,
-    CNSOperationInline,
-    DepartementOperationInline,
 )
 from agir.payments.admin.mixins import PaymentManagementAdminMixin
 from agir.payments.models import Subscription, Payment
@@ -122,7 +119,6 @@ class PaymentAdmin(PaymentManagementAdminMixin, AddRelatedLinkMixin, admin.Model
             },
         ),
     )
-    inlines = (CNSOperationInline, OperationInline, DepartementOperationInline)
 
     @admin.display(description="Meta", ordering="meta")
     def meta_data(self, obj):

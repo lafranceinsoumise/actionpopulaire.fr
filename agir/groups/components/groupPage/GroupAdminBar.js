@@ -78,7 +78,7 @@ const GroupAdminBar = (props) => {
             <li>
               <FeatherIcon inline small name="settings" color={style.primary} />
               &ensp;
-              <a href={routes.membershipTransfer}>Transfer de membres</a>
+              <a href={routes.membershipTransfer}>Transfert de membres</a>
             </li>
           )}
           {routes.admin && (
