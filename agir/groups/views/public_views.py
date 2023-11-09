@@ -240,7 +240,7 @@ class SuppportGroupOGImageView(DetailView):
 
         # Add marker to static map image
         icon = self.get_image_from_file("map-marker.png")
-        icon = icon.resize((116, 139), Image.ANTIALIAS)
+        icon = icon.resize((116, 139), Image.LANCZOS)
         map.paste(icon, (542, 49), icon)
 
         return map
@@ -255,7 +255,6 @@ class SuppportGroupOGImageView(DetailView):
             filename,
             size=size,
             encoding="utf-8",
-            layout_engine=ImageFont.LAYOUT_BASIC,
         )
 
     def get_image_from_file(self, filename):
@@ -291,10 +290,6 @@ class SuppportGroupOGImageView(DetailView):
 
         # Draw Action Populaire logo
         image.paste(self.get_image_from_file("bande-ap.png"), (0, 535))
-
-        # Draw Union Populaire logo
-        logo_up = self.get_image_from_file("UP+JLM.png")
-        image.paste(logo_up, (1200 - 453 - 100, 630 - 186), logo_up)
 
         return image
 
