@@ -1,3 +1,8 @@
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
+from django.test import TestCase
+from django.urls import reverse
+
 from agir.activity.models import Activity
 from rest_framework.test import APITestCase
 
@@ -727,3 +732,85 @@ class GetUnreadMessageCommentCountActionTestCase(APITestCase):
             self.writer.pk, self.message.pk
         )
         self.assertEqual(unread_comment_count, 0)
+
+
+class SupportGroupAdminTestCase(TestCase):
+    def setUp(self):
+        self.admin = Person.objects.create_superperson(
+            "admin@agir.local", password="truc"
+        )
+        user1 = Person.objects.create_insoumise("user1@agir.local")
+        group = SupportGroup.objects.create(name="Groupe")
+        self.message = SupportGroupMessage.objects.create(
+            supportgroup=group, author=user1, text="Hello!"
+        )
+        supportgroupmessage_content_type = ContentType.objects.get_for_model(
+            SupportGroupMessage
+        )
+        self.view_permission = Permission.objects.get(
+            content_type=supportgroupmessage_content_type,
+            codename="view_supportgroupmessage",
+        )
+        self.add_permission = Permission.objects.get(
+            content_type=supportgroupmessage_content_type,
+            codename="add_supportgroupmessage",
+        )
+        self.change_permission = Permission.objects.get(
+            content_type=supportgroupmessage_content_type,
+            codename="change_supportgroupmessage",
+        )
+        self.send_supportgroupmessage_permission = Permission.objects.get(
+            content_type=supportgroupmessage_content_type,
+            codename="send_supportgroupmessage",
+        )
+        self.client.logout()
+
+    def test_can_display_pages(self):
+        views = [
+            ("admin:msgs_supportgroupmessage_changelist", ()),
+            ("admin:msgs_supportgroupmessage_change", (self.message.pk,)),
+        ]
+        self.client.force_login(
+            self.admin.role, backend="agir.people.backend.PersonBackend"
+        )
+        for view, args in views:
+            res = self.client.get(reverse(view, args=args))
+            self.assertEqual(res.status_code, 200)
+
+    def test_cannot_send_message_without_right_permission(self):
+        unauthorized = Person.objects.create_insoumise(
+            "unauthorized@agir.local",
+            password="secret",
+            is_staff=True,
+            create_role=True,
+        )
+        unauthorized.role.user_permissions.add(
+            self.view_permission, self.add_permission, self.change_permission
+        )
+        self.client.force_login(
+            unauthorized.role, backend="agir.people.backend.PersonBackend"
+        )
+        res = self.client.get(reverse("admin:msgs_supportgroupmessage_changelist"))
+        self.assertEqual(res.status_code, 200)
+        self.assertNotContains(res, text="Envoyer un message")
+        res = self.client.get(reverse("admin:msgs_supportgroupmessage_send"))
+        self.assertNotEqual(res.status_code, 200)
+
+    def test_can_send_message_with_right_permission(self):
+        authorized = Person.objects.create_insoumise(
+            "authorized@agir.local", password="secret", is_staff=True, create_role=True
+        )
+        authorized.role.user_permissions.add(
+            self.view_permission,
+            self.add_permission,
+            self.change_permission,
+            self.send_supportgroupmessage_permission,
+        )
+        self.client.force_login(
+            authorized.role, backend="agir.people.backend.PersonBackend"
+        )
+        res = self.client.get(reverse("admin:msgs_supportgroupmessage_changelist"))
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, text="Envoyer un message")
+        res = self.client.get(reverse("admin:msgs_supportgroupmessage_send"))
+        self.assertNotEqual(res.status_code, 200)

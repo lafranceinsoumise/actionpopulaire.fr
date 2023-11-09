@@ -55,7 +55,6 @@ class SupportGroupMessageCommentQuerySet(models.QuerySet):
 class AbstractMessage(BaseAPIResource):
     author = models.ForeignKey(
         "people.Person",
-        editable=False,
         on_delete=models.SET_NULL,
         verbose_name="Auteur",
         null=True,
@@ -78,7 +77,6 @@ class SupportGroupMessage(AbstractMessage):
     )
     supportgroup = models.ForeignKey(
         "groups.SupportGroup",
-        editable=False,
         on_delete=models.PROTECT,
         verbose_name="Groupe / équipe",
         related_name="messages",
@@ -91,7 +89,7 @@ class SupportGroupMessage(AbstractMessage):
         verbose_name="Événement lié",
     )
     required_membership_type = models.IntegerField(
-        "required_membershiptype",
+        "Statut dans le groupe requis",
         choices=Membership.MEMBERSHIP_TYPE_CHOICES,
         default=Membership.MEMBERSHIP_TYPE_FOLLOWER,
     )
@@ -117,6 +115,13 @@ class SupportGroupMessage(AbstractMessage):
     class Meta:
         verbose_name = "Message de groupe"
         verbose_name_plural = "Messages de groupe"
+        default_permissions = ("add", "change", "delete", "view")
+        permissions = [
+            (
+                "send_supportgroupmessage",
+                "Peut créer et envoyer des messages aux groupes d'action",
+            )
+        ]
 
 
 @reversion.register()

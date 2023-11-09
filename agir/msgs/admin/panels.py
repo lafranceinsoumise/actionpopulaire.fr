@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.urls import path
 from django.utils.html import format_html, format_html_join
 from reversion.admin import VersionAdmin
 
@@ -6,6 +7,7 @@ from agir.lib.admin.utils import display_link, admin_url
 from agir.msgs.admin import filters
 from agir.msgs.admin.inlines import InlineSupportGroupMessageCommentAdmin
 from agir.msgs.admin.mixins import MessageAdminMixin
+from agir.msgs.admin.views import CreateAndSendSupportGroupMessageView
 from agir.msgs.models import SupportGroupMessage, SupportGroupMessageComment, UserReport
 
 
@@ -56,6 +58,7 @@ class SupportGroupMessageCommentAdmin(MessageAdminMixin, VersionAdmin):
 
 @admin.register(SupportGroupMessage)
 class SupportGroupMessageAdmin(MessageAdminMixin, VersionAdmin):
+    ordering = ("-created",)
     fields = (
         "id",
         "created",
@@ -106,9 +109,7 @@ class SupportGroupMessageAdmin(MessageAdminMixin, VersionAdmin):
         "readonly",
     )
 
-    inlines = [
-        InlineSupportGroupMessageCommentAdmin,
-    ]
+    inlines = (InlineSupportGroupMessageCommentAdmin,)
 
     @admin.display(description="Nombre de commentaires")
     def comment_count(self, obj):
@@ -132,6 +133,28 @@ class SupportGroupMessageAdmin(MessageAdminMixin, VersionAdmin):
     @admin.display(description="Groupe")
     def group(self, obj):
         return display_link(obj.supportgroup)
+
+    def get_urls(self):
+        return [
+            path(
+                "send/",
+                self.admin_site.admin_view(
+                    CreateAndSendSupportGroupMessageView.as_view(model_admin=self)
+                ),
+                name="{}_{}_send".format(self.opts.app_label, self.opts.model_name),
+            )
+        ] + super().get_urls()
+
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        extra_context.update(
+            {
+                "has_send_link": request.user.has_perm("msgs.send_supportgroupmessage"),
+                "send_link": f'{admin_url("admin:{}_{}_send".format(self.opts.app_label, self.opts.model_name))}',
+            }
+        )
+
+        return super().changelist_view(request, extra_context)
 
     class Media:
         pass
