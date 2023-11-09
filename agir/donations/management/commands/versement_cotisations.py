@@ -3,6 +3,7 @@ import math
 import re
 
 import pandas as pd
+from django.core.management import BaseCommand
 
 from agir.donations.allocations import (
     COTISATIONS_ACCOUNT,
@@ -10,7 +11,6 @@ from agir.donations.allocations import (
     CNS_ACCOUNT,
 )
 from agir.donations.models import AccountOperation
-from agir.lib.commands import BaseCommand
 
 
 class Command(BaseCommand):
