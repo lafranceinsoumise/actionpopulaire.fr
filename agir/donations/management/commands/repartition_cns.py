@@ -54,9 +54,13 @@ class Command(BaseCommand):
                     f"Au maximum, l'allocation devrait être de {cns // nb} centimes."
                 )
 
+            remainder = cns - allocation * nb
+
             for d, p in poids.items():
                 AccountOperation.objects.create(
-                    amount=(p * cns) // poids_total,
+                    # la résultat de la division entière est toujours inférieur au total
+                    # au pire on laisse jusqu'à nb centimes dans la CNS
+                    amount=allocation + p * remainder // poids_total,
                     source=CNS_ACCOUNT,
                     destination=get_account_name_for_departement(d),
                     comment=comment,
