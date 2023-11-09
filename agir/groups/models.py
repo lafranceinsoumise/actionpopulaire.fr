@@ -484,9 +484,7 @@ class SupportGroup(
         if not self.published:
             return False
 
-        return self.is_certified
-        # TODO: replace previous line with the following to allow bou-dep type groups to access the finance management views
-        # return self.is_certified or self.type == self.TYPE_BOUCLE_DEPARTEMENTALE
+        return self.is_certified or self.type == self.TYPE_BOUCLE_DEPARTEMENTALE
 
     def get_allocation(self):
         from agir.donations.allocations import get_supportgroup_balance

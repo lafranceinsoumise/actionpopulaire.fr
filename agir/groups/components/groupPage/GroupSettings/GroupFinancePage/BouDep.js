@@ -44,13 +44,14 @@ const BouDepFinancePage = (props) => {
       </StyledTitle>
       <PageFadeIn ready={!!data} wait={<DonationSkeleton />}>
         <p style={{ fontSize: "2rem", margin: 0 }}>
-          {new Intl.NumberFormat("fr-FR", {
-            style: "currency",
-            currency: "EUR",
-          }).format(data.allocation / 100)}
+          {data &&
+            new Intl.NumberFormat("fr-FR", {
+              style: "currency",
+              currency: "EUR",
+            }).format(data.allocation ? data.allocation / 100 : 0)}
         </p>
         <Spacer size=".5rem" />
-        {data.allocation === 0 && (
+        {data && data.allocation === 0 && (
           <p style={{ color: style.black700 }}>
             Le solde de votre boucle départementale est nul.
           </p>

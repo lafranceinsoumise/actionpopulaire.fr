@@ -48,7 +48,7 @@ const GroupFinancePage = (props) => {
             new Intl.NumberFormat("fr-FR", {
               style: "currency",
               currency: "EUR",
-            }).format(data.allocation / 100)}
+            }).format(data.allocation ? data.allocation / 100 : 0)}
         </p>
         <Spacer size=".5rem" />
         {data && data.allocation === 0 && (
