@@ -49,7 +49,7 @@ class Command(BaseCommand):
             for d, v in versements.items()
             if re.match(r"^(?:\d[0-9AB]|9[78]\d)$", d) and v
         ]
-        cns = versements.get("cns", 0.0)
+        cns = versements.pop("CNS", 0.0)
 
         if part_cns:
             for d in deps:
@@ -60,7 +60,7 @@ class Command(BaseCommand):
             AccountOperation.objects.create(
                 source=COTISATIONS_ACCOUNT,
                 destination=get_account_name_for_departement(d),
-                amount=d,
+                amount=versements[d],
                 comment=comment,
             )
 
