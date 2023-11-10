@@ -3,7 +3,12 @@ import datetime
 from django.db import IntegrityError
 
 from agir.lib.commands import BaseCommand
-from agir.statistics.models import AbsoluteStatistics, MaterielStatistics
+from agir.statistics.models import (
+    AbsoluteStatistics,
+    MaterielStatistics,
+    CommuneStatistics,
+)
+from agir.statistics.utils import get_default_date
 
 
 class Command(BaseCommand):
@@ -33,9 +38,9 @@ class Command(BaseCommand):
             help="Update the existing instance if one exists",
         )
 
-    def create(self, date=None):
+    def create(self, date):
         try:
-            absolute_stats = AbsoluteStatistics.objects.create(date=date)
+            AbsoluteStatistics.objects.create(date=date)
         except IntegrityError:
             self.error(
                 "An AbsoluteStatistics instance for the current date already exists. "
@@ -43,10 +48,23 @@ class Command(BaseCommand):
             )
         else:
             self.success(
-                f"An AbsoluteStatistics instance for the selected date ({absolute_stats.date}) has been successfully created!"
+                f"An AbsoluteStatistics instance for the selected date ({date}) has been successfully created!"
             )
+
         try:
-            materiel_stats = MaterielStatistics.objects.create(date=date)
+            CommuneStatistics.objects.create_all_for_date(date=date)
+        except IntegrityError:
+            self.error(
+                "Some CommuneStatistics instances for the current date already exist. "
+                "If you would like to update the current instances, re-run the commande with the --force flag."
+            )
+        else:
+            self.success(
+                f"CommuneStatistics instances for the selected date ({date}) have been successfully created!"
+            )
+
+        try:
+            MaterielStatistics.objects.create(date=date)
         except IntegrityError:
             self.error(
                 "A MaterielStatistics instance for the current date already exists. "
@@ -54,28 +72,33 @@ class Command(BaseCommand):
             )
         else:
             self.success(
-                f"A MaterielStatistics instance for the selected date ({materiel_stats.date}) has been successfully created!"
+                f"A MaterielStatistics instance for the selected date ({date}) has been successfully created!"
             )
 
-    def update_or_create(self, date=None):
-        absolute_stats, created = AbsoluteStatistics.objects.update_or_create(date=date)
+    def update_or_create(self, date):
+        _, created = AbsoluteStatistics.objects.update_or_create(date=date)
         if created:
             self.success(
-                f"An AbsoluteStatistics instance for the selected date ({absolute_stats.date}) has been successfully created!"
+                f"An AbsoluteStatistics instance for the selected date ({date}) has been successfully created!"
             )
         else:
             self.success(
-                f"The AbsoluteStatistics instance for the selected date ({absolute_stats.date}) has been successfully updated!"
+                f"The AbsoluteStatistics instance for the selected date ({date}) has been successfully updated!"
             )
 
-        materiel_stats, created = MaterielStatistics.objects.update_or_create(date=date)
+        CommuneStatistics.objects.update_or_create_all_for_date(date=date)
+        self.success(
+            f"The CommuneStatistics instance for the selected date ({date}) has been successfully created / updated!"
+        )
+
+        _, created = MaterielStatistics.objects.update_or_create(date=date)
         if created:
             self.success(
-                f"A MaterielStatistics instance for the selected date ({absolute_stats.date}) has been successfully created!"
+                f"A MaterielStatistics instance for the selected date ({date}) has been successfully created!"
             )
         else:
             self.success(
-                f"The MaterielStatistics instance for the selected date ({absolute_stats.date}) has been successfully updated!"
+                f"The MaterielStatistics instance for the selected date ({date}) has been successfully updated!"
             )
 
     def handle(
@@ -93,7 +116,8 @@ class Command(BaseCommand):
         if date:
             self.info(f"Generating statistics for the selected date: {date}.")
         else:
-            self.info(f"Generating statistics for the yesterday's date.")
+            date = get_default_date()
+            self.info(f"Generating statistics for yesterday's date.")
 
         if force is True:
             self.update_or_create(date)

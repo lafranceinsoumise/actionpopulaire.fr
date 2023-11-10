@@ -1,5 +1,5 @@
 import django_countries
-from data_france.models import CirconscriptionLegislative
+from data_france.models import CirconscriptionLegislative, Commune
 from django.contrib import admin
 from django.db.models import Subquery
 
@@ -7,6 +7,7 @@ from agir.lib import data
 from agir.lib.admin.autocomplete_filter import AutocompleteSelectModelBaseFilter
 from agir.lib.data import FRANCE_COUNTRY_CODES
 from agir.people.models import Person
+from agir.statistics.utils import get_commune_queryset, get_commune_filter
 
 
 class CountryListFilter(admin.SimpleListFilter):
@@ -93,3 +94,18 @@ class ParticipantFilter(AutocompleteSelectModelBaseFilter):
             return queryset.filter(rsvps__person_id=self.value())
         else:
             return queryset
+
+
+class CommuneListFilter(admin.SimpleListFilter):
+    title = "Commune"
+    parameter_name = "commune"
+    template = "admin/dropdown_filter.html"
+
+    def lookups(self, request, model_admin):
+        return get_commune_queryset()
+
+    def queryset(self, request, queryset):
+        if self.value() is None:
+            return queryset
+
+        return queryset.filter(get_commune_filter(self.value()))

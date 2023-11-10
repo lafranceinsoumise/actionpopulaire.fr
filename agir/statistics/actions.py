@@ -1,22 +1,44 @@
 import datetime
 
 from django.db.models import Count, Q
-from nuntius.models import Campaign
+from nuntius.models import Campaign, CampaignSentStatusType
 from tqdm import tqdm
 
-from agir.statistics.models import AbsoluteStatistics, MaterielStatistics
-from agir.statistics.utils import get_absolute_statistics, get_materiel_statistics
+from agir.statistics.models import (
+    AbsoluteStatistics,
+    MaterielStatistics,
+    # CommuneStatistics,
+)
+from agir.statistics.utils import (
+    get_absolute_statistics,
+    get_materiel_statistics,
+    # get_commune_statistics,
+)
 
 
 def get_largest_campaign_statistics(start, end):
     return list(
         Campaign.objects.filter(campaignsentevent__datetime__date__range=(start, end))
-        .annotate(sent_email_count=Count("campaignsentevent__id"))
+        .annotate(sent_email_count=Count("campaignsentevent__id", distinct=True))
         .filter(sent_email_count__gte=10000)
         .annotate(
             open_email_count=Count(
                 "campaignsentevent__id",
                 filter=Q(campaignsentevent__open_count__gt=0),
+                distinct=True,
+            )
+        )
+        .annotate(
+            undelivered_email_count=Count(
+                "campaignsentevent__id",
+                filter=~Q(
+                    campaignsentevent__result__in=(
+                        CampaignSentStatusType.PENDING,
+                        CampaignSentStatusType.OK,
+                        CampaignSentStatusType.UNKNOWN,
+                    )
+                ),
+                distinct=True,
             )
         )
         .values(
@@ -24,6 +46,7 @@ def get_largest_campaign_statistics(start, end):
             "name",
             "sent_email_count",
             "open_email_count",
+            "undelivered_email_count",
         )
     )
 
@@ -56,6 +79,9 @@ def create_statistics_from_date(date=None, silent=False):
             date=mat_kwargs.pop("date"), defaults=mat_kwargs
         )
 
+        # Create CommuneStatistics
+        CommuneStatistics.objects.update_or_create_all_for_date(date=date)
+
         date += datetime.timedelta(days=1)
         progress.update(1)
 
@@ -87,6 +113,15 @@ def update_statistics_from_date(date=None, silent=False, columns=None):
         mat_kwargs = get_materiel_statistics(date=date, columns=columns)
         if mat_kwargs:
             MaterielStatistics.objects.filter(date=date).update(**mat_kwargs)
+
+        # Update CommuneStatistics
+        commune_kwargs = get_commune_statistics(
+            date=date, columns=columns, as_kwargs=True
+        )
+        if commune_kwargs:
+            CommuneStatistics.objects.update_all_for_date(
+                date=date, defaults=commune_kwargs
+            )
 
         date += datetime.timedelta(days=1)
         progress.update(1)
