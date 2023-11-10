@@ -9,7 +9,10 @@
       "label": "#02 S’adapter au système de la nature",
       "description": "S’adapter au système de la nature"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    }
   },
   {
     "id": "bc07c020-04b2-4b5f-bbdc-fedae05398e4",
@@ -21,7 +24,10 @@
       "label": "#04 Humaniser les personnes et la société",
       "description": "Humaniser les personnes et la société"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/antiracisme/"
+    }
   },
   {
     "id": "7f98d747-10f8-41a2-b0e2-5cb751dd8ee6",
@@ -33,7 +39,10 @@
       "label": "#03 Unir pour bien vivre",
       "description": "Unir pour bien vivre"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/banques/"
+    }
   },
   {
     "id": "9ecdf268-4e3b-42c6-8d47-ba281b218b28",
@@ -45,7 +54,10 @@
       "label": "#02 S’adapter au système de la nature",
       "description": "S’adapter au système de la nature"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/animaux/"
+    }
   },
   {
     "id": "7ab9ca43-8447-410e-a010-1818c66a5722",
@@ -57,7 +69,10 @@
       "label": "#01 Vivre libres et citoyens",
       "description": "Vivre libres et citoyens"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/6e-republique/"
+    }
   },
   {
     "id": "00219b3d-39d9-43f3-b5f6-c0a9e81aee0d",
@@ -69,7 +84,10 @@
       "label": "#04 Humaniser les personnes et la société",
       "description": "Humaniser les personnes et la société"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/culture/"
+    }
   },
   {
     "id": "4d7a7513-1b3e-4346-b294-3c1e906fdb67",
@@ -81,7 +99,10 @@
       "label": "#02 S’adapter au système de la nature",
       "description": "S’adapter au système de la nature"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/dechets/"
+    }
   },
   {
     "id": "cc4667b7-ecac-4f6a-b34c-81fff1fd8de0",
@@ -93,7 +114,10 @@
       "label": "#05 Ordonner le monde",
       "description": "Ordonner le monde"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/defense/"
+    }
   },
   {
     "id": "fff73c9c-199d-4764-bc68-d0ef58b916bc",
@@ -105,7 +129,10 @@
       "label": "#04 Humaniser les personnes et la société",
       "description": "Humaniser les personnes et la société"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/lgbti/"
+    }
   },
   {
     "id": "94c67f5e-7521-4e4b-b3ae-94a9262a59c8",
@@ -117,7 +144,10 @@
       "label": "#02 S’adapter au système de la nature",
       "description": "S’adapter au système de la nature"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/eau/"
+    }
   },
   {
     "id": "37cf47bb-865f-4516-a27f-d2ada87c59f0",
@@ -129,7 +159,10 @@
       "label": "#03 Unir pour bien vivre",
       "description": "Unir pour bien vivre"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/ess/"
+    }
   },
   {
     "id": "c69c756a-2578-409e-9353-1d982c4817ce",
@@ -141,7 +174,7 @@
       "label": "#04 Humaniser les personnes et la société",
       "description": "Humaniser les personnes et la société"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": null
   },
   {
     "id": "139beb63-a25d-4231-976d-bbf16b30b4e6",
@@ -153,7 +186,10 @@
       "label": "#04 Humaniser les personnes et la société",
       "description": "Humaniser les personnes et la société"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/egalite-femmes-hommes/"
+    }
   },
   {
     "id": "a24eb35b-0b76-4522-81d8-385ea3ccf8f4",
@@ -165,7 +201,10 @@
       "label": "#03 Unir pour bien vivre",
       "description": "Unir pour bien vivre"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/emploi/"
+    }
   },
   {
     "id": "f2a6ccc6-c627-4baa-8a12-b4e077f03680",
@@ -177,7 +216,10 @@
       "label": "#02 S’adapter au système de la nature",
       "description": "S’adapter au système de la nature"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/energie/"
+    }
   },
   {
     "id": "786321ce-170c-4281-86ea-a5ffd305e996",
@@ -189,7 +231,10 @@
       "label": "#01 Vivre libres et citoyens",
       "description": "Vivre libres et citoyens"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/enfance/"
+    }
   },
   {
     "id": "c452361c-14fe-4e6c-8d24-0d95d21d2b5e",
@@ -201,7 +246,10 @@
       "label": "#04 Humaniser les personnes et la société",
       "description": "Humaniser les personnes et la société"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/esr/"
+    }
   },
   {
     "id": "1285f41b-0517-40ad-8da4-5a9b650446d2",
@@ -213,7 +261,10 @@
       "label": "#05 Ordonner le monde",
       "description": "Ordonner le monde"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/espace/"
+    }
   },
   {
     "id": "e179a07d-0c70-4c08-9f07-b179fe8610dd",
@@ -225,7 +276,10 @@
       "label": "#02 S’adapter au système de la nature",
       "description": "S’adapter au système de la nature"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/foret/"
+    }
   },
   {
     "id": "406ca44b-4178-46fb-aad7-677c65e4f1e7",
@@ -237,7 +291,10 @@
       "label": "#05 Ordonner le monde",
       "description": "Ordonner le monde"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/francophonie/"
+    }
   },
   {
     "id": "008a2ba1-9c24-4a67-a871-f0b48e7d5d4f",
@@ -249,7 +306,10 @@
       "label": "#04 Humaniser les personnes et la société",
       "description": "Humaniser les personnes et la société"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/handicap/"
+    }
   },
   {
     "id": "09de5087-e591-4858-9726-50cf44166eb0",
@@ -261,7 +321,10 @@
       "label": "#03 Unir pour bien vivre",
       "description": "Unir pour bien vivre"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/jeunesse/"
+    }
   },
   {
     "id": "e6928206-4428-47e5-b808-c45cf5eb0244",
@@ -273,7 +336,10 @@
       "label": "#01 Vivre libres et citoyens",
       "description": "Vivre libres et citoyens"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/justice/"
+    }
   },
   {
     "id": "547129e6-3319-4654-9f0a-587c1d164325",
@@ -285,7 +351,10 @@
       "label": "#03 Unir pour bien vivre",
       "description": "Unir pour bien vivre"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le plan",
+      "url": "https://melenchon2022.fr/plans/justice-fiscale/"
+    }
   },
   {
     "id": "e55d549b-d6ce-4aa6-b0c8-638673eb8819",
@@ -297,7 +366,10 @@
       "label": "#01 Vivre libres et citoyens",
       "description": "Vivre libres et citoyens"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/laicite/"
+    }
   },
   {
     "id": "ccc3069e-a084-42a7-a843-0092369c4012",
@@ -309,7 +381,10 @@
       "label": "#03 Unir pour bien vivre",
       "description": "Unir pour bien vivre"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/logement/"
+    }
   },
   {
     "id": "d12c274f-736a-487f-b62a-746731f4380e",
@@ -321,7 +396,10 @@
       "label": "#02 S’adapter au système de la nature",
       "description": "S’adapter au système de la nature"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/mer/"
+    }
   },
   {
     "id": "2157b9d1-55d2-434c-b313-7b945ba5d1b4",
@@ -333,7 +411,10 @@
       "label": "#05 Ordonner le monde",
       "description": "Ordonner le monde"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/migrations/"
+    }
   },
   {
     "id": "9d4da186-50e0-48a7-b2c1-18bd0236adb9",
@@ -345,7 +426,10 @@
       "label": "#05 Ordonner le monde",
       "description": "Ordonner le monde"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/numerique/"
+    }
   },
   {
     "id": "d6cffe0f-daa1-49d2-848e-9fdf355cac19",
@@ -357,7 +441,10 @@
       "label": "#05 Ordonner le monde",
       "description": "Ordonner le monde"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/outre-mer/"
+    }
   },
   {
     "id": "df29269e-79a3-455a-8844-c14bec0e2923",
@@ -369,7 +456,10 @@
       "label": "#05 Ordonner le monde",
       "description": "Ordonner le monde"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/paix/"
+    }
   },
   {
     "id": "9f846dbe-2365-465d-b760-a9866111e1f5",
@@ -381,7 +471,10 @@
       "label": "#03 Unir pour bien vivre",
       "description": "Unir pour bien vivre"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le plan",
+      "url": "https://melenchon2022.fr/plans/pauvrete/"
+    }
   },
   {
     "id": "a161fbe5-2b16-4d37-b986-b98340bdb97b",
@@ -393,7 +486,10 @@
       "label": "#02 S’adapter au système de la nature",
       "description": "S’adapter au système de la nature"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/planification-ecologique/"
+    }
   },
   {
     "id": "271bef4f-4309-4983-a3e0-d4f72fbbeb8e",
@@ -405,7 +501,10 @@
       "label": "#01 Vivre libres et citoyens",
       "description": "Vivre libres et citoyens"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/media/"
+    }
   },
   {
     "id": "097ea965-63c7-4aed-a817-4210ac2ddbe8",
@@ -417,7 +516,10 @@
       "label": "#02 S’adapter au système de la nature",
       "description": "S’adapter au système de la nature"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/produire-en-france/"
+    }
   },
   {
     "id": "09eec9ed-05e7-4bad-85c4-1dbc509786da",
@@ -429,7 +531,10 @@
       "label": "#04 Humaniser les personnes et la société",
       "description": "Humaniser les personnes et la société"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/quartiers-populaires/"
+    }
   },
   {
     "id": "c27dd8e2-6206-4564-8308-8f4fbb121981",
@@ -441,7 +546,10 @@
       "label": "#02 S’adapter au système de la nature",
       "description": "S’adapter au système de la nature"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/ruralite/"
+    }
   },
   {
     "id": "421e5cb3-1809-4270-86aa-bec1f12ed92b",
@@ -453,7 +561,10 @@
       "label": "#03 Unir pour bien vivre",
       "description": "Unir pour bien vivre"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/sante/"
+    }
   },
   {
     "id": "7075a8c0-d6eb-4f52-882b-edde91527842",
@@ -465,7 +576,10 @@
       "label": "#01 Vivre libres et citoyens",
       "description": "Vivre libres et citoyens"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/securite/"
+    }
   },
   {
     "id": "f3c2f2b2-f80d-4c2d-b27f-37791f90b0ee",
@@ -477,7 +591,10 @@
       "label": "#04 Humaniser les personnes et la société",
       "description": "Humaniser les personnes et la société"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/sport/"
+    }
   },
   {
     "id": "37f2fc9e-786b-43ea-b20e-e3c20df32d69",
@@ -489,6 +606,9 @@
       "label": "#02 S’adapter au système de la nature",
       "description": "S’adapter au système de la nature"
     },
-    "externalLink": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/transports/"
+    }
   }
 ]

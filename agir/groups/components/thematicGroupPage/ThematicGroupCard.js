@@ -116,7 +116,7 @@ const StyledCard = styled(Card).attrs({ bordered: true })`
 `;
 
 const ThematicGroupCard = (props) => {
-  const { id, name, description, image, externalLink, backLink } = props;
+  const { id, name, description, image, externalLink } = props;
 
   const isDesktop = useIsDesktop();
 
@@ -133,12 +133,12 @@ const ThematicGroupCard = (props) => {
             <Button
               small={!isDesktop}
               link
-              href={externalLink}
+              href={externalLink.url}
               color="choose"
               icon="external-link"
               target="_blank"
             >
-              Lire le livret
+              {externalLink.label}
             </Button>
           )}
           <Button
@@ -161,8 +161,10 @@ ThematicGroupCard.propTypes = {
   name: PropTypes.string.isRequired,
   description: PropTypes.string.isRequired,
   image: PropTypes.string,
-  externalLink: PropTypes.string,
-  backLink: PropTypes.string,
+  externalLink: PropTypes.shape({
+    url: PropTypes.string,
+    label: PropTypes.string,
+  }),
 };
 
 export default ThematicGroupCard;

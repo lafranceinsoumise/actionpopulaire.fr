@@ -223,8 +223,8 @@ class ThematicGroupSerializer(serializers.ModelSerializer):
             return None
 
         for link in obj.links.all():
-            if link.label.lower() == "Lire le livret".lower():
-                return link.url
+            if link.label.lower().startswith("Lire le ".lower()):
+                return {"label": link.label, "url": link.url}
 
     class Meta:
         model = ThematicGroup
