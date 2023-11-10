@@ -813,4 +813,4 @@ class SupportGroupAdminTestCase(TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertContains(res, text="Envoyer un message")
         res = self.client.get(reverse("admin:msgs_supportgroupmessage_send"))
-        self.assertNotEqual(res.status_code, 200)
+        self.assertEqual(res.status_code, 200)
