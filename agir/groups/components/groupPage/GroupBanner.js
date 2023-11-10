@@ -162,12 +162,12 @@ const StyledBanner = styled.div`
 `;
 
 const GroupBanner = (props) => {
-  const { name, type, location, iconConfiguration, image } = props;
+  const { name, typeLabel, location, iconConfiguration, image } = props;
   const [shouldShowModal, setShouldShowModal] = useState();
 
   const subtitle = useMemo(
-    () => getGroupTypeWithLocation(type, location),
-    [type, location],
+    () => getGroupTypeWithLocation(typeLabel, location),
+    [typeLabel, location],
   );
 
   const openModal = useCallback(() => {
@@ -225,13 +225,7 @@ const GroupBanner = (props) => {
       )}
       <header>
         <h2>{name}</h2>
-        <h4>
-          {hasLocation ? (
-            <button onClick={openModal}>{subtitle}</button>
-          ) : (
-            subtitle
-          )}
-        </h4>
+        <h4>{subtitle}</h4>
       </header>
     </StyledBanner>
   );
@@ -239,6 +233,7 @@ const GroupBanner = (props) => {
 GroupBanner.propTypes = {
   name: PropTypes.string.isRequired,
   type: PropTypes.string.isRequired,
+  typeLabel: PropTypes.string.isRequired,
   image: PropTypes.string,
   iconConfiguration: PropTypes.object,
   location: PropTypes.shape({

@@ -208,6 +208,7 @@ class SupportGroupDetailSerializer(SupportGroupSerializerMixin):
         "personalInfoConsent",
         "name",
         "type",
+        "typeLabel",
         "subtypes",
         "description",
         "textDescription",
