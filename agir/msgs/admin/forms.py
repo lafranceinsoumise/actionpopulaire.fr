@@ -78,7 +78,7 @@ class SupportGroupMessageCreateForm(forms.ModelForm):
         ),
     )
 
-    SUPPORTGROUP_TYPE_CHOICES = ((None, ""), *SupportGroup.TYPE_CHOICES)
+    SUPPORTGROUP_TYPE_CHOICES = (("", ""), *SupportGroup.TYPE_CHOICES)
     supportgroup_type = forms.ChoiceField(
         choices=SUPPORTGROUP_TYPE_CHOICES,
         required=False,
@@ -86,12 +86,14 @@ class SupportGroupMessageCreateForm(forms.ModelForm):
     )
 
     CERTIFIED_CHOICES = (
-        (None, ""),
+        ("", ""),
         (True, "Uniquement les groupes certifiés"),
         (False, "Uniquement les groupes non certifiés"),
     )
-    certified = forms.ChoiceField(
+    certified = forms.TypedChoiceField(
         choices=CERTIFIED_CHOICES,
+        coerce=lambda x: x == "True",
+        empty_value="",
         required=False,
         label=_("Certification"),
     )
@@ -126,23 +128,23 @@ class SupportGroupMessageCreateForm(forms.ModelForm):
             self._errors["certified"] = self.error_class([error])
 
         if not supportgroups:
-            data["supportgroups"] = SupportGroup.objects.active().filter(
+            supportgroups = SupportGroup.objects.active().filter(
                 is_private_messaging_enabled=True
             )
         if supportgroup_type:
-            data["supportgroups"] = data["supportgroups"].filter(
-                type=data["supportgroup_type"]
-            )
+            supportgroups = supportgroups.filter(type=data["supportgroup_type"])
         if certified is True:
-            data["supportgroups"] = data["supportgroups"].certified()
+            supportgroups = supportgroups.certified()
         if certified is False:
-            data["supportgroups"] = data["supportgroups"].uncertified()
+            supportgroups = supportgroups.uncertified()
 
-        if not data["supportgroups"]:
+        if not supportgroups:
             error = _("Aucun groupe n'a été trouvé avec les filtres sélectionnés")
-            self._errors["supportgroups"] = self.error_class([error])
-            self._errors["supportgroup_type"] = self.error_class([error])
-            self._errors["certified"] = self.error_class([error])
+            for field in ("supportgroups", "supportgroup_type", "certified"):
+                if data.get(field, None):
+                    self._errors[field] = self.error_class([error])
+
+        data["supportgroups"] = supportgroups
 
         return data
 
