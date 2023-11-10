@@ -16,6 +16,7 @@ const StyledWarning = styled.div`
   border-radius: ${(props) => props.theme.borderRadius};
   border: 1px solid ${(props) => props.theme.primary150};
   background-color: ${(props) => props.theme.primary50};
+  align-items: start;
 `;
 
 const StyledPage = styled.main`
@@ -63,13 +64,13 @@ const ThematicGroupPage = () => {
   return (
     <StyledPage>
       <header>
-        <h2>Les équipes thématiques de l'espace programme</h2>
+        <h2>Les groupes thématiques de l'espace programme</h2>
         <p>
-          Les équipes thématiques de l'espace programme sont issues des travaux
-          des livrets pendant la campagne présidentielle. Elles ont été
-          constituées pour faire vivre les thèmes initiés en 2017. Aujourd’hui,
-          ces équipes continuent de produire du contenu, de réagir à l’actualité
-          et de monter des initiatives.
+          Les groupes thématiques de l'espace programme sont issus des travaux
+          des livrets pendant la campagne présidentielle. Ils ont été constitués
+          pour faire vivre les thèmes initiés en 2017. Aujourd’hui, ces groupes
+          continuent de produire du contenu, de réagir à l’actualité et de
+          monter des initiatives.
         </p>
         <StyledWarning>
           <RawFeatherIcon name="info" />
@@ -102,7 +103,7 @@ const ThematicGroupPage = () => {
         </StyledWarning>
         <p>
           <strong>
-            Retrouvez sur cette page les activités des équipes thématiques de
+            Retrouvez sur cette page les activités des groupes thématiques de
             l'espace programme ainsi que leur adresse de contact. N'hésitez pas
             à leur apporter votre aide !
           </strong>

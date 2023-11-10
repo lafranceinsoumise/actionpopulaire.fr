@@ -136,6 +136,7 @@ const ThematicGroupCard = (props) => {
               href={externalLink}
               color="choose"
               icon="external-link"
+              target="_blank"
             >
               Lire le livret
             </Button>

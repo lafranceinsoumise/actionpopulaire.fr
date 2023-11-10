@@ -241,7 +241,7 @@ export const routeConfig = {
     path: "/equipes-thematiques/",
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
-    label: "Les équipes thématiques",
+    label: "Les groupes thématiques",
     Component: RouteComponents.ThematicGroups,
   }),
   spendingRequestDetails: new RouteConfig({
