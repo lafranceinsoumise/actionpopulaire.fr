@@ -3,9 +3,17 @@ from django.utils.functional import cached_property
 
 from agir.groups.models import SupportGroup, SupportGroupQuerySet
 from agir.groups.utils import certification
+from agir.groups.utils.supportgroup import VISIBLE_THEMATIC_GROUP_SUBTYPE_LABEL
 
 
-class ThematicGroupManager(models.Manager.from_queryset(SupportGroupQuerySet)):
+class ThematicGroupQuerySet(SupportGroupQuerySet):
+    def visible(self):
+        return self.active().filter(
+            subtypes__label=VISIBLE_THEMATIC_GROUP_SUBTYPE_LABEL
+        )
+
+
+class ThematicGroupManager(models.Manager.from_queryset(ThematicGroupQuerySet)):
     def get_queryset(self):
         return super().get_queryset().filter(type=SupportGroup.TYPE_THEMATIC)
 
