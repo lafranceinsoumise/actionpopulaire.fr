@@ -89,7 +89,7 @@
     "short-uuid": "^4.2.2",
     "styled-components": "^6.1.1",
     "stylis": "^4.3.0",
-    "swiper": "^10.3.1",
+    "swiper": "^11.0.4",
     "swr": "^2.2.4",
     "tinymce": "^6.7.2",
     "tinymce-i18n": "^23.11.6",
