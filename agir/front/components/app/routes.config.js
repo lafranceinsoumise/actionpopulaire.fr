@@ -238,7 +238,7 @@ export const routeConfig = {
   }),
   thematicGroups: new RouteConfig({
     id: "thematicGroups",
-    path: "/equipes-thematiques/",
+    path: "/groupes-thematiques/",
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Les groupes thématiques",

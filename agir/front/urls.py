@@ -328,6 +328,11 @@ urlpatterns = [
     path("mes-groupes/", views.UserSupportGroupsView.as_view(), name="list_my_groups"),
     path(
         "equipes-thematiques/",
+        RedirectView.as_view(pattern_name="thematic_groups"),
+        name="thematic_teams",
+    ),
+    path(
+        "groupes-thematiques/",
         views.ThematicGroupsView.as_view(),
         name="thematic_groups",
     ),
