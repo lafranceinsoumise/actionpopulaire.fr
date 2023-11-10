@@ -12,7 +12,7 @@ from rest_framework.test import APITestCase
 
 from agir.api.redis import using_separate_redis_server
 from agir.donations.apps import DonsConfig
-from agir.donations.models import Operation, MonthlyAllocation
+from agir.donations.models import MonthlyAllocation, AccountOperation
 from agir.donations.tasks import (
     send_monthly_donation_confirmation_email,
     send_donation_email,
@@ -255,11 +255,17 @@ class DonationTestCase(DonationTestMixin, APITestCase):
         donation_notification_listener(payment)
 
         self.assertTrue(
-            Operation.objects.filter(group=self.group, amount=10000, payment=payment)
+            AccountOperation.objects.filter(
+                destination=f"actif:groupe:{self.group.id}",
+                amount=10000,
+                payment=payment,
+            )
         )
         self.assertTrue(
-            Operation.objects.filter(
-                group=self.other_group, amount=5000, payment=payment
+            AccountOperation.objects.filter(
+                destination=f"actif:groupe:{self.other_group.id}",
+                amount=5000,
+                payment=payment,
             )
         )
 
@@ -274,11 +280,12 @@ class DonationTestCase(DonationTestMixin, APITestCase):
 
         change_payment_status(payment, Payment.STATUS_COMPLETED)
 
-        self.assertTrue(Operation.objects.exists())
-        operation = Operation.objects.get()
+        self.assertTrue(AccountOperation.objects.exists())
+        operation = AccountOperation.objects.get()
 
         self.assertEqual(operation.amount, 10000)
-        self.assertEqual(operation.group, self.group)
+        self.assertEqual(operation.destination, f"actif:groupe:{self.group.id}")
+        self.assertEqual(operation.source, f"revenu:dons")
 
 
 class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
@@ -380,14 +387,14 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
 
         donation_notification_listener(payment=auto_payment)
 
-        operation = Operation.objects.get()
-        self.assertEqual(operation.group, self.group)
+        operation = AccountOperation.objects.get()
+        self.assertEqual(operation.destination, f"actif:groupe:{self.group.id}")
         self.assertEqual(operation.amount, 10000)
 
         # vérifions que c'est idempotent
         donation_notification_listener(payment=auto_payment)
-        operation = Operation.objects.get()
-        self.assertEqual(operation.group, self.group)
+        operation = AccountOperation.objects.get()
+        self.assertEqual(operation.destination, f"actif:groupe:{self.group.id}")
         self.assertEqual(operation.amount, 10000)
 
     def test_can_also_create_monthly_donation_from_profile(self):

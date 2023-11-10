@@ -119,7 +119,7 @@ class SessionSerializer(serializers.Serializer):
             "nspReferral": front_url("nsp_referral"),
             "materiel": "https://materiel.actionpopulaire.fr/",
             "news": "https://lafranceinsoumise.fr/actualites/",
-            "thematicTeams": front_url("thematic_teams_list"),
+            "thematicTeams": front_url("thematic_groups"),
         }
 
         if request.user.is_authenticated and request.user.person is not None:

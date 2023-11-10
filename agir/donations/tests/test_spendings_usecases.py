@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from reversion.models import Version
 
-from agir.donations.models import Operation, SpendingRequest, Document
+from agir.donations.models import SpendingRequest, Document, AccountOperation
 from agir.groups.models import SupportGroup, Membership
 from agir.lib.tests.test_utils import multipartify
 from agir.payments.models import Payment
@@ -126,10 +126,11 @@ class SpendingRequestTestCase(APITestCase):
                 type="don",
                 mode="system_pay",
             )
-            Operation.objects.create(
+            AccountOperation.objects.create(
                 payment=payment,
                 amount=data["amount"][1],
-                group=self.group,
+                source="revenu:dons",
+                destination=f"actif:groupe:{self.group.id}",
             )
 
         res = self.client.post(
@@ -922,7 +923,11 @@ class SpendingRequestTestCase(APITestCase):
         )
 
         # devrait être assez, en comptant celle de 1000 déjà existante
-        Operation.objects.create(amount=8000, group=self.group)
+        AccountOperation.objects.create(
+            amount=8000,
+            source="revenu:dons",
+            destination=f"actif:groupe:{self.group.id}",
+        )
 
         spending_request = self.create_spending_request()
         spending_request.status = SpendingRequest.Status.AWAITING_ADMIN_REVIEW
@@ -947,10 +952,10 @@ class SpendingRequestTestCase(APITestCase):
         spending_request.refresh_from_db()
         self.assertEqual(spending_request.status, SpendingRequest.Status.TO_PAY)
 
-        operation = spending_request.operation
+        operation = spending_request.account_operation
         self.assertIsNotNone(operation)
-        self.assertEqual(operation.group, self.group)
-        self.assertEqual(operation.amount, -8500)
+        self.assertEqual(operation.source, f"actif:groupe:{self.group.id}")
+        self.assertEqual(operation.amount, 8500)
 
     def test_history_is_correct(self):
         """L'historique d'une demande de dépense est correctement généré"""
@@ -1124,7 +1129,7 @@ class SpendingRequestTestCase(APITestCase):
                     "status": SpendingRequest.Status.AWAITING_PEER_REVIEW.value,
                 },
                 {
-                    "title": "Validée par un⋅e second⋅e animateur⋅rice",
+                    "title": "Validée par un⋅e autre gestionnaire",
                     "comment": "",
                     "diff": [],
                     "person": self.another_group_finance_admin,

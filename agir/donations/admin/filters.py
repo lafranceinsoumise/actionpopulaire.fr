@@ -1,6 +1,8 @@
 from django.contrib import admin
+from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
+from agir.donations.allocations import get_account_name_for_group
 from agir.donations.models import SpendingRequest
 from agir.groups.models import SupportGroup
 from agir.lib.admin.autocomplete_filter import (
@@ -93,7 +95,8 @@ class SupportGroupFilter(AutocompleteSelectModelBaseFilter):
 
     def queryset(self, request, queryset):
         if self.value():
-            return queryset.filter(group_id=self.value())
+            account = get_account_name_for_group(self.value())
+            return queryset.filter(Q(source=account) | Q(destination=account))
         else:
             return queryset
 

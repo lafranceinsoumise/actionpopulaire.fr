@@ -51,6 +51,11 @@ const Routes = {
       /* webpackChunkName: "r-groupmap" */ "@agir/carte/page__groupMap/GroupMap"
     ),
   ),
+  ThematicGroups: lazy(() =>
+    import(
+      /* webpackChunkName: "r-thematicgroups" */ "@agir/groups/thematicGroupPage/ThematicGroupPage"
+    ),
+  ),
   ActivityPage: lazy(() =>
     import(
       /* webpackChunkName: "r-activitypage" */ "@agir/activity/ActivityPage/ActivityPage"

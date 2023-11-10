@@ -32,7 +32,10 @@ Counter.propTypes = {
 };
 
 const CounterBadge = styled(Counter)`
-  fill: ${(props) => props.$background || props.theme.redNSP};
+  fill: ${(props) =>
+    props.$background
+      ? props.theme[props.$background] || props.$background
+      : props.theme.redNSP};
   z-index: ${(props) => props.theme.zindexNavigationCounter};
 
   circle {
@@ -40,7 +43,10 @@ const CounterBadge = styled(Counter)`
   }
 
   text {
-    fill: ${(props) => props.$color || props.theme.white};
+    fill: ${(props) =>
+      props.$color
+        ? props.theme[props.$color] || props.$color
+        : props.theme.white};
   }
 `;
 

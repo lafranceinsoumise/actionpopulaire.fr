@@ -8,10 +8,7 @@
   <title>{% block title %}{% firstof meta_title "Action Populaire" %}{% endblock %}</title>
   <link rel="manifest" href="{% static "front/manifest.json" %}" />
   <meta name="theme-color" content="#F4ED0F">
-
-
   {% include "front/includes/favicon.html" %}
-
   {% block opengraph %}
     {% if show_opengraph %}
       <meta name="title" content="{{ meta_title }}"/>
@@ -49,13 +46,15 @@
       <meta name="twitter:title" content="{{ meta_title }}"/>
     {% endif %}
   {% endblock %}
-
   {% block css %}{% endblock %}
   {% block cdn_assets %}{% endblock %}
-
   {% block extra_scripts %}{% endblock %}
+  <!--
+    resolve sentry.io and matomo DNS and do TLS+TCP handshakes so the first requests are faster
+  -->
+  <link rel="preconnect" href="https://sentry.io">
+  <link rel="preconnect" href="https://matomo.lafranceinsoumise.fr">
   {% block additional_headers %}{% endblock %}
-
 </head>
 <body class="home archive">
 <!--[if IE]>

@@ -36,7 +36,7 @@ export const GroupSettings = (props) => {
     () =>
       group?.type
         ? `Gestion de votre ${getGroupTypeWithLocation(
-            group.type,
+            group.typeLabel,
           ).toLowerCase()}`
         : "",
     [group],

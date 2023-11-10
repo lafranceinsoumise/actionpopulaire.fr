@@ -36,6 +36,11 @@ from ..models import SupportGroup
 from ..utils.certification import (
     check_certification_criteria,
 )
+from ...donations.allocations import (
+    get_account_name_for_group,
+    DONATIONS_ACCOUNT,
+    SPENDING_ACCOUNT,
+)
 from ...lib.admin.utils import admin_url
 
 
@@ -245,16 +250,18 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
     membership_count.short_description = _("Nombre de membres")
     membership_count.admin_order_field = "membership_count"
 
-    def allocation(self, object, show_add_button=False):
-        value = display_price(object.allocation) if object.allocation else "-"
+    def allocation(self, obj, show_add_button=False):
+        allocation = obj and obj.get_allocation() or None
+        value = display_price(allocation) if allocation else "-"
 
         if show_add_button:
+            add_operation_link = reverse("admin:donations_accountoperation_add")
+            group_account = get_account_name_for_group(obj)
             value = format_html(
-                '{value} (<a href="{link}">Changer</a>)',
+                '{value} (<a href="{increase_link}">Augmenter</a> ou <a href="{decrease_link}">diminuer</a>)',
                 value=value,
-                link=reverse("admin:donations_operation_add")
-                + "?group="
-                + str(object.pk),
+                increase_link=f"{add_operation_link}?source={DONATIONS_ACCOUNT}&destination={group_account}",
+                decrease_link=f"{add_operation_link}?source={group_account}&destination={SPENDING_ACCOUNT}",
             )
 
         return value
@@ -313,7 +320,10 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
 
         action_buttons.append(
             (
-                admin_url("admin:donations_operation_add", query={"group": obj.pk}),
+                admin_url(
+                    "admin:donations_accountoperation_add",
+                    query={"destination": get_account_name_for_group(obj)},
+                ),
                 "Changer l'allocation",
             ),
         )

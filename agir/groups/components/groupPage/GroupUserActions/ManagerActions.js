@@ -86,7 +86,7 @@ const StyledWrapper = styled.div`
 `;
 
 const ManagerActions = (props) => {
-  const { id, groupSettingsLinks, routes } = props;
+  const { id, groupSettingsLinks, isBoucleDepartementale } = props;
 
   return (
     <StyledWrapper>
@@ -132,7 +132,11 @@ const ManagerActions = (props) => {
           {groupSettingsLinks?.finance && (
             <li>
               <RawFeatherIcon color={style.primary500} name="briefcase" />
-              <Link to={groupSettingsLinks.finance}>Caisse du groupe</Link>
+              <Link to={groupSettingsLinks.finance}>
+                {isBoucleDepartementale
+                  ? "Caisse de la boucle"
+                  : "Caisse du groupe"}
+              </Link>
             </li>
           )}
           {groupSettingsLinks?.links && (

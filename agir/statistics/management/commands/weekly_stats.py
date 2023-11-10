@@ -100,6 +100,7 @@ class Command(BaseCommand):
             stats = self.absolute_statistics
 
         label = stats["model"]._meta.get_field(key).verbose_name
+        week_start, _week_end = self.week
 
         self.start_section(label, stats["instant"][key])
         self.print_value_line(
@@ -111,14 +112,16 @@ class Command(BaseCommand):
             relative=True,
             currency=currency,
         )
+        current_month = stats["current_month"]["period"][0].strftime("%b")
         self.print_value_line(
-            f"depuis début {self.date.strftime('%b')}",
+            f"depuis début {current_month}",
             stats["current_month"][key],
             relative=True,
             currency=currency,
         )
+        current_year = stats["current_year"]["period"][0].year
         self.print_value_line(
-            f"en {self.date.year}",
+            f"en {current_year}",
             stats["current_year"][key],
             relative=True,
             currency=currency,
@@ -164,13 +167,15 @@ class Command(BaseCommand):
             relative=True,
             currency=currency,
         )
+        current_month = stats["current_month"]["period"][0].strftime("%b")
         self.print_value_line(
-            f"depuis début {self.date.strftime('%b')}",
+            f"depuis début {current_month}",
             stats["current_month"][key],
             currency=currency,
         )
+        current_year = stats["current_year"]["period"][0].year
         self.print_value_line(
-            f"en {self.date.year}", stats["current_year"][key], currency=currency
+            f"en {current_year}", stats["current_year"][key], currency=currency
         )
         self.print_value_line(
             "moyenne par semaine depuis le début du mois",
@@ -203,6 +208,20 @@ class Command(BaseCommand):
             if campaign["sent_email_count"] != 0 and campaign["open_email_count"] != 0:
                 open_ratio = campaign["open_email_count"] / campaign["sent_email_count"]
             self.print_value_line("Taux d'ouverture", f"{open_ratio : >.2%}")
+
+            self.print_value_line("Non remis", campaign["undelivered_email_count"])
+            undelivered_ratio = 0
+            if (
+                campaign["sent_email_count"] != 0
+                and campaign["undelivered_email_count"] != 0
+            ):
+                undelivered_ratio = (
+                    campaign["undelivered_email_count"] / campaign["sent_email_count"]
+                )
+            self.print_value_line(
+                "Taux de messages non remis", f"{undelivered_ratio : >.2%}"
+            )
+
             self.end_section()
 
     def handle(self, *args, **options):
@@ -232,6 +251,7 @@ class Command(BaseCommand):
         self.print_stock("lfi_newsletter_subscriber_count")
         self.print_flux("sent_campaign_count")
         self.print_flux("sent_campaign_email_count")
+        self.print_flux("undelivered_campaign_email_count")
 
         self.print_section_title("Gros envois d'emails ( >10000 personnes )")
         self.print_largest_campaigns(week_start, week_end)

@@ -76,10 +76,7 @@ const EditSpendingRequestPage = ({ spendingRequestPk }) => {
       getGroupEndpoint("getFinance", { groupPk: spendingRequest.group.id }),
   ]);
 
-  const availableAmount = useMemo(
-    () => (finance?.donation ? finance.donation : 0),
-    [finance],
-  );
+  const availableAmount = useMemo(() => finance?.allocation || 0, [finance]);
 
   const isReady =
     !isSessionLoading && !isSpendingRequestLoading && !isFinanceLoading;

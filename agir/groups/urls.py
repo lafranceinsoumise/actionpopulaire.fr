@@ -42,6 +42,11 @@ api_urlpatterns = [
         name="api_group_search",
     ),
     path(
+        "thematiques/",
+        views.ThematicGroupsView.as_view(),
+        name="api_thematic_groups",
+    ),
+    path(
         "sous-types/",
         views.GroupSubtypesView.as_view(),
         name="api_group_subtypes",
@@ -236,13 +241,8 @@ urlpatterns = [
     ),
     path(
         "livrets_thematiques/",
-        RedirectView.as_view(pattern_name="thematic_teams_list"),
+        RedirectView.as_view(pattern_name="thematic_groups"),
         name="thematic_groups_list",
-    ),
-    path(
-        "equipes-thematiques/",
-        views.ThematicTeamsViews.as_view(),
-        name="thematic_teams_list",
     ),
     path(
         "groupes/invitation/",

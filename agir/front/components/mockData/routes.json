@@ -35,5 +35,5 @@
   "logout": "/deconnexion/",
   "notificationSettings": "/activite/parametres/",
   "news": "https://lafranceinsoumise.fr/actualites/",
-  "thematicTeams": "http://agir.local:8000/equipes-thematiques/"
+  "thematicTeams": "http://agir.local:8000/groupes-thematiques/"
 }

@@ -236,6 +236,14 @@ export const routeConfig = {
       isProtected: true,
     },
   }),
+  thematicGroups: new RouteConfig({
+    id: "thematicGroups",
+    path: "/groupes-thematiques/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Les groupes thématiques",
+    Component: RouteComponents.ThematicGroups,
+  }),
   spendingRequestDetails: new RouteConfig({
     id: "spendingRequestDetails",
     path: "/financement/demande/:spendingRequestPk/",

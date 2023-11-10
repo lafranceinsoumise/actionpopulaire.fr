@@ -2,19 +2,19 @@ import { DateTime } from "luxon";
 
 import { communeNameOfToIn } from "@agir/lib/utils/display";
 
-export const getGroupTypeWithLocation = (type, location) => {
+export const getGroupTypeWithLocation = (typeLabel, location) => {
   const { city, zip, commune } = location || {};
   const { nameOf } = commune || {};
   if (!zip) {
-    return type;
+    return typeLabel;
   }
   if (!city && !nameOf) {
-    return `${type} (${zip})`;
+    return `${typeLabel} (${zip})`;
   }
   if (!nameOf) {
-    return `${type} à ${city} (${zip})`;
+    return `${typeLabel} à ${city} (${zip})`;
   }
-  return `${type} ${communeNameOfToIn(nameOf)} (${zip})`;
+  return `${typeLabel} ${communeNameOfToIn(nameOf)} (${zip})`;
 };
 
 export const parseDiscountCodes = (discountCodes) => {

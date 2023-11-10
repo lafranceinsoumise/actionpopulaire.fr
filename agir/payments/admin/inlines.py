@@ -1,11 +1,10 @@
+from django.contrib import admin
+
 from agir.donations.models import (
     MonthlyAllocation,
-    Operation,
-    DepartementOperation,
-    CNSOperation,
+    AccountOperation,
 )
 from agir.payments import models
-from django.contrib import admin
 
 
 class PaymentInline(admin.TabularInline):
@@ -47,30 +46,15 @@ class MonthlyAllocationInline(admin.TabularInline):
         return False
 
 
-class CNSOperationInline(admin.TabularInline):
-    model = CNSOperation
+class AccountOperationInline(admin.TabularInline):
+    model = AccountOperation
     show_change_link = True
     can_delete = False
     extra = 0
-    fields = readonly_fields = ("get_amount_display",)
+    fields = readonly_fields = ("get_amount_display", "source", "destination")
 
     def has_delete_permission(self, request, obj=None):
         return False
 
     def has_add_permission(self, request, obj):
         return False
-
-
-class DepartementOperationInline(CNSOperationInline):
-    model = DepartementOperation
-    fields = readonly_fields = (
-        "get_amount_display",
-        "departement",
-    )
-
-
-class OperationInline(CNSOperationInline):
-    verbose_name = "Opération de groupe"
-    verbose_name_plural = "Opérations de groupe"
-    model = Operation
-    fields = readonly_fields = ("get_amount_display", "group")

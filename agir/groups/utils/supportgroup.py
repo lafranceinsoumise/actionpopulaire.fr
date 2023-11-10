@@ -37,6 +37,8 @@ def is_active_group_filter():
     return is_new_group_filter() | has_recent_event_filter()
 
 
+VISIBLE_THEMATIC_GROUP_SUBTYPE_LABEL = "rédaction du livret"
+
 EDITABLE_ONLY_ROUTES = [
     "createSpendingRequest",
     "edit",
