@@ -15,9 +15,7 @@ class CreateAndSendSupportGroupMessageView(AdminViewMixin, FormView):
     form_class = SupportGroupMessageCreateForm
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.has_perm(
-            "msgs.supportgroupmessage.send_supportgroupmessage"
-        ):
+        if not request.user.has_perm("msgs.send_supportgroupmessage"):
             raise PermissionDenied
 
         return super().dispatch(request, *args, **kwargs)
