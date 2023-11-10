@@ -58,7 +58,7 @@ nuntius = "2.4.0"
 # parsing and formats
 ics = "*"  # calendar format
 iso8601 = "*"  # parse ISO8601 dates
-django-anymail =  "==9.*"
+django-anymail =  "==10.*"
 boto3 = "*"
 num2words = "*"
 sepaxml = "==2.*"
