@@ -2,8 +2,9 @@
 import React from "react";
 import styled from "styled-components";
 
-import Button from "@agir/front/genericComponents/Button";
 import Link from "@agir/front/app/Link";
+import Button from "@agir/front/genericComponents/Button";
+import FaIcon from "@agir/front/genericComponents/FaIcon";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const StyledCardItem = styled(Link)`
@@ -242,6 +243,29 @@ export const ActionTools = () => {
           <span>
             Ajoutez un nouveau soutien à Action Populaire et à votre groupe
             d’action en quelques clics.
+          </span>
+        </span>
+        <RawFeatherIcon aria-hidden="true" name="chevron-right" />
+      </StyledCardItem>
+      <StyledCardItem route="thematicGroups">
+        <FaIcon
+          icon="book-bookmark:regular"
+          aria-hidden="true"
+          css={`
+            background-color: ${({ theme }) => theme.vermillon};
+            color: ${({ theme }) => theme.white};
+            && {
+              font-size: 1.25em;
+            }
+          `}
+        />
+        <span>
+          <strong>Rejoindre un groupe thématique</strong>
+          <span>
+            Les groupes thématiques de l'espace programme sont issus des travaux
+            des livrets pendant la campagne présidentielle. Aujourd’hui, ces
+            groupes continuent de produire du contenu, de réagir à l’actualité
+            et de monter des initiatives.
           </span>
         </span>
         <RawFeatherIcon aria-hidden="true" name="chevron-right" />
