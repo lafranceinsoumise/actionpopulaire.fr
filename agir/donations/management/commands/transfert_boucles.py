@@ -1,3 +1,5 @@
+import re
+
 from django.core.management import BaseCommand
 from django.db import transaction
 
@@ -21,17 +23,21 @@ class Command(BaseCommand):
     def handle(self, *args, comment, **options):
         boucles = SupportGroup.objects.filter(
             type=SupportGroup.TYPE_BOUCLE_DEPARTEMENTALE,
-        ).exclude(location_departement_id="")
+        )
 
         with transaction.atomic():
             for b in boucles:
-                balance = get_departement_balance(b.location_departement_id)
+                if b.location_departement_id:
+                    code = b.location_departement_id
+                else:
+                    num = re.search("\d+", b.name).group(0).zfill(2)
+                    code = f"99-{num}"
+
+                balance = get_departement_balance(code)
 
                 if balance > 0:
                     AccountOperation.objects.create(
-                        source=get_account_name_for_departement(
-                            b.location_departement_id
-                        ),
+                        source=get_account_name_for_departement(code),
                         destination=get_account_name_for_group(b),
                         amount=balance,
                         comment=comment,

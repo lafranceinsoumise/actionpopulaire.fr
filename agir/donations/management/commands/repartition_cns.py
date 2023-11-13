@@ -1,6 +1,7 @@
+from data_france.models import CirconscriptionConsulaire
 from django.core.management import CommandError, BaseCommand
 from django.db import transaction
-from django.db.models import Q, Count
+from django.db.models import Q, Count, F
 
 from agir.donations.allocations import (
     get_account_name_for_departement,
@@ -9,6 +10,7 @@ from agir.donations.allocations import (
 )
 from agir.donations.models import AccountOperation
 from agir.groups.models import SupportGroup
+from agir.lib.geo import FRENCH_COUNTRY_CODES
 
 
 class Command(BaseCommand):
@@ -29,17 +31,45 @@ class Command(BaseCommand):
     def handle(self, *args, allocation, comment, **options):
         with transaction.atomic():
             # on récupère le nombre de GA certifiés par département.
-            nb_groupes_certifies = (
-                SupportGroup.objects.filter(
-                    ~Q(certification_date=None)
-                    & ~Q(location_departement_id="")
-                    & Q(type=SupportGroup.TYPE_LOCAL_GROUP)
-                )
+            q_certifies = Q(type=SupportGroup.TYPE_LOCAL_GROUP) & ~Q(
+                certification_date=None
+            )
+            q_in_france = Q(location_country__in=["", *FRENCH_COUNTRY_CODES])
+
+            nb_groupes_certifies_france = (
+                SupportGroup.objects.filter(q_certifies & q_in_france)
                 .order_by("location_departement_id")
                 .values("location_departement_id")
                 .annotate(c=Count("*"))
             )
-            poids = {g["location_departement_id"]: g["c"] for g in nb_groupes_certifies}
+
+            poids_france = {
+                g["location_departement_id"]: g["c"]
+                for g in nb_groupes_certifies_france
+            }
+
+            nb_groupes_certifies_etranger = (
+                SupportGroup.objects.filter(q_certifies & ~q_in_france)
+                .order_by("location_country")
+                .values("location_country")
+                .annotate(c=Count("*"))
+            )
+
+            correspondance_pays_circo = {
+                p: c["circo"]
+                for c in CirconscriptionConsulaire.objects.annotate(
+                    circo=F("circonscription_legislative__code")
+                ).values("pays", "circo")
+                for p in c["pays"].split(",")
+            }
+
+            poids_circo_fe = {}
+            for pays in nb_groupes_certifies_etranger:
+                circo = correspondance_pays_circo[pays["location_country"]]
+                poids_circo_fe[circo] = poids_circo_fe.get(circo, 0) + pays["c"]
+
+            poids = {**poids_france, **poids_circo_fe}
+
             poids_total = sum(poids.values())
 
             cns = get_cns_balance()
