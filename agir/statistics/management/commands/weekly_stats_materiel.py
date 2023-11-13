@@ -1,14 +1,12 @@
 import numpy as np
 from django.utils.formats import date_format
 
-from agir.lib.admin.utils import admin_url
 from agir.lib.commands import BaseCommand
 from agir.statistics.actions import *
-from agir.statistics.models import AbsoluteStatistics
 
 
 class Command(BaseCommand):
-    help = "Display weekly statistics - Absolute statistics"
+    help = "Display weekly statistics - Materiel statistics"
     section_count = 0
     section_item_count = 0
     language = "fr"
@@ -16,24 +14,24 @@ class Command(BaseCommand):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.date = AbsoluteStatistics.objects.latest().date
+        self.date = MaterielStatistics.objects.latest().date
         week_start = self.date - datetime.timedelta(days=self.date.weekday())
         week_end = week_start + datetime.timedelta(days=6)
         self.week = week_start, week_end
 
         self.stats = {
-            "model": AbsoluteStatistics,
-            "instant": AbsoluteStatistics.objects.values(
-                *AbsoluteStatistics.AGGREGATABLE_FIELDS
+            "model": MaterielStatistics,
+            "instant": MaterielStatistics.objects.values(
+                *MaterielStatistics.AGGREGATABLE_FIELDS
             ).latest(),
-            "last_week": AbsoluteStatistics.objects.aggregate_for_last_week(),
+            "last_week": MaterielStatistics.objects.aggregate_for_last_week(),
             "last_week_progress": (
-                AbsoluteStatistics.objects.aggregate_for_last_week_progress()
+                MaterielStatistics.objects.aggregate_for_last_week_progress()
             ),
-            "current_month": AbsoluteStatistics.objects.aggregate_for_current_month(
+            "current_month": MaterielStatistics.objects.aggregate_for_current_month(
                 date=week_start
             ),
-            "current_year": AbsoluteStatistics.objects.aggregate_for_current_year(
+            "current_year": MaterielStatistics.objects.aggregate_for_current_year(
                 date=week_start
             ),
         }
@@ -80,6 +78,7 @@ class Command(BaseCommand):
 
     def print_stock(self, key, currency=False):
         label = self.stats["model"]._meta.get_field(key).verbose_name
+
         self.start_section(label, self.stats["instant"][key])
         self.print_value_line(
             f"cette semaine",
@@ -167,41 +166,6 @@ class Command(BaseCommand):
         )
         self.end_section()
 
-    def print_largest_campaigns(self, start, end):
-        largest_campaigns = get_largest_campaign_statistics(start, end)
-
-        if not largest_campaigns:
-            self.log("<i>— Aucun gros envoi n'a été fait la semaine dernière.</i>")
-            return
-
-        for campaign in largest_campaigns:
-            url = admin_url(
-                "admin:nuntius_campaign_change", args=(campaign["id"],), absolute=True
-            )
-            self.start_section(f'« <a href="{url}">{campaign["name"]}</a> »')
-            self.print_value_line("Envoyés", campaign["sent_email_count"])
-            self.print_value_line("Ouverts", campaign["open_email_count"])
-
-            open_ratio = 0
-            if campaign["sent_email_count"] != 0 and campaign["open_email_count"] != 0:
-                open_ratio = campaign["open_email_count"] / campaign["sent_email_count"]
-            self.print_value_line("Taux d'ouverture", f"{open_ratio : >.2%}")
-
-            self.print_value_line("Non remis", campaign["undelivered_email_count"])
-            undelivered_ratio = 0
-            if (
-                campaign["sent_email_count"] != 0
-                and campaign["undelivered_email_count"] != 0
-            ):
-                undelivered_ratio = (
-                    campaign["undelivered_email_count"] / campaign["sent_email_count"]
-                )
-            self.print_value_line(
-                "Taux de messages non remis", f"{undelivered_ratio : >.2%}"
-            )
-
-            self.end_section()
-
     def handle(self, *args, **options):
         week_start, week_end = self.week
         self.log(
@@ -211,25 +175,8 @@ class Command(BaseCommand):
             f"<i>— du {date_format(week_start)} au {date_format(week_end)} —</i>",
             self.style.SQL_KEYWORD,
         )
-
-        self.print_section_title("Événements")
-        self.print_flux("event_count")
-
-        self.print_section_title("Groupes d'action")
-        self.print_stock("local_supportgroup_count")
-        self.print_stock("local_certified_supportgroup_count")
-        self.print_stock("membership_person_count")
-        self.print_stock("boucle_departementale_membership_person_count")
-
-        self.print_section_title("Membres LFI")
-        self.print_stock("political_support_person_count")
-        self.print_stock("liaison_count")
-
-        self.print_section_title("E-mails")
-        self.print_stock("lfi_newsletter_subscriber_count")
-        self.print_flux("sent_campaign_count")
-        self.print_flux("sent_campaign_email_count")
-        self.print_flux("undelivered_campaign_email_count")
-
-        self.print_section_title("Gros envois d'emails ( >10000 personnes )")
-        self.print_largest_campaigns(week_start, week_end)
+        self.print_section_title("Site matériel")
+        self.print_flux("total_orders")
+        self.print_flux("total_items")
+        self.print_flux("total_sales", currency=True)
+        self.print_flux("total_discount", currency=True)
