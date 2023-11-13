@@ -346,7 +346,7 @@ class CommuneStatiticsQueryset(models.QuerySet):
         if date is None:
             date = get_default_date()
 
-        qs = self.filter(date=date)
+        qs = self.filter(date=date).exclude(population__isnull=True)
 
         aggregate = {}
         for key in self.model.AGGREGATABLE_FIELDS:
@@ -448,9 +448,9 @@ class CommuneStatistics(TimeStampedModel):
     )
     population = models.IntegerField(
         verbose_name="Population",
-        null=False,
+        null=True,
         blank=False,
-        default=0,
+        default=None,
     )
     local_supportgroup_count = models.IntegerField(
         verbose_name="Groupes d'actions locaux",
