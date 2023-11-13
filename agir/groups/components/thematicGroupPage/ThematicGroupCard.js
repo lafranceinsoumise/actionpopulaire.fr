@@ -45,7 +45,7 @@ const StyledIllustration = styled.figure`
 
   img {
     z-index: 1;
-    height: 100%;
+    height: inherit;
     visibility: hidden;
     margin: 0 auto;
 
