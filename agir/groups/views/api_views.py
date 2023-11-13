@@ -172,16 +172,6 @@ class UserGroupsView(ListAPIView):
         )
 
 
-class ThematicGroupsView(ListAPIView):
-    serializer_class = ThematicGroupSerializer
-    permission_classes = (IsPersonPermission,)
-    queryset = (
-        ThematicGroup.objects.visible()
-        .prefetch_related("subtypes", "links")
-        .order_by("name")
-    )
-
-
 class UserGroupSuggestionsView(ListAPIView):
     serializer_class = SupportGroupSerializer
     permission_classes = (IsPersonPermission,)
@@ -218,6 +208,19 @@ class GroupDetailPermissions(GlobalOrObjectPermissions):
     object_perms_map = {
         "GET": ["groups.view_supportgroup"],
     }
+
+
+class ThematicGroupsView(ListAPIView):
+    serializer_class = ThematicGroupSerializer
+    permission_classes = (
+        IsActionPopulaireClientPermission,
+        GroupDetailPermissions,
+    )
+    queryset = (
+        ThematicGroup.objects.visible()
+        .prefetch_related("subtypes", "links")
+        .order_by("name")
+    )
 
 
 class GroupDetailAPIView(RetrieveAPIView):
