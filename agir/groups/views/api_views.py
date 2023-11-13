@@ -43,6 +43,7 @@ from agir.groups.models import (
     Membership,
     SupportGroupExternalLink,
 )
+from agir.groups.proxys import ThematicGroup
 from agir.groups.serializers import (
     SupportGroupLegacySerializer,
     SupportGroupSubtypeSerializer,
@@ -52,6 +53,7 @@ from agir.groups.serializers import (
     MembershipSerializer,
     SupportGroupExternalLinkSerializer,
     MemberPersonalInformationSerializer,
+    ThematicGroupSerializer,
 )
 from agir.groups.utils.supportgroup import is_active_group_filter
 from agir.lib.pagination import (
@@ -66,6 +68,7 @@ __all__ = [
     "GroupSearchAPIView",
     "GroupSubtypesView",
     "UserGroupsView",
+    "ThematicGroupsView",
     "UserGroupSuggestionsView",
     "GroupDetailAPIView",
     "NearGroupsAPIView",
@@ -205,6 +208,19 @@ class GroupDetailPermissions(GlobalOrObjectPermissions):
     object_perms_map = {
         "GET": ["groups.view_supportgroup"],
     }
+
+
+class ThematicGroupsView(ListAPIView):
+    serializer_class = ThematicGroupSerializer
+    permission_classes = (
+        IsActionPopulaireClientPermission,
+        GroupDetailPermissions,
+    )
+    queryset = (
+        ThematicGroup.objects.visible()
+        .prefetch_related("subtypes", "links")
+        .order_by("name")
+    )
 
 
 class GroupDetailAPIView(RetrieveAPIView):

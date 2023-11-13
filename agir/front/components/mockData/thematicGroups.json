@@ -1,0 +1,614 @@
+[
+  {
+    "id": "d4460c04-97fa-4405-b360-7330a13c0636",
+    "name": "Agriculture et Alimentation",
+    "description": "<p>Le groupe th&eacute;matique \"Agriculture et alimentation\" travaille sur les mesures d&rsquo;urgence et les grandes orientations sur l&rsquo;agriculture et l&rsquo;alimentation.</p>\n<p>Il est co-anim&eacute; par Mathilde Calmels et Lucas Trottmann</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/agriculture/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/6037df20-21aa-4510-8796-1ea9140e63af/banner/QO5TLNMTGZGXLOPAP35RXMTLSM.png",
+    "subtype": {
+      "id": 12,
+      "label": "#02 S’adapter au système de la nature",
+      "description": "S’adapter au système de la nature"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/agriculture/"
+    }
+  },
+  {
+    "id": "bc07c020-04b2-4b5f-bbdc-fedae05398e4",
+    "name": "Antiracisme",
+    "description": "<p>Le groupe th&eacute;matique \"Antiracisme\" a son c&oelig;ur le concept de cr&eacute;olisation qui permet de penser la soci&eacute;t&eacute; fran&ccedil;aise dans toute sa diviersit&eacute; et lutter contre toutes formes de racisme qui bafouent nos principes r&eacute;publicains.</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/antiracisme/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/0054ba89-b868-4fb3-9edc-9bc77904c6c7/banner/JCZSCKYPS5FIDBFNRRHFDGFA5E.png",
+    "subtype": {
+      "id": 14,
+      "label": "#04 Humaniser les personnes et la société",
+      "description": "Humaniser les personnes et la société"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/antiracisme/"
+    }
+  },
+  {
+    "id": "7f98d747-10f8-41a2-b0e2-5cb751dd8ee6",
+    "name": "Banques",
+    "description": "<p>Le groupe th&eacute;matique \"Banques\" porte l'objectif d'un service public bancaire sous contr&ocirc;le citoyen.</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/banques/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/aa89ff4b-ad93-4e72-b1f0-e94f9e79a71c/banner/7SCS5HCPOVBGFMLQCQYOPXFN2Y.png",
+    "subtype": {
+      "id": 13,
+      "label": "#03 Unir pour bien vivre",
+      "description": "Unir pour bien vivre"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/banques/"
+    }
+  },
+  {
+    "id": "9ecdf268-4e3b-42c6-8d47-ba281b218b28",
+    "name": "Condition animale",
+    "description": "<p>Le groupe th&eacute;matique &ldquo;Condition Animale&rdquo; travaille sur la th&eacute;matique de la condition animale et de ses impacts en mati&egrave;re &eacute;thique, environnementale, sanitaire, culturelle et de justice sociale.</p>\n<p>Le groupe th&eacute;matique est co-anim&eacute; par Ghalia Mercier et Erwan Dumont.</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/animaux/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/4f4eb5a1-46a7-41c0-b0dd-2aa76c8ae44f/banner/EBLG2F4VIBCLZFGW6OREPG3FYI.png",
+    "subtype": {
+      "id": 12,
+      "label": "#02 S’adapter au système de la nature",
+      "description": "S’adapter au système de la nature"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/animaux/"
+    }
+  },
+  {
+    "id": "7ab9ca43-8447-410e-a010-1818c66a5722",
+    "name": "Constituante",
+    "description": "<p>Le groupe th&eacute;matique &laquo; Constituante&raquo; aborde le th&egrave;me de la 6&egrave;me R&eacute;publique et de l'Assembl&eacute;e constituante.</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/constituante/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/336ee591-2563-4b8a-b5fd-785db7f20998/banner/2W6I3AJANRCXRPVLIWJSQJIEIM.png",
+    "subtype": {
+      "id": 11,
+      "label": "#01 Vivre libres et citoyens",
+      "description": "Vivre libres et citoyens"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/6e-republique/"
+    }
+  },
+  {
+    "id": "00219b3d-39d9-43f3-b5f6-c0a9e81aee0d",
+    "name": "Culture",
+    "description": "<p>Le groupe th&eacute;matique \"Culture\" travaille sur les arts et la culture au service du prog&egrave;s humain.</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/culture/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/cb16c10c-02bf-4be4-a5d4-b2f5288d41aa/banner/Z4DFOT5OBVGHHLILUYF3EIPFWI.png",
+    "subtype": {
+      "id": 14,
+      "label": "#04 Humaniser les personnes et la société",
+      "description": "Humaniser les personnes et la société"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/culture/"
+    }
+  },
+  {
+    "id": "4d7a7513-1b3e-4346-b294-3c1e906fdb67",
+    "name": "Déchets",
+    "description": "<p>Le groupe th&eacute;matique \"D&eacute;chets\" aborde les questions de production et consommation pour aller vers une France z&eacute;ro d&eacute;chet.</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/dechets/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/c307f8e3-0356-4d39-a5b1-10869cc72368/banner/GPPT4YTHAVDTRBAJG3D777HSOY.png",
+    "subtype": {
+      "id": 12,
+      "label": "#02 S’adapter au système de la nature",
+      "description": "S’adapter au système de la nature"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/dechets/"
+    }
+  },
+  {
+    "id": "cc4667b7-ecac-4f6a-b34c-81fff1fd8de0",
+    "name": "Défense",
+    "description": "<p>Le group&eacute; th&eacute;matique \"D&eacute;fense\" travaille sur les propositions pour une d&eacute;fense au service de la souverainet&eacute; populaire.&nbsp;</p>\n<p>Il est co-anim&eacute; par Romane Mayer et Alexandre Inari.</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/defense/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/2d4e09c7-1930-4522-b0e1-720e4c4565e5/banner/HJ7NOTMY25B37LQ5EJVZTXIPRM.png",
+    "subtype": {
+      "id": 15,
+      "label": "#05 Ordonner le monde",
+      "description": "Ordonner le monde"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/defense/"
+    }
+  },
+  {
+    "id": "fff73c9c-199d-4764-bc68-d0ef58b916bc",
+    "name": "Droits nouveaux - LGBTI",
+    "description": "<p>Le groupe th&eacute;matique \"Droits nouveaux - LGBTI\" pose les jalons de ce que serait une r&eacute;publique &eacute;mancipatrice et &eacute;galitaire pour toutes et tous : lutte contre toutes les formes de discriminations, droit de mourir dans la dignit&eacute;, filiation universelle, droit &agrave; l&rsquo;autod&eacute;termination du genre, etc</p>\n<p>Le groupe th&eacute;matique est co-anim&eacute; par Cassandre Begous et Salom&eacute; Cheysson.&nbsp;</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/lgbti/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/8b0140b9-5e6b-4a9b-a57e-0b9e87ca8110/banner/SU7AWE2UCZHYTN3RGGUNXQYDLI.png",
+    "subtype": {
+      "id": 14,
+      "label": "#04 Humaniser les personnes et la société",
+      "description": "Humaniser les personnes et la société"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/lgbti/"
+    }
+  },
+  {
+    "id": "94c67f5e-7521-4e4b-b3ae-94a9262a59c8",
+    "name": "Eau bien commun",
+    "description": "<p>Le groupe th&eacute;matique \"Eau bien commun\" est anim&eacute; par Isabelle Plichon et Bernard Mounier.</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/education/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/718b52ab-07d2-4941-9d4b-317f1460d64b/banner/6453KCLAWZDN3GDIA4UUK3TV7E.png",
+    "subtype": {
+      "id": 12,
+      "label": "#02 S’adapter au système de la nature",
+      "description": "S’adapter au système de la nature"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/eau/"
+    }
+  },
+  {
+    "id": "37cf47bb-865f-4516-a27f-d2ada87c59f0",
+    "name": "Économie sociale et solidaire",
+    "description": "<p>Le groupe th&eacute;matique \"&Eacute;conomie Sociale et Solidaire\" est co-anim&eacute; par Fran&ccedil;ois Longerinas et Patricia Neau.</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/ess/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/bbf9d006-1ce9-46c3-9f4a-7fe78e0462ff/banner/BLZRNVNKKNEAZNRQGZ7EL6B56U.png",
+    "subtype": {
+      "id": 13,
+      "label": "#03 Unir pour bien vivre",
+      "description": "Unir pour bien vivre"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/ess/"
+    }
+  },
+  {
+    "id": "c69c756a-2578-409e-9353-1d982c4817ce",
+    "name": "Éducation",
+    "description": "<p>Le groupe th&eacute;matique \"&Eacute;ducation\" travaille sur la question de l'&eacute;cole comme lieu d'&eacute;galit&eacute; et d'&eacute;mencipation.</p>\n<p>Le groupe th&eacute;matique est anim&eacute; par B&eacute;atrice Pinat.</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/education/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/3242fa6d-d4a2-49eb-a8de-e9d1f7f34779/banner/4Z6KSEMUP5EXXM6KFZPRJM2FTM.png",
+    "subtype": {
+      "id": 14,
+      "label": "#04 Humaniser les personnes et la société",
+      "description": "Humaniser les personnes et la société"
+    },
+    "externalLink": null
+  },
+  {
+    "id": "139beb63-a25d-4231-976d-bbf16b30b4e6",
+    "name": "Égalité femmes-hommes",
+    "description": "<p>Le groupe th&eacute;matique \"&Eacute;galit&eacute; femmes-hommes\" travaille &agrave; la construction d'une soci&eacute;t&eacute; f&eacute;ministe et &eacute;mancipatrice.</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/egalite-femmes-hommes/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/7b8417b7-3850-4a52-9c15-de54de0f572b/banner/C2RTG2A2JRCOPFKLYFZS744UNI.png",
+    "subtype": {
+      "id": 14,
+      "label": "#04 Humaniser les personnes et la société",
+      "description": "Humaniser les personnes et la société"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/egalite-femmes-hommes/"
+    }
+  },
+  {
+    "id": "a24eb35b-0b76-4522-81d8-385ea3ccf8f4",
+    "name": "Emploi RTT",
+    "description": "<p>Le groupe th&eacute;matique \"Emploi\" est par son sujet au carrefour de nombreuses politiques. Il a pour but de porter notre objectif qu'est le plein emploi, afin de travailler moins, travailler mieux, travailler toutes et tous.</p>\n<p>Il est co-anim&eacute; par Sylvie Espagnolle et Teddy Francesco.&nbsp;</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/emploi/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/41eee407-6d8f-4ad5-b3cd-a6c3f00d588b/banner/NEDQLKNNOBAMRBWSEL5L6S7GQE.png",
+    "subtype": {
+      "id": 13,
+      "label": "#03 Unir pour bien vivre",
+      "description": "Unir pour bien vivre"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/emploi/"
+    }
+  },
+  {
+    "id": "f2a6ccc6-c627-4baa-8a12-b4e077f03680",
+    "name": "Énergie",
+    "description": "<p>Le groupe th&eacute;matique \"&Eacute;nergie\" travaille sur les enjeux &eacute;nerg&eacute;tiques et de bifurcation &eacute;cologique avec l'objectif du 100 % renouvelable pour sortir des &eacute;nergies fossiles et du nucl&eacute;aire.</p>\n<p>Le groupe th&eacute;matique est co-anim&eacute; par Ang&eacute;lique Huguin et Jean-Marie Brom.</p>\n<p><strong><em> Si vous souhaitez participer &agrave; ce travail, l'inscription simple &agrave; ce GT ne suffit pas, merci d'utiliser la touche contact de ce groupe pour vous pr&eacute;senter aux animateur&sdot;trices qui vous recontacteront. </em></strong></p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/energie/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/193dca01-1148-4077-88fb-f03b686978c6/banner/26MVGMNZARB55KKQST4UXQNXTE.png",
+    "subtype": {
+      "id": 12,
+      "label": "#02 S’adapter au système de la nature",
+      "description": "S’adapter au système de la nature"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/energie/"
+    }
+  },
+  {
+    "id": "786321ce-170c-4281-86ea-a5ffd305e996",
+    "name": "Enfance",
+    "description": "<p>Le groupe th&eacute;matique &ldquo;Enfance&rdquo; aborde les sujets tels que la p&eacute;rinatalit&eacute;, la petite enfance, le soutien &agrave; la parentalit&eacute; et respect de l'enfant mais aussi la protection de l'enfance.</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/enfance/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/6ff71b98-61d5-49f8-9776-04c65f581662/banner/IQY5WO42M5GRXBMNLCKCQKH47I.png",
+    "subtype": {
+      "id": 11,
+      "label": "#01 Vivre libres et citoyens",
+      "description": "Vivre libres et citoyens"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/enfance/"
+    }
+  },
+  {
+    "id": "c452361c-14fe-4e6c-8d24-0d95d21d2b5e",
+    "name": "Enseignement supérieur et recherche",
+    "description": "<p>Le groupe th&eacute;matique \"Enseignement sup&eacute;rieur et recherche\" aborde les th&eacute;matiques d'universit&eacute; et de recherche.</p>\n<p>Le groupe th&eacute;matique est co-anim&eacute; par Jacques-Olivier Klein et Karin Fischer.</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/esr/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/aae9048e-6fd7-4d2e-b006-f214e15f7de2/banner/MOSGA2BGJBCDBHAZOHXRWMSXFI.png",
+    "subtype": {
+      "id": 14,
+      "label": "#04 Humaniser les personnes et la société",
+      "description": "Humaniser les personnes et la société"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/esr/"
+    }
+  },
+  {
+    "id": "1285f41b-0517-40ad-8da4-5a9b650446d2",
+    "name": "Espace",
+    "description": "<p>Le groupe th&eacute;matique \"Espace\" est co-anim&eacute; par Arnaud Saint-Martin et Elisa Senon.</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/espace/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/191e5952-2716-4e17-b0fe-f53ddf6fab42/banner/2TVKXRALPNFVPBCUN7B3ZTATHI.png",
+    "subtype": {
+      "id": 15,
+      "label": "#05 Ordonner le monde",
+      "description": "Ordonner le monde"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/espace/"
+    }
+  },
+  {
+    "id": "e179a07d-0c70-4c08-9f07-b179fe8610dd",
+    "name": "Forêts",
+    "description": "<p>Le groupe th&eacute;matique \"For&ecirc;ts\" aborde le th&egrave;me de la for&ecirc;t et de la sylviculture.</p>\n<p>Le groupe th&eacute;matique est co-anim&eacute; par Anthony Brondel et Marie-Anne Guillemain.</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/foret/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/5060d958-11a9-4949-bb9e-cfe7a06619e4/banner/JWPF5X4QKVGFBCQAAPHYT3MTMY.png",
+    "subtype": {
+      "id": 12,
+      "label": "#02 S’adapter au système de la nature",
+      "description": "S’adapter au système de la nature"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/foret/"
+    }
+  },
+  {
+    "id": "406ca44b-4178-46fb-aad7-677c65e4f1e7",
+    "name": "Francophonie",
+    "description": "<p>Le groupe th&eacute;matique \"Francophonie\" aborde le th&egrave;me de la francophonie politique afin de passer &agrave; la francophonie des peuples.</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/francophonie/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/bb856e38-c3a5-41b1-91cf-1425645308b7/banner/NW67LHZM3NDBBJI4SABSUJ25SQ.png",
+    "subtype": {
+      "id": 15,
+      "label": "#05 Ordonner le monde",
+      "description": "Ordonner le monde"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/francophonie/"
+    }
+  },
+  {
+    "id": "008a2ba1-9c24-4a67-a871-f0b48e7d5d4f",
+    "name": "Handicap",
+    "description": "<p>Le groupe th&eacute;matique \"Handicap\" travaille sur les questions d'acc&egrave;s aux droits, de pr&eacute;vention, d'&eacute;ducation et d'emploi pour que les personnes en situation de handicap puissent disposer de leurs droits dans une soci&eacute;t&eacute; sans entrave.</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/handicap/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/f126787e-29e2-4e1b-baf7-c85da62e0105/banner/RYNOZ2NU5JHIXEW4RFCZWWGAH4.png",
+    "subtype": {
+      "id": 14,
+      "label": "#04 Humaniser les personnes et la société",
+      "description": "Humaniser les personnes et la société"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/handicap/"
+    }
+  },
+  {
+    "id": "09de5087-e591-4858-9726-50cf44166eb0",
+    "name": "Jeunesse",
+    "description": "<p>Le groupe th&eacute;matique \"Jeunesse\" aborde l'ensemble des probl&eacute;matiques li&eacute;es &agrave; la jeunesse au croisement avec de nombreuses th&eacute;matiques : &eacute;ducation, enseignement sup&eacute;rieur et recherche, &eacute;galit&eacute; femmes-hommes, etc</p>\n<p>Le groupe th&eacute;matique est co-anim&eacute; par Fran&ccedil;ois Jarlier et Lisa Lahore</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/jeunesse/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/5a88e878-5fde-4f4c-bbd1-35b065b017a0/banner/3HAK7DZ2UJFP5PUYH2ZM6XTHUQ.png",
+    "subtype": {
+      "id": 13,
+      "label": "#03 Unir pour bien vivre",
+      "description": "Unir pour bien vivre"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/jeunesse/"
+    }
+  },
+  {
+    "id": "e6928206-4428-47e5-b808-c45cf5eb0244",
+    "name": "Justice",
+    "description": "<p>Le group&eacute; th&eacute;matique \"Justice\" aborde le th&egrave;me de la Justice et des libert&eacute;s.</p>\n<p>Le groupe th&eacute;matique est co-anim&eacute; par Gabrielle Cathala et Xavier Sauvignet.</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/justice/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/ca358f38-30a9-4c02-b697-0f5d5139b734/banner/XAUJY52VFRC5LDTZDQHU4RHKIQ.png",
+    "subtype": {
+      "id": 11,
+      "label": "#01 Vivre libres et citoyens",
+      "description": "Vivre libres et citoyens"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/justice/"
+    }
+  },
+  {
+    "id": "547129e6-3319-4654-9f0a-587c1d164325",
+    "name": "Justice fiscale",
+    "description": "<p>Le groupe th&eacute;matique \"Justice fiscale\" a pour but de d&eacute;mocratiser les questions de justice fiscale qui sont certes techniques, mais centrales. Il m&egrave;ne &eacute;galement une r&eacute;flexion de fond sur la tuyauterie fiscale &agrave; mettre en place et s&rsquo;int&eacute;resse &agrave; la lutte contre la fraude et l&rsquo;&eacute;vasion fiscales.</p>\n<p><a href=\"https://melenchon2022.fr/plans/justice-fiscale/\">Lire le plan</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/27923f55-1ff9-467d-b5b0-a296c6e6c515/banner/R7QHDWH5WNEK3FRJQEWB5QXK3E.png",
+    "subtype": {
+      "id": 13,
+      "label": "#03 Unir pour bien vivre",
+      "description": "Unir pour bien vivre"
+    },
+    "externalLink": {
+      "label": "Lire le plan",
+      "url": "https://melenchon2022.fr/plans/justice-fiscale/"
+    }
+  },
+  {
+    "id": "e55d549b-d6ce-4aa6-b0c8-638673eb8819",
+    "name": "Laïcité",
+    "description": "<p>Le groupe th&eacute;matique \"La&iuml;cit&eacute;\" aborde le th&egrave;me de la la&iuml;cit&eacute; comme pillier de la r&eacute;publique une et indivisible.</p>\n<p>Le groupe th&eacute;matique est co-anim&eacute; par Pascale Le N&eacute;ouannic et Beno&icirc;t Schneckenburger.</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/laicite/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/85c27fa9-2ff7-43ce-b544-0f9cf6e84385/banner/NTT6AGPNTNA43E7WDUE5YZMURM.png",
+    "subtype": {
+      "id": 11,
+      "label": "#01 Vivre libres et citoyens",
+      "description": "Vivre libres et citoyens"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/laicite/"
+    }
+  },
+  {
+    "id": "ccc3069e-a084-42a7-a843-0092369c4012",
+    "name": "Logement",
+    "description": "<p>Le group&eacute; th&eacute;matique \"Logement\" &eacute;tudie les propositions pour une logement universel et durable.</p>\n<p>Il a pour objectif l'action et la formation. Vous trouverez les infos, appels, invitations nationales sur la liste de diffusion insoumis-logement@framalistes.org et sur&nbsp;https://framalistes.org/sympa/info/insoumis-logement.&nbsp;</p>\n<p>Le groupe th&eacute;matique est co-anim&eacute; par Antone Salles-Papou et Anne Gourmellet.</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/logement/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/5c972f72-b169-4285-b204-b431e657a4dc/banner/YLIC7JADWJCW7PVCNDEK73I2CA.png",
+    "subtype": {
+      "id": 13,
+      "label": "#03 Unir pour bien vivre",
+      "description": "Unir pour bien vivre"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/logement/"
+    }
+  },
+  {
+    "id": "d12c274f-736a-487f-b62a-746731f4380e",
+    "name": "Mer - Pêche",
+    "description": "<p>Le groupe th&eacute;matique \"Mer\" pose le constat le mer comme nouvel horizon de l'humanit&eacute;. Les 70% de superficie recouverts de la plan&egrave;te recouverts d&rsquo;eau permettent la survie de l&rsquo;humanit&eacute;, c'est pour cela que notre rapport &agrave; la mer s'inscrit pleinement dans la r&egrave;gle verte.</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/mer/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/9762c888-2da4-444d-a17b-d48dce364f20/banner/RH4RJPN6UVAQJOLESQX3EV6FVQ.png",
+    "subtype": {
+      "id": 12,
+      "label": "#02 S’adapter au système de la nature",
+      "description": "S’adapter au système de la nature"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/mer/"
+    }
+  },
+  {
+    "id": "2157b9d1-55d2-434c-b313-7b945ba5d1b4",
+    "name": "Migrations",
+    "description": "<p>Le groupe th&eacute;matique \"Migrations\" aborde le th&egrave;me des migrations et des r&eacute;fugi&eacute;s.</p>\n<p>Le groupe th&eacute;matique est co-anim&eacute; par Mickael Idrac et Aur&eacute;lie Gries.</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/migrations/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/867e57af-ce77-4cbe-ab6c-0021dd8833ae/banner/UGXFFMAUNJFM5DR24XKDXN2F5I.png",
+    "subtype": {
+      "id": 15,
+      "label": "#05 Ordonner le monde",
+      "description": "Ordonner le monde"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/migrations/"
+    }
+  },
+  {
+    "id": "9d4da186-50e0-48a7-b2c1-18bd0236adb9",
+    "name": "Numérique",
+    "description": "<p>Le groupe th&eacute;matique \"Num&eacute;rique\" aborde le th&egrave;me de la r&eacute;volution num&eacute;rique.</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/numerique/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/d873f815-b9c5-405a-a6b8-87c963df22ab/banner/GKOJKXXHXVAKZGSKWBGON2QGBY.png",
+    "subtype": {
+      "id": 15,
+      "label": "#05 Ordonner le monde",
+      "description": "Ordonner le monde"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/numerique/"
+    }
+  },
+  {
+    "id": "d6cffe0f-daa1-49d2-848e-9fdf355cac19",
+    "name": "Outre-mer",
+    "description": "<p>Le groupe th&eacute;matique \"Outre-mer\" aborde le th&egrave;me des outre-mer &agrave; l'avant-garde de la bifurcation &eacute;cologique et du progr&egrave;s social.</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/outre-mer/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/70df3e31-bed1-4e7b-be15-60793c6f02ea/banner/J732I2IALBCT3ILK5UTVRGCSMU.png",
+    "subtype": {
+      "id": 15,
+      "label": "#05 Ordonner le monde",
+      "description": "Ordonner le monde"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/outre-mer/"
+    }
+  },
+  {
+    "id": "df29269e-79a3-455a-8844-c14bec0e2923",
+    "name": "Paix et international",
+    "description": "<p>Le groupe th&eacute;matique \"Paix et International\" traite des questions g&eacute;opolitiques pour une France ind&eacute;pendante, souveraine et non-align&eacute;e.</p>\n<p>Le groupe th&eacute;matique est co-anim&eacute; par Kevin Vercin et Marina Mesure.</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/paix/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/fd1ba340-b780-4364-9738-e6705796761c/banner/GWMJOABXRZEGNF2JAEZKAM5ALY.png",
+    "subtype": {
+      "id": 15,
+      "label": "#05 Ordonner le monde",
+      "description": "Ordonner le monde"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/paix/"
+    }
+  },
+  {
+    "id": "9f846dbe-2365-465d-b760-a9866111e1f5",
+    "name": "Pauvreté",
+    "description": "<p>Le groupe th&eacute;matique \"Pauvret&eacute;\" travaille aux solutions pour &eacute;radiquer la pauvret&eacute;.</p>\n<p><a href=\"https://melenchon2022.fr/plans/pauvrete/\">Lire le plan</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/d9545842-b681-451a-a686-12b80d0e5274/banner/6LTOKI2EGFAYXOJINXJOF6UDZE.png",
+    "subtype": {
+      "id": 13,
+      "label": "#03 Unir pour bien vivre",
+      "description": "Unir pour bien vivre"
+    },
+    "externalLink": {
+      "label": "Lire le plan",
+      "url": "https://melenchon2022.fr/plans/pauvrete/"
+    }
+  },
+  {
+    "id": "a161fbe5-2b16-4d37-b986-b98340bdb97b",
+    "name": "Planification écologique",
+    "description": "<p>Le groupe th&eacute;matique \"Planification &eacute;cologique\" aborde le th&egrave;me de la r&egrave;gle verte et de la planification &eacute;cologique.</p>\n<p>Le groupe th&eacute;matique est co-anim&eacute; par Martine Billard et Michel Philippo.</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/planification-ecologique/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/31db779e-4d0e-4407-96b4-c873d08035fc/banner/Z74GQYSRH5D3ZK2HNNHUWOYNXY.png",
+    "subtype": {
+      "id": 12,
+      "label": "#02 S’adapter au système de la nature",
+      "description": "S’adapter au système de la nature"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/planification-ecologique/"
+    }
+  },
+  {
+    "id": "271bef4f-4309-4983-a3e0-d4f72fbbeb8e",
+    "name": "Presse et Médias",
+    "description": "<p>Dans le cadre de la d&eacute;marche programmatique pour l'&eacute;lection pr&eacute;sidentielle de 2022, le groupe Presse et M&eacute;dias travaille &agrave; l'&eacute;laboration d'un projet et de propositions concr&egrave;tes. Une s&eacute;rie d'auditions de personnalit&eacute;s, de repr&eacute;sentants de syndicats, d'associations ainsi que des dirigeants de m&eacute;dias, est men&eacute;e pour enrichir l'analyse et d&eacute;finir de fa&ccedil;on collective des propositions. Le groupe est anim&eacute; par Sophia Chikirou et Antoine Peillon avec l'aide de Bastien Parisot.</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/medias/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/16aa3789-313c-4ec4-966e-3ac1b4dbb040/banner/UD36R3B2VJEKNLC4LW5XUNVT7I.png",
+    "subtype": {
+      "id": 11,
+      "label": "#01 Vivre libres et citoyens",
+      "description": "Vivre libres et citoyens"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/media/"
+    }
+  },
+  {
+    "id": "097ea965-63c7-4aed-a817-4210ac2ddbe8",
+    "name": "Produire en France",
+    "description": "<p>Le groupe th&eacute;matique \"Produire en France \" travaille sur les questions d'industrie, relocalisation et biffurcation &eacute;cologique.</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/produire-en-france/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/a094156e-8038-4dd0-b9a4-9281146f8599/banner/FTRDL6YZPVCTLHKAYM72KQ2N44.png",
+    "subtype": {
+      "id": 12,
+      "label": "#02 S’adapter au système de la nature",
+      "description": "S’adapter au système de la nature"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/produire-en-france/"
+    }
+  },
+  {
+    "id": "09eec9ed-05e7-4bad-85c4-1dbc509786da",
+    "name": "Quartiers populaires",
+    "description": "<p>Le groupe th&eacute;matique \"Quartiers Populaires\" traite des questions transversales relatives aux quartiers populaires. Logement, emploi, &eacute;ducation, acc&egrave;s aux droits, etc, il travaille &agrave; une r&eacute;ponse globale, concert&eacute;e et coordonn&eacute;e aux difficult&eacute;s qui minent la vie des quartiers et permettre &agrave; toutes et tous de vivre dignement.</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/quartiers-populaires/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/97eab885-e92d-4cee-a84d-eddfbade6d8e/banner/W6WNY6XNBVC2ROORO5WZUSZSEE.png",
+    "subtype": {
+      "id": 14,
+      "label": "#04 Humaniser les personnes et la société",
+      "description": "Humaniser les personnes et la société"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/quartiers-populaires/"
+    }
+  },
+  {
+    "id": "c27dd8e2-6206-4564-8308-8f4fbb121981",
+    "name": "Ruralité - Aménagement Territorial",
+    "description": "<p>Le groupe th&eacute;matique \"Ruralit&eacute;\" aborde les th&egrave;mes de l'am&eacute;nagement du territoire et de la ruralit&eacute;.</p>\n<p>Le groupe th&eacute;matique est co-anim&eacute; par Caroline Fesselier et Michel Larive.</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/ruralit&eacute;/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/12e90577-8530-4578-b77c-7c5146595abe/banner/T74AXKK4XRDIRHH2OWUE5KA7FI.png",
+    "subtype": {
+      "id": 12,
+      "label": "#02 S’adapter au système de la nature",
+      "description": "S’adapter au système de la nature"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/ruralite/"
+    }
+  },
+  {
+    "id": "421e5cb3-1809-4270-86aa-bec1f12ed92b",
+    "name": "Santé",
+    "description": "<p>Le groupe th&eacute;matique \"Sant&eacute;\" et co-anim&eacute; par Karim Khelfaoui et Sabrina Ali Benali.</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/sant&eacute;/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/00e92a86-e24f-4897-8af0-1417cf88794b/banner/3GYAX3H6NBAUJGLZQ4ACHOVOSE.png",
+    "subtype": {
+      "id": 13,
+      "label": "#03 Unir pour bien vivre",
+      "description": "Unir pour bien vivre"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/sante/"
+    }
+  },
+  {
+    "id": "7075a8c0-d6eb-4f52-882b-edde91527842",
+    "name": "Sécurité et sureté",
+    "description": "<p>Le groupe th&eacute;matique \"S&eacute;curit&eacute; et suret&eacute;\" traite des questions de s&eacute;curit&eacute; et de la n&eacute;cessit&eacute; de refonder le service public de la police. Il aborde &eacute;galement les questions de s&eacute;curit&eacute; civile.</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/securite/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/dfcb7ab5-8784-4d70-8f82-672333ad5e53/banner/V7OG5CWFKJE5TFFHCTUZUINNDM.png",
+    "subtype": {
+      "id": 11,
+      "label": "#01 Vivre libres et citoyens",
+      "description": "Vivre libres et citoyens"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/securite/"
+    }
+  },
+  {
+    "id": "f3c2f2b2-f80d-4c2d-b27f-37791f90b0ee",
+    "name": "Sport",
+    "description": "<p>Le groupe th&eacute;matique \"Sport\" travaille sur la th&eacute;matique du sport comme &eacute;mancipatrice au service de l'humain.</p>\n<p>Le groupe th&eacute;matique est co-anim&eacute; par Bally Bagayoko et Delphine Fenasse.</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/sport/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/0d72a82f-e138-4f5a-af2e-1e68f9cc5e9e/banner/MT2PVELEFBF6TH62WIGOD6H5ZM.png",
+    "subtype": {
+      "id": 14,
+      "label": "#04 Humaniser les personnes et la société",
+      "description": "Humaniser les personnes et la société"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/sport/"
+    }
+  },
+  {
+    "id": "37f2fc9e-786b-43ea-b20e-e3c20df32d69",
+    "name": "Transport",
+    "description": "<p>Le groupe th&eacute;matique \"Transport\" aborde le th&egrave;me de transports et de la mobilit&eacute;.</p>\n<p>Le groupe th&eacute;matique est co-anim&eacute; par Arsene Ruhlmann et Emilie Marche.</p>\n<p><a href=\"https://melenchon2022.fr/livrets-thematiques/transports/\">Lire le livret</a></p>",
+    "image": "http://agir.local:8000/media/groups/thematicgroup/fefd875a-5b0d-4e08-82f7-78d6e3d21f92/banner/4JWGALGAOZFLNHKOP2W7RRYZSA.png",
+    "subtype": {
+      "id": 12,
+      "label": "#02 S’adapter au système de la nature",
+      "description": "S’adapter au système de la nature"
+    },
+    "externalLink": {
+      "label": "Lire le livret",
+      "url": "https://melenchon2022.fr/livrets-thematiques/transports/"
+    }
+  }
+]
