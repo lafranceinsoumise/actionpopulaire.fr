@@ -129,8 +129,8 @@ const ThematicGroupList = (props) => {
           name="search"
           value={searchTerm}
           onChange={handleSearch}
-          placeholder="Rechercher un groupe ou un livret"
-          aria-label="Rechercher un groupe ou un livret"
+          placeholder="Rechercher un groupe"
+          aria-label="Rechercher un groupe"
           icon="magnifying-glass:solid"
           label=""
           dark
