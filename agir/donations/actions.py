@@ -1,5 +1,4 @@
 import datetime
-from time import strptime
 
 import pandas as pd
 from dateutil.relativedelta import relativedelta
@@ -77,19 +76,33 @@ def get_active_contribution_for_person(person=None):
     if not person:
         return None
 
-    return (
-        # Monthly contribution
+    monthly_subscription = (
         Subscription.objects.active_contributions()
         .filter(person=person)
-        .order_by("-end_date", "created")
-        .first()
-        or
-        # Single-time contribution
-        Payment.objects.active_contribution()
-        .filter(email__in=person.emails.values_list("address", flat=True))
-        .order_by("-meta__end_date", "created")
+        .order_by("-end_date")
         .first()
     )
+
+    single_time_payment = (
+        Payment.objects.active_contribution()
+        .filter(email__in=person.emails.values_list("address", flat=True))
+        .order_by("-meta__end_date")
+        .first()
+    )
+
+    if not monthly_subscription:
+        return single_time_payment
+
+    if not single_time_payment or not single_time_payment.meta.get("end_date", None):
+        return monthly_subscription
+
+    if (
+        monthly_subscription.end_date.strftime("%Y-%m-%d")
+        >= single_time_payment.meta["end_date"]
+    ):
+        return monthly_subscription
+
+    return single_time_payment
 
 
 def get_contribution_end_date(contribution):
@@ -117,6 +130,13 @@ def is_renewable_contribution(contribution):
         return False
 
     return end_date <= renewal_start
+
+
+def is_waiting_contribution(contribution):
+    return (
+        isinstance(contribution, Payment)
+        and contribution.status == Payment.STATUS_WAITING
+    )
 
 
 def can_make_contribution(email=None, person=None):

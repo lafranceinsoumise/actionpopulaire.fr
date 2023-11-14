@@ -54,6 +54,7 @@
         <p>Cette page vous permet de lister l'ensemble de vos dons, prêts ou participations payantes à des
           événements.</p>
       </div>
+
       {% if renewable_active_contribution %}
         <h3 class="payment-section-title" id="contributions">
           Paiements à renouveller
@@ -69,6 +70,26 @@
             </footer>
         </div>
       {% endif %}
+
+      {% if pending_payments %}
+        <h3 class="payment-section-title" id="cheques">Chèques en attente de reception</h3>
+        <div class="list-group">
+          {% for payment in pending_payments %}
+            <div class="list-group-item payment-item">
+              {{ payment.description }}
+              <footer>
+                <a href="{% url "payment_page" payment.pk %}?next=profile" class="btn btn-block btn-sm btn-info">
+                  <i class="fa-regular fa-money-check"></i>&ensp;Voir le détail
+                </a>
+                <a href="{% url "check_payment_terminate" payment.pk %}" class="btn btn-block btn-sm btn-danger">
+                  <i class="fa-solid fa-ban"></i>&ensp;Annuler ce chèque
+                </a>
+              </footer>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
       {% if subscriptions %}
         <h3 class="payment-section-title" id="contributions">
           Paiements automatiques actifs
@@ -97,7 +118,7 @@
             </div>
           {% endfor %}
         </div>
-      {% elif can_make_contribution %}
+      {% elif not renewable_active_contribution and can_make_contribution %}
         <div class="padtopmore padbottommore">
           <h3 class="payment-section-title" id="contributions">
             Devenir financeur·euse de la France insoumise
@@ -114,25 +135,6 @@
           <p>
             <a class="btn btn-primary" href="{% url "contribution_amount" %}">Je deviens financeur·euse</a>
           </p>
-        </div>
-      {% endif %}
-
-      {% if pending_payments %}
-        <h3 class="payment-section-title" id="cheques">Chèques en attente de reception</h3>
-        <div class="list-group">
-          {% for payment in pending_payments %}
-            <div class="list-group-item payment-item">
-              {{ payment.description }}
-              <footer>
-                <a href="{% url "payment_page" payment.pk %}?next=profile" class="btn btn-block btn-sm btn-info">
-                  <i class="fa-regular fa-money-check"></i>&ensp;Voir le détail
-                </a>
-                <a href="{% url "check_payment_terminate" payment.pk %}" class="btn btn-block btn-sm btn-danger">
-                  <i class="fa-solid fa-ban"></i>&ensp;Annuler ce chèque
-                </a>
-              </footer>
-            </div>
-          {% endfor %}
         </div>
       {% endif %}
 
