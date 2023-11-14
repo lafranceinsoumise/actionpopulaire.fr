@@ -2,7 +2,6 @@ import calendar
 import json
 import math
 
-from agir.lib.form_fields import CustomJSONEncoder
 from django.db import models
 from django.db.models import JSONField, TextChoices, Q
 from django.template.defaultfilters import floatformat
@@ -13,6 +12,7 @@ from num2words import num2words
 from phonenumber_field.modelfields import PhoneNumberField
 
 from agir.lib.display import display_address, display_price, display_allocations
+from agir.lib.form_fields import CustomJSONEncoder
 from agir.lib.models import LocationMixin, TimeStampedModel
 from agir.lib.utils import front_url
 from agir.payments.model_fields import AmountField
@@ -67,7 +67,7 @@ class PaymentQueryset(models.QuerySet):
     def active_contribution(self):
         return (
             self.contributions()
-            .completed()
+            .filter(status__in=(Payment.STATUS_WAITING, Payment.STATUS_COMPLETED))
             .exclude(meta__end_date__isnull=True)
             .filter(meta__end_date__gte=timezone.now().isoformat())
         )
