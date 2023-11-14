@@ -81,13 +81,13 @@ def get_active_contribution_for_person(person=None):
         # Monthly contribution
         Subscription.objects.active_contributions()
         .filter(person=person)
-        .order_by("-end_date")
+        .order_by("-end_date", "created")
         .first()
         or
         # Single-time contribution
         Payment.objects.active_contribution()
         .filter(email__in=person.emails.values_list("address", flat=True))
-        .order_by("-meta.end_date")
+        .order_by("-meta__end_date", "created")
         .first()
     )
 
