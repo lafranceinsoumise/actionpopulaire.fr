@@ -350,7 +350,7 @@ class CommuneStatiticsQueryset(models.QuerySet):
 
         aggregate = {}
         for key in self.model.AGGREGATABLE_FIELDS:
-            base_qs = qs.filter(**{f"{key}__gte": 0})
+            base_qs = qs.all().filter(**{f"{key}__gt": 0})
             aggregate[key] = {
                 "total": base_qs.count(),
                 **{
