@@ -21,7 +21,7 @@ const Skeleton = ({ boxes = 3, ...props }) => {
 };
 
 Skeleton.propTypes = {
-  boxes: PropTypes.number,
+  boxes: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 };
 
 export default Skeleton;

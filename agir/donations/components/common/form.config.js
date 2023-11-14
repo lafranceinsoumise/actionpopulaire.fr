@@ -1,4 +1,8 @@
 import validate from "@agir/lib/utils/validate";
+import {
+  getAllocationDepartement,
+  parseAllocations,
+} from "./allocations.config";
 
 export const SINGLE_TIME_PAYMENT = "S";
 export const MONTHLY_PAYMENT = "M";
@@ -52,6 +56,35 @@ export const setFormDataForUser = (user) => (data) => ({
     ? user.gender
     : INITIAL_DATA.gender,
 });
+
+export const setFormDataFromExistingDonation = (existingDonation) => (data) => {
+  if (!existingDonation) {
+    return data;
+  }
+  const newData = { ...data };
+
+  Object.entries(existingDonation).forEach(([key, value]) => {
+    switch (key) {
+      case "id":
+      case "created":
+      case "renewable":
+      case "allocations":
+        return;
+      case "endDate":
+        newData.effectDate = value;
+        break;
+      default:
+        newData[key] = value || data[value] || INITIAL_DATA[value];
+    }
+  });
+
+  const departement = getAllocationDepartement(existingDonation.allocations);
+  if (departement) {
+    newData["departement"] = departement.id;
+  }
+
+  return newData;
+};
 
 export const DONATION_DATA_CONSTRAINTS = {
   email: {
@@ -116,12 +149,6 @@ export const DONATION_DATA_CONSTRAINTS = {
       message: "Ce champ ne peut pas être vide.",
     },
   },
-  departement: {
-    presence: {
-      allowEmpty: false,
-      message: "Ce champ ne peut pas être vide.",
-    },
-  },
   locationCountry: {
     presence: {
       allowEmpty: false,
@@ -132,13 +159,6 @@ export const DONATION_DATA_CONSTRAINTS = {
     presence: {
       allowEmpty: false,
       message: "Ce champ ne peut pas être vide.",
-    },
-  },
-  frenchResident: {
-    inclusion: {
-      within: [true],
-      message:
-        "Si vous n'avez pas la nationalité française, vous devez être résident fiscalement en France pour faire une donation",
     },
   },
   to: {
@@ -165,6 +185,23 @@ export const DONATION_DATA_CONSTRAINTS = {
       message: "Ce champ ne peut pas être vide.",
     },
   },
+};
+
+const NEW_DONATION_DATA_CONSTRAINTS = {
+  ...DONATION_DATA_CONSTRAINTS,
+  departement: {
+    presence: {
+      allowEmpty: false,
+      message: "Ce champ ne peut pas être vide.",
+    },
+  },
+  frenchResident: {
+    inclusion: {
+      within: [true],
+      message:
+        "Si vous n'avez pas la nationalité française, vous devez être résident fiscalement en France pour faire une donation",
+    },
+  },
   consentCertification: {
     inclusion: {
       within: [true],
@@ -174,6 +211,12 @@ export const DONATION_DATA_CONSTRAINTS = {
 };
 
 export const validateDonationData = (data) =>
+  validate(data, NEW_DONATION_DATA_CONSTRAINTS, {
+    format: "cleanMessage",
+    fullMessages: false,
+  });
+
+export const validateContributionRenewal = (data) =>
   validate(data, DONATION_DATA_CONSTRAINTS, {
     format: "cleanMessage",
     fullMessages: false,

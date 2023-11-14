@@ -271,6 +271,26 @@ class ContributionView(BaseAppCachedView):
         return super().get(request, *args, **kwargs)
 
 
+class ContributionRenewalView(BaseAppHardAuthView):
+    meta_title = "Renouveller le financement à la France insoumise"
+    meta_image = urljoin(
+        settings.FRONT_DOMAIN, static("front/og-image/contributions.png")
+    )
+    meta_description = (
+        "Pour financer les dépenses liées à l’organisation d’événements, à l’achat de matériel, au"
+        "fonctionnement du site, etc., nous avons besoin du soutien financier de chacun.e d’entre vous !"
+    )
+
+    def get_api_preloads(self):
+        return [reverse_lazy("api_active_contribution_retrieve")]
+
+    def get(self, request, *args, **kwargs):
+        if not can_make_contribution(person=request.user.person):
+            return HttpResponseRedirect(reverse_lazy("already_contributor"))
+
+        return super().get(request, *args, **kwargs)
+
+
 class Donation2022View(DonationView):
     meta_title = "Faire un don - Mélenchon 2022"
 

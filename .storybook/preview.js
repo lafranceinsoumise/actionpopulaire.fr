@@ -1,12 +1,15 @@
-import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
+import { rest } from "msw";
 import { initialize, mswDecorator } from "msw-storybook-addon";
-import React from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { MemoryRouter } from "react-router-dom";
+import { SWRConfig, useSWRConfig } from "swr";
 import { ThemeProvider } from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import routes from "@agir/front/globalContext/nonReactRoutes.config";
 import user from "@agir/front/mockData/user";
+
+import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
 
 import "@agir/front/genericComponents/style.scss";
 import "./style.css";
@@ -80,6 +83,35 @@ export const globalTypes = {
   },
 };
 
+const MockSWRContext = ({ user = false, children }) => {
+  const sessionRef = useRef({ user });
+  const mockFetcher = useCallback(async (args) => {
+    if (!Array.isArray(args)) {
+      args = [args];
+    }
+
+    const [url, method = "GET"] = args;
+
+    if (url.endsWith("/api/session/")) {
+      return Promise.resolve(sessionRef.current);
+    }
+
+    const res = await fetch(url, { method });
+
+    return res.json();
+  }, []);
+
+  useEffect(() => {
+    sessionRef.current = { user };
+  }, [user]);
+
+  return (
+    <SWRConfig value={{ fetcher: mockFetcher, provider: () => new Map() }}>
+      {children}
+    </SWRConfig>
+  );
+};
+
 export const decorators = [
   mswDecorator,
   (Story, context) => (
@@ -90,9 +122,11 @@ export const decorators = [
         user: context.globals.auth === "authenticated" && user,
       }}
     >
-      <ThemeProvider theme={style}>
-        <MemoryRouter initialEntries={["/"]}>{Story()}</MemoryRouter>
-      </ThemeProvider>
+      <MockSWRContext user={context.globals.auth === "authenticated" && user}>
+        <ThemeProvider theme={style}>
+          <MemoryRouter initialEntries={["/"]}>{Story()}</MemoryRouter>
+        </ThemeProvider>
+      </MockSWRContext>
     </TestGlobalContextProvider>
   ),
 ];

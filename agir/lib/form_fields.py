@@ -1,3 +1,4 @@
+import datetime
 import json
 from uuid import UUID
 
@@ -186,6 +187,10 @@ class CustomJSONEncoder(DjangoJSONEncoder):
             return o.as_e164
         if isinstance(o, IBAN):
             return o.as_stored_value
+        if isinstance(o, datetime.datetime):
+            return o.isoformat("T", "seconds")
+        if isinstance(o, datetime.date):
+            return o.isoformat()
         return super().default(o)
 
 
