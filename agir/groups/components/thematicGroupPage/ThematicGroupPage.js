@@ -24,6 +24,7 @@ const StyledPage = styled.main`
   max-width: 70rem;
   margin: 0 auto;
   min-height: 50vh;
+  background-color: ${(props) => props.theme.white};
 
   @media (max-width: ${(props) => props.theme.collapse}px) {
     padding: 1rem;
@@ -76,17 +77,7 @@ const ThematicGroupPage = () => {
           <RawFeatherIcon name="info" />
           <p>
             Les « livrets de la France insoumise » complètent l’Avenir en
-            commun, le programme de la France insoumise. Il est également
-            consultable gratuitement sur{" "}
-            <Link
-              href="https://laec.fr"
-              target="_blank"
-              title="Le site de l'Avenir en commun"
-            >
-              l'aec.fr
-            </Link>
-            .
-            <br />
+            commun, le programme de la France insoumise.
             <br />
             Les livrets abordent une variété de sujets qui donneront à la France
             son nouveau visage et l’inscriront différemment dans le monde.
