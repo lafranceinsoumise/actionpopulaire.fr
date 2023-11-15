@@ -1,8 +1,8 @@
 import logging
-
 import re
+
 import requests
-from data_france.models import CodePostal, Commune
+from data_france.models import CodePostal, Commune, Departement
 from django.contrib.gis.geos import Point
 from unidecode import unidecode
 
@@ -151,8 +151,17 @@ def geocode_ban(item):
         if not item.location_zip and "postcode" in feature["properties"]:
             item.location_zip = feature["properties"]["postcode"]
 
-        item.location_departement_id = code_postal_vers_code_departement(
-            item.location_zip
+        location_departement = (
+            Departement.objects.exclude(geometry__isnull=True)
+            .only("code")
+            .filter(geometry__intersects=item.coordinates)
+            .first()
+        )
+
+        item.location_departement_id = (
+            location_departement.code
+            if location_departement is not None
+            else code_postal_vers_code_departement(item.location_zip)
         )
 
         return True
