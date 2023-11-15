@@ -87,9 +87,14 @@ export const getDefaultBoundsForUser = (user) => {
 };
 
 const URLSearchParams = [
+  "type",
   "subtype",
+  "tag",
   "include_past",
   "include_hidden",
+  "date",
+  "group",
+  "certified",
   "bounds",
   "no_control",
 ];

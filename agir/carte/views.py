@@ -9,6 +9,7 @@ from data_france.models import (
     CirconscriptionLegislative,
     Canton,
 )
+from django import forms
 from django.contrib.gis.db.models import Extent, MultiPolygonField, Union
 from django.contrib.gis.geos import Polygon
 from django.db.models import Count, Q
@@ -152,9 +153,21 @@ class GroupFilterSet(django_filters.rest_framework.FilterSet):
         queryset=SupportGroupTag.objects.all(),
     )
 
+    certified = django_filters.BooleanFilter(
+        label="Uniquement les groupes certifiés",
+        method="filter_certified",
+        widget=forms.CheckboxInput(),
+    )
+
+    def filter_certified(self, qs, _name, value):
+        if value:
+            return qs.certified()
+
+        return qs
+
     class Meta:
         model = SupportGroup
-        fields = ("subtype", "tag")
+        fields = ("subtype", "tag", "certified")
 
 
 class GroupsView(AnonymousAPIView, ListAPIView):
@@ -238,6 +251,9 @@ class AbstractListMapView(MapViewMixin, TemplateView):
 
         if self.request.GET.get("tag"):
             params["tag"] = self.request.GET.get("tag")
+
+        if self.request.GET.get("certified"):
+            params["certified"] = "1"
 
         subtype_info = [
             dict_to_camelcase(st.get_subtype_information()) for st in subtypes
