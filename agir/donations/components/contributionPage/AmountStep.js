@@ -145,12 +145,14 @@ const AmountStep = (props) => {
                 et mettre à jour certaines informations (le montant, la
                 répartition, vos coordonnées, etc.).
                 <Spacer size="0.5rem" />
-                Si vous souhaitez renouveller votre contribution à l'identique,
-                une{" "}
-                <Link route="contributionRenewal">
-                  page de renouvellement simplifié
-                </Link>{" "}
-                est également à votre disposition.
+                <strong>
+                  Si vous souhaitez renouveller votre contribution à
+                  l'identique, une{" "}
+                  <Link route="contributionRenewal">
+                    page de renouvellement simplifié
+                  </Link>{" "}
+                  est également à votre disposition.
+                </strong>
               </p>
             </StaticToast>
           )}
