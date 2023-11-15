@@ -18,6 +18,7 @@ import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 import Spacer from "@agir/front/genericComponents/Spacer";
+import Button from "@agir/front/genericComponents/Button";
 
 const TYPE = "contribution";
 
@@ -52,18 +53,41 @@ const ContributionSuccessPage = () => {
                 </h4>
                 <p style={{ fontSize: "0.875rem" }}>
                   Vous pouvez à tout moment consulter vos dons et paiements
-                  depuis{" "}
-                  <Link route="personalPayments">
-                    l'onglet &laquo;&nbsp;Dons et paiements&nbsp;&raquo;
-                  </Link>{" "}
-                  de votre espace personnel sur actionpopulaire.fr.
+                  depuis l'onglet &laquo;&nbsp;Dons et paiements&nbsp;&raquo; de
+                  votre espace personnel sur actionpopulaire.fr.
+                </p>
+                <Spacer size="1rem" />
+                <p
+                  css={`
+                    text-align: center;
+                  `}
+                >
+                  <Button
+                    link
+                    small
+                    route="personalPayments"
+                    icon="arrow-right"
+                    color="secondary"
+                  >
+                    Aller sur la page &laquo;&nbsp;Dons et
+                    paiements&nbsp;&raquo;
+                  </Button>
                 </p>
               </div>
               <Spacer size="2rem" />
-              {thankYouNote}
+              <div
+                css={`
+                  padding: 1rem;
+                  background-color: ${({ theme }) => theme.black25};
+                  border-radius: ${({ theme }) => theme.borderRadius};
+                  font-size: 0.875rem;
+                `}
+              >
+                {thankYouNote}
+              </div>
               <Spacer size="3rem" />
               <ShareCard
-                title="Encouragez vos ami·es à faire un don :"
+                title="Encouragez vos ami·es à devenir financeur·euses:"
                 url={routeConfig.contributions.getLink()}
               />
             </StyledMain>

@@ -16,7 +16,7 @@ const don = {
     </span>
   ),
   thankYouNote: (
-    <div>
+    <>
       <p>Chère donatrice, Cher donateur,</p>
       <br />
       <p>Vous venez d'apporter votre appui financier à la France insoumise.</p>
@@ -35,7 +35,7 @@ const don = {
       <p>Courage, les mauvais jours finiront.</p>
       <br />
       <p style={{ textAlign: "right" }}>Jean-Luc Mélenchon</p>
-    </div>
+    </>
   ),
   hasAllocations: true,
   beneficiary: "la France insoumise",
