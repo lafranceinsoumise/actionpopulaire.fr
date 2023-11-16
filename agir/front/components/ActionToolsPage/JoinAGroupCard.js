@@ -45,8 +45,8 @@ export const JoinAGroupCard = (props) => {
         {commune?.nameOf
           ? `${communeNameOfToIn(commune.nameOf)} et alentours`
           : city
-          ? `à ${city} et alentours`
-          : "près de chez vous"}
+            ? `à ${city} et alentours`
+            : "près de chez vous"}
       </h4>
       <Button link route="groupMap" color="secondary">
         Voir la carte

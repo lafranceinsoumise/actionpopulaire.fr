@@ -82,8 +82,8 @@ const Formulaire = ({ elu, onStatusChange }) => {
       (elu.rechercheParrainage.statut !== ISSUE.ENGAGEMENT
         ? REVERSE_DECISIONS[elu.rechercheParrainage.statut]
         : elu.rechercheParrainage.lienFormulaire
-        ? DECISIONS[0]
-        : DECISIONS[1]);
+          ? DECISIONS[0]
+          : DECISIONS[1]);
 
     setDecision(initialDecision);
     setSauvegarde(false);
@@ -215,8 +215,8 @@ const Formulaire = ({ elu, onStatusChange }) => {
           {sauvegarde
             ? "Enregistré !"
             : elu.statut === ELU_STATUTS.A_CONTACTER
-            ? "Envoyer les informations"
-            : "Mettre à jour les informations"}
+              ? "Envoyer les informations"
+              : "Mettre à jour les informations"}
         </Button>
         {requestState.loading && <AnimatedMoreHorizontal />}
         {requestState.hasError && <Error>{requestState.message}</Error>}

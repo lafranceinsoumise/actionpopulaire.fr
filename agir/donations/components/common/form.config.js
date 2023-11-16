@@ -53,8 +53,8 @@ export const setFormDataForUser = (user) => (data) => ({
   gender: data.gender
     ? data.gender
     : GENDER_OPTIONS.includes(user.gender)
-    ? user.gender
-    : INITIAL_DATA.gender,
+      ? user.gender
+      : INITIAL_DATA.gender,
 });
 
 export const setFormDataFromExistingDonation = (existingDonation) => (data) => {

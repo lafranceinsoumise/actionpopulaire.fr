@@ -11,70 +11,83 @@ import illustrationContact from "@agir/front/genericComponents/images/group_cont
 import illustrationLinks from "@agir/front/genericComponents/images/group_links.svg";
 import illustrationHelp from "@agir/front/genericComponents/images/group_help.svg";
 
-const GroupSettingsReadOnlyMembers = lazy(() =>
-  import(
-    /* webpackChunkName: "r-groupsettingsreadonlymembers" */ "@agir/groups/groupPage/GroupSettings/GroupReadOnlyMembersPage"
-  ),
+const GroupSettingsReadOnlyMembers = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "r-groupsettingsreadonlymembers" */ "@agir/groups/groupPage/GroupSettings/GroupReadOnlyMembersPage"
+    ),
 );
-const GroupSettingsActiveMembers = lazy(() =>
-  import(
-    /* webpackChunkName: "r-groupsettingsactivemembers" */ "@agir/groups/groupPage/GroupSettings/GroupActiveMembersPage"
-  ),
+const GroupSettingsActiveMembers = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "r-groupsettingsactivemembers" */ "@agir/groups/groupPage/GroupSettings/GroupActiveMembersPage"
+    ),
 );
-const GroupSettingsContacts = lazy(() =>
-  import(
-    /* webpackChunkName: "r-groupsettingscontacts" */ "@agir/groups/groupPage/GroupSettings/GroupContactsPage"
-  ),
+const GroupSettingsContacts = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "r-groupsettingscontacts" */ "@agir/groups/groupPage/GroupSettings/GroupContactsPage"
+    ),
 );
-const GroupSettingsManage = lazy(() =>
-  import(
-    /* webpackChunkName: "r-groupsettingsmanage" */ "@agir/groups/groupPage/GroupSettings/GroupManagementPage"
-  ),
+const GroupSettingsManage = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "r-groupsettingsmanage" */ "@agir/groups/groupPage/GroupSettings/GroupManagementPage"
+    ),
 );
-const GroupSettingsMateriel = lazy(() =>
-  import(
-    /* webpackChunkName: "r-groupsettingsmateriel" */ "@agir/groups/groupPage/GroupSettings/GroupMaterielPage"
-  ),
+const GroupSettingsMateriel = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "r-groupsettingsmateriel" */ "@agir/groups/groupPage/GroupSettings/GroupMaterielPage"
+    ),
 );
-const GroupSettingsFinance__Group = lazy(() =>
-  import(
-    /* webpackChunkName: "r-groupsettingsfinancegroup" */ "@agir/groups/groupPage/GroupSettings/GroupFinancePage/Group"
-  ),
+const GroupSettingsFinance__Group = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "r-groupsettingsfinancegroup" */ "@agir/groups/groupPage/GroupSettings/GroupFinancePage/Group"
+    ),
 );
-const GroupSettingsFinance__BouDep = lazy(() =>
-  import(
-    /* webpackChunkName: "r-groupsettingsfinanceboudep" */ "@agir/groups/groupPage/GroupSettings/GroupFinancePage/BouDep"
-  ),
+const GroupSettingsFinance__BouDep = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "r-groupsettingsfinanceboudep" */ "@agir/groups/groupPage/GroupSettings/GroupFinancePage/BouDep"
+    ),
 );
-const GroupSettingsGeneral = lazy(() =>
-  import(
-    /* webpackChunkName: "r-groupsettingsgeneral" */ "@agir/groups/groupPage/GroupSettings/GroupGeneralPage"
-  ),
+const GroupSettingsGeneral = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "r-groupsettingsgeneral" */ "@agir/groups/groupPage/GroupSettings/GroupGeneralPage"
+    ),
 );
-const GroupSettingsLocation = lazy(() =>
-  import(
-    /* webpackChunkName: "r-groupsettingslocation" */ "@agir/groups/groupPage/GroupSettings/GroupLocalizationPage"
-  ),
+const GroupSettingsLocation = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "r-groupsettingslocation" */ "@agir/groups/groupPage/GroupSettings/GroupLocalizationPage"
+    ),
 );
-const GroupSettingsContact = lazy(() =>
-  import(
-    /* webpackChunkName: "r-groupsettingscontact" */ "@agir/groups/groupPage/GroupSettings/GroupContactPage"
-  ),
+const GroupSettingsContact = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "r-groupsettingscontact" */ "@agir/groups/groupPage/GroupSettings/GroupContactPage"
+    ),
 );
-const GroupSettingsLinks = lazy(() =>
-  import(
-    /* webpackChunkName: "r-groupsettingslinks" */ "@agir/groups/groupPage/GroupSettings/GroupLinksPage"
-  ),
+const GroupSettingsLinks = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "r-groupsettingslinks" */ "@agir/groups/groupPage/GroupSettings/GroupLinksPage"
+    ),
 );
-const GroupSettingsCertification = lazy(() =>
-  import(
-    /* webpackChunkName: "r-groupsettingscertification" */ "@agir/groups/groupPage/GroupSettings/GroupCertificationPage"
-  ),
+const GroupSettingsCertification = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "r-groupsettingscertification" */ "@agir/groups/groupPage/GroupSettings/GroupCertificationPage"
+    ),
 );
-const GroupSettingsHelp = lazy(() =>
-  import(
-    /* webpackChunkName: "r-groupsettingshelp" */ "@agir/groups/groupPage/GroupSettings/GroupHelpPage"
-  ),
+const GroupSettingsHelp = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "r-groupsettingshelp" */ "@agir/groups/groupPage/GroupSettings/GroupHelpPage"
+    ),
 );
 
 export const menuRoute = {
