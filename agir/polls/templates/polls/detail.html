@@ -5,6 +5,21 @@
 
 {% block title %}{{ poll.title }}{% endblock %}
 
+{% block css %}
+  {{ block.super }}
+  <style>
+    .form-group {
+      margin-top: 2rem;
+    }
+    label + .controls {
+      padding-left: 0.5rem;
+    }
+    .help-block strong {
+      font-weight: 500;
+    }
+  </style>
+{% endblock %}
+
 {% block main_column %}
   <h2 class="headline">{{ poll.title }}</h2>
   {% if not is_authorized %}
