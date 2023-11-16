@@ -225,7 +225,7 @@ contribution_patterns = [
         name="contribution_success",
     ),
     path(
-        "renouvellement/",
+        "renouvelement/",
         views.ContributionRenewalView.as_view(),
         name="contribution_renewal",
     ),

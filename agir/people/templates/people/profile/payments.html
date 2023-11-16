@@ -57,15 +57,15 @@
 
       {% if renewable_active_contribution %}
         <h3 class="payment-section-title" id="contributions">
-          Paiements à renouveller
+          Paiements à renouveler
         </h3>
         <div class="list-group-item payment-item">
           {{ renewable_active_contribution.description }}
           <footer>
-            <span><strong>Votre contribution arrive bientôt à expiration.</strong> Vous pouvez dès à présent la renouveller pour l'année
+            <span><strong>Votre contribution arrive bientôt à expiration.</strong> Vous pouvez dès à présent la renouveler pour l'année
               prochaine dès liquant sur le bouton ci-dessous :</span>
               <a href="{% url "contribution_renewal" %}" class="btn btn-block btn-primary">
-                <i class="fa-solid fa-refresh"></i>&ensp;Renouveller la contribution
+                <i class="fa-solid fa-refresh"></i>&ensp;renouveler la contribution
               </a>
             </footer>
         </div>
@@ -100,10 +100,10 @@
               {{ subscription.description }}
               {% if subscription == renewable_active_contribution %}
                 <footer>
-                  <span><strong>Votre contribution arrive bientôt à expiration.</strong> Vous pouvez dès à présent la renouveller pour l'année
+                  <span><strong>Votre contribution arrive bientôt à expiration.</strong> Vous pouvez dès à présent la renouveler pour l'année
                   prochaine en cliquant sur le bouton ci-dessous :</span>
                   <a href="{% url "contribution_renewal" %}" class="btn btn-block btn-primary">
-                    <i class="fa-solid fa-refresh"></i>&ensp;Renouveller la contribution
+                    <i class="fa-solid fa-refresh"></i>&ensp;renouveler la contribution
                   </a>
                 </footer>
               {% endif %}
@@ -176,10 +176,10 @@
                             {{ payment.description }}
                             {% if payment == renewable_active_contribution %}
                               <footer>
-                                <span><strong>Votre contribution arrive bientôt à expiration.</strong> Vous pouvez dès à présent la renouveller pour l'année
+                                <span><strong>Votre contribution arrive bientôt à expiration.</strong> Vous pouvez dès à présent la renouveler pour l'année
                                 prochaine en cliquant sur le bouton ci-dessous :</span>
                                 <a href="{% url "contribution_renewal" %}" class="btn btn-block btn-primary">
-                                  <i class="fa-solid fa-refresh"></i>&ensp;Renouveller la contribution
+                                  <i class="fa-solid fa-refresh"></i>&ensp;renouveler la contribution
                                 </a>
                               </footer>
                             {% endif %}
