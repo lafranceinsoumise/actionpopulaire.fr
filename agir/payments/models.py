@@ -2,6 +2,8 @@ import calendar
 import json
 import math
 
+from dateutil.relativedelta import relativedelta
+from django.conf import settings
 from django.db import models
 from django.db.models import JSONField, TextChoices, Q
 from django.template.defaultfilters import floatformat
@@ -257,6 +259,8 @@ SubscriptionManager = models.Manager.from_queryset(
 class Subscription(ExportModelOperationsMixin("subscription"), TimeStampedModel):
     objects = SubscriptionManager()
 
+    DEFAULT_DAY_OF_MONTH = settings.MONTHLY_DONATION_DAY
+
     STATUS_WAITING = 0
     STATUS_ACTIVE = 1
     STATUS_ABANDONED = 2
@@ -343,6 +347,17 @@ class Subscription(ExportModelOperationsMixin("subscription"), TimeStampedModel)
 
     def get_date_prelevement(self):
         return display_date_prelevement(self.day_of_month, self.month_of_year)
+
+    def start_date(self):
+        if not self.effect_date or self.effect_date.date() <= timezone.now().date():
+            return None
+
+        day_of_month = self.day_of_month or self.DEFAULT_DAY_OF_MONTH
+
+        if self.effect_date.day <= day_of_month:
+            return self.effect_date.replace(day=day_of_month)
+
+        return (self.effect_date + relativedelta(months=1)).replace(day=day_of_month)
 
     def __str__(self):
         return "Abonnement n°" + str(self.id)

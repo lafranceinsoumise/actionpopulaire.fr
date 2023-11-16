@@ -301,7 +301,7 @@ class ContributionView(BaseAppCachedView):
 
 
 class ContributionRenewalView(BaseAppHardAuthView):
-    meta_title = "Renouveller le financement à la France insoumise"
+    meta_title = "renouveler le financement à la France insoumise"
     meta_image = urljoin(
         settings.FRONT_DOMAIN, static("front/og-image/contributions.png")
     )

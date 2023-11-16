@@ -320,7 +320,7 @@ const ContributionPage = () => {
                       <StaticToast>
                         {errors?.global || (
                           <>
-                            Une erreur est survenue lors du renouvellement de
+                            Une erreur est survenue lors du renouvèlement de
                             votre contribution. Veuillez ressayer ou cliquer sur
                             le bouton &laquo; Modifier &raquo; pour vérifier les
                             informations enregistrées.

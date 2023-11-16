@@ -141,15 +141,15 @@ const AmountStep = (props) => {
                 Votre contribution volontaire pour cette année arrive à son
                 terme <strong>le {effectDateString}</strong>.
                 <Spacer size="0.5rem" />
-                En validant le formulaire ci-dessous vous pouvez la renouveller
+                En validant le formulaire ci-dessous vous pouvez la renouveler
                 et mettre à jour certaines informations (le montant, la
                 répartition, vos coordonnées, etc.).
                 <Spacer size="0.5rem" />
                 <strong>
-                  Si vous souhaitez renouveller votre contribution à
-                  l'identique, une{" "}
+                  Si vous souhaitez renouveler votre contribution à l'identique,
+                  une{" "}
                   <Link route="contributionRenewal">
-                    page de renouvellement simplifié
+                    page de renouvèlement simplifié
                   </Link>{" "}
                   est également à votre disposition.
                 </strong>
