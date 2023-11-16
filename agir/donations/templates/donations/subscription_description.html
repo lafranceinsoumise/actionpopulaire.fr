@@ -6,10 +6,9 @@
     Vous donnez <strong>{{ subscription.price | display_price_in_cent }}</strong> par mois à l'association de financement de la France insoumise.
   </p>
   <p>
-    Ce montant sera prélevé sur votre carte <strong>chaque {{ subscription.day_of_month }} du mois</strong>
-    {% if subscription.end_date %}
-      jusqu'à <strong>{{ subscription.end_date | date:"F Y" }}</strong>
-    {% endif %}.
+    Ce montant sera prélevé sur votre carte <strong>chaque {% firstof subscription.day_of_month subscription.DEFAULT_DAY_OF_MONTH %} du mois</strong>
+    {% if subscription.start_date %}à partir du <strong>{{ subscription.start_date | date:"j F Y" }}</strong>{% endif %}
+    {% if subscription.end_date %}jusqu'à <strong>{{ subscription.end_date | date:"F Y" }}</strong>{% endif %}.
   </p>
 </div>
 {% if subscription.allocations.count > 0 %}
