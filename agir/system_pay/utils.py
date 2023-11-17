@@ -37,10 +37,11 @@ def get_recurrence_rule(subscription):
         rule = f"RRULE:FREQ=MONTHLY;BYMONTHDAY={subscription.day_of_month}"
     else:
         rule = f"RRULE:FREQ=YEARLY;BYMONTH={subscription.month_of_year};BYMONTHDAY={subscription.day_of_month}"
+
     end_date = subscription.end_date
     if end_date and isinstance(end_date, str):
-        end_date = datetime.datetime.strptime(subscription.end_date, "%Y-%m-%d").date()
-    if isinstance(subscription.end_date, str):
+        end_date = datetime.datetime.strptime(end_date, "%Y-%m-%d").date()
+    if isinstance(end_date, datetime.date):
         rule = f"{rule};UNTIL={end_date.strftime('%Y%m%d')}"
 
     return rule
