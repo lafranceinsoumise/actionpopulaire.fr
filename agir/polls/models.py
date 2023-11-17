@@ -135,7 +135,7 @@ class PollChoice(ExportModelOperationsMixin("poll_choice"), BaseAPIResource):
     def parse_selection(self):
         selection = self.selection
 
-        if isinstance(self.selection, list):
+        if isinstance(selection, list):
             # Account for legacy poll choices where only one option group was allowed and selection was a JSON array
             selection = {PollOption.DEFAULT_OPTION_GROUP_ID: self.selection}
 
@@ -147,6 +147,15 @@ class PollChoice(ExportModelOperationsMixin("poll_choice"), BaseAPIResource):
             )
             for key, choices in selection.items()
         }
+
+    def flatten_selection(self):
+        selection = self.selection
+
+        if isinstance(selection, list):
+            # Account for legacy poll choices where only one option group was allowed and selection was a JSON array
+            return selection
+
+        return [item for sublist in selection.values() for item in sublist]
 
     class Meta:
         constraints = (
