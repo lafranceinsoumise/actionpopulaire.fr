@@ -14,7 +14,7 @@ const ACTIONS = {
           icon: "heart",
           color: "#FD3D66",
         }
-      : !!user?.activeContribution.renewable
+      : !!user?.activeContribution?.renewable
         ? {
             key: "contributions",
             route: "contributionRenewal",
@@ -38,7 +38,7 @@ const ACTIONS = {
           icon: "heart",
           color: "#FD3D66",
         }
-      : !!user?.activeContribution.renewable
+      : !!user?.activeContribution?.renewable
         ? {
             key: "contributions",
             route: "contributionRenewal",
