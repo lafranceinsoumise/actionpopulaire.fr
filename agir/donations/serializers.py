@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date
 
 import reversion
 from django.conf import settings
@@ -225,7 +225,11 @@ class DonationSerializer(serializers.ModelSerializer):
         else:
             # Force monthly payment for system pay
             attrs["payment_timing"] = MONTHLY
-            attrs["effect_date"] = effect_date.strftime("%Y-%m-%d")
+            attrs["effect_date"] = (
+                effect_date.strftime("%Y-%m-%d")
+                if isinstance(effect_date, date)
+                else effect_date
+            )
 
         return attrs
 
