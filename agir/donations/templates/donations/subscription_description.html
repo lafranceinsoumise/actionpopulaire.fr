@@ -1,17 +1,23 @@
 {% load display_lib %}
 
 <h4>{{ subscription_type.label }} à l'AFLFI</h4>
-<div>
-  <p>
-    Vous donnez <strong>{{ subscription.price | display_price_in_cent }}</strong> par mois à l'association de financement de la France insoumise.
-  </p>
-  <p>
-    Ce montant sera prélevé sur votre carte <strong>chaque {% firstof subscription.day_of_month subscription.DEFAULT_DAY_OF_MONTH %} du mois</strong>
-    {% if subscription.start_date %}à partir du <strong>{{ subscription.start_date | date:"j F Y" }}</strong>{% endif %}
-    {% if subscription.end_date %}jusqu'à <strong>{{ subscription.end_date | date:"F Y" }}</strong>{% endif %}.
-  </p>
-</div>
+<p>
+  Vous donnez <strong>{{ subscription.price | display_price_in_cent }}</strong> par mois à l'association de financement de la France insoumise.
+</p>
 {% if subscription.allocations.count > 0 %}
   {% include "donations/includes/allocation_description.html" with allocations=subscription.allocations.all national_amount=national_amount only %}
 {% endif %}
-{% if expiry_date %}<p>Votre carte expire le {{ expiry_date }}.</p>{% endif %}
+<p>
+  Ce montant sera prélevé sur votre carte <strong>chaque {% firstof subscription.day_of_month subscription.DEFAULT_DAY_OF_MONTH %} du mois</strong>
+  {% if subscription.start_date %}à partir du <strong>{{ subscription.start_date | date:"j F Y" }}</strong>{% endif %}
+  {% if subscription.end_date %}jusqu'à <strong>{{ subscription.end_date | date:"F Y" }}</strong>{% endif %}.
+</p>
+{% if expiry_date and subscription.end_date and subscription.end_date > expiry_date %}
+  <p class="alert alert-warning" role="alert" style="font-size:0.875rem;margin:0;">
+    <strong>Attention : votre carte arrive à expiration <span style="box-shadow:inset 0 -2px 0 currentcolor;">le
+      {{ expiry_date }}</span>, avant la fin de votre souscription.</strong> Pensez, dès que possible, à la mettre à
+      à jour en cliquant sur le bouton <em>Changer de carte de paiement</em> ci-dessous.
+  </p>
+{% elif expiry_date %}
+  <p>Votre carte expirera <strong>le {{ expiry_date }}</strong>.</p>
+{% endif %}

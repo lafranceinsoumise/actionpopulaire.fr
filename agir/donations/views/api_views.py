@@ -18,7 +18,6 @@ from rest_framework.response import Response
 from agir.donations.actions import (
     get_active_contribution_for_person,
     is_renewable_contribution,
-    get_contribution_end_date,
 )
 from agir.donations.models import SpendingRequest, Document
 from agir.donations.serializers import (
