@@ -225,7 +225,7 @@ class DonationSerializer(serializers.ModelSerializer):
         else:
             # Force monthly payment for system pay
             attrs["payment_timing"] = MONTHLY
-            attrs["effect_date"] = effect_date
+            attrs["effect_date"] = effect_date.strftime("%Y-%m-%d")
 
         return attrs
 
