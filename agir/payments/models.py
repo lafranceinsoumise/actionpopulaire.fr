@@ -352,12 +352,13 @@ class Subscription(ExportModelOperationsMixin("subscription"), TimeStampedModel)
         if not self.effect_date or self.effect_date.date() <= timezone.now().date():
             return None
 
+        effect_date = self.effect_date.astimezone(timezone.get_default_timezone())
         day_of_month = self.day_of_month or self.DEFAULT_DAY_OF_MONTH
 
-        if self.effect_date.day <= day_of_month:
-            return self.effect_date.replace(day=day_of_month)
+        if effect_date.day <= day_of_month:
+            return effect_date.replace(day=day_of_month).date()
 
-        return (self.effect_date + relativedelta(months=1)).replace(day=day_of_month)
+        return (effect_date + relativedelta(months=1)).replace(day=day_of_month).date()
 
     def __str__(self):
         return "Abonnement n°" + str(self.id)
