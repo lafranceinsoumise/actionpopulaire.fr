@@ -482,7 +482,7 @@ export const routeConfig = {
     path: "/contributions/renouvelement/",
     exact: true,
     neededAuthentication: AUTHENTICATION.HARD,
-    label: "renouveler le financement à la France insoumise",
+    label: "Renouveler le financement à la France insoumise",
     Component: RouteComponents.ContributionRenewalPage,
     hasLayout: false,
     hideFeedbackButton: true,

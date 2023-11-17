@@ -127,7 +127,11 @@ const ContributionPage = () => {
       );
   }, [amount, isModalOpen, history, search]);
 
-  if (!isLoading && sessionUser?.hasContribution === true) {
+  if (
+    !isLoading &&
+    !!sessionUser?.activeContribution &&
+    !sessionUser.activeContribution.renewable
+  ) {
     window.location.href = ROUTES.alreadyContributor;
 
     return null;

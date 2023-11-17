@@ -289,7 +289,9 @@ class ContributionSerializer(serializers.ModelSerializer):
     lastName = serializers.CharField(source="meta.last_name")
     gender = serializers.CharField(source="meta.gender")
     locationAddress1 = serializers.CharField(source="meta.location_address1")
-    locationAddress2 = serializers.CharField(source="meta.location_address2")
+    locationAddress2 = serializers.CharField(
+        source="meta.location_address2", default=None
+    )
     locationCity = serializers.CharField(source="meta.location_city")
     locationZip = serializers.CharField(source="meta.location_zip")
     locationCountry = serializers.CharField(source="meta.location_country")

@@ -115,6 +115,8 @@ const DonationLandingPage = () => {
 
   const user = session?.user;
   const config = CONFIG.default;
+  const hasContribution =
+    !!user?.activeContribution && !user.activeContribution.renewable;
 
   return (
     <Theme type={config.type}>
@@ -155,11 +157,11 @@ const DonationLandingPage = () => {
                   title="Devenir financeur·euse"
                   route="contributions"
                   linkLabel={
-                    user?.hasContribution
+                    hasContribution
                       ? "Vous avez déjà validé votre contibution !"
                       : "Je deviens financeur·euse"
                   }
-                  disabled={user?.hasContribution}
+                  disabled={hasContribution}
                 >
                   <p>
                     La contribution volontaire est un don{" "}
