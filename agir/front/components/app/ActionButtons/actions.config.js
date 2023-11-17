@@ -48,7 +48,7 @@ const ACTIONS = {
           }
         : {
             key: "contributions",
-            route: "contribution",
+            route: "contributions",
             label: ["Financer", "Devenir financeur·euse"],
             icon: "trending-up",
             color: "#FD3D66",
