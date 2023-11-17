@@ -53,8 +53,7 @@ class PollParticipationForm(Form):
         rules = self.get_poll_rules_for_option_group(option_group_id)
         label = rules.get("label", "Choix")
 
-        if rules.get("shuffle", True):
-            options = options.order_by("?")
+        options = options.order_by("?" if rules.get("shuffle", True) else "created")
 
         if "options" in rules and rules["options"] == 1:
             self.fields[option_group_id] = ModelChoiceField(

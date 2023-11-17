@@ -13,6 +13,7 @@ from .models import Poll, PollOption
 class PollOptionInline(admin.TabularInline):
     model = PollOption
     extra = 1
+    ordering = ("option_group_id", "created")
 
 
 class PollAdminForm(forms.ModelForm):
@@ -24,7 +25,6 @@ class PollAdminForm(forms.ModelForm):
 class PollAdmin(admin.ModelAdmin):
     form = PollAdminForm
     inlines = [PollOptionInline]
-
     list_display = ("title", "start", "end")
     search_fields = ("title",)
     fields = [
