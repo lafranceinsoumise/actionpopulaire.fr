@@ -26,7 +26,6 @@ __all__ = ["PollParticipationView", "PollFinishedView"]
 from .tasks import send_vote_confirmation_email
 
 from ..lib.http import add_query_params_to_url
-from ..lib.utils import front_url
 
 
 @method_decorator(never_cache, name="get")
@@ -80,7 +79,7 @@ class PollParticipationView(
             return redirect("finished_poll")
 
         if (
-            self.object.rules.get("require_verified")
+            self.object.rules.get("verified_user")
             and self.request.user.person.contact_phone_status
             != Person.CONTACT_PHONE_VERIFIED
         ):
@@ -102,7 +101,7 @@ class PollParticipationView(
                 "Vous n'êtes pas autorisé⋅e à participer à cette consultation."
             )
         if (
-            self.object.rules.get("require_verified")
+            self.object.rules.get("verified_user")
             and self.request.user.person.contact_phone_status
             != Person.CONTACT_PHONE_VERIFIED
         ):

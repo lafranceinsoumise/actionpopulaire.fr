@@ -16,8 +16,8 @@ const StyledRangeInput = styled.div`
     props.$invalid
       ? props.theme.redNSP
       : props.$focused
-      ? props.theme.black500
-      : props.theme.black100};
+        ? props.theme.black500
+        : props.theme.black100};
   outline-style: solid;
   outline-color: ${(props) =>
     props.$focused && props.$invalid

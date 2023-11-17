@@ -21,8 +21,8 @@ export const lazy = (lazyImport, fallback) => {
               const message = err?.message
                 ? err.message
                 : typeof err === "string"
-                ? err
-                : "Lazy loading failed.";
+                  ? err
+                  : "Lazy loading failed.";
               throw new Error(message);
             }
             setError(err.toString());

@@ -8,55 +8,65 @@ import illustrationManage from "@agir/front/genericComponents/images/group_membe
 import illustrationGeneral from "@agir/front/genericComponents/images/group_general.svg";
 import illustrationVisio from "@agir/front/genericComponents/images/video-conference.svg";
 
-const EventSettingsGeneral = lazy(() =>
-  import(
-    /* webpackChunkName: "r-eventsettingsgeneral" */ "@agir/events/EventSettings/EventGeneral"
-  ),
+const EventSettingsGeneral = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "r-eventsettingsgeneral" */ "@agir/events/EventSettings/EventGeneral"
+    ),
 );
-const EventSettingsParticipants = lazy(() =>
-  import(
-    /* webpackChunkName: "r-eventsettingsparticipants" */ "@agir/events/EventSettings/EventParticipants"
-  ),
+const EventSettingsParticipants = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "r-eventsettingsparticipants" */ "@agir/events/EventSettings/EventParticipants"
+    ),
 );
-const EventSettingsOrganization = lazy(() =>
-  import(
-    /* webpackChunkName: "r-eventsettingsorganization" */ "@agir/events/EventSettings/EventOrganization"
-  ),
+const EventSettingsOrganization = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "r-eventsettingsorganization" */ "@agir/events/EventSettings/EventOrganization"
+    ),
 );
-const EventSettingsVisio = lazy(() =>
-  import(
-    /* webpackChunkName: "r-eventsettingsvisio" */ "@agir/events/EventSettings/EventVisio"
-  ),
+const EventSettingsVisio = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "r-eventsettingsvisio" */ "@agir/events/EventSettings/EventVisio"
+    ),
 );
-const EventSettingsContact = lazy(() =>
-  import(
-    /* webpackChunkName: "r-eventsettingscontact" */ "@agir/events/EventSettings/EventContact"
-  ),
+const EventSettingsContact = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "r-eventsettingscontact" */ "@agir/events/EventSettings/EventContact"
+    ),
 );
-const EventSettingsLocation = lazy(() =>
-  import(
-    /* webpackChunkName: "r-eventsettingslocation" */ "@agir/events/EventSettings/EventLocation"
-  ),
+const EventSettingsLocation = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "r-eventsettingslocation" */ "@agir/events/EventSettings/EventLocation"
+    ),
 );
-const EventSettingsFeedback = lazy(() =>
-  import(
-    /* webpackChunkName: "r-eventsettingsfeedback" */ "@agir/events/EventSettings/EventFeedback"
-  ),
+const EventSettingsFeedback = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "r-eventsettingsfeedback" */ "@agir/events/EventSettings/EventFeedback"
+    ),
 );
-const EventSettingsCancelation = lazy(() =>
-  import(
-    /* webpackChunkName: "r-eventsettingscancelation" */ "@agir/events/EventSettings/EventCancelation"
-  ),
+const EventSettingsCancelation = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "r-eventsettingscancelation" */ "@agir/events/EventSettings/EventCancelation"
+    ),
 );
-const EventSettingsDocuments = lazy(() =>
-  import(
-    /* webpackChunkName: "r-eventsettingsdocuments" */ "@agir/events/EventSettings/EventDocuments"
-  ),
+const EventSettingsDocuments = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "r-eventsettingsdocuments" */ "@agir/events/EventSettings/EventDocuments"
+    ),
 );
-const EventSettingsAssets = lazy(() =>
-  import(
-    /* webpackChunkName: "r-eventsettingsassets" */ "@agir/events/EventSettings/EventAssets"
-  ),
+const EventSettingsAssets = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "r-eventsettingsassets" */ "@agir/events/EventSettings/EventAssets"
+    ),
 );
 
 export const menuRoute = {

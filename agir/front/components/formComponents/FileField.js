@@ -29,8 +29,8 @@ const StyledButtonWrapper = styled.span`
     $empty
       ? "0px 0px 2px rgba(0, 0, 0, 0), 0px 3px 3px rgba(0, 35, 44, 0)"
       : $invalid
-      ? "none"
-      : "0px 0px 2px rgba(0, 0, 0, 0.5), 0px 3px 3px rgba(0, 35, 44, 0.1)"};
+        ? "none"
+        : "0px 0px 2px rgba(0, 0, 0, 0.5), 0px 3px 3px rgba(0, 35, 44, 0.1)"};
   overflow: hidden;
   max-width: 100%;
 

@@ -24,8 +24,8 @@ const StyledAllocationOption = styled.label`
     props.$error
       ? props.theme.redNSP
       : props.$disabled
-      ? props.theme.black500
-      : props.theme.black1000};
+        ? props.theme.black500
+        : props.theme.black1000};
 
   span {
     display: block;

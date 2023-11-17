@@ -31,18 +31,18 @@ export const getInitialData = (pollingStationOfficer, user) =>
         ...pollingStationOfficer,
       }
     : user
-    ? {
-        ...INITIAL_DATA,
-        email: user.email || "",
-        phone: user.contactPhone || "",
-        dateOfBirth: user.dateOfBirth || "",
-        address1: user.address1 || "",
-        address2: user.address2 || "",
-        zip: user.zip || "",
-        city: user.city || "",
-        country: user.country || "",
-      }
-    : { ...INITIAL_DATA };
+      ? {
+          ...INITIAL_DATA,
+          email: user.email || "",
+          phone: user.contactPhone || "",
+          dateOfBirth: user.dateOfBirth || "",
+          address1: user.address1 || "",
+          address2: user.address2 || "",
+          zip: user.zip || "",
+          city: user.city || "",
+          country: user.country || "",
+        }
+      : { ...INITIAL_DATA };
 
 export const POLLING_STATION_OFFICER_CONSTRAINTS = {
   firstName: {

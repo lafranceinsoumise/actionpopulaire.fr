@@ -175,8 +175,8 @@ const AcceptedRequests = (props) => {
       selectedAction === "confirm"
         ? confirmVotingProxyRequests
         : selectedAction === "cancel"
-        ? cancelVotingProxyRequests
-        : cancelVotingProxyRequestAcceptation;
+          ? cancelVotingProxyRequests
+          : cancelVotingProxyRequestAcceptation;
     const result = await f([selectedRequest]);
     setIsLoading(false);
     if (result.error) {

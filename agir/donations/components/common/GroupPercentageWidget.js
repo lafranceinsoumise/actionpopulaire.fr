@@ -90,10 +90,10 @@ const GroupPercentageWidget = (props) => {
     typeof value === "undefined"
       ? DEFAULT_OPTIONS[0]
       : hasCustomAmount
-      ? DEFAULT_OPTIONS[DEFAULT_OPTIONS.length - 1]
-      : DEFAULT_OPTIONS.find(
-          (option) => String(option.value) === String(value),
-        );
+        ? DEFAULT_OPTIONS[DEFAULT_OPTIONS.length - 1]
+        : DEFAULT_OPTIONS.find(
+            (option) => String(option.value) === String(value),
+          );
 
   const nationalPercentage = 100 - value;
 
