@@ -2,6 +2,7 @@ from django.utils.formats import date_format
 
 from agir.lib.commands import BaseCommand
 from agir.statistics.models import CommuneStatistics
+from agir.statistics.utils import get_commune_count_by_population_range
 
 
 class Command(BaseCommand):
@@ -17,6 +18,7 @@ class Command(BaseCommand):
         self.commune_statistics = CommuneStatistics.objects.aggregate_for_date(
             date=self.date
         )
+        self.commune_count = get_commune_count_by_population_range()
 
     def start_section(self, label, value=None):
         self.section_item_count = 0
@@ -44,7 +46,7 @@ class Command(BaseCommand):
         self.section_item_count += 1
 
         if isinstance(value, str):
-            self.log(f" {bullet} {label} : <b>{value}</b>")
+            self.log(f" {bullet} {label} : {value}")
             return
 
         unit = ""
@@ -53,10 +55,10 @@ class Command(BaseCommand):
             unit = " €"
 
         if relative:
-            self.log(f" {bullet} {label} : <b>{value : >+n}{unit}</b>")
+            self.log(f" {bullet} {label} : {value : >+n}{unit}")
             return
 
-        self.log(f" {bullet} {label} : <b>{value : >n}{unit}</b>")
+        self.log(f" {bullet} {label} : {value : >n}{unit}")
 
     def print_commune_statistics(self, key, title=None):
         data = self.commune_statistics[key]
@@ -67,7 +69,11 @@ class Command(BaseCommand):
         title = title or f"Communes avec un ou plus {label.lower()}"
 
         total = data["total"]
-        self.start_section(f"{title} : {total}")
+        self.start_section(
+            f"{title} : {total : >n} ({total / self.commune_count['total']:.2%})"
+            if total > 0 and self.commune_count.get("total") > 0
+            else f"<b>{total : >n}</b>"
+        )
 
         if total == 0:
             return
@@ -81,9 +87,10 @@ class Command(BaseCommand):
                 else f"{subkey[0]: >n} hab. et plus"
             )
             subvalue = (
-                f"{subvalue : >n} ({subvalue / total:.2%})"
-                if subvalue > 0 and total > 0
-                else f"{subvalue : >n}"
+                f"<b>{subvalue / self.commune_count[subkey]:.2%}</b> "
+                f"(<em><b>{subvalue : >n}</b>／{self.commune_count[subkey] : >n}</em>)"
+                if subvalue > 0 and self.commune_count.get(subkey, 0) > 0
+                else f"<b>{subvalue : >n}</b>"
             )
             self.print_value_line(sublabel, subvalue)
 

@@ -145,6 +145,28 @@ def get_commune_queryset():
     )
 
 
+def get_commune_count_by_population_range(
+    commune_qs=None, population_fieldname="population"
+):
+    if commune_qs is None:
+        commune_qs = get_commune_queryset()
+        population_fieldname = "population_municipale"
+
+    return {
+        "total": commune_qs.count(),
+        **{
+            population_range: commune_qs.filter(
+                **{f"{population_fieldname}__range": population_range}
+            ).count()
+            if len(population_range) == 2
+            else commune_qs.filter(
+                **{f"{population_fieldname}__gte": population_range[0]}
+            ).count()
+            for population_range in POPULATION_RANGES
+        },
+    }
+
+
 def get_commune_filter(commune):
     f = ~Q(location_citycode="") & Q(location_citycode=commune.code)
     f |= ~Q(location_zip="") & Q(
