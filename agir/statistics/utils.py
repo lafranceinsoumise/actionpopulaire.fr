@@ -9,15 +9,11 @@ from agir.groups.models import SupportGroup, Membership
 from agir.lib.materiel import MaterielRestAPI
 from agir.people.models import Person
 
-POPULATION_RANGES = (
-    (1000, 5000),
-    (5000, 10000),
-    (10000, 15000),
-    (15000, 20000),
-    (20000, 50000),
-    (50000, 100000),
-    (100000,),
-)
+POPULATION_RANGE_STEPS = [0, 1, 5, 10, 15, 20, 50, 100]
+POPULATION_RANGES = [
+    (i[0] * 1000, i[1] * 1000 - 1) if i[1] else (i[0] * 1000,)
+    for i in zip(POPULATION_RANGE_STEPS, POPULATION_RANGE_STEPS[1:] + [False])
+]
 
 
 def get_default_date():

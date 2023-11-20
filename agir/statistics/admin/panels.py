@@ -158,7 +158,7 @@ class CommuneStatisticsAdmin(StatisticsModelAdmin):
 
             total = aggregates[key]["total"]
             formatted_aggregates[label] = {
-                f"Entre {subkey[0]} et {subkey[1]} hab"
+                f"Entre {subkey[0]} et {subkey[1] + 1} hab"
                 if len(subkey) == 2
                 else f"{subkey[0]} hab et plus": f"{value : >+n}"
                 for subkey, value in aggregates[key].items()
