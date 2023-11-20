@@ -6,7 +6,7 @@ import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const ACTIONS = {
   donations: (user) =>
-    user?.hasContribution
+    !!user?.activeContribution && !user.activeContribution.renewable
       ? {
           key: "donations",
           route: "donations",
@@ -14,15 +14,23 @@ const ACTIONS = {
           icon: "heart",
           color: "#FD3D66",
         }
-      : {
-          key: "donations",
-          route: "donationLanding",
-          label: ["Don", "Faire un don"],
-          icon: "heart",
-          color: "#FD3D66",
-        },
+      : !!user?.activeContribution?.renewable
+        ? {
+            key: "contributions",
+            route: "contributionRenewal",
+            label: ["Financer", "Renouveler mon financement"],
+            icon: "refresh-cw",
+            color: "#FD3D66",
+          }
+        : {
+            key: "donations",
+            route: "donationLanding",
+            label: ["Don", "Faire un don"],
+            icon: "heart",
+            color: "#FD3D66",
+          },
   contributions: (user) =>
-    user?.hasContribution
+    !!user?.activeContribution && !user.activeContribution.renewable
       ? {
           key: "contributions",
           route: "donations",
@@ -30,13 +38,21 @@ const ACTIONS = {
           icon: "heart",
           color: "#FD3D66",
         }
-      : {
-          key: "contributions",
-          route: "contributions",
-          label: ["Financer", "Devenir financeur·euse"],
-          icon: "trending-up",
-          color: "#FD3D66",
-        },
+      : !!user?.activeContribution?.renewable
+        ? {
+            key: "contributions",
+            route: "contributionRenewal",
+            label: ["Financer", "Renouveler mon financement"],
+            icon: "refresh-cw",
+            color: "#FD3D66",
+          }
+        : {
+            key: "contributions",
+            route: "contributions",
+            label: ["Financer", "Devenir financeur·euse"],
+            icon: "trending-up",
+            color: "#FD3D66",
+          },
   createEvent: {
     key: "createEvent",
     route: "createEvent",

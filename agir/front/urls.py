@@ -224,6 +224,11 @@ contribution_patterns = [
         views.ContributionView.as_view(restricted=False),
         name="contribution_success",
     ),
+    path(
+        "renouvelement/",
+        views.ContributionRenewalView.as_view(),
+        name="contribution_renewal",
+    ),
 ]
 
 voting_proxy_patterns = [

@@ -54,42 +54,20 @@
         <p>Cette page vous permet de lister l'ensemble de vos dons, prêts ou participations payantes à des
           événements.</p>
       </div>
-      {% if subscriptions %}
+
+      {% if renewable_active_contribution %}
         <h3 class="payment-section-title" id="contributions">
-          Paiements automatiques actifs
+          Paiements à renouveler
         </h3>
-        <div class="list-group">
-          {% for subscription in subscriptions %}
-            <div class="list-group-item payment-item">
-              {{ subscription.description }}
-              <footer>
-                <a href="{% url "subscription_page" subscription.pk %}" class="btn btn-block btn-sm btn-default">
-                  <i class="fa-solid fa-credit-card"></i>&ensp;Changer de carte de paiement
-                </a>
-                <a href="{% url "subscription_terminate" subscription.pk %}" class="btn btn-block btn-sm btn-danger">
-                  <i class="fa-solid fa-ban"></i>&ensp;Mettre fin à ce paiement
-                </a>
-              </footer>
-            </div>
-          {% endfor %}
-        </div>
-      {% elif can_make_contribution %}
-        <div class="padtopmore padbottommore">
-          <h3 class="payment-section-title" id="contributions">
-            Devenir financeur·euse de la France insoumise
-          </h3>
-          <p>
-            En devenant financeur·euse de la France insoumise, vous vous engagez à ce que votre contribution soit versée
-            automatiquement tous les mois et jusqu'à la fin de l'année.
-          </p>
-          <p>
-            Grâce à <strong>votre engagement dans la durée</strong>, vous
-            permettrez à notre mouvement de mieux planifier et organiser ses
-            activités au niveau local et/ou national tout au long de l’année.
-          </p>
-          <p>
-            <a class="btn btn-primary" href="{% url "contribution_amount" %}">Je deviens financeur·euse</a>
-          </p>
+        <div class="list-group-item payment-item">
+          {{ renewable_active_contribution.description }}
+          <footer>
+            <span><strong>Votre contribution arrive bientôt à expiration.</strong> Vous pouvez dès à présent la renouveler pour l'année
+              prochaine dès liquant sur le bouton ci-dessous :</span>
+              <a href="{% url "contribution_renewal" %}" class="btn btn-block btn-primary">
+                <i class="fa-solid fa-refresh"></i>&ensp;Renouveler la contribution
+              </a>
+            </footer>
         </div>
       {% endif %}
 
@@ -109,6 +87,54 @@
               </footer>
             </div>
           {% endfor %}
+        </div>
+      {% endif %}
+
+      {% if subscriptions %}
+        <h3 class="payment-section-title" id="contributions">
+          Paiements automatiques actifs
+        </h3>
+        <div class="list-group">
+          {% for subscription in subscriptions %}
+            <div class="list-group-item payment-item">
+              {{ subscription.description }}
+              {% if subscription == renewable_active_contribution %}
+                <footer>
+                  <span><strong>Votre contribution arrive bientôt à expiration.</strong> Vous pouvez dès à présent la renouveler pour l'année
+                  prochaine en cliquant sur le bouton ci-dessous :</span>
+                  <a href="{% url "contribution_renewal" %}" class="btn btn-block btn-primary">
+                    <i class="fa-solid fa-refresh"></i>&ensp;Renouveler la contribution
+                  </a>
+                </footer>
+              {% endif %}
+              <footer>
+                <a href="{% url "subscription_page" subscription.pk %}" class="btn btn-block btn-sm btn-default">
+                  <i class="fa-solid fa-credit-card"></i>&ensp;Changer de carte de paiement
+                </a>
+                <a href="{% url "subscription_terminate" subscription.pk %}" class="btn btn-block btn-sm btn-danger">
+                  <i class="fa-solid fa-ban"></i>&ensp;Mettre fin à ce paiement
+                </a>
+              </footer>
+            </div>
+          {% endfor %}
+        </div>
+      {% elif not renewable_active_contribution and can_make_contribution %}
+        <div class="padtopmore padbottommore">
+          <h3 class="payment-section-title" id="contributions">
+            Devenir financeur·euse de la France insoumise
+          </h3>
+          <p>
+            En devenant financeur·euse de la France insoumise, vous vous engagez à ce que votre contribution soit versée
+            automatiquement tous les mois et jusqu'à la fin de l'année.
+          </p>
+          <p>
+            Grâce à <strong>votre engagement dans la durée</strong>, vous
+            permettrez à notre mouvement de mieux planifier et organiser ses
+            activités au niveau local et/ou national tout au long de l’année.
+          </p>
+          <p>
+            <a class="btn btn-primary" href="{% url "contribution_amount" %}">Je deviens financeur·euse</a>
+          </p>
         </div>
       {% endif %}
 
@@ -148,6 +174,15 @@
                       {% for payment in year_payments %}
                         <div class="list-group-item payment-item">
                             {{ payment.description }}
+                            {% if payment == renewable_active_contribution %}
+                              <footer>
+                                <span><strong>Votre contribution arrive bientôt à expiration.</strong> Vous pouvez dès à présent la renouveler pour l'année
+                                prochaine en cliquant sur le bouton ci-dessous :</span>
+                                <a href="{% url "contribution_renewal" %}" class="btn btn-block btn-primary">
+                                  <i class="fa-solid fa-refresh"></i>&ensp;Renouveler la contribution
+                                </a>
+                              </footer>
+                            {% endif %}
                         </div>
                       {% endfor %}
                   </div>

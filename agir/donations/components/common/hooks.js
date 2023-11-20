@@ -3,11 +3,18 @@ import useSWRImmutable from "swr/immutable";
 
 import CONFIG from "@agir/donations/common/config";
 import * as api from "@agir/donations/common/api";
-import { getReminder } from "@agir/donations/common/allocations.config";
+import {
+  getAllocationDepartement,
+  getAllocationGroup,
+  getReminder,
+  parseAllocations,
+} from "@agir/donations/common/allocations.config";
 
 import {
   INITIAL_DATA,
   setFormDataForUser,
+  setFormDataFromExistingDonation,
+  validateContributionRenewal,
   validateDonationData,
 } from "@agir/donations/common/form.config";
 
@@ -68,6 +75,10 @@ export const useDonations = (
   const [isLoading, setIsLoading] = useState(false);
   const { data: session, isValidating: isSessionLoading } =
     useSWRImmutable("/api/session/");
+
+  const { data: existingDonation, isLoading: isLoadingExistingDonation } =
+    useSWRImmutable(config.existingDonationEndpoint);
+
   const [formData, setFormData] = useState({
     ...INITIAL_DATA,
     ...defaults,
@@ -82,10 +93,10 @@ export const useDonations = (
     config.hasAllocations,
   );
 
-  const [formErrors, setFormErrors] = useState({});
+  const [formErrors, setErrors] = useState({});
 
   const updateFormData = useCallback((field, value) => {
-    setFormErrors((currentErrors) => ({
+    setErrors((currentErrors) => ({
       ...currentErrors,
       [field]: "",
     }));
@@ -99,7 +110,7 @@ export const useDonations = (
   const handleSubmit = useCallback(
     async (paymentMode) => {
       setIsLoading(true);
-      setFormErrors({});
+      setErrors({});
       const donation = {
         ...formData,
         paymentMode,
@@ -121,13 +132,13 @@ export const useDonations = (
 
       if (validationErrors) {
         setIsLoading(false);
-        setFormErrors(validationErrors);
+        setErrors(validationErrors);
         return;
       }
       const { data, error } = await api.createDonation(donation);
       setIsLoading(false);
       if (error) {
-        setFormErrors(error);
+        setErrors(error);
         return;
       }
 
@@ -144,15 +155,29 @@ export const useDonations = (
   }, [session]);
 
   useEffect(() => {
-    if (!group?.location?.departement) {
-      return;
-    }
-    updateFormData("departement", group.location.departement);
+    group?.location?.departement &&
+      updateFormData("departement", group.location.departement);
   }, [group, updateFormData]);
 
   useEffect(() => {
-    !isReady && !isSessionLoading && isGroupReady && setIsReady(true);
-  }, [isReady, isSessionLoading, isGroupReady]);
+    if (!existingDonation) {
+      return;
+    }
+    setFormData(setFormDataFromExistingDonation(existingDonation));
+
+    const group = getAllocationGroup(existingDonation.allocations);
+    if (group && group.isPublished && group.isCertified) {
+      selectGroup(group);
+    }
+  }, [existingDonation, selectGroup]);
+
+  useEffect(() => {
+    !isReady &&
+      !isSessionLoading &&
+      !isLoadingExistingDonation &&
+      isGroupReady &&
+      setIsReady(true);
+  }, [isReady, isSessionLoading, isLoadingExistingDonation, isGroupReady]);
 
   return {
     config,
@@ -163,8 +188,95 @@ export const useDonations = (
     groups,
     isReady,
     isLoading,
+    isRenewal: Boolean(existingDonation && existingDonation.renewable),
     updateFormData,
     handleSubmit,
     selectGroup,
+  };
+};
+
+export const useContributionRenewal = (type = CONFIG.contribution.type) => {
+  const config = CONFIG[type] || CONFIG.default;
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  const { data: session, isLoading: isSessionLoading } =
+    useSWRImmutable("/api/session/");
+
+  const { data: activeContribution, isLoading: isActiveContributionLoading } =
+    useSWRImmutable(config.existingDonationEndpoint);
+
+  const endDate =
+    typeof config.getEndDate === "function" ? config.getEndDate() : null;
+
+  const [allocations, inactiveGroupAllocation] = useMemo(
+    () => parseAllocations(activeContribution),
+    [activeContribution],
+  );
+
+  const group = useMemo(() => {
+    const groupAllocation = allocations.find(
+      (allocation) => !!allocation.group,
+    );
+    return groupAllocation && groupAllocation?.group;
+  }, [allocations]);
+
+  const handleSubmit = useCallback(async () => {
+    setIsLoading(true);
+    setErrors({});
+    const newContribution = {
+      ...activeContribution,
+      endDate,
+      allocations,
+    };
+
+    let validationErrors = validateContributionRenewal(newContribution);
+
+    if (getReminder(newContribution?.allocations, newContribution.amount)) {
+      validationErrors = {
+        ...(validationErrors || {}),
+        global: "La somme des des allocations est différente du montant total",
+      };
+    }
+
+    if (
+      newContribution.nationality !== "FR" &&
+      newContribution.locationCountry !== "FR"
+    ) {
+      validationErrors = {
+        ...(validationErrors || {}),
+        locationCountry: "Veuillez indiquer votre adresse fiscale en France.",
+      };
+    }
+
+    if (validationErrors) {
+      setIsLoading(false);
+      setErrors(validationErrors);
+      return;
+    }
+    const { data, error } = await api.createDonation(newContribution);
+    setIsLoading(false);
+
+    if (error) {
+      setErrors(error);
+      return;
+    }
+
+    window.location.href = data.next;
+  }, [activeContribution, endDate, allocations]);
+
+  return {
+    config,
+    activeContribution,
+    endDate,
+    allocations,
+    inactiveGroupAllocation,
+    group,
+    errors, //: "Une erreur est survenue",
+    user: session?.user || null,
+    isReady: !isSessionLoading && !isActiveContributionLoading,
+    isLoading,
+    onSubmit: handleSubmit,
   };
 };

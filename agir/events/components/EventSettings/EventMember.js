@@ -142,8 +142,8 @@ const EventMember = (props) => {
     const config = isOrganizer
       ? MEMBER_TYPE_CONFIG.organizer
       : isEventSpeaker
-      ? MEMBER_TYPE_CONFIG.speaker
-      : null;
+        ? MEMBER_TYPE_CONFIG.speaker
+        : null;
     if (!config) {
       return {};
     }

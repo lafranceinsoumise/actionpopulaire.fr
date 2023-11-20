@@ -42,6 +42,13 @@ def is_finance_manager_of_spending_request_group(role, obj=None):
     return is_financeable_group(role, group) and is_finance_manager(role, group)
 
 
+@rules.predicate
+def is_own_contribution(role, obj=None):
+    if obj is None:
+        return False
+    return obj.person == role.person
+
+
 rules.add_perm(
     "donations.view_spendingrequest",
     is_authenticated_person & is_finance_manager_of_spending_request_group,
@@ -65,4 +72,7 @@ rules.add_perm(
 rules.add_perm(
     "donations.add_document_to_spending_request",
     is_authenticated_person & is_finance_manager_of_spending_request_group,
+)
+rules.add_perm(
+    "donations.view_active_contribution", is_authenticated_person & is_own_contribution
 )

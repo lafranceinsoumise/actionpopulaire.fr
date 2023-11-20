@@ -315,11 +315,11 @@ EMAIL_TEMPLATES = {
     # WELCOME_MESSAGE variables: [PROFILE_LINK]
     "WELCOME_LFI_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/ac205f71-61a3-465b-8161-cec5729ecdbb.html",
     # CONFIRM_SUBSCRIPTION_MESSAGE variables: [CONFIRMATION_URL]
-    "SUBSCRIPTION_CONFIRMATION_LFI_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/cd878308-6fd7-4088-b525-a020c5bb3fe0.html",
+    "SUBSCRIPTION_CONFIRMATION_LFI_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/1262d903-caf4-4d34-a2a8-912f6df01774.html",
     # ALREADY_SUBSCRIBED_MESSAGE: [AGO], [PANEL_LINK]
     "ALREADY_SUBSCRIBED_LFI_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/d7040d22-703f-4ac7-883c-d2f04c13be1a.html",
     # DONATION_MESSAGE variables : [PROFILE_LINK]
-    "DONATION_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/cab3c2ee-9444-4c70-b16e-9f7dce7929b1.html",
+    "DONATION_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/09099c9c-1a8b-4758-a4c0-d486a01d2a0a.html",
     # DONATION_MESSAGE_2022 variables :
     "DONATION_MESSAGE_2022": "https://mosaico.lafranceinsoumise.fr/emails/e4480ee7-5337-4119-ac37-0b4cbe11d7ba.html",
     # INVITATION_SUBSCRIPTION_MESSAGE: [GROUP_NAME], [CONFIRMATION_URL] [SIGNAL_URL]
@@ -855,6 +855,7 @@ MONTHLY_DONATION_DAY = 8
 MONTHLY_DONATION_MATOMO_GOAL = os.environ.get("MONTHLY_DONATION_MATOMO_GOAL")
 
 CONTRIBUTION_DONATION_DAY = 2
+CONTRIBUTION_MONTHS_BEFORE_END_RENEWAL_START = 3
 CONTRIBUTION_MATOMO_GOAL = os.environ.get("CONTRIBUTION_MATOMO_GOAL")
 
 LOAN_MINIMUM = 400 * 100  # 400 €

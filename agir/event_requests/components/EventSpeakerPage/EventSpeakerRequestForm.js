@@ -112,8 +112,8 @@ const EventSpeakerRequestForm = (props) => {
         {!isNew && !hasChanged
           ? "Enregistré"
           : isNew
-          ? "Enregistrer"
-          : "Mettre à jour"}
+            ? "Enregistrer"
+            : "Mettre à jour"}
       </Button>
     </StyledForm>
   );

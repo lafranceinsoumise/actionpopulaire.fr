@@ -3,7 +3,10 @@ from django.forms import fields
 from phonenumbers import phonenumberutil, PhoneNumberType
 
 from agir.lib.utils import front_url_lazy, front_url
-from agir.system_pay.utils import get_trans_id_from_order_id, get_recurrence_rule
+from agir.system_pay.utils import (
+    get_trans_id_from_order_id,
+    get_recurrence_rule,
+)
 from . import SystemPayConfig
 from .crypto import get_signature
 
@@ -120,6 +123,12 @@ class SystempayNewSubscriptionForm(SystempayBaseForm):
             )
         person_data.update(transaction.subscription.meta)
 
+        effect_date = (
+            transaction.subscription.effect_date
+            if transaction.subscription.effect_date
+            else transaction.created
+        )
+
         form = cls(
             initial={
                 "vads_site_id": sp_config.site_id,
@@ -128,7 +137,7 @@ class SystempayNewSubscriptionForm(SystempayBaseForm):
                 "vads_order_id": transaction.pk,
                 "vads_trans_id": get_trans_id_from_order_id(transaction.pk),
                 "vads_trans_date": transaction.created.strftime("%Y%m%d%H%M%S"),
-                "vads_sub_effect_date": transaction.created.strftime("%Y%m%d"),
+                "vads_sub_effect_date": effect_date.strftime("%Y%m%d"),
                 "vads_sub_amount": transaction.subscription.price,
                 "vads_cust_email": person.email,
                 "vads_cust_id": transaction.subscription.person_id,

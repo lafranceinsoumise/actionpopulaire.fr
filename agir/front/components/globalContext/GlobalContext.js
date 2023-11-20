@@ -47,8 +47,8 @@ const ProdProvider = ({ hasRouter = false, hasToasts = false, children }) => {
           const message = err?.message
             ? err.message
             : typeof err === "string"
-            ? err
-            : "Session cache deletion failed.";
+              ? err
+              : "Session cache deletion failed.";
           throw new Error(message);
         }
       });

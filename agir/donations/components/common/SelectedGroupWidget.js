@@ -97,7 +97,7 @@ const SelectedGroupWidget = (props) => {
         Pour allouer une partie de votre don{" "}
         <strong>à un groupe d'action certifié</strong>, utilisez le bouton
         &laquo;&nbsp;financer&nbsp;&raquo; dans la page du groupe.{" "}
-        <Link route="groupMap" params={{ subtype: "certifié" }}>
+        <Link route="groupMap" params={{ certified: 1 }}>
           Voir la carte des groupes d'action certifiés
         </Link>
         .

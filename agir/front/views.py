@@ -29,7 +29,11 @@ from .view_mixins import (
     SimpleOpengraphMixin,
     ObjectOpengraphMixin,
 )
-from ..donations.actions import can_make_contribution
+from ..donations.actions import (
+    can_make_contribution,
+    get_active_contribution_for_person,
+    is_waiting_contribution,
+)
 from ..donations.models import SpendingRequest
 from ..events.models import EventSubtype
 from ..events.views.event_views import EventDetailMixin
@@ -231,19 +235,44 @@ class DonationView(BaseAppCachedView):
 
 class AlreadyContributorRedirectView(RedirectView):
     query_string = False
-    url = reverse_lazy("view_payments")
+    message = None
 
-    def get(self, request, *args, **kwargs):
-        messages.add_message(
-            request=request,
-            level=messages.WARNING,
-            message=mark_safe(
+    @property
+    def url(self):
+        active_contribution = None
+
+        if (
+            self.request.user.is_authenticated
+            and hasattr(self.request.user, "person")
+            and self.request.user.person is not None
+        ):
+            active_contribution = get_active_contribution_for_person(
+                person=self.request.user.person
+            )
+
+            if active_contribution and is_waiting_contribution(active_contribution):
+                self.message = (
+                    "Vous avez déjà effectuée une contribution financière pour cette année : il ne vous reste à "
+                    "présent qu'à en valider le paiement pour que celle-ci soit effective."
+                )
+                return reverse("payment_page", args=(active_contribution.pk,))
+
+        if active_contribution:
+            self.message = mark_safe(
                 "Vous avez déjà effectuée une contribution financière pour cette année ! "
                 "Merci de votre soutien ! Si vous le souhaitez vous pouvez toujours faire un don ponctuel "
                 f'<a href="{front_url("donation_amount", absolute=True)}">sur la page de don</a>.'
-            ),
-        )
-        return super().get(request, *args, **kwargs)
+            )
+
+        return reverse("view_payments")
+
+    def get(self, request, *args, **kwargs):
+        response = super().get(request, *args, **kwargs)
+        if self.message:
+            messages.add_message(
+                request=self.request, level=messages.WARNING, message=self.message
+            )
+        return response
 
 
 class ContributionView(BaseAppCachedView):
@@ -266,6 +295,26 @@ class ContributionView(BaseAppCachedView):
             and request.user.person is not None
             and not can_make_contribution(person=request.user.person)
         ):
+            return HttpResponseRedirect(reverse_lazy("already_contributor"))
+
+        return super().get(request, *args, **kwargs)
+
+
+class ContributionRenewalView(BaseAppHardAuthView):
+    meta_title = "renouveler le financement à la France insoumise"
+    meta_image = urljoin(
+        settings.FRONT_DOMAIN, static("front/og-image/contributions.png")
+    )
+    meta_description = (
+        "Pour financer les dépenses liées à l’organisation d’événements, à l’achat de matériel, au"
+        "fonctionnement du site, etc., nous avons besoin du soutien financier de chacun.e d’entre vous !"
+    )
+
+    def get_api_preloads(self):
+        return [reverse_lazy("api_active_contribution_retrieve")]
+
+    def get(self, request, *args, **kwargs):
+        if not can_make_contribution(person=request.user.person):
             return HttpResponseRedirect(reverse_lazy("already_contributor"))
 
         return super().get(request, *args, **kwargs)

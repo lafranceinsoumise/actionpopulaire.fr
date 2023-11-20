@@ -3,6 +3,7 @@ import React from "react";
 import themeLFI from "@agir/front/genericComponents/themes/LFI";
 
 import { MONTHLY_PAYMENT, SINGLE_TIME_PAYMENT } from "./form.config";
+import * as api from "./api";
 
 const don = {
   type: "don",
@@ -15,7 +16,7 @@ const don = {
     </span>
   ),
   thankYouNote: (
-    <div>
+    <>
       <p>Chère donatrice, Cher donateur,</p>
       <br />
       <p>Vous venez d'apporter votre appui financier à la France insoumise.</p>
@@ -34,7 +35,7 @@ const don = {
       <p>Courage, les mauvais jours finiront.</p>
       <br />
       <p style={{ textAlign: "right" }}>Jean-Luc Mélenchon</p>
-    </div>
+    </>
   ),
   hasAllocations: true,
   beneficiary: "la France insoumise",
@@ -70,6 +71,7 @@ const contribution = {
   allowedPaymentModes: {
     [MONTHLY_PAYMENT]: ["system_pay", "check_donations"],
   },
+  existingDonationEndpoint: api.getDonationEndpoint("getActiveContribution"),
 };
 
 const CONFIG = {

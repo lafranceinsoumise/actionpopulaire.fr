@@ -11,7 +11,12 @@ from agir.authentication.utils import (
     is_soft_logged,
     get_bookmarked_emails,
 )
-from agir.donations.actions import can_make_contribution
+from agir.donations.actions import (
+    get_active_contribution_for_person,
+    get_contribution_end_date,
+    is_renewable_contribution,
+)
+from agir.donations.serializers import ContributionSerializer
 from agir.donations.views.donations_views import DONATION_SESSION_NAMESPACE
 from agir.groups.models import SupportGroup, Membership
 from agir.lib.utils import front_url
@@ -39,7 +44,9 @@ class UserContextSerializer(serializers.Serializer):
     zip = serializers.CharField(source="location_zip")
     departement = serializers.SerializerMethodField(read_only=True)
     country = CountryField(source="location_country")
-    hasContribution = serializers.SerializerMethodField(method_name="has_contribution")
+    activeContribution = serializers.SerializerMethodField(
+        method_name="get_active_contribution"
+    )
     actionRadius = serializers.IntegerField(source="action_radius")
     newsletters = PersonNewsletterListField(read_only=True)
     membreReseauElus = serializers.SerializerMethodField(
@@ -79,8 +86,17 @@ class UserContextSerializer(serializers.Serializer):
             for group in person_groups
         ]
 
-    def has_contribution(self, obj):
-        return can_make_contribution(person=obj) == False
+    def get_active_contribution(self, obj):
+        active_contribution = get_active_contribution_for_person(obj)
+        if active_contribution:
+            return {
+                "id": active_contribution.id,
+                "amount": active_contribution.price,
+                "endDate": get_contribution_end_date(active_contribution),
+                "renewable": is_renewable_contribution(active_contribution),
+            }
+
+        return None
 
     def is_membre_reseau_elus(self, obj):
         return obj.membre_reseau_elus == obj.MEMBRE_RESEAU_OUI

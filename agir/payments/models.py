@@ -2,15 +2,19 @@ import calendar
 import json
 import math
 
+from dateutil.relativedelta import relativedelta
+from django.conf import settings
 from django.db import models
-from django.db.models import JSONField, TextChoices
+from django.db.models import JSONField, TextChoices, Q
 from django.template.defaultfilters import floatformat
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
 from num2words import num2words
 from phonenumber_field.modelfields import PhoneNumberField
 
 from agir.lib.display import display_address, display_price, display_allocations
+from agir.lib.form_fields import CustomJSONEncoder
 from agir.lib.models import LocationMixin, TimeStampedModel
 from agir.lib.utils import front_url
 from agir.payments.model_fields import AmountField
@@ -56,6 +60,19 @@ class PaymentQueryset(models.QuerySet):
             if isinstance(payment_mode, AbstractCheckPaymentMode)
         ]
         return self.filter(mode__in=check_modes)
+
+    def contributions(self):
+        from agir.donations.apps import DonsConfig
+
+        return self.filter(type=DonsConfig.CONTRIBUTION_TYPE)
+
+    def active_contribution(self):
+        return (
+            self.contributions()
+            .filter(status__in=(Payment.STATUS_WAITING, Payment.STATUS_COMPLETED))
+            .exclude(meta__end_date__isnull=True)
+            .filter(meta__end_date__gte=timezone.now().isoformat())
+        )
 
 
 PaymentManager = models.Manager.from_queryset(
@@ -215,7 +232,35 @@ class Payment(ExportModelOperationsMixin("payment"), TimeStampedModel, LocationM
         verbose_name_plural = "Paiements"
 
 
+class SubscriptionQueryset(models.QuerySet):
+    def active(self):
+        return self.filter(status=Subscription.STATUS_ACTIVE).filter(
+            Q(end_date__isnull=True) | Q(end_date__gte=timezone.now())
+        )
+
+    def contributions(self):
+        from agir.donations.apps import DonsConfig
+
+        return self.filter(type=DonsConfig.CONTRIBUTION_TYPE)
+
+    def active_contributions(self):
+        return (
+            self.contributions()
+            .filter(status=Subscription.STATUS_ACTIVE)
+            .filter(end_date__gte=timezone.now())
+        )
+
+
+SubscriptionManager = models.Manager.from_queryset(
+    SubscriptionQueryset, class_name="SubscriptionManager"
+)
+
+
 class Subscription(ExportModelOperationsMixin("subscription"), TimeStampedModel):
+    objects = SubscriptionManager()
+
+    DEFAULT_DAY_OF_MONTH = settings.MONTHLY_DONATION_DAY
+
     STATUS_WAITING = 0
     STATUS_ACTIVE = 1
     STATUS_ABANDONED = 2
@@ -254,9 +299,12 @@ class Subscription(ExportModelOperationsMixin("subscription"), TimeStampedModel)
     status = models.IntegerField(
         "status", choices=STATUS_CHOICES, default=STATUS_WAITING
     )
-    meta = JSONField(blank=True, default=dict)
+    meta = JSONField(blank=True, default=dict, encoder=CustomJSONEncoder)
 
-    end_date = models.DateField("Fin de l'abonnement", blank=True, null=True)
+    effect_date = models.DateTimeField(
+        _("Début de l'abonnement"), blank=True, null=True
+    )
+    end_date = models.DateField(_("Fin de l'abonnement"), blank=True, null=True)
 
     def get_price_display(self):
         return display_price(self.price)
@@ -299,6 +347,18 @@ class Subscription(ExportModelOperationsMixin("subscription"), TimeStampedModel)
 
     def get_date_prelevement(self):
         return display_date_prelevement(self.day_of_month, self.month_of_year)
+
+    def start_date(self):
+        if not self.effect_date or self.effect_date.date() <= timezone.now().date():
+            return None
+
+        effect_date = self.effect_date.astimezone(timezone.get_default_timezone())
+        day_of_month = self.day_of_month or self.DEFAULT_DAY_OF_MONTH
+
+        if effect_date.day <= day_of_month:
+            return effect_date.replace(day=day_of_month).date()
+
+        return (effect_date + relativedelta(months=1)).replace(day=day_of_month).date()
 
     def __str__(self):
         return "Abonnement n°" + str(self.id)

@@ -2,6 +2,7 @@ import json
 
 import reversion
 from django.db import transaction
+from django.http import Http404
 from django.urls import reverse
 from nested_multipart_parser.drf import DrfNestedParser
 from rest_framework.generics import (
@@ -11,15 +12,20 @@ from rest_framework.generics import (
     RetrieveAPIView,
 )
 from rest_framework.mixins import UpdateModelMixin
-from rest_framework.parsers import JSONParser, FormParser, MultiPartParser
+from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 
+from agir.donations.actions import (
+    get_active_contribution_for_person,
+    is_renewable_contribution,
+)
 from agir.donations.models import SpendingRequest, Document
 from agir.donations.serializers import (
     DonationSerializer,
     MONTHLY,
     SpendingRequestSerializer,
     SpendingRequestDocumentSerializer,
+    ContributionSerializer,
 )
 from agir.donations.spending_requests import (
     validate_action,
@@ -30,9 +36,12 @@ from agir.donations.views import DONATION_SESSION_NAMESPACE
 from agir.lib.rest_framework_permissions import (
     IsActionPopulaireClientPermission,
     GlobalOrObjectPermissions,
+    IsPersonPermission,
 )
 from agir.payments.actions.payments import create_payment
-from agir.payments.actions.subscriptions import create_subscription
+from agir.payments.actions.subscriptions import (
+    create_subscription,
+)
 from agir.payments.models import Subscription
 
 
@@ -48,12 +57,18 @@ class CreateDonationAPIView(UpdateModelMixin, GenericAPIView):
         if DONATION_SESSION_NAMESPACE in self.request.session:
             del self.request.session[DONATION_SESSION_NAMESPACE]
 
+    def get_existing_subscription(self, **kwargs):
+        return Subscription.objects.filter(
+            person=self.person, status=Subscription.STATUS_ACTIVE, **kwargs
+        ).first()
+
     def make_subscription(self):
         validated_data = self.validated_data
         payment_type = validated_data.get("payment_type")
         payment_mode = validated_data.get("payment_mode")
         amount = validated_data.get("amount")
         allocations = validated_data.get("allocations", [])
+        effect_date = validated_data.get("effect_date", None)
         end_date = validated_data.get("end_date")
 
         # Confirm email if the user is unknown
@@ -70,16 +85,9 @@ class CreateDonationAPIView(UpdateModelMixin, GenericAPIView):
                 {"next": reverse("monthly_donation_confirmation_email_sent")}
             )
 
-        existing_subscription = Subscription.objects.filter(
-            person=self.person,
-            status=Subscription.STATUS_ACTIVE,
-            mode=payment_mode,
-        ).first()
-
-        # TODO: handle renewals from september on if existing_subscription is a contribution
-
-        # Redirect if user already monthly donator
-        if existing_subscription is not None:
+        existing_subscription = self.get_existing_subscription(mode=payment_mode)
+        # Redirect to a specific page if the existing subscription is not a contribution
+        if existing_subscription and existing_subscription.type != payment_type:
             # stocker toutes les infos en session
             # attention à ne pas juste modifier le dictionnaire existant,
             # parce que la session ne se "rendrait pas compte" qu'elle a changé
@@ -91,12 +99,20 @@ class CreateDonationAPIView(UpdateModelMixin, GenericAPIView):
                     "mode": payment_mode,
                     "amount": amount,
                     "meta": validated_data,
+                    "effect_date": effect_date,
                     "end_date": end_date,
                 },
                 **self.request.session.get(DONATION_SESSION_NAMESPACE, {}),
             }
 
             return Response({"next": reverse("already_has_subscription")})
+
+        existing_contribution = get_active_contribution_for_person(person=self.person)
+
+        if existing_contribution and not is_renewable_contribution(
+            existing_contribution
+        ):
+            return Response({"next": reverse("already_contributor")})
 
         with transaction.atomic():
             subscription = create_subscription(
@@ -106,10 +122,12 @@ class CreateDonationAPIView(UpdateModelMixin, GenericAPIView):
                 amount=amount,
                 allocations=allocations,
                 meta=validated_data,
+                effect_date=effect_date,
                 end_date=end_date,
             )
 
-        self.clear_session()
+            self.clear_session()
+
         return Response({"next": reverse("subscription_page", args=[subscription.pk])})
 
     def make_payment(self):
@@ -151,6 +169,31 @@ class CreateDonationAPIView(UpdateModelMixin, GenericAPIView):
         return self.make_payment()
 
 
+class ActiveSubscriptionRetrievePermissions(GlobalOrObjectPermissions):
+    perms_map = {"GET": []}
+    object_perms_map = {"GET": ["donations.view_active_contribution"]}
+
+
+class ActiveSubscriptionRetrieveAPIView(RetrieveAPIView):
+    serializer_class = ContributionSerializer
+    queryset = Subscription.objects.contributions().active()
+    permission_classes = (
+        IsPersonPermission,
+        ActiveSubscriptionRetrievePermissions,
+    )
+
+    def get_object(self):
+        person = self.request.user.person
+        obj = get_active_contribution_for_person(person)
+
+        if obj is None:
+            raise Http404
+
+        self.check_object_permissions(self.request, obj)
+
+        return obj
+
+
 class SpendingRequestCreatePermissions(GlobalOrObjectPermissions):
     perms_map = {
         "OPTIONS": [],
@@ -165,7 +208,7 @@ class SpendingRequestCreatePermissions(GlobalOrObjectPermissions):
 class SpendingRequestCreateAPIView(CreateAPIView):
     parser_classes = (JSONParser, DrfNestedParser)
     permission_classes = (
-        IsActionPopulaireClientPermission,
+        IsPersonPermission,
         SpendingRequestCreatePermissions,
     )
     serializer_class = SpendingRequestSerializer
@@ -208,7 +251,7 @@ class SpendingRequestRetrieveUpdateDestroyPermissions(GlobalOrObjectPermissions)
 class SpendingRequestRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     parser_classes = (JSONParser, DrfNestedParser)
     permission_classes = (
-        IsActionPopulaireClientPermission,
+        IsPersonPermission,
         SpendingRequestRetrieveUpdateDestroyPermissions,
     )
     serializer_class = SpendingRequestSerializer
@@ -230,7 +273,7 @@ class SpendingRequestDocumentCreatePermissions(
 
 class SpendingRequestDocumentCreateAPIView(CreateAPIView):
     permission_classes = (
-        IsActionPopulaireClientPermission,
+        IsPersonPermission,
         SpendingRequestDocumentCreatePermissions,
     )
     serializer_class = SpendingRequestDocumentSerializer
@@ -259,7 +302,7 @@ class SpendingRequestDocumentRetrieveUpdateDestroyPermissions(
 
 class SpendingRequestDocumentRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     permission_classes = (
-        IsActionPopulaireClientPermission,
+        IsPersonPermission,
         SpendingRequestDocumentRetrieveUpdateDestroyPermissions,
     )
     serializer_class = SpendingRequestDocumentSerializer
@@ -287,7 +330,7 @@ class SpendingRequestApplyNextStatusPermissions(GlobalOrObjectPermissions):
 
 class SpendingRequestApplyNextStatusAPIView(RetrieveAPIView):
     permission_classes = (
-        IsActionPopulaireClientPermission,
+        IsPersonPermission,
         SpendingRequestApplyNextStatusPermissions,
     )
     serializer_class = SpendingRequestSerializer

@@ -1,7 +1,6 @@
 import logging
 
 import pandas as pd
-
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
@@ -156,6 +155,20 @@ def replace_subscription(previous_subscription, new_subscription):
 
     previous_subscription.save(update_fields=["status"])
     new_subscription.save(update_fields=["status"])
+
+
+def create_and_replace_subscription(new_subscription_data, old_subscription):
+    # il vaut mieux ne pas avoir de transaction ici
+    # en effet, si l'opération échoue au milieu, on a ainsi accès à la nouvelle
+    # souscription, et on peut tenter de réparer les choses à la main.
+    new_subscription = create_subscription(**new_subscription_data)
+
+    replace_subscription(
+        previous_subscription=old_subscription,
+        new_subscription=new_subscription,
+    )
+
+    return new_subscription
 
 
 def count_installments(subscription, start_date=None):

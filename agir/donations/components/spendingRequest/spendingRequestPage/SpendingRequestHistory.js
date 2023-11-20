@@ -190,8 +190,8 @@ const SpendingRequestHistoryItem = (props) => {
   const icon = person.isAdmin
     ? statusConfig.icon + ":light"
     : fromStatus
-    ? "arrow-right:light"
-    : statusConfig.icon + ":light";
+      ? "arrow-right:light"
+      : statusConfig.icon + ":light";
 
   return (
     <StyledHistoryItem $admin={!!person.isAdmin}>

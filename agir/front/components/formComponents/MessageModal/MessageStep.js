@@ -11,8 +11,8 @@ import Avatar from "@agir/front/genericComponents/Avatar";
 import TextField from "@agir/front/formComponents/TextField";
 import StaticToast from "@agir/front/genericComponents/StaticToast";
 
-const EmojiPicker = lazy(() =>
-  import("@agir/front/formComponents/EmojiPicker"),
+const EmojiPicker = lazy(
+  () => import("@agir/front/formComponents/EmojiPicker"),
 );
 
 const StyledLabel = styled.div``;

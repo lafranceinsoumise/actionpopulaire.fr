@@ -1,225 +1,275 @@
 import { lazy } from "./utils";
 
 const Routes = {
-  HomePage: lazy(() =>
-    import(
-      /* webpackChunkName: "r-homepage" */ "@agir/front/app/Homepage/Home"
-    ),
+  HomePage: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-homepage" */ "@agir/front/app/Homepage/Home"
+      ),
   ),
-  AgendaPage: lazy(() =>
-    import(
-      /* webpackChunkName: "r-agendapage" */ "@agir/events/agendaPage/Agenda"
-    ),
+  AgendaPage: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-agendapage" */ "@agir/events/agendaPage/Agenda"
+      ),
   ),
-  EventMap: lazy(() =>
-    import(
-      /* webpackChunkName: "r-eventmap" */ "@agir/carte/page__eventMap/EventMap"
-    ),
+  EventMap: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-eventmap" */ "@agir/carte/page__eventMap/EventMap"
+      ),
   ),
-  EventPage: lazy(() =>
-    import(
-      /* webpackChunkName: "r-eventpage" */ "@agir/events/eventPage/EventPage"
-    ),
+  EventPage: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-eventpage" */ "@agir/events/eventPage/EventPage"
+      ),
   ),
-  CreateEvent: lazy(() =>
-    import(
-      /* webpackChunkName: "r-createevent" */ "@agir/events/createEventPage/CreateEvent"
-    ),
+  CreateEvent: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-createevent" */ "@agir/events/createEventPage/CreateEvent"
+      ),
   ),
-  GroupsPage: lazy(() =>
-    import(
-      /* webpackChunkName: "r-groupspage" */ "@agir/groups/groupsPage/GroupsPage"
-    ),
+  GroupsPage: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-groupspage" */ "@agir/groups/groupsPage/GroupsPage"
+      ),
   ),
-  FullGroupPage: lazy(() =>
-    import(
-      /* webpackChunkName: "r-fullgrouppage" */ "@agir/groups/fullGroupPage/FullGroupPage"
-    ),
+  FullGroupPage: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-fullgrouppage" */ "@agir/groups/fullGroupPage/FullGroupPage"
+      ),
   ),
-  GroupPage: lazy(() =>
-    import(
-      /* webpackChunkName: "r-grouppage" */ "@agir/groups/groupPage/GroupPage"
-    ),
+  GroupPage: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-grouppage" */ "@agir/groups/groupPage/GroupPage"
+      ),
   ),
-  GroupMessagePage: lazy(() =>
-    import(
-      /* webpackChunkName: "r-groupmessagepage" */ "@agir/groups/groupPage/GroupMessagePage"
-    ),
+  GroupMessagePage: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-groupmessagepage" */ "@agir/groups/groupPage/GroupMessagePage"
+      ),
   ),
-  GroupMap: lazy(() =>
-    import(
-      /* webpackChunkName: "r-groupmap" */ "@agir/carte/page__groupMap/GroupMap"
-    ),
+  GroupMap: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-groupmap" */ "@agir/carte/page__groupMap/GroupMap"
+      ),
   ),
-  ThematicGroups: lazy(() =>
-    import(
-      /* webpackChunkName: "r-thematicgroups" */ "@agir/groups/thematicGroupPage/ThematicGroupPage"
-    ),
+  ThematicGroups: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-thematicgroups" */ "@agir/groups/thematicGroupPage/ThematicGroupPage"
+      ),
   ),
-  ActivityPage: lazy(() =>
-    import(
-      /* webpackChunkName: "r-activitypage" */ "@agir/activity/ActivityPage/ActivityPage"
-    ),
+  ActivityPage: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-activitypage" */ "@agir/activity/ActivityPage/ActivityPage"
+      ),
   ),
-  NavigationPage: lazy(() =>
-    import(
-      /* webpackChunkName: "r-navigationpage" */ "@agir/front/navigationPage/NavigationPage"
-    ),
+  NavigationPage: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-navigationpage" */ "@agir/front/navigationPage/NavigationPage"
+      ),
   ),
-  SignupPage: lazy(() =>
-    import(
-      /* webpackChunkName: "r-signuppage" */ "@agir/front/authentication/Connexion/SignupPage"
-    ),
+  SignupPage: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-signuppage" */ "@agir/front/authentication/Connexion/SignupPage"
+      ),
   ),
-  LoginPage: lazy(() =>
-    import(
-      /* webpackChunkName: "r-loginpage" */ "@agir/front/authentication/Connexion/LoginPage"
-    ),
+  LoginPage: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-loginpage" */ "@agir/front/authentication/Connexion/LoginPage"
+      ),
   ),
-  CodeLoginPage: lazy(() =>
-    import(
-      /* webpackChunkName: "r-codeloginpage" */ "@agir/front/authentication/Connexion/Code/CodeLogin"
-    ),
+  CodeLoginPage: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-codeloginpage" */ "@agir/front/authentication/Connexion/Code/CodeLogin"
+      ),
   ),
-  CodeSignupPage: lazy(() =>
-    import(
-      /* webpackChunkName: "r-codesignuppage" */ "@agir/front/authentication/Connexion/Code/CodeSignup"
-    ),
+  CodeSignupPage: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-codesignuppage" */ "@agir/front/authentication/Connexion/Code/CodeSignup"
+      ),
   ),
-  TellMorePage: lazy(() =>
-    import(
-      /* webpackChunkName: "r-tellmorepage" */ "@agir/front/authentication/Connexion/TellMore/TellMorePage"
-    ),
+  TellMorePage: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-tellmorepage" */ "@agir/front/authentication/Connexion/TellMore/TellMorePage"
+      ),
   ),
-  LogoutPage: lazy(() =>
-    import(
-      /* webpackChunkName: "r-logoutpage" */ "@agir/front/authentication/Connexion/Logout"
-    ),
+  LogoutPage: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-logoutpage" */ "@agir/front/authentication/Connexion/Logout"
+      ),
   ),
-  MessagePage: lazy(() =>
-    import(
-      /* webpackChunkName: "r-messagepage" */ "@agir/msgs/MessagePage/MessagePage"
-    ),
+  MessagePage: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-messagepage" */ "@agir/msgs/MessagePage/MessagePage"
+      ),
   ),
-  CreateContactPage: lazy(() =>
-    import(
-      /* webpackChunkName: "r-createcontactpage" */ "@agir/people/contacts/CreateContactPage"
-    ),
+  CreateContactPage: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-createcontactpage" */ "@agir/people/contacts/CreateContactPage"
+      ),
   ),
-  DonationLandingPage: lazy(() =>
-    import(
-      /* webpackChunkName: "r-donationlandingpage" */ "@agir/donations/DonationLandingPage"
-    ),
+  DonationLandingPage: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-donationlandingpage" */ "@agir/donations/DonationLandingPage"
+      ),
   ),
-  DonationPage: lazy(() =>
-    import(
-      /* webpackChunkName: "r-donationpage" */ "@agir/donations/donationPage/DonationPage"
-    ),
+  DonationPage: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-donationpage" */ "@agir/donations/donationPage/DonationPage"
+      ),
   ),
-  ExternalDonationPage: lazy(() =>
-    import(
-      /* webpackChunkName: "r-externalDonationPage" */ "@agir/donations/externalDonationPage/ExternalDonationPage"
-    ),
+  ExternalDonationPage: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-externalDonationPage" */ "@agir/donations/externalDonationPage/ExternalDonationPage"
+      ),
   ),
-  DonationSuccessPage: lazy(() =>
-    import(
-      /* webpackChunkName: "r-donationSuccessPage" */ "@agir/donations/donationSuccessPage/DonationSuccessPage"
-    ),
+  DonationSuccessPage: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-donationSuccessPage" */ "@agir/donations/donationSuccessPage/DonationSuccessPage"
+      ),
   ),
-  ContributionPage: lazy(() =>
-    import(
-      /* webpackChunkName: "r-contributionpage" */ "@agir/donations/contributionPage/ContributionPage"
-    ),
+  ContributionPage: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-contributionpage" */ "@agir/donations/contributionPage/ContributionPage"
+      ),
   ),
-  ContributionSuccessPage: lazy(() =>
-    import(
-      /* webpackChunkName: "r-contributionSuccessPage" */ "@agir/donations/contributionSuccessPage/ContributionSuccessPage"
-    ),
+  ContributionSuccessPage: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-contributionSuccessPage" */ "@agir/donations/contributionSuccessPage/ContributionSuccessPage"
+      ),
   ),
-  ActionToolsPage: lazy(() =>
-    import(
-      /* webpackChunkName: "r-actiontoolspage" */ "@agir/front/ActionToolsPage/ActionToolsPage"
-    ),
+  ContributionRenewalPage: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-contributionrenewalpage" */ "@agir/donations/contributionRenewalPage/ContributionRenewalPage"
+      ),
   ),
-  SearchPage: lazy(() =>
-    import(
-      /* webpackChunkName: "r-searchpage" */ "@agir/front/SearchPage/SearchPage"
-    ),
+  ActionToolsPage: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-actiontoolspage" */ "@agir/front/ActionToolsPage/ActionToolsPage"
+      ),
   ),
-  SearchGroupPage: lazy(() =>
-    import(
-      /* webpackChunkName: "r-searchgrouppage" */ "@agir/front/SearchPage/SearchGroupPage"
-    ),
+  SearchPage: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-searchpage" */ "@agir/front/SearchPage/SearchPage"
+      ),
   ),
-  SearchEventPage: lazy(() =>
-    import(
-      /* webpackChunkName: "r-searcheventpage" */ "@agir/front/SearchPage/SearchEventPage"
-    ),
+  SearchGroupPage: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-searchgrouppage" */ "@agir/front/SearchPage/SearchGroupPage"
+      ),
   ),
-  NewVotingProxyRequest: lazy(() =>
-    import(
-      /* webpackChunkName: "r-newvotingproxyrequest" */ "@agir/voting_proxies/VotingProxyRequest/NewVotingProxyRequest"
-    ),
+  SearchEventPage: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-searcheventpage" */ "@agir/front/SearchPage/SearchEventPage"
+      ),
   ),
-  NewVotingProxy: lazy(() =>
-    import(
-      /* webpackChunkName: "r-newvotingproxy" */ "@agir/voting_proxies/VotingProxy/NewVotingProxy"
-    ),
+  NewVotingProxyRequest: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-newvotingproxyrequest" */ "@agir/voting_proxies/VotingProxyRequest/NewVotingProxyRequest"
+      ),
   ),
-  ReplyToVotingProxyRequests: lazy(() =>
-    import(
-      /* webpackChunkName: "r-replytovotingproxyrequests" */ "@agir/voting_proxies/VotingProxy/ReplyToVotingProxyRequests"
-    ),
+  NewVotingProxy: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-newvotingproxy" */ "@agir/voting_proxies/VotingProxy/NewVotingProxy"
+      ),
   ),
-  VotingProxyRequestDetails: lazy(() =>
-    import(
-      /* webpackChunkName: "r-votingproxyrequestdetails" */ "@agir/voting_proxies/VotingProxyRequest/VotingProxyRequestDetails"
-    ),
+  ReplyToVotingProxyRequests: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-replytovotingproxyrequests" */ "@agir/voting_proxies/VotingProxy/ReplyToVotingProxyRequests"
+      ),
   ),
-  TestErrorPage: lazy(() =>
-    import(
-      /* webpackChunkName: "r-testerrorpage" */ "@agir/front/errorPage/TestErrorPage"
-    ),
+  VotingProxyRequestDetails: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-votingproxyrequestdetails" */ "@agir/voting_proxies/VotingProxyRequest/VotingProxyRequestDetails"
+      ),
   ),
-  TokTokPreview: lazy(() =>
-    import(
-      /* webpackChunkName: "r-toktokpreview" */ "@agir/events/TokTok/TokTokPreview"
-    ),
+  TestErrorPage: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-testerrorpage" */ "@agir/front/errorPage/TestErrorPage"
+      ),
   ),
-  NewPollingStationOfficer: lazy(() =>
-    import(
-      /* webpackChunkName: "r-newpollingstationofficer" */ "@agir/elections/PollingStationOfficer/NewPollingStationOfficer"
-    ),
+  TokTokPreview: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-toktokpreview" */ "@agir/events/TokTok/TokTokPreview"
+      ),
   ),
-  EventSpeakerPage: lazy(() =>
-    import(
-      /* webpackChunkName: "r-eventspeakerpage" */ "@agir/event_requests/EventSpeakerPage/EventSpeakerPage"
-    ),
+  NewPollingStationOfficer: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-newpollingstationofficer" */ "@agir/elections/PollingStationOfficer/NewPollingStationOfficer"
+      ),
   ),
-  FaIcons: lazy(() =>
-    import(
-      /* webpackChunkName: "r-faicons" */ "@agir/front/genericComponents/FaIcons"
-    ),
+  EventSpeakerPage: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-eventspeakerpage" */ "@agir/event_requests/EventSpeakerPage/EventSpeakerPage"
+      ),
   ),
-  CreateSpendingRequest: lazy(() =>
-    import(
-      /* webpackChunkName: "r-createspendingrequest" */ "@agir/donations/spendingRequest/createSpendingRequestPage"
-    ),
+  FaIcons: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-faicons" */ "@agir/front/genericComponents/FaIcons"
+      ),
   ),
-  EditSpendingRequest: lazy(() =>
-    import(
-      /* webpackChunkName: "r-editspendingrequest" */ "@agir/donations/spendingRequest/editSpendingRequestPage"
-    ),
+  CreateSpendingRequest: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-createspendingrequest" */ "@agir/donations/spendingRequest/createSpendingRequestPage"
+      ),
   ),
-  SpendingRequestDetails: lazy(() =>
-    import(
-      /* webpackChunkName: "r-spendingrequestdetails" */ "@agir/donations/spendingRequest/spendingRequestPage"
-    ),
+  EditSpendingRequest: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-editspendingrequest" */ "@agir/donations/spendingRequest/editSpendingRequestPage"
+      ),
   ),
-  SpendingRequestHistory: lazy(() =>
-    import(
-      /* webpackChunkName: "r-spendingrequesthistory" */ "@agir/donations/spendingRequest/spendingRequestPage/SpendingRequestHistoryPage"
-    ),
+  SpendingRequestDetails: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-spendingrequestdetails" */ "@agir/donations/spendingRequest/spendingRequestPage"
+      ),
+  ),
+  SpendingRequestHistory: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-spendingrequesthistory" */ "@agir/donations/spendingRequest/spendingRequestPage/SpendingRequestHistoryPage"
+      ),
   ),
 };
 

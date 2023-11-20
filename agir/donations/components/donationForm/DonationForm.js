@@ -68,10 +68,10 @@ const DonationForm = ({
     amount === null
       ? null
       : minAmount && amount < minAmount
-      ? minAmountError
-      : maxAmount && amount > maxAmount
-      ? maxAmountError
-      : null;
+        ? minAmountError
+        : maxAmount && amount > maxAmount
+          ? maxAmountError
+          : null;
 
   const valid =
     (!typeChoices || type !== null) && amount !== null && amount > 0;

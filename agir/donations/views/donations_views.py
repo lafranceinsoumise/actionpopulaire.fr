@@ -14,6 +14,7 @@ from agir.authentication.tokens import monthly_donation_confirmation_token_gener
 from agir.authentication.utils import soft_login
 from agir.authentication.view_mixins import VerifyLinkSignatureMixin
 from agir.donations import forms
+from agir.donations.actions import get_active_contribution_for_person
 from agir.donations.allocations import (
     apply_payment_allocations,
     get_allocation_list,
@@ -32,8 +33,8 @@ from agir.payments import payment_modes
 from agir.payments.actions.payments import find_or_create_person_from_payment
 from agir.payments.actions.subscriptions import (
     redirect_to_subscribe,
-    replace_subscription,
     create_subscription,
+    create_and_replace_subscription,
 )
 from agir.payments.models import Payment, Subscription
 from agir.payments.types import SUBSCRIPTION_TYPES
@@ -202,18 +203,13 @@ class AlreadyHasSubscriptionView(FormView):
         return super().get_context_data(**kwargs)
 
     def form_valid(self, form):
-        # il vaut mieux ne pas avoir de transaction ici
-        # en effet, si l'opération échoue au milieu, on a ainsi accès à la nouvelle
-        # souscription, et on peut tenter de réparer les choses à la main.
-        new_subscription = create_subscription(
-            person=self.request.user.person,
-            allocations=self.new_subscription_info["meta"]["allocations"],
-            **self.new_subscription_info,
-        )
-
-        replace_subscription(
-            previous_subscription=self.old_subscription,
-            new_subscription=new_subscription,
+        create_and_replace_subscription(
+            {
+                "person": self.request.user.person,
+                "allocations": self.new_subscription_info["meta"]["allocations"],
+                **self.new_subscription_info,
+            },
+            self.old_subscription,
         )
 
         del self.request.session[self.session_namespace]
@@ -241,6 +237,7 @@ class MonthlyDonationEmailConfirmationView(VerifyLinkSignatureMixin, View):
         except KeyError:
             return self.link_error_page()
 
+        effect_date = params.get("effect_date", None)
         end_date = params.get("end_date", None)
         payment_type = params.get("payment_type", self.payment_types[0])
         if payment_type not in self.payment_types:
@@ -267,32 +264,34 @@ class MonthlyDonationEmailConfirmationView(VerifyLinkSignatureMixin, View):
 
         soft_login(request, person)
 
-        existing_subscription = Subscription.objects.filter(
-            person=person, status=Subscription.STATUS_ACTIVE
-        ).first()
-
-        # TODO: handle renewals from september on if existing_subscription is a contribution
+        existing_contribution = get_active_contribution_for_person(person=person)
 
         # Redirect if user already contributor
-        if (
-            existing_subscription is not None
-            and existing_subscription.type == DonsConfig.CONTRIBUTION_TYPE
-        ):
-            return redirect("already_contributor")
+        if existing_contribution is not None:
+            return redirect("contribution_renewal")
 
-        # Redirect if user already monthly donator
-        if existing_subscription is not None:
+        existing_non_contribution_subscription = (
+            Subscription.objects.filter(
+                person=person, status=Subscription.STATUS_ACTIVE
+            )
+            .exclude(type=DonsConfig.CONTRIBUTION_TYPE)
+            .first()
+        )
+
+        # Redirect if user already monthly donor
+        if existing_non_contribution_subscription is not None:
             # stocker toutes les infos en session
             # attention à ne pas juste modifier le dictionnaire existant,
             # parce que la session ne se "rendrait pas compte" qu'elle a changé
             # et cela ne serait donc pas persisté
             self.request.session[DONATION_SESSION_NAMESPACE] = {
                 "new_subscription": {
-                    "from_type": existing_subscription.type,
+                    "from_type": existing_non_contribution_subscription.type,
                     "type": payment_type,
                     "mode": self.payment_mode,
                     "amount": amount,
                     "meta": params,
+                    "effect_date": effect_date,
                     "end_date": end_date,
                 },
                 **self.request.session.get(DONATION_SESSION_NAMESPACE, {}),
@@ -307,6 +306,7 @@ class MonthlyDonationEmailConfirmationView(VerifyLinkSignatureMixin, View):
             allocations=allocations,
             meta=params,
             type=payment_type,
+            effect_date=effect_date,
             end_date=end_date,
         )
 
