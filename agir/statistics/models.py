@@ -15,6 +15,7 @@ from agir.statistics.utils import (
     get_commune_statistics,
     get_default_date,
     POPULATION_RANGES,
+    get_commune_count_by_population_range,
 )
 
 
@@ -351,17 +352,7 @@ class CommuneStatiticsQueryset(models.QuerySet):
         aggregate = {}
         for key in self.model.AGGREGATABLE_FIELDS:
             base_qs = qs.all().filter(**{f"{key}__gt": 0})
-            aggregate[key] = {
-                "total": base_qs.count(),
-                **{
-                    population_range: base_qs.filter(
-                        population__range=population_range
-                    ).count()
-                    if len(population_range) == 2
-                    else base_qs.filter(population__gte=population_range[0]).count()
-                    for population_range in POPULATION_RANGES
-                },
-            }
+            aggregate[key] = get_commune_count_by_population_range(base_qs)
 
         return aggregate
 
