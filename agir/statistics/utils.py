@@ -138,7 +138,7 @@ def get_materiel_statistics(date=None, columns=None):
 def get_commune_queryset():
     return Commune.objects.filter(
         type__in=(Commune.TYPE_COMMUNE, Commune.TYPE_ARRONDISSEMENT_PLM)
-    )
+    ).exclude(composant__type=Commune.TYPE_ARRONDISSEMENT_PLM)
 
 
 def get_commune_count_by_population_range(

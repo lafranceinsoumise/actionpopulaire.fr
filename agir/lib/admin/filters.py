@@ -94,18 +94,3 @@ class ParticipantFilter(AutocompleteSelectModelBaseFilter):
             return queryset.filter(rsvps__person_id=self.value())
         else:
             return queryset
-
-
-class CommuneListFilter(admin.SimpleListFilter):
-    title = "Commune"
-    parameter_name = "commune"
-    template = "admin/dropdown_filter.html"
-
-    def lookups(self, request, model_admin):
-        return get_commune_queryset()
-
-    def queryset(self, request, queryset):
-        if self.value() is None:
-            return queryset
-
-        return queryset.filter(get_commune_filter(self.value()))
