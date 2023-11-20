@@ -82,7 +82,7 @@ class Command(BaseCommand):
             if subkey == "total":
                 continue
             sublabel = (
-                f"{subkey[0]: >n} à {subkey[1]: >n} hab."
+                f"{subkey[0]: >n} à {subkey[1] + 1: >n} hab."
                 if len(subkey) == 2
                 else f"{subkey[0]: >n} hab. et plus"
             )
