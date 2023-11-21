@@ -22,3 +22,9 @@ export const Legacy = Template.bind({});
 Legacy.args = {
   category: "X",
 };
+
+export const Small = Template.bind({});
+Small.args = {
+  ...Default.args,
+  small: true,
+};

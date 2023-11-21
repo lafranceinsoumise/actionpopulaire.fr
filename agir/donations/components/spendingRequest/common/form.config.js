@@ -65,6 +65,11 @@ export const CATEGORY_OPTIONS = {
     label: "Location de véhicule",
     icon: "truck",
   },
+  AB: {
+    value: "AB",
+    label: "Abonnement",
+    icon: "fa:file-signature:light",
+  },
 };
 
 export const DOCUMENT_TYPE_OPTIONS = {

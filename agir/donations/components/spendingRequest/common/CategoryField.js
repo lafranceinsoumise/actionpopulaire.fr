@@ -1,10 +1,12 @@
-import Card from "@agir/front/genericComponents/Card";
-import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import PropTypes from "prop-types";
 import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 
 import { CATEGORY_OPTIONS, FALLBACK_CATEGORY } from "./form.config";
+
+import Card from "@agir/front/genericComponents/Card";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import CategoryIcon from "./CategoryIcon";
 
 const OPTIONS = Object.values(CATEGORY_OPTIONS);
 
@@ -218,11 +220,7 @@ const CategoryField = (props) => {
             bordered
           >
             <StyledIcon>
-              <RawFeatherIcon
-                width="1.5rem"
-                height="1.5rem"
-                name={option.icon}
-              />
+              <CategoryIcon category={option} size="1.5rem" />
             </StyledIcon>
             <StyledOptionLabel>{option.label}</StyledOptionLabel>
             <input

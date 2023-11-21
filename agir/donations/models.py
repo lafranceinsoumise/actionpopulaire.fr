@@ -387,6 +387,7 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
         LOCATION = "MA", "Location de matériel (mobilier, vaisselle, … )"
         TECHNIQUE = "TE", "Location de matériel technique (sono, vidéo)"
         VEHICULE = "VE", "Location de véhicule"
+        ABONNEMENT = "AB", "Abonnement"
 
     # List of fields that are required in order to send the request for review
     REQUIRED_FOR_REVIEW_FIELDS = [
