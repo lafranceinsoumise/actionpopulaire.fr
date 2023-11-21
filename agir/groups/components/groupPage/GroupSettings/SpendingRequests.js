@@ -2,9 +2,9 @@ import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
+import CategoryIcon from "@agir/donations/spendingRequest/common/CategoryIcon";
 import Link from "@agir/front/app/Link";
 import Button from "@agir/front/genericComponents/Button";
-import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 import {
@@ -14,6 +14,7 @@ import {
 import { STATUS_CONFIG } from "@agir/donations/spendingRequest/common/SpendingRequestStatus";
 import { useIsDesktop } from "@agir/front/genericComponents/grid";
 
+const StyledCategoryIcon = styled(CategoryIcon)``;
 const StyledSpendingRequest = styled(Link)`
   display: flex;
   flex-flow: row nowrap;
@@ -41,7 +42,7 @@ const StyledSpendingRequest = styled(Link)`
     flex: 0 0 auto;
   }
 
-  ${RawFeatherIcon} {
+  ${StyledCategoryIcon} {
     margin-top: 0.1875rem;
     width: 3rem;
     height: 3rem;
@@ -57,12 +58,14 @@ const StyledSpendingRequest = styled(Link)`
       props.theme[props.$status.color] ||
       props.$status.color ||
       "currentcolor"};
+    font-size: 1.5rem;
 
     & > * {
       flex: 0 0 auto;
     }
 
     @media (max-width: 360px) {
+      font-size: 1rem;
       width: 2rem;
       height: 2rem;
     }
@@ -78,7 +81,7 @@ const StyledSpendingRequest = styled(Link)`
     }
   }
 
-  ${RawFeatherIcon} + span {
+  ${StyledCategoryIcon} + span {
     flex: 1 1 auto;
     padding-right: 1rem;
     display: flex;
@@ -151,12 +154,7 @@ const SpendingRequest = (props) => {
       aria-label="Voir la demande"
       $status={status}
     >
-      <RawFeatherIcon
-        title={category.label}
-        name={category.icon}
-        width="1.5rem"
-        height="1.5rem"
-      />
+      <StyledCategoryIcon category={category} size="1.5rem" />
       <span>
         <strong>{title}</strong>
         <small title={status.shortLabel || status.label}>

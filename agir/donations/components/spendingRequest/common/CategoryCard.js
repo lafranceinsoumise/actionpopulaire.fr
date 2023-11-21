@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 import { CATEGORY_OPTIONS, FALLBACK_CATEGORY } from "./form.config";
 
-import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import CategoryIcon from "./CategoryIcon";
 
 const OPTIONS = Object.values(CATEGORY_OPTIONS);
 
@@ -41,11 +41,6 @@ const StyledCard = styled.div`
     align-items: center;
     justify-content: center;
     background-color: ${(props) => props.theme.secondary500};
-
-    ${RawFeatherIcon} {
-      width: ${(props) => (props.$small ? "0.75rem" : "1.5rem")};
-      height: ${(props) => (props.$small ? "0.75rem" : "1.5rem")};
-    }
   }
 
   ${StyledCategory} {
@@ -75,7 +70,7 @@ const CategoryCard = (props) => {
   return (
     <StyledCard $small={small}>
       <StyledIcon>
-        <RawFeatherIcon width="1.5rem" height="1.5rem" name={option.icon} />
+        <CategoryIcon category={option} size={small ? "0.75rem" : "1.5rem"} />
       </StyledIcon>
       <StyledCategory>
         {!small && (

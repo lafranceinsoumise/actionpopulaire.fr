@@ -35,7 +35,7 @@ Default.args = {
       title: "Achat d’un nouveau kakemono",
       status: "Brouillon à compléter",
       date: "2021-06-21T08:18:26.960861Z",
-      category: "IM",
+      category: "AB",
       status: "D",
     },
   ],
