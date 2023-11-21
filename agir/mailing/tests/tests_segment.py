@@ -61,7 +61,7 @@ class SegmentEventFilterTestCase(TestCase):
         event = {"start_time": start_time, "end_time": end_time, "subtype": subtype}
         return Event.objects.create(**event)
 
-    def create_attendee(self, event=None, status=RSVP.STATUS_CONFIRMED):
+    def create_attendee(self, event=None, status=RSVP.Status.CONFIRMED):
         if event is None:
             event = self.default_event
         attendee = Person.objects.create_insoumise(
@@ -96,7 +96,7 @@ class SegmentEventFilterTestCase(TestCase):
             self.create_attendee(),
             self.create_organizer(),
             self.create_organizer(event),
-            self.create_attendee(event, status=RSVP.STATUS_CANCELED),
+            self.create_attendee(event, status=RSVP.Status.CANCELLED),
         ]
         s = Segment.objects.create(newsletters=[], events_organizer=False)
         s.events.add(event)
@@ -134,7 +134,7 @@ class SegmentEventFilterTestCase(TestCase):
             self.create_attendee(),
             self.create_organizer(),
             self.create_organizer(event),
-            self.create_attendee(event, status=RSVP.STATUS_CANCELED),
+            self.create_attendee(event, status=RSVP.Status.CANCELLED),
         ]
         excludes = [self.create_attendee(event)]
         s = Segment.objects.create(
@@ -177,7 +177,7 @@ class SegmentEventFilterTestCase(TestCase):
             self.create_attendee(),
             self.create_organizer(),
             self.create_organizer(event),
-            self.create_attendee(event, status=RSVP.STATUS_CANCELED),
+            self.create_attendee(event, status=RSVP.Status.CANCELLED),
         ]
         s = Segment.objects.create(
             newsletters=[],
@@ -202,7 +202,7 @@ class SegmentEventFilterTestCase(TestCase):
             self.create_attendee(),
             self.create_organizer(),
             self.create_attendee(event),
-            self.create_attendee(event, status=RSVP.STATUS_CANCELED),
+            self.create_attendee(event, status=RSVP.Status.CANCELLED),
         ]
         s = Segment.objects.create(newsletters=[], events_organizer=True)
         s.events_subtypes.add(subtype)
@@ -224,7 +224,7 @@ class SegmentEventFilterTestCase(TestCase):
             self.create_attendee(),
             self.create_organizer(),
             self.create_organizer(event),
-            self.create_attendee(event, status=RSVP.STATUS_CANCELED),
+            self.create_attendee(event, status=RSVP.Status.CANCELLED),
         ]
         s = Segment.objects.create(
             newsletters=[],
@@ -249,7 +249,7 @@ class SegmentEventFilterTestCase(TestCase):
             self.create_attendee(),
             self.create_organizer(),
             self.create_attendee(event),
-            self.create_attendee(event, status=RSVP.STATUS_CANCELED),
+            self.create_attendee(event, status=RSVP.Status.CANCELLED),
         ]
         s = Segment.objects.create(
             newsletters=[],

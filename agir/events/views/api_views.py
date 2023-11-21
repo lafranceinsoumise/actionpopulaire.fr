@@ -557,9 +557,6 @@ class RSVPEventAPIView(DestroyAPIView, CreateAPIView):
 
     def initial(self, request, *args, **kwargs):
         self.object = self.get_object()
-
-        self.check_object_permissions(request, self.object)
-
         super().initial(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
@@ -624,7 +621,7 @@ class RSVPEventAPIView(DestroyAPIView, CreateAPIView):
         try:
             rsvp = (
                 RSVP.objects.confirmed()
-                .filter(event__end_time__gte=now())
+                .upcoming()
                 .select_related("event")
                 .get(event=self.object, person=self.request.user.person)
             )

@@ -284,9 +284,33 @@ class EventQuerySet(models.QuerySet):
         )
 
 
-class RSVPQuerySet(models.QuerySet):
+class ParticipationQuerySetMixin:
+    def filter(self, *args, **kwargs):
+        raise NotImplementedError()
+
+    def participating(self):
+        return self.filter(
+            status__in=(RSVP.Status.AWAITING_PAYMENT, RSVP.Status.CONFIRMED)
+        )
+
     def confirmed(self):
-        return self.filter(status=RSVP.STATUS_CONFIRMED)
+        return self.filter(status=RSVP.Status.CONFIRMED)
+
+    def not_participating(self):
+        return self.filter(status__in=(RSVP.Status.CANCELLED,))
+
+
+class RSVPQuerySet(models.QuerySet, ParticipationQuerySetMixin):
+    def without_guests(self):
+        return self.filter(guests=0).exclude(
+            identified_guests__status=RSVP.Status.CONFIRMED
+        )
+
+    def with_guests(self):
+        return self.filter(guests__gt=0)
+
+    def with_identified_guests(self):
+        return self.filter(identified_guests__status=RSVP.Status.CONFIRMED)
 
     def upcoming(self, as_of=None, published_only=True):
         if as_of is None:
@@ -307,6 +331,10 @@ class RSVPQuerySet(models.QuerySet):
             condition &= models.Q(event__visibility=Event.VISIBILITY_PUBLIC)
 
         return self.filter(condition)
+
+
+class IdentifiedGuestQuerySet(models.QuerySet, ParticipationQuerySetMixin):
+    pass
 
 
 class CustomDateTimeFormField(forms.DateTimeField):
@@ -683,28 +711,34 @@ class Event(
         return ics_event
 
     def _get_participants_counts(self):
-        nb_rsvps = RSVP.objects.filter(
-            Q(event_id=self.id) & ~Q(status=RSVP.STATUS_CANCELED)
-        ).aggregate(
-            total=Count("id"),
-            confirmed=Count("id", filter=Q(status=RSVP.STATUS_CONFIRMED)),
+        nb_rsvps = (
+            RSVP.objects.participating()
+            .filter(event_id=self.id)
+            .aggregate(
+                total=Count("id"),
+                confirmed=Count("id", filter=Q(status=RSVP.Status.CONFIRMED)),
+            )
         )
 
         if self.subscription_form is not None:
-            nb_guests = IdentifiedGuest.objects.filter(
-                Q(rsvp__event_id=self.id) & ~Q(status=RSVP.STATUS_CANCELED)
-            ).aggregate(
-                total=Count("id"),
-                confirmed=Count("id", filter=Q(status=RSVP.STATUS_CONFIRMED)),
+            nb_guests = (
+                IdentifiedGuest.objects.participating()
+                .filter(rsvp__event_id=self.id)
+                .aggregate(
+                    total=Count("id"),
+                    confirmed=Count("id", filter=Q(status=RSVP.Status.CONFIRMED)),
+                )
             )
         else:
-            nb_guests = RSVP.objects.filter(
-                Q(event_id=self.id) & ~Q(status=RSVP.STATUS_CANCELED)
-            ).aggregate(
-                total=Coalesce(Sum("guests"), 0),
-                confirmed=Coalesce(
-                    Sum("guests", filter=Q(status=RSVP.STATUS_CONFIRMED)), 0
-                ),
+            nb_guests = (
+                RSVP.objects.participating()
+                .filter(event_id=self.id)
+                .aggregate(
+                    total=Coalesce(Sum("guests"), 0),
+                    confirmed=Coalesce(
+                        Sum("guests", filter=Q(status=RSVP.Status.CONFIRMED)), 0
+                    ),
+                )
             )
         self.all_attendee_count = nb_rsvps["total"] + nb_guests["total"]
         self.confirmed_attendee_count = nb_rsvps["confirmed"] + nb_guests["confirmed"]
@@ -1327,14 +1361,10 @@ class RSVP(ExportModelOperationsMixin("rsvp"), TimeStampedModel):
     An additional field indicates if the person is bringing any guests with her
     """
 
-    STATUS_AWAITING_PAYMENT = "AP"
-    STATUS_CONFIRMED = "CO"
-    STATUS_CANCELED = "CA"
-    STATUS_CHOICES = (
-        (STATUS_AWAITING_PAYMENT, _("En attente du paiement")),
-        (STATUS_CONFIRMED, _("Inscription confirmée")),
-        (STATUS_CANCELED, _("Inscription annulée")),
-    )
+    class Status(models.TextChoices):
+        AWAITING_PAYMENT = "AP", _("En attente du paiement")
+        CONFIRMED = "CO", _("Inscription confirmée")
+        CANCELLED = "CA", _("Inscription annulée")
 
     objects = RSVPQuerySet.as_manager()
 
@@ -1371,8 +1401,8 @@ class RSVP(ExportModelOperationsMixin("rsvp"), TimeStampedModel):
     status = models.CharField(
         _("Statut"),
         max_length=2,
-        default=STATUS_CONFIRMED,
-        choices=STATUS_CHOICES,
+        default=Status.CONFIRMED,
+        choices=Status.choices,
         blank=False,
     )
 
@@ -1398,8 +1428,8 @@ class RSVP(ExportModelOperationsMixin("rsvp"), TimeStampedModel):
             person=self.person, event=self.event, guests=self.guests
         )
 
-        if self.status == RSVP.STATUS_AWAITING_PAYMENT or any(
-            guest.status == RSVP.STATUS_AWAITING_PAYMENT
+        if self.status == RSVP.Status.AWAITING_PAYMENT or any(
+            guest.status == RSVP.Status.AWAITING_PAYMENT
             for guest in self.identified_guests.all()
         ):
             info = info + " paiement(s) en attente"
@@ -1408,6 +1438,7 @@ class RSVP(ExportModelOperationsMixin("rsvp"), TimeStampedModel):
 
 
 class IdentifiedGuest(ExportModelOperationsMixin("identified_guest"), models.Model):
+    objects = IdentifiedGuestQuerySet.as_manager()
     rsvp = models.ForeignKey(
         "RSVP", on_delete=models.CASCADE, null=False, related_name="identified_guests"
     )
@@ -1421,8 +1452,8 @@ class IdentifiedGuest(ExportModelOperationsMixin("identified_guest"), models.Mod
     status = models.CharField(
         _("Statut"),
         max_length=2,
-        default=RSVP.STATUS_CONFIRMED,
-        choices=RSVP.STATUS_CHOICES,
+        default=RSVP.Status.CONFIRMED,
+        choices=RSVP.Status.choices,
         blank=False,
     )
     payment = models.OneToOneField(

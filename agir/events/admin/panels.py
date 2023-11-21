@@ -575,7 +575,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
             PersonFormSubmission.objects.filter(
                 Q(rsvp__event=self.instance) | Q(guest_rsvp__event=self.instance),
             )
-            .exclude(rsvp__status=RSVP.STATUS_CANCELED)
+            .exclude(rsvp__status=RSVP.Status.CANCELLED)
             .select_related("rsvp", "rsvp_guest")
         )
 

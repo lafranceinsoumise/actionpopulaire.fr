@@ -518,7 +518,7 @@ class RSVPEventAPITestCase(APITestCase):
         RSVP.objects.create(
             event=event,
             person=self.person,
-            status=RSVP.STATUS_CONFIRMED,
+            status=RSVP.Status.CONFIRMED,
         )
         self.client.force_login(self.person.role)
         res = self.client.post(f"/api/evenements/{event.pk}/inscription/")
@@ -532,7 +532,7 @@ class RSVPEventAPITestCase(APITestCase):
         RSVP.objects.create(
             event=event,
             person=self.person,
-            status=RSVP.STATUS_CONFIRMED,
+            status=RSVP.Status.CONFIRMED,
         )
         self.client.force_login(self.person.role)
         res = self.client.post(f"/api/evenements/{event.pk}/inscription/")
@@ -555,7 +555,7 @@ class RSVPEventAPITestCase(APITestCase):
         RSVP.objects.create(
             event=event,
             person=self.person,
-            status=RSVP.STATUS_CONFIRMED,
+            status=RSVP.Status.CONFIRMED,
         )
         self.client.force_login(self.person.role)
         res = self.client.post(f"/api/evenements/{event.pk}/inscription/")
@@ -785,12 +785,12 @@ class QuitEventAPITestCase(APITestCase):
             end_time=self.end_time,
         )
         rsvp = RSVP.objects.create(event=event, person=self.person)
-        self.assertEqual(rsvp.status, RSVP.STATUS_CONFIRMED)
+        self.assertEqual(rsvp.status, RSVP.Status.CONFIRMED)
         self.client.force_login(self.person.role)
         res = self.client.delete(f"/api/evenements/{event.pk}/inscription/")
         self.assertEqual(res.status_code, 204)
         rsvp.refresh_from_db()
-        self.assertEqual(rsvp.status, RSVP.STATUS_CANCELED)
+        self.assertEqual(rsvp.status, RSVP.Status.CANCELLED)
 
 
 class UpdateEventAPITestCase(APITestCase):

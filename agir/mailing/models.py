@@ -382,8 +382,8 @@ class Segment(BaseSegment, models.Model):
 
         if not self.events_organizer:
             attendee_statuses = (
-                RSVP.STATUS_CONFIRMED,
-                RSVP.STATUS_AWAITING_PAYMENT,
+                RSVP.Status.CONFIRMED,
+                RSVP.Status.AWAITING_PAYMENT,
             )
             if filters:
                 filters["rsvps__status__in"] = attendee_statuses
