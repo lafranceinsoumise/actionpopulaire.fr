@@ -140,11 +140,11 @@ rules.add_perm(
     is_public_event & is_authenticated_person & can_rsvp_event,
 )
 rules.add_perm(
-    "events.delete_rsvp_for_event",
+    "events.cancel_rsvp_for_event",
     is_public_event & is_free_event & is_authenticated_person,
 )
 rules.add_perm(
-    "events.create_rsvp_as_group_for_event",
+    "events.rsvp_event_as_group",
     is_public_event & is_authenticated_person & can_rsvp_event_as_group,
 )
 

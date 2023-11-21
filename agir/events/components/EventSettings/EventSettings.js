@@ -37,7 +37,7 @@ export const EventSettings = (props) => {
 
   // Open first panel on Desktop
   if (isDesktop && routeMenuMatch?.isExact) {
-    return <Redirect to="general/" />;
+    return <Redirect to={routes[0] ? routes[0].getLink() : basePath} />;
   }
 
   const warning = !event.isEditable ? (

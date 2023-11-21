@@ -190,7 +190,9 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     groups = serializers.SerializerMethodField()
 
-    groupsAttendees = serializers.SerializerMethodField()
+    groupsAttendees = serializers.SerializerMethodField(
+        method_name="get_groups_attendees"
+    )
 
     contact = serializers.SerializerMethodField()
 
@@ -393,7 +395,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
             ],
         ).data
 
-    def get_groupsAttendees(self, obj):
+    def get_groups_attendees(self, obj):
         if hasattr(obj, "_pf_group_attendees"):
             groups = [
                 {"id": group.id, "name": group.name}
@@ -408,10 +410,13 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         if not self.person:
             return [{**group, "isManager": False} for group in groups]
 
-        managed_group_ids = self.person.memberships.filter(
-            supportgroup_id__in=[group["id"] for group in groups],
-            membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
-        ).values_list("supportgroup_id", flat=True)
+        managed_group_ids = (
+            self.person.memberships.managers()
+            .filter(
+                supportgroup_id__in=[group["id"] for group in groups],
+            )
+            .values_list("supportgroup_id", flat=True)
+        )
 
         return [
             {**group, "isManager": group["id"] in managed_group_ids} for group in groups

@@ -150,7 +150,7 @@ class EventQuerySet(models.QuerySet):
     def with_group_attendees(self):
         return self.prefetch_related(
             Prefetch(
-                "organizers_groups",
+                "groups_attendees",
                 to_attr="_pf_group_attendees",
             )
         )
@@ -1334,7 +1334,7 @@ class GroupAttendee(ExportModelOperationsMixin("group_attendee"), TimeStampedMod
         on_delete=models.CASCADE,
     )
     group = models.ForeignKey(
-        "groups.supportgroup",
+        "groups.SupportGroup",
         related_name="group_participation",
         on_delete=models.CASCADE,
     )

@@ -8,8 +8,7 @@ export const ENDPOINT = {
   getEventCard: "/api/evenements/:eventPk/",
   getEvent: "/api/evenements/:eventPk/details/",
   rsvpEvent: "/api/evenements/:eventPk/inscription/",
-  quitEvent: "/api/evenements/:eventPk/inscription/:groupPk/",
-  joinEventAsGroup: "/api/evenements/:eventPk/inscription-groupe/",
+  rsvpEventAsGroup: "/api/evenements/:eventPk/inscription-groupe/:groupPk/",
 
   eventPropertyOptions: "/api/evenements/options/",
   createEvent: "/api/evenements/creer/",
@@ -49,12 +48,16 @@ export const getEventEndpoint = (key, params, searchParams) => {
   return endpoint;
 };
 
-export const rsvpEvent = async (eventPk) => {
+export const rsvpEvent = async (eventPk, groupPk) => {
   const result = {
     data: null,
     error: null,
   };
-  const url = getEventEndpoint("rsvpEvent", { eventPk });
+
+  const url = groupPk
+    ? getEventEndpoint("rsvpEventAsGroup", { eventPk, groupPk })
+    : getEventEndpoint("rsvpEvent", { eventPk });
+
   const body = {};
   try {
     const response = await axios.post(url, body);
@@ -71,26 +74,13 @@ export const quitEvent = async (eventPk, groupPk) => {
     data: null,
     error: null,
   };
-  const url = getEventEndpoint("quitEvent", { eventPk, groupPk });
+
+  const url = groupPk
+    ? getEventEndpoint("rsvpEventAsGroup", { eventPk, groupPk })
+    : getEventEndpoint("rsvpEvent", { eventPk });
+
   try {
     const response = await axios.delete(url);
-    result.data = response.data;
-  } catch (e) {
-    result.error = (e.response && e.response.data) || e.message;
-  }
-
-  return result;
-};
-
-export const joinEventAsGroup = async (eventPk, groupPk) => {
-  const result = {
-    data: null,
-    error: null,
-  };
-  const url = getEventEndpoint("joinEventAsGroup", { eventPk });
-  const body = { groupPk };
-  try {
-    const response = await axios.post(url, body);
     result.data = response.data;
   } catch (e) {
     result.error = (e.response && e.response.data) || e.message;
