@@ -280,19 +280,18 @@ class QuitEventView(
     context_object_name = "rsvp"
 
     def get_queryset(self):
-        return RSVP.objects.confirmed().filter(event__end_time__gte=timezone.now())
+        return RSVP.objects.confirmed().upcoming()
 
     def get_object(self, queryset=None):
-        try:
-            rsvp = (
-                self.get_queryset()
-                .select_related("event")
-                .get(event__pk=self.kwargs["pk"], person=self.request.user.person)
-            )
-            if not self.request.user.has_perm("events.view_event", rsvp.event):
-                raise Http404
-        except RSVP.DoesNotExist:
-            raise Http404()
+        rsvp = (
+            self.get_queryset()
+            .select_related("event")
+            .filter(event_id=self.kwargs["pk"], person=self.request.user.person)
+            .first()
+        )
+
+        if not rsvp or not self.request.user.has_perm("events.view_event", rsvp.event):
+            raise Http404
 
         return rsvp
 

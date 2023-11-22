@@ -182,7 +182,7 @@ const AddGroupAttendee = ({ id, groups, groupsAttendees }) => {
                 d'autres groupes à co-organiser.
                 {!!Object.keys(errors).length && (
                   <StaticToast style={{ marginTop: "1rem" }}>
-                    {errors?.text || "Une erreur est apparue"}
+                    {errors?.detail || "Une erreur est apparue"}
                   </StaticToast>
                 )}
                 <Spacer size="1rem" />

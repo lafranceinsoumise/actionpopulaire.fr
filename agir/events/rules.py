@@ -82,6 +82,11 @@ def is_free_event(role, event=None):
 
 
 @rules.predicate
+def is_upcoming_event(role, event=None):
+    return event is not None and not event.is_past()
+
+
+@rules.predicate
 def is_editable_event(role, event=None):
     return event is not None and event.subtype.is_editable
 
@@ -141,7 +146,7 @@ rules.add_perm(
 )
 rules.add_perm(
     "events.cancel_rsvp_for_event",
-    is_public_event & is_free_event & is_authenticated_person,
+    is_public_event & is_free_event & is_upcoming_event & is_authenticated_person,
 )
 rules.add_perm(
     "events.rsvp_event_as_group",

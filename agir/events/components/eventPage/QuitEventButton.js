@@ -100,7 +100,7 @@ const QuitEventButton = ({ eventPk, group, isOpen, setIsOpen }) => {
       }
       mutate(api.getEventEndpoint("getEvent", { eventPk }));
     },
-    [eventPk],
+    [eventPk, groupPk, setIsOpen],
   );
 
   const openDialog = useCallback((e) => {
@@ -113,7 +113,7 @@ const QuitEventButton = ({ eventPk, group, isOpen, setIsOpen }) => {
   const closeDialog = useCallback(() => {
     setIsQuitting(false);
     setIsOpen && setIsOpen(false);
-  }, []);
+  }, [setIsOpen]);
 
   return (
     <StyledWrapper>

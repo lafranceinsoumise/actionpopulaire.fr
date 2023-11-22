@@ -510,7 +510,7 @@ class RSVPEventAPITestCase(APITestCase):
         )
         self.client.force_login(self.person.role)
         res = self.client.post(f"/api/evenements/{event.pk}/inscription/")
-        self.assertEqual(res.status_code, 405)
+        self.assertEqual(res.status_code, 403)
         self.assertIn("redirectTo", res.data)
 
     def test_person_cannot_rsvp_if_already_participant(self):
@@ -522,7 +522,7 @@ class RSVPEventAPITestCase(APITestCase):
         )
         self.client.force_login(self.person.role)
         res = self.client.post(f"/api/evenements/{event.pk}/inscription/")
-        self.assertEqual(res.status_code, 405)
+        self.assertEqual(res.status_code, 403)
         self.assertIn("redirectTo", res.data)
 
     def test_person_cannot_rsvp_if_event_is_not_free(self):
@@ -536,7 +536,7 @@ class RSVPEventAPITestCase(APITestCase):
         )
         self.client.force_login(self.person.role)
         res = self.client.post(f"/api/evenements/{event.pk}/inscription/")
-        self.assertEqual(res.status_code, 405)
+        self.assertEqual(res.status_code, 403)
         self.assertIn("redirectTo", res.data)
 
     def test_person_can_rsvp_for_organizer_group_members_only_if_person_is_group_member(
@@ -760,7 +760,7 @@ class QuitEventAPITestCase(APITestCase):
         rsvp = RSVP.objects.create(event=event, person=self.person)
         self.client.force_login(self.person.role)
         res = self.client.delete(f"/api/evenements/{event.pk}/inscription/")
-        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.status_code, 403)
 
     def test_person_cannot_quit_if_not_participant(self):
         event = Event.objects.create(

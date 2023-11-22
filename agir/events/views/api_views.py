@@ -559,16 +559,14 @@ class RSVPEventAPIView(DestroyAPIView, CreateAPIView):
         self.object = self.get_object()
 
     def create(self, request, *args, **kwargs):
-        if self.user_is_already_rsvped:
-            raise MethodNotAllowed(
-                "POST",
+        if self.object.is_past() or self.user_is_already_rsvped:
+            raise PermissionDenied(
                 detail={
-                    "redirectTo": reverse("view_event", kwargs={"pk": self.object.pk})
+                    "redirectTo": self.object.get_absolute_url(),
                 },
             )
         if bool(self.object.subscription_form_id):
-            raise MethodNotAllowed(
-                "POST",
+            raise PermissionDenied(
                 detail={
                     "redirectTo": reverse("rsvp_event", kwargs={"pk": self.object.pk})
                 },
@@ -580,8 +578,7 @@ class RSVPEventAPIView(DestroyAPIView, CreateAPIView):
             request.session["rsvp_event"] = str(self.object.pk)
             request.session["is_guest"] = False
 
-            raise MethodNotAllowed(
-                "POST",
+            raise PermissionDenied(
                 detail={"redirectTo": reverse("pay_event")},
             )
 
@@ -591,7 +588,7 @@ class RSVPEventAPIView(DestroyAPIView, CreateAPIView):
 
     def destroy(self, request, *args, **kwargs):
         rsvp = get_object_or_404(
-            self.object.rsvps.confirmed().upcoming(), person=self.request.user.person
+            self.object.rsvps.confirmed(), person=self.request.user.person
         )
         cancel_rsvp(rsvp)
 
@@ -618,7 +615,7 @@ class RSVPEventAsGroupAPIView(CreateAPIView, DestroyAPIView):
         if not self.person.memberships.managers().filter(supportgroup=group).exists():
             raise PermissionDenied(
                 detail={
-                    "text": "Vous n'avez pas le rôle requis pour faire rejoindre ce groupe à l'événement"
+                    "detail": "Vous n'avez pas le rôle requis pour faire rejoindre ce groupe à l'événement"
                 },
             )
 
@@ -636,9 +633,16 @@ class RSVPEventAsGroupAPIView(CreateAPIView, DestroyAPIView):
         self.group = self.get_group()
 
     def create(self, request, *args, **kwargs):
+        if self.event.is_past():
+            raise exceptions.ValidationError(
+                detail={
+                    "detail": "Il n'est pas possible de participer à cet événement car il est déjà terminé !"
+                },
+                code="invalid_format",
+            )
         if self.event.organizers_groups.filter(pk=self.group.pk).exists():
             raise exceptions.ValidationError(
-                detail={"text": "Ce groupe organise déjà l'événement !"},
+                detail={"detail": "Ce groupe organise déjà l'événement !"},
                 code="invalid_format",
             )
 
@@ -648,7 +652,7 @@ class RSVPEventAsGroupAPIView(CreateAPIView, DestroyAPIView):
             )
         except IntegrityError:
             raise exceptions.ValidationError(
-                detail={"text": "Ce groupe participe déjà à l'événement !"},
+                detail={"detail": "Ce groupe participe déjà à l'événement !"},
                 code="invalid_format",
             )
 
