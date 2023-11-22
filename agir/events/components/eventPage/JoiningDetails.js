@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import PropTypes from "prop-types";
 
 import styled from "styled-components";
@@ -51,7 +51,7 @@ const GreenToast = styled(StaticToast)`
   }
 `;
 
-const RSVP = ({ hasPrice, eventPk, rsvpRoute }) => (
+const RSVP = ({ hasPrice, eventPk, rsvpRoute, isPast = false }) => (
   <StyledJoin>
     <RawFeatherIcon
       name="check"
@@ -60,13 +60,15 @@ const RSVP = ({ hasPrice, eventPk, rsvpRoute }) => (
     />
     <StyledContent>
       <div>
-        {rsvpRoute ? (
+        {isPast ? (
+          "Vous avez participé à l'événement"
+        ) : rsvpRoute ? (
           <Link route={rsvpRoute}>Vous participez à l'événement</Link>
         ) : (
           "Vous participez à l'événement"
         )}
       </div>
-      {!hasPrice && <QuitEventButton eventPk={eventPk} />}
+      {!hasPrice && !isPast && <QuitEventButton eventPk={eventPk} />}
     </StyledContent>
   </StyledJoin>
 );
@@ -75,9 +77,10 @@ RSVP.propTypes = {
   eventPk: PropTypes.string.isRequired,
   backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   rsvpRoute: PropTypes.string,
+  isPast: PropTypes.bool,
 };
 
-const GroupRSVP = ({ eventPk, group, backLink }) => (
+const GroupRSVP = ({ eventPk, group, backLink, isPast = false }) => (
   <StyledJoin>
     <RawFeatherIcon
       name="check"
@@ -94,9 +97,11 @@ const GroupRSVP = ({ eventPk, group, backLink }) => (
         >
           {group.name}
         </Link>
-        &nbsp;participe à l'événement
+        &nbsp;{isPast ? "a participé" : "participe"} à l'événement
       </div>
-      {group.isManager && <QuitEventButton eventPk={eventPk} group={group} />}
+      {!isPast && group.isManager && (
+        <QuitEventButton eventPk={eventPk} group={group} />
+      )}
     </StyledContent>
   </StyledJoin>
 );
@@ -108,18 +113,35 @@ GroupRSVP.propTypes = {
     isManager: PropTypes.bool,
   }),
   backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  isPast: PropTypes.bool,
 };
 
 const JoiningDetails = (props) => {
-  const { id, hasPrice, rsvped, groups, logged, backLink, rsvpRoute } = props;
+  const {
+    id,
+    hasPrice,
+    rsvped,
+    groups,
+    logged,
+    backLink,
+    rsvpRoute,
+    isPast = false,
+  } = props;
 
   const user = useSelector(getUser);
-  const groupsId = groups?.map((group) => group.id) || [];
+  const managingGroupsAttendees = useMemo(() => {
+    if (!user?.groups) {
+      return [];
+    }
 
-  // Get managing groups attendees
-  const managingGroupsAttendees = user?.groups.filter(
-    (group) => groupsId.includes(group.id) && group.isManager,
-  );
+    if (!Array.isArray(groups)) {
+      return user.groups.filter((group) => group.isManager);
+    }
+
+    return user.groups.filter(
+      (group) => group.isManager && groups.some((g) => g.id === group.id),
+    );
+  }, [user, groups]);
 
   if ((!rsvped || !logged) && !managingGroupsAttendees?.length) {
     return null;
@@ -128,7 +150,12 @@ const JoiningDetails = (props) => {
   return (
     <GreenToast $color="green">
       {logged && rsvped && (
-        <RSVP eventPk={id} hasPrice={hasPrice} rsvpRoute={rsvpRoute} />
+        <RSVP
+          eventPk={id}
+          hasPrice={hasPrice}
+          rsvpRoute={rsvpRoute}
+          isPast={isPast}
+        />
       )}
       {managingGroupsAttendees.map((group) => (
         <GroupRSVP
@@ -136,6 +163,7 @@ const JoiningDetails = (props) => {
           eventPk={id}
           group={group}
           backLink={backLink}
+          isPast={isPast}
         />
       ))}
     </GreenToast>
@@ -155,6 +183,7 @@ JoiningDetails.propTypes = {
   logged: PropTypes.bool,
   backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   rsvpRoute: PropTypes.string,
+  isPast: PropTypes.bool,
 };
 
 export default JoiningDetails;

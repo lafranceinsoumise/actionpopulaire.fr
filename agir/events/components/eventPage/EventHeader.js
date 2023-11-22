@@ -179,21 +179,31 @@ const Actions = (props) => {
 
   if (past) {
     return (
-      <StyledActions>
-        <Button disabled color="unavailable">
-          Événement terminé
-        </Button>
-        {isManager && (
-          <Button
-            icon="settings"
-            link
-            to={routeConfig.eventSettings.getLink({ eventPk: id })}
-            color="primary"
-          >
-            Gérer l'événement
+      <>
+        <StyledActions>
+          <Button disabled color="unavailable">
+            Événement terminé
           </Button>
-        )}
-      </StyledActions>
+          {isManager && (
+            <Button
+              icon="settings"
+              link
+              to={routeConfig.eventSettings.getLink({ eventPk: id })}
+              color="primary"
+            >
+              Gérer l'événement
+            </Button>
+          )}
+        </StyledActions>
+        <JoiningDetails
+          isPast
+          id={id}
+          rsvped={rsvped}
+          groups={groupsAttendees}
+          logged={logged}
+          backLink={backLink}
+        />
+      </>
     );
   }
 
