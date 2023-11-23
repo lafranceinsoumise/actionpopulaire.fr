@@ -157,63 +157,49 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         "distance",
         "eventSpeakers",
     ]
-
     id = serializers.UUIDField()
     url = serializers.HyperlinkedIdentityField(view_name="view_event")
     name = serializers.CharField()
     hasSubscriptionForm = serializers.SerializerMethodField()
-
     description = serializers.CharField(source="html_description")
     textDescription = serializers.SerializerMethodField()
     compteRendu = serializers.CharField(source="report_content")
     compteRenduMainPhoto = serializers.SerializerMethodField(source="report_image")
     compteRenduPhotos = serializers.SerializerMethodField()
-
     illustration = serializers.SerializerMethodField()
     metaImage = serializers.SerializerMethodField()
-
     startTime = serializers.SerializerMethodField()
     endTime = serializers.SerializerMethodField()
     timezone = serializers.CharField()
-
     location = LocationSerializer(source="*")
-
     isOrganizer = serializers.SerializerMethodField()
     isManager = serializers.SerializerMethodField()
     isEditable = serializers.BooleanField(source="subtype.is_editable", read_only=True)
-
     rsvp = serializers.SerializerMethodField()
-
+    rsvped = serializers.SerializerMethodField(read_only=True)
+    canRSVP = serializers.SerializerMethodField(method_name="can_rsvp", read_only=True)
+    canCancelRSVP = serializers.SerializerMethodField(
+        method_name="can_cancel_rsvp", read_only=True
+    )
+    canRSVPAsGroup = serializers.SerializerMethodField(
+        method_name="can_rsvp_as_group", read_only=True
+    )
     options = EventOptionsSerializer(source="*")
-
     routes = RoutesField(routes=EVENT_ROUTES)
-
     groups = serializers.SerializerMethodField()
-
     groupsAttendees = serializers.SerializerMethodField(
         method_name="get_groups_attendees"
     )
-
     contact = serializers.SerializerMethodField()
-
     distance = serializers.SerializerMethodField()
-
     subtype = EventSubtypeSerializer()
-
     allowGuests = serializers.BooleanField(source="allow_guests")
-
     onlineUrl = serializers.URLField(source="online_url")
     youtubeVideoID = serializers.SerializerMethodField(
         method_name="youtube_video_id", read_only=True
     )
-
     isPast = serializers.SerializerMethodField(
         read_only=True, method_name="get_is_past"
-    )
-
-    canRSVP = serializers.SerializerMethodField(method_name="can_rsvp", read_only=True)
-    canRSVPAsGroup = serializers.SerializerMethodField(
-        method_name="can_rsvp_as_group", read_only=True
     )
     unauthorizedMessage = serializers.CharField(
         source="subtype.unauthorized_message", read_only=True
@@ -313,8 +299,20 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
         return False
 
-    def get_rsvp(self, obj):
+    def get_rsvp(self, _obj):
         return self.rsvp and self.rsvp.status
+
+    def get_rsvped(self, _obj):
+        return self.rsvp and self.rsvp.status == RSVP.Status.CONFIRMED
+
+    def can_rsvp(self, obj):
+        return obj.can_rsvp(self.person)
+
+    def can_cancel_rsvp(self, obj):
+        return obj.can_cancel_rsvp(self.person)
+
+    def can_rsvp_as_group(self, obj):
+        return obj.can_rsvp_as_group(self.person)
 
     def get_compteRenduMainPhoto(self, obj):
         if obj.report_image:
@@ -443,12 +441,6 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
             except ValueError:
                 pass
         return ""
-
-    def can_rsvp(self, obj):
-        return obj.can_rsvp(self.person)
-
-    def can_rsvp_as_group(self, obj):
-        return obj.can_rsvp_as_group(self.person)
 
     def get_event_speakers(self, obj):
         event_speakers = list(obj.event_speakers.all())

@@ -120,7 +120,9 @@ const Actions = (props) => {
     id,
     past,
     rsvped,
+    rsvp,
     canRSVP,
+    canCancelRSVP,
     canRSVPAsGroup,
     logged,
     isManager,
@@ -135,7 +137,6 @@ const Actions = (props) => {
   } = props;
 
   const [isLoading, setIsLoading] = useState(false);
-
   const [showQuitEvent, setShowQuitEvent] = useState(false);
 
   const handleQuitEvent = (e) => {
@@ -198,6 +199,7 @@ const Actions = (props) => {
         <JoiningDetails
           isPast
           id={id}
+          rsvp={rsvp}
           rsvped={rsvped}
           groups={groupsAttendees}
           logged={logged}
@@ -234,7 +236,6 @@ const Actions = (props) => {
         )}
         {canRSVP && !rsvped && (
           <Button
-            type="submit"
             color="primary"
             loading={isLoading}
             disabled={isLoading}
@@ -243,25 +244,35 @@ const Actions = (props) => {
             Participer à l'événement
           </Button>
         )}
-        {rsvped && !hasPrice && (
-          <>
-            <StyledButtonMenu
-              color="success"
-              icon="check-circle"
-              text="Je participe"
-              shouldDismissOnClick
-              MobileLayout={Popin}
-            >
-              <a href="" onClick={handleQuitEvent}>
-                Annuler
-              </a>
-            </StyledButtonMenu>
-            <QuitEventButton
-              eventPk={id}
-              isOpen={showQuitEvent}
-              setIsOpen={setShowQuitEvent}
-            />
-          </>
+        {!rsvped && canCancelRSVP && !isManager && (
+          <Button
+            color="default"
+            disabled={isLoading}
+            onClick={handleQuitEvent}
+          >
+            Je ne peux pas participer
+          </Button>
+        )}
+        {rsvped && canCancelRSVP && (
+          <StyledButtonMenu
+            color="success"
+            icon="check-circle"
+            text="Je participe"
+            shouldDismissOnClick
+            MobileLayout={Popin}
+          >
+            <a href="" disabled={isLoading} onClick={handleQuitEvent}>
+              Annuler ma participation
+            </a>
+          </StyledButtonMenu>
+        )}
+        {canCancelRSVP && (
+          <QuitEventButton
+            eventPk={id}
+            isOpen={showQuitEvent}
+            setIsOpen={setShowQuitEvent}
+            rsvped={rsvped}
+          />
         )}
         {canRSVPAsGroup && (
           <AddGroupAttendee
@@ -287,7 +298,8 @@ const Actions = (props) => {
       </StyledActions>
       <JoiningDetails
         id={id}
-        hasPrice={hasPrice}
+        canCancelRSVP={canCancelRSVP}
+        rsvp={rsvp}
         rsvped={rsvped}
         groups={groupsAttendees}
         logged={logged}
@@ -303,8 +315,10 @@ Actions.propTypes = {
   hasSubscriptionForm: PropTypes.bool,
   hasPrice: PropTypes.bool,
   past: PropTypes.bool,
+  rsvp: PropTypes.string,
   rsvped: PropTypes.bool,
   canRSVP: PropTypes.bool,
+  canCancelRSVP: PropTypes.bool,
   canRSVPAsGroup: PropTypes.bool,
   logged: PropTypes.bool,
   isManager: PropTypes.bool,
@@ -385,7 +399,8 @@ const AdditionalMessage = (props) => {
   if (!isOrganizer && !rsvped) {
     return (
       <SmallText>
-        Votre adresse e-mail sera communiquée à l'organisateur·ice
+        Les adresses e-mail des participant·es seront communiquées aux
+        organisateur·ices
       </SmallText>
     );
   }
@@ -403,6 +418,7 @@ AdditionalMessage.propTypes = {
   price: PropTypes.string,
   routes: PropTypes.object,
   canRSVP: PropTypes.bool,
+  canCancelRSVP: PropTypes.bool,
   unauthorizedMessage: PropTypes.string,
 };
 
@@ -411,6 +427,7 @@ const EventHeader = (props) => {
     id,
     name,
     rsvp,
+    rsvped,
     options,
     schedule,
     routes,
@@ -422,6 +439,7 @@ const EventHeader = (props) => {
     groupsAttendees,
     backLink,
     canRSVP,
+    canCancelRSVP,
     canRSVPAsGroup,
     unauthorizedMessage,
     volunteerApplicationFormLink,
@@ -430,7 +448,6 @@ const EventHeader = (props) => {
   const globalRoutes = useSelector(getRoutes);
   const logged = useSelector(getIsConnected);
 
-  const rsvped = rsvp === "CO";
   const now = DateTime.local();
   const past = now > schedule.end;
   let eventString = displayHumanDate(schedule.start);
@@ -449,7 +466,6 @@ const EventHeader = (props) => {
         id={id}
         past={past}
         logged={logged}
-        rsvped={rsvped}
         routes={routes}
         isManager={isManager}
         hasPrice={!!options && !!options.price}
@@ -458,7 +474,10 @@ const EventHeader = (props) => {
         groups={groups}
         groupsAttendees={groupsAttendees}
         backLink={backLink}
+        rsvp={rsvp}
+        rsvped={rsvped}
         canRSVP={canRSVP}
+        canCancelRSVP={canCancelRSVP}
         canRSVPAsGroup={canRSVPAsGroup}
         volunteerApplicationFormLink={volunteerApplicationFormLink}
       />
@@ -493,12 +512,14 @@ EventHeader.propTypes = {
     price: PropTypes.string,
   }),
   rsvp: PropTypes.string,
+  rsvped: PropTypes.bool,
   routes: PropTypes.object,
   allowGuests: PropTypes.bool,
   groups: PropTypes.array,
   groupsAttendees: PropTypes.array,
   backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   canRSVP: PropTypes.bool,
+  canCancelRSVP: PropTypes.bool,
   canRSVPAsGroup: PropTypes.bool,
   unauthorizedMessage: PropTypes.string,
   volunteerApplicationFormLink: PropTypes.string,

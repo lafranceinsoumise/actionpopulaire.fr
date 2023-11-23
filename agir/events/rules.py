@@ -72,6 +72,16 @@ def can_rsvp_event(role, event=None):
 
 
 @rules.predicate
+def can_cancel_rsvp_for_event(role, event=None):
+    return event is not None and event.can_cancel_rsvp(role.person)
+
+
+@rules.predicate
+def can_cancel_rsvp(_role, rsvp=None):
+    return rsvp is not None and rsvp.can_cancel()
+
+
+@rules.predicate
 def can_rsvp_event_as_group(role, event=None):
     return event is not None and event.can_rsvp_as_group(role.person)
 
@@ -146,7 +156,10 @@ rules.add_perm(
 )
 rules.add_perm(
     "events.cancel_rsvp_for_event",
-    is_public_event & is_free_event & is_upcoming_event & is_authenticated_person,
+    is_public_event
+    & is_upcoming_event
+    & is_authenticated_person
+    & can_cancel_rsvp_for_event,
 )
 rules.add_perm(
     "events.rsvp_event_as_group",
@@ -155,6 +168,9 @@ rules.add_perm(
 
 
 rules.add_perm("events.change_rsvp", is_authenticated_person & is_own_rsvp)
+rules.add_perm(
+    "events.cancel_rsvp", is_authenticated_person & is_own_rsvp & can_cancel_rsvp
+)
 
 rules.add_perm("events.participate_online", has_rsvp_for_event)
 

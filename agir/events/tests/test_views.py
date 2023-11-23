@@ -730,7 +730,6 @@ class RSVPTestCase(TestCase):
         # fake payment confirmation
         complete_payment(payment)
         event_notification_listener(payment)
-
         self.assertIn(self.person, self.form_paying_event.confirmed_attendees)
 
         on_commit.assert_called_once()

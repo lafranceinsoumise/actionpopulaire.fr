@@ -61,11 +61,11 @@ const StyledDialog = styled.div`
 const StyledWrapper = styled.div`
   font-size: 1rem;
   font-weight: 600;
-  font-color: ${(props) => props.theme.black500};
+  color: ${(props) => props.theme.black500};
   white-space: nowrap;
 `;
 
-const QuitEventButton = ({ eventPk, group, isOpen, setIsOpen }) => {
+const QuitEventButton = ({ eventPk, group, isOpen, setIsOpen, rsvped }) => {
   const [isQuitting, setIsQuitting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -84,21 +84,14 @@ const QuitEventButton = ({ eventPk, group, isOpen, setIsOpen }) => {
       } catch (err) {
         error = err.message;
       }
-      setIsLoading(false);
-      setIsQuitting(false);
-      setIsOpen && setIsOpen(false);
       if (error) {
         log.error(error);
         return;
       }
-      if (!groupPk) {
-        mutate(api.getEventEndpoint("getEvent", { eventPk }), (event) => ({
-          ...event,
-          rsvped: false,
-        }));
-        return;
-      }
       mutate(api.getEventEndpoint("getEvent", { eventPk }));
+      setIsLoading(false);
+      setIsQuitting(false);
+      setIsOpen && setIsOpen(false);
     },
     [eventPk, groupPk, setIsOpen],
   );
@@ -134,28 +127,31 @@ const QuitEventButton = ({ eventPk, group, isOpen, setIsOpen }) => {
       >
         <StyledDialog>
           <main>
-            <h4>
-              {!groupPk ? (
-                "Annuler ma participation à l'événement"
-              ) : (
-                <>Annuler la participation du groupe à l’évément&nbsp;?</>
-              )}
-            </h4>
-            <p>
-              {!groupPk ? (
-                <>
-                  Souhaitez-vous réellement ne plus participer à
-                  l'événement&nbsp;?
-                </>
-              ) : (
-                <>
+            {groupPk ? (
+              <>
+                <h4>Annuler la participation du groupe à l’évément&nbsp;?</h4>
+                <p>
                   <b>{group.name}</b> ne sera plus indiqué comme participant à
                   l’événement.
                   <Spacer size="1rem" />
                   L’événement sera retiré de l’agenda du groupe.
-                </>
-              )}
-            </p>
+                </p>
+              </>
+            ) : (
+              <>
+                <h4>Annuler ma participation à l'événement</h4>
+                <p>
+                  Confirmez-vous que vous ne serez pas disponible pour
+                  participer à l'événement&nbsp;?
+                </p>
+                <Spacer size="1rem" />
+                <p>
+                  Les organisateur·ices de l'événement auront accès à la liste
+                  des personnes ayant indiqué leur indisponibilité (nom
+                  d'affichage et image de profil).
+                </p>
+              </>
+            )}
           </main>
           <footer>
             <Button
@@ -164,7 +160,7 @@ const QuitEventButton = ({ eventPk, group, isOpen, setIsOpen }) => {
               isLoading={isLoading}
               disabled={isLoading}
             >
-              {!groupPk ? "Quitter l'événement" : "Confirmer"}
+              Confirmer
             </Button>
             <Button color="default" onClick={closeDialog} disabled={isLoading}>
               Annuler
@@ -182,6 +178,7 @@ QuitEventButton.propTypes = {
     name: PropTypes.string,
   }),
   isOpen: PropTypes.bool,
+  rsvped: PropTypes.bool,
   setIsOpen: PropTypes.func,
 };
 export default QuitEventButton;

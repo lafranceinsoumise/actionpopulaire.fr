@@ -8,7 +8,6 @@ from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
 from django.http import (
-    Http404,
     HttpResponseRedirect,
     HttpResponse,
     HttpResponseGone,
@@ -37,7 +36,11 @@ from agir.authentication.view_mixins import (
     SoftLoginRequiredMixin,
 )
 from agir.events import actions
-from agir.events.actions.rsvps import assign_jitsi_meeting, cancel_rsvp
+from agir.events.actions.rsvps import (
+    assign_jitsi_meeting,
+    cancel_rsvp_and_payment,
+    RSVPException,
+)
 from agir.front.view_mixins import (
     ChangeLocationBaseView,
     FilterView,
@@ -49,7 +52,7 @@ from ..forms import (
     UploadEventImageForm,
     AuthorForm,
 )
-from ..models import Event, RSVP, Invitation
+from ..models import Event, Invitation
 from ..tasks import (
     send_event_report,
 )
@@ -242,6 +245,7 @@ class EventParticipationView(
     def get_context_data(self, **kwargs):
         if self.object.is_past():
             raise PermissionDenied("L'événement est terminé !")
+
         if not self.object.is_current():
             raise PermissionDenied("L'événement n'est pas encore commencé !")
 
@@ -275,43 +279,50 @@ class QuitEventView(
     SoftLoginRequiredMixin, GlobalOrObjectPermissionRequiredMixin, DeleteView
 ):
     template_name = "events/quit.html"
-    permission_required = ("events.delete_rsvp",)
-    success_url = reverse_lazy("dashboard")
+    permission_required = "events.cancel_rsvp_for_event"
     context_object_name = "rsvp"
+    queryset = Event.objects.public()
 
-    def get_queryset(self):
-        return RSVP.objects.confirmed().upcoming()
+    def get_success_url(self):
+        return self.object.get_absolute_url()
 
-    def get_object(self, queryset=None):
+    def get_rsvp(self):
         rsvp = (
-            self.get_queryset()
-            .select_related("event")
+            self.object.rsvps.participating()
             .filter(event_id=self.kwargs["pk"], person=self.request.user.person)
             .first()
         )
 
-        if not rsvp or not self.request.user.has_perm("events.view_event", rsvp.event):
-            raise Http404
+        if not rsvp:
+            success_url = self.get_success_url()
+            return HttpResponseRedirect(success_url)
 
         return rsvp
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["event"] = self.object.event
+        context["event"] = self.object
+        context["object"] = self.get_rsvp()
         context["success_url"] = self.get_success_url()
+
         return context
 
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
+        rsvp = self.get_rsvp()
         success_url = self.get_success_url()
-        cancel_rsvp(self.object)
+
+        try:
+            cancel_rsvp_and_payment(rsvp, self.request.user.person)
+        except RSVPException as e:
+            raise PermissionDenied(str(e))
 
         messages.add_message(
             request,
             messages.SUCCESS,
             format_html(
                 _("Vous ne participez plus à l'événement <em>{}</em>"),
-                self.object.event.name,
+                self.object.name,
             ),
         )
 

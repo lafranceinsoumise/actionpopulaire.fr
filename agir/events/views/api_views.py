@@ -1,6 +1,5 @@
 from datetime import timedelta
 
-from django.contrib import messages
 from django.db import transaction, IntegrityError
 from django.db.models import Q, Value, CharField
 from django.http.response import JsonResponse
@@ -10,7 +9,7 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import exceptions, status
-from rest_framework.exceptions import NotFound, MethodNotAllowed, PermissionDenied
+from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.generics import (
     ListAPIView,
     RetrieveAPIView,
@@ -26,7 +25,8 @@ from rest_framework.views import APIView
 from agir.events.actions.rsvps import (
     rsvp_to_free_event,
     is_participant,
-    cancel_rsvp,
+    cancel_rsvp_and_payment,
+    RSVPException,
 )
 from agir.events.models import Event, GroupAttendee, OrganizerConfig, Invitation
 from agir.events.models import RSVP
@@ -552,45 +552,51 @@ class RSVPEventAPIView(DestroyAPIView, CreateAPIView):
 
     @cached_property
     def user_is_already_rsvped(self):
-        return is_participant(self.object, self.request.user.person)
+        return is_participant(self.event, self.request.user.person)
 
     def initial(self, request, *args, **kwargs):
         super().initial(request, *args, **kwargs)
-        self.object = self.get_object()
+        self.person = self.request.user.person
+        self.event = self.get_object()
 
     def create(self, request, *args, **kwargs):
-        if self.object.is_past() or self.user_is_already_rsvped:
+        if self.event.is_past() or self.user_is_already_rsvped:
             raise PermissionDenied(
                 detail={
-                    "redirectTo": self.object.get_absolute_url(),
+                    "redirectTo": self.event.get_absolute_url(),
                 },
             )
-        if bool(self.object.subscription_form_id):
+        if bool(self.event.subscription_form_id):
             raise PermissionDenied(
                 detail={
-                    "redirectTo": reverse("rsvp_event", kwargs={"pk": self.object.pk})
+                    "redirectTo": reverse("rsvp_event", kwargs={"pk": self.event.pk})
                 },
             )
-        if not self.object.is_free:
+        if not self.event.is_free:
             if "rsvp_submission" in request.session:
                 del request.session["rsvp_submission"]
 
-            request.session["rsvp_event"] = str(self.object.pk)
+            request.session["rsvp_event"] = str(self.event.pk)
             request.session["is_guest"] = False
 
             raise PermissionDenied(
                 detail={"redirectTo": reverse("pay_event")},
             )
 
-        rsvp_to_free_event(self.object, request.user.person)
+        rsvp_to_free_event(self.event, self.person)
 
         return Response(status=status.HTTP_201_CREATED)
 
     def destroy(self, request, *args, **kwargs):
-        rsvp = get_object_or_404(
-            self.object.rsvps.confirmed(), person=self.request.user.person
-        )
-        cancel_rsvp(rsvp)
+        try:
+            rsvp = RSVP.objects.get(person=self.person, event=self.event)
+        except RSVP.DoesNotExist:
+            rsvp = RSVP(person=self.person, event=self.event)
+
+        try:
+            cancel_rsvp_and_payment(rsvp, self.person)
+        except RSVPException as e:
+            raise PermissionDenied(str(e))
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 

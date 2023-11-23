@@ -16,6 +16,7 @@ from agir.gestion.typologies import TypeProjet
 from agir.groups.models import SupportGroup, Membership
 from agir.lib.tests.mixins import create_location
 from agir.msgs.models import SupportGroupMessage
+from agir.payments.models import Payment
 from agir.people.models import Person, PersonForm, PersonFormSubmission
 
 
@@ -762,7 +763,27 @@ class QuitEventAPITestCase(APITestCase):
         res = self.client.delete(f"/api/evenements/{event.pk}/inscription/")
         self.assertEqual(res.status_code, 403)
 
-    def test_person_cannot_quit_if_not_participant(self):
+    def test_person_cannot_quit_paid_event(self):
+        event = Event.objects.create(
+            name="Event",
+            start_time=self.start_time - timezone.timedelta(days=2),
+            end_time=self.end_time - timezone.timedelta(days=2),
+        )
+        rsvp = RSVP.objects.create(
+            event=event, person=self.person, status=RSVP.Status.CONFIRMED
+        )
+        rsvp.payment = Payment.objects.create(
+            status=Payment.STATUS_COMPLETED,
+            price=100,
+            type="evenement",
+            mode="check_events",
+        )
+        rsvp.save()
+        self.client.force_login(self.person.role)
+        res = self.client.delete(f"/api/evenements/{event.pk}/inscription/")
+        self.assertEqual(res.status_code, 403)
+
+    def test_person_can_quit_if_not_participant(self):
         event = Event.objects.create(
             name="Event",
             start_time=self.start_time,
@@ -772,10 +793,39 @@ class QuitEventAPITestCase(APITestCase):
             email="other_person@example.com",
             create_role=True,
         )
-        rsvp = RSVP.objects.create(event=event, person=other_person)
+        RSVP.objects.create(event=event, person=other_person)
         self.client.force_login(self.person.role)
         res = self.client.delete(f"/api/evenements/{event.pk}/inscription/")
-        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.status_code, 204)
+        self.assertTrue(
+            RSVP.objects.filter(
+                event=event, person=self.person, status=RSVP.Status.CANCELLED
+            )
+        )
+
+    def test_person_can_quit_if_waiting_payment(self):
+        event = Event.objects.create(
+            name="Event",
+            start_time=self.start_time,
+            end_time=self.end_time,
+        )
+        rsvp = RSVP.objects.create(
+            event=event, person=self.person, status=RSVP.Status.AWAITING_PAYMENT
+        )
+        rsvp.payment = Payment.objects.create(
+            status=Payment.STATUS_WAITING,
+            price=100,
+            type="evenement",
+            mode="check_events",
+        )
+        rsvp.save()
+        self.client.force_login(rsvp.person.role)
+        res = self.client.delete(f"/api/evenements/{event.pk}/inscription/")
+        self.assertEqual(res.status_code, 204)
+        rsvp.refresh_from_db(fields=("status",))
+        rsvp.payment.refresh_from_db(fields=("status",))
+        self.assertEqual(rsvp.status, RSVP.Status.CANCELLED)
+        self.assertEqual(rsvp.payment.status, Payment.STATUS_CANCELED)
 
     def test_person_can_quit_future_rsvped_event(self):
         event = Event.objects.create(

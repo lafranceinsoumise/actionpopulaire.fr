@@ -145,8 +145,37 @@ def rsvp_to_free_event(event, person, form_submission=None):
 
 
 def cancel_rsvp(rsvp):
+    if rsvp.status == RSVP.Status.CANCELLED:
+        return
+
     rsvp.status = RSVP.Status.CANCELLED
     rsvp.save()
+
+
+def cancel_rsvp_payment(rsvp, person=None):
+    if not rsvp.payment:
+        return
+
+    if not rsvp.payment.can_cancel():
+        raise RSVPException("Ce mode de paiement ne permet pas l'annulation.")
+
+    user = person.role if person else None
+    log_payment_event(
+        rsvp.payment,
+        event="cancel_payment",
+        origin="agir.events.actions.rsvps.rsvp_to_paid_event_and_create_payment",
+        user=user,
+    )
+
+    cancel_payment(rsvp.payment)
+
+
+def cancel_rsvp_and_payment(rsvp, person=None):
+    with transaction.atomic():
+        cancel_rsvp(rsvp)
+        cancel_rsvp_payment(rsvp, person)
+
+        return rsvp
 
 
 def rsvp_to_paid_event_and_create_payment(
@@ -171,21 +200,16 @@ def rsvp_to_paid_event_and_create_payment(
 
     with transaction.atomic():
         rsvp = _get_rsvp_for_event(event, person, form_submission, True)
-        if rsvp.payment is not None:
-            if rsvp.payment.mode == payment_mode.id and rsvp.payment.can_retry():
-                return rsvp.payment
 
-            if not rsvp.payment.can_cancel():
-                raise RSVPException("Ce mode de paiement ne permet pas l'annulation.")
+        if (
+            rsvp.payment is not None
+            and rsvp.payment.mode == payment_mode.id
+            and rsvp.payment.can_retry()
+        ):
+            rsvp.save()
+            return rsvp.payment
 
-            log_payment_event(
-                rsvp.payment,
-                event="cancel_payment",
-                origin="agir.events.actions.rsvps.rsvp_to_paid_event_and_create_payment",
-                user=person.role,
-            )
-            cancel_payment(rsvp.payment)
-
+        cancel_rsvp_payment(rsvp, person)
         rsvp.payment = create_payment(
             person=person,
             type=EventsConfig.PAYMENT_TYPE,

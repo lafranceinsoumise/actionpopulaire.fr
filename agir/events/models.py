@@ -950,6 +950,18 @@ class Event(
             .exists()
         )
 
+    def can_cancel_rsvp(self, person):
+        if not person:
+            return False
+
+        person_rsvp = self.rsvps.filter(person=person).first()
+
+        # If no RSVP exists yet for the person, a CANCELLED one can be created
+        if not person_rsvp:
+            return True
+
+        return person_rsvp.can_cancel()
+
     def can_rsvp_as_group(self, person):
         if not person or self.for_organizer_group_members_only():
             return False
@@ -1435,6 +1447,17 @@ class RSVP(ExportModelOperationsMixin("rsvp"), TimeStampedModel):
             info = info + " paiement(s) en attente"
 
         return info
+
+    def can_cancel(self):
+        if self.status == self.Status.CANCELLED:
+            return False
+
+        # If the event is free or the rsvp has no payment, any rsvp can be cancelled
+        if self.payment is None:
+            return True
+
+        # If the event is not free, check if the rsvp payment can be cancelled
+        return self.payment.can_cancel() is True
 
 
 class IdentifiedGuest(ExportModelOperationsMixin("identified_guest"), models.Model):
