@@ -385,6 +385,13 @@ class EventDetailAdvancedAPIView(RetrieveAPIView):
     serializer_class = EventAdvancedSerializer
     queryset = Event.objects.exclude(visibility=Event.VISIBILITY_ADMIN)
 
+    def get_queryset(self):
+        return (
+            super()
+            .get_queryset()
+            .with_serializer_prefetch(person=self.request.user.person)
+        )
+
 
 class UpdateEventAPIView(UpdateAPIView):
     permission_classes = (

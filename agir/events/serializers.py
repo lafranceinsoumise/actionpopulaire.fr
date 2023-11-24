@@ -465,37 +465,53 @@ class EventAdvancedSerializer(EventSerializer):
         source="subtype.is_coorganizable", read_only=True
     )
 
+    def format_person(
+        self, person, is_speaker=False, is_organizer=False, unavailable=False
+    ):
+        formatted_person = {
+            "id": person.id,
+            "displayName": person.display_name,
+            "image": None,
+            "isOrganizer": is_organizer,
+            "isEventSpeaker": is_speaker,
+            "unavailable": unavailable,
+        }
+
+        if person.image and person.image.thumbnail:
+            formatted_person["image"] = person.image.thumbnail.url
+
+        if is_speaker:
+            formatted_person["displayName"] = person.get_full_name()
+
+        if unavailable and not is_organizer:
+            return formatted_person
+
+        return {
+            **formatted_person,
+            "email": person.display_email,
+            "gender": person.gender,
+        }
+
     def get_participants(self, obj):
         speaker_person_ids = list(
             obj.event_speakers.values_list("person_id", flat=True)
         )
         organizers = {
-            str(person.id): {
-                "id": person.id,
-                "email": person.display_email,
-                "displayName": person.get_full_name()
-                if person.id in speaker_person_ids
-                else person.display_name,
-                "gender": person.gender,
-                "isOrganizer": True,
-                "isEventSpeaker": person.id in speaker_person_ids,
-            }
+            str(person.id): self.format_person(
+                person, is_organizer=True, is_speaker=person.id in speaker_person_ids
+            )
             for person in obj.get_organizer_people()
         }
         participants = {
-            str(person.id): {
-                "id": person.id,
-                "email": person.display_email,
-                "displayName": person.get_full_name()
-                if person.id in speaker_person_ids
-                else person.display_name,
-                "gender": person.gender,
-                "isOrganizer": False,
-                "isEventSpeaker": person.id in speaker_person_ids,
-            }
-            for person in obj.confirmed_attendees.exclude(id__in=organizers.keys())
+            str(person.id): self.format_person(
+                person,
+                is_organizer=str(person.id) in organizers.keys(),
+                is_speaker=person.id in speaker_person_ids,
+                unavailable=person.unavailable,
+            )
+            for person in obj.annotated_attendees
+            if person.confirmed or person.unavailable
         }
-
         participants = {
             **organizers,
             **participants,

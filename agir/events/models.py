@@ -17,7 +17,7 @@ from django.contrib.postgres.search import SearchVector, SearchRank
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models, transaction
-from django.db.models import JSONField, Prefetch
+from django.db.models import JSONField, Prefetch, BooleanField, Case, When, Value
 from django.db.models import Sum, Count, Q, OuterRef, Subquery
 from django.db.models.functions import Coalesce
 from django.template.defaultfilters import floatformat
@@ -765,6 +765,21 @@ class Event(
     @property
     def confirmed_attendees(self):
         return self.attendees.filter(rsvps__in=self.rsvps.confirmed())
+
+    @property
+    def annotated_attendees(self):
+        return self.attendees.annotate(
+            confirmed=Case(
+                When(rsvps__in=self.rsvps.confirmed(), then=Value(True)),
+                default=Value(False),
+                output_field=BooleanField(),
+            ),
+            unavailable=Case(
+                When(rsvps__in=self.rsvps.not_participating(), then=Value(True)),
+                default=Value(False),
+                output_field=BooleanField(),
+            ),
+        )
 
     def get_organizer_people(self):
         organizer_people = sum(
