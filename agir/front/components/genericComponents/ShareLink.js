@@ -48,8 +48,8 @@ const StyledDiv = styled.div`
     padding: 0.5rem;
     margin-right: 0.5rem;
 
-    &:hover,
-    &:focus {
+    &:hover:not[:disabled],
+    &:focus:not[:disabled] {
       outline: none;
       border-color: ${style.black700};
     }
@@ -73,12 +73,19 @@ const ShareLink = (props) => {
     <StyledDiv {...rest}>
       <h4>{title}</h4>
       <div>
-        <StyledInput aria-label={title} type="text" value={url} readOnly />
+        <StyledInput
+          aria-label={title}
+          type="text"
+          value={url}
+          readOnly
+          disabled={!url}
+        />
         <Button
           small
           color={color}
           icon={isCopied ? "check" : "copy"}
           onClick={handleCopy}
+          disabled={!url}
         >
           {label || "Copier"}
         </Button>

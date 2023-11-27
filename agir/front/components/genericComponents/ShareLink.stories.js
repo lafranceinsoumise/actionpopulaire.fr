@@ -35,3 +35,8 @@ export const NoLabelNoTitle = Template.bind({});
 NoLabelNoTitle.args = {
   url: "https://actionpopulaire.fr",
 };
+
+export const Disabled = Template.bind({});
+Disabled.args = {
+  url: "",
+};
