@@ -15,9 +15,11 @@ import Link from "@agir/front/app/Link";
 const StyledContent = styled.div``;
 const StyledJoin = styled.div`
   display: flex;
+  align-items: start;
   margin-bottom: 0.5rem;
 
   & > ${RawFeatherIcon} {
+    height: 1.25rem;
     color: ${(props) => props.theme.black500};
   }
 
