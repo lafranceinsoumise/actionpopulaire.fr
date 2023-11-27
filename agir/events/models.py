@@ -109,6 +109,12 @@ class EventQuerySet(models.QuerySet):
             )
         )
 
+    def attended_by_person(self, person):
+        return self.filter(
+            rsvps__person=person,
+            rsvps__status__in=(RSVP.Status.CONFIRMED, RSVP.Status.AWAITING_PAYMENT),
+        )
+
     def organized_by_person(self, person):
         person_group_ids = (
             Membership.objects.active()

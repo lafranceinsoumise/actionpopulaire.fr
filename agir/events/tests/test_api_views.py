@@ -1535,3 +1535,215 @@ class EventAssetListAPITestCase(APITestCase):
         self.assertNotIn(
             str(self.unpublished_event_asset.id), [a["id"] for a in res.data]
         )
+
+
+class EventListAPITestCase(APITestCase):
+    def setUp(self):
+        self.person = Person.objects.create_person(
+            email="person@agir.test",
+            create_role=True,
+        )
+        self.unavailable_attendee = Person.objects.create_person(
+            email="unavailable@agir.test",
+            create_role=True,
+        )
+        self.attendee = Person.objects.create_person(
+            email="attendee@agir.test",
+            create_role=True,
+        )
+        self.creator = Person.objects.create_person(
+            email="creator@agir.test",
+            create_role=True,
+        )
+        self.organizer = Person.objects.create_person(
+            email="organizer@agir.test",
+            create_role=True,
+        )
+        self.attending_group = SupportGroup.objects.create(name="a")
+        self.attending_group_manager = Person.objects.create_person(
+            email="a_manager@agir.test",
+            create_role=True,
+        )
+        Membership.objects.create(
+            supportgroup=self.attending_group,
+            person=self.attending_group_manager,
+            membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
+        )
+        self.organizing_group = SupportGroup.objects.create(name="o")
+        self.organizing_group_manager = Person.objects.create_person(
+            email="o_manager@agir.test",
+            create_role=True,
+        )
+        Membership.objects.create(
+            supportgroup=self.organizing_group,
+            person=self.organizing_group_manager,
+            membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
+        )
+        start_time = timezone.now() + timezone.timedelta(days=3)
+        end_time = timezone.now() + timezone.timedelta(days=3, hours=4)
+        self.event = Event.objects.create(
+            name="Event",
+            start_time=start_time,
+            end_time=end_time,
+            timezone=timezone.get_default_timezone_name(),
+            organizer_person=self.creator,
+        )
+        RSVP.objects.create(
+            event=self.event,
+            person=self.unavailable_attendee,
+            status=RSVP.Status.CANCELLED,
+        )
+        RSVP.objects.create(
+            event=self.event, person=self.attendee, status=RSVP.Status.CONFIRMED
+        )
+        OrganizerConfig.objects.create(
+            event=self.event,
+            person=self.organizer,
+        )
+        GroupAttendee.objects.create(
+            event=self.event,
+            group=self.attending_group,
+            organizer=self.attending_group_manager,
+        )
+        OrganizerConfig.objects.create(
+            event=self.event,
+            person=self.organizing_group_manager,
+            as_group=self.organizing_group,
+        )
+
+    def make_request(self, endpoint, person):
+        self.client.force_login(person.role)
+        return self.client.get(endpoint)
+
+    def test_event_rsvped_api_view(self):
+        endpoint = "/api/evenements/rsvped/"
+        expected = {
+            self.person: 0,
+            self.unavailable_attendee: 0,
+            self.attendee: 1,
+            # Creator is automatically added as organizer and attendee
+            self.creator: 1,
+            self.organizer: 0,
+            self.attending_group_manager: 0,
+            self.organizing_group_manager: 0,
+        }
+        for person, expected_length in expected.items():
+            res = self.make_request(endpoint, person)
+            self.assertEqual(res.status_code, 200)
+            self.assertEqual(len(res.data), expected_length)
+
+    def test_past_event_api_view(self):
+        endpoint = "/api/evenements/rsvped/passes/"
+        expected = {
+            self.person: 0,
+            self.unavailable_attendee: 0,
+            self.attendee: 0,
+            self.creator: 0,
+            self.organizer: 0,
+            self.attending_group_manager: 0,
+            self.organizing_group_manager: 0,
+        }
+        for person, expected_length in expected.items():
+            res = self.make_request(endpoint, person)
+            self.assertEqual(res.status_code, 200)
+            self.assertEqual(len(res.data), expected_length, person)
+
+        self.event.start_time = timezone.now() - timezone.timedelta(days=3)
+        self.event.end_time = timezone.now() - timezone.timedelta(days=3, hours=4)
+        self.event.save()
+
+        expected = {
+            self.person: 0,
+            self.unavailable_attendee: 0,
+            self.attendee: 1,
+            self.creator: 1,
+            self.organizer: 0,
+            self.attending_group_manager: 0,
+            self.organizing_group_manager: 0,
+        }
+        for person, expected_length in expected.items():
+            res = self.make_request(endpoint, person)
+            self.assertEqual(res.status_code, 200)
+            self.assertEqual(len(res.data), expected_length)
+
+    def test_ongoing_event_api_view(self):
+        endpoint = "/api/evenements/rsvped/en-cours/"
+        expected = {
+            self.person: 0,
+            self.unavailable_attendee: 0,
+            self.attendee: 0,
+            self.creator: 0,
+            self.organizer: 0,
+            self.attending_group_manager: 0,
+            self.organizing_group_manager: 0,
+        }
+        for person, expected_length in expected.items():
+            res = self.make_request(endpoint, person)
+            self.assertEqual(res.status_code, 200)
+            self.assertEqual(len(res.data), expected_length, person)
+
+        self.event.start_time = timezone.now() - timezone.timedelta(days=3)
+        self.event.end_time = timezone.now() + timezone.timedelta(days=3, hours=4)
+        self.event.save()
+
+        expected = {
+            self.person: 0,
+            self.unavailable_attendee: 0,
+            self.attendee: 1,
+            self.creator: 1,
+            self.organizer: 0,
+            self.attending_group_manager: 0,
+            self.organizing_group_manager: 0,
+        }
+        for person, expected_length in expected.items():
+            res = self.make_request(endpoint, person)
+            self.assertEqual(res.status_code, 200)
+            self.assertEqual(len(res.data), expected_length)
+
+    def test_user_group_event_api_view(self):
+        endpoint = "/api/evenements/mes-groupes/"
+        expected = {
+            self.person: 0,
+            self.unavailable_attendee: 0,
+            self.attendee: 0,
+            self.creator: 0,
+            self.organizer: 0,
+            self.attending_group_manager: 1,
+            self.organizing_group_manager: 1,
+        }
+        for person, expected_length in expected.items():
+            res = self.make_request(endpoint, person)
+            self.assertEqual(res.status_code, 200)
+            self.assertEqual(len(res.data), expected_length, person)
+
+    def test_user_organized_event_api_view(self):
+        endpoint = "/api/evenements/organises/"
+        expected = {
+            self.person: 0,
+            self.unavailable_attendee: 0,
+            self.attendee: 0,
+            self.creator: 1,
+            self.organizer: 1,
+            self.attending_group_manager: 0,
+            self.organizing_group_manager: 1,
+        }
+        for person, expected_length in expected.items():
+            res = self.make_request(endpoint, person)
+            self.assertEqual(res.status_code, 200)
+            self.assertEqual(len(res.data), expected_length, person)
+
+    def test_event_suggestion_api_view(self):
+        endpoint = "/api/evenements/suggestions/"
+        expected = {
+            self.person: 0,
+            self.unavailable_attendee: 0,
+            self.attendee: 0,
+            self.creator: 0,
+            self.organizer: 0,
+            self.attending_group_manager: 1,
+            self.organizing_group_manager: 1,
+        }
+        for person, expected_length in expected.items():
+            res = self.make_request(endpoint, person)
+            self.assertEqual(res.status_code, 200)
+            self.assertEqual(len(res.data), expected_length, person)

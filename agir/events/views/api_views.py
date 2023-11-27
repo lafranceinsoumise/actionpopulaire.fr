@@ -149,64 +149,41 @@ class EventRsvpedAPIView(EventListAPIView):
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
-        person = self.request.user.person
-        managed_groups = person.memberships.filter(
-            membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER
-        ).values_list("supportgroup_id", flat=True)
-
         return (
-            Event.objects.with_serializer_prefetch(person)
+            super()
+            .get_queryset()
             .listed()
             .upcoming()
-            .filter(
-                Q(attendees=person)
-                | Q(organizers=person)
-                | Q(organizers_groups__id__in=managed_groups)
-            )
+            .attended_by_person(self.request.user.person)
             .order_by("start_time", "end_time")
-        ).distinct()
+            .distinct()
+        )
 
 
 class PastRsvpedEventAPIView(EventListAPIView):
     def get_queryset(self):
-        person = self.request.user.person
-        managed_groups = person.memberships.filter(
-            membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER
-        ).values_list("supportgroup_id", flat=True)
-        supportgroups = person.supportgroups.all()
-
         return (
-            Event.objects.with_serializer_prefetch(person)
+            super()
+            .get_queryset()
             .listed()
             .past()
-            .filter(
-                Q(attendees=person)
-                | Q(organizers=person)
-                | Q(organizers_groups__id__in=managed_groups)
-                | Q(groups_attendees__in=supportgroups)
-            )
-            .distinct()
-        )[:20]
+            .attended_by_person(self.request.user.person)
+            .order_by("start_time", "end_time")
+            .distinct()[:20]
+        )
 
 
 class OngoingRsvpedEventsAPIView(EventListAPIView):
     def get_queryset(self):
         now = timezone.now()
-        person = self.request.user.person
-        supportgroups = person.supportgroups.all()
-
         return (
-            Event.objects.public()
-            .with_serializer_prefetch(person)
-            .upcoming()
-            .filter(
-                Q(attendees=person)
-                | Q(organizers=person)
-                | Q(groups_attendees__in=supportgroups)
-            )
+            super()
+            .get_queryset()
+            .listed()
+            .attended_by_person(self.request.user.person)
             .filter(start_time__lte=now, end_time__gte=now)
+            .order_by("start_time", "end_time")
             .distinct()
-            .order_by("start_time")
         )
 
 
@@ -225,11 +202,14 @@ class EventSuggestionsAPIView(EventListAPIView):
         near = events.none()
         national_pks = national.values_list("pk", flat=True)
 
-        supportgroups = person.supportgroups.all()
+        person_groups = person.supportgroups.all()
         from_groups_attendees = (
             Event.objects.public()
             .upcoming()
-            .filter(groups_attendees__in=supportgroups)
+            .filter(
+                Q(organizers_groups__in=person_groups)
+                | Q(groups_attendees__in=person_groups)
+            )
             .exclude(pk__in=national_pks)
             .distinct()
             .order_by("start_time")
@@ -273,7 +253,10 @@ class UserGroupEventAPIView(EventListAPIView):
             Event.objects.public()
             .with_serializer_prefetch(person)
             .upcoming()
-            .filter(organizers_groups__in=person_groups)
+            .filter(
+                Q(organizers_groups__in=person_groups)
+                | Q(groups_attendees__in=person_groups)
+            )
             .distinct()
             .order_by("start_time")
         )
