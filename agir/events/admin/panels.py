@@ -292,6 +292,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
                     "subscription_form",
                     "lien_feuille_externe",
                     "participants_display",
+                    "unavailable_display",
                     "group_participants_display",
                     "rsvps_buttons",
                     "payment_parameters",
@@ -367,6 +368,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "coordinates_type",
         "rsvps_buttons",
         "participants_display",
+        "unavailable_display",
         "group_participants_display",
         "campaign_template",
         "mailing_actions",
@@ -536,6 +538,23 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
 
     participants_display.short_description = "Nombre de participants"
 
+    def unavailable_display(self, obj):
+        if not obj:
+            return "-"
+
+        unavailable_count = obj.annotated_attendees.filter(unavailable=True).count()
+
+        if unavailable_count == 0:
+            return "-"
+
+        return ngettext(
+            "1 personne", f"{unavailable_count} personnes", unavailable_count
+        )
+
+        return "-"
+
+    unavailable_display.short_description = "Nombre de personnes indisponibles"
+
     def group_participants_display(self, obj):
         if obj.groups_attendees.exists():
             return mark_safe(
@@ -575,7 +594,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
             PersonFormSubmission.objects.filter(
                 Q(rsvp__event=self.instance) | Q(guest_rsvp__event=self.instance),
             )
-            .exclude(rsvp__status=RSVP.STATUS_CANCELED)
+            .exclude(rsvp__status=RSVP.Status.CANCELLED)
             .select_related("rsvp", "rsvp_guest")
         )
 

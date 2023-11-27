@@ -1,19 +1,21 @@
 import PropTypes from "prop-types";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import styled from "styled-components";
+
 import style from "@agir/front/genericComponents/_variables.scss";
 
+import * as api from "@agir/events/common/api";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getUser } from "@agir/front/globalContext/reducers";
-import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
+import { mutate } from "swr";
+
 import BottomSheet from "@agir/front/genericComponents/BottomSheet";
-import Modal from "@agir/front/genericComponents/Modal";
 import Button from "@agir/front/genericComponents/Button";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import Modal from "@agir/front/genericComponents/Modal";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import StaticToast from "@agir/front/genericComponents/StaticToast";
-import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-import * as api from "@agir/events/common/api";
-import { mutate } from "swr";
+import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 
 const ModalContent = styled.div`
   background: white;
@@ -94,27 +96,36 @@ const GroupItem = styled.div`
 
 const AddGroupAttendee = ({ id, groups, groupsAttendees }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [errors, setErrors] = useState({});
   const [groupJoined, setGroupJoined] = useState(false);
+  const [errors, setErrors] = useState({});
 
   // Get groups where im manager
   const user = useSelector(getUser);
 
-  const eventGroupsId = groups?.map((group) => group.id) || [];
-  const eventGroupsAttendeesId =
-    groupsAttendees?.map((group) => group.id) || [];
+  const groupOptions = useMemo(() => {
+    if (!user?.groups) {
+      return [];
+    }
 
-  const blackList = eventGroupsId.concat(eventGroupsAttendeesId);
+    const alreadyParticipatingGroupIds = [];
+    Array.isArray(groups) &&
+      groups.forEach((group) => alreadyParticipatingGroupIds.push(group.id));
+    Array.isArray(groupsAttendees) &&
+      groupsAttendees.forEach(
+        (group) =>
+          !alreadyParticipatingGroupIds.includes(group.id) &&
+          alreadyParticipatingGroupIds.push(group.id),
+      );
 
-  // Get managing groups not attendees
-  const managingGroups =
-    user?.groups?.filter(
-      (group) => group.isManager && !blackList.includes(group.id),
-    ) || [];
+    return user.groups.filter(
+      (group) =>
+        group.isManager && !alreadyParticipatingGroupIds.includes(group.id),
+    );
+  }, [groups, groupsAttendees, user]);
 
   const handleJoinAsGroup = async (group) => {
     setErrors({});
-    const { _, error } = await api.joinEventAsGroup(id, group.id);
+    const { _, error } = await api.rsvpEvent(id, group.id);
 
     if (error) {
       setErrors(error);
@@ -136,7 +147,7 @@ const AddGroupAttendee = ({ id, groups, groupsAttendees }) => {
 
   return (
     <>
-      {!!managingGroups?.length && (
+      {!!groupOptions?.length && (
         <Button onClick={showModalJoinAsGroup}>
           Participer avec mon groupe
         </Button>
@@ -169,8 +180,13 @@ const AddGroupAttendee = ({ id, groups, groupsAttendees }) => {
                 Les groupes participants n'ont pas de droit d'organisation de
                 l'événement. Seuls les groupes co-organisateurs peuvent inviter
                 d'autres groupes à co-organiser.
+                {!!Object.keys(errors).length && (
+                  <StaticToast style={{ marginTop: "1rem" }}>
+                    {errors?.detail || "Une erreur est apparue"}
+                  </StaticToast>
+                )}
                 <Spacer size="1rem" />
-                {managingGroups.map((group) => (
+                {groupOptions.map((group) => (
                   <GroupItem
                     key={group.id}
                     onClick={() => handleJoinAsGroup(group)}
@@ -179,12 +195,6 @@ const AddGroupAttendee = ({ id, groups, groupsAttendees }) => {
                     <div>{group.name}</div>
                   </GroupItem>
                 ))}
-                <Spacer size="1rem" />
-                {!!Object.keys(errors).length && (
-                  <StaticToast style={{ marginTop: 0 }}>
-                    {errors?.text || "Une erreur est apparue"}
-                  </StaticToast>
-                )}
               </>
             ) : (
               <>

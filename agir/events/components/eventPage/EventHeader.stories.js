@@ -33,21 +33,15 @@ export default {
     options: {
       table: { disable: true },
     },
-    rsvp: {
-      table: { disable: true },
-    },
     schedule: {
       table: { disable: true },
     },
   },
 };
 
-const Template = decorateArgs(
-  scheduleFromStartTimeAndDuration(),
-  ({ rsvped, ...args }) => {
-    return <EventHeader {...args} rsvp={rsvped ? "CO" : ""} />;
-  },
-);
+const Template = decorateArgs(scheduleFromStartTimeAndDuration(), (args) => {
+  return <EventHeader {...args} />;
+});
 
 export const Default = Template.bind({});
 Default.args = {

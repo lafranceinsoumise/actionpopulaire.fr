@@ -16,6 +16,7 @@ from agir.gestion.typologies import TypeProjet
 from agir.groups.models import SupportGroup, Membership
 from agir.lib.tests.mixins import create_location
 from agir.msgs.models import SupportGroupMessage
+from agir.payments.models import Payment
 from agir.people.models import Person, PersonForm, PersonFormSubmission
 
 
@@ -510,7 +511,7 @@ class RSVPEventAPITestCase(APITestCase):
         )
         self.client.force_login(self.person.role)
         res = self.client.post(f"/api/evenements/{event.pk}/inscription/")
-        self.assertEqual(res.status_code, 405)
+        self.assertEqual(res.status_code, 403)
         self.assertIn("redirectTo", res.data)
 
     def test_person_cannot_rsvp_if_already_participant(self):
@@ -518,11 +519,11 @@ class RSVPEventAPITestCase(APITestCase):
         RSVP.objects.create(
             event=event,
             person=self.person,
-            status=RSVP.STATUS_CONFIRMED,
+            status=RSVP.Status.CONFIRMED,
         )
         self.client.force_login(self.person.role)
         res = self.client.post(f"/api/evenements/{event.pk}/inscription/")
-        self.assertEqual(res.status_code, 405)
+        self.assertEqual(res.status_code, 403)
         self.assertIn("redirectTo", res.data)
 
     def test_person_cannot_rsvp_if_event_is_not_free(self):
@@ -532,11 +533,11 @@ class RSVPEventAPITestCase(APITestCase):
         RSVP.objects.create(
             event=event,
             person=self.person,
-            status=RSVP.STATUS_CONFIRMED,
+            status=RSVP.Status.CONFIRMED,
         )
         self.client.force_login(self.person.role)
         res = self.client.post(f"/api/evenements/{event.pk}/inscription/")
-        self.assertEqual(res.status_code, 405)
+        self.assertEqual(res.status_code, 403)
         self.assertIn("redirectTo", res.data)
 
     def test_person_can_rsvp_for_organizer_group_members_only_if_person_is_group_member(
@@ -555,7 +556,7 @@ class RSVPEventAPITestCase(APITestCase):
         RSVP.objects.create(
             event=event,
             person=self.person,
-            status=RSVP.STATUS_CONFIRMED,
+            status=RSVP.Status.CONFIRMED,
         )
         self.client.force_login(self.person.role)
         res = self.client.post(f"/api/evenements/{event.pk}/inscription/")
@@ -616,26 +617,6 @@ class RSVPEventAsGroupAPITestCase(APITestCase):
         self.start_time = timezone.now()
         self.end_time = self.start_time + timezone.timedelta(hours=2)
 
-    def test_person_can_rsvp_as_a_group(self):
-        group = SupportGroup.objects.create()
-        event = Event.objects.create(
-            name="Event", start_time=self.start_time, end_time=self.end_time
-        )
-        referent = Person.objects.create_person(
-            email="referent@agir.local", create_role=True
-        )
-        Membership.objects.create(
-            supportgroup=group,
-            person=referent,
-            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
-        )
-        self.client.force_login(referent.role)
-        res = self.client.post(
-            f"/api/evenements/{event.pk}/inscription-groupe/",
-            data={"groupPk": group.id},
-        )
-        self.assertEqual(res.status_code, 201, res.data)
-
     def test_person_cannot_rsvp_for_group_without_permission(self):
         group = SupportGroup.objects.create()
         event = Event.objects.create(
@@ -652,8 +633,7 @@ class RSVPEventAsGroupAPITestCase(APITestCase):
 
         self.client.force_login(member.role)
         res = self.client.post(
-            f"/api/evenements/{event.pk}/inscription-groupe/",
-            data={"groupPk": group.id},
+            f"/api/evenements/{event.pk}/inscription-groupe/{group.pk}/"
         )
         self.assertEqual(res.status_code, 403)
 
@@ -681,12 +661,11 @@ class RSVPEventAsGroupAPITestCase(APITestCase):
 
         self.client.force_login(member.role)
         res = self.client.post(
-            f"/api/evenements/{event.pk}/inscription-groupe/",
-            data={"groupPk": group.id},
+            f"/api/evenements/{event.pk}/inscription-groupe/{group.pk}/"
         )
         self.assertEqual(res.status_code, 403)
 
-    def test_person_can_quit_event_as_group(self):
+    def test_person_can_rsvp_as_a_group(self):
         group = SupportGroup.objects.create()
         event = Event.objects.create(
             name="Event", start_time=self.start_time, end_time=self.end_time
@@ -699,13 +678,11 @@ class RSVPEventAsGroupAPITestCase(APITestCase):
             person=referent,
             membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
         )
-        GroupAttendee.objects.create(group=group, event=event, organizer=referent)
-
         self.client.force_login(referent.role)
-        res = self.client.delete(
-            f"/api/evenements/{event.pk}/inscription/{group.id}/",
+        res = self.client.post(
+            f"/api/evenements/{event.pk}/inscription-groupe/{group.pk}/"
         )
-        self.assertEqual(res.status_code, 204)
+        self.assertEqual(res.status_code, 201, res.data)
 
     def test_person_cannot_quit_event_as_group_without_permission(self):
         group = SupportGroup.objects.create()
@@ -731,8 +708,31 @@ class RSVPEventAsGroupAPITestCase(APITestCase):
         GroupAttendee.objects.create(group=group, event=event, organizer=referent)
 
         self.client.force_login(member.role)
-        res = self.client.delete(f"/api/evenements/{event.pk}/inscription/{group.id}/")
-        self.assertEqual(res.status_code, 405)
+        res = self.client.delete(
+            f"/api/evenements/{event.pk}/inscription-groupe/{group.pk}/"
+        )
+        self.assertEqual(res.status_code, 403)
+
+    def test_person_can_quit_event_as_group(self):
+        group = SupportGroup.objects.create()
+        event = Event.objects.create(
+            name="Event", start_time=self.start_time, end_time=self.end_time
+        )
+        referent = Person.objects.create_person(
+            email="referent@agir.local", create_role=True
+        )
+        Membership.objects.create(
+            supportgroup=group,
+            person=referent,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
+        GroupAttendee.objects.create(group=group, event=event, organizer=referent)
+
+        self.client.force_login(referent.role)
+        res = self.client.delete(
+            f"/api/evenements/{event.pk}/inscription-groupe/{group.pk}/"
+        )
+        self.assertEqual(res.status_code, 204)
 
 
 class QuitEventAPITestCase(APITestCase):
@@ -761,9 +761,29 @@ class QuitEventAPITestCase(APITestCase):
         rsvp = RSVP.objects.create(event=event, person=self.person)
         self.client.force_login(self.person.role)
         res = self.client.delete(f"/api/evenements/{event.pk}/inscription/")
-        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.status_code, 403)
 
-    def test_person_cannot_quit_if_not_participant(self):
+    def test_person_cannot_quit_paid_event(self):
+        event = Event.objects.create(
+            name="Event",
+            start_time=self.start_time - timezone.timedelta(days=2),
+            end_time=self.end_time - timezone.timedelta(days=2),
+        )
+        rsvp = RSVP.objects.create(
+            event=event, person=self.person, status=RSVP.Status.CONFIRMED
+        )
+        rsvp.payment = Payment.objects.create(
+            status=Payment.STATUS_COMPLETED,
+            price=100,
+            type="evenement",
+            mode="check_events",
+        )
+        rsvp.save()
+        self.client.force_login(self.person.role)
+        res = self.client.delete(f"/api/evenements/{event.pk}/inscription/")
+        self.assertEqual(res.status_code, 403)
+
+    def test_person_can_quit_if_not_participant(self):
         event = Event.objects.create(
             name="Event",
             start_time=self.start_time,
@@ -773,10 +793,39 @@ class QuitEventAPITestCase(APITestCase):
             email="other_person@example.com",
             create_role=True,
         )
-        rsvp = RSVP.objects.create(event=event, person=other_person)
+        RSVP.objects.create(event=event, person=other_person)
         self.client.force_login(self.person.role)
         res = self.client.delete(f"/api/evenements/{event.pk}/inscription/")
-        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.status_code, 204)
+        self.assertTrue(
+            RSVP.objects.filter(
+                event=event, person=self.person, status=RSVP.Status.CANCELLED
+            )
+        )
+
+    def test_person_can_quit_if_waiting_payment(self):
+        event = Event.objects.create(
+            name="Event",
+            start_time=self.start_time,
+            end_time=self.end_time,
+        )
+        rsvp = RSVP.objects.create(
+            event=event, person=self.person, status=RSVP.Status.AWAITING_PAYMENT
+        )
+        rsvp.payment = Payment.objects.create(
+            status=Payment.STATUS_WAITING,
+            price=100,
+            type="evenement",
+            mode="check_events",
+        )
+        rsvp.save()
+        self.client.force_login(rsvp.person.role)
+        res = self.client.delete(f"/api/evenements/{event.pk}/inscription/")
+        self.assertEqual(res.status_code, 204)
+        rsvp.refresh_from_db(fields=("status",))
+        rsvp.payment.refresh_from_db(fields=("status",))
+        self.assertEqual(rsvp.status, RSVP.Status.CANCELLED)
+        self.assertEqual(rsvp.payment.status, Payment.STATUS_CANCELED)
 
     def test_person_can_quit_future_rsvped_event(self):
         event = Event.objects.create(
@@ -785,12 +834,12 @@ class QuitEventAPITestCase(APITestCase):
             end_time=self.end_time,
         )
         rsvp = RSVP.objects.create(event=event, person=self.person)
-        self.assertEqual(rsvp.status, RSVP.STATUS_CONFIRMED)
+        self.assertEqual(rsvp.status, RSVP.Status.CONFIRMED)
         self.client.force_login(self.person.role)
         res = self.client.delete(f"/api/evenements/{event.pk}/inscription/")
         self.assertEqual(res.status_code, 204)
         rsvp.refresh_from_db()
-        self.assertEqual(rsvp.status, RSVP.STATUS_CANCELED)
+        self.assertEqual(rsvp.status, RSVP.Status.CANCELLED)
 
 
 class UpdateEventAPITestCase(APITestCase):

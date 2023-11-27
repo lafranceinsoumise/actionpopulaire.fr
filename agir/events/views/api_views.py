@@ -1,6 +1,5 @@
 from datetime import timedelta
 
-from django.contrib import messages
 from django.db import transaction, IntegrityError
 from django.db.models import Q, Value, CharField
 from django.http.response import JsonResponse
@@ -8,10 +7,9 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
-from django.utils.timezone import now
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import exceptions, status
-from rest_framework.exceptions import NotFound, MethodNotAllowed
+from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.generics import (
     ListAPIView,
     RetrieveAPIView,
@@ -27,7 +25,8 @@ from rest_framework.views import APIView
 from agir.events.actions.rsvps import (
     rsvp_to_free_event,
     is_participant,
-    cancel_rsvp,
+    cancel_rsvp_and_payment,
+    RSVPException,
 )
 from agir.events.models import Event, GroupAttendee, OrganizerConfig, Invitation
 from agir.events.models import RSVP
@@ -386,6 +385,13 @@ class EventDetailAdvancedAPIView(RetrieveAPIView):
     serializer_class = EventAdvancedSerializer
     queryset = Event.objects.exclude(visibility=Event.VISIBILITY_ADMIN)
 
+    def get_queryset(self):
+        return (
+            super()
+            .get_queryset()
+            .with_serializer_prefetch(person=self.request.user.person)
+        )
+
 
 class UpdateEventAPIView(UpdateAPIView):
     permission_classes = (
@@ -540,7 +546,7 @@ class RSVPEventPermissions(GlobalOrObjectPermissions):
     perms_map = {"POST": [], "DELETE": []}
     object_perms_map = {
         "POST": ["events.create_rsvp_for_event"],
-        "DELETE": ["events.delete_rsvp_for_event"],
+        "DELETE": ["events.cancel_rsvp_for_event"],
     }
 
 
@@ -553,144 +559,127 @@ class RSVPEventAPIView(DestroyAPIView, CreateAPIView):
 
     @cached_property
     def user_is_already_rsvped(self):
-        return is_participant(self.object, self.request.user.person)
+        return is_participant(self.event, self.request.user.person)
 
     def initial(self, request, *args, **kwargs):
-        self.object = self.get_object()
-
-        self.check_object_permissions(request, self.object)
-
         super().initial(request, *args, **kwargs)
+        self.person = self.request.user.person
+        self.event = self.get_object()
 
     def create(self, request, *args, **kwargs):
-        rsvp_to_free_event(self.object, request.user.person)
-        return Response(status=status.HTTP_201_CREATED)
-
-    def post(self, request, *args, **kwargs):
-        if self.user_is_already_rsvped:
-            raise MethodNotAllowed(
-                "POST",
+        if self.event.is_past() or self.user_is_already_rsvped:
+            raise PermissionDenied(
                 detail={
-                    "redirectTo": reverse("view_event", kwargs={"pk": self.object.pk})
+                    "redirectTo": self.event.get_absolute_url(),
                 },
             )
-
-        if bool(self.object.subscription_form_id):
-            raise MethodNotAllowed(
-                "POST",
+        if bool(self.event.subscription_form_id):
+            raise PermissionDenied(
                 detail={
-                    "redirectTo": reverse("rsvp_event", kwargs={"pk": self.object.pk})
+                    "redirectTo": reverse("rsvp_event", kwargs={"pk": self.event.pk})
                 },
             )
-
-        if not self.object.is_free:
+        if not self.event.is_free:
             if "rsvp_submission" in request.session:
                 del request.session["rsvp_submission"]
-            request.session["rsvp_event"] = str(self.object.pk)
+
+            request.session["rsvp_event"] = str(self.event.pk)
             request.session["is_guest"] = False
-            raise MethodNotAllowed(
-                "POST",
+
+            raise PermissionDenied(
                 detail={"redirectTo": reverse("pay_event")},
             )
 
-        return super().post(request, *args, **kwargs)
+        rsvp_to_free_event(self.event, self.person)
+
+        return Response(status=status.HTTP_201_CREATED)
 
     def destroy(self, request, *args, **kwargs):
-        groupPk = kwargs.get("groupPk", None)
-
-        # Delete group attendee if a groupPk is sent
-        if groupPk is not None:
-            group = get_object_or_404(SupportGroup.objects.active(), id=groupPk)
-            # Check permission manager
-            if not self.request.user.person in group.managers:
-                text = "Vous n'avez pas le rôle requis pour retirer ce groupe de l'événement"
-                messages.add_message(
-                    request=request,
-                    level=messages.ERROR,
-                    message=text,
-                )
-                raise MethodNotAllowed(
-                    "DELETE",
-                    detail={"text": text},
-                )
-
-            group_attendee = get_object_or_404(
-                GroupAttendee.objects.all(), group=group, event=self.object
-            )
-            group_attendee.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-
-        # Delete current user as attendee
         try:
-            rsvp = (
-                RSVP.objects.confirmed()
-                .filter(event__end_time__gte=now())
-                .select_related("event")
-                .get(event=self.object, person=self.request.user.person)
-            )
+            rsvp = RSVP.objects.get(person=self.person, event=self.event)
         except RSVP.DoesNotExist:
-            raise NotFound()
+            rsvp = RSVP(person=self.person, event=self.event)
 
-        cancel_rsvp(rsvp)
+        try:
+            cancel_rsvp_and_payment(rsvp, self.person)
+        except RSVPException as e:
+            raise PermissionDenied(str(e))
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class RSVPEventAsGroupPermissions(GlobalOrObjectPermissions):
-    perms_map = {"POST": []}
+    perms_map = {"POST": [], "DELETE": []}
     object_perms_map = {
-        "POST": ["events.create_rsvp_as_group_for_event"],
+        "POST": ["events.rsvp_event_as_group"],
+        "DELETE": ["events.rsvp_event_as_group"],
     }
 
 
-class RSVPEventAsGroupAPIView(CreateAPIView):
+class RSVPEventAsGroupAPIView(CreateAPIView, DestroyAPIView):
     queryset = Event.objects.public()
+    group_queryset = SupportGroup.objects.active()
     permission_classes = (
         IsPersonPermission,
         RSVPEventAsGroupPermissions,
     )
 
-    def initial(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        self.check_object_permissions(request, self.object)
-        super().initial(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        # Check group exist and current user is manager
-        group = get_object_or_404(
-            SupportGroup.objects.active(), pk=request.data.get("groupPk")
-        )
-        if not Membership.objects.filter(
-            person=self.request.user.person,
-            supportgroup=group,
-            membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
-        ).exists():
-            raise MethodNotAllowed(
-                "POST",
+    def check_group_permissions(self, group):
+        if not self.person.memberships.managers().filter(supportgroup=group).exists():
+            raise PermissionDenied(
                 detail={
-                    "text": "Vous n'avez pas le rôle requis pour faire rejoindre ce groupe à l'événement"
+                    "detail": "Vous n'avez pas le rôle requis pour faire rejoindre ce groupe à l'événement"
                 },
             )
 
-        if group in self.object.organizers_groups.all():
+    def get_group(self):
+        queryset = self.group_queryset
+        group = get_object_or_404(queryset, pk=self.kwargs["group_pk"])
+        self.check_group_permissions(group)
+
+        return group
+
+    def initial(self, request, *args, **kwargs):
+        super().initial(request, *args, **kwargs)
+        self.person = request.user.person
+        self.event = self.get_object()
+        self.group = self.get_group()
+
+    def create(self, request, *args, **kwargs):
+        if self.event.is_past():
             raise exceptions.ValidationError(
-                detail={"text": "Ce groupe organise déjà l'événement !"},
+                detail={
+                    "detail": "Il n'est pas possible de participer à cet événement car il est déjà terminé !"
+                },
+                code="invalid_format",
+            )
+        if self.event.organizers_groups.filter(pk=self.group.pk).exists():
+            raise exceptions.ValidationError(
+                detail={"detail": "Ce groupe organise déjà l'événement !"},
                 code="invalid_format",
             )
 
-        # Add to event groups attendees if not exist
         try:
             group_attendee = GroupAttendee.objects.create(
-                event=self.object, group=group, organizer=self.request.user.person
+                event=self.event, group=self.group, organizer=self.person
             )
         except IntegrityError:
             raise exceptions.ValidationError(
-                detail={"text": "Ce groupe participe déjà à l'événement !"},
+                detail={"detail": "Ce groupe participe déjà à l'événement !"},
                 code="invalid_format",
             )
 
         send_group_attendee_notification.delay(group_attendee.pk)
+
         return Response(status=status.HTTP_201_CREATED)
+
+    def destroy(self, request, *args, **kwargs):
+        group_attendee = get_object_or_404(
+            GroupAttendee.objects.all(), group=self.group, event=self.event
+        )
+        group_attendee.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class EventAssetsPermissions(GlobalOrObjectPermissions):

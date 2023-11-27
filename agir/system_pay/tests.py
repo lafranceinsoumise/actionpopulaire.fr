@@ -370,7 +370,7 @@ class CancelOrRefundPaymentTestCase(TestCase):
             meta={"VERSION": "2", "is_guest": False},
         )
         self.rsvp = RSVP.objects.create(
-            status=RSVP.STATUS_CONFIRMED,
+            status=RSVP.Status.CONFIRMED,
             event=event,
             person=self.person,
             payment=self.rsvp_payment,
@@ -380,7 +380,7 @@ class CancelOrRefundPaymentTestCase(TestCase):
         )
         self.guest = IdentifiedGuest.objects.create(
             rsvp=self.rsvp,
-            status=RSVP.STATUS_CONFIRMED,
+            status=RSVP.Status.CONFIRMED,
             payment=self.guest_payment,
         )
         self.payment_mode = SystemPayPaymentMode()
@@ -511,7 +511,7 @@ class CancelOrRefundPaymentTestCase(TestCase):
         )
         self.assertEqual(payment.status, Payment.STATUS_COMPLETED)
         self.assertEqual(transaction.status, SystemPayTransaction.STATUS_COMPLETED)
-        self.assertEqual(self.rsvp.status, RSVP.STATUS_CONFIRMED)
+        self.assertEqual(self.rsvp.status, RSVP.Status.CONFIRMED)
         self.payment_mode.cancel_or_refund_payment_action(payment)
         payment.refresh_from_db()
         transaction.refresh_from_db()
@@ -519,9 +519,9 @@ class CancelOrRefundPaymentTestCase(TestCase):
         self.guest.refresh_from_db()
         self.assertEqual(payment.status, Payment.STATUS_REFUND)
         self.assertEqual(transaction.status, SystemPayTransaction.STATUS_REFUNDED)
-        self.assertEqual(self.rsvp.status, RSVP.STATUS_CANCELED)
+        self.assertEqual(self.rsvp.status, RSVP.Status.CANCELLED)
         self.assertEqual(self.guest_payment.status, Payment.STATUS_COMPLETED)
-        self.assertEqual(self.guest.status, RSVP.STATUS_CONFIRMED)
+        self.assertEqual(self.guest.status, RSVP.Status.CONFIRMED)
 
     @mock.patch.object(SystemPayRestAPI, "cancel_or_refund_transaction")
     def test_refunding_a_payment_cancels_the_related_identified_guest(self, rest_api):
@@ -536,7 +536,7 @@ class CancelOrRefundPaymentTestCase(TestCase):
         )
         self.assertEqual(payment.status, Payment.STATUS_COMPLETED)
         self.assertEqual(transaction.status, SystemPayTransaction.STATUS_COMPLETED)
-        self.assertEqual(self.guest.status, RSVP.STATUS_CONFIRMED)
+        self.assertEqual(self.guest.status, RSVP.Status.CONFIRMED)
         self.payment_mode.cancel_or_refund_payment_action(payment)
         payment.refresh_from_db()
         transaction.refresh_from_db()
@@ -544,6 +544,6 @@ class CancelOrRefundPaymentTestCase(TestCase):
         self.guest.refresh_from_db()
         self.assertEqual(payment.status, Payment.STATUS_REFUND)
         self.assertEqual(transaction.status, SystemPayTransaction.STATUS_REFUNDED)
-        self.assertEqual(self.guest.status, RSVP.STATUS_CANCELED)
+        self.assertEqual(self.guest.status, RSVP.Status.CANCELLED)
         self.assertEqual(self.rsvp_payment.status, Payment.STATUS_COMPLETED)
-        self.assertEqual(self.rsvp.status, RSVP.STATUS_CONFIRMED)
+        self.assertEqual(self.rsvp.status, RSVP.Status.CONFIRMED)

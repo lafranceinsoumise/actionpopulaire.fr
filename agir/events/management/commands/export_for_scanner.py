@@ -67,14 +67,14 @@ class Command(BaseCommand):
             writer.writerow(
                 [
                     "R" + str(rsvp.pk),
-                    "O" if rsvp.status == RSVP.STATUS_CANCELED else "",
+                    "O" if rsvp.status == RSVP.Status.CANCELLED else "",
                     f"{rsvp.form_submission.data.get('first_name')} {rsvp.form_submission.data.get('last_name')}",
                     str(rsvp.person_id),
                     emails.get(rsvp.person_id, None) or rsvp.person.email,
                     rsvp.person.gender or "",
                     rsvp.form_submission.data.get(category_field, ""),
                     display_price(rsvp.payment.price if rsvp.payment else 0),
-                    "completed" if rsvp.status == RSVP.STATUS_CONFIRMED else "on-hold",
+                    "completed" if rsvp.status == RSVP.Status.CONFIRMED else "on-hold",
                     rsvp.created.isoformat()
                     if rsvp.form_submission.data.get("admin", False)
                     else None,
@@ -84,14 +84,14 @@ class Command(BaseCommand):
             writer.writerow(
                 [
                     "G" + str(guest.rsvp_id) + "g" + str(guest.pk),
-                    "O" if guest.status == RSVP.STATUS_CANCELED else "",
+                    "O" if guest.status == RSVP.Status.CANCELLED else "",
                     f"{guest.submission.data['first_name']} {guest.submission.data['last_name']}",
                     str(guest.rsvp.person_id),
                     emails.get(guest.rsvp.person_id, None) or guest.rsvp.person.email,
                     guest.submission.data.get("gender", ""),
                     guest.submission.data.get(category_field, ""),
                     display_price(guest.payment.price if guest.payment else 0),
-                    "completed" if guest.status == RSVP.STATUS_CONFIRMED else "on-hold",
+                    "completed" if guest.status == RSVP.Status.CONFIRMED else "on-hold",
                     None,
                 ]
             )

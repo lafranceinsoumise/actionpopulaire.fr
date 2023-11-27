@@ -35,18 +35,22 @@ const EventOrganization = (props) => {
   );
 
   const [participants, organizers] = useMemo(() => {
-    const participants = [];
     const organizers = [];
+    const unavailable = [];
+    const participants = [];
+
     if (Array.isArray(event?.participants)) {
       event.participants.forEach((p) => {
         if (p.isOrganizer) {
           organizers.push(p);
+        } else if (p.unavailable) {
+          unavailable.push(p);
         } else {
           participants.push(p);
         }
       });
     }
-    return [participants, organizers];
+    return [participants, organizers, unavailable];
   }, [event]);
 
   const groups = useMemo(() => event?.groups || [], [event]);

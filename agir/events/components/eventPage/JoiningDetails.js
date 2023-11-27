@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import PropTypes from "prop-types";
 
 import styled from "styled-components";
@@ -17,16 +17,25 @@ const StyledJoin = styled.div`
   display: flex;
   margin-bottom: 0.5rem;
 
+  & > ${RawFeatherIcon} {
+    color: ${(props) => props.theme.black500};
+  }
+
   &:last-child {
     margin-bottom: 0;
   }
 `;
 
-const GreenToast = styled(StaticToast)`
+const StyledWrapper = styled(StaticToast)`
   border-radius: ${style.borderRadius};
   border-color: lightgrey;
   display: flex;
   flex-direction: column;
+  padding: 1rem 1.5rem;
+
+  &:empty {
+    display: none;
+  }
 
   && {
     margin-top: 1rem;
@@ -51,38 +60,89 @@ const GreenToast = styled(StaticToast)`
   }
 `;
 
-const RSVP = ({ hasPrice, eventPk, rsvpRoute }) => (
-  <StyledJoin>
-    <RawFeatherIcon
-      name="check"
-      color="green"
-      style={{ marginRight: "0.5rem" }}
-    />
-    <StyledContent>
-      <div>
-        {rsvpRoute ? (
-          <Link route={rsvpRoute}>Vous participez à l'événement</Link>
-        ) : (
-          "Vous participez à l'événement"
-        )}
-      </div>
-      {!hasPrice && <QuitEventButton eventPk={eventPk} />}
-    </StyledContent>
-  </StyledJoin>
-);
-RSVP.propTypes = {
-  hasPrice: PropTypes.bool,
-  eventPk: PropTypes.string.isRequired,
-  backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
-  rsvpRoute: PropTypes.string,
+const RSVP_STATUS = {
+  // CONFIRMED
+  CO: ({ isPast, rsvpRoute }) => ({
+    icon: "check",
+    color: "green",
+    label: isPast ? (
+      "Vous avez participé à cet événement"
+    ) : rsvpRoute ? (
+      <Link route={rsvpRoute}>Vous participez à l'événement</Link>
+    ) : (
+      "Vous participez à l'événement"
+    ),
+  }),
+  // CANCELLED
+  CA: {
+    icon: "x",
+    color: "crimson",
+    label: "Vous avez indiqué ne pas pouvoir participer à cet événement",
+  },
+  // AWAITING_PAYMENT
+  AP: ({ isPast, rsvpRoute }) =>
+    !isPast
+      ? {
+          icon: "clock",
+          label: rsvpRoute ? (
+            <Link route={rsvpRoute}>
+              Votre participation est en attente de règlement
+            </Link>
+          ) : (
+            "Votre participation est en attente de règlement"
+          ),
+        }
+      : null,
 };
 
-const GroupRSVP = ({ eventPk, group, backLink }) => (
+const RSVP = ({ canCancelRSVP, eventPk, rsvpRoute, isPast = false, rsvp }) => {
+  const status = useMemo(() => {
+    const statusConfig = rsvp && RSVP_STATUS[rsvp];
+    if (!statusConfig) {
+      return null;
+    }
+    return typeof statusConfig === "function"
+      ? statusConfig({ isPast, rsvpRoute })
+      : statusConfig;
+  }, [isPast, rsvp, rsvpRoute]);
+
+  if (!status) {
+    return null;
+  }
+
+  return (
+    <StyledJoin>
+      <RawFeatherIcon
+        name={status.icon}
+        color={status.color}
+        style={{ marginRight: "0.5rem" }}
+        width="1rem"
+        height="1rem"
+      />
+      <StyledContent>
+        <div>{status.label}</div>
+        {!isPast && canCancelRSVP && <QuitEventButton eventPk={eventPk} />}
+      </StyledContent>
+    </StyledJoin>
+  );
+};
+RSVP.propTypes = {
+  canCancelRSVP: PropTypes.bool,
+  eventPk: PropTypes.string.isRequired,
+  backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  rsvp: PropTypes.string,
+  rsvpRoute: PropTypes.string,
+  isPast: PropTypes.bool,
+};
+
+const GroupRSVP = ({ eventPk, group, backLink, isPast = false }) => (
   <StyledJoin>
     <RawFeatherIcon
-      name="check"
-      color="green"
+      name="users"
       style={{ marginRight: "0.5rem" }}
+      color="currentcolor"
+      width="1rem"
+      height="1rem"
     />
     <StyledContent>
       <div>
@@ -94,9 +154,11 @@ const GroupRSVP = ({ eventPk, group, backLink }) => (
         >
           {group.name}
         </Link>
-        &nbsp;participe à l'événement
+        &nbsp;{isPast ? "a participé" : "participe"} à l'événement
       </div>
-      {group.isManager && <QuitEventButton eventPk={eventPk} group={group} />}
+      {!isPast && group.isManager && (
+        <QuitEventButton eventPk={eventPk} group={group} />
+      )}
     </StyledContent>
   </StyledJoin>
 );
@@ -108,27 +170,54 @@ GroupRSVP.propTypes = {
     isManager: PropTypes.bool,
   }),
   backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  isPast: PropTypes.bool,
 };
 
 const JoiningDetails = (props) => {
-  const { id, hasPrice, rsvped, groups, logged, backLink, rsvpRoute } = props;
+  const {
+    id,
+    canCancelRSVP,
+    rsvp,
+    groups,
+    logged,
+    backLink,
+    rsvpRoute,
+    isPast = false,
+  } = props;
 
   const user = useSelector(getUser);
-  const groupsId = groups?.map((group) => group.id) || [];
+  const managingGroupsAttendees = useMemo(() => {
+    if (!user?.groups) {
+      return [];
+    }
 
-  // Get managing groups attendees
-  const managingGroupsAttendees = user?.groups.filter(
-    (group) => groupsId.includes(group.id) && group.isManager,
-  );
+    if (!Array.isArray(groups)) {
+      return user.groups.filter((group) => group.isManager);
+    }
 
-  if ((!rsvped || !logged) && !managingGroupsAttendees?.length) {
+    return user.groups.filter(
+      (group) => group.isManager && groups.some((g) => g.id === group.id),
+    );
+  }, [user, groups]);
+
+  if (!logged) {
+    return null;
+  }
+
+  if (!rsvp && managingGroupsAttendees.length === 0) {
     return null;
   }
 
   return (
-    <GreenToast $color="green">
-      {logged && rsvped && (
-        <RSVP eventPk={id} hasPrice={hasPrice} rsvpRoute={rsvpRoute} />
+    <StyledWrapper $color="primary500">
+      {logged && rsvp && (
+        <RSVP
+          eventPk={id}
+          canCancelRSVP={canCancelRSVP}
+          rsvpRoute={rsvpRoute}
+          isPast={isPast}
+          rsvp={rsvp}
+        />
       )}
       {managingGroupsAttendees.map((group) => (
         <GroupRSVP
@@ -136,15 +225,16 @@ const JoiningDetails = (props) => {
           eventPk={id}
           group={group}
           backLink={backLink}
+          isPast={isPast}
         />
       ))}
-    </GreenToast>
+    </StyledWrapper>
   );
 };
 JoiningDetails.propTypes = {
   id: PropTypes.string.isRequired,
-  hasPrice: PropTypes.bool,
-  rsvped: PropTypes.bool,
+  canCancelRSVP: PropTypes.bool,
+  rsvp: PropTypes.string,
   groups: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string,
@@ -155,6 +245,7 @@ JoiningDetails.propTypes = {
   logged: PropTypes.bool,
   backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   rsvpRoute: PropTypes.string,
+  isPast: PropTypes.bool,
 };
 
 export default JoiningDetails;

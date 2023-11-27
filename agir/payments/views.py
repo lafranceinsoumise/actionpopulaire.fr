@@ -63,10 +63,10 @@ class RetryPaymentView(DetailView):
         if payment_mode is None:
             return HttpResponseServerError()
 
-        if not self.object.status == Payment.STATUS_WAITING:
-            if not self.object.can_retry():
-                return HttpResponseForbidden()
+        if not self.object.can_retry():
+            return HttpResponseForbidden()
 
+        if not self.object.status == Payment.STATUS_WAITING:
             log_payment_event(
                 self.object,
                 event="status_change",
@@ -75,7 +75,9 @@ class RetryPaymentView(DetailView):
                 origin="agir.payment.views.RetryPaymentView",
                 user=request.user,
             )
-            change_payment_status(self.object, Payment.STATUS_WAITING)
+
+        # Call change_payment_status event if the status is right to send status change notifications
+        change_payment_status(self.object, Payment.STATUS_WAITING)
 
         return payment_mode.retry_payment_view(
             request, payment=self.object, *args, **kwargs
