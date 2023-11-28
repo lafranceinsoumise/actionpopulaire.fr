@@ -6,7 +6,7 @@ from django.db.models import Q
 
 from agir.groups.models import SupportGroup, Membership
 from agir.lib.data import departements
-from agir.people.models import PersonQualification
+from agir.people.models import Person
 from agir.people.models import PersonTag
 
 TAG_SUFFIX_FE = "Membre boucle FE {}"
@@ -38,12 +38,20 @@ def effectuer_changements(boucle, membres_souhaites, metas, dry_run=False):
     nouveau_membres = Membership.objects.bulk_create(
         a_ajouter, ignore_conflicts=True, send_post_save_signal=True
     )
-    membres_apres_maj = list(Membership.objects.filter(supportgroup=boucle))
+    membres_apres_maj = list(
+        Membership.objects.filter(supportgroup=boucle).select_related("person")
+    )
+    newsletter_subscribers = []
     for membre in membres_apres_maj:
         membre.meta = metas[membre.person_id]
         membre.has_finance_managing_privilege = membre.meta.pop(
             "has_finance_managing_privilege", False
         )
+        # Ensure members are subscribed to main newsletter choices
+        if not membre.person.subscribed:
+            membre.person.subscribed = True
+            newsletter_subscribers.append(membre.person)
+
     Membership.objects.bulk_update(
         membres_apres_maj,
         (
@@ -51,6 +59,9 @@ def effectuer_changements(boucle, membres_souhaites, metas, dry_run=False):
             "meta",
         ),
     )
+
+    if newsletter_subscribers:
+        Person.objects.bulk_update(newsletter_subscribers, fields=("newsletters",))
 
     return (
         len(membres_actuels),
