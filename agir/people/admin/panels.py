@@ -1109,7 +1109,7 @@ class PersonQualificationAdmin(admin.ModelAdmin):
         "interval",
         "is_effective",
     )
-    search_fields = ("person__search", "qualification__label", "supportgroup__search")
+    search_fields = ("person__search", "qualification__label", "supportgroup__name")
     list_filter = (
         filters.PersonQualificationStatusListFilter,
         filters.QualificationListFilter,
