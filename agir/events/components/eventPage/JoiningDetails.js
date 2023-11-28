@@ -77,8 +77,6 @@ const RSVP_STATUS = {
   }),
   // CANCELLED
   CA: {
-    icon: "x",
-    color: "crimson",
     label: "Vous avez indiqué ne pas pouvoir participer à cet événement",
   },
   // AWAITING_PAYMENT
@@ -97,30 +95,22 @@ const RSVP_STATUS = {
       : null,
 };
 
-const RSVP = ({ canCancelRSVP, eventPk, rsvpRoute, isPast = false, rsvp }) => {
-  const status = useMemo(() => {
-    const statusConfig = rsvp && RSVP_STATUS[rsvp];
-    if (!statusConfig) {
-      return null;
-    }
-    return typeof statusConfig === "function"
-      ? statusConfig({ isPast, rsvpRoute })
-      : statusConfig;
-  }, [isPast, rsvp, rsvpRoute]);
-
+const RSVP = ({ canCancelRSVP, eventPk, status, isPast = false }) => {
   if (!status) {
     return null;
   }
 
   return (
     <StyledJoin>
-      <RawFeatherIcon
-        name={status.icon}
-        color={status.color}
-        style={{ marginRight: "0.5rem" }}
-        width="1rem"
-        height="1rem"
-      />
+      {status.icon && (
+        <RawFeatherIcon
+          name={status.icon}
+          color={status.color}
+          style={{ marginRight: "0.5rem" }}
+          width="1rem"
+          height="1rem"
+        />
+      )}
       <StyledContent>
         <div>{status.label}</div>
         {!isPast && canCancelRSVP && <QuitEventButton eventPk={eventPk} />}
@@ -132,20 +122,16 @@ RSVP.propTypes = {
   canCancelRSVP: PropTypes.bool,
   eventPk: PropTypes.string.isRequired,
   backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
-  rsvp: PropTypes.string,
-  rsvpRoute: PropTypes.string,
   isPast: PropTypes.bool,
+  status: PropTypes.shape({
+    icon: PropTypes.string,
+    color: PropTypes.string,
+    label: PropTypes.node,
+  }),
 };
 
 const GroupRSVP = ({ eventPk, group, backLink, isPast = false }) => (
   <StyledJoin>
-    <RawFeatherIcon
-      name="users"
-      style={{ marginRight: "0.5rem" }}
-      color="currentcolor"
-      width="1rem"
-      height="1rem"
-    />
     <StyledContent>
       <div>
         Votre groupe&nbsp;
@@ -202,6 +188,16 @@ const JoiningDetails = (props) => {
     );
   }, [user, groups]);
 
+  const rsvpStatus = useMemo(() => {
+    const statusConfig = rsvp && RSVP_STATUS[rsvp];
+    if (!statusConfig) {
+      return null;
+    }
+    return typeof statusConfig === "function"
+      ? statusConfig({ isPast, rsvpRoute })
+      : statusConfig;
+  }, [isPast, rsvp, rsvpRoute]);
+
   if (!logged) {
     return null;
   }
@@ -211,14 +207,13 @@ const JoiningDetails = (props) => {
   }
 
   return (
-    <StyledWrapper $color="primary500">
+    <StyledWrapper $color={rsvpStatus?.color || "black500"}>
       {logged && rsvp && (
         <RSVP
           eventPk={id}
           canCancelRSVP={canCancelRSVP}
-          rsvpRoute={rsvpRoute}
           isPast={isPast}
-          rsvp={rsvp}
+          status={rsvpStatus}
         />
       )}
       {managingGroupsAttendees.map((group) => (

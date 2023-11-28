@@ -15,8 +15,8 @@ import logger from "@agir/lib/utils/logger";
 const log = logger(__filename);
 
 const StyledDialog = styled.div`
-  max-width: 415px;
-  margin: 40px auto;
+  max-width: 540px;
+  margin: 160px auto;
   background-color: ${(props) => props.theme.white};
   border-radius: ${(props) => props.theme.borderRadius};
   padding: 1rem;
@@ -41,20 +41,19 @@ const StyledDialog = styled.div`
       padding: 0;
       font-size: 0.875rem;
       line-height: 1.5;
+      color: ${(props) => props.theme.black500};
     }
   }
+
   footer {
     display: flex;
-    margin-top: 1.5rem;
-    flex-flow: column nowrap;
+    margin-top: 2rem;
+    flex-flow: row wrap;
+    gap: 0.5rem;
 
     ${Button} {
-      flex: 1 1 auto;
+      flex: 1 0 auto;
       transition: opacity 250ms ease-in-out;
-    }
-
-    ${Button} + ${Button} {
-      margin: 0.5rem 0 0;
     }
   }
 `;
@@ -129,7 +128,7 @@ const QuitEventButton = ({ eventPk, group, isOpen, setIsOpen, rsvped }) => {
           <main>
             {groupPk ? (
               <>
-                <h4>Annuler la participation du groupe à l’évément&nbsp;?</h4>
+                <h4>Annuler la participation du groupe à l’événement&nbsp;?</h4>
                 <p>
                   <b>{group.name}</b> ne sera plus indiqué comme participant à
                   l’événement.
@@ -139,12 +138,9 @@ const QuitEventButton = ({ eventPk, group, isOpen, setIsOpen, rsvped }) => {
               </>
             ) : (
               <>
-                <h4>Annuler ma participation à l'événement</h4>
-                <p>
-                  Confirmez-vous que vous ne serez pas disponible pour
-                  participer à l'événement&nbsp;?
-                </p>
-                <Spacer size="1rem" />
+                <h4>
+                  Confirmez-vous que vous ne participez pas à l'événement ?
+                </h4>
                 <p>
                   Les organisateur·ices de l'événement auront accès à la liste
                   des personnes ayant indiqué leur indisponibilité (nom
@@ -154,16 +150,16 @@ const QuitEventButton = ({ eventPk, group, isOpen, setIsOpen, rsvped }) => {
             )}
           </main>
           <footer>
+            <Button color="choose" onClick={closeDialog} disabled={isLoading}>
+              Annuler
+            </Button>
             <Button
-              color="danger"
+              color="primary"
               onClick={handleQuit}
               isLoading={isLoading}
               disabled={isLoading}
             >
-              Confirmer
-            </Button>
-            <Button color="default" onClick={closeDialog} disabled={isLoading}>
-              Annuler
+              Je ne participe pas à l'événement
             </Button>
           </footer>
         </StyledDialog>

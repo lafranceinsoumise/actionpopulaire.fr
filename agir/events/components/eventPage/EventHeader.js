@@ -241,16 +241,7 @@ const Actions = (props) => {
             disabled={isLoading}
             onClick={handleRSVP}
           >
-            Participer à l'événement
-          </Button>
-        )}
-        {!rsvped && canCancelRSVP && !isManager && (
-          <Button
-            color="default"
-            disabled={isLoading}
-            onClick={handleQuitEvent}
-          >
-            Je ne peux pas participer
+            Participer
           </Button>
         )}
         {rsvped && canCancelRSVP && (
@@ -280,6 +271,11 @@ const Actions = (props) => {
             groups={groups}
             groupsAttendees={groupsAttendees}
           />
+        )}
+        {!rsvped && canCancelRSVP && !isManager && (
+          <Button color="choose" disabled={isLoading} onClick={handleQuitEvent}>
+            Je ne peux pas participer
+          </Button>
         )}
         {rsvped && allowGuests && hasRSVPDetails && (
           <Button link href={routes.rsvp}>
