@@ -152,11 +152,7 @@ class Command(BaseCommand):
             self.stdout.write(f"Distance maximale : {max_distance}")
         else:
             if segment:
-                ps = (
-                    segment.get_subscribers_queryset()
-                    .exclude(contact_phone="")
-                    .distinct()
-                )
+                ps = segment.get_people().exclude(contact_phone="").distinct()
                 self.stdout.write(f"Segment : {segment.name}")
             else:
                 ps = Person.objects.filter(

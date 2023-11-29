@@ -505,7 +505,7 @@ class PushAnnouncement(BaseAPIResource):
 
     @cached_property
     def subscribers(self):
-        return self.segment.get_subscribers_queryset()
+        return self.segment.get_people()
 
     @cached_property
     def android_recipient_device_count(self):
@@ -553,7 +553,7 @@ class PushAnnouncement(BaseAPIResource):
     def get_android_subscriber_devices(self, segment):
         if not self.has_android:
             return GCMDevice.objects.none()
-        subscribers = segment.get_subscribers_queryset()
+        subscribers = segment.get_people()
         return GCMDevice.objects.filter(
             active=True, user__is_active=True, user__person__in=subscribers
         )
@@ -561,7 +561,7 @@ class PushAnnouncement(BaseAPIResource):
     def get_ios_subscriber_devices(self, segment):
         if not self.has_ios:
             return APNSDevice.objects.none()
-        subscribers = segment.get_subscribers_queryset()
+        subscribers = segment.get_people()
         return APNSDevice.objects.filter(
             active=True, user__is_active=True, user__person__in=subscribers
         )

@@ -181,6 +181,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
 
     list_filter = (
         filters.SegmentFilter,
+        filters.BouncedEmailFilter,
         CirconscriptionLegislativeFilter,
         DepartementListFilter,
         RegionListFilter,

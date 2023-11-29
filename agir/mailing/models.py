@@ -349,7 +349,7 @@ class Segment(BaseSegment, models.Model):
         blank=True,
     )
 
-    def apply_event_filters(self, query):
+    def _get_event_filters(self, query):
         filters = {}
         excludes = {}
 
@@ -399,7 +399,7 @@ class Segment(BaseSegment, models.Model):
 
         return query
 
-    def apply_supportgroup_filters(self, query):
+    def _get_supportgroup_filters(self, query):
         supportgroup_ids = self.supportgroups.values_list("id", flat=True)
         subtype_ids = self.supportgroup_subtypes.values_list("id", flat=True)
 
@@ -475,7 +475,7 @@ class Segment(BaseSegment, models.Model):
 
         return query & Q(id__in=member_ids)
 
-    def apply_qualification_filters(self, query):
+    def _get_qualification_filters(self, query):
         qualification_ids = list(self.qualifications.values_list("pk", flat=True))
 
         if not qualification_ids:
@@ -494,7 +494,7 @@ class Segment(BaseSegment, models.Model):
             id__in=person_qualifications.values_list("person_id", flat=True)
         )
 
-    def apply_tag_filters(self, query):
+    def _get_tag_filters(self, query):
         excluded_tags = list(self.excluded_tags.values_list("pk", flat=True))
         if len(excluded_tags) > 0:
             query &= ~Q(tags__pk__in=excluded_tags)
@@ -505,7 +505,7 @@ class Segment(BaseSegment, models.Model):
 
         return query
 
-    def apply_mandat_filters(self, query):
+    def _get_mandat_filters(self, query):
         if not self.elu:
             return query
 
@@ -545,7 +545,7 @@ class Segment(BaseSegment, models.Model):
 
         return query
 
-    def get_subscribers_q(self):
+    def _get_filters(self):
         # ne pas inclure les rôles inactifs dans les envois de mail
         q = ~Q(role__is_active=False)
 
@@ -566,13 +566,13 @@ class Segment(BaseSegment, models.Model):
         elif self.is_2022 == False:
             q = q & ~Q(meta__political_support__is_2022=True)
 
-        q = self.apply_tag_filters(q)
+        q = self._get_tag_filters(q)
 
-        q = self.apply_qualification_filters(q)
+        q = self._get_qualification_filters(q)
 
-        q = self.apply_supportgroup_filters(q)
+        q = self._get_supportgroup_filters(q)
 
-        q = self.apply_event_filters(q)
+        q = self._get_event_filters(q)
 
         if self.draw_status is not None:
             q = q & Q(draw_participation=self.draw_status)
@@ -690,44 +690,94 @@ class Segment(BaseSegment, models.Model):
             else:
                 q = q & ~Q(subscriptions__status=Subscription.STATUS_ACTIVE)
 
-        q = self.apply_mandat_filters(q)
+        q = self._get_mandat_filters(q)
 
         return q
 
-    def _get_own_filters_queryset(self):
+    def _get_own_queryset(self, exclude_bounced_emails=False):
         qs = Person.objects.all()
 
         if self.elu:
             qs = qs.annotate_elus(status=self.elu_status)
 
-        return qs.filter(self.get_subscribers_q()).filter(emails___bounced=False)
+        qs = qs.filter(self._get_filters())
 
-    def get_subscribers_queryset(self):
-        qs = self._get_own_filters_queryset()
+        if exclude_bounced_emails:
+            return qs.filter(emails___bounced=False)
+
+        return qs
+
+    def get_people(self, exclude_bounced_emails=False):
+        qs = self._get_own_queryset(exclude_bounced_emails=exclude_bounced_emails)
 
         for s in self.add_segments.all():
             qs = Person.objects.filter(
-                Q(pk__in=qs) | Q(pk__in=s.get_subscribers_queryset())
+                Q(pk__in=qs)
+                | Q(pk__in=s.get_people(exclude_bounced_emails=exclude_bounced_emails))
             )
 
         for s in self.exclude_segments.all():
-            qs = qs.exclude(pk__in=s.get_subscribers_queryset())
+            qs = qs.exclude(
+                pk__in=s.get_people(exclude_bounced_emails=exclude_bounced_emails)
+            )
 
         return qs.order_by("id", "emails___order").distinct("id")
 
-    def get_subscribers_count(self):
+    def get_count(self, exclude_bounced_emails=False):
         return (
-            self._get_own_filters_queryset().order_by("id").distinct("id").count()
-            + sum(s.get_subscribers_count() for s in self.add_segments.all())
-            - sum(s.get_subscribers_count() for s in self.exclude_segments.all())
+            self._get_own_queryset(exclude_bounced_emails=exclude_bounced_emails)
+            .order_by("id")
+            .distinct("id")
+            .count()
+            + sum(
+                s.get_count(exclude_bounced_emails=exclude_bounced_emails)
+                for s in self.add_segments.all()
+            )
+            - sum(
+                s.get_count(exclude_bounced_emails=exclude_bounced_emails)
+                for s in self.exclude_segments.all()
+            )
         )
 
-    def is_subscriber(self, person):
+    def is_included(self, person):
         qs = Person.objects.filter(pk=person.pk)
+
         if self.elu:
             qs = qs.annotate_elus()
 
-        qs = qs.filter(self.get_subscribers_q())
+        qs = qs.filter(self._get_filters())
+        is_included = qs.exists()
+
+        if not is_included:
+            for segment in self.add_segments.all():
+                if segment.is_included(person):
+                    is_included = True
+                    break
+
+        if is_included:
+            for segment in self.exclude_segments.all():
+                if segment.is_included(person):
+                    is_included = False
+                    break
+
+        return is_included
+
+    def get_subscribers_queryset(self):
+        return self.get_people(exclude_bounced_emails=True)
+
+    def get_subscribers_count(self):
+        return self.get_count(exclude_bounced_emails=True)
+
+    def is_subscriber(self, person):
+        if not person.emails.filter(_bounced=False).exists():
+            return False
+
+        qs = Person.objects.filter(pk=person.pk)
+
+        if self.elu:
+            qs = qs.annotate_elus()
+
+        qs = qs.filter(self._get_filters())
         is_subscriber = qs.exists()
 
         if not is_subscriber:
@@ -743,9 +793,6 @@ class Segment(BaseSegment, models.Model):
                     break
 
         return is_subscriber
-
-    get_subscribers_count.short_description = "Personnes"
-    get_subscribers_count.help_text = "Estimation du nombre d'inscrits"
 
     def __str__(self):
         return self.name
