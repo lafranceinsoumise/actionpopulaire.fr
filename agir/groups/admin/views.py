@@ -14,7 +14,7 @@ from django.utils.translation import gettext_lazy as _
 from glom import glom, T
 
 from .forms import AddMemberForm
-from ..actions.boucles_departementales import maj_boucles
+from ..actions.automatic_memberships import maj_boucles, update_memberships_from_segment
 from ..models import SupportGroup
 from ...lib.utils import front_url
 
@@ -84,34 +84,7 @@ def add_member(model_admin, request, pk):
     return TemplateResponse(request, "admin/supportgroups/add_member.html", context)
 
 
-def maj_membres_boucles_departementales(model_admin, request, pk):
-    if not model_admin.has_change_permission(request):
-        raise PermissionDenied
-
-    group = model_admin.get_object(request, pk)
-
-    if group is None:
-        raise Http404("Pas de groupe avec cet identifiant")
-
-    response = HttpResponseRedirect(
-        reverse(
-            "%s:%s_%s_change"
-            % (
-                model_admin.admin_site.name,
-                group._meta.app_label,
-                group._meta.model_name,
-            ),
-            args=(group.pk,),
-        )
-    )
-
-    if group.type != SupportGroup.TYPE_BOUCLE_DEPARTEMENTALE:
-        messages.warning(
-            request,
-            "La mise à jour automatique des membres est disponible uniquement pour les boucles départementales",
-        )
-        return response
-
+def maj_membres_boucles_departementales(request, response, group):
     if group.location_departement_id:
         code = group.location_departement_id
     else:
@@ -150,7 +123,55 @@ def maj_membres_boucles_departementales(model_admin, request, pk):
         f"· Membres supprimés : {deleted} · Membres ajoutés : {created}"
     )
     messages.success(request, message)
+
     return response
+
+
+def refresh_memberships_from_segment(request, response, group):
+    result = update_memberships_from_segment(group)
+    existing, created, deleted = result
+    message = (
+        f"Le groupe {group.name} a été mis à jour · Membres existants : {existing} "
+        f"· Membres supprimés : {deleted} · Membres ajoutés : {created}"
+    )
+    messages.success(request, message)
+
+    return response
+
+
+def refresh_automatic_memberships(model_admin, request, pk):
+    if not model_admin.has_change_permission(request):
+        raise PermissionDenied
+
+    group = model_admin.get_object(request, pk)
+
+    if group is None:
+        raise Http404("Pas de groupe avec cet identifiant")
+
+    response = HttpResponseRedirect(
+        reverse(
+            "%s:%s_%s_change"
+            % (
+                model_admin.admin_site.name,
+                group._meta.app_label,
+                group._meta.model_name,
+            ),
+            args=(group.pk,),
+        )
+    )
+
+    if not group.has_automatic_memberships:
+        messages.warning(
+            request,
+            "La mise à jour automatique des membres est disponible uniquement pour les boucles départementales "
+            "ou pour les groupes avec un segment d'adhésions.",
+        )
+        return response
+
+    if group.type == group.TYPE_BOUCLE_DEPARTEMENTALE:
+        return maj_membres_boucles_departementales(request, response, group)
+
+    return refresh_memberships_from_segment(request, response, group)
 
 
 def format_memberships_for_export(group):

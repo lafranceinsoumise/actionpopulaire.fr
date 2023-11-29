@@ -15,45 +15,58 @@ QUALIFICATION_PREFIX = "BD__"
 FINANCE_QUALIFICATION_LABEL = QUALIFICATION_PREFIX + "finances"
 
 
-def effectuer_changements(boucle, membres_souhaites, metas, dry_run=False):
-    membres_actuels = set(boucle.members.values_list("id", flat=True))
+def check_supportgroup_memberships(supportgroup, target_memberships, dry_run=False):
+    current_memberships = set(supportgroup.members.values_list("id", flat=True))
+    missing_memberships = target_memberships.difference(current_memberships)
+    extra_members = current_memberships.difference(target_memberships)
 
-    a_ajouter = membres_souhaites.difference(membres_actuels)
-    a_retirer = membres_actuels.difference(membres_souhaites)
-
-    a_ajouter = [
+    missing_memberships = [
         Membership(
-            supportgroup=boucle,
+            supportgroup=supportgroup,
             person_id=p,
             membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
         )
-        for p in a_ajouter
+        for p in missing_memberships
     ]
-    a_retirer = Membership.objects.filter(supportgroup=boucle, person_id__in=a_retirer)
+    extra_members = Membership.objects.filter(
+        supportgroup=supportgroup, person_id__in=extra_members
+    )
 
     if dry_run:
-        return len(membres_actuels), len(a_ajouter), len(a_retirer)
+        return current_memberships, len(missing_memberships), len(extra_members)
 
-    _, membres_supprimes = a_retirer.delete()
-    nouveau_membres = Membership.objects.bulk_create(
-        a_ajouter, ignore_conflicts=True, send_post_save_signal=True
+    _, deleted = extra_members.delete()
+    created = Membership.objects.bulk_create(
+        missing_memberships, ignore_conflicts=True, send_post_save_signal=True
     )
-    membres_apres_maj = list(
-        Membership.objects.filter(supportgroup=boucle).select_related("person")
+    current_memberships = list(
+        Membership.objects.filter(supportgroup=supportgroup).select_related("person")
     )
+
+    return current_memberships, len(created), deleted.get("groups.Membership", 0)
+
+
+def apply_changes(supportgroup, target_memberships, metas, dry_run=False):
+    updated_memberships, created_count, deleted_count = check_supportgroup_memberships(
+        supportgroup, target_memberships, dry_run=dry_run
+    )
+
+    if dry_run:
+        return len(updated_memberships), created_count, deleted_count
+
     newsletter_subscribers = []
-    for membre in membres_apres_maj:
-        membre.meta = metas[membre.person_id]
-        membre.has_finance_managing_privilege = membre.meta.pop(
+    for membership in updated_memberships:
+        membership.meta = metas[membership.person_id]
+        membership.has_finance_managing_privilege = membership.meta.pop(
             "has_finance_managing_privilege", False
         )
         # Ensure members are subscribed to main newsletter choices
-        if not membre.person.subscribed:
-            membre.person.subscribed = True
-            newsletter_subscribers.append(membre.person)
+        if not membership.person.subscribed:
+            membership.person.subscribed = True
+            newsletter_subscribers.append(membership.person)
 
     Membership.objects.bulk_update(
-        membres_apres_maj,
+        updated_memberships,
         (
             "has_finance_managing_privilege",
             "meta",
@@ -64,9 +77,9 @@ def effectuer_changements(boucle, membres_souhaites, metas, dry_run=False):
         Person.objects.bulk_update(newsletter_subscribers, fields=("newsletters",))
 
     return (
-        len(membres_actuels),
-        len(nouveau_membres),
-        membres_supprimes.get("groups.Membership", 0),
+        len(updated_memberships),
+        created_count,
+        deleted_count,
     )
 
 
@@ -185,7 +198,7 @@ def maj_boucle_departementale(departement, dry_run=False):
         ]
     )
 
-    return effectuer_changements(boucle_departementale, membres, metas, dry_run=dry_run)
+    return apply_changes(boucle_departementale, membres, metas, dry_run=dry_run)
 
 
 def maj_boucle_fe(circonscription, dry_run=False):
@@ -228,7 +241,7 @@ def maj_boucle_fe(circonscription, dry_run=False):
         ]
     )
 
-    return effectuer_changements(boucle, membres, metas, dry_run=dry_run)
+    return apply_changes(boucle, membres, metas, dry_run=dry_run)
 
 
 def maj_boucles(codes=None, dry_run=False):
@@ -254,4 +267,36 @@ def maj_boucles(codes=None, dry_run=False):
             )
             for circonscription in target_circonscriptions
         },
+    }
+
+
+def update_memberships_from_segment(supportgroup, dry_run=False):
+    target_memberships = set(
+        supportgroup.membership_segment.get_people().values_list("id", flat=True)
+    )
+    updated_memberships, created_count, deleted_count = check_supportgroup_memberships(
+        supportgroup, target_memberships, dry_run=dry_run
+    )
+    if dry_run:
+        return len(updated_memberships), created_count, deleted_count
+
+    for membership in updated_memberships:
+        membership.meta["from_membership_segment"] = supportgroup.membership_segment.pk
+
+    Membership.objects.bulk_update(
+        updated_memberships,
+        ("meta",),
+    )
+
+    return (
+        len(updated_memberships),
+        created_count,
+        deleted_count,
+    )
+
+
+def refresh_supportgroups_with_membership_segment(supportgroups, dry_run=False):
+    return {
+        supportgroup: update_memberships_from_segment(supportgroup, dry_run=dry_run)
+        for supportgroup in supportgroups
     }
