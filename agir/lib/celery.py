@@ -83,7 +83,9 @@ def http_task(post_save=False):
     if post_save:
         retry_on = (*retry_on, ObjectDoesNotExist)
 
-    return retriable_task(strategy=retry_strategy(start=10, retry_on=retry_on), priority=1)
+    return retriable_task(
+        strategy=retry_strategy(start=10, retry_on=retry_on), priority=1
+    )
 
 
 def emailing_task(post_save=False):
@@ -94,7 +96,9 @@ def emailing_task(post_save=False):
     if post_save:
         retry_on = (*retry_on, ObjectDoesNotExist)
 
-    return retriable_task(strategy=retry_strategy(start=10, retry_on=retry_on), priority=0)
+    return retriable_task(
+        strategy=retry_strategy(start=10, retry_on=retry_on), priority=0
+    )
 
 
 def gcm_push_task(post_save=False):
