@@ -6,29 +6,21 @@ import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const ACTIONS = {
   donations: (user) =>
-    !!user?.activeContribution && !user.activeContribution.renewable
+    !!user?.activeContribution && user.activeContribution.renewable
       ? {
+          key: "contributionRenewal",
+          route: "contributionRenewal",
+          label: ["Financer", "Renouveler mon financement"],
+          icon: "refresh-cw",
+          color: "#FD3D66",
+        }
+      : {
           key: "donations",
-          route: "donations",
+          route: "donationLanding",
           label: ["Don", "Faire un don"],
           icon: "heart",
           color: "#FD3D66",
-        }
-      : !!user?.activeContribution?.renewable
-        ? {
-            key: "contributions",
-            route: "contributionRenewal",
-            label: ["Financer", "Renouveler mon financement"],
-            icon: "refresh-cw",
-            color: "#FD3D66",
-          }
-        : {
-            key: "donations",
-            route: "donationLanding",
-            label: ["Don", "Faire un don"],
-            icon: "heart",
-            color: "#FD3D66",
-          },
+        },
   contributions: (user) =>
     !!user?.activeContribution && !user.activeContribution.renewable
       ? {
@@ -40,7 +32,7 @@ const ACTIONS = {
         }
       : !!user?.activeContribution?.renewable
         ? {
-            key: "contributions",
+            key: "contributionRenewal",
             route: "contributionRenewal",
             label: ["Financer", "Renouveler mon financement"],
             icon: "refresh-cw",
@@ -244,7 +236,7 @@ const DEFAULT_ACTION_ORDER = [
 ];
 
 const GROUP_MANAGER_ACTION_ORDER = [
-  "contributions",
+  "donations",
   "createEvent",
   "materiel",
   "publicMeetingRequest",
