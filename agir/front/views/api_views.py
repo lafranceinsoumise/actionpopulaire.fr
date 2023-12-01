@@ -1,3 +1,11 @@
+import django_filters
+from data_france.models import CodePostal, Commune
+from django.db.models import OuterRef, Subquery
+from django.db.models.functions import Coalesce
+from django.utils.decorators import method_decorator
+from django.views.decorators import cache
+from django_countries import countries
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import (
     ListAPIView,
 )
@@ -8,6 +16,11 @@ from agir.events.serializers import EventListSerializer
 from agir.groups.models import SupportGroup
 from agir.groups.serializers import SupportGroupSearchResultSerializer
 from agir.groups.utils.supportgroup import is_active_group_filter
+from agir.lib.data import (
+    code_postal_vers_code_departement,
+    french_zipcode_to_country_code,
+    departements_choices,
+)
 from agir.lib.rest_framework_permissions import IsActionPopulaireClientPermission
 
 
@@ -170,3 +183,56 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
             )
 
         return Response(results)
+
+
+class CodePostaleFilterSet(django_filters.rest_framework.FilterSet):
+    departement = django_filters.ChoiceFilter(
+        field_name="departement",
+        choices=departements_choices,
+    )
+
+    class Meta:
+        model = CodePostal
+        fields = ("departement", "code")
+
+
+class CodePostalListAPIView(ListAPIView):
+    permission_classes = (IsActionPopulaireClientPermission,)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = CodePostaleFilterSet
+    queryset = (
+        CodePostal.objects.all()
+        .prefetch_related("communes")
+        .annotate(
+            departement=Coalesce(
+                Subquery(
+                    Commune.objects.filter(
+                        composant__codes_postaux=OuterRef("pk")
+                    ).values("departement__code")[:1]
+                ),
+                Subquery(
+                    Commune.objects.filter(codes_postaux=OuterRef("pk")).values(
+                        "departement__code"
+                    )[:1]
+                ),
+            )
+        )
+    )
+
+    @method_decorator(cache.cache_page(3600))
+    @method_decorator(cache.cache_control(public=True))
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        result = []
+        for code_postal in queryset:
+            code = code_postal.as_dict()
+            country = french_zipcode_to_country_code(code_postal.code)
+            code["country"] = countries.name(country)
+            code[
+                "departement"
+            ] = code_postal.departement or code_postal_vers_code_departement(
+                code_postal.code
+            )
+            result.append(code)
+
+        return Response(result)

@@ -23,24 +23,24 @@ from agir.authentication.view_mixins import (
     SoftLoginRequiredMixin,
     GlobalOrObjectPermissionRequiredMixin,
 )
-from agir.lib.http import add_query_params_to_url
-from .view_mixins import (
-    ReactBaseView,
-    SimpleOpengraphMixin,
-    ObjectOpengraphMixin,
-)
-from ..donations.actions import (
+from agir.donations.actions import (
     can_make_contribution,
     get_active_contribution_for_person,
     is_waiting_contribution,
 )
-from ..donations.models import SpendingRequest
-from ..events.models import EventSubtype
-from ..events.views.event_views import EventDetailMixin
-from ..groups.models import SupportGroupSubtype
-from ..groups.views.public_views import SupportGroupDetailMixin
-from ..lib.utils import generate_token_params, front_url
-from ..msgs.models import SupportGroupMessage
+from agir.donations.models import SpendingRequest
+from agir.events.models import EventSubtype
+from agir.events.views.event_views import EventDetailMixin
+from agir.front.view_mixins import (
+    ReactBaseView,
+    SimpleOpengraphMixin,
+    ObjectOpengraphMixin,
+)
+from agir.groups.models import SupportGroupSubtype
+from agir.groups.views.public_views import SupportGroupDetailMixin
+from agir.lib.http import add_query_params_to_url
+from agir.lib.utils import generate_token_params, front_url
+from agir.msgs.models import SupportGroupMessage
 
 cache_decorators = [cache.cache_page(30), cache.cache_control(public=True)]
 
