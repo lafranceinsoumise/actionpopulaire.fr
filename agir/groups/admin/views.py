@@ -84,7 +84,7 @@ def add_member(model_admin, request, pk):
     return TemplateResponse(request, "admin/supportgroups/add_member.html", context)
 
 
-def maj_membres_boucles_departementales(request, response, group):
+def maj_membres_boucles_departementales(request, group):
     if group.location_departement_id:
         code = group.location_departement_id
     else:
@@ -96,7 +96,7 @@ def maj_membres_boucles_departementales(request, response, group):
             request,
             "Le département ou la circonscription FE n'ont pas pu être retrouvés pour cette boucle",
         )
-        return response
+        return
 
     result = maj_boucles([code])
     result = list(result.items())
@@ -106,7 +106,7 @@ def maj_membres_boucles_departementales(request, response, group):
             request,
             "Le département ou la circonscription FE n'ont pas pu être retrouvés pour cette boucle",
         )
-        return response
+        return
 
     lieu, count = result[0]
 
@@ -115,7 +115,7 @@ def maj_membres_boucles_departementales(request, response, group):
             request,
             "Le département ou la circonscription FE n'ont pas pu être retrouvés pour cette boucle",
         )
-        return response
+        return
 
     existing, created, deleted = count
     message = (
@@ -124,10 +124,8 @@ def maj_membres_boucles_departementales(request, response, group):
     )
     messages.success(request, message)
 
-    return response
 
-
-def refresh_memberships_from_segment(request, response, group):
+def refresh_memberships_from_segment(request, group):
     result = update_memberships_from_segment(group)
     existing, created, deleted = result
     message = (
@@ -135,8 +133,6 @@ def refresh_memberships_from_segment(request, response, group):
         f"· Membres supprimés : {deleted} · Membres ajoutés : {created}"
     )
     messages.success(request, message)
-
-    return response
 
 
 def refresh_automatic_memberships(model_admin, request, pk):
@@ -169,9 +165,11 @@ def refresh_automatic_memberships(model_admin, request, pk):
         return response
 
     if group.type == group.TYPE_BOUCLE_DEPARTEMENTALE:
-        return maj_membres_boucles_departementales(request, response, group)
+        maj_membres_boucles_departementales(request, group)
+    else:
+        refresh_memberships_from_segment(request, group)
 
-    return refresh_memberships_from_segment(request, response, group)
+    return response
 
 
 def format_memberships_for_export(group):
