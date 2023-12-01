@@ -57,6 +57,7 @@ __all__ = [
     "OngoingRsvpedEventsAPIView",
     "EventSuggestionsAPIView",
     "UserGroupEventAPIView",
+    "GroupUpcomingEventListAPIView",
     "OrganizedEventAPIView",
     "GrandEventAPIView",
     "EventCreateOptionsAPIView",
@@ -85,7 +86,7 @@ from agir.lib.rest_framework_permissions import (
 )
 
 from agir.lib.tasks import geocode_person
-from ..filters import EventFilter
+from ..filters import EventFilter, GroupEventAPIFilter
 from ..tasks import (
     send_cancellation_notification,
     send_group_coorganization_invitation_notification,
@@ -260,6 +261,15 @@ class UserGroupEventAPIView(EventListAPIView):
             .distinct()
             .order_by("start_time")
         )
+
+
+class GroupUpcomingEventListAPIView(EventListAPIView):
+    queryset = Event.objects.listed()
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = GroupEventAPIFilter
+
+    def get_queryset(self):
+        return super().get_queryset().upcoming().distinct().order_by("start_time")
 
 
 class OrganizedEventAPIView(EventListAPIView):
