@@ -32,7 +32,6 @@ from . import views
 from .forms import SupportGroupAdminForm
 from .. import models
 from ..actions.promo_codes import get_promo_codes
-from ..models import SupportGroup
 from ..utils.certification import (
     check_certification_criteria,
 )
@@ -71,6 +70,7 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
                 "fields": (
                     "type",
                     "subtypes",
+                    "membership_segment",
                     "description",
                     "allow_html",
                     "image",
@@ -146,7 +146,7 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
         "last_manager_login",
     )
     date_hierarchy = "created"
-
+    autocomplete_fields = ("membership_segment",)
     list_display = (
         "name",
         "type",
@@ -300,21 +300,21 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
 
         action_buttons = []
 
-        if obj.type == SupportGroup.TYPE_BOUCLE_DEPARTEMENTALE:
+        if obj.has_automatic_memberships:
             action_buttons.append(
                 (
                     admin_url(
-                        "admin:groups_supportgroup_maj_membres_boucles_departementales",
+                        "admin:groups_supportgroup_refresh_memberships",
                         args=(obj.pk,),
                     ),
-                    "Mettre à jour les membres",
+                    "↻ Mettre à jour les membres",
                 )
             )
         else:
             action_buttons.append(
                 (
                     admin_url("admin:groups_supportgroup_add_member", args=(obj.pk,)),
-                    "Ajouter un membre",
+                    "➕ Ajouter un membre",
                 )
             )
 
@@ -324,7 +324,7 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
                     "admin:donations_accountoperation_add",
                     query={"destination": get_account_name_for_group(obj)},
                 ),
-                "Changer l'allocation",
+                "💰 Changer l'allocation",
             ),
         )
 
@@ -512,9 +512,9 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
                 ),
             ),
             path(
-                "<uuid:pk>/maj_membres_boucles_departementales/",
-                self.admin_site.admin_view(self.maj_membres_boucles_departementales),
-                name="{}_{}_maj_membres_boucles_departementales".format(
+                "<uuid:pk>/refresh_memberships/",
+                self.admin_site.admin_view(self.refresh_memberships),
+                name="{}_{}_refresh_memberships".format(
                     self.opts.app_label, self.opts.model_name
                 ),
             ),
@@ -537,8 +537,8 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
     def add_member(self, request, pk):
         return views.add_member(self, request, pk)
 
-    def maj_membres_boucles_departementales(self, request, pk):
-        return views.maj_membres_boucles_departementales(self, request, pk)
+    def refresh_memberships(self, request, pk):
+        return views.refresh_automatic_memberships(self, request, pk)
 
     def export_memberships(self, request, pk, as_format):
         return views.export_memberships(self, request, pk, as_format)

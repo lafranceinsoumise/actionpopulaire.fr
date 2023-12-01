@@ -28,8 +28,8 @@ class SegmentTestCase(TestCase):
     def test_default_segment_include_anyone(self):
         s = Segment.objects.create(newsletters=[])
 
-        self.assertIn(self.person_with_account, s.get_subscribers_queryset())
-        self.assertIn(self.person_without_account, s.get_subscribers_queryset())
+        self.assertIn(self.person_with_account, s.get_people())
+        self.assertIn(self.person_without_account, s.get_people())
 
     def test_person_with_disabled_account_not_in_segment(self):
         s = Segment.objects.create(newsletters=[])
@@ -37,7 +37,7 @@ class SegmentTestCase(TestCase):
         role.is_active = False
         role.save()
 
-        self.assertNotIn(self.person_with_account, s.get_subscribers_queryset())
+        self.assertNotIn(self.person_with_account, s.get_people())
 
     def test_segment_with_registration_duration(self):
         old_person = Person.objects.create_person(
@@ -45,8 +45,8 @@ class SegmentTestCase(TestCase):
         )
         new_person = Person.objects.create_person(email="new@agir.local", created=now())
         s = Segment.objects.create(newsletters=[], registration_duration=1)
-        self.assertIn(old_person, s.get_subscribers_queryset())
-        self.assertNotIn(new_person, s.get_subscribers_queryset())
+        self.assertIn(old_person, s.get_people())
+        self.assertNotIn(new_person, s.get_people())
 
 
 class SegmentEventFilterTestCase(TestCase):
@@ -101,9 +101,9 @@ class SegmentEventFilterTestCase(TestCase):
         s = Segment.objects.create(newsletters=[], events_organizer=False)
         s.events.add(event)
         for person in includes:
-            self.assertIn(person, s.get_subscribers_queryset())
+            self.assertIn(person, s.get_people())
         for person in excludes:
-            self.assertNotIn(person, s.get_subscribers_queryset())
+            self.assertNotIn(person, s.get_people())
 
     def test_event_organizer_filter(self):
         event = self.create_event()
@@ -120,9 +120,9 @@ class SegmentEventFilterTestCase(TestCase):
         s = Segment.objects.create(newsletters=[], events_organizer=True)
         s.events.add(event)
         for person in includes:
-            self.assertIn(person, s.get_subscribers_queryset())
+            self.assertIn(person, s.get_people())
         for person in excludes:
-            self.assertNotIn(person, s.get_subscribers_queryset())
+            self.assertNotIn(person, s.get_people())
 
     def test_excluded_event_participant_filter(self):
         event = self.create_event()
@@ -142,9 +142,9 @@ class SegmentEventFilterTestCase(TestCase):
         )
         s.excluded_events.add(event)
         for person in includes:
-            self.assertIn(person, s.get_subscribers_queryset())
+            self.assertIn(person, s.get_people())
         for person in excludes:
-            self.assertNotIn(person, s.get_subscribers_queryset())
+            self.assertNotIn(person, s.get_people())
 
     def test_excluded_event_organizer_filter(self):
         event = self.create_event()
@@ -161,9 +161,9 @@ class SegmentEventFilterTestCase(TestCase):
         s = Segment.objects.create(newsletters=[], events_organizer=True)
         s.excluded_events.add(event)
         for person in includes:
-            self.assertIn(person, s.get_subscribers_queryset())
+            self.assertIn(person, s.get_people())
         for person in excludes:
-            self.assertNotIn(person, s.get_subscribers_queryset())
+            self.assertNotIn(person, s.get_people())
 
     def test_event_subtype_participant_filter(self):
         subtype = EventSubtype.objects.create(label="Sub")
@@ -184,9 +184,9 @@ class SegmentEventFilterTestCase(TestCase):
         )
         s.events_subtypes.add(subtype)
         for person in includes:
-            self.assertIn(person, s.get_subscribers_queryset())
+            self.assertIn(person, s.get_people())
         for person in excludes:
-            self.assertNotIn(person, s.get_subscribers_queryset())
+            self.assertNotIn(person, s.get_people())
 
     def test_event_subtype_organizer_filter(self):
         subtype = EventSubtype.objects.create(label="Sub")
@@ -207,9 +207,9 @@ class SegmentEventFilterTestCase(TestCase):
         s = Segment.objects.create(newsletters=[], events_organizer=True)
         s.events_subtypes.add(subtype)
         for person in includes:
-            self.assertIn(person, s.get_subscribers_queryset())
+            self.assertIn(person, s.get_people())
         for person in excludes:
-            self.assertNotIn(person, s.get_subscribers_queryset())
+            self.assertNotIn(person, s.get_people())
 
     def test_event_time_range_participant_filter(self):
         start_time = timezone.now() - timedelta(days=150)
@@ -232,9 +232,9 @@ class SegmentEventFilterTestCase(TestCase):
             events_end_date=timezone.now() - timedelta(days=100),
         )
         for person in includes:
-            self.assertIn(person, s.get_subscribers_queryset())
+            self.assertIn(person, s.get_people())
         for person in excludes:
-            self.assertNotIn(person, s.get_subscribers_queryset())
+            self.assertNotIn(person, s.get_people())
 
     def test_event_time_range_organizer_filter(self):
         start_time = timezone.now() - timedelta(days=150)
@@ -258,9 +258,9 @@ class SegmentEventFilterTestCase(TestCase):
             events_end_date=timezone.now() - timedelta(days=100),
         )
         for person in includes:
-            self.assertIn(person, s.get_subscribers_queryset())
+            self.assertIn(person, s.get_people())
         for person in excludes:
-            self.assertNotIn(person, s.get_subscribers_queryset())
+            self.assertNotIn(person, s.get_people())
 
 
 class SegmentSupportgroupFilterTestCase(TestCase):
@@ -316,7 +316,7 @@ class SegmentSupportgroupFilterTestCase(TestCase):
         ]
         s = Segment.objects.create(newsletters=[])
         for person in includes:
-            self.assertIn(person, s.get_subscribers_queryset())
+            self.assertIn(person, s.get_people())
 
     def test_supportgroup_status_not_member_filter(self):
         supportgroup = self.create_group()
@@ -339,9 +339,9 @@ class SegmentSupportgroupFilterTestCase(TestCase):
             supportgroup_status=Segment.GA_STATUS_NOT_MEMBER,
         )
         for person in includes:
-            self.assertIn(person, s.get_subscribers_queryset())
+            self.assertIn(person, s.get_people())
         for person in excludes:
-            self.assertNotIn(person, s.get_subscribers_queryset())
+            self.assertNotIn(person, s.get_people())
 
     def test_supportgroup_status_member_filter(self):
         supportgroup = self.create_group()
@@ -364,9 +364,9 @@ class SegmentSupportgroupFilterTestCase(TestCase):
             supportgroup_status=Segment.GA_STATUS_MEMBER,
         )
         for person in includes:
-            self.assertIn(person, s.get_subscribers_queryset())
+            self.assertIn(person, s.get_people())
         for person in excludes:
-            self.assertNotIn(person, s.get_subscribers_queryset())
+            self.assertNotIn(person, s.get_people())
 
     def test_supportgroup_status_manager_filter(self):
         supportgroup = self.create_group()
@@ -389,9 +389,9 @@ class SegmentSupportgroupFilterTestCase(TestCase):
             supportgroup_status=Segment.GA_STATUS_MANAGER,
         )
         for person in includes:
-            self.assertIn(person, s.get_subscribers_queryset())
+            self.assertIn(person, s.get_people())
         for person in excludes:
-            self.assertNotIn(person, s.get_subscribers_queryset())
+            self.assertNotIn(person, s.get_people())
 
     def test_supportgroup_status_referent_filter(self):
         supportgroup = self.create_group()
@@ -414,9 +414,9 @@ class SegmentSupportgroupFilterTestCase(TestCase):
             supportgroup_status=Segment.GA_STATUS_REFERENT,
         )
         for person in includes:
-            self.assertIn(person, s.get_subscribers_queryset())
+            self.assertIn(person, s.get_people())
         for person in excludes:
-            self.assertNotIn(person, s.get_subscribers_queryset())
+            self.assertNotIn(person, s.get_people())
 
     def test_supportgroups_filter(self):
         supportgroup = self.create_group()
@@ -431,9 +431,9 @@ class SegmentSupportgroupFilterTestCase(TestCase):
         s = Segment.objects.create(newsletters=[])
         s.supportgroups.add(supportgroup)
         for person in includes:
-            self.assertIn(person, s.get_subscribers_queryset())
+            self.assertIn(person, s.get_people())
         for person in excludes:
-            self.assertNotIn(person, s.get_subscribers_queryset())
+            self.assertNotIn(person, s.get_people())
 
     def test_supportgroup_status_and_supportgroups_filter_combo(self):
         supportgroup = self.create_group()
@@ -457,9 +457,9 @@ class SegmentSupportgroupFilterTestCase(TestCase):
         )
         s.supportgroups.add(supportgroup)
         for person in includes:
-            self.assertIn(person, s.get_subscribers_queryset())
+            self.assertIn(person, s.get_people())
         for person in excludes:
-            self.assertNotIn(person, s.get_subscribers_queryset())
+            self.assertNotIn(person, s.get_people())
 
     def test_supportgroup_subtypes_filter(self):
         subtype = SupportGroupSubtype.objects.create(label="filtered")
@@ -475,9 +475,9 @@ class SegmentSupportgroupFilterTestCase(TestCase):
         s = Segment.objects.create(newsletters=[])
         s.supportgroup_subtypes.add(subtype)
         for person in includes:
-            self.assertIn(person, s.get_subscribers_queryset())
+            self.assertIn(person, s.get_people())
         for person in excludes:
-            self.assertNotIn(person, s.get_subscribers_queryset())
+            self.assertNotIn(person, s.get_people())
 
     def test_supportgroup_status_and_supportgroup_subtypes_filter_combo(self):
         subtype = SupportGroupSubtype.objects.create(label="filtered")
@@ -502,9 +502,9 @@ class SegmentSupportgroupFilterTestCase(TestCase):
         )
         s.supportgroup_subtypes.add(subtype)
         for person in includes:
-            self.assertIn(person, s.get_subscribers_queryset())
+            self.assertIn(person, s.get_people())
         for person in excludes:
-            self.assertNotIn(person, s.get_subscribers_queryset())
+            self.assertNotIn(person, s.get_people())
 
     def test_supportgroups_overrides_supportgroup_subtypes_filter(self):
         subtype = SupportGroupSubtype.objects.create(label="filtered")
@@ -516,9 +516,9 @@ class SegmentSupportgroupFilterTestCase(TestCase):
         s.supportgroups.add(another_supportgroup)
         s.supportgroup_subtypes.add(subtype)
         for person in includes:
-            self.assertIn(person, s.get_subscribers_queryset())
+            self.assertIn(person, s.get_people())
         for person in excludes:
-            self.assertNotIn(person, s.get_subscribers_queryset())
+            self.assertNotIn(person, s.get_people())
 
     def test_supportgroup_is_certified_filter(self):
         certified_supportgroup = self.create_group(certification_date=timezone.now())
@@ -534,9 +534,9 @@ class SegmentSupportgroupFilterTestCase(TestCase):
         ]
         s = Segment.objects.create(newsletters=[], supportgroup_is_certified=True)
         for person in includes:
-            self.assertIn(person, s.get_subscribers_queryset())
+            self.assertIn(person, s.get_people())
         for person in excludes:
-            self.assertNotIn(person, s.get_subscribers_queryset())
+            self.assertNotIn(person, s.get_people())
 
     def test_supportgroup_status_and_supportgroup_subtypes_filter_combo(self):
         subtype = SupportGroupSubtype.objects.create(label="filtered")
@@ -561,9 +561,9 @@ class SegmentSupportgroupFilterTestCase(TestCase):
         )
         s.supportgroup_subtypes.add(subtype)
         for person in includes:
-            self.assertIn(person, s.get_subscribers_queryset())
+            self.assertIn(person, s.get_people())
         for person in excludes:
-            self.assertNotIn(person, s.get_subscribers_queryset())
+            self.assertNotIn(person, s.get_people())
 
     def test_supportgroup_types_filter(self):
         local_group = self.create_group(type=SupportGroup.TYPE_LOCAL_GROUP)
@@ -581,9 +581,9 @@ class SegmentSupportgroupFilterTestCase(TestCase):
             supportgroup_types=[SupportGroup.TYPE_LOCAL_GROUP],
         )
         for person in includes:
-            self.assertIn(person, s.get_subscribers_queryset())
+            self.assertIn(person, s.get_people())
         for person in excludes:
-            self.assertNotIn(person, s.get_subscribers_queryset())
+            self.assertNotIn(person, s.get_people())
 
     def test_supportgroup_types_and_supportgroups_filter_combo(self):
         subtype = SupportGroupSubtype.objects.create(
@@ -614,9 +614,9 @@ class SegmentSupportgroupFilterTestCase(TestCase):
         )
         s.supportgroup_subtypes.add(subtype)
         for person in includes:
-            self.assertIn(person, s.get_subscribers_queryset())
+            self.assertIn(person, s.get_people())
         for person in excludes:
-            self.assertNotIn(person, s.get_subscribers_queryset())
+            self.assertNotIn(person, s.get_people())
 
 
 class SegmentTagFilterTestCase(TestCase):
@@ -649,7 +649,7 @@ class SegmentTagFilterTestCase(TestCase):
         ]
         s = Segment.objects.create(newsletters=[])
         for person in includes:
-            self.assertIn(person, s.get_subscribers_queryset())
+            self.assertIn(person, s.get_people())
 
     def test_tag_whitelist_segment(self):
         ok_tag = self.create_tag()
@@ -667,7 +667,7 @@ class SegmentTagFilterTestCase(TestCase):
         s = Segment.objects.create(newsletters=[])
         s.tags.add(ok_tag)
 
-        subs = s.get_subscribers_queryset()
+        subs = s.get_people()
         for person in includes:
             self.assertIn(person, subs)
         for person in excludes:
@@ -690,7 +690,7 @@ class SegmentTagFilterTestCase(TestCase):
         s = Segment.objects.create(newsletters=[])
         s.excluded_tags.add(forbidden_tag)
 
-        subs = s.get_subscribers_queryset()
+        subs = s.get_people()
         for person in includes:
             self.assertIn(person, subs)
         for person in excludes:
@@ -718,7 +718,7 @@ class SegmentTagFilterTestCase(TestCase):
         s.tags.add(selected_tag, forbidden_and_selected_tag)
         s.excluded_tags.add(forbidden_tag, forbidden_and_selected_tag)
 
-        subs = s.get_subscribers_queryset()
+        subs = s.get_people()
         for person in includes:
             self.assertIn(person, subs)
         for person in excludes:
@@ -786,7 +786,7 @@ class SegmentQualificationFilterTestCase(TestCase):
         ]
         s = Segment.objects.create(newsletters=[])
         for person in includes:
-            self.assertIn(person, s.get_subscribers_queryset())
+            self.assertIn(person, s.get_people())
 
     def test_qualification_whitelist_segment(self):
         ok_qualification = self.create_qualification()
@@ -803,7 +803,7 @@ class SegmentQualificationFilterTestCase(TestCase):
         s = Segment.objects.create(newsletters=[])
         s.qualifications.add(ok_qualification)
 
-        subs = s.get_subscribers_queryset()
+        subs = s.get_people()
         for person in includes:
             self.assertIn(person, subs)
         for person in excludes:
@@ -834,7 +834,7 @@ class SegmentQualificationFilterTestCase(TestCase):
         s = Segment.objects.create(newsletters=[], person_qualification_status=[])
         s.qualifications.add(ok_qualification)
 
-        subs = s.get_subscribers_queryset()
+        subs = s.get_people()
         for person in includes:
             self.assertIn(person, subs)
         for person in excludes:
@@ -843,7 +843,7 @@ class SegmentQualificationFilterTestCase(TestCase):
         s.person_qualification_status = PersonQualification.Status.values
         s.save()
 
-        subs = s.get_subscribers_queryset()
+        subs = s.get_people()
         for person in includes:
             self.assertIn(person, subs)
         for person in excludes:
@@ -877,7 +877,7 @@ class SegmentQualificationFilterTestCase(TestCase):
         )
         s.qualifications.add(ok_qualification)
 
-        subs = s.get_subscribers_queryset()
+        subs = s.get_people()
         for person in includes:
             self.assertIn(person, subs)
         for person in excludes:
@@ -911,7 +911,7 @@ class SegmentQualificationFilterTestCase(TestCase):
         )
         s.qualifications.add(ok_qualification)
 
-        subs = s.get_subscribers_queryset()
+        subs = s.get_people()
         for person in includes:
             self.assertIn(person, subs)
         for person in excludes:
@@ -945,7 +945,7 @@ class SegmentQualificationFilterTestCase(TestCase):
         )
         s.qualifications.add(ok_qualification)
 
-        subs = s.get_subscribers_queryset()
+        subs = s.get_people()
         for person in includes:
             self.assertIn(person, subs)
         for person in excludes:
@@ -984,7 +984,7 @@ class SegmentMandatFilterTestCase(TestCase):
         ]
         s = Segment.objects.create(newsletters=[])
         for person in includes:
-            self.assertIn(person, s.get_subscribers_queryset())
+            self.assertIn(person, s.get_people())
 
     def test_elu_ELUS_MEMBRE_RESEAU_segment(self):
         includes = [self.create_mandat(membre_reseau_elus=Person.MEMBRE_RESEAU_OUI)]
@@ -996,7 +996,7 @@ class SegmentMandatFilterTestCase(TestCase):
             ),
         ]
         s = Segment.objects.create(newsletters=[], elu=Segment.ELUS_MEMBRE_RESEAU)
-        subs = s.get_subscribers_queryset()
+        subs = s.get_people()
         for person in includes:
             self.assertIn(person, subs)
         for person in excludes:
@@ -1012,7 +1012,7 @@ class SegmentMandatFilterTestCase(TestCase):
             self.create_mandat(membre_reseau_elus=Person.MEMBRE_RESEAU_EXCLUS),
         ]
         s = Segment.objects.create(newsletters=[], elu=Segment.ELUS_REFERENCE)
-        subs = s.get_subscribers_queryset()
+        subs = s.get_people()
         for person in includes:
             self.assertIn(person, subs)
         for person in excludes:
@@ -1028,7 +1028,7 @@ class SegmentMandatFilterTestCase(TestCase):
             self.create_mandat(membre_reseau_elus=Person.MEMBRE_RESEAU_EXCLUS),
         ]
         s = Segment.objects.create(newsletters=[], elu=Segment.ELUS_SAUF_EXCLUS)
-        subs = s.get_subscribers_queryset()
+        subs = s.get_people()
         for person in includes:
             self.assertIn(person, subs)
         for person in excludes:
@@ -1053,7 +1053,7 @@ class SegmentMandatFilterTestCase(TestCase):
             elu=Segment.ELUS_MEMBRE_RESEAU,
             elu_status=StatutMandat.CONFIRME,
         )
-        subs = s.get_subscribers_queryset()
+        subs = s.get_people()
         for person in includes:
             self.assertIn(person, subs)
         for person in excludes:

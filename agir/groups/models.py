@@ -385,6 +385,19 @@ class SupportGroup(
         ),
     )
 
+    membership_segment = models.ForeignKey(
+        to="mailing.Segment",
+        verbose_name=_("Segment d'adhésion"),
+        on_delete=models.PROTECT,
+        related_name="+",
+        null=True,
+        blank=True,
+        help_text=_(
+            "Segment qui sera utilisé pour déterminer les membres du groupe. Les membres existants ne faisant "
+            "pas partie du segment seront automatiquement supprimés."
+        ),
+    )
+
     @property
     def managers(self):
         return [
@@ -428,6 +441,13 @@ class SupportGroup(
             self.memberships.active()
             .filter(membership_type__gte=Membership.MEMBERSHIP_TYPE_MEMBER)
             .count()
+        )
+
+    @property
+    def has_automatic_memberships(self):
+        return (
+            self.type == self.TYPE_BOUCLE_DEPARTEMENTALE
+            or self.membership_segment is not None
         )
 
     @property

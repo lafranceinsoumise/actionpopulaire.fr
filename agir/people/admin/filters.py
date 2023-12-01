@@ -53,9 +53,30 @@ class SegmentFilter(AutocompleteRelatedModelFilter):
                 s = Segment.objects.get(pk=self.value())
             except Segment.DoesNotExist:
                 return queryset
-            return queryset.filter(pk__in=s.get_subscribers_queryset())
+            return queryset.filter(pk__in=s.get_people())
         else:
             return queryset
+
+
+class BouncedEmailFilter(admin.SimpleListFilter):
+    title = "adresse email"
+    parameter_name = "bounced_email"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("1", "Pas d'adresse e-mail valide"),
+            ("0", "Au moins une adresse e-mail valide"),
+            ("", ""),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == "1":
+            return queryset.exclude(emails___bounced=False)
+
+        if self.value() == "0":
+            return queryset.filter(emails___bounced=False)
+
+        return queryset
 
 
 class TagListFilter(AutocompleteRelatedModelFilter):

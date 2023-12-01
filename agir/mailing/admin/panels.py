@@ -135,7 +135,15 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             },
         ),
         ("Combiner des segments", {"fields": ("add_segments", "exclude_segments")}),
-        ("Abonnés", {"fields": ("subscribers_count",)}),
+        (
+            "Personnes",
+            {
+                "fields": (
+                    "subscribers_count",
+                    "people_count",
+                )
+            },
+        ),
     )
     map_template = "custom_fields/french_area_widget.html"
     autocomplete_fields = (
@@ -153,7 +161,10 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         "forms",
         "polls",
     )
-    readonly_fields = ("subscribers_count",)
+    readonly_fields = (
+        "people_count",
+        "subscribers_count",
+    )
     ordering = ("name",)
     search_fields = ("name",)
     list_filter = (
@@ -188,12 +199,12 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
         return format_html(", ".join(tags))
 
-    @admin.display(description="Nombre d'abonné·es")
-    def subscribers_count(self, instance):
+    @admin.display(description="Nombre de personnes dans le segment")
+    def people_count(self, instance):
         if not instance:
             return "-"
 
-        count = instance.get_subscribers_count()
+        count = instance.get_count()
 
         if count == 0:
             return "Ce segment est vide"
@@ -206,13 +217,31 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             str(instance.pk),
         )
 
+    @admin.display(description="Nombre de personnes avec une adresse email valide")
+    def subscribers_count(self, instance):
+        if not instance:
+            return "-"
+
+        count = instance.get_subscribers_count()
+
+        if count == 0:
+            return "Ce segment est vide"
+
+        return format_html(
+            '{} personne{}&ensp;(<a href="{}?segment={}&bounced_email=0">Voir la liste</a>)',
+            count,
+            "s" if count > 1 else "",
+            reverse("admin:people_person_changelist"),
+            str(instance.pk),
+        )
+
     @admin.display(description="Abonné·es")
     def subscriber_list_link(self, instance):
         if not instance:
             return "-"
 
         return format_html(
-            '<a href="{}?segment={}">Voir la liste des abonné·es</a>',
+            '<a href="{}?segment={}">Voir la liste des personnes</a>',
             reverse("admin:people_person_changelist"),
             str(instance.pk),
         )

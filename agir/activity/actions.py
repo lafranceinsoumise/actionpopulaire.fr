@@ -70,7 +70,7 @@ def get_announcements(person=None, custom_display=None):
                 )
                 .distinct("pk")
             )
-            if segment.is_subscriber(person)
+            if segment.is_included(person)
         ]
 
         # Automatically create an activity for the person if none exists for the announcement

@@ -56,12 +56,12 @@ def update_telegram_groups(self, pk):
 
             in_segment_and_chat_people = [
                 person
-                for person in instance.segment.get_subscribers_queryset()
+                for person in instance.segment.get_people()
                 if str(person.contact_phone)[1:] in in_chat_numbers
             ]
             in_segment_not_chat_people = [
                 person
-                for person in instance.segment.get_subscribers_queryset()
+                for person in instance.segment.get_people()
                 if person.contact_phone
                 and is_mobile_number(person.contact_phone)
                 and str(person.contact_phone)[1:] not in in_chat_numbers

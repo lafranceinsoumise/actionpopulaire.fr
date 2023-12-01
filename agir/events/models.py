@@ -285,7 +285,7 @@ class EventQuerySet(models.QuerySet):
         ).distinct("pk")
         return segmented_events.filter(
             suggestion_segment_id__in=[
-                segment.id for segment in segments if segment.is_subscriber(person)
+                segment.id for segment in segments if segment.is_included(person)
             ]
         )
 

@@ -1,16 +1,16 @@
 import re
 
-from django.core.management import BaseCommand, CommandError
+from django.core.management import BaseCommand
+from django.utils.translation import ngettext
 
-from agir.groups.actions.automatic_memberships import maj_boucles
-
-CODE_RE = re.compile(
-    r"^(?:99-(?:0[0-9]|1[01])|[01345678][0-9]|2[1-9AB]|9(?:[0-5]|7[1-8]|8[678]))$"
+from agir.groups.actions.automatic_memberships import (
+    refresh_supportgroups_with_membership_segment,
 )
+from agir.groups.models import SupportGroup
 
 
 class Command(BaseCommand):
-    help = "Automatically add/update/remove `boucles departementales`-type supportgroup members"
+    help = "Automatically add/update/remove members for supportgroup that have a membership segment"
     dry_run = False
     silent = False
 
@@ -18,14 +18,6 @@ class Command(BaseCommand):
         super().__init__(stdout, stderr, no_color, force_color)
 
     def add_arguments(self, parser):
-        parser.add_argument(
-            "-c",
-            "--codes",
-            dest="codes",
-            default=None,
-            help=f"Limiter à certaines boucles (code du département ou de la circonscription FE "
-            f"(ex. -d 01,02,03,99-03)",
-        )
         parser.add_argument(
             "--dry-run",
             dest="dry_run",
@@ -49,12 +41,13 @@ class Command(BaseCommand):
     def print_result(self, result):
         if not result:
             return
-        for lieu, count in result.items():
+
+        for group, count in result.items():
             if count is None:
-                self.log(f"✖ {lieu} : pas de boucle")
                 continue
             existing, created, deleted = count
-            self.log(f"✔ {lieu} : boucle mise à jour")
+            self.log(f"✔ {group.name} : groupe mis à jour")
+
             if self.dry_run:
                 self.log(f"  ├── Membres existants : {existing}")
                 self.log(f"  ├── Membres à supprimer : {deleted}")
@@ -67,7 +60,6 @@ class Command(BaseCommand):
     def handle(
         self,
         *args,
-        codes=None,
         dry_run=False,
         silent=False,
         **kwargs,
@@ -75,20 +67,29 @@ class Command(BaseCommand):
         self.dry_run = dry_run
         self.silent = silent
 
-        if codes:
-            codes = codes.split(",")
-            incorrects = [c for c in codes if not CODE_RE.match(c)]
-            if incorrects:
-                raise CommandError(
-                    f"Les code suivants sont incorrects : {' ,'.join(incorrects)}"
-                )
+        supportgroups = (
+            SupportGroup.objects.active()
+            .exclude(type=SupportGroup.TYPE_BOUCLE_DEPARTEMENTALE)
+            .filter(membership_segment__isnull=False)
+            .select_related("membership_segment")
+        )
+        count = supportgroups.count()
 
-        if codes:
-            self.log("\nMise à jour des boucles sélectionnées\n")
-        else:
-            self.log("\nMise à jour de toutes les boucles\n")
+        if count == "0":
+            self.log("Aucun groupe avec un segment d'adhésion n'a été trouvé.")
+            return
 
-        result = maj_boucles(codes=codes, dry_run=dry_run)
+        self.log(
+            ngettext(
+                "\nMise à jour d'un groupe avec un segment d'adhésion\n",
+                f"\nMise à jour de {count} groupes avec un segment d'adhésion\n",
+                count,
+            )
+        )
+
+        result = refresh_supportgroups_with_membership_segment(
+            supportgroups, dry_run=dry_run
+        )
 
         self.print_result(result)
         self.log("\nBye!\n\n")

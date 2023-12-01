@@ -14,7 +14,7 @@ from django.utils.translation import gettext_lazy as _
 from glom import glom, T
 
 from .forms import AddMemberForm
-from ..actions.boucles_departementales import maj_boucles
+from ..actions.automatic_memberships import maj_boucles, update_memberships_from_segment
 from ..models import SupportGroup
 from ...lib.utils import front_url
 
@@ -84,7 +84,58 @@ def add_member(model_admin, request, pk):
     return TemplateResponse(request, "admin/supportgroups/add_member.html", context)
 
 
-def maj_membres_boucles_departementales(model_admin, request, pk):
+def maj_membres_boucles_departementales(request, group):
+    if group.location_departement_id:
+        code = group.location_departement_id
+    else:
+        code = re.findall("(\d\d?)(?:ème|ère)", group.name, flags=re.IGNORECASE)
+        code = f"99-{int(code[0]):02d}" if code else None
+
+    if not code:
+        messages.warning(
+            request,
+            "Le département ou la circonscription FE n'ont pas pu être retrouvés pour cette boucle",
+        )
+        return
+
+    result = maj_boucles([code])
+    result = list(result.items())
+
+    if not result:
+        messages.warning(
+            request,
+            "Le département ou la circonscription FE n'ont pas pu être retrouvés pour cette boucle",
+        )
+        return
+
+    lieu, count = result[0]
+
+    if not count:
+        messages.warning(
+            request,
+            "Le département ou la circonscription FE n'ont pas pu être retrouvés pour cette boucle",
+        )
+        return
+
+    existing, created, deleted = count
+    message = (
+        f"La boucle {lieu} a été mise à jour · Membres existants : {existing} "
+        f"· Membres supprimés : {deleted} · Membres ajoutés : {created}"
+    )
+    messages.success(request, message)
+
+
+def refresh_memberships_from_segment(request, group):
+    result = update_memberships_from_segment(group)
+    existing, created, deleted = result
+    message = (
+        f"Le groupe {group.name} a été mis à jour · Membres existants : {existing} "
+        f"· Membres supprimés : {deleted} · Membres ajoutés : {created}"
+    )
+    messages.success(request, message)
+
+
+def refresh_automatic_memberships(model_admin, request, pk):
     if not model_admin.has_change_permission(request):
         raise PermissionDenied
 
@@ -105,51 +156,19 @@ def maj_membres_boucles_departementales(model_admin, request, pk):
         )
     )
 
-    if group.type != SupportGroup.TYPE_BOUCLE_DEPARTEMENTALE:
+    if not group.has_automatic_memberships:
         messages.warning(
             request,
-            "La mise à jour automatique des membres est disponible uniquement pour les boucles départementales",
+            "La mise à jour automatique des membres est disponible uniquement pour les boucles départementales "
+            "ou pour les groupes avec un segment d'adhésions.",
         )
         return response
 
-    if group.location_departement_id:
-        code = group.location_departement_id
+    if group.type == group.TYPE_BOUCLE_DEPARTEMENTALE:
+        maj_membres_boucles_departementales(request, group)
     else:
-        code = re.findall("(\d\d?)(?:ème|ère)", group.name, flags=re.IGNORECASE)
-        code = f"99-{int(code[0]):02d}" if code else None
+        refresh_memberships_from_segment(request, group)
 
-    if not code:
-        messages.warning(
-            request,
-            "Le département ou la circonscription FE n'ont pas pu être retrouvés pour cette boucle",
-        )
-        return response
-
-    result = maj_boucles([code])
-    result = list(result.items())
-
-    if not result:
-        messages.warning(
-            request,
-            "Le département ou la circonscription FE n'ont pas pu être retrouvés pour cette boucle",
-        )
-        return response
-
-    lieu, count = result[0]
-
-    if not count:
-        messages.warning(
-            request,
-            "Le département ou la circonscription FE n'ont pas pu être retrouvés pour cette boucle",
-        )
-        return response
-
-    existing, created, deleted = count
-    message = (
-        f"La boucle {lieu} a été mise à jour · Membres existants : {existing} "
-        f"· Membres supprimés : {deleted} · Membres ajoutés : {created}"
-    )
-    messages.success(request, message)
     return response
 
 

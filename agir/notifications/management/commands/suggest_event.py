@@ -24,7 +24,7 @@ class Command(BaseCommand):
 
     def get_recipients(self, segment=None):
         if segment:
-            queryset = segment.get_subscribers_queryset()
+            queryset = segment.get_people()
         else:
             queryset = Person.objects.with_active_role()
 
