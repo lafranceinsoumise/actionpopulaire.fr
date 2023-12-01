@@ -36,7 +36,7 @@ from agir.groups.actions.notifications import (
     new_comment_notifications,
     someone_joined_notification,
 )
-from agir.groups.filters import GroupAPIFilterSet
+from agir.groups.filters import GroupAPIFilterSet, GroupLocationAPIFilterSet
 from agir.groups.models import (
     SupportGroup,
     SupportGroupSubtype,
@@ -54,6 +54,7 @@ from agir.groups.serializers import (
     SupportGroupExternalLinkSerializer,
     MemberPersonalInformationSerializer,
     ThematicGroupSerializer,
+    SupportGroupSearchResultSerializer,
 )
 from agir.groups.utils.supportgroup import is_active_group_filter
 from agir.lib.pagination import (
@@ -66,6 +67,7 @@ from agir.people.models import Person
 __all__ = [
     "LegacyGroupSearchAPIView",
     "GroupSearchAPIView",
+    "GroupLocationSearchAPIView",
     "GroupSubtypesView",
     "UserGroupsView",
     "ThematicGroupsView",
@@ -143,6 +145,22 @@ class GroupSearchAPIView(ListAPIView):
                 "location",
                 "commune",
             ],
+            **kwargs,
+        )
+
+
+class GroupLocationSearchAPIView(ListAPIView):
+    queryset = SupportGroup.objects.active()
+    serializer_class = SupportGroupDetailSerializer
+    permission_classes = (IsActionPopulaireClientPermission,)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = GroupLocationAPIFilterSet
+    ordering = ["name"]
+
+    def get_serializer(self, *args, **kwargs):
+        return super().get_serializer(
+            *args,
+            fields=("id", "name"),
             **kwargs,
         )
 
