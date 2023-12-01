@@ -349,7 +349,7 @@ class Segment(BaseSegment, models.Model):
         blank=True,
     )
 
-    def _get_event_filters(self, query):
+    def _add_event_filters(self, query):
         filters = {}
         excludes = {}
 
@@ -399,7 +399,7 @@ class Segment(BaseSegment, models.Model):
 
         return query
 
-    def _get_supportgroup_filters(self, query):
+    def _add_supportgroup_filters(self, query):
         supportgroup_ids = self.supportgroups.values_list("id", flat=True)
         subtype_ids = self.supportgroup_subtypes.values_list("id", flat=True)
 
@@ -475,7 +475,7 @@ class Segment(BaseSegment, models.Model):
 
         return query & Q(id__in=member_ids)
 
-    def _get_qualification_filters(self, query):
+    def _add_qualification_filters(self, query):
         qualification_ids = list(self.qualifications.values_list("pk", flat=True))
 
         if not qualification_ids:
@@ -494,7 +494,7 @@ class Segment(BaseSegment, models.Model):
             id__in=person_qualifications.values_list("person_id", flat=True)
         )
 
-    def _get_tag_filters(self, query):
+    def _add_tag_filters(self, query):
         excluded_tags = list(self.excluded_tags.values_list("pk", flat=True))
         if len(excluded_tags) > 0:
             query &= ~Q(tags__pk__in=excluded_tags)
@@ -505,7 +505,7 @@ class Segment(BaseSegment, models.Model):
 
         return query
 
-    def _get_mandat_filters(self, query):
+    def _add_mandat_filters(self, query):
         if not self.elu:
             return query
 
@@ -545,7 +545,7 @@ class Segment(BaseSegment, models.Model):
 
         return query
 
-    def _get_filters(self):
+    def _add_filters(self):
         # ne pas inclure les rôles inactifs dans les envois de mail
         q = ~Q(role__is_active=False)
 
@@ -566,13 +566,13 @@ class Segment(BaseSegment, models.Model):
         elif self.is_2022 == False:
             q = q & ~Q(meta__political_support__is_2022=True)
 
-        q = self._get_tag_filters(q)
+        q = self._add_tag_filters(q)
 
-        q = self._get_qualification_filters(q)
+        q = self._add_qualification_filters(q)
 
-        q = self._get_supportgroup_filters(q)
+        q = self._add_supportgroup_filters(q)
 
-        q = self._get_event_filters(q)
+        q = self._add_event_filters(q)
 
         if self.draw_status is not None:
             q = q & Q(draw_participation=self.draw_status)
@@ -690,7 +690,7 @@ class Segment(BaseSegment, models.Model):
             else:
                 q = q & ~Q(subscriptions__status=Subscription.STATUS_ACTIVE)
 
-        q = self._get_mandat_filters(q)
+        q = self._add_mandat_filters(q)
 
         return q
 
@@ -700,7 +700,7 @@ class Segment(BaseSegment, models.Model):
         if self.elu:
             qs = qs.annotate_elus(status=self.elu_status)
 
-        qs = qs.filter(self._get_filters())
+        qs = qs.filter(self._add_filters())
 
         if exclude_bounced_emails:
             return qs.filter(emails___bounced=False)
@@ -745,7 +745,7 @@ class Segment(BaseSegment, models.Model):
         if self.elu:
             qs = qs.annotate_elus()
 
-        qs = qs.filter(self._get_filters())
+        qs = qs.filter(self._add_filters())
         is_included = qs.exists()
 
         if not is_included:
@@ -777,7 +777,7 @@ class Segment(BaseSegment, models.Model):
         if self.elu:
             qs = qs.annotate_elus()
 
-        qs = qs.filter(self._get_filters())
+        qs = qs.filter(self._add_filters())
         is_subscriber = qs.exists()
 
         if not is_subscriber:

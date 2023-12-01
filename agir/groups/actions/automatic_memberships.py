@@ -15,7 +15,7 @@ QUALIFICATION_PREFIX = "BD__"
 FINANCE_QUALIFICATION_LABEL = QUALIFICATION_PREFIX + "finances"
 
 
-def check_supportgroup_memberships(supportgroup, target_memberships, dry_run=False):
+def sync_supportgroup_memberships(supportgroup, target_memberships, dry_run=False):
     current_memberships = set(supportgroup.members.values_list("id", flat=True))
     missing_memberships = target_memberships.difference(current_memberships)
     extra_members = current_memberships.difference(target_memberships)
@@ -47,7 +47,7 @@ def check_supportgroup_memberships(supportgroup, target_memberships, dry_run=Fal
 
 
 def apply_changes(supportgroup, target_memberships, metas, dry_run=False):
-    updated_memberships, created_count, deleted_count = check_supportgroup_memberships(
+    updated_memberships, created_count, deleted_count = sync_supportgroup_memberships(
         supportgroup, target_memberships, dry_run=dry_run
     )
 
@@ -274,7 +274,7 @@ def update_memberships_from_segment(supportgroup, dry_run=False):
     target_memberships = set(
         supportgroup.membership_segment.get_people().values_list("id", flat=True)
     )
-    updated_memberships, created_count, deleted_count = check_supportgroup_memberships(
+    updated_memberships, created_count, deleted_count = sync_supportgroup_memberships(
         supportgroup, target_memberships, dry_run=dry_run
     )
     if dry_run:
