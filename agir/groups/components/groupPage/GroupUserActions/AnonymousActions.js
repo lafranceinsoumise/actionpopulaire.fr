@@ -39,6 +39,12 @@ const AnonymousActions = ({ isOpen }) => {
         link
         color="success"
         route="login"
+        disabled={!isOpen}
+        title={
+          isOpen
+            ? "Rejoindre le groupe"
+            : "Il n'est pas possible de rejoindre ce groupe"
+        }
         state={{
           from: "group",
           next: location.pathname,
