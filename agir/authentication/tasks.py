@@ -13,7 +13,7 @@ def interleave_spaces(s, n=3):
     return " ".join([s[i : i + n] for i in range(0, len(s), n)])
 
 
-@emailing_task()
+@emailing_task(priority=0)
 def send_login_email(email, short_code, expiry_time):
     utc_expiry_time = timezone.make_aware(
         timezone.datetime.utcfromtimestamp(expiry_time), timezone.utc

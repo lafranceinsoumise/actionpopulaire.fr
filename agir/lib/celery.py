@@ -75,7 +75,7 @@ def retriable_task(
     return decorate
 
 
-def http_task(post_save=False):
+def http_task(post_save=False, priority=2):
     retry_on = (
         requests.RequestException,
         requests.exceptions.Timeout,
@@ -84,11 +84,11 @@ def http_task(post_save=False):
         retry_on = (*retry_on, ObjectDoesNotExist)
 
     return retriable_task(
-        strategy=retry_strategy(start=10, retry_on=retry_on), priority=1
+        strategy=retry_strategy(start=10, retry_on=retry_on), priority=priority
     )
 
 
-def emailing_task(post_save=False):
+def emailing_task(post_save=False, priority=1):
     retry_on = (
         smtplib.SMTPException,
         socket.error,
@@ -97,7 +97,7 @@ def emailing_task(post_save=False):
         retry_on = (*retry_on, ObjectDoesNotExist)
 
     return retriable_task(
-        strategy=retry_strategy(start=10, retry_on=retry_on), priority=0
+        strategy=retry_strategy(start=10, retry_on=retry_on), priority=priority
     )
 
 
