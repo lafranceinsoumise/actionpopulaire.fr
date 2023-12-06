@@ -1,7 +1,6 @@
 import urllib.parse
 
 import django_filters
-from agir.lib.data import departements_choices, filtre_departement
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Div, Submit
 from data_france.models import CodePostal
@@ -9,7 +8,8 @@ from django import forms
 from django.forms import CheckboxInput
 
 from agir.groups.models import SupportGroup
-from agir.lib.filters import DistanceFilter
+from agir.lib.data import departements_choices, filtre_departements
+from agir.lib.filters import DistanceFilter, ChoiceInFilter
 
 
 class GroupFilterForm(forms.Form):
@@ -80,15 +80,17 @@ class GroupLocationAPIFilterSet(django_filters.rest_framework.FilterSet):
         field_name="type", label="Limiter au type", choices=SupportGroup.TYPE_CHOICES
     )
 
-    zip = django_filters.ChoiceFilter(
+    zip = ChoiceInFilter(
         field_name="location_zip",
-        label="Limiter au code postal",
+        lookup_expr="in",
+        label="Limiter aux codes postaux",
         choices=lambda: tuple(
             (code, code)
             for code in CodePostal.objects.all().values_list("code", flat=True)
         ),
     )
-    departement = django_filters.ChoiceFilter(
+
+    departement = ChoiceInFilter(
         method="filter_departement",
         label="Limiter au departement",
         choices=departements_choices,
@@ -98,7 +100,9 @@ class GroupLocationAPIFilterSet(django_filters.rest_framework.FilterSet):
         if not value:
             return qs
 
-        return qs.filter(filtre_departement(value))
+        values = value if isinstance(value, list) else [value]
+
+        return qs.filter(filtre_departements(*values))
 
     @property
     def qs(self):

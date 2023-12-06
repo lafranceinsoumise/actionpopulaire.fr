@@ -150,8 +150,20 @@ const Agenda = () => {
               : user?.firstName || user?.displayName}{" "}
             👋
           </LayoutTitle>
-          <Hide $under as={Button} small link route="eventMap" icon="map">
-            Carte
+          <Hide as="nav" $under>
+            <Button
+              small
+              link
+              route="groupUpcomingEvents"
+              icon="calendar"
+              color="transparent"
+            >
+              Agenda des GA
+            </Button>
+            &ensp;
+            <Button small link route="eventMap" icon="map">
+              Carte
+            </Button>
           </Hide>
         </TopBar>
       </header>
@@ -193,6 +205,16 @@ const Agenda = () => {
           >
             Événements
           </h2>
+          <Button
+            small
+            link
+            route="groupUpcomingEvents"
+            icon="calendar"
+            color="transparent"
+          >
+            Agenda des GA
+          </Button>
+          &ensp;
           <Button small link route="eventMap" icon="map">
             Carte
           </Button>

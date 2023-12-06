@@ -375,6 +375,10 @@ class CreateEventView(BaseAppSoftAuthView):
     api_preloads = [reverse_lazy("api_event_create_options")]
 
 
+class GroupUpcomingEventsView(BaseAppCachedView):
+    api_preloads = [reverse_lazy("api_group_upcoming_events")]
+
+
 ## SEARCH VIEW
 
 

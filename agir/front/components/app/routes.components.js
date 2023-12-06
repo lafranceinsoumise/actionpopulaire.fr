@@ -19,6 +19,12 @@ const Routes = {
         /* webpackChunkName: "r-eventmap" */ "@agir/carte/page__eventMap/EventMap"
       ),
   ),
+  GroupUpcomingEventPage: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-groupupcomingevent" */ "@agir/events/groupUpcomingEventPage/GroupUpcomingEventPage"
+      ),
+  ),
   EventPage: lazy(
     () =>
       import(

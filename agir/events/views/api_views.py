@@ -119,6 +119,7 @@ class EventListAPIView(ListAPIView):
     permission_classes = (IsPersonPermission,)
     serializer_class = EventListSerializer
     queryset = Event.objects.public()
+    max_length = None
 
     def get_queryset(self):
         return (
@@ -127,6 +128,12 @@ class EventListAPIView(ListAPIView):
             .with_serializer_prefetch(self.request.user.person)
             .select_related("subtype")
         )
+
+    def filter_queryset(self, queryset):
+        if self.max_length:
+            return super().filter_queryset(queryset)[: self.max_length]
+
+        return super().filter_queryset(queryset)
 
     def get_serializer(self, *args, **kwargs):
         return super().get_serializer(
@@ -162,6 +169,8 @@ class EventRsvpedAPIView(EventListAPIView):
 
 
 class PastRsvpedEventAPIView(EventListAPIView):
+    max_length = 20
+
     def get_queryset(self):
         return (
             super()
@@ -170,7 +179,7 @@ class PastRsvpedEventAPIView(EventListAPIView):
             .past()
             .attended_by_person(self.request.user.person)
             .order_by("start_time", "end_time")
-            .distinct()[:20]
+            .distinct()
         )
 
 
@@ -267,6 +276,7 @@ class GroupUpcomingEventListAPIView(EventListAPIView):
     queryset = Event.objects.listed()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = GroupEventAPIFilter
+    max_length = 200
 
     def get_queryset(self):
         return super().get_queryset().upcoming().distinct().order_by("start_time")
@@ -276,6 +286,7 @@ class OrganizedEventAPIView(EventListAPIView):
     queryset = Event.objects.exclude(visibility=Event.VISIBILITY_ADMIN)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = EventFilter
+    max_length = 10
 
     def get_queryset(self):
         return (
@@ -285,9 +296,6 @@ class OrganizedEventAPIView(EventListAPIView):
             .distinct()
             .order_by("-start_time")
         )
-
-    def filter_queryset(self, queryset):
-        return super().filter_queryset(queryset)[:10]
 
 
 class GrandEventAPIView(EventListAPIView):

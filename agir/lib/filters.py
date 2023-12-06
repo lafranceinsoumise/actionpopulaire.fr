@@ -105,3 +105,13 @@ class OrderByDistanceToBackend(object):
 class FixedModelMultipleChoiceFilter(django_filters.ModelMultipleChoiceFilter):
     def get_filter_predicate(self, v):
         return {self.field_name: v}
+
+
+class ChoiceInFilter(django_filters.BaseInFilter, django_filters.ChoiceFilter):
+    pass
+
+
+class ModelChoiceInFilter(
+    django_filters.BaseInFilter, django_filters.ModelChoiceFilter
+):
+    pass

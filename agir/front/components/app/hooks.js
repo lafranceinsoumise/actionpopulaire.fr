@@ -1,12 +1,10 @@
+import querystring from "query-string";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import { createGlobalState } from "react-use";
 
 import { getRouteByPathname, routeConfig } from "@agir/front/app/routes.config";
-import {
-  useIsDesktop,
-  useResponsiveMemo,
-} from "@agir/front/genericComponents/grid";
+import { useIsDesktop } from "@agir/front/genericComponents/grid";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getHasRouter, getRoutes } from "@agir/front/globalContext/reducers";
 import { useLocalStorage } from "@agir/lib/utils/hooks";
@@ -157,4 +155,32 @@ export const useRoute = (route, routeParams) => {
     url: route,
     isInternal: false,
   };
+};
+
+export const useLocationState = () => {
+  const { search, pathname } = useLocation();
+  const history = useHistory();
+
+  const params = useMemo(
+    () => querystring.parse(search, { arrayFormat: "comma" }),
+    [search],
+  );
+
+  const setParams = useCallback(
+    (key, value) => {
+      history.replace({
+        pathname: pathname,
+        search: querystring.stringify(
+          {
+            ...params,
+            [key]: value,
+          },
+          { arrayFormat: "comma" },
+        ),
+      });
+    },
+    [pathname, history, params],
+  );
+
+  return [params, setParams];
 };

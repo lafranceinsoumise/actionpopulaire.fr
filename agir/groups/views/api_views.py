@@ -5,7 +5,7 @@ from dateutil.relativedelta import relativedelta
 from django.contrib.gis.db.models.functions import Distance
 from django.core.validators import validate_email
 from django.db import transaction
-from django.db.models import Max, DateTimeField, Q
+from django.db.models import Max, DateTimeField, Q, F
 from django.db.models.functions import Greatest
 from django.utils import timezone
 from django.utils.decorators import method_decorator
@@ -151,18 +151,28 @@ class GroupSearchAPIView(ListAPIView):
 
 class GroupLocationSearchAPIView(ListAPIView):
     queryset = SupportGroup.objects.active()
-    serializer_class = SupportGroupDetailSerializer
     permission_classes = (IsActionPopulaireClientPermission,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = GroupLocationAPIFilterSet
-    ordering = ["name"]
 
-    def get_serializer(self, *args, **kwargs):
-        return super().get_serializer(
-            *args,
-            fields=("id", "name"),
-            **kwargs,
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            data = (
+                page.annotate(zip=F("location_zip"))
+                .order_by("zip", "name")
+                .values("id", "name", "zip")
+            )
+            return self.get_paginated_response(data)
+
+        data = (
+            queryset.annotate(zip=F("location_zip"))
+            .order_by("zip", "name")
+            .values("id", "name", "zip")
         )
+        return Response(data)
 
 
 class GroupSubtypesView(ListAPIView):

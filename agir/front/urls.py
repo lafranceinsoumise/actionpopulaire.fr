@@ -407,6 +407,11 @@ urlpatterns = [
         views.BaseAppCachedView.as_view(),
         name="map_event_details",
     ),
+    path(
+        "evenements/groupes/",
+        views.GroupUpcomingEventsView.as_view(),
+        name="group_upcoming_events",
+    ),
     path("evenements/creer/", views.CreateEventView.as_view(), name="create_event"),
     path(
         "evenements/creer/<path>/",

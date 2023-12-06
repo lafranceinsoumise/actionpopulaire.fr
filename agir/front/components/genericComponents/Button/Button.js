@@ -102,6 +102,34 @@ const WhiteRedButton = styled(BaseButton)`
   }
 `;
 
+const TransparentButton = styled(BaseButton)`
+  &,
+  &[disabled],
+  &[disabled]:hover,
+  &[disabled]:focus,
+  &[disabled]:active {
+    color: ${style.primary500};
+    background-color: transparent;
+    border-color: transparent;
+  }
+
+  &[disabled] {
+    opacity: 0.75;
+  }
+
+  &:hover,
+  &:focus,
+  &:active {
+    color: ${style.primary600};
+    background-color: ${style.black50};
+    border-color: ${style.black50};
+  }
+
+  &:before {
+    background-image: ${getIconDataUrl({ color: style.primary500 })};
+  }
+`;
+
 const PrimaryButton = styled(BaseButton)`
   background-color: ${style.primary500};
   border-color: ${style.primary500};
@@ -392,6 +420,7 @@ const variants = {
   default: DefaultButton,
   white: WhiteButton,
   whiteRed: WhiteRedButton,
+  transparent: TransparentButton,
   primary: PrimaryButton,
   secondary: SecondaryButton,
   tertiary: TertiaryButton,

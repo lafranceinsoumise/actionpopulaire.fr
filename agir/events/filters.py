@@ -10,7 +10,7 @@ from django.utils import timezone
 from agir.events.models import EventSubtype, Event, EventTag
 from agir.groups.models import SupportGroup
 from agir.lib.data import departements_choices, filtre_departement
-from agir.lib.filters import FixedModelMultipleChoiceFilter
+from agir.lib.filters import FixedModelMultipleChoiceFilter, ModelChoiceInFilter
 
 
 class EventFilterForm(forms.Form):
@@ -121,10 +121,12 @@ class GroupEventAPIFilter(django_filters.rest_framework.FilterSet):
         method="filter_departement",
         choices=departements_choices,
     )
-    groups = FixedModelMultipleChoiceFilter(
+    groups = ModelChoiceInFilter(
         field_name="organizers_groups",
+        lookup_expr="in",
         to_field_name="id",
         queryset=SupportGroup.objects.active(),
+        distinct=True,
     )
 
     def __init__(self, data=None, *args, **kwargs):

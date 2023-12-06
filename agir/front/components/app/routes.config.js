@@ -109,6 +109,14 @@ export const routeConfig = {
       push: false,
     }),
   }),
+  groupUpcomingEvents: new RouteConfig({
+    id: "groupUpcomingEvents",
+    path: "/evenements/groupes/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Agenda des groupes d'action",
+    Component: RouteComponents.GroupUpcomingEventPage,
+  }),
   createEvent: new RouteConfig({
     id: "createEvent",
     path: "/evenements/creer/",
