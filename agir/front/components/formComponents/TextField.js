@@ -63,12 +63,11 @@ const StyledField = styled.label`
     padding-left: ${({ $icon, $large }) =>
       $icon ? "3rem" : $large ? "0.75rem" : "0.5rem"};
     padding-right: ${({ $invalid }) => ($invalid ? "3rem" : "0.5rem")};
-    background-color: ${({ $dark }) =>
-      $dark ? style.black100 : "transparent"};
+    background-color: ${({ $dark }) => ($dark ? style.black50 : "transparent")};
     -moz-appearance: textfield;
 
     &::placeholder {
-      color: ${style.black500};
+      color: ${({ $dark }) => ($dark ? style.black700 : style.black500)};
     }
 
     &::-webkit-outer-spin-button,
