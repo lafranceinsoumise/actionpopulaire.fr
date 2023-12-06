@@ -3,12 +3,12 @@ import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 
 import { useMiniSearch } from "@agir/lib/utils/search";
-import { slugify } from "@agir/lib/utils/url";
 
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
 import ThematicGroupCard from "./ThematicGroupCard";
 import CounterBadge from "@agir/front/app/Navigation/CounterBadge";
+import Spacer from "@agir/front/genericComponents/Spacer";
 
 const StyledList = styled.ul`
   margin: 0;
@@ -98,22 +98,6 @@ const ThematicGroupList = (props) => {
     },
   );
 
-  const subtypes = useMemo(() => {
-    const subtypes = {};
-    visibleGroups.forEach((group) => {
-      subtypes[group.subtype.label] = subtypes[group.subtype.label] || {
-        ...group.subtype,
-        slug: slugify(group.subtype.description),
-        groups: [],
-      };
-      subtypes[group.subtype.label].groups.push(group);
-    });
-
-    return Object.values(subtypes).sort((a, b) =>
-      a.label.localeCompare(b.label),
-    );
-  }, [visibleGroups]);
-
   const handleSearch = useCallback(
     (e) => {
       setSearchTerm(e.target.value);
@@ -136,46 +120,19 @@ const ThematicGroupList = (props) => {
           dark
         />
       )}
-      {subtypes.length > 0 && (
-        <nav>
-          <ul>
-            {subtypes.map((subtype) => (
-              <li key={subtype.id}>
-                <Button
-                  link
-                  wrap
-                  color="link"
-                  icon="arrow-right"
-                  href={"#" + subtype.slug}
-                >
-                  {subtype.description}
-                </Button>
-                {searchTerm && (
-                  <CounterBadge
-                    value={subtype.groups.length}
-                    $background="primary600"
-                  />
-                )}
-              </li>
-            ))}
-          </ul>
-        </nav>
-      )}
-      {subtypes.length === 0 && (
+      <Spacer size="1rem" />
+      {visibleGroups.length === 0 && (
         <p>
           <em>— Aucun groupe thématique n'a été retrouvé !</em>
         </p>
       )}
-      {subtypes.map((subtype) => (
-        <StyledList key={subtype.label} id={subtype.slug}>
-          <h4>{subtype.description}</h4>
-          {subtype.groups.map((group) => (
-            <li key={group.id}>
-              <ThematicGroupCard {...group} />
-            </li>
-          ))}
-        </StyledList>
-      ))}
+      <StyledList>
+        {visibleGroups.map((group) => (
+          <li key={group.id}>
+            <ThematicGroupCard {...group} />
+          </li>
+        ))}
+      </StyledList>
     </StyledContainer>
   );
 };
