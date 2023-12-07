@@ -46,6 +46,8 @@ class PersonalInformationForm(BaseDonorForm):
         if regularite != Regularite.PONCTUEL:
             del self.fields["payment_mode"]
 
+        self.fields["contact_phone"].help_text = ""
+
     def clean(self):
         cleaned_data = super().clean()
 
