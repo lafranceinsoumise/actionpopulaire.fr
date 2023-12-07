@@ -6,14 +6,16 @@ import Link from "@agir/front/app/Link";
 import Button from "@agir/front/genericComponents/Button";
 import FaIcon from "@agir/front/genericComponents/FaIcon";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import { Hide } from "@agir/front/genericComponents/grid";
 
 const StyledCardItem = styled(Link)`
   padding: 1.5rem;
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: ${(props) => (props.$highlight ? 1.5 : 1)}rem;
   box-shadow: ${({ theme }) => theme.cardShadow};
-  background-color: white;
+  background-color: ${(props) =>
+    props.$highlight ? props.theme.primary50 : props.theme.white};
 
   @media (max-width: ${({ theme }) => theme.collapse}px) {
     align-items: flex-start;
@@ -40,12 +42,16 @@ const StyledCardItem = styled(Link)`
   }
 
   & > i,
-  & > ${RawFeatherIcon} {
+  & > ${RawFeatherIcon}, & > ${Button} {
     flex: 0 0 auto;
 
     @media (max-width: 360px) {
       display: none;
     }
+  }
+
+  & > ${Button} {
+    align-self: center;
   }
 
   & > span {
@@ -55,9 +61,9 @@ const StyledCardItem = styled(Link)`
     gap: 0.25rem;
 
     & > strong {
-      font-weight: 500;
+      font-weight: ${(props) => (props.$highlight ? 700 : 500)};
       font-size: 1rem;
-      line-height: 1.5;
+      line-height: 1.4;
     }
 
     & > span {
@@ -79,7 +85,7 @@ const StyledCard = styled.ul`
 export const ActionTools = () => {
   return (
     <StyledCard>
-      <StyledCardItem as="span">
+      <StyledCardItem route="donationLanding" $highlight>
         <i
           aria-hidden="true"
           css={`
@@ -90,14 +96,16 @@ export const ActionTools = () => {
           <RawFeatherIcon name="heart" />
         </i>
         <span>
-          <strong>Financer les actions du mouvement</strong>
+          <strong>Soutenir financièrement la France insoumise</strong>
           <span>
             Pour que le mouvement puisse financer ses frais de fonctionnement,
             organiser des actions et s’équiper en matériel, vous pouvez
             contribuer financièrement de manière ponctuelle ou mensuellement.
             Chaque euro compte.
           </span>
-          <span
+          <Hide
+            $over
+            as="span"
             css={`
               display: inline-flex;
               flex-wrap: wrap;
@@ -105,11 +113,14 @@ export const ActionTools = () => {
               margin-top: 0.25rem;
             `}
           >
-            <Button small link route="donationLanding">
-              En savoir plus sur le financement
+            <Button small link route="donationLanding" color="primary">
+              Faire un don
             </Button>
-          </span>
+          </Hide>
         </span>
+        <Hide $under as={Button} link route="donationLanding" color="primary">
+          Faire un don
+        </Hide>
       </StyledCardItem>
       <StyledCardItem as="span">
         <i

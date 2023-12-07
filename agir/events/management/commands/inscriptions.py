@@ -105,7 +105,7 @@ def get_current_status(config):
         str(id)
         for id in Person.objects.filter(
             rsvps__event=event,
-            rsvps__status__in=[RSVP.STATUS_AWAITING_PAYMENT, RSVP.STATUS_CONFIRMED],
+            rsvps__status__in=[RSVP.Status.AWAITING_PAYMENT, RSVP.Status.CONFIRMED],
         )
         .exclude(tags=tag_designated)
         .values_list("id", flat=True)

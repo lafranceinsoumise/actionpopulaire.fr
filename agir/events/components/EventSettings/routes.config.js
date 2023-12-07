@@ -197,15 +197,17 @@ const getActiveRoutes = (event) =>
     return !!route.isActive;
   });
 
-export const getRoutes = (basePath, event) =>
-  getActiveRoutes(event).map(
+export const getRoutes = (basePath, group) =>
+  getActiveRoutes(group).map(
     (route) =>
       new RouteConfig({
         ...route,
-        disabled:
-          typeof route?.disabled === "function"
-            ? route.disabled(event)
-            : route.disabled === true,
+        label:
+          typeof route.label === "function" ? route.label(group) : route.label,
+        Component:
+          typeof route.getComponent === "function"
+            ? route.getComponent(group)
+            : route.Component,
         path: basePath + menuRoute.path + route.path,
       }),
   );

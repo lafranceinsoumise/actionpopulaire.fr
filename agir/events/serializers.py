@@ -157,61 +157,49 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         "distance",
         "eventSpeakers",
     ]
-
     id = serializers.UUIDField()
     url = serializers.HyperlinkedIdentityField(view_name="view_event")
     name = serializers.CharField()
     hasSubscriptionForm = serializers.SerializerMethodField()
-
     description = serializers.CharField(source="html_description")
     textDescription = serializers.SerializerMethodField()
     compteRendu = serializers.CharField(source="report_content")
     compteRenduMainPhoto = serializers.SerializerMethodField(source="report_image")
     compteRenduPhotos = serializers.SerializerMethodField()
-
     illustration = serializers.SerializerMethodField()
     metaImage = serializers.SerializerMethodField()
-
     startTime = serializers.SerializerMethodField()
     endTime = serializers.SerializerMethodField()
     timezone = serializers.CharField()
-
     location = LocationSerializer(source="*")
-
     isOrganizer = serializers.SerializerMethodField()
     isManager = serializers.SerializerMethodField()
     isEditable = serializers.BooleanField(source="subtype.is_editable", read_only=True)
-
     rsvp = serializers.SerializerMethodField()
-
+    rsvped = serializers.SerializerMethodField(read_only=True)
+    canRSVP = serializers.SerializerMethodField(method_name="can_rsvp", read_only=True)
+    canCancelRSVP = serializers.SerializerMethodField(
+        method_name="can_cancel_rsvp", read_only=True
+    )
+    canRSVPAsGroup = serializers.SerializerMethodField(
+        method_name="can_rsvp_as_group", read_only=True
+    )
     options = EventOptionsSerializer(source="*")
-
     routes = RoutesField(routes=EVENT_ROUTES)
-
     groups = serializers.SerializerMethodField()
-
-    groupsAttendees = serializers.SerializerMethodField()
-
+    groupsAttendees = serializers.SerializerMethodField(
+        method_name="get_groups_attendees"
+    )
     contact = serializers.SerializerMethodField()
-
     distance = serializers.SerializerMethodField()
-
     subtype = EventSubtypeSerializer()
-
     allowGuests = serializers.BooleanField(source="allow_guests")
-
     onlineUrl = serializers.URLField(source="online_url")
     youtubeVideoID = serializers.SerializerMethodField(
         method_name="youtube_video_id", read_only=True
     )
-
     isPast = serializers.SerializerMethodField(
         read_only=True, method_name="get_is_past"
-    )
-
-    canRSVP = serializers.SerializerMethodField(method_name="can_rsvp", read_only=True)
-    canRSVPAsGroup = serializers.SerializerMethodField(
-        method_name="can_rsvp_as_group", read_only=True
     )
     unauthorizedMessage = serializers.CharField(
         source="subtype.unauthorized_message", read_only=True
@@ -311,8 +299,20 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
         return False
 
-    def get_rsvp(self, obj):
+    def get_rsvp(self, _obj):
         return self.rsvp and self.rsvp.status
+
+    def get_rsvped(self, _obj):
+        return self.rsvp and self.rsvp.status == RSVP.Status.CONFIRMED
+
+    def can_rsvp(self, obj):
+        return obj.can_rsvp(self.person)
+
+    def can_cancel_rsvp(self, obj):
+        return obj.can_cancel_rsvp(self.person)
+
+    def can_rsvp_as_group(self, obj):
+        return obj.can_rsvp_as_group(self.person)
 
     def get_compteRenduMainPhoto(self, obj):
         if obj.report_image:
@@ -393,7 +393,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
             ],
         ).data
 
-    def get_groupsAttendees(self, obj):
+    def get_groups_attendees(self, obj):
         if hasattr(obj, "_pf_group_attendees"):
             groups = [
                 {"id": group.id, "name": group.name}
@@ -408,10 +408,13 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         if not self.person:
             return [{**group, "isManager": False} for group in groups]
 
-        managed_group_ids = self.person.memberships.filter(
-            supportgroup_id__in=[group["id"] for group in groups],
-            membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
-        ).values_list("supportgroup_id", flat=True)
+        managed_group_ids = (
+            self.person.memberships.managers()
+            .filter(
+                supportgroup_id__in=[group["id"] for group in groups],
+            )
+            .values_list("supportgroup_id", flat=True)
+        )
 
         return [
             {**group, "isManager": group["id"] in managed_group_ids} for group in groups
@@ -439,12 +442,6 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
                 pass
         return ""
 
-    def can_rsvp(self, obj):
-        return obj.can_rsvp(self.person)
-
-    def can_rsvp_as_group(self, obj):
-        return obj.can_rsvp_as_group(self.person)
-
     def get_event_speakers(self, obj):
         event_speakers = list(obj.event_speakers.all())
         return [
@@ -468,37 +465,53 @@ class EventAdvancedSerializer(EventSerializer):
         source="subtype.is_coorganizable", read_only=True
     )
 
+    def format_person(
+        self, person, is_speaker=False, is_organizer=False, unavailable=False
+    ):
+        formatted_person = {
+            "id": person.id,
+            "displayName": person.display_name,
+            "image": None,
+            "isOrganizer": is_organizer,
+            "isEventSpeaker": is_speaker,
+            "unavailable": unavailable,
+        }
+
+        if person.image and person.image.thumbnail:
+            formatted_person["image"] = person.image.thumbnail.url
+
+        if is_speaker:
+            formatted_person["displayName"] = person.get_full_name()
+
+        if unavailable and not is_organizer:
+            return formatted_person
+
+        return {
+            **formatted_person,
+            "email": person.display_email,
+            "gender": person.gender,
+        }
+
     def get_participants(self, obj):
         speaker_person_ids = list(
             obj.event_speakers.values_list("person_id", flat=True)
         )
         organizers = {
-            str(person.id): {
-                "id": person.id,
-                "email": person.display_email,
-                "displayName": person.get_full_name()
-                if person.id in speaker_person_ids
-                else person.display_name,
-                "gender": person.gender,
-                "isOrganizer": True,
-                "isEventSpeaker": person.id in speaker_person_ids,
-            }
+            str(person.id): self.format_person(
+                person, is_organizer=True, is_speaker=person.id in speaker_person_ids
+            )
             for person in obj.get_organizer_people()
         }
         participants = {
-            str(person.id): {
-                "id": person.id,
-                "email": person.display_email,
-                "displayName": person.get_full_name()
-                if person.id in speaker_person_ids
-                else person.display_name,
-                "gender": person.gender,
-                "isOrganizer": False,
-                "isEventSpeaker": person.id in speaker_person_ids,
-            }
-            for person in obj.confirmed_attendees.exclude(id__in=organizers.keys())
+            str(person.id): self.format_person(
+                person,
+                is_organizer=str(person.id) in organizers.keys(),
+                is_speaker=person.id in speaker_person_ids,
+                unavailable=person.unavailable,
+            )
+            for person in obj.annotated_attendees
+            if person.confirmed or person.unavailable
         }
-
         participants = {
             **organizers,
             **participants,

@@ -17,7 +17,7 @@ const StyledWrapper = styled.div`
   gap: 0.5rem;
 `;
 
-const FollowerActions = ({ isLoading, onJoin, onEdit, onQuit }) => {
+const FollowerActions = ({ isLoading, isOpen, onJoin, onEdit, onQuit }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const openMenu = useCallback(() => setIsMenuOpen(true), []);
   const closeMenu = useCallback(() => setIsMenuOpen(false), []);
@@ -49,24 +49,28 @@ const FollowerActions = ({ isLoading, onJoin, onEdit, onQuit }) => {
                 Préférences de confidentialité
               </button>
             </li>
-            <li>
-              <button type="button" onClick={onQuit}>
-                <RawFeatherIcon name="x" width="1rem" height="1rem" />
-                Arrêter d’être abonné·e
-              </button>
-            </li>
+            {isOpen && (
+              <li>
+                <button type="button" onClick={onQuit}>
+                  <RawFeatherIcon name="x" width="1rem" height="1rem" />
+                  Arrêter d’être abonné·e
+                </button>
+              </li>
+            )}
           </StyledMenuList>
         </ResponsiveLayout>
       </div>
-      <Button
-        block
-        onClick={onJoin}
-        loading={isLoading}
-        disabled={isLoading}
-        icon="plus"
-      >
-        Rejoindre
-      </Button>
+      {isOpen && (
+        <Button
+          block
+          onClick={onJoin}
+          loading={isLoading}
+          disabled={isLoading}
+          icon="plus"
+        >
+          Rejoindre
+        </Button>
+      )}
     </StyledWrapper>
   );
 };
@@ -76,6 +80,7 @@ FollowerActions.propTypes = {
   onEdit: PropTypes.func.isRequired,
   onQuit: PropTypes.func.isRequired,
   isLoading: PropTypes.bool,
+  isOpen: PropTypes.bool,
 };
 
 export default FollowerActions;

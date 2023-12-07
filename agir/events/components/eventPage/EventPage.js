@@ -65,7 +65,6 @@ export const ConnectedEventPage = (props) => {
   const { data: eventData, error } = useSWR(
     api.getEventEndpoint("getEvent", { eventPk }),
   );
-
   const EventPage = useResponsiveMemo(MobileLayout, DesktopLayout);
 
   useEffect(() => {
@@ -100,6 +99,7 @@ export const ConnectedEventPage = (props) => {
     if (!eventData) {
       return eventData;
     }
+
     const start =
       typeof eventData.startTime === "string"
         ? DateTime.fromISO(eventData.startTime).setLocale("fr")

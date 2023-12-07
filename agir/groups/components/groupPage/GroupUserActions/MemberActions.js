@@ -18,7 +18,7 @@ const StyledWrapper = styled.div`
   position: relative;
 `;
 
-const MemberActions = ({ onQuit, onEdit }) => {
+const MemberActions = ({ isOpen, onQuit, onEdit }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const openMenu = useCallback(() => setIsMenuOpen(true), []);
   const closeMenu = useCallback(() => setIsMenuOpen(false), []);
@@ -49,12 +49,14 @@ const MemberActions = ({ onQuit, onEdit }) => {
               Préférences de confidentialité
             </button>
           </li>
-          <li>
-            <button type="button" onClick={onQuit}>
-              <RawFeatherIcon name="x" width="1rem" height="1rem" />
-              Quitter le groupe
-            </button>
-          </li>
+          {isOpen && (
+            <li>
+              <button type="button" onClick={onQuit}>
+                <RawFeatherIcon name="x" width="1rem" height="1rem" />
+                Quitter le groupe
+              </button>
+            </li>
+          )}
         </StyledMenuList>
       </ResponsiveLayout>
     </StyledWrapper>

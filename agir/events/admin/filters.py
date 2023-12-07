@@ -131,12 +131,10 @@ class RSVPGuestFilter(SimpleListFilter):
 
     def queryset(self, request, queryset):
         if self.value() == "none":
-            return queryset.filter(guests=0).exclude(
-                identified_guests__status=RSVP.STATUS_CONFIRMED
-            )
+            return queryset.without_guests()
         if self.value() == "all":
-            return queryset.filter(guests__gt=0)
+            return queryset.with_guests()
         if self.value() == "identified":
-            return queryset.filter(identified_guests__status=RSVP.STATUS_CONFIRMED)
+            return queryset.with_identified_guests()
 
         return queryset

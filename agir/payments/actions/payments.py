@@ -1,7 +1,5 @@
 from datetime import datetime
-from functools import partial
 
-from django.db import transaction
 from django.http.response import HttpResponseRedirect
 from django.template import loader
 from django.utils import timezone
@@ -89,6 +87,9 @@ def change_payment_status(payment, status):
 def wait_for_payment(payment):
     if payment.is_done():
         raise PaymentException("Le paiement a déjà été terminé.")
+
+    if payment.status == Payment.STATUS_WAITING:
+        return
 
     payment.status = Payment.STATUS_WAITING
     payment.save(update_fields=["status", "events"])

@@ -4,6 +4,7 @@ from itertools import chain
 from operator import or_
 
 import iso8601
+from data_france.models import Commune
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db.models import Subquery, OuterRef, QuerySet
@@ -165,6 +166,14 @@ class PersonFormDisplay:
             value = [
                 str(PersonTag.objects.filter(id=tag_id).first()) for tag_id in value
             ]
+        elif field_type == "commune":
+            try:
+                if isinstance(value, int):
+                    return Commune.objects.get(pk=value)
+                type, code = value.split("-")
+                return Commune.objects.get(type=type, code=code)
+            except (ValueError, Commune.DoesNotExist):
+                value = value
 
         if isinstance(value, list):
             value = ", ".join(value)

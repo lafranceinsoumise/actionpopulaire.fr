@@ -1,10 +1,10 @@
+import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 import { DateTime } from "luxon";
 
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer";
-import style from "@agir/front/genericComponents/_variables.scss";
 
 import StyledCard from "./StyledCard";
 
@@ -43,18 +43,18 @@ const EventPhotosCard = (props) => {
     compteRenduMainPhoto,
     compteRenduPhotos,
     endTime,
-    rsvp,
+    rsvped,
     routes,
     isOrganizer,
   } = props;
 
   const isPast = endTime < DateTime.local();
-  const isRSVP = rsvp === "CO" || isOrganizer;
+  const canAddPhotos = isPast && (rsvped || isOrganizer);
   const mainPhoto = compteRenduMainPhoto ? [compteRenduMainPhoto] : [];
   const morePhotos = compteRenduPhotos?.length ? compteRenduPhotos : [];
   const photos = mainPhoto.concat(morePhotos);
 
-  if (photos.length === 0 && (!isRSVP || !isPast)) {
+  if (photos.length === 0 && !canAddPhotos) {
     return null;
   }
 
@@ -89,7 +89,7 @@ const EventPhotosCard = (props) => {
       ) : (
         <p>Il n'y a pas encore de photo de cet événement.</p>
       )}
-      {isPast && isRSVP && (
+      {canAddPhotos && (
         <div style={{ paddingTop: "1rem" }}>
           <Button link href={routes.addPhoto}>
             Ajouter une photo
@@ -99,5 +99,12 @@ const EventPhotosCard = (props) => {
     </StyledCard>
   );
 };
-
+EventPhotosCard.propTypes = {
+  compteRenduMainPhoto: PropTypes.object,
+  compteRenduPhotos: PropTypes.arrayOf(PropTypes.object),
+  endTime: PropTypes.object,
+  rsvped: PropTypes.bool,
+  routes: PropTypes.object,
+  isOrganizer: PropTypes.bool,
+};
 export default EventPhotosCard;

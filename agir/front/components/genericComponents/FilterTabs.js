@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useState } from "react";
+import React, { useMemo } from "react";
 import { useScrollbarWidth } from "react-use";
 import styled from "styled-components";
 
@@ -10,12 +10,16 @@ const Tab = styled.button`
   border: none;
   color: ${({ $active }) => ($active ? style.primary500 : style.black500)};
   box-shadow: ${({ $active }) =>
-    $active ? `inset 0 -3px 0 ${style.primary500}` : "inset 0 0 0 transparent"};
+    $active
+      ? `inset 0 -0.1875rem 0 ${style.primary500}`
+      : "inset 0 0 0 transparent"};
   transition: all 200ms ease-in-out;
+
+  &:disabled {
+    color: ${style.black200};
+  }
 `;
-
 const TabList = styled.div``;
-
 const TabListWrapper = styled.div`
   width: 100%;
   padding: 0;
@@ -28,11 +32,11 @@ const TabListWrapper = styled.div`
   }
 
   ${TabList} {
-    padding: 1px 1rem 0 1px;
+    padding: 0.0625rem 1rem 0 0.0625rem;
     white-space: nowrap;
-    border-bottom: 1px solid ${style.black200};
+    border-bottom: 0.0625rem solid ${style.black200};
     display: inline-flex;
-    gap: 16px;
+    gap: 1rem;
     min-width: 100%;
 
     ${Tab} {
@@ -40,14 +44,18 @@ const TabListWrapper = styled.div`
       align-items: center;
       justify-content: flex-start;
       width: auto;
-      height: 1.5rem;
+      height: ${(props) => (props.$small ? "1.5rem" : "2rem")};
       text-transform: uppercase;
-      padding: 0 2px;
-      font-size: 11px;
+      padding: 0 0.125rem;
+      font-size: ${(props) => (props.$small ? ".6875rem" : "0.875rem")};
       font-weight: 600;
       text-align: left;
       cursor: pointer;
       white-space: nowrap;
+
+      &:disabled {
+        cursor: default;
+      }
     }
   }
 
@@ -73,24 +81,33 @@ const TabListWrapper = styled.div`
 `;
 
 const FilterTabs = (props) => {
-  const { tabs, activeTab = 0, onTabChange } = props;
+  const { tabs, activeTab = 0, onTabChange, small = true, ...rest } = props;
 
   const sbw = useScrollbarWidth();
 
-  if (tabs.length === 0) {
+  const tabConfigs = useMemo(() => {
+    if (!Array.isArray(tabs)) {
+      return tabs;
+    }
+
+    return tabs.map((tab) => (typeof tab === "string" ? { label: tab } : tab));
+  }, [tabs]);
+
+  if (tabConfigs.length === 0) {
     return null;
   }
 
   return (
-    <TabListWrapper $sbw={sbw}>
+    <TabListWrapper {...rest} $sbw={sbw} $small={small}>
       <TabList>
-        {tabs.map((label, index) => (
+        {tabConfigs.map((tabConfig, index) => (
           <Tab
+            {...tabConfig}
             key={index}
             $active={index === activeTab}
-            onClick={(e) => onTabChange(index)}
+            onClick={() => onTabChange(index)}
           >
-            {label}
+            {tabConfig.label}
           </Tab>
         ))}
       </TabList>
@@ -104,4 +121,5 @@ FilterTabs.propTypes = {
   tabs: PropTypes.arrayOf(PropTypes.string).isRequired,
   activeTab: PropTypes.number,
   onTabChange: PropTypes.func.isRequired,
+  small: PropTypes.bool,
 };

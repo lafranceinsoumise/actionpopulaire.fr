@@ -29,7 +29,12 @@ const NonMemberActions = (props) => {
       <Button
         type="button"
         color="success"
-        disabled={isLoading}
+        disabled={!isOpen || isLoading}
+        title={
+          isOpen
+            ? "Rejoindre le groupe"
+            : "Il n'est pas possible de rejoindre ce groupe"
+        }
         onClick={onJoin}
         icon="plus"
       >

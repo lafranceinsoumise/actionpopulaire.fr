@@ -157,7 +157,7 @@ const EventMember = (props) => {
     <Member>
       <Avatar image={image} name={displayName} />
       <Role>
-        {memberTypeConfig && (
+        {memberTypeConfig?.label && (
           <span>
             {memberTypeConfig.icon}&ensp;{memberTypeConfig.label}
           </span>

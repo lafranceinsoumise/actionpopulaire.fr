@@ -48,7 +48,7 @@ class PollParticipationView(
     def get_context_data(self, **kwargs):
         is_authorized = (
             self.object.authorized_segment is None
-            or self.object.authorized_segment.is_subscriber(self.request.user.person)
+            or self.object.authorized_segment.is_included(self.request.user.person)
         )
 
         if not is_authorized and not self.object.unauthorized_message:
@@ -93,9 +93,7 @@ class PollParticipationView(
         self.object = self.get_object()
         if (
             self.object.authorized_segment is not None
-            and not self.object.authorized_segment.is_subscriber(
-                self.request.user.person
-            )
+            and not self.object.authorized_segment.is_included(self.request.user.person)
         ):
             raise PermissionDenied(
                 "Vous n'êtes pas autorisé⋅e à participer à cette consultation."

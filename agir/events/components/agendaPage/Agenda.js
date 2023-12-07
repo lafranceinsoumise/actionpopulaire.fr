@@ -5,29 +5,29 @@ import useSWR from "swr";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
+import FeedbackButton from "@agir/front/allPages/FeedbackButton";
 import ActionButtons from "@agir/front/app/ActionButtons/ActionButtons";
+import { LayoutTitle } from "@agir/front/app/Layout/StyledComponents";
 import Button from "@agir/front/genericComponents/Button";
 import Card from "@agir/front/genericComponents/Card";
-import CustomAnnouncementCard from "@agir/activity/common/CustomAnnouncementCard";
-import FeedbackButton from "@agir/front/allPages/FeedbackButton";
-import { Hide, useIsDesktop } from "@agir/front/genericComponents/grid";
-import { LayoutTitle } from "@agir/front/app/Layout/StyledComponents";
 import RenderIfVisibile from "@agir/front/genericComponents/RenderIfVisible";
+import { Hide, useIsDesktop } from "@agir/front/genericComponents/grid";
 
+import UpcomingEvents from "@agir/events/common/UpcomingEvents";
 import Onboarding from "@agir/front/genericComponents/Onboarding";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 import Spacer from "@agir/front/genericComponents/Spacer";
-import UpcomingEvents from "@agir/events/common/UpcomingEvents";
 import EventSuggestions from "./EventSuggestions";
 
+import DonationAnnouncement from "@agir/activity/announcements/DonationAnnouncement";
+import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import {
   getIsSessionLoaded,
   getRoutes,
   getUser,
 } from "@agir/front/globalContext/reducers";
 import logger from "@agir/lib/utils/logger";
-import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getAgendaEndpoint } from "./api.js";
 
 const log = logger(__filename);
@@ -139,6 +139,9 @@ const Agenda = () => {
           </h2>
           <ActionButtons />
         </Hide>
+        <Hide as={Spacer} $over size="1.5rem" />
+        <DonationAnnouncement />
+        <Hide as={Spacer} $under size="1.5rem" />
         <TopBar>
           <LayoutTitle>
             Bonjour{" "}
@@ -152,10 +155,6 @@ const Agenda = () => {
           </Hide>
         </TopBar>
       </header>
-      <CustomAnnouncementCard
-        slug="BouclesDepartementaleAnnouncement"
-        useAnnouncementData
-      />
       <PageFadeIn
         style={{ marginBottom: "4rem" }}
         ready={isReady}

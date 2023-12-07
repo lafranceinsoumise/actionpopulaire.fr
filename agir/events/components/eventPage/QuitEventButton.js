@@ -15,8 +15,8 @@ import logger from "@agir/lib/utils/logger";
 const log = logger(__filename);
 
 const StyledDialog = styled.div`
-  max-width: 415px;
-  margin: 40px auto;
+  max-width: 540px;
+  margin: 160px auto;
   background-color: ${(props) => props.theme.white};
   border-radius: ${(props) => props.theme.borderRadius};
   padding: 1rem;
@@ -41,31 +41,30 @@ const StyledDialog = styled.div`
       padding: 0;
       font-size: 0.875rem;
       line-height: 1.5;
+      color: ${(props) => props.theme.black500};
     }
   }
+
   footer {
     display: flex;
-    margin-top: 1.5rem;
-    flex-flow: column nowrap;
+    margin-top: 2rem;
+    flex-flow: row wrap;
+    gap: 0.5rem;
 
     ${Button} {
-      flex: 1 1 auto;
+      flex: 1 0 auto;
       transition: opacity 250ms ease-in-out;
-    }
-
-    ${Button} + ${Button} {
-      margin: 0.5rem 0 0;
     }
   }
 `;
 const StyledWrapper = styled.div`
   font-size: 1rem;
   font-weight: 600;
-  font-color: ${(props) => props.theme.black500};
+  color: ${(props) => props.theme.black500};
   white-space: nowrap;
 `;
 
-const QuitEventButton = ({ eventPk, group, isOpen, setIsOpen }) => {
+const QuitEventButton = ({ eventPk, group, isOpen, setIsOpen, rsvped }) => {
   const [isQuitting, setIsQuitting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -84,23 +83,16 @@ const QuitEventButton = ({ eventPk, group, isOpen, setIsOpen }) => {
       } catch (err) {
         error = err.message;
       }
-      setIsLoading(false);
-      setIsQuitting(false);
-      setIsOpen && setIsOpen(false);
       if (error) {
         log.error(error);
         return;
       }
-      if (!groupPk) {
-        mutate(api.getEventEndpoint("getEvent", { eventPk }), (event) => ({
-          ...event,
-          rsvped: false,
-        }));
-        return;
-      }
       mutate(api.getEventEndpoint("getEvent", { eventPk }));
+      setIsLoading(false);
+      setIsQuitting(false);
+      setIsOpen && setIsOpen(false);
     },
-    [eventPk],
+    [eventPk, groupPk, setIsOpen],
   );
 
   const openDialog = useCallback((e) => {
@@ -113,7 +105,7 @@ const QuitEventButton = ({ eventPk, group, isOpen, setIsOpen }) => {
   const closeDialog = useCallback(() => {
     setIsQuitting(false);
     setIsOpen && setIsOpen(false);
-  }, []);
+  }, [setIsOpen]);
 
   return (
     <StyledWrapper>
@@ -134,40 +126,40 @@ const QuitEventButton = ({ eventPk, group, isOpen, setIsOpen }) => {
       >
         <StyledDialog>
           <main>
-            <h4>
-              {!groupPk ? (
-                "Annuler ma participation à l'événement"
-              ) : (
-                <>Annuler la participation du groupe à l’évément&nbsp;?</>
-              )}
-            </h4>
-            <p>
-              {!groupPk ? (
-                <>
-                  Souhaitez-vous réellement ne plus participer à
-                  l'événement&nbsp;?
-                </>
-              ) : (
-                <>
+            {groupPk ? (
+              <>
+                <h4>Annuler la participation du groupe à l’événement&nbsp;?</h4>
+                <p>
                   <b>{group.name}</b> ne sera plus indiqué comme participant à
                   l’événement.
                   <Spacer size="1rem" />
                   L’événement sera retiré de l’agenda du groupe.
-                </>
-              )}
-            </p>
+                </p>
+              </>
+            ) : (
+              <>
+                <h4>
+                  Confirmez-vous que vous ne participez pas à l'événement ?
+                </h4>
+                <p>
+                  Les organisateur·ices de l'événement auront accès à la liste
+                  des personnes ayant indiqué leur indisponibilité (nom
+                  d'affichage et image de profil).
+                </p>
+              </>
+            )}
           </main>
           <footer>
+            <Button color="choose" onClick={closeDialog} disabled={isLoading}>
+              Annuler
+            </Button>
             <Button
-              color="danger"
+              color="primary"
               onClick={handleQuit}
               isLoading={isLoading}
               disabled={isLoading}
             >
-              {!groupPk ? "Quitter l'événement" : "Confirmer"}
-            </Button>
-            <Button color="default" onClick={closeDialog} disabled={isLoading}>
-              Annuler
+              Je ne participe pas à l'événement
             </Button>
           </footer>
         </StyledDialog>
@@ -182,6 +174,7 @@ QuitEventButton.propTypes = {
     name: PropTypes.string,
   }),
   isOpen: PropTypes.bool,
+  rsvped: PropTypes.bool,
   setIsOpen: PropTypes.func,
 };
 export default QuitEventButton;

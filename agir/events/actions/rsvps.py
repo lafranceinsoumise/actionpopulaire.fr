@@ -107,17 +107,17 @@ def _get_rsvp_for_event(event, person, form_submission, paying):
     try:
         rsvp = RSVP.objects.select_for_update().get(event=event, person=person)
 
-        if rsvp.status == RSVP.STATUS_CONFIRMED:
+        if rsvp.status == RSVP.Status.CONFIRMED:
             raise RSVPException(MESSAGES["already_rsvped"])
 
-        if rsvp.status == RSVP.STATUS_CANCELED:
+        if rsvp.status == RSVP.Status.CANCELLED:
             _ensure_can_rsvp(event, 1)
 
     except RSVP.DoesNotExist:
         _ensure_can_rsvp(event, 1)
         rsvp = RSVP(event=event, person=person)
 
-    rsvp.status = RSVP.STATUS_AWAITING_PAYMENT if paying else RSVP.STATUS_CONFIRMED
+    rsvp.status = RSVP.Status.AWAITING_PAYMENT if paying else RSVP.Status.CONFIRMED
     rsvp.form_submission = form_submission
 
     return rsvp
@@ -145,8 +145,37 @@ def rsvp_to_free_event(event, person, form_submission=None):
 
 
 def cancel_rsvp(rsvp):
-    rsvp.status = RSVP.STATUS_CANCELED
+    if rsvp.status == RSVP.Status.CANCELLED:
+        return
+
+    rsvp.status = RSVP.Status.CANCELLED
     rsvp.save()
+
+
+def cancel_rsvp_payment(rsvp, person=None):
+    if not rsvp.payment:
+        return
+
+    if not rsvp.payment.can_cancel():
+        raise RSVPException("Ce mode de paiement ne permet pas l'annulation.")
+
+    user = person.role if person else None
+    log_payment_event(
+        rsvp.payment,
+        event="cancel_payment",
+        origin="agir.events.actions.rsvps.rsvp_to_paid_event_and_create_payment",
+        user=user,
+    )
+
+    cancel_payment(rsvp.payment)
+
+
+def cancel_rsvp_and_payment(rsvp, person=None):
+    with transaction.atomic():
+        cancel_rsvp(rsvp)
+        cancel_rsvp_payment(rsvp, person)
+
+        return rsvp
 
 
 def rsvp_to_paid_event_and_create_payment(
@@ -171,21 +200,16 @@ def rsvp_to_paid_event_and_create_payment(
 
     with transaction.atomic():
         rsvp = _get_rsvp_for_event(event, person, form_submission, True)
-        if rsvp.payment is not None:
-            if rsvp.payment.mode == payment_mode.id and rsvp.payment.can_retry():
-                return rsvp.payment
 
-            if not rsvp.payment.can_cancel():
-                raise RSVPException("Ce mode de paiement ne permet pas l'annulation.")
+        if (
+            rsvp.payment is not None
+            and rsvp.payment.mode == payment_mode.id
+            and rsvp.payment.can_retry()
+        ):
+            rsvp.save()
+            return rsvp.payment
 
-            log_payment_event(
-                rsvp.payment,
-                event="cancel_payment",
-                origin="agir.events.actions.rsvps.rsvp_to_paid_event_and_create_payment",
-                user=person.role,
-            )
-            cancel_payment(rsvp.payment)
-
+        cancel_rsvp_payment(rsvp, person)
         rsvp.payment = create_payment(
             person=person,
             type=EventsConfig.PAYMENT_TYPE,
@@ -222,7 +246,7 @@ def validate_payment_for_rsvp(payment):
             f"validate_payment_for_rsvp: No RSVP for payment {payment.pk}"
         )
 
-    rsvp.status = RSVP.STATUS_CONFIRMED
+    rsvp.status = RSVP.Status.CONFIRMED
     rsvp.save()
 
     # on programme l'envoi de la notification à la fin de la transaction, pour s'assurer que
@@ -248,7 +272,7 @@ def retry_payment_for_rsvp(payment):
     except RSVP.DoesNotExist:
         return
 
-    rsvp.status = RSVP.STATUS_AWAITING_PAYMENT
+    rsvp.status = RSVP.Status.AWAITING_PAYMENT
     rsvp.save()
     return rsvp
 
@@ -272,10 +296,9 @@ def _add_identified_guest(event, person, submission, status, paying=True):
         raise RSVPException(MESSAGES["submission_issue"])
 
     try:
-        rsvp = RSVP.objects.get(
+        rsvp = RSVP.objects.participating().get(
             event=event,
             person=person,
-            status__in=[RSVP.STATUS_CONFIRMED, RSVP.STATUS_AWAITING_PAYMENT],
         )
     except RSVP.DoesNotExist:
         raise RSVPException(MESSAGES["not_rsvped_cannot_add_guest"])
@@ -285,17 +308,17 @@ def _add_identified_guest(event, person, submission, status, paying=True):
             rsvp__event=event, rsvp__person=person, submission=submission
         )
 
-        if guest.status == RSVP.STATUS_CONFIRMED:
+        if guest.status == RSVP.Status.CONFIRMED:
             raise RSVPException(MESSAGES["already_rsvped"])
 
-        if guest.status == RSVP.STATUS_CANCELED:
+        if guest.status == RSVP.Status.CANCELLED:
             _ensure_can_rsvp(event, 1)
 
     except IdentifiedGuest.DoesNotExist:
         _ensure_can_rsvp(event, 1)
         guest = IdentifiedGuest(rsvp=rsvp, submission=submission, status=status)
 
-    guest.status = RSVP.STATUS_AWAITING_PAYMENT if paying else RSVP.STATUS_CONFIRMED
+    guest.status = RSVP.Status.AWAITING_PAYMENT if paying else RSVP.Status.CONFIRMED
     RSVP.objects.filter(pk=rsvp.pk).update(guests=F("guests") + 1)
 
     return guest
@@ -304,7 +327,7 @@ def _add_identified_guest(event, person, submission, status, paying=True):
 def add_free_identified_guest(event, person, submission):
     with transaction.atomic():
         guest = _add_identified_guest(
-            event, person, submission, RSVP.STATUS_CONFIRMED, False
+            event, person, submission, RSVP.Status.CONFIRMED, False
         )
         try:
             guest.save()
@@ -329,7 +352,7 @@ def add_paid_identified_guest_and_get_payment(
 
     with transaction.atomic():
         guest = _add_identified_guest(
-            event, person, form_submission, RSVP.STATUS_AWAITING_PAYMENT
+            event, person, form_submission, RSVP.Status.AWAITING_PAYMENT
         )
 
         if guest.payment is not None:
@@ -374,7 +397,7 @@ def validate_payment_for_guest(payment):
             f"validate_payment_for_guest: No identified guest for payment {payment.pk}"
         )
 
-    guest.status = RSVP.STATUS_CONFIRMED
+    guest.status = RSVP.Status.CONFIRMED
     guest.save()
 
     # à faire au commit uniquement
@@ -389,7 +412,7 @@ def cancel_payment_for_guest(payment):
     except:
         return
 
-    guest.status = RSVP.STATUS_CANCELED
+    guest.status = RSVP.Status.CANCELLED
     guest.save()
 
 
@@ -399,7 +422,7 @@ def retry_payment_for_guest(payment):
     except:
         return
 
-    guest.status = RSVP.STATUS_AWAITING_PAYMENT
+    guest.status = RSVP.Status.AWAITING_PAYMENT
     guest.save()
 
 
@@ -408,11 +431,14 @@ def get_rsvp(event, person):
 
 
 def is_participant(event, person):
-    return RSVP.objects.filter(
-        event=event,
-        person=person,
-        status__in=[RSVP.STATUS_CONFIRMED, RSVP.STATUS_AWAITING_PAYMENT],
-    ).exists()
+    return (
+        RSVP.objects.participating()
+        .filter(
+            event=event,
+            person=person,
+        )
+        .exists()
+    )
 
 
 def set_guest_number(event, person, guests):
@@ -421,8 +447,10 @@ def set_guest_number(event, person, guests):
 
     with transaction.atomic():
         try:
-            rsvp = RSVP.objects.select_for_update().get(
-                event=event, person=person, status=RSVP.STATUS_CONFIRMED
+            rsvp = (
+                RSVP.objects.select_for_update()
+                .confirmed()
+                .get(event=event, person=person)
             )
         except RSVP.DoesNotExist:
             raise RSVPException(MESSAGES["not_rsvped_cannot_add_guest"])
