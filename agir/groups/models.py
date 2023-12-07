@@ -716,7 +716,7 @@ class Membership(ExportModelOperationsMixin("membership"), TimeStampedModel):
 
     @description.setter
     def description(self, value=""):
-        if value == self.meta["description"]:
+        if value == self.meta.get("description", None):
             return
 
         self.meta["description"] = value
