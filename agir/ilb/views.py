@@ -65,8 +65,9 @@ class PersonalInformationView(base_views.BasePersonalInformationView):
             if person is None:
                 send_monthly_donation_confirmation_email.delay(
                     data=meta,
-                    confirmation_view_name="ilb_dons_confirmer",
+                    confirmation_view_name="ilb:monthly_donation_confirm",
                     email_template="ilb/dons/confirmation_email.html",
+                    from_email=settings.EMAIL_ILB,
                 )
                 self.clear_session()
 
