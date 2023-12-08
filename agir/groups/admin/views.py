@@ -56,7 +56,7 @@ def add_member(model_admin, request, pk):
     else:
         form = AddMemberForm(group, model_admin)
 
-    fieldsets = [(None, {"fields": ["person", "membership_type"]})]
+    fieldsets = [(None, {"fields": ["person", "membership_type", "description"]})]
     admin_form = admin.helpers.AdminForm(form, fieldsets, {})
 
     context = {

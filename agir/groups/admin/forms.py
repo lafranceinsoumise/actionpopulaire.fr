@@ -63,8 +63,9 @@ class AddMemberForm(forms.Form):
         initial=Membership.MEMBERSHIP_TYPE_MEMBER,
         widget=forms.RadioSelect,
         required=True,
-        label="Statut",
+        label=_("Statut"),
     )
+    description = forms.CharField(required=False, label=_("Description"))
 
     def __init__(self, group, model_admin, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -85,8 +86,15 @@ class AddMemberForm(forms.Form):
         return person
 
     def save(self):
-        return models.Membership.objects.create(
+        membership = Membership(
             person=self.cleaned_data["person"],
             supportgroup=self.group,
             membership_type=self.cleaned_data["membership_type"],
         )
+
+        if self.cleaned_data.get("description", None):
+            membership.description = self.cleaned_data["description"].strip()
+
+        membership.save()
+
+        return membership

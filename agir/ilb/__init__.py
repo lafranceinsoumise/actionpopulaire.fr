@@ -21,7 +21,7 @@ class ILBCheckPaymentMode(AbstractCheckPaymentMode):
     id = "check_ilb"
     url_fragment = "cheque-ilb"
     order = "Institut La Boétie"
-    address = ["Institut la Boétie", "20-22 rue Doudeauville", "75018 Paris"]
+    address = ["Institut la Boétie", "25 passage Dubail", "75010 Paris"]
 
     additional_information = (
         "Votre versement sera confirmé à réception du chèque, et vous recevrez un email de "
