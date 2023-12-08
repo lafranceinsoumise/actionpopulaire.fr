@@ -153,11 +153,14 @@ class MembershipInline(admin.TabularInline):
         if obj and obj.type == obj.TYPE_BOUCLE_DEPARTEMENTALE:
             return self.boucle_departementale_fields
 
-        fields = [
-            field
-            for field in super().get_fields(request, obj)
-            if obj.is_financeable or field != "is_finance_manager"
-        ]
+        fields = super().get_fields(request, obj)
+
+        if obj:
+            fields = [
+                field
+                for field in fields
+                if obj.is_financeable or field != "is_finance_manager"
+            ]
 
         return fields
 
