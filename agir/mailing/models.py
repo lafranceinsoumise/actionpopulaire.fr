@@ -28,7 +28,14 @@ DATE_HELP_TEXT = (
 )
 
 DONATION_FILTER = {
-    "payments__type__startswith": "don",
+    "payments__type__in": [
+        "don",
+        "don_mensuel",
+        "contribution",
+        "don_europeennes",
+        "don_2022",
+        "don_mensuel_2022",
+    ],
     "payments__status": Payment.STATUS_COMPLETED,
 }
 
