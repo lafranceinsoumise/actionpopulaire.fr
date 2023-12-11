@@ -86,6 +86,7 @@ CIB,Raison légale,BIC
 16908,MA FRENCH BANK,LBDIFRP1
 17106,Caisse régionale de crédit agricole mutuel Sud-Méditerranée (Ariège et PyrénéesOrientales),AGRIFRPP
 17206,Caisse régionale de crédit agricole mutuel Alsace Vosges,AGRIFRPP
+17328,SWAN,SWNBFR22
 17469,Banque Socrédo,SOCBPFTX
 17515,Caisse d'épargne et de prévoyance Ile-de-France,CEPAFRPP
 17620,Caisse de crédit municipal de Nîmes,CCMNFR21
@@ -116,6 +117,7 @@ CIB,Raison légale,BIC
 30002,Crédit lyonnais,CRLYFRPP
 30003,Société générale,SOGEFRPP
 30004,BNP Paribas,BNPAFRPP
+30006,Crédit Agricole SA,AGRIFRPP
 30027,Banque Scalbert Dupont - CIN,CMCIFRPP
 30047,Crédit industriel de l'Ouest,CMCIFRPP
 30056,HSBC France,CCFRFRPP
