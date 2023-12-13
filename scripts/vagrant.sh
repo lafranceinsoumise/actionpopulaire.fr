@@ -91,7 +91,7 @@ echo "## Create super user (address: admin@agir.local, password: password)"
 (cd /vagrant && (SUPERPERSON_PASSWORD="password" $POETRY_HOME/bin/poetry run ./manage.py createsuperperson --noinput --email admin@agir.local || true)) &> /dev/null
 
 echo "## Install fonts"
-sudo /vagrant/install_fonts.sh
+sudo /vagrant/scripts/install_fonts.sh
 
 
 echo "## Create unit files..."

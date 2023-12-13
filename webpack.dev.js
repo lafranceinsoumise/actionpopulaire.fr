@@ -4,16 +4,23 @@ const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin"
 
 const common = require("./webpack.common.js");
 
-const serverName = process.env.JS_SERVER || "agir.local";
-const port = process.env.JS_SERVER
-  ? +process.env.JS_SERVER.split(":")[1] || 3000
-  : 3000;
+// Exemples de config :
+//
+// WEBPACK_SERVER_HOST : localhost:5000
+// WEBPACK_SERVER_PORT : aucun
+// Le serveur écoute sur le port 5000 et les liens générés pour les bundles utilisent localhost:5000
+//
+// WEBPACK_SERVER_HOST : agir.local
+// WEBPACK_SERVER_PORT : 4000
+// Le serveur écoute sur le port 4000 et les liens générés pour les bundles utilisent agir.local (sans numéro de port)
+const serverName = process.env.WEBPACK_SERVER_HOST || "agir.local";
+const port = +process.env.WEBPACK_SERVER_PORT || +process.env.WEBPACK_SERVER_HOST.split(":")[1] || 3000
 
 module.exports = merge.merge(common("dev"), {
   mode: "development",
   devtool: "eval-cheap-module-source-map",
   output: {
-    publicPath: `http://${serverName}:${port}/static/components/`,
+    publicPath: `http://${serverName}/static/components/`,
     devtoolModuleFilenameTemplate: "webpack://[absolute-resource-path]",
     filename: "[name].js",
     pathinfo: false,

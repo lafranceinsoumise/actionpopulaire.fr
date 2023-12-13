@@ -97,9 +97,9 @@ black = "==23.1.0"
 coverage = "*"
 django-debug-toolbar = "*"
 redislite = "*"  # used for testing
-click = "*"
 pympler = "*"
 hypothesis = {extras = ["django"], version = "^6.70.0"}
+flower = "*"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
