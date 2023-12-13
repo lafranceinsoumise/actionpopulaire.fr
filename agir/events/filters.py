@@ -159,21 +159,32 @@ class GroupEventAPIFilter(django_filters.rest_framework.FilterSet):
         if value not in ("week", "month"):
             value = "week"
 
-        now = timezone.now()
-        current_week_start = now - timedelta(days=now.weekday())
+        today = timezone.now().date()
+        current_week_monday = today - timedelta(days=today.weekday())
 
-        if value == "week" and now.weekday() < 5:
-            current_week_end = current_week_start + timedelta(days=6)
-            return qs.filter(start_time__gte=now, start_time__lte=current_week_end)
+        if value == "week" and today.weekday() < 5:
+            current_week_sunday = current_week_monday + timedelta(days=6)
+
+            return qs.filter(
+                start_time__date__gte=current_week_monday,
+                start_time__date__lte=current_week_sunday,
+            )
 
         if value == "week":
-            next_week_start = current_week_start + timedelta(days=7)
-            next_week_end = next_week_start + timedelta(days=6)
+            next_week_monday = current_week_monday + timedelta(days=7)
+            next_week_sunday = next_week_monday + timedelta(days=6)
 
-            return qs.filter(start_time__gte=now, start_time__lte=next_week_end)
+            return qs.filter(
+                start_time__date__gte=today,
+                start_time__date__lte=next_week_sunday,
+            )
 
         if value == "month":
-            return qs.filter(start_time__month=now.month, start_time__year=now.year)
+            return qs.filter(
+                start_time__date__gte=today,
+                start_time__month=today.month,
+                start_time__year=today.year,
+            )
 
         return qs
 
