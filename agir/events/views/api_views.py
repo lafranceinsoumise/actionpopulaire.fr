@@ -168,7 +168,7 @@ class PastRsvpedEventAPIView(EventListAPIView):
             .listed()
             .past()
             .attended_by_person(self.request.user.person)
-            .order_by("start_time", "end_time")
+            .order_by("-end_time", "-start_time")
             .distinct()[:20]
         )
 
