@@ -1,3 +1,13 @@
+const esModules = [
+  "@babel/runtime-corejs3/helpers/esm/",
+  "path-to-regexp-es",
+  "uuid",
+  "query-string",
+  "decode-uri-component",
+  "split-on-first",
+  "filter-obj",
+];
+
 module.exports = {
   moduleNameMapper: {
     "\\.(css|scss|sass|less)$": "<rootDir>/jest/styleMock.js",
@@ -6,7 +16,7 @@ module.exports = {
     "^@agir/([a-zA-Z0-9_]+)/(.*)$": "<rootDir>/agir/$1/components/$2",
   },
   transformIgnorePatterns: [
-    "/node_modules/(?!@babel/runtime-corejs3/helpers/esm/|path-to-regexp-es|uuid)",
+    `/node_modules/(?!${esModules.join("|")})`,
     "\\.pnp\\.[^\\/]+$",
   ],
   // Automatically clear mock calls and instances between every test
