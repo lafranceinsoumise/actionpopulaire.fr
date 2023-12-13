@@ -37,7 +37,7 @@ Vagrant.configure("2") do |config|
 
   # Enable provisioning with a shell script.
   config.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"
-  config.vm.provision "shell", path: "vagrant.sh", privileged: false
+  config.vm.provision "shell", path: "scripts/vagrant.sh", privileged: false
 
   # Enable hostmanager to use agir.local. Documentation can be found
   # at https://github.com/devopsgroup-io/vagrant-hostmanager.

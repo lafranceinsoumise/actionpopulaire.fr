@@ -12,11 +12,11 @@ do
   if [ $(fc-list | grep -i $_font | wc -c) -eq 0 ] ; then
     echo " Dowloading and extracting font files"
     if wget -q -O $_font.zip "${_gfwgeturl}${_font}" ; then
-      sudo mkdir -p $_gfdir
-      sudo unzip -uo -d $_gfdir ./$_font.zip &> /dev/null
+      mkdir -p $_gfdir
+      unzip -uo -d $_gfdir ./$_font.zip &> /dev/null
 
       echo " Installing fonts in $_gfdir and updating the font cache"
-      sudo chmod -R --reference=$_fontdir $_gfdir
+      chmod -R --reference=$_fontdir $_gfdir
 
       echo " Deleting the dowloaded archive"
       rm ./$_font.zip
