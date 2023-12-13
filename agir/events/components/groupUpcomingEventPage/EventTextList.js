@@ -8,6 +8,15 @@ import useCopyToClipboard from "@agir/front/genericComponents/useCopyToClipboard
 import { simpleDate } from "@agir/lib/utils/time";
 import { textifiyEvents } from "./common";
 
+const StyledText = styled.p`
+  margin: -0.5rem 0 1rem;
+  em {
+    font-style: normal;
+    font-size: 0.875rem;
+    color: ${({ theme }) => theme.black700};
+  }
+`;
+
 const StyledPre = styled.pre`
   white-space: pre-wrap;
   font-size: 0.875rem;
@@ -40,9 +49,9 @@ const EventTextList = ({ events, timing, displayZips }) => {
   if (Array.isArray(events) && events.length > 0) {
     return (
       <>
-        <p style={{ margin: "-0.5rem 0 1rem" }}>
+        <StyledText>
           <em>Copiez-collez ce texte dans les canaux de discussion</em>
-        </p>
+        </StyledText>
         <Button
           block
           color={isCopied ? "success" : "secondary"}

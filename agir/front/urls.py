@@ -67,6 +67,11 @@ supportgroup_settings_patterns = [
         views.SupportGroupSettingsView.as_view(),
         name="view_group_settings_help",
     ),
+    path(
+        "gestion/agenda/",
+        views.SupportGroupSettingsView.as_view(),
+        name="view_group_settings_upcoming_events",
+    ),
 ]
 
 supportgroup_patterns = [
@@ -411,6 +416,11 @@ urlpatterns = [
         "evenements/groupes/",
         views.GroupUpcomingEventsView.as_view(),
         name="group_upcoming_events",
+    ),
+    path(
+        "evenements/groupes/<uuid:pk>/",
+        views.GroupUpcomingEventsForGroupView.as_view(),
+        name="group_upcoming_events_for_group",
     ),
     path("evenements/creer/", views.CreateEventView.as_view(), name="create_event"),
     path(

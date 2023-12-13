@@ -194,7 +194,7 @@ ManagementMenuItem.propTypes = {
   disabled: PropTypes.bool,
   disabledLabel: PropTypes.node,
   getLink: PropTypes.func.isRequired,
-  menuGroup: PropTypes.oneOf([1, 2, 3]),
+  menuGroup: PropTypes.number,
   isCancel: PropTypes.bool,
 };
 
@@ -227,31 +227,16 @@ const ManagementMenu = (props) => {
       <StyledWarning>{warning}</StyledWarning>
       <Spacer size="0.5rem" />
       <ul>
-        {groupedItems[0].map((item) => (
-          <li key={item.id}>
-            <ManagementMenuItem {...item} />
-          </li>
+        {groupedItems.map((list, i) => (
+          <React.Fragment key={i}>
+            {i > 0 && <hr />}
+            {list.map((item) => (
+              <li key={item.id}>
+                <ManagementMenuItem {...item} />
+              </li>
+            ))}
+          </React.Fragment>
         ))}
-        {groupedItems[1] && (
-          <>
-            <hr />
-            {groupedItems[1].map((item) => (
-              <li key={item.id}>
-                <ManagementMenuItem {...item} />
-              </li>
-            ))}
-          </>
-        )}
-        {groupedItems[2] && (
-          <>
-            <hr />
-            {groupedItems[2].map((item) => (
-              <li key={item.id}>
-                <ManagementMenuItem {...item} />
-              </li>
-            ))}
-          </>
-        )}
       </ul>
       {children}
     </StyledMenu>

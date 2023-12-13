@@ -25,6 +25,12 @@ const Routes = {
         /* webpackChunkName: "r-groupupcomingevent" */ "@agir/events/groupUpcomingEventPage/GroupUpcomingEventPage"
       ),
   ),
+  GroupUpcomingEventRedirectPage: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-groupupcomingeventredirect" */ "@agir/events/groupUpcomingEventPage/GroupUpcomingEventRedirectPage"
+      ),
+  ),
   EventPage: lazy(
     () =>
       import(

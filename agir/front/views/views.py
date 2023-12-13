@@ -379,6 +379,13 @@ class GroupUpcomingEventsView(BaseAppCachedView):
     api_preloads = [reverse_lazy("api_group_upcoming_events")]
 
 
+class GroupUpcomingEventsForGroupView(BaseAppCachedView):
+    def get_api_preloads(self):
+        return [
+            reverse_lazy("api_group_view", kwargs=self.kwargs),
+        ]
+
+
 ## SEARCH VIEW
 
 

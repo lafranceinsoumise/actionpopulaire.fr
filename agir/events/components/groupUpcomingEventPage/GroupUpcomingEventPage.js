@@ -1,4 +1,3 @@
-import querystring from "query-string";
 import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 import useSWR from "swr";
@@ -16,6 +15,8 @@ import ZipCodeSelectField from "./ZipCodeSelectField";
 
 import { TIMING_OPTIONS } from "./common";
 import { useLocationState } from "@agir/front/app/hooks";
+import { getGroupEndpoint } from "@agir/groups/utils/api";
+import { getGroupUpcomignEventEndpoint } from "./api";
 
 const StyledResults = styled.div`
   display: flex;
@@ -118,12 +119,7 @@ const GroupUpcomingEventPage = () => {
     () =>
       !isLoadingZipCodes &&
       params.z &&
-      `/api/groupes/recherche/geo/?${querystring.stringify(
-        {
-          zip: params.z,
-        },
-        { arrayFormat: "comma" },
-      )}`,
+      getGroupEndpoint("geoSearchGroups", null, { zip: params.z }),
     {
       keepPreviousData: !!params.z,
     },
@@ -131,13 +127,10 @@ const GroupUpcomingEventPage = () => {
   const { data: events, isLoading: isLoadingEvents } = useSWR(
     () =>
       !!params.g &&
-      `/api/evenements/groupes/?${querystring.stringify(
-        {
-          groups: params.g,
-          timing,
-        },
-        { arrayFormat: "comma" },
-      )}`,
+      getGroupUpcomignEventEndpoint("groupUpcomingEvents", null, {
+        groups: params.g,
+        timing,
+      }),
   );
 
   const displayZips = useMemo(

@@ -42,9 +42,11 @@ const InternalRedirect = (props) => {
   }, [sendToast, toast]);
 
   const next = useMemo(() => {
-    const pathname = params ? addQueryStringParams(pathname, params, true) : to;
+    const url = params
+      ? addQueryStringParams(to?.pathname || to, params, true)
+      : to?.pathname || to;
 
-    let nextState = state;
+    let nextState = { ...state };
 
     if (backLink) {
       nextState = nextState || {};
@@ -57,7 +59,13 @@ const InternalRedirect = (props) => {
       }
     }
 
-    return nextState ? { pathname, state: nextState } : pathname;
+    return nextState
+      ? {
+          pathname: url.split("?")[0],
+          search: url.split("?")[1] && "?" + url.split("?")[1],
+          state: nextState,
+        }
+      : url;
   }, [to, params, state, backLink]);
 
   return <Redirect {...rest} to={next} />;

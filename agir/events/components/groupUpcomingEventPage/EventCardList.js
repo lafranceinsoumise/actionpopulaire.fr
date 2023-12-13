@@ -15,7 +15,7 @@ const StyledMiniEventCard = styled(MiniEventCard)`
   }
 `;
 
-const EventCardList = ({ events, isLoading, disabled }) => {
+const EventCardList = ({ events, isLoading, disabled, emptyText }) => {
   const eventsByDay = useEventsByDay(events, (date) => simpleDate(date, false));
 
   if (isLoading) {
@@ -33,30 +33,32 @@ const EventCardList = ({ events, isLoading, disabled }) => {
     );
   }
 
-  if (Array.isArray(events) && events.length > 0) {
-    return Object.entries(eventsByDay).map(([date, events]) => (
-      <React.Fragment key={date}>
-        <h6>{date}</h6>
-        {events.map((event) => (
-          <StyledMiniEventCard key={event.id} {...event} />
-        ))}
-      </React.Fragment>
-    ));
+  if (!Array.isArray(events) || events.length === 0) {
+    return (
+      <p>
+        <em>
+          {emptyText ||
+            "Aucun événement à venir n'a été trouvé pour les groupes sélectionnés"}
+        </em>
+      </p>
+    );
   }
 
-  return (
-    <p>
-      <em>
-        Aucun événement à venir n'a été trouvé pour les groupes sélectionnés
-      </em>
-    </p>
-  );
+  return Object.entries(eventsByDay).map(([date, events]) => (
+    <React.Fragment key={date}>
+      <h6>{date}</h6>
+      {events.map((event) => (
+        <StyledMiniEventCard key={event.id} {...event} />
+      ))}
+    </React.Fragment>
+  ));
 };
 
 EventCardList.propTypes = {
   events: PropTypes.array,
   isLoading: PropTypes.bool,
   disabled: PropTypes.bool,
+  emptyText: PropTypes.string,
 };
 
 export default EventCardList;

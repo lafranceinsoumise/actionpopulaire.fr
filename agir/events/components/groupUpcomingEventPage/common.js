@@ -1,3 +1,4 @@
+import querystring from "query-string";
 import { simpleInterval } from "@agir/lib/utils/time";
 import { routeConfig } from "@agir/front/app/routes.config";
 
@@ -35,3 +36,19 @@ ${Object.entries(events)
   .map(([date, events]) => textifyDate(date, events, timing, displayZips))
   .join("")}
 `;
+
+export const groupUpcomingEventLinkForGroup = (group, absolute = false) => {
+  if (!group?.location?.zip) {
+    return null;
+  }
+
+  const params = {
+    d: group.location.departement || undefined,
+    z: group.location.zip,
+    g: group.id,
+  };
+
+  const pathname = routeConfig.groupUpcomingEvents.getLink(undefined, absolute);
+
+  return `${pathname}?${querystring.stringify(params)}`;
+};
