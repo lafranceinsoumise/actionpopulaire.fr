@@ -1449,7 +1449,7 @@ wcwidth = "*"
 name = "psutil"
 version = "5.9.4"
 description = "Cross-platform lib for process and system monitoring in Python."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
@@ -1707,15 +1707,15 @@ ocsp = ["cryptography (>=36.0.1)", "pyopenssl (==20.0.1)", "requests (>=2.26.0)"
 
 [[package]]
 name = "redislite"
-version = "6.2.805324"
+version = "6.2.912183"
 description = "Redis built into a python package"
-category = "dev"
+category = "main"
 optional = false
-python-versions = ">=3.7.0"
+python-versions = ">=3.8.0"
 
 [package.dependencies]
 psutil = "*"
-redis = "*"
+redis = ">=4.5"
 setuptools = ">38.0"
 
 [[package]]
@@ -1853,7 +1853,7 @@ xmlschema = "*"
 name = "setuptools"
 version = "65.7.0"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 
@@ -2157,7 +2157,7 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "b16e5e567aaa98ece6ebe4d1fd03f8227404a80061627342529898057b5d8f33"
+content-hash = "d92c95de3a0875d02d18668df913374ff3e117a5d9fcda4797052e87b1010eff"
 
 [metadata.files]
 amqp = [
@@ -3303,22 +3303,15 @@ redis = [
     {file = "redis-4.5.5.tar.gz", hash = "sha256:dc87a0bdef6c8bfe1ef1e1c40be7034390c2ae02d92dcd0c7ca1729443899880"},
 ]
 redislite = [
-    {file = "redislite-6.2.805324-cp310-cp310-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:0f0642a5a6b79d086260e2ce42a95744dc5e5339f571ac149705730de8f68be9"},
-    {file = "redislite-6.2.805324-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:c6abef5810940eca315b8c90f45b0ebda8e76c0a0ea6e9f606b8166f01a082b1"},
-    {file = "redislite-6.2.805324-cp311-cp311-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:0b3f202cee43bda332f97615ecf4a7c3b2b91c9ab28abf0494a21f6829d19101"},
-    {file = "redislite-6.2.805324-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:a704fdfb74b4b1711f86b98deeb0627ed7bbdf21653e48146d9369cda2fc40c4"},
-    {file = "redislite-6.2.805324-cp37-cp37m-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:09989c29788e2a4ab0c946869582451f6a46b4099a17482560d990250ffad696"},
-    {file = "redislite-6.2.805324-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:8ad793d9b45d2e77d36753b695391c1a9e77a84b1782f7ea5d42fb5af3bbe86a"},
-    {file = "redislite-6.2.805324-cp38-cp38-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:ba35f7600d119a1db1cbae77c0591b8e0feb351689117c68c23bc5f34d3442af"},
-    {file = "redislite-6.2.805324-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:4904fe27211637c17dd98b4547cc6de4cacf231b394b5174d7acca38409db5c4"},
-    {file = "redislite-6.2.805324-cp39-cp39-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:bdd673e51b42d515b273518c4670d2d94d54542baa67b2d4c8951e47e05cd349"},
-    {file = "redislite-6.2.805324-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:9fbb1433b4a2d88889b550bd08c6885a58446d204c6ee031a5a2fdee83620f46"},
-    {file = "redislite-6.2.805324-pp37-pypy37_pp73-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:79f4540aa4c5f6cd85370a504b6610ef6995775307389559ad4001f61949c229"},
-    {file = "redislite-6.2.805324-pp37-pypy37_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:731b6d239f67f8fc9e3d801dca26269291b94be772c37bc2b65a884c9d79138e"},
-    {file = "redislite-6.2.805324-pp38-pypy38_pp73-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:4640ed4533c176b3b1fab4592af39d3fab6423843c7634b6b5aba980dfc5d578"},
-    {file = "redislite-6.2.805324-pp38-pypy38_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:4e86ef58c491a6dc0c04fad86c286bb43edc128b26006ef90b2b49ed1d38e089"},
-    {file = "redislite-6.2.805324-pp39-pypy39_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:7723317952715b7fa5e21d14ef3cf4d5a18f43f828e04b39712fa8d13d2274ff"},
-    {file = "redislite-6.2.805324.tar.gz", hash = "sha256:603b28bcdfdbe45edfe0046dc99b0fcbe3d5c533d1b7e5d9c3ff6208a656e7f1"},
+    {file = "redislite-6.2.912183-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:830cdb0551ba54ebb3f7b846361a406297d83599b12d46cfab68943421adeac7"},
+    {file = "redislite-6.2.912183-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:d5ed8af4d03225a9b19e279d40f8d8feae872f87a9cd9f017751864fe7b224c6"},
+    {file = "redislite-6.2.912183-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:6610f867c2c1b2022613c093d56cfe8293bdf6e081d2259d62b5f5318487c30e"},
+    {file = "redislite-6.2.912183-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:17329cb71bd2e20caf2bdbed141b95e47c5754e12fad66241a6477a3e45f8a8d"},
+    {file = "redislite-6.2.912183-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:5194556dd991515d70cbb5671d7d28ea02e37ee1f82bc684c2fef0138469ae78"},
+    {file = "redislite-6.2.912183-pp310-pypy310_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:58617b4d5d57b8f799188178b069a41b64c19e970f733c68cdc92190b417884c"},
+    {file = "redislite-6.2.912183-pp38-pypy38_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:4f75bf06cf0adff5fb51fd1364e6a1bef379980489c6b2721a882a7f336c62aa"},
+    {file = "redislite-6.2.912183-pp39-pypy39_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:157ba9854a42e990ca94583527c454c97f5468ff18f7e48588bc1ed85f175056"},
+    {file = "redislite-6.2.912183.tar.gz", hash = "sha256:40642495cc53bd5ca3cc186355a7235795ef4b36dd167cb77c7e6837d23e5dd6"},
 ]
 requests = [
     {file = "requests-2.31.0-py3-none-any.whl", hash = "sha256:58cd2187c01e70e6e26505bca751777aa9f2ee0b7f4300988b709f44e013003f"},
@@ -3538,6 +3531,16 @@ wrapt = [
     {file = "wrapt-1.14.1-cp310-cp310-musllinux_1_1_x86_64.whl", hash = "sha256:8ad85f7f4e20964db4daadcab70b47ab05c7c1cf2a7c1e51087bfaa83831854c"},
     {file = "wrapt-1.14.1-cp310-cp310-win32.whl", hash = "sha256:a9a52172be0b5aae932bef82a79ec0a0ce87288c7d132946d645eba03f0ad8a8"},
     {file = "wrapt-1.14.1-cp310-cp310-win_amd64.whl", hash = "sha256:6d323e1554b3d22cfc03cd3243b5bb815a51f5249fdcbb86fda4bf62bab9e164"},
+    {file = "wrapt-1.14.1-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:ecee4132c6cd2ce5308e21672015ddfed1ff975ad0ac8d27168ea82e71413f55"},
+    {file = "wrapt-1.14.1-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:2020f391008ef874c6d9e208b24f28e31bcb85ccff4f335f15a3251d222b92d9"},
+    {file = "wrapt-1.14.1-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:2feecf86e1f7a86517cab34ae6c2f081fd2d0dac860cb0c0ded96d799d20b335"},
+    {file = "wrapt-1.14.1-cp311-cp311-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:240b1686f38ae665d1b15475966fe0472f78e71b1b4903c143a842659c8e4cb9"},
+    {file = "wrapt-1.14.1-cp311-cp311-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:a9008dad07d71f68487c91e96579c8567c98ca4c3881b9b113bc7b33e9fd78b8"},
+    {file = "wrapt-1.14.1-cp311-cp311-musllinux_1_1_aarch64.whl", hash = "sha256:6447e9f3ba72f8e2b985a1da758767698efa72723d5b59accefd716e9e8272bf"},
+    {file = "wrapt-1.14.1-cp311-cp311-musllinux_1_1_i686.whl", hash = "sha256:acae32e13a4153809db37405f5eba5bac5fbe2e2ba61ab227926a22901051c0a"},
+    {file = "wrapt-1.14.1-cp311-cp311-musllinux_1_1_x86_64.whl", hash = "sha256:49ef582b7a1152ae2766557f0550a9fcbf7bbd76f43fbdc94dd3bf07cc7168be"},
+    {file = "wrapt-1.14.1-cp311-cp311-win32.whl", hash = "sha256:358fe87cc899c6bb0ddc185bf3dbfa4ba646f05b1b0b9b5a27c2cb92c2cea204"},
+    {file = "wrapt-1.14.1-cp311-cp311-win_amd64.whl", hash = "sha256:26046cd03936ae745a502abf44dac702a5e6880b2b01c29aea8ddf3353b68224"},
     {file = "wrapt-1.14.1-cp35-cp35m-manylinux1_i686.whl", hash = "sha256:43ca3bbbe97af00f49efb06e352eae40434ca9d915906f77def219b88e85d907"},
     {file = "wrapt-1.14.1-cp35-cp35m-manylinux1_x86_64.whl", hash = "sha256:6b1a564e6cb69922c7fe3a678b9f9a3c54e72b469875aa8018f18b4d1dd1adf3"},
     {file = "wrapt-1.14.1-cp35-cp35m-manylinux2010_i686.whl", hash = "sha256:00b6d4ea20a906c0ca56d84f93065b398ab74b927a7a3dbd470f6fc503f95dc3"},
