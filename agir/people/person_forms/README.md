@@ -904,6 +904,13 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
     4. un tableau d'identifiants de groupe -
        ex. `"choices": ["64ed1c08-6329-4bee-aaae-c3d6a1ca0ec7", "3a32fc55-7507-4d5f-bb57-a66daad63461"]`. La valeur par
        défaut est `membre`
+- `"group_type": "D" [string]`   
+   Le type de groupe auquel limiter l'affichage des options proposées. Les valeurs possibles sont :   
+    1.  `"Groupe fonctionnel"` ou `"F"`,
+    2.  `"Groupe local"` ou `"L"`,
+    3.  `"Groupe thématique"` ou `"B"`,
+    4.  `"Boucle départementale"` ou `"D"`
+
 
 ##### Examples
 
@@ -925,7 +932,8 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
     "id": "c-groupe",
     "label": "Mon groupe",
     "type": "group",
-    "choices": "gestionnaire"
+    "choices": "gestionnaire",
+    "group_type": "boucle departementale"
   },
   {
     "id": "d-groupe",
@@ -954,6 +962,12 @@ Un champs qui permet de sélectionner plusieurs groupes d'action à l'aide d'une
     4. un tableau d'identifiants de groupe -
        ex. `"choices": ["64ed1c08-6329-4bee-aaae-c3d6a1ca0ec7", "3a32fc55-7507-4d5f-bb57-a66daad63461"]`. La valeur par
        défaut est `membre`
+- `"group_type": "D" [string]`   
+   Le type de groupe auquel limiter l'affichage des options proposées. Les valeurs possibles sont :   
+    1.  `"Groupe fonctionnel"` ou `"F"`,
+    2.  `"Groupe local"` ou `"L"`,
+    3.  `"Groupe thématique"` ou `"B"`,
+    4.  `"Boucle départementale"` ou `"D"`
 
 ##### Examples
 
