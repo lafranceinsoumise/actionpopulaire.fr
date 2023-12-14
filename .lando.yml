@@ -5,7 +5,6 @@ excludes:
 
 env_file:
   - .lando.env
-  - .env
 
 proxy:
   django:
@@ -26,7 +25,8 @@ services:
     build:
       - pip install pipx
       - pipx install poetry
-    command: poetry run ./manage.py runserver 0.0.0.0:80
+      - pipx install python-dotenv[cli]
+    command: poetry run dotenv run ./manage.py runserver 0.0.0.0:80
   celery:
     type: python:3.9
     build_as_root:
@@ -35,7 +35,8 @@ services:
     build:
       - pip install pipx
       - pipx install poetry
-    command: scripts/celery.sh
+      - pipx install python-dotenv[cli]
+    command: dotenv run scripts/celery.sh
   webpack:
     type: node
     command: npm run watch
