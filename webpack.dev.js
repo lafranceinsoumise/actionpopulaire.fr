@@ -13,8 +13,8 @@ const common = require("./webpack.common.js");
 // WEBPACK_SERVER_HOST : agir.local
 // WEBPACK_SERVER_PORT : 4000
 // Le serveur écoute sur le port 4000 et les liens générés pour les bundles utilisent agir.local (sans numéro de port)
-const serverName = process.env.WEBPACK_SERVER_HOST || "agir.local";
-const port = +process.env.WEBPACK_SERVER_PORT || +process.env.WEBPACK_SERVER_HOST.split(":")[1] || 3000
+const serverName = process.env.WEBPACK_SERVER_HOST || "agir.local:3000";
+const port = +process.env.WEBPACK_SERVER_PORT || +serverName.split(":")[1];
 
 module.exports = merge.merge(common("dev"), {
   mode: "development",
@@ -43,11 +43,11 @@ module.exports = merge.merge(common("dev"), {
     host: serverName === "localhost" ? "localhost" : "0.0.0.0",
     port: port,
     devMiddleware: {
-      publicPath: `http://${serverName}:${port}/static/components/`,
+      publicPath: `http://${serverName}/static/components/`,
       writeToDisk: true,
     },
     client: {
-      webSocketURL: `auto://${serverName}:${port}`,
+      webSocketURL: `auto://${serverName}`,
     },
     static: {
       directory: path.join(__dirname, "/assets/components/"),
