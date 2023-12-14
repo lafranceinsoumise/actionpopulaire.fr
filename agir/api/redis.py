@@ -46,10 +46,19 @@ def _patch_up_redislite():
     try:
         yield _test_redis_client
     finally:
+        _test_redis_client.close()
         _test_redis_client = previous_redis_instance
 
 
 def using_separate_redis_server(decorated=None):
+    """Start up a new redis server and gives back a connection to that server
+
+    `using_separate_redis_server` can be used either as a context manager, a function decorator, or a child class of
+    `TestCase`, in which case it will automatically decorate all the `test_` methods.
+
+    :param decorated: the function or class to decorate, when it is used as a decorator
+    :return:
+    """
     if decorated is None:
         return _patch_up_redislite()
     if isinstance(decorated, type):
