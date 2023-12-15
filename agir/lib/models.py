@@ -552,7 +552,7 @@ class EmojiField(models.CharField):
     description = _("A single emoji character string")
 
     def __init__(self, *args, **kwargs):
-        kwargs["max_length"] = 1
+        kwargs["max_length"] = 8
         super().__init__(*args, **kwargs)
 
     def to_python(self, value):
