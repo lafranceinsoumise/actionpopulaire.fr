@@ -7,6 +7,10 @@ from celery import shared_task
 from django.core.exceptions import ObjectDoesNotExist
 from push_notifications.gcm import GCMError
 
+TASK_PRIORITY_HIGH = 0
+TASK_PRIORITY_NORMAL = 1
+TASK_PRIORITY_LOW = 2
+
 
 def retry_strategy(
     start=None,
@@ -75,7 +79,7 @@ def retriable_task(
     return decorate
 
 
-def http_task(post_save=False, priority=2):
+def http_task(post_save=False, priority=TASK_PRIORITY_LOW):
     retry_on = (
         requests.RequestException,
         requests.exceptions.Timeout,
@@ -88,7 +92,7 @@ def http_task(post_save=False, priority=2):
     )
 
 
-def emailing_task(post_save=False, priority=1):
+def emailing_task(post_save=False, priority=TASK_PRIORITY_NORMAL):
     retry_on = (
         smtplib.SMTPException,
         socket.error,
