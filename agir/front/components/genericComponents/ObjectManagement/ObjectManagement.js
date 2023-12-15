@@ -118,6 +118,7 @@ const MobilePanel = (props) => {
                       {...rest}
                       illustration={route.illustration}
                       onBack={goToMenu}
+                      route={route}
                     />
                   </Suspense>
                 </ManagementPanel>
