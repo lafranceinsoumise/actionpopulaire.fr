@@ -54,7 +54,7 @@ export const MiniEventCard = (props) => {
       to={routeConfig.eventDetails.getLink({ eventPk: id })}
     >
       <span>
-        {[displayHumanDateString(startTime), location?.name.trim()]
+        {[displayHumanDateString(startTime), location?.name?.trim()]
           .filter(Boolean)
           .join(" • ")}
       </span>
