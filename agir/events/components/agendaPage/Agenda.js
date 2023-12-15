@@ -191,7 +191,9 @@ const Agenda = () => {
           $over
           style={{
             display: "flex",
+            flexFlow: "row wrap",
             alignItems: "center",
+            gap: "1rem",
             padding: "0 0 1rem",
           }}
         >
@@ -201,23 +203,32 @@ const Agenda = () => {
               fontSize: "1.125rem",
               margin: 0,
               flex: "1 1 auto",
+              whiteSpace: "nowrap",
             }}
           >
             Événements
           </h2>
-          <Button
-            small
-            link
-            route="groupUpcomingEvents"
-            icon="calendar"
-            color="transparent"
+          <div
+            style={{
+              marginLeft: "0",
+              fontSize: "0.875rem",
+              display: "flex",
+              gap: "1rem",
+            }}
           >
-            Agenda des GA
-          </Button>
-          &ensp;
-          <Button small link route="eventMap" icon="map">
-            Carte
-          </Button>
+            <Button
+              small
+              link
+              route="groupUpcomingEvents"
+              icon="calendar"
+              color="link"
+            >
+              Agenda des GA
+            </Button>
+            <Button small link route="eventMap" icon="map">
+              Carte
+            </Button>
+          </div>
         </Hide>
         <EventSuggestions isPaused={isPaused} />
         <Spacer size="4rem" />
