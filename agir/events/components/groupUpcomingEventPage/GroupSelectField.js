@@ -88,12 +88,14 @@ const GroupSelectField = (props) => {
 
   return (
     <div>
-      <p style={{ fontSize: "0.875rem", marginTop: "-0.5rem" }}>
-        <em>
-          Vous pouvez sélectionner jusqu'à {GROUP_SELECTION_MAX_LIMIT} groupes
-          d'actions
-        </em>
-      </p>
+      {groups.length > GROUP_SELECTION_MAX_LIMIT && (
+        <p style={{ fontSize: "0.875rem", marginTop: "-0.5rem" }}>
+          <em>
+            Vous pouvez sélectionner jusqu'à {GROUP_SELECTION_MAX_LIMIT} groupes
+            d'actions
+          </em>
+        </p>
+      )}
       {groups.map((group) => (
         <CheckboxField
           key={group.id}
