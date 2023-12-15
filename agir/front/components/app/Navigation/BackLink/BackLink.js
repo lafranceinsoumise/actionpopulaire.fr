@@ -70,7 +70,7 @@ export const useBackLink = (link) => {
 const BackLink = (props) => {
   const { children, icon = false, label, ...rest } = props;
 
-  const { state } = useLocation();
+  const { pathname, state } = useLocation();
   const backLink = useSelector(getBackLink);
 
   const linkProps = useMemo(() => {
@@ -86,7 +86,7 @@ const BackLink = (props) => {
       label: linkProps.label,
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [pathname, state]);
 
   const internalRouteConfig = useMemo(() => {
     return (linkProps?.route && routeConfig[linkProps.route]) || DEFAULT_ROUTE;
