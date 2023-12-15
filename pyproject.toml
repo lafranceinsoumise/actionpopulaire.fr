@@ -80,7 +80,7 @@ django-silk = "*"
 sentry-sdk = "*"
 django-push-notifications =  {version = "*", extras=["apns"]}
 pywebpush = "*"
-social-auth-core = "==4.0.2"
+social-auth-core = "==4.5.1"
 django-storages = "^1.13.2"
 qrcode = {extras = ["pil"], version = "^7.4"}
 xlsxwriter = "*"
