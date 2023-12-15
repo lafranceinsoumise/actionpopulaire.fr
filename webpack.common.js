@@ -119,6 +119,7 @@ const OTHER_ENTRIES = [
   "lib/IBANField",
   "lib/locationSearchField",
   "lib/multiDateField",
+  "lib/emojiField",
   "theme",
 ];
 

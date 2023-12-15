@@ -241,6 +241,20 @@ export const simpleDateTime = (datetimeString, hideCurrentYear = true) => {
   });
 };
 
+export const simpleInterval = (start, end) => {
+  const interval = Interval.fromISO(start + "/" + end);
+
+  if (interval.start.date === interval.end.date) {
+    return interval.toLocaleString(DateTime.TIME_24_SIMPLE, {
+      locale: "fr-FR",
+    });
+  }
+
+  return interval.toLocaleString(DateTime.DATETIME_SHORT, {
+    locale: "fr-FR",
+  });
+};
+
 export const timeAgo = (date, maxUnit = units[0]) => {
   try {
     let dateTime = new Date(date);

@@ -35,6 +35,7 @@ sudo localectl set-locale LANG=fr_FR.UTF-8
 echo "## Update packages"
 sudo apt-get update -qq &> /dev/null
 
+
 echo "## Install postgresql..."
 if ! dpkg -s postgresql-12 &> /dev/null; then
     sudo apt-get -yqq install postgresql-12 postgresql-12-postgis-3 postgresql-12-postgis-3-scripts libpq-dev &> /dev/null

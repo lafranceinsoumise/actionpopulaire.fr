@@ -3,7 +3,6 @@ from django.contrib.sitemaps.views import sitemap, index as sitemap_index
 from django.urls import reverse_lazy, path, re_path, include
 from django.views.generic import RedirectView
 
-from . import api_views
 from . import views
 from ..front.sitemaps import sitemaps
 
@@ -67,6 +66,11 @@ supportgroup_settings_patterns = [
         "gestion/ressources/",
         views.SupportGroupSettingsView.as_view(),
         name="view_group_settings_help",
+    ),
+    path(
+        "gestion/agenda/",
+        views.SupportGroupSettingsView.as_view(),
+        name="view_group_settings_upcoming_events",
     ),
 ]
 
@@ -277,6 +281,19 @@ spending_request_patterns = [
     ),
 ]
 
+api_patterns = [
+    path(
+        "recherche/",
+        views.SearchSupportGroupsAndEventsAPIView.as_view(),
+        name="api_search_supportgroup_and_events",
+    ),
+    path(
+        "codes-postaux/",
+        views.CodePostalListAPIView.as_view(),
+        name="api_code_postaux",
+    ),
+]
+
 urlpatterns = [
     ## APP & AUTH VIEWS
     path("connexion/", views.LoginView.as_view(), name="short_code_login"),
@@ -325,11 +342,7 @@ urlpatterns = [
         views.SearchView.as_view(),
         name="search_groups",
     ),
-    path(
-        "api/recherche/",
-        api_views.SearchSupportGroupsAndEventsAPIView.as_view(),
-        name="api_search_supportgroup_and_events",
-    ),
+    path("api/", include(api_patterns)),
     path("mes-groupes/", views.UserSupportGroupsView.as_view(), name="list_my_groups"),
     path(
         "equipes-thematiques/",
@@ -398,6 +411,16 @@ urlpatterns = [
         "evenements/carte/<uuid:pk>/",
         views.BaseAppCachedView.as_view(),
         name="map_event_details",
+    ),
+    path(
+        "evenements/groupes/",
+        views.GroupUpcomingEventsView.as_view(),
+        name="group_upcoming_events",
+    ),
+    path(
+        "evenements/groupes/<uuid:pk>/",
+        views.GroupUpcomingEventsForGroupView.as_view(),
+        name="group_upcoming_events_for_group",
     ),
     path("evenements/creer/", views.CreateEventView.as_view(), name="create_event"),
     path(

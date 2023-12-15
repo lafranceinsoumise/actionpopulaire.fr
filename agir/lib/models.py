@@ -1,9 +1,11 @@
 import re
 import uuid
 
+import emoji
 from django.conf import settings
 from django.contrib.admin.widgets import AdminTextareaWidget
 from django.contrib.gis.db import models
+from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator, FileExtensionValidator
 from django.db.models import JSONField, ExpressionWrapper, BooleanField, Q
 from django.utils import timezone
@@ -22,7 +24,7 @@ from agir.lib.data import (
 )
 from agir.lib.utils import resize_and_autorotate
 from .display import display_address
-from .form_fields import RichEditorWidget, AdminRichEditorWidget
+from .form_fields import RichEditorWidget, AdminRichEditorWidget, EmojiWidget
 from .html import sanitize_html
 
 RE_FRENCH_ZIPCODE = re.compile("^[0-9]{5}$")
@@ -544,3 +546,24 @@ class ExternalLinkMixin(models.Model):
 
 def Condition(*args, **kwargs):
     return ExpressionWrapper(Q(*args, **kwargs), output_field=BooleanField())
+
+
+class EmojiField(models.CharField):
+    description = _("A single emoji character string")
+
+    def __init__(self, *args, **kwargs):
+        kwargs["max_length"] = 1
+        super().__init__(*args, **kwargs)
+
+    def to_python(self, value):
+        if value and not emoji.is_emoji(value):
+            raise ValidationError(_(f"{value} ce n'est pas un emoji !"))
+
+        return value
+
+    def formfield(self, **kwargs):
+        attrs = kwargs.get("attrs", {})
+        attrs["data-label"] = kwargs.get("verbose_name", "")
+        defaults = {"widget": EmojiWidget(attrs=attrs)}
+        kwargs.update(defaults)
+        return super().formfield(**defaults)

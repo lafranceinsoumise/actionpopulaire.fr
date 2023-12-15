@@ -50,6 +50,7 @@ from agir.lib.models import (
     BaseSubtype,
     TimeStampedModel,
     banner_image_file_path,
+    EmojiField,
 )
 from agir.lib.search import PrefixSearchQuery
 from agir.lib.utils import front_url, resize_and_autorotate, is_absolute_url
@@ -1250,6 +1251,16 @@ class EventSubtype(BaseSubtype):
         on_delete=models.SET_NULL,
         help_text="Si une campagne a été sélectionné, celle-ci pourra être utilisée comme modèle pour créer "
         "automatiquement une campagne pour un événement de ce type.",
+    )
+
+    emoji = EmojiField(
+        _("Emoji"),
+        null=False,
+        blank=True,
+        default="",
+        help_text=_(
+            "Un emoji à utiliser à la place de l'icône dans certaines situations"
+        ),
     )
 
     class Meta:

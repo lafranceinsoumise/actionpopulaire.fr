@@ -75,6 +75,7 @@ const BackLink = (props) => {
 
   const linkProps = useMemo(() => {
     const linkProps = state?.backLink || backLink || DEFAULT_ROUTE;
+
     return {
       to: linkProps.to,
       route: linkProps.route,
@@ -84,7 +85,8 @@ const BackLink = (props) => {
       state: linkProps.state,
       label: linkProps.label,
     };
-  }, [state, backLink]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const internalRouteConfig = useMemo(() => {
     return (linkProps?.route && routeConfig[linkProps.route]) || DEFAULT_ROUTE;

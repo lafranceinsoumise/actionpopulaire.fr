@@ -5,7 +5,7 @@ from dateutil.relativedelta import relativedelta
 from django.contrib.gis.db.models.functions import Distance
 from django.core.validators import validate_email
 from django.db import transaction
-from django.db.models import Max, DateTimeField, Q
+from django.db.models import Max, DateTimeField, Q, F
 from django.db.models.functions import Greatest
 from django.utils import timezone
 from django.utils.decorators import method_decorator
@@ -36,7 +36,7 @@ from agir.groups.actions.notifications import (
     new_comment_notifications,
     someone_joined_notification,
 )
-from agir.groups.filters import GroupAPIFilterSet
+from agir.groups.filters import GroupAPIFilterSet, GroupLocationAPIFilterSet
 from agir.groups.models import (
     SupportGroup,
     SupportGroupSubtype,
@@ -54,6 +54,7 @@ from agir.groups.serializers import (
     SupportGroupExternalLinkSerializer,
     MemberPersonalInformationSerializer,
     ThematicGroupSerializer,
+    SupportGroupSearchResultSerializer,
 )
 from agir.groups.utils.supportgroup import is_active_group_filter
 from agir.lib.pagination import (
@@ -66,6 +67,7 @@ from agir.people.models import Person
 __all__ = [
     "LegacyGroupSearchAPIView",
     "GroupSearchAPIView",
+    "GroupLocationSearchAPIView",
     "GroupSubtypesView",
     "UserGroupsView",
     "ThematicGroupsView",
@@ -145,6 +147,32 @@ class GroupSearchAPIView(ListAPIView):
             ],
             **kwargs,
         )
+
+
+class GroupLocationSearchAPIView(ListAPIView):
+    queryset = SupportGroup.objects.active()
+    permission_classes = (IsActionPopulaireClientPermission,)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = GroupLocationAPIFilterSet
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            data = (
+                page.annotate(zip=F("location_zip"))
+                .order_by("zip", "name")
+                .values("id", "name", "zip")
+            )
+            return self.get_paginated_response(data)
+
+        data = (
+            queryset.annotate(zip=F("location_zip"))
+            .order_by("zip", "name")
+            .values("id", "name", "zip")
+        )
+        return Response(data)
 
 
 class GroupSubtypesView(ListAPIView):

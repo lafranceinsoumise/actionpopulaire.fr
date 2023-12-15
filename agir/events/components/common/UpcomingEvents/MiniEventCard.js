@@ -28,7 +28,7 @@ const StyledCard = styled(Link)`
   & > * {
     font-size: 0.875rem;
     line-height: 1.5;
-    font-weight: 500;
+    font-weight: 400;
     display: block;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -39,20 +39,26 @@ const StyledCard = styled(Link)`
     }
   }
 
-  & > span {
+  & > strong {
     color: ${(props) => props.theme.black1000};
   }
 `;
 
 export const MiniEventCard = (props) => {
-  const { id, name, startTime, backLink } = props;
+  const { id, name, startTime, location, backLink, style, className } = props;
   return (
     <StyledCard
+      style={style}
+      className={className}
       backLink={backLink}
       to={routeConfig.eventDetails.getLink({ eventPk: id })}
     >
-      <strong>{displayHumanDateString(startTime)}</strong>
-      <span>{name}</span>
+      <span>
+        {[displayHumanDateString(startTime), location?.name.trim()]
+          .filter(Boolean)
+          .join(" • ")}
+      </span>
+      <strong>{name}</strong>
     </StyledCard>
   );
 };
@@ -61,7 +67,12 @@ MiniEventCard.propTypes = {
   id: PropTypes.string.isRequired,
   startTime: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
+  location: PropTypes.shape({
+    name: PropTypes.string,
+  }),
   backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  style: PropTypes.object,
+  className: PropTypes.string,
 };
 
 export default MiniEventCard;

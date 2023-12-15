@@ -1,6 +1,7 @@
 const config = [
   "/api/session/",
   "/api/2022/dons/",
+  "/api/codes-postaux/",
 
   "/api/user/activities/",
   "/api/user/messages/",
@@ -9,6 +10,7 @@ const config = [
   "/api/notifications/subscriptions/",
 
   "/api/elections/circonscription-legislatives/",
+  "/api/elections/communes-consulats/",
 
   "/api/evenements/options/",
   "/api/evenements/rsvped/",

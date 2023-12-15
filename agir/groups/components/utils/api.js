@@ -1,4 +1,5 @@
 import axios from "@agir/lib/utils/axios";
+import querystring from "query-string";
 
 export const ENDPOINT = {
   getGroup: "/api/groupes/:groupPk/",
@@ -45,15 +46,24 @@ export const ENDPOINT = {
   groupExternalLink: "/api/groupes/:groupPk/link/:linkPk/",
 
   searchGroups: "/api/groupes/recherche/",
+  geoSearchGroups: "/api/groupes/recherche/geo/",
 };
 
-export const getGroupEndpoint = (key, params) => {
+export const getGroupEndpoint = (key, params, querystringParams) => {
   let endpoint = ENDPOINT[key] || "";
+
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
       endpoint = endpoint.replace(`:${key}`, value);
     });
   }
+
+  if (querystringParams) {
+    endpoint += `?${querystring.stringify(querystringParams, {
+      arrayFormat: "comma",
+    })}`;
+  }
+
   return endpoint;
 };
 

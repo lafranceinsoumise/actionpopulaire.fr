@@ -2,6 +2,7 @@ import datetime
 import json
 from uuid import UUID
 
+import emoji
 from data_france.models import Commune
 from django import forms
 from django.core.exceptions import ValidationError
@@ -522,3 +523,23 @@ class MultiDateTimeField(MultiTemporaFieldMixin, forms.DateTimeField):
 
     def __str__(self):
         return "MultiDateTimeField"
+
+
+class EmojiWidget(forms.TextInput):
+    template_name = "custom_fields/emoji_widget.html"
+    component = "EmojiField"
+
+    def get_context(self, name, value, attrs):
+        attrs["data-component"] = self.component
+        attrs["class"] = "emoji-field"
+        attrs["data-text"] = emoji.demojize(value, language="fr") if value else ""
+
+        return super().get_context(name, value, attrs)
+
+
+class EmojiField(forms.CharField):
+    widget = EmojiWidget
+    max_length = 1
+
+    def __str__(self):
+        return "EmojiField"

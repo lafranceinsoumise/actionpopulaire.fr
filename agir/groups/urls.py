@@ -42,6 +42,11 @@ api_urlpatterns = [
         name="api_group_search",
     ),
     path(
+        "recherche/geo/",
+        views.GroupLocationSearchAPIView.as_view(),
+        name="api_group_location_search",
+    ),
+    path(
         "thematiques/",
         views.ThematicGroupsView.as_view(),
         name="api_thematic_groups",
