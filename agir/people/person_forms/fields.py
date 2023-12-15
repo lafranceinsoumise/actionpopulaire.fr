@@ -16,6 +16,7 @@ from django.core.validators import (
 from django.forms.models import ModelChoiceIterator
 from django.utils import timezone
 from django.utils.formats import localize_input
+from django.utils.text import slugify
 from django.utils.translation import gettext as _
 from phonenumber_field.formfields import PhoneNumberField
 from unidecode import unidecode
@@ -40,7 +41,6 @@ from ...lib.validators import FileSizeValidator
 from ...municipales.models import CommunePage
 
 logger = logging.getLogger(__name__)
-
 
 all_person_field_names = [field.name for field in Person._meta.get_fields()]
 
@@ -242,8 +242,20 @@ class ModelDefaultChoiceIterator(ModelChoiceIterator):
         self.queryset = field.default_queryset
 
 
-def get_group_queryset_from_choices(choices, instance):
+GROUP_TYPE_CHOICES = {slugify(val): key for key, val in SupportGroup.TYPE_CHOICES}
+
+
+def get_group_queryset_from_choices_and_group_type(choices, group_type, instance):
     base_qs = SupportGroup.objects.active()
+
+    group_type = (
+        GROUP_TYPE_CHOICES.get(slugify(group_type), group_type)
+        if group_type
+        else group_type
+    )
+
+    if group_type in GROUP_TYPE_CHOICES.values():
+        base_qs = base_qs.filter(type=group_type)
 
     if choices in ["animateur", "animatrice", "animator", "referent"]:
         return base_qs.filter(
@@ -277,9 +289,12 @@ class GroupField(forms.ModelChoiceField):
         instance,
         choices="member",
         default_options_label="Mes groupes",
+        group_type=None,
         **kwargs,
     ):
-        self.default_queryset = get_group_queryset_from_choices(choices, instance)
+        self.default_queryset = get_group_queryset_from_choices_and_group_type(
+            choices, group_type, instance
+        )
         self.choice_constraint = choices
         self.default_options_label = default_options_label
 
@@ -307,8 +322,10 @@ class MultipleGroupField(forms.ModelMultipleChoiceField):
     instance_in_kwargs = True
     widget = forms.CheckboxSelectMultiple
 
-    def __init__(self, *, instance, choices, **kwargs):
-        queryset = get_group_queryset_from_choices(choices, instance)
+    def __init__(self, *, instance, choices, group_type=None, **kwargs):
+        queryset = get_group_queryset_from_choices_and_group_type(
+            choices, group_type, instance
+        )
         super().__init__(queryset, **kwargs)
 
     def clean(self, value):
@@ -463,7 +480,6 @@ FIELDS = {
     "uuid": forms.UUIDField,
     "event_theme": EventThemeField,
 }
-
 
 PREDEFINED_CHOICES = {
     "departements": departements_choices,
