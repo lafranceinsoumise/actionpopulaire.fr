@@ -1,8 +1,8 @@
 import _sortBy from "lodash/sortBy";
 import PropTypes from "prop-types";
 import React, { useMemo, useState } from "react";
-import useSWRImmutable from "swr/immutable";
 import styled from "styled-components";
+import useSWR from "swr";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
@@ -23,8 +23,8 @@ import {
 } from "@agir/events/groupUpcomingEventPage/common";
 import { useGroup } from "@agir/groups/groupPage/hooks/group.js";
 
-import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import EventCardList from "@agir/events/groupUpcomingEventPage/EventCardList";
+import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 
 const Skeleton = styled.div`
   height: 36px;
@@ -65,7 +65,7 @@ const GroupUpcomingEventPage = (props) => {
 
   const [timing, setTiming] = useState(TIMING_OPTIONS[0].value);
 
-  const { data: events, isLoading } = useSWRImmutable(
+  const { data: events, isLoading } = useSWR(
     () =>
       getGroupUpcomignEventEndpoint("groupUpcomingEvents", null, {
         groups: groupPk,
