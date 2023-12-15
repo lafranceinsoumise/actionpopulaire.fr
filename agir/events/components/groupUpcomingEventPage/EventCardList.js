@@ -15,7 +15,13 @@ const StyledMiniEventCard = styled(MiniEventCard)`
   }
 `;
 
-const EventCardList = ({ events, isLoading, disabled, emptyText }) => {
+const EventCardList = ({
+  events,
+  isLoading,
+  disabled,
+  emptyText,
+  backLink,
+}) => {
   const eventsByDay = useEventsByDay(events, (date) => simpleDate(date, false));
 
   if (isLoading) {
@@ -48,7 +54,7 @@ const EventCardList = ({ events, isLoading, disabled, emptyText }) => {
     <React.Fragment key={date}>
       <h6>{date}</h6>
       {events.map((event) => (
-        <StyledMiniEventCard key={event.id} {...event} />
+        <StyledMiniEventCard key={event.id} {...event} backLink={backLink} />
       ))}
     </React.Fragment>
   ));
@@ -59,6 +65,7 @@ EventCardList.propTypes = {
   isLoading: PropTypes.bool,
   disabled: PropTypes.bool,
   emptyText: PropTypes.string,
+  backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
 };
 
 export default EventCardList;

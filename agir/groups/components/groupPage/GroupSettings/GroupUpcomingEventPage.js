@@ -122,6 +122,7 @@ const GroupUpcomingEventPage = (props) => {
             events={events}
             isLoading={isLoading}
             emptyText="Aucun événement n'est prévu pour ce groupe dans la période sélectionnée"
+            backLink={{ to: route.getLink(), label: group.name }}
           />
           {events && events.length > 0 ? (
             <>

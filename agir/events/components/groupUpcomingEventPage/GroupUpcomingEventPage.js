@@ -184,6 +184,10 @@ const GroupUpcomingEventPage = () => {
                 events={events}
                 isLoading={isLoadingEvents}
                 disabled={!params.g}
+                backLink={{
+                  route: "groupUpcomingEvents",
+                  params,
+                }}
               />
             </div>
             {events && events.length > 0 && (
