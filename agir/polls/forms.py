@@ -98,7 +98,7 @@ class PollParticipationForm(Form):
     def _clean_choice(self, option_group_id, cleaned_data):
         rules = self.get_poll_rules_for_option_group(option_group_id)
 
-        if "options" in rules and rules["options"] == 1:
+        if "options" in rules and rules["options"] == 1 and cleaned_data:
             return [cleaned_data.pk]
 
         if not cleaned_data or cleaned_data.count() == 0:
