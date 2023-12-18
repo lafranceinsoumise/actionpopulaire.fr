@@ -4,6 +4,7 @@ import useSWR from "swr";
 import useSWRImmutable from "swr/immutable";
 
 import BackLink from "@agir/front/app/Navigation/BackLink";
+import Button from "@agir/front/genericComponents/Button";
 import RadioField from "@agir/front/formComponents/RadioField";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
@@ -109,7 +110,7 @@ const StyledPage = styled.main`
 `;
 
 const GroupUpcomingEventPage = () => {
-  const [params, setParams] = useLocationState();
+  const [params, setParams, clearParams] = useLocationState();
   const [timing, setTiming] = useState(TIMING_OPTIONS[0].value);
 
   const { data: zipCodes, isLoading: isLoadingZipCodes } = useSWRImmutable(
@@ -146,6 +147,25 @@ const GroupUpcomingEventPage = () => {
             <BackLink />
           </nav>
           <h2>Agenda des groupes d’action</h2>
+          <div
+            css={`
+              text-align: right;
+            `}
+          >
+            <Button
+              small
+              icon="refresh-cw"
+              color="choose"
+              onClick={clearParams}
+              disabled={
+                isLoadingEvents ||
+                isLoadingGroups ||
+                typeof clearParams !== "function"
+              }
+            >
+              Réinitialiser
+            </Button>
+          </div>
           <ZipCodeSelectField
             value={params}
             onChange={setParams}
@@ -153,9 +173,8 @@ const GroupUpcomingEventPage = () => {
             isLoading={isLoadingGroups}
           />
           <Spacer size="1.5rem" />
-          <h4>Groupe{groups?.length > 0 ? "s" : ""} d'action</h4>
-          <Spacer size="1rem" />
           <GroupSelectField
+            label={<h4>Groupe{groups?.length > 0 ? "s" : ""} d'action</h4>}
             value={params}
             onChange={setParams}
             groups={groups}
