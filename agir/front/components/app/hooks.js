@@ -169,7 +169,7 @@ export const useLocationState = () => {
   const setParams = useCallback(
     (key, value) => {
       history.replace({
-        pathname: pathname,
+        pathname,
         search: querystring.stringify(
           {
             ...params,
@@ -182,5 +182,12 @@ export const useLocationState = () => {
     [pathname, history, params],
   );
 
-  return [params, setParams];
+  const clearParams = useCallback(() => {
+    history.replace({
+      pathname,
+      search: querystring.stringify({}, { arrayFormat: "comma" }),
+    });
+  }, [pathname, history]);
+
+  return [params, setParams, !!search ? clearParams : undefined];
 };
