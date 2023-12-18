@@ -39,6 +39,7 @@ const StyledHeading = styled.nav`
   align-items: center;
   justify-content: start;
   font-size: 0.875rem;
+  line-height: 1.5;
   margin-bottom: 0.25rem;
 
   & > * {
@@ -57,6 +58,17 @@ const StyledContent = styled.div`
   em {
     font-style: normal;
   }
+`;
+
+const StyledEmptySpace = styled.p`
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  border: 1px solid ${(props) => props.theme.black50};
 `;
 
 const GroupUpcomingEventPage = (props) => {
@@ -118,32 +130,34 @@ const GroupUpcomingEventPage = (props) => {
       <Spacer size="1rem" />
       <StyledContent>
         <PageFadeIn ready={!isLoading} wait={<Skeleton boxes={1} />}>
-          <EventCardList
-            events={events}
-            isLoading={isLoading}
-            emptyText="Aucun événement n'est prévu pour ce groupe dans la période sélectionnée"
-            backLink={{ to: route.getLink(), label: group.name }}
-          />
           {events && events.length > 0 ? (
             <>
+              <EventCardList
+                events={events}
+                isLoading={isLoading}
+                backLink={{ to: route.getLink(), label: group.name }}
+              />
               <hr />
               <StyledSubtitle>Message récapitulatif de l’agenda</StyledSubtitle>
               <Spacer size="1rem" />
               <EventTextList events={events} timing={timing} />
             </>
           ) : (
-            <p style={{ marginTop: "1.5rem", textAlign: "center" }}>
+            <StyledEmptySpace>
+              Il n’y a pas d’événement prévu dans votre groupe pour la période
+              sélectionnée
+              <br />
               <Button
                 link
                 route="createEvent"
                 params={{ group: groupPk }}
-                color="primary"
+                color="secondary"
                 icon="plus"
                 wrap
               >
-                Créer un nouvel événement du groupe
+                Créer un événement
               </Button>
-            </p>
+            </StyledEmptySpace>
           )}
         </PageFadeIn>
       </StyledContent>
