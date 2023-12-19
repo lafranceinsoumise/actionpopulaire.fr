@@ -7,9 +7,11 @@ from celery import shared_task
 from django.core.exceptions import ObjectDoesNotExist
 from push_notifications.gcm import GCMError
 
-TASK_PRIORITY_HIGH = 0
-TASK_PRIORITY_NORMAL = 1
-TASK_PRIORITY_LOW = 2
+from django.conf import settings
+
+TASK_PRIORITY_LOW = settings.CELERY_TASK_PRIORITY_LOW
+TASK_PRIORITY_NORMAL = settings.CELERY_TASK_PRIORITY_NORMAL
+TASK_PRIORITY_HIGH = settings.CELERY_TASK_PRIORITY_HIGH
 
 
 def retry_strategy(

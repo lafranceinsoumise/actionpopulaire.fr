@@ -375,11 +375,11 @@ class CreateEventView(BaseAppSoftAuthView):
     api_preloads = [reverse_lazy("api_event_create_options")]
 
 
-class GroupUpcomingEventsView(BaseAppCachedView):
+class GroupUpcomingEventsView(BaseAppSoftAuthView):
     api_preloads = [reverse_lazy("api_group_upcoming_events")]
 
 
-class GroupUpcomingEventsForGroupView(BaseAppCachedView):
+class GroupUpcomingEventsForGroupView(BaseAppSoftAuthView):
     def get_api_preloads(self):
         return [
             reverse_lazy("api_group_view", kwargs=self.kwargs),
