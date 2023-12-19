@@ -242,9 +242,9 @@ class AlreadyContributorRedirectView(RedirectView):
         active_contribution = None
 
         if (
-            self.request.user.is_authenticated
-            and hasattr(self.request.user, "person")
-            and self.request.user.person is not None
+                self.request.user.is_authenticated
+                and hasattr(self.request.user, "person")
+                and self.request.user.person is not None
         ):
             active_contribution = get_active_contribution_for_person(
                 person=self.request.user.person
@@ -289,11 +289,11 @@ class ContributionView(BaseAppCachedView):
 
     def get(self, request, *args, **kwargs):
         if (
-            self.restricted
-            and request.user.is_authenticated
-            and hasattr(request.user, "person")
-            and request.user.person is not None
-            and not can_make_contribution(person=request.user.person)
+                self.restricted
+                and request.user.is_authenticated
+                and hasattr(request.user, "person")
+                and request.user.person is not None
+                and not can_make_contribution(person=request.user.person)
         ):
             return HttpResponseRedirect(reverse_lazy("already_contributor"))
 
@@ -375,11 +375,11 @@ class CreateEventView(BaseAppSoftAuthView):
     api_preloads = [reverse_lazy("api_event_create_options")]
 
 
-class GroupUpcomingEventsView(BaseAppCachedView):
+class GroupUpcomingEventsView(BaseAppSoftAuthView):
     api_preloads = [reverse_lazy("api_group_upcoming_events")]
 
 
-class GroupUpcomingEventsForGroupView(BaseAppCachedView):
+class GroupUpcomingEventsForGroupView(BaseAppSoftAuthView):
     def get_api_preloads(self):
         return [
             reverse_lazy("api_group_view", kwargs=self.kwargs),

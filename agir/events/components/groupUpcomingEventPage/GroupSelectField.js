@@ -124,9 +124,9 @@ const GroupSelectField = (props) => {
 
   return (
     <>
-      {groups.length > 1 && groups.length <= GROUP_SELECTION_MAX_LIMIT && (
-        <StyledLabel>
-          {label}
+      <StyledLabel>
+        {label}
+        {groups.length > 1 && groups.length <= GROUP_SELECTION_MAX_LIMIT && (
           <CheckboxField
             toggle
             key="all"
@@ -141,8 +141,8 @@ const GroupSelectField = (props) => {
             disabled={disabled || isLoading}
             style={{ fontSize: "0.875rem", whiteSpace: "nowrap" }}
           />
-        </StyledLabel>
-      )}
+        )}
+      </StyledLabel>
       <div>
         {groups.length > GROUP_SELECTION_MAX_LIMIT && (
           <p style={{ fontSize: "0.875rem", marginTop: "-0.5rem" }}>
