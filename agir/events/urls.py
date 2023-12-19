@@ -151,6 +151,11 @@ urlpatterns = [
         name="api_user_group_events",
     ),
     path(
+        "api/evenements/groupes/",
+        views.GroupUpcomingEventListAPIView.as_view(),
+        name="api_group_upcoming_events",
+    ),
+    path(
         "api/evenements/organises/",
         views.OrganizedEventAPIView.as_view(),
         name="api_organized_events",

@@ -888,6 +888,7 @@ class EventSubtypeAdmin(admin.ModelAdmin):
                     "icon_name",
                     "color",
                     "icon_preview",
+                    "emoji",
                     "icon_anchor_x",
                     "icon_anchor_y",
                     "popup_anchor_y",
@@ -922,6 +923,7 @@ class EventSubtypeAdmin(admin.ModelAdmin):
     list_display = (
         "label",
         "description",
+        "emoji",
         "type",
         "visibility",
         "for_group_type",

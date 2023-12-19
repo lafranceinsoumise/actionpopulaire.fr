@@ -1,6 +1,7 @@
 import django_countries.data
 from data_france.models import Commune
 
+from agir.groups.models import SupportGroup
 from agir.people.models import Person
 from agir.people.person_forms import fields
 from agir.people.person_forms.fields import PREDEFINED_CHOICES
@@ -338,6 +339,19 @@ field_types = [
                         "type": "array",
                         "items": uuid,
                     },
+                ]
+            },
+            "group_type": {
+                "oneOf": [
+                    {
+                        "type": "string",
+                        "enum": [
+                            item
+                            for choice in SupportGroup.TYPE_CHOICES
+                            for item in choice
+                        ],
+                    },
+                    {"type": "null"},
                 ]
             },
         },

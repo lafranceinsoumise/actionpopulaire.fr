@@ -64,6 +64,7 @@
     "path-to-regexp-es": "^3.0.0",
     "promise": "^8.3.0",
     "prop-types": "^15.8.1",
+    "query-string": "^8.1.0",
     "querystring-es3": "^0.2.1",
     "react": "^17.0.2",
     "react-datetime": "^3.2.0",

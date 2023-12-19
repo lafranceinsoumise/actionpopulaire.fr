@@ -6,10 +6,12 @@ import {
 
 import illustrationManage from "@agir/front/genericComponents/images/group_members.svg";
 import illustrationFinance from "@agir/front/genericComponents/images/group_financement.svg";
+import illustrationUpcomingEvents from "@agir/front/genericComponents/images/group_agenda.svg";
 import illustrationGeneral from "@agir/front/genericComponents/images/group_general.svg";
 import illustrationContact from "@agir/front/genericComponents/images/group_contact.svg";
 import illustrationLinks from "@agir/front/genericComponents/images/group_links.svg";
 import illustrationHelp from "@agir/front/genericComponents/images/group_help.svg";
+import { groupUpcomingEventLinkForGroup } from "@agir/events/groupUpcomingEventPage/common";
 
 const GroupSettingsReadOnlyMembers = lazy(
   () =>
@@ -39,6 +41,12 @@ const GroupSettingsMateriel = lazy(
   () =>
     import(
       /* webpackChunkName: "r-groupsettingsmateriel" */ "@agir/groups/groupPage/GroupSettings/GroupMaterielPage"
+    ),
+);
+const GroupSettingsUpcomingEvents = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "r-groupsettingsupcomingevents" */ "@agir/groups/groupPage/GroupSettings/GroupUpcomingEventPage"
     ),
 );
 const GroupSettingsFinance__Group = lazy(
@@ -166,6 +174,17 @@ export const routeConfig = {
         : GroupSettingsFinance__Group,
     illustration: illustrationFinance,
     isActive: (group) => group.isFinanceable && group.isFinanceManager,
+    menuGroup: 1,
+  },
+  upcomingEvents: {
+    id: "upcomingEvents",
+    path: "agenda/",
+    exact: true,
+    label: "Agenda",
+    icon: "calendar",
+    Component: GroupSettingsUpcomingEvents,
+    illustration: illustrationUpcomingEvents,
+    isActive: true,
     menuGroup: 1,
   },
   general: {

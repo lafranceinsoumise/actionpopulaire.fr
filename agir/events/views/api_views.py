@@ -57,6 +57,7 @@ __all__ = [
     "OngoingRsvpedEventsAPIView",
     "EventSuggestionsAPIView",
     "UserGroupEventAPIView",
+    "GroupUpcomingEventListAPIView",
     "OrganizedEventAPIView",
     "GrandEventAPIView",
     "EventCreateOptionsAPIView",
@@ -85,7 +86,7 @@ from agir.lib.rest_framework_permissions import (
 )
 
 from agir.lib.tasks import geocode_person
-from ..filters import EventFilter
+from ..filters import EventFilter, GroupEventAPIFilter
 from ..tasks import (
     send_cancellation_notification,
     send_group_coorganization_invitation_notification,
@@ -118,6 +119,7 @@ class EventListAPIView(ListAPIView):
     permission_classes = (IsPersonPermission,)
     serializer_class = EventListSerializer
     queryset = Event.objects.public()
+    max_length = None
 
     def get_queryset(self):
         return (
@@ -126,6 +128,12 @@ class EventListAPIView(ListAPIView):
             .with_serializer_prefetch(self.request.user.person)
             .select_related("subtype")
         )
+
+    def filter_queryset(self, queryset):
+        if self.max_length:
+            return super().filter_queryset(queryset)[: self.max_length]
+
+        return super().filter_queryset(queryset)
 
     def get_serializer(self, *args, **kwargs):
         return super().get_serializer(
@@ -161,6 +169,8 @@ class EventRsvpedAPIView(EventListAPIView):
 
 
 class PastRsvpedEventAPIView(EventListAPIView):
+    max_length = 20
+
     def get_queryset(self):
         return (
             super()
@@ -169,7 +179,7 @@ class PastRsvpedEventAPIView(EventListAPIView):
             .past()
             .attended_by_person(self.request.user.person)
             .order_by("-end_time", "-start_time")
-            .distinct()[:20]
+            .distinct()
         )
 
 
@@ -262,10 +272,21 @@ class UserGroupEventAPIView(EventListAPIView):
         )
 
 
+class GroupUpcomingEventListAPIView(EventListAPIView):
+    queryset = Event.objects.listed()
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = GroupEventAPIFilter
+    max_length = 200
+
+    def get_queryset(self):
+        return super().get_queryset().upcoming().distinct().order_by("start_time")
+
+
 class OrganizedEventAPIView(EventListAPIView):
     queryset = Event.objects.exclude(visibility=Event.VISIBILITY_ADMIN)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = EventFilter
+    max_length = 10
 
     def get_queryset(self):
         return (
@@ -275,9 +296,6 @@ class OrganizedEventAPIView(EventListAPIView):
             .distinct()
             .order_by("-start_time")
         )
-
-    def filter_queryset(self, queryset):
-        return super().filter_queryset(queryset)[:10]
 
 
 class GrandEventAPIView(EventListAPIView):

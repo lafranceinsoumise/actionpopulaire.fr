@@ -35,6 +35,7 @@ sudo localectl set-locale LANG=fr_FR.UTF-8
 echo "## Update packages"
 sudo apt-get update -qq &> /dev/null
 
+
 echo "## Install postgresql..."
 if ! dpkg -s postgresql-12 &> /dev/null; then
     sudo apt-get -yqq install postgresql-12 postgresql-12-postgis-3 postgresql-12-postgis-3-scripts libpq-dev &> /dev/null
@@ -91,7 +92,7 @@ echo "## Create super user (address: admin@agir.local, password: password)"
 (cd /vagrant && (SUPERPERSON_PASSWORD="password" $POETRY_HOME/bin/poetry run ./manage.py createsuperperson --noinput --email admin@agir.local || true)) &> /dev/null
 
 echo "## Install fonts"
-sudo /vagrant/install_fonts.sh
+sudo /vagrant/scripts/install_fonts.sh
 
 
 echo "## Create unit files..."

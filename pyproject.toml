@@ -8,6 +8,7 @@ license = "AGPL-3.0"
 [tool.poetry.dependencies]
 python = "^3.9"
 # Django et extensions
+
 django = ">=3.0,<4.0"
 ## config helpers
 dj-database-url = "==1.2.*"  # for easing up database settings
@@ -90,16 +91,20 @@ pydantic = "^1.10.7"
 lxml = "^4.9.2"
 gspread = "^5.7.0"
 nested-multipart-parser = "^1.5.0"
+emoji = "^2.8.0"
 
 [tool.poetry.dev-dependencies]
 ipython = "*"
 black = "==23.1.0"
 coverage = "*"
 django-debug-toolbar = "*"
-redislite = "*"  # used for testing
-click = "*"
+redislite = "==6.2.805324"  # used for testing - locked to 6.2.805324 version to avoid breaking "run-tests" GitHub action workflow
 pympler = "*"
 hypothesis = {extras = ["django"], version = "^6.70.0"}
+flower = "*"
+
+[tool.poetry.group.dev.dependencies]
+redislite = "6.2.805324"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

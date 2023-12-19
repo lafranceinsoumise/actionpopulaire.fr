@@ -1,4 +1,3 @@
-import RenderIfVisible from "@agir/front/genericComponents/RenderIfVisible";
 import { Interval } from "luxon";
 import PropTypes from "prop-types";
 import React, { useMemo } from "react";
@@ -8,9 +7,11 @@ import Link from "@agir/front/app/Link";
 import EventCard from "@agir/front/genericComponents/EventCard";
 import FilterTabs from "@agir/front/genericComponents/FilterTabs";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
+import RenderIfVisible from "@agir/front/genericComponents/RenderIfVisible";
 import ActionRadiusField from "./ActionRadiusField";
 
-import { dateFromISOString, displayHumanDay } from "@agir/lib/utils/time";
+import { useEventsByDay } from "@agir/events/common/hooks";
+import { dateFromISOString } from "@agir/lib/utils/time";
 import { useEventSuggestions } from "./api";
 
 const Bone = styled.div`
@@ -82,28 +83,6 @@ const Skeleton = () => (
     <Bone />
   </>
 );
-
-const useEventsByDay = (events) => {
-  const byDay = useMemo(
-    () =>
-      Array.isArray(events)
-        ? events.reduce((days, event) => {
-            const day = displayHumanDay(dateFromISOString(event.startTime));
-            (days[day] = days[day] || []).push({
-              ...event,
-              schedule: Interval.fromDateTimes(
-                dateFromISOString(event.startTime),
-                dateFromISOString(event.endTime),
-              ),
-            });
-            return days;
-          }, {})
-        : undefined,
-    [events],
-  );
-
-  return byDay;
-};
 
 const EventList = (props) => {
   const { events } = props;

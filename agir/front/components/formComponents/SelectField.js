@@ -31,7 +31,7 @@ const BackgroundOpacity = styled.div`
     position: fixed;
     top: 0;
     left: 0;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: black;
   }
 `;
 
@@ -70,7 +70,7 @@ const StyledField = styled.label`
     border-radius: ${style.softBorderRadius};
     border: 1px solid;
     max-width: 100%;
-    height: 2.5rem;
+    min-height: 2.5rem;
     line-height: 1.5;
     font-size: ${({ $small }) => ($small ? "0.875rem" : "1rem")};
     font-weight: ${({ $small }) => ($small ? "600" : "auto")};
@@ -117,6 +117,7 @@ const StyledField = styled.label`
       right: 0;
       width: 100%;
       margin: 0;
+      max-height: 40vh;
       border-radius: ${style.borderRadius} ${style.borderRadius} 0 0;
       overflow-x: hidden;
       overflow-y: auto;
@@ -126,7 +127,8 @@ const StyledField = styled.label`
 
   ${BackgroundOpacity} {
     @media (max-width: ${style.collapse}px) {
-      display: ${(props) => (props.$searchable ? "none" : "block")};
+      display: block;
+      opacity: ${(props) => (props.$searchable ? 0.15 : 0.5)};
     }
   }
 
@@ -181,8 +183,19 @@ const StyledField = styled.label`
     padding: 10px 1rem;
     display: flex;
     align-items: center;
-    line-height: 1.125;
+    line-height: 1.2;
     cursor: pointer;
+
+    ${(props) =>
+      props.$noWrapOptions
+        ? `
+        display: block;
+        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    `
+        : ""}
   }
 
   ${StyledError} {
@@ -240,6 +253,7 @@ const SelectField = (props) => {
     options,
     isSearchable,
     small,
+    noWrapOptions,
     ...rest
   } = props;
 
@@ -253,11 +267,13 @@ const SelectField = (props) => {
       $empty={!!value}
       $searchable={!!isSearchable}
       $small={small}
+      $noWrapOptions={noWrapOptions}
     >
       {label && <StyledLabel>{label}</StyledLabel>}
       {helpText && <StyledHelpText>{helpText}</StyledHelpText>}
       <Select
         {...rest}
+        noOptionsMessage={() => "Aucune option disponible"}
         maxMenuHeight={maxMenuHeight}
         classNamePrefix="select"
         isDisabled={!!rest.disabled}
@@ -268,6 +284,7 @@ const SelectField = (props) => {
         value={value}
         theme={selectFieldTheme}
         captureMenuScroll={false}
+        menuShouldScrollIntoView={false}
         components={{
           Menu: CustomMenu,
         }}
@@ -287,6 +304,7 @@ SelectField.propTypes = {
   error: PropTypes.node,
   isSearchable: PropTypes.bool,
   small: PropTypes.bool,
+  noWrapOptions: PropTypes.bool,
 };
 
 export default SelectField;

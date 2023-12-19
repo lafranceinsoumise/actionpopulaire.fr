@@ -17,6 +17,7 @@ from agir.lib.celery import (
     emailing_task,
     post_save_task,
     http_task,
+    TASK_PRIORITY_LOW,
 )
 from agir.lib.display import str_summary
 from agir.lib.geo import geocode_element
@@ -576,7 +577,7 @@ def send_post_event_required_documents_reminder_email(event_pk):
     )
 
 
-@emailing_task()
+@emailing_task(priority=TASK_PRIORITY_LOW)
 def send_event_suggestion_email(event_pk, recipient_pk):
     try:
         event = Event.objects.get(pk=event_pk)

@@ -124,6 +124,7 @@ class EventSubtypeSerializer(serializers.ModelSerializer):
             "label",
             "description",
             "color",
+            "emoji",
             "icon",
             "iconName",
             "type",

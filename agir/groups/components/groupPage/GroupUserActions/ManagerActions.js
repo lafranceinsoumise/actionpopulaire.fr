@@ -139,6 +139,12 @@ const ManagerActions = (props) => {
               </Link>
             </li>
           )}
+          {groupSettingsLinks?.upcomingEvents && (
+            <li>
+              <RawFeatherIcon color={style.primary500} name="calendar" />
+              <Link to={groupSettingsLinks.upcomingEvents}>Agenda</Link>
+            </li>
+          )}
           {groupSettingsLinks?.links && (
             <li>
               <RawFeatherIcon color={style.primary500} name="loader" />
@@ -161,5 +167,6 @@ ManagerActions.propTypes = {
   id: PropTypes.string.isRequired,
   routes: PropTypes.object,
   groupSettingsLinks: PropTypes.object,
+  isBoucleDepartementale: PropTypes.string,
 };
 export default ManagerActions;

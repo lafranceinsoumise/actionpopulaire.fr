@@ -1,0 +1,76 @@
+name: ap
+
+excludes:
+  - node_modules
+
+env_file:
+  - .lando.env
+
+proxy:
+  django:
+    - ap.lfi.site
+  webpack:
+    - front.ap.lfi.site:3000
+  celery:
+    - worker.ap.lfi.site
+  mailhog:
+    - mailhog.ap.lfi.site
+
+services:
+  django:
+    type: python:3.9
+    build_as_root:
+      - scripts/install_dependencies.sh
+      - scripts/install_fonts.sh
+    build:
+      - pip install pipx
+      - pipx install poetry
+      - pipx install python-dotenv[cli]
+    command: poetry run dotenv run ./manage.py runserver 0.0.0.0:80
+  celery:
+    type: python:3.9
+    build_as_root:
+      - scripts/install_dependencies.sh
+      - scripts/install_fonts.sh
+    build:
+      - pip install pipx
+      - pipx install poetry
+      - pipx install python-dotenv[cli]
+    command: dotenv run scripts/celery.sh
+  webpack:
+    type: node
+    command: npm run watch
+    port: 3000
+  database:
+    type: postgres:12
+    portforward: true
+    creds:
+      database: actionpopulaire
+      # impossible de changer l'utilisateur et le mdp
+      user: postgres
+      password:
+    config:
+      database: actionpopulaire
+  redis:
+    type: redis
+  mailhog:
+    type: mailhog
+    portforward: true
+    hogfrom:
+    - django
+
+events:
+  pre-start:
+    - django: poetry install --sync
+    - celery: poetry install --sync
+    - webpack: npm ci
+
+tooling:
+  manage:
+    service: django
+    cmd: poetry run ./manage.py
+  npm:
+    service: webpack
+    cmd: npm
+  node:
+    service: webpack

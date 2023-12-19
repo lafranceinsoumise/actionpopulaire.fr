@@ -24,5 +24,8 @@ class CagnotteAdmin(admin.ModelAdmin):
 
     @admin.display(description="Barre de progression")
     def progress_link(self, obj):
+        if not obj or not obj.slug:
+            return "-"
+
         link = front_url("cagnottes:progress", kwargs={"slug": obj.slug}, absolute=True)
         return format_html(f"<a href='{link}'>{link}</a>")
