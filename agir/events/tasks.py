@@ -425,13 +425,13 @@ def update_ticket(rsvp_pk, metas=None):
     )
 
     if len(r.json()) == 0:
-        r = requests.post(
+        requests.post(
             f"{settings.SCANNER_API}api/registrations/",
             auth=(settings.SCANNER_API_KEY, settings.SCANNER_API_SECRET),
             json=data,
         ).raise_for_status()
     else:
-        r = requests.patch(
+        requests.patch(
             f"{settings.SCANNER_API}api/registrations/{r.json()[0]['id']}/",
             auth=(settings.SCANNER_API_KEY, settings.SCANNER_API_SECRET),
             json=data,
