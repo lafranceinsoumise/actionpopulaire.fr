@@ -66,9 +66,18 @@ const StyledEmptySpace = styled.p`
   text-align: center;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 1rem;
   padding: 1.5rem;
   border: 1px solid ${(props) => props.theme.black50};
+
+  @media (max-width: ${(props) => props.theme.collapse}px) {
+    padding: 1rem;
+
+    ${Button} {
+      font-size: 0.875rem;
+    }
+  }
 `;
 
 const GroupUpcomingEventPage = (props) => {
@@ -153,7 +162,6 @@ const GroupUpcomingEventPage = (props) => {
                 params={{ group: groupPk }}
                 color="secondary"
                 icon="plus"
-                wrap
               >
                 Créer un événement
               </Button>

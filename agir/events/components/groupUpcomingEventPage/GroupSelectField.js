@@ -9,12 +9,13 @@ import { GROUP_SELECTION_MAX_LIMIT } from "./common";
 const StyledLabel = styled.div`
   display: flex;
   align-items: center;
-  gap: 1rem 1.5rem;
-  flex-flow: row nowrap;
+  gap: 1rem;
+  flex-flow: row wrap;
   margin-bottom: 1rem;
 
   & > * {
     margin: 0;
+    white-space: nowrap;
   }
 `;
 
@@ -138,7 +139,7 @@ const GroupSelectField = (props) => {
                 : "Tout sélectionner"
             }
             disabled={disabled || isLoading}
-            style={{ fontSize: "0.875rem" }}
+            style={{ fontSize: "0.875rem", whiteSpace: "nowrap" }}
           />
         </StyledLabel>
       )}
@@ -196,6 +197,7 @@ GroupSelectField.propTypes = {
   disabled: PropTypes.bool,
   isLoading: PropTypes.bool,
   displayZips: PropTypes.bool,
+  label: PropTypes.node,
 };
 
 export default GroupSelectField;
