@@ -900,7 +900,7 @@ class EventSpeakerRequest(BaseAPIResource):
 
     @property
     def is_answerable(self):
-        return self.event_request.is_pending
+        return self.datetime > timezone.now() and self.event_request.is_pending
 
     @property
     def is_unacceptable(self):

@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib.auth.models import AnonymousUser
 from django.test import TestCase
 from django.utils import timezone
@@ -82,7 +84,7 @@ class EventSpeakerRequestPermissionsTestCase(TestCase):
 
         self.pending_event_request = EventRequest.objects.create(
             event_theme=theme,
-            datetimes=[timezone.now()],
+            datetimes=[timezone.now() + datetime.timedelta(days=1)],
             location_zip="67000",
             location_city="Strasbourg",
             location_country="FR",

@@ -656,11 +656,11 @@ class EventSpeakerRequestAdmin(admin.ModelAdmin):
 
     @admin.display(description="Demande")
     def event_request_link(self, obj):
-        display_link(obj.event_request)
+        return display_link(obj.event_request)
 
     @admin.display(description="Intervenant·e")
     def event_speaker_link(self, obj):
-        display_link(obj.event_speaker)
+        return display_link(obj.event_speaker)
 
     def get_urls(self):
         return [
