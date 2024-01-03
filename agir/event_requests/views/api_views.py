@@ -1,4 +1,4 @@
-from rest_framework.generics import RetrieveUpdateAPIView, RetrieveAPIView, ListAPIView
+from rest_framework.generics import RetrieveUpdateAPIView
 
 from .. import serializers, models, permissions
 from ...events.models import Event
@@ -34,7 +34,7 @@ class EventSpeakerRequestRetrieveUpdateAPIView(RetrieveUpdateAPIView):
         permissions.EventSpeakerRequestAPIPermissions,
     )
     queryset = models.EventSpeakerRequest.objects.all().select_related("event_request")
-    serializer_class = serializers.EventSpeakerRequestSerialier
+    serializer_class = serializers.EventSpeakerRequestSerializer
 
 
 class EventSpeakerEventListAPIView(EventListAPIView):

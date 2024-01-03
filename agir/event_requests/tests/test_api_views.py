@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.utils import timezone
 from rest_framework.test import APITestCase
 
@@ -88,7 +90,7 @@ class EventSpeakerRequestRetrieveUpdateAPITestCase(APITestCase):
 
         self.pending_event_request = EventRequest.objects.create(
             event_theme=theme,
-            datetimes=[timezone.now()],
+            datetimes=[timezone.now() + timedelta(days=1)],
             location_zip="67000",
             location_city="Strasbourg",
             location_country="FR",
