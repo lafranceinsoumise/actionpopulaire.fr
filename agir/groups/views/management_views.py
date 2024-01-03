@@ -52,9 +52,10 @@ from agir.groups.tasks import (
     send_abuse_report_message,
     create_accepted_invitation_member_activity,
 )
-from agir.lib.display import genrer
+from agir.lib.display import genrer, display_liststring
 from agir.lib.export import dict_to_camelcase
 from agir.lib.http import add_query_params_to_url
+from agir.lib.utils import front_url
 from agir.people.models import Person
 
 __all__ = [
@@ -127,6 +128,7 @@ class CreateSupportGroupView(HardLoginRequiredMixin, TemplateView):
     template_name = "groups/create.html"
     per_type_animation_limit = 2
     available_types = ((SupportGroup.TYPE_LOCAL_GROUP, "Groupe local"),)
+    required_person_fields = ("first_name", "last_name", "gender")
 
     def get_context_data(self, **kwargs):
         person = self.request.user.person
@@ -175,6 +177,52 @@ class CreateSupportGroupView(HardLoginRequiredMixin, TemplateView):
         return super().get_context_data(
             props={"initial": initial, "subtypes": subtypes, "types": types}, **kwargs
         )
+
+    def get(self, request, *args, **kwargs):
+        person = request.user.person
+
+        missing_person_fields = [
+            person._meta.get_field(field).verbose_name.lower()
+            for field in self.required_person_fields
+            if not getattr(person, field)
+        ]
+
+        if missing_person_fields:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                _(
+                    f"Veuillez indiquer votre {display_liststring(missing_person_fields)} pour pouvoir créer un groupe"
+                ),
+            )
+            return HttpResponseRedirect(
+                front_url(
+                    "personal_information",
+                    absolute=True,
+                    query={"next": request.build_absolute_uri()},
+                )
+            )
+
+        if (
+            not person.contact_phone
+            or not person.contact_phone_status == person.CONTACT_PHONE_VERIFIED
+        ):
+            messages.add_message(
+                request,
+                messages.WARNING,
+                _(
+                    "Vous devez ajouter et valider un numéro de téléphone avant de pouvoir créer un groupe"
+                ),
+            )
+            return HttpResponseRedirect(
+                front_url(
+                    "send_validation_sms",
+                    absolute=True,
+                    query={"next": request.build_absolute_uri()},
+                )
+            )
+
+        return super().get(request, *args, **kwargs)
 
 
 class PerformCreateSupportGroupView(HardLoginRequiredMixin, FormMixin, ProcessFormView):

@@ -14,6 +14,7 @@ from agir.people.models import Person
 from ..forms import SupportGroupForm
 from ..models import SupportGroup, Membership
 from ...activity.models import Activity
+from ...lib.utils import front_url
 
 
 class SupportGroupMixin:
@@ -112,12 +113,84 @@ class SupportGroupPageTestCase(SupportGroupMixin, TestCase):
 class ManageSupportGroupTestCase(SupportGroupMixin, TestCase):
     @mock.patch.object(SupportGroupForm, "geocoding_task")
     @mock.patch("agir.groups.forms.send_support_group_creation_notification")
+    def test_cannot_create_group_without_personal_info(
+        self,
+        _patched_send_support_group_creation_notification,
+        _patched_geocode_support_group,
+    ):
+        person = Person.objects.create_insoumise(
+            "noinfo@pers.on",
+            create_role=True,
+            first_name="",
+            last_name="Doe",
+            gender=Person.GENDER_OTHER,
+        )
+        self.client.force_login(person.role)
+        response = self.client.get(reverse("create_group"))
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+
+        person.first_name = "Jane"
+        person.last_name = ""
+        person.gender = Person.GENDER_OTHER
+        person.save()
+        self.client.force_login(person.role)
+        response = self.client.get(reverse("create_group"))
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+
+        person.first_name = "Jane"
+        person.last_name = "Doe"
+        person.gender = ""
+        person.save()
+        self.client.force_login(person.role)
+        response = self.client.get(reverse("create_group"))
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+
+    @mock.patch.object(SupportGroupForm, "geocoding_task")
+    @mock.patch("agir.groups.forms.send_support_group_creation_notification")
+    def test_cannot_create_group_with_unverified_phone_number(
+        self,
+        _patched_send_support_group_creation_notification,
+        _patched_geocode_support_group,
+    ):
+        person = Person.objects.create_insoumise(
+            "nophone@pers.on",
+            create_role=True,
+            first_name="Jane",
+            last_name="Doe",
+            gender=Person.GENDER_OTHER,
+            contact_phone="",
+        )
+        self.client.force_login(person.role)
+
+        response = self.client.get(reverse("create_group"))
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+
+        person.contact_phone = "+33600000000"
+        person.contact_phone_status = Person.CONTACT_PHONE_UNVERIFIED
+        person.save()
+        self.client.force_login(person.role)
+
+        response = self.client.get(reverse("create_group"))
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.assertTrue(response.url.startswith(front_url("send_validation_sms")))
+
+    @mock.patch.object(SupportGroupForm, "geocoding_task")
+    @mock.patch("agir.groups.forms.send_support_group_creation_notification")
     def test_can_create_group(
         self,
         patched_send_support_group_creation_notification,
         patched_geocode_support_group,
     ):
-        self.client.force_login(self.person.role)
+        person = Person.objects.create_insoumise(
+            "valid@pers.on",
+            create_role=True,
+            first_name="Jane",
+            last_name="Doe",
+            gender=Person.GENDER_OTHER,
+            contact_phone="+33600000000",
+            contact_phone_status=Person.CONTACT_PHONE_VERIFIED,
+        )
+        self.client.force_login(person.role)
 
         # get create page
         response = self.client.get(reverse("create_group"))
@@ -144,7 +217,7 @@ class ManageSupportGroupTestCase(SupportGroupMixin, TestCase):
 
         try:
             membership = (
-                self.person.memberships.filter(
+                person.memberships.filter(
                     membership_type=Membership.MEMBERSHIP_TYPE_REFERENT
                 )
                 .exclude(supportgroup=self.referent_group)
