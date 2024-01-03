@@ -18,6 +18,7 @@ from agir.authentication.view_mixins import (
     SoftLoginRequiredMixin,
     HardLoginRequiredMixin,
 )
+from agir.authentication.views import RedirectToMixin
 from agir.donations.actions import (
     can_make_contribution,
     get_active_contribution_for_person,
@@ -75,11 +76,14 @@ class DeleteAccountView(HardLoginRequiredMixin, DeleteView):
 
 
 @method_decorator(never_cache, name="get")
-class PersonalInformationsView(ProfileViewMixin, UpdateView):
+class PersonalInformationsView(RedirectToMixin, ProfileViewMixin, UpdateView):
     template_name = "people/profile/profile_default.html"
     form_class = PersonalInformationsForm
     success_url = reverse_lazy("personal_information")
     tab_code = "IDENTITY"
+
+    def get_success_url(self):
+        return self.get_redirect_url() or super().get_success_url()
 
     def get_object(self, queryset=None):
         """Get the current user as the view object"""
