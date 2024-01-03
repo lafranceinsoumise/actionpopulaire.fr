@@ -23,23 +23,29 @@ def schedule_new_organizer_group_notifications(invitation):
     group_tasks.notify_new_group_event.delay(invitation.group_id, invitation.event_id)
 
 
-def add_organizer_group(event, group, as_person=None):
+def add_organizer_group(event, group, as_person=None, exclude_organizer=None):
     if as_person is not None:
-        obj, _created = models.OrganizerConfig.objects.get_or_create(
-            event=event,
-            as_group=group,
-            defaults={"person": as_person},
-        )
-        return [obj]
-    # Defaults to group referents if no person is specified
+        organizers = [as_person]
+    else:
+        # Defaults to group referents (and fallback to managers) if no organizer person is specified
+        organizers = group.referents or group.managers
+
+    if exclude_organizer is not None:
+        organizers = [
+            organizer for organizer in organizers if organizer != exclude_organizer
+        ]
+
+    if not organizers:
+        return
+
     return models.OrganizerConfig.objects.bulk_create(
         [
             models.OrganizerConfig(
                 event=event,
                 as_group=group,
-                person=referent_person,
+                person=organizer,
             )
-            for referent_person in group.referents
+            for organizer in organizers
         ],
         ignore_conflicts=True,
     )
