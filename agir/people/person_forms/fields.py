@@ -22,7 +22,12 @@ from phonenumber_field.formfields import PhoneNumberField
 from unidecode import unidecode
 
 from agir.events.models import Event
-from agir.lib.data import departements_choices, regions_choices, zones_fe_choices
+from agir.lib.data import (
+    departements_choices,
+    regions_choices,
+    zones_fe_choices,
+    departements_or_zones_fe_choices,
+)
 from agir.lib.form_fields import (
     DateTimePickerWidget,
     SelectizeWidget,
@@ -484,8 +489,7 @@ FIELDS = {
 PREDEFINED_CHOICES = {
     "departements": departements_choices,
     "circonscriptions_afe": zones_fe_choices,
-    "departements_circonscriptions_afe": departements_choices
-    + tuple((z, f"99 - {z}") for z in zones_fe_choices),
+    "departements_circonscriptions_afe": departements_or_zones_fe_choices,
     "regions": regions_choices,
     "commune_pages": lambda instance: tuple(
         (commune.code, f"{commune.name} ({commune.code_departement})")

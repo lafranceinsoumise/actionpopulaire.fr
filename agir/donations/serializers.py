@@ -31,7 +31,7 @@ from agir.events.models import Event
 from agir.events.serializers import EventListSerializer
 from agir.groups.models import SupportGroup
 from agir.groups.serializers import SupportGroupSerializer
-from agir.lib.data import departements_choices
+from agir.lib.data import departements_or_circo_fe_choices
 from agir.lib.display import display_price
 from agir.lib.export import snakecase_to_camelcase
 from agir.lib.geo import FRENCH_COUNTRY_CODES
@@ -61,7 +61,9 @@ class DonationAllocationSerializer(serializers.Serializer):
     group = serializers.PrimaryKeyRelatedField(
         queryset=SupportGroup.objects.active().certified(), required=False
     )
-    departement = serializers.ChoiceField(choices=departements_choices, required=False)
+    departement = serializers.ChoiceField(
+        choices=departements_or_circo_fe_choices, required=False
+    )
     amount = serializers.IntegerField(min_value=1, required=True)
 
     def validate(self, attrs):
@@ -331,7 +333,10 @@ class ContributionSerializer(serializers.ModelSerializer):
             if allocation.get("departement", None):
                 allocation["departement"] = {
                     "id": dict(
-                        [departement[::-1] for departement in departements_choices]
+                        [
+                            departement[::-1]
+                            for departement in departements_or_circo_fe_choices
+                        ]
                     ).get(allocation["departement"]),
                     "name": allocation["departement"],
                 }

@@ -1,13 +1,11 @@
 import csv
 import dataclasses
-from importlib.resources import open_text
-
 import re
-
-from django.db.models import Q, IntegerChoices
 from functools import reduce
+from importlib.resources import open_text
 from operator import or_
 
+from django.db.models import Q, IntegerChoices
 from glom import glom
 from unidecode import unidecode
 
@@ -147,12 +145,35 @@ zones_fe_choices = (
     "Asie et Océanie",
     "Bénélux",
     "Canada",
-    "Etats-Unis d'Amérique",
+    "États-Unis d'Amérique",
     "Europe centrale et orientale (y compris Russie)",
     "Europe du Nord",
     "Europe du Sud",
     "Israël et Territoires palestiniens",
     "Péninsule ibérique",
+)
+
+departements_or_zones_fe_choices = departements_choices + tuple(
+    (zone_fe, f"99 - {zone_fe}") for zone_fe in zones_fe_choices
+)
+
+departements_or_circo_fe_choices = departements_choices + tuple(
+    (f"99-{str(i + 1).zfill(2)}", f"99-{str(i + 1).zfill(2)} - {circo_fe}")
+    for i, circo_fe in enumerate(
+        (
+            "États-Unis d'Amérique et Canada",
+            "Mexique, Amérique centrale, Caraïbes et Amérique du Sud",
+            "Europe du Nord (îles Britanniques, Islande, Scandinavie, Finlande et pays baltes)",
+            "Benelux (Belgique, Pays-Bas et Luxembourg)",
+            "Péninsule Ibérique, Açores, Canaries, Andorre et Monaco",
+            "Suisse et Liechtenstein",
+            "Europe centrale (hors Suisse et Liechtenstein) et Balkans",
+            "Chypre, Grèce, Israël, Italie, Malte, Turquie et Territoires palestiniens",
+            "Maghreb et Afrique de l'Ouest (hors Bénin, Ghana, Togo et Nigeria)",
+            "Proche-Orient, Afrique centrale, orientale et australe, Bénin, Ghana, Togo et Nigeria",
+            "Europe de l'Est, Asie (hors Moyen-Orient et Asie mineure) et Océanie",
+        )
+    )
 )
 
 regions_par_code = {r.id: r for r in regions}

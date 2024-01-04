@@ -77,7 +77,12 @@ def display_allocations(allocations):
                 strings.append(f"{amount/100}€ vers {group_id}")
         elif allocation_type == AllocationModelMixin.TYPE_DEPARTEMENT:
             departement = allocation.get("departement")
-            strings.append(f"{amount / 100}€ vers le département {departement}")
+            if departement.startswith("99-"):
+                strings.append(
+                    f"{amount / 100}€ vers la circonscription FE {departement}"
+                )
+            else:
+                strings.append(f"{amount / 100}€ vers le département {departement}")
         elif allocation_type == AllocationModelMixin.TYPE_CNS:
             strings.append(f"{amount / 100}€ vers la caisse nationale de solidarité")
 

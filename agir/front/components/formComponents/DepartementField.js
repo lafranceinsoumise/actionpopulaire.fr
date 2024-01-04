@@ -4,14 +4,26 @@ import React, { useCallback, useMemo } from "react";
 import SelectField from "@agir/front/formComponents/SelectField";
 
 import DEPARTEMENTS from "@agir/front/formComponents/data/departements.json";
+import CIRCONSCRIPTIONS_FE from "@agir/front/formComponents/data/circonscriptionsFE.json";
 
 const DEPARTEMENT_OPTIONS = DEPARTEMENTS.map((d) => ({
   value: d.code,
   label: `${d.code} — ${d.nom}`,
 }));
 
+const CIRCONSCRIPTION_FE_OPTIONS = CIRCONSCRIPTIONS_FE.map((c) => ({
+  value: c.code,
+  label: `${c.code} — ${c.nom}`,
+}));
+
 const DepartementField = (props) => {
-  const { onChange, value, isMulti = false, ...rest } = props;
+  const {
+    onChange,
+    value,
+    isMulti = false,
+    withCirconscriptionFE = false,
+    ...rest
+  } = props;
 
   const handleChange = useCallback(
     (selected) => {
@@ -25,20 +37,26 @@ const DepartementField = (props) => {
     [onChange, isMulti],
   );
 
+  const options = useMemo(() => {
+    if (!withCirconscriptionFE) {
+      return DEPARTEMENT_OPTIONS;
+    }
+
+    return [...DEPARTEMENT_OPTIONS, ...CIRCONSCRIPTION_FE_OPTIONS];
+  }, [withCirconscriptionFE]);
+
   const selectedValue = useMemo(() => {
     if (!value) {
       return value;
     }
     if (!isMulti) {
-      return DEPARTEMENT_OPTIONS.find((d) => d.value === value);
+      return options.find((d) => d.value === value);
     }
     const departements = Array.isArray(value) ? value : [value];
     return departements
-      .map((departement) =>
-        DEPARTEMENT_OPTIONS.find((d) => d.value === departement),
-      )
+      .map((departement) => options.find((d) => d.value === departement))
       .filter(Boolean);
-  }, [value, isMulti]);
+  }, [options, value, isMulti]);
 
   return (
     <SelectField
@@ -46,7 +64,7 @@ const DepartementField = (props) => {
       isSearchable
       isMulti={isMulti}
       value={selectedValue}
-      options={DEPARTEMENT_OPTIONS}
+      options={options}
       onChange={handleChange}
     />
   );
@@ -60,5 +78,6 @@ DepartementField.propTypes = {
     ),
   ]),
   isMulti: PropTypes.bool,
+  withCirconscriptionFE: PropTypes.bool,
 };
 export default DepartementField;
