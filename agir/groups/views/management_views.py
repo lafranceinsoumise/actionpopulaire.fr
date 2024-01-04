@@ -72,7 +72,6 @@ __all__ = [
     "DownloadMemberListView",
 ]
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -128,7 +127,17 @@ class CreateSupportGroupView(HardLoginRequiredMixin, TemplateView):
     template_name = "groups/create.html"
     per_type_animation_limit = 2
     available_types = ((SupportGroup.TYPE_LOCAL_GROUP, "Groupe local"),)
-    required_person_fields = ("first_name", "last_name", "gender")
+    required_person_fields = {
+        field: Person._meta.get_field(field).verbose_name.lower()
+        for field in ("first_name", "last_name", "gender")
+    }
+    missing_info_warning = (
+        f"Pour éviter les abus et mieux sécuriser les actions de nos militant·es, nous vous demandons "
+        f"d'indiquer votre {display_liststring(tuple(required_person_fields.values()))} ainsi qu'un numéro "
+        f"de téléphone valide avant de pouvoir créer un groupe d'action. Ces informations ne seront pas "
+        f"visibles publiquement : lors de la création du groupe vous pourrez spécifier les coordonnées "
+        f"de la personne désignée comme contact du groupe."
+    )
 
     def get_context_data(self, **kwargs):
         person = self.request.user.person
@@ -182,8 +191,8 @@ class CreateSupportGroupView(HardLoginRequiredMixin, TemplateView):
         person = request.user.person
 
         missing_person_fields = [
-            person._meta.get_field(field).verbose_name.lower()
-            for field in self.required_person_fields
+            label
+            for field, label in self.required_person_fields.items()
             if not getattr(person, field)
         ]
 
@@ -192,7 +201,8 @@ class CreateSupportGroupView(HardLoginRequiredMixin, TemplateView):
                 request,
                 messages.WARNING,
                 _(
-                    f"Veuillez indiquer votre {display_liststring(missing_person_fields)} pour pouvoir créer un groupe"
+                    f"{self.missing_info_warning} Veuillez indiquer votre "
+                    f"{display_liststring(missing_person_fields)} ci-dessous pour pouvoir continuer."
                 ),
             )
             return HttpResponseRedirect(
@@ -211,7 +221,7 @@ class CreateSupportGroupView(HardLoginRequiredMixin, TemplateView):
                 request,
                 messages.WARNING,
                 _(
-                    "Vous devez ajouter et valider un numéro de téléphone avant de pouvoir créer un groupe"
+                    f"{self.missing_info_warning} Veuillez ajouter un numéro de téléphone et le valider pour continuer."
                 ),
             )
             return HttpResponseRedirect(
