@@ -6,10 +6,7 @@ import requests
 from celery import shared_task
 from django.core.exceptions import ObjectDoesNotExist
 from push_notifications.gcm import GCMError
-
-TASK_PRIORITY_HIGH = 0
-TASK_PRIORITY_NORMAL = 1
-TASK_PRIORITY_LOW = 2
+from agir.api.settings import CELERY_TASK_PRIORITY_NORMAL, CELERY_TASK_PRIORITY_LOW
 
 
 def retry_strategy(
@@ -79,7 +76,7 @@ def retriable_task(
     return decorate
 
 
-def http_task(post_save=False, priority=TASK_PRIORITY_LOW):
+def http_task(post_save=False, priority=CELERY_TASK_PRIORITY_LOW):
     retry_on = (
         requests.RequestException,
         requests.exceptions.Timeout,
@@ -92,7 +89,7 @@ def http_task(post_save=False, priority=TASK_PRIORITY_LOW):
     )
 
 
-def emailing_task(post_save=False, priority=TASK_PRIORITY_NORMAL):
+def emailing_task(post_save=False, priority=CELERY_TASK_PRIORITY_NORMAL):
     retry_on = (
         smtplib.SMTPException,
         socket.error,
