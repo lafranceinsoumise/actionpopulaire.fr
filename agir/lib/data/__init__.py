@@ -1,5 +1,6 @@
 import csv
 import dataclasses
+import json
 import re
 from functools import reduce
 from importlib.resources import open_text
@@ -131,6 +132,9 @@ with open_text("agir.lib.data", "anciennes_regions.csv") as file:
         Region(**r) for r in glom(csv.DictReader(file), [spec_ancienne_region])
     ]
 
+with open_text("agir.lib.data", "circonscriptionsFE.json") as file:
+    circos_fe = json.load(file)
+
 departements_par_code: dict[str, Departement] = {d.id: d for d in departements}
 departements_choices = tuple((d.id, f"{d.id} - {d.nom}") for d in departements)
 departements_par_nom = {_normalize_entity_name(d.nom): d for d in departements}
@@ -153,29 +157,18 @@ zones_fe_choices = (
     "Péninsule ibérique",
 )
 
+circo_fe_choices = tuple(
+    (circo_fe["code"], f"{circo_fe['code']} · {circo_fe['nom']}")
+    for circo_fe in circos_fe
+)
+
 departements_or_zones_fe_choices = departements_choices + tuple(
     (zone_fe, f"99 - {zone_fe}") for zone_fe in zones_fe_choices
 )
 
-departements_or_circo_fe_choices = departements_choices + tuple(
-    (f"99-{str(i + 1).zfill(2)}", f"99-{str(i + 1).zfill(2)} - {circo_fe}")
-    for i, circo_fe in enumerate(
-        (
-            "États-Unis d'Amérique et Canada",
-            "Mexique, Amérique centrale, Caraïbes et Amérique du Sud",
-            "Europe du Nord (îles Britanniques, Islande, Scandinavie, Finlande et pays baltes)",
-            "Benelux (Belgique, Pays-Bas et Luxembourg)",
-            "Péninsule Ibérique, Açores, Canaries, Andorre et Monaco",
-            "Suisse et Liechtenstein",
-            "Europe centrale (hors Suisse et Liechtenstein) et Balkans",
-            "Chypre, Grèce, Israël, Italie, Malte, Turquie et Territoires palestiniens",
-            "Maghreb et Afrique de l'Ouest (hors Bénin, Ghana, Togo et Nigeria)",
-            "Proche-Orient, Afrique centrale, orientale et australe, Bénin, Ghana, Togo et Nigeria",
-            "Europe de l'Est, Asie (hors Moyen-Orient et Asie mineure) et Océanie",
-        )
-    )
-)
-# Reverse dictionnary with labels as keys and ids as values
+departements_or_circo_fe_choices = departements_choices + circo_fe_choices
+
+# Reverse dictionary with labels as keys and ids as values
 departements_or_circo_fe_reverse_choices = dict(
     departement[::-1] for departement in departements_or_circo_fe_choices
 )

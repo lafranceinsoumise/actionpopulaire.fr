@@ -3,8 +3,8 @@ import React, { useCallback, useMemo } from "react";
 
 import SelectField from "@agir/front/formComponents/SelectField";
 
-import DEPARTEMENTS from "@agir/front/formComponents/data/departements.json";
-import CIRCONSCRIPTIONS_FE from "@agir/front/formComponents/data/circonscriptionsFE.json";
+import DEPARTEMENTS from "@agir/lib/data/departements.json";
+import CIRCONSCRIPTIONS_FE from "@agir/lib/data/circonscriptionsFE.json";
 
 const DEPARTEMENT_OPTIONS = DEPARTEMENTS.map((d) => ({
   value: d.code,
