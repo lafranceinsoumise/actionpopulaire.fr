@@ -108,7 +108,9 @@ class SystemPayWebhookView(APIView):
         #   subséquente, ou de toutes les transactions liées à une souscription.
         # - vads_trans_id : Identifie la transaction elle-même. Il s'agit
         #   d'un identifiant assez court, et il n'est pas unique : SystemPay
-        #   ne demande d'unicité que sur la journée.
+        #   ne demande d'unicité que sur la journée. En pratique, ils y en a
+        #   900 000 de disponibles, et nous en sommes encore au premier cycle
+        #   (à la date du 5 janvier 2024).
         # - vads_trans_uuid: Identifiant universellement unique qui identifie
         #   la transaction. Créé par SystemPay, qui nous le communique.
         #
