@@ -10,27 +10,21 @@ import { useIsDesktop } from "@agir/front/genericComponents/grid";
 
 const StyledCustomField = styled.div`
   @media (min-width: ${style.collapse}px) {
-    display: flex;
+    display: grid;
+    grid-template-columns: 10rem 30.25rem;
+    gap: 0.25rem;
     align-items: center;
-    > label:first-of-type {
-      margin-top: 4px;
-      width: 160px;
-      margin: 0;
-      margin-right: 4px;
-    }
-    > label:nth-of-type(2) {
-      flex-grow: 1;
-    }
   }
 `;
 
 const StyledDescription = styled.div`
-  margin-left: 168px;
-  font-size: 13px;
+  margin-left: 10.5rem;
+  font-size: 0.8125rem;
+
   @media (max-width: ${style.collapse}px) {
-    margin-bottom: 4px;
+    margin-bottom: 0.25rem;
     margin-left: 0;
-    font-size: 14px;
+    font-size: 0.875rem;
   }
 `;
 

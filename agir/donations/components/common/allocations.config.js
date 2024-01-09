@@ -6,7 +6,8 @@ export const TYPE_NATIONAL = "national";
 export const TYPE_LABEL = {
   [TYPE_CNS]: "à la caisse nationale de solidarité",
   [TYPE_GROUP]: "au groupe d'action",
-  [TYPE_DEPARTMENT]: "aux activités de votre département",
+  [TYPE_DEPARTMENT]:
+    "aux activités de votre département (ou circonscription législative pour les français·es de l'étranger)",
   [TYPE_NATIONAL]:
     "aux actions et campagnes nationales, ainsi qu'aux outils mis à la disposition des insoumis⋅es (comme Action populaire !)",
 };

@@ -15,7 +15,7 @@ from reversion.models import Version
 
 from agir.donations.model_fields import BalanceField, PositiveBalanceField
 from agir.lib.admin.utils import admin_url
-from agir.lib.data import departements_choices
+from agir.lib.data import departements_or_circo_fe_choices
 from agir.lib.display import display_price
 from agir.lib.history import HistoryMixin
 from agir.lib.model_fields import IBANField, BICField
@@ -72,7 +72,7 @@ class AllocationModelMixin(models.Model):
         "département",
         null=True,
         blank=True,
-        choices=departements_choices,
+        choices=departements_or_circo_fe_choices,
         default=None,
         max_length=200,
     )
@@ -253,7 +253,7 @@ class DepartementOperation(OperationModelMixin):
         "Département",
         null=False,
         blank=False,
-        choices=departements_choices,
+        choices=departements_or_circo_fe_choices,
         max_length=200,
     )
 

@@ -9,7 +9,7 @@ from agir.donations.models import (
     AccountOperation,
 )
 from agir.groups.models import SupportGroup
-from agir.lib.data import departements_choices
+from agir.lib.data import departements_or_circo_fe_choices
 
 DONATIONS_ACCOUNT = "revenu:dons"
 COTISATIONS_ACCOUNT = "revenu:cotisations"
@@ -98,7 +98,9 @@ def get_allocation_list(allocations, limit_to_type=None, with_labels=False):
 
             if allocation.get("departement"):
                 allocation["departement"] = (
-                    dict(departements_choices).get(allocation.get("departement"))
+                    dict(departements_or_circo_fe_choices).get(
+                        allocation.get("departement")
+                    )
                     or allocation["departement"]
                 )
 
