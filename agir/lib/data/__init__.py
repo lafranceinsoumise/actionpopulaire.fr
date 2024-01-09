@@ -175,6 +175,10 @@ departements_or_circo_fe_choices = departements_choices + tuple(
         )
     )
 )
+# Reverse dictionnary with labels as keys and ids as values
+departements_or_circo_fe_reverse_choices = dict(
+    departement[::-1] for departement in departements_or_circo_fe_choices
+)
 
 regions_par_code = {r.id: r for r in regions}
 regions_par_nom = {_normalize_entity_name(r.nom): r for r in regions}
