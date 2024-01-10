@@ -113,12 +113,12 @@ profile_urls = [
     ),
     path("profil/paiements/", views.PaymentsView.as_view(), name="view_payments"),
     path(
-        "telephone/sms",
+        "telephone/sms/",
         views.SendValidationSMSView.as_view(),
         name="send_validation_sms",
     ),
     path(
-        "telephone/validation",
+        "telephone/validation/",
         views.CodeValidationView.as_view(),
         name="sms_code_validation",
     ),

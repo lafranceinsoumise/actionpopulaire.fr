@@ -17,6 +17,7 @@ from agir.lib.celery import (
     emailing_task,
     post_save_task,
     http_task,
+    TASK_PRIORITY_LOW,
 )
 from agir.lib.display import str_summary
 from agir.lib.geo import geocode_element
@@ -424,13 +425,13 @@ def update_ticket(rsvp_pk, metas=None):
     )
 
     if len(r.json()) == 0:
-        r = requests.post(
+        requests.post(
             f"{settings.SCANNER_API}api/registrations/",
             auth=(settings.SCANNER_API_KEY, settings.SCANNER_API_SECRET),
             json=data,
         ).raise_for_status()
     else:
-        r = requests.patch(
+        requests.patch(
             f"{settings.SCANNER_API}api/registrations/{r.json()[0]['id']}/",
             auth=(settings.SCANNER_API_KEY, settings.SCANNER_API_SECRET),
             json=data,
@@ -576,7 +577,7 @@ def send_post_event_required_documents_reminder_email(event_pk):
     )
 
 
-@emailing_task()
+@emailing_task(priority=TASK_PRIORITY_LOW)
 def send_event_suggestion_email(event_pk, recipient_pk):
     try:
         event = Event.objects.get(pk=event_pk)

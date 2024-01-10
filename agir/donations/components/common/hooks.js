@@ -4,7 +4,6 @@ import useSWRImmutable from "swr/immutable";
 import CONFIG from "@agir/donations/common/config";
 import * as api from "@agir/donations/common/api";
 import {
-  getAllocationDepartement,
   getAllocationGroup,
   getReminder,
   parseAllocations,

@@ -57,12 +57,13 @@ class Command(BaseCommand):
                 versements[d] = math.floor(versements[d] * (1 - part_cns))
 
         for d in deps:
-            AccountOperation.objects.create(
-                source=COTISATIONS_ACCOUNT,
-                destination=get_account_name_for_departement(d),
-                amount=versements[d],
-                comment=comment,
-            )
+            if versements[d]:
+                AccountOperation.objects.create(
+                    source=COTISATIONS_ACCOUNT,
+                    destination=get_account_name_for_departement(d),
+                    amount=versements[d],
+                    comment=comment,
+                )
 
         if cns:
             AccountOperation.objects.create(

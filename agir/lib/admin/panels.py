@@ -29,9 +29,23 @@ class CenterOnFranceMixin:
 
 class DisplayContactPhoneMixin:
     def display_contact_phone(self, object):
-        if object.contact_phone:
-            return object.contact_phone.as_international
-        return "-"
+        if not object.contact_phone:
+            return ""
+
+        display = ""
+        if object.contact_phone_status == object.CONTACT_PHONE_UNVERIFIED:
+            display = "✔"
+        if object.contact_phone_status == object.CONTACT_PHONE_VERIFIED:
+            display = "✕"
+        if object.contact_phone_status == object.CONTACT_PHONE_PENDING:
+            display = "? "
+
+        return mark_safe(
+            f"<span style='white-space:nowrap;' title='{object.get_contact_phone_status_display()}'>"
+            f"{display}&ensp;"
+            f"<a href='tel:{object.contact_phone.as_e164}'>{object.contact_phone.as_international}</a>"
+            f"</span>"
+        )
 
     display_contact_phone.short_description = _("Numéro de contact")
     display_contact_phone.admin_order_field = "contact_phone"

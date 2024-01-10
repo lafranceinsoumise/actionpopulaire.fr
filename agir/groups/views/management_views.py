@@ -52,9 +52,10 @@ from agir.groups.tasks import (
     send_abuse_report_message,
     create_accepted_invitation_member_activity,
 )
-from agir.lib.display import genrer
+from agir.lib.display import genrer, display_liststring
 from agir.lib.export import dict_to_camelcase
 from agir.lib.http import add_query_params_to_url
+from agir.lib.utils import front_url
 from agir.people.models import Person
 
 __all__ = [
@@ -70,7 +71,6 @@ __all__ = [
     "TransferSupportGroupMembersView",
     "DownloadMemberListView",
 ]
-
 
 logger = logging.getLogger(__name__)
 
@@ -127,6 +127,17 @@ class CreateSupportGroupView(HardLoginRequiredMixin, TemplateView):
     template_name = "groups/create.html"
     per_type_animation_limit = 2
     available_types = ((SupportGroup.TYPE_LOCAL_GROUP, "Groupe local"),)
+    required_person_fields = {
+        field: Person._meta.get_field(field).verbose_name.lower()
+        for field in ("first_name", "last_name", "gender")
+    }
+    missing_info_warning = (
+        f"Pour éviter les abus et mieux sécuriser les actions de nos militant·es, nous vous demandons "
+        f"d'indiquer votre {display_liststring(tuple(required_person_fields.values()))} ainsi qu'un numéro "
+        f"de téléphone valide avant de pouvoir créer un groupe d'action. Ces informations ne seront pas "
+        f"visibles publiquement : lors de la création du groupe vous pourrez spécifier les coordonnées "
+        f"de la personne désignée comme contact du groupe."
+    )
 
     def get_context_data(self, **kwargs):
         person = self.request.user.person
@@ -175,6 +186,53 @@ class CreateSupportGroupView(HardLoginRequiredMixin, TemplateView):
         return super().get_context_data(
             props={"initial": initial, "subtypes": subtypes, "types": types}, **kwargs
         )
+
+    def get(self, request, *args, **kwargs):
+        person = request.user.person
+
+        missing_person_fields = [
+            label
+            for field, label in self.required_person_fields.items()
+            if not getattr(person, field)
+        ]
+
+        if missing_person_fields:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                _(
+                    f"{self.missing_info_warning} Veuillez indiquer votre "
+                    f"{display_liststring(missing_person_fields)} ci-dessous pour pouvoir continuer."
+                ),
+            )
+            return HttpResponseRedirect(
+                front_url(
+                    "personal_information",
+                    absolute=True,
+                    query={"next": request.build_absolute_uri()},
+                )
+            )
+
+        if (
+            not person.contact_phone
+            or not person.contact_phone_status == person.CONTACT_PHONE_VERIFIED
+        ):
+            messages.add_message(
+                request,
+                messages.WARNING,
+                _(
+                    f"{self.missing_info_warning} Veuillez ajouter un numéro de téléphone et le valider pour continuer."
+                ),
+            )
+            return HttpResponseRedirect(
+                front_url(
+                    "send_validation_sms",
+                    absolute=True,
+                    query={"next": request.build_absolute_uri()},
+                )
+            )
+
+        return super().get(request, *args, **kwargs)
 
 
 class PerformCreateSupportGroupView(HardLoginRequiredMixin, FormMixin, ProcessFormView):

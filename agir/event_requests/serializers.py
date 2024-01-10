@@ -55,7 +55,7 @@ class EventRequestSerializer(serializers.ModelSerializer):
         )
 
 
-class EventSpeakerRequestSerialier(serializers.ModelSerializer):
+class EventSpeakerRequestSerializer(serializers.ModelSerializer):
     isAnswerable = fields.BooleanField(source="is_answerable")
     eventRequest = fields.UUIDField(source="event_request_id")
 
@@ -82,7 +82,7 @@ class EventSpeakerRequestSerialier(serializers.ModelSerializer):
 class EventSpeakerSerializer(serializers.ModelSerializer):
     themes = EventThemeSerializer(source="event_themes", many=True)
     eventRequests = EventRequestSerializer(source="event_requests.distinct", many=True)
-    eventSpeakerRequests = EventSpeakerRequestSerialier(
+    eventSpeakerRequests = EventSpeakerRequestSerializer(
         source="event_speaker_requests", many=True
     )
 

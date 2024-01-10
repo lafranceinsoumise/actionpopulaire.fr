@@ -132,6 +132,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
             {
                 "fields": (
                     "contact_phone",
+                    "contact_phone_status",
                     "location_name",
                     "location_address1",
                     "location_address2",

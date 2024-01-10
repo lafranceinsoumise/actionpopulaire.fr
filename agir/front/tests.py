@@ -66,6 +66,16 @@ class PagesLoadingTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_see_create_group(self):
+        person = Person.objects.create_insoumise(
+            "test_group@test.com",
+            create_role=True,
+            first_name="Jane",
+            last_name="Doe",
+            gender=Person.GENDER_OTHER,
+            contact_phone="+33600000000",
+            contact_phone_status=Person.CONTACT_PHONE_VERIFIED,
+        )
+        self.client.force_login(person.role)
         response = self.client.get("/groupes/creer/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 

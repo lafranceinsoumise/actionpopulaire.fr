@@ -1,0 +1,37 @@
+[
+  { "code": "99-01", "nom": "États-Unis d'Amérique et Canada" },
+  {
+    "code": "99-02",
+    "nom": "Mexique, Amérique centrale, Caraïbes et Amérique du Sud"
+  },
+  {
+    "code": "99-03",
+    "nom": "Europe du Nord (îles Britanniques, Islande, Scandinavie, Finlande et pays baltes)"
+  },
+  { "code": "99-04", "nom": "Benelux (Belgique, Pays-Bas et Luxembourg)" },
+  {
+    "code": "99-04",
+    "nom": "Péninsule Ibérique, Açores, Canaries, Andorre et Monaco"
+  },
+  { "code": "99-06", "nom": "Suisse et Liechtenstein" },
+  {
+    "code": "99-07",
+    "nom": "Europe centrale (hors Suisse et Liechtenstein) et Balkans"
+  },
+  {
+    "code": "99-08",
+    "nom": "Chypre, Grèce, Israël, Italie, Malte, Turquie et Territoires palestiniens"
+  },
+  {
+    "code": "99-09",
+    "nom": "Maghreb et Afrique de l'Ouest (hors Bénin, Ghana, Togo et Nigeria)"
+  },
+  {
+    "code": "99-10",
+    "nom": "Proche-Orient, Afrique centrale, orientale et australe, Bénin, Ghana, Togo et Nigeria"
+  },
+  {
+    "code": "99-11",
+    "nom": "Europe de l'Est, Asie (hors Moyen-Orient et Asie mineure) et Océanie"
+  }
+]

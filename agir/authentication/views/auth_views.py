@@ -26,6 +26,8 @@ class RedirectToMixin:
 
         if params is not None:
             self.request.session[self.redirect_field_name] = params
+        elif self.redirect_field_name in self.request.session:
+            del self.request.session[self.redirect_field_name]
 
         return super().dispatch(request, *args, **kwargs)
 

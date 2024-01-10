@@ -64,7 +64,7 @@ const StyledButton = styled.button.withConfig({
 
 const FORM_HELP_TEXT = {
   departement:
-    "Indiquez le département auquel vous souhaitez reserver une partie de votre contribution",
+    "Seléctionnez le département (ou la circonscription législative pour les français·es de l'étranger) auquel vous souhaitez reserver une partie de votre contribution",
   email:
     "Si vous êtes déjà inscrit·e sur lafranceinsoumise.fr, utilisez l'adresse avec laquelle vous êtes inscrit·e",
   nationality: "Si double nationalité dont française : indiquez France",
@@ -84,7 +84,6 @@ const DonationForm = ({
   hideEmailField = false,
   updateFormData,
   onSubmit,
-  onBack,
 }) => {
   const [hasAddress2, setHasAddress2] = useState(false);
 
@@ -295,6 +294,7 @@ const DonationForm = ({
         <Spacer size="1rem" />
         <CustomField
           Component={DepartementField}
+          withCirconscriptionFE
           label="Département*"
           name="departement"
           placeholder=""

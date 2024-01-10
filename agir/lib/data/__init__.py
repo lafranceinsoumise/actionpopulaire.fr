@@ -1,13 +1,12 @@
 import csv
 import dataclasses
-from importlib.resources import open_text
-
+import json
 import re
-
-from django.db.models import Q, IntegerChoices
 from functools import reduce
+from importlib.resources import open_text
 from operator import or_
 
+from django.db.models import Q, IntegerChoices
 from glom import glom
 from unidecode import unidecode
 
@@ -133,6 +132,9 @@ with open_text("agir.lib.data", "anciennes_regions.csv") as file:
         Region(**r) for r in glom(csv.DictReader(file), [spec_ancienne_region])
     ]
 
+with open_text("agir.lib.data", "circonscriptionsFE.json") as file:
+    circos_fe = json.load(file)
+
 departements_par_code: dict[str, Departement] = {d.id: d for d in departements}
 departements_choices = tuple((d.id, f"{d.id} - {d.nom}") for d in departements)
 departements_par_nom = {_normalize_entity_name(d.nom): d for d in departements}
@@ -147,12 +149,28 @@ zones_fe_choices = (
     "Asie et Océanie",
     "Bénélux",
     "Canada",
-    "Etats-Unis d'Amérique",
+    "États-Unis d'Amérique",
     "Europe centrale et orientale (y compris Russie)",
     "Europe du Nord",
     "Europe du Sud",
     "Israël et Territoires palestiniens",
     "Péninsule ibérique",
+)
+
+circo_fe_choices = tuple(
+    (circo_fe["code"], f"{circo_fe['code']} · {circo_fe['nom']}")
+    for circo_fe in circos_fe
+)
+
+departements_or_zones_fe_choices = departements_choices + tuple(
+    (zone_fe, f"99 - {zone_fe}") for zone_fe in zones_fe_choices
+)
+
+departements_or_circo_fe_choices = departements_choices + circo_fe_choices
+
+# Reverse dictionary with labels as keys and ids as values
+departements_or_circo_fe_reverse_choices = dict(
+    departement[::-1] for departement in departements_or_circo_fe_choices
 )
 
 regions_par_code = {r.id: r for r in regions}

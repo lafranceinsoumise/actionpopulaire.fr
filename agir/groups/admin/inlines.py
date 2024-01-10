@@ -1,10 +1,9 @@
-from django.core.exceptions import ValidationError
-from django.utils.translation import gettext as _
 from django import forms
 from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext as _
 
 from .. import models
 from ...lib.admin.utils import display_link, admin_url
@@ -12,9 +11,6 @@ from ...lib.admin.utils import display_link, admin_url
 
 class MembershipInlineForm(forms.ModelForm):
     description = forms.CharField(required=False, label=_("Description"))
-    is_finance_manager = forms.BooleanField(
-        required=False, label=_("Gestionnaire financier")
-    )
 
     def has_instance(self):
         return (
@@ -30,14 +26,6 @@ class MembershipInlineForm(forms.ModelForm):
             return
 
         self.fields["description"].initial = self.instance.description
-        self.fields["is_finance_manager"].initial = self.instance.is_finance_manager
-
-        if not self.instance.is_manager:
-            self.fields["is_finance_manager"].widget.attrs["disabled"] = True
-            self.fields["is_finance_manager"].widget.attrs["title"] = _(
-                "Ce champs est reservé aux seuls gestionnaires "
-                "et animateur·ices du groupe"
-            )
 
     def full_clean(self):
         super().full_clean()
@@ -47,19 +35,6 @@ class MembershipInlineForm(forms.ModelForm):
 
         if self.cleaned_data.get("description", None):
             self.instance.description = self.cleaned_data["description"]
-
-        is_finance_manager = self.cleaned_data.get("is_finance_manager", False)
-
-        if (
-            isinstance(is_finance_manager, bool)
-            and is_finance_manager != self.instance.is_finance_manager
-        ):
-            try:
-                self.instance.is_finance_manager = self.cleaned_data[
-                    "is_finance_manager"
-                ]
-            except ValidationError as e:
-                self.add_error("is_finance_manager", e)
 
     class Meta:
         model = models.Membership
@@ -75,7 +50,7 @@ class MembershipInline(admin.TabularInline):
         "gender",
         "membership_type",
         "description",
-        "is_finance_manager",
+        "is_finance_manager_value",
     )
     boucle_departementale_fields = (
         "person_link",
@@ -153,16 +128,7 @@ class MembershipInline(admin.TabularInline):
         if obj and obj.type == obj.TYPE_BOUCLE_DEPARTEMENTALE:
             return self.boucle_departementale_fields
 
-        fields = super().get_fields(request, obj)
-
-        if obj:
-            fields = [
-                field
-                for field in fields
-                if obj.is_financeable or field != "is_finance_manager"
-            ]
-
-        return fields
+        return super().get_fields(request, obj)
 
 
 class ExternalLinkInline(admin.TabularInline):

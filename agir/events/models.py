@@ -1077,10 +1077,12 @@ class Event(
 
         return mark_safe(json.dumps(schema, indent=2))
 
-    def add_organizer_group(self, group, person=None):
+    def add_organizer_group(self, group, person=None, exclude_organizer=None):
         from agir.events.actions import add_organizer_group
 
-        return add_organizer_group(self, group, as_person=person)
+        return add_organizer_group(
+            self, group, as_person=person, exclude_organizer=exclude_organizer
+        )
 
 
 class EventSubtype(BaseSubtype):
