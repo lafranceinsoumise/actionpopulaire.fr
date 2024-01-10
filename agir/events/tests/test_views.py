@@ -1410,26 +1410,6 @@ class AcceptCoorganizationInvitationTestCase(TestCase):
             ).exists()
         )
 
-    def test_group_manager_cannot_accept_invitation(self):
-        self.invitation.status = Invitation.STATUS_PENDING
-        self.invitation.save()
-        person = Person.objects.create_person("manager@agir.test", create_role=True)
-        Membership.objects.create(
-            person=person,
-            supportgroup=self.invited_group,
-            membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
-        )
-        self.client.force_login(person.role)
-        response = self.client.get(self.url)
-        self.assertEqual(response.status_code, 403)
-        self.invitation.refresh_from_db()
-        self.assertEqual(self.invitation.status, Invitation.STATUS_PENDING)
-        self.assertFalse(
-            OrganizerConfig.objects.filter(
-                event=self.event, as_group=self.invited_group
-            ).exists()
-        )
-
     def test_cannot_accept_unexisting_invitation(self):
         self.invitation.status = Invitation.STATUS_PENDING
         self.invitation.save()
@@ -1478,10 +1458,16 @@ class AcceptCoorganizationInvitationTestCase(TestCase):
             ).exists()
         )
 
-    def test_group_referent_can_accept_invitation(self):
+    def test_group_manager_can_accept_invitation(self):
         self.invitation.status = Invitation.STATUS_PENDING
         self.invitation.save()
-        self.client.force_login(self.person.role)
+        person = Person.objects.create_person("manager@agir.test", create_role=True)
+        Membership.objects.create(
+            person=person,
+            supportgroup=self.invited_group,
+            membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
+        )
+        self.client.force_login(person.role)
         self.assertFalse(
             OrganizerConfig.objects.filter(
                 event=self.event, as_group=self.invited_group
@@ -1539,14 +1525,14 @@ class RefuseCoorganizationInvitationTestCase(TestCase):
         self.invitation.refresh_from_db()
         self.assertEqual(self.invitation.status, Invitation.STATUS_PENDING)
 
-    def test_non_group_referent_cannot_refuse_invitation(self):
+    def test_non_group_manager_cannot_refuse_invitation(self):
         self.invitation.status = Invitation.STATUS_PENDING
         self.invitation.save()
-        person = Person.objects.create_person("manager@agir.test", create_role=True)
+        person = Person.objects.create_person("member@agir.test", create_role=True)
         Membership.objects.create(
             person=person,
             supportgroup=self.invited_group,
-            membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
         )
         self.client.force_login(person.role)
         response = self.client.get(self.url)
