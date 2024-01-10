@@ -115,8 +115,10 @@ def has_event_with_missing_documents(role):
 def can_respond_to_coorganization_invitation(role, invitation):
     if invitation and invitation.person_recipient == role.person:
         return True
-    if invitation and invitation.group and role.person in invitation.group.referents:
+
+    if invitation and invitation.group and role.person in invitation.group.managers:
         return True
+
     return False
 
 
