@@ -10,9 +10,9 @@
       {% if allocation.type == "group" %}
         aux actions du groupe &laquo;&nbsp;{{ allocation.group }}&nbsp;&raquo;
       {% elif allocation.type == "departement" and allocation.departement|slice:":3" == "99-" %}
-        aux actions de votre circonscription des Français de l'étranger ({{ allocation.departement }})
+        aux actions de la circonscription des Français de l'étranger {{ allocation.departement }}
       {% elif allocation.type == "departement" %}
-        aux actions de votre département ({{ allocation.departement }})
+        aux actions du département {{ allocation.departement }}
       {% elif allocation.type == "cns" %}
         à la Caisse nationale de solidarité
       {% endif %}
