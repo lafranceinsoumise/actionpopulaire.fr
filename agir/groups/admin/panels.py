@@ -6,7 +6,6 @@ from django.contrib import admin
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.db.models import QuerySet
 from django.db.models.expressions import RawSQL
-from django.http import HttpResponseRedirect
 from django.urls import path
 from django.urls import reverse
 from django.utils import timezone
@@ -429,46 +428,36 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
 
     @admin.display(description="Actions")
     def certification_actions(self, obj):
-        certification_actions = []
-        if obj and not obj.is_certified:
-            certification_actions.append(
-                mark_safe(
-                    "<input "
-                    "type='submit' "
-                    "name='_certify' "
-                    "style='border-radius:0;background:#078080;' "
-                    "value='✔ Certifier le groupe' />"
-                )
-            )
-        if obj and obj.is_certified:
-            certification_actions.append(
-                mark_safe(
-                    "<input "
-                    "type='submit' "
-                    "name='_uncertify' "
-                    "style='border-radius:0;background:#f45d48;' "
-                    "value='✖ Décertifier le groupe' />"
-                )
-            )
-        if certification_actions:
-            return format_html(
-                "<form style='margin: .5rem 0; padding: 0;'>{}</form>",
-                mark_safe("<br />".join(certification_actions)),
-            )
-        return "-"
+        if not obj:
+            return "-"
 
-    def response_change(self, request, obj):
-        if "_certify" in request.POST:
-            qs = self.model.objects.filter(pk=obj.pk)
-            actions.certify_supportgroups(self, request, qs)
-            return HttpResponseRedirect(".")
+        button = (
+            "<a "
+            "class='button'"
+            "style='display:inline-flex;align-items:center;height:35px;background:{color};padding:0 15px;' "
+            "href='{url}'>{label}</a>"
+        )
 
-        if "_uncertify" in request.POST:
-            qs = self.model.objects.filter(pk=obj.pk)
-            actions.uncertify_supportgroups(self, request, qs)
-            return HttpResponseRedirect(".")
+        if obj.is_certified:
+            kwargs = {
+                "label": "✖ Décertifier le groupe",
+                "url": admin_url(
+                    "{}_{}_uncertify".format(self.opts.app_label, self.opts.model_name),
+                    args=(obj.pk,),
+                ),
+                "color": "#f45d48",
+            }
+        else:
+            kwargs = {
+                "label": "✔ Certifier le groupe",
+                "url": admin_url(
+                    "{}_{}_certify".format(self.opts.app_label, self.opts.model_name),
+                    args=(obj.pk,),
+                ),
+                "color": "#078080",
+            }
 
-        return super().response_change(request, obj)
+        return format_html(button, **kwargs)
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = deepcopy(super().get_fieldsets(request, obj))
@@ -532,6 +521,18 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
                     self.opts.app_label, self.opts.model_name
                 ),
             ),
+            path(
+                "<uuid:pk>/certify/",
+                self.admin_site.admin_view(self.certify_group),
+                name="{}_{}_certify".format(self.opts.app_label, self.opts.model_name),
+            ),
+            path(
+                "<uuid:pk>/uncertify/",
+                self.admin_site.admin_view(self.uncertify_group),
+                name="{}_{}_uncertify".format(
+                    self.opts.app_label, self.opts.model_name
+                ),
+            ),
         ] + super().get_urls()
 
     def add_member(self, request, pk):
@@ -545,15 +546,19 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
 
     def history_view(self, request, object_id, extra_context=None):
         self.object_history_template = super().object_history_template
-        return super(SupportGroupAdmin, self).history_view(
-            request, object_id, extra_context=extra_context
-        )
+        return super().history_view(request, object_id, extra_context=extra_context)
 
     def old_history_view(self, request, object_id, extra_context=None):
         self.object_history_template = None
         return super(CenterOnFranceMixin, self).history_view(
             request, object_id, extra_context=extra_context
         )
+
+    def certify_group(self, request, pk):
+        return views.change_group_certification(self, request, pk, certify=True)
+
+    def uncertify_group(self, request, pk):
+        return views.change_group_certification(self, request, pk, certify=False)
 
     def get_changelist_instance(self, request):
         cl = super().get_changelist_instance(request)

@@ -13,6 +13,7 @@ from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from glom import glom, T
 
+from agir.groups.admin import actions
 from .forms import AddMemberForm
 from ..actions.automatic_memberships import maj_boucles, update_memberships_from_segment
 from ..models import SupportGroup
@@ -276,3 +277,44 @@ def export_memberships(modeladmin, request, pk, as_format):
         return export_memberships_to_xlsx(group)
 
     return Http404(f"Le format {as_format} n'est pas supporté pour l'export")
+
+
+def change_group_certification(model_admin, request, pk, certify=True):
+    if not model_admin.has_change_permission(request):
+        raise PermissionDenied
+
+    group = model_admin.get_object(request, pk)
+
+    if group is None:
+        raise Http404("Pas de groupe avec cet identifiant")
+
+    response = HttpResponseRedirect(
+        reverse(
+            "%s:%s_%s_change"
+            % (
+                model_admin.admin_site.name,
+                group._meta.app_label,
+                group._meta.model_name,
+            ),
+            args=(group.pk,),
+        )
+    )
+
+    qs = SupportGroup.objects.filter(pk=group.pk)
+
+    if certify and group.is_certified:
+        messages.warning(request, "Ce groupe est déjà certifié !")
+
+        return response
+
+    if not certify and not group.is_certified:
+        messages.warning(request, "Ce groupe n'est déjà pas certifié !")
+
+        return response
+
+    if certify:
+        actions.certify_supportgroups(model_admin, request, qs)
+    else:
+        actions.uncertify_supportgroups(model_admin, request, qs)
+
+    return response
