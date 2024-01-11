@@ -205,10 +205,18 @@ const SpendingRequestDetails = (props) => {
           <TextField
             disabled
             readOnly
-            label="Titulaire du compte"
-            id="bankAccountName"
-            name="bankAccountName"
-            value={spendingRequest.bankAccount?.name}
+            label="Prénom du titulaire du compte"
+            id="bankAccountFirstName"
+            name="bankAccountFirstName"
+            value={spendingRequest.bankAccount?.firstName}
+          />
+          <TextField
+            disabled
+            readOnly
+            label="Nom du titulaire du compte"
+            id="bankAccountLastName"
+            name="bankAccountLastName"
+            value={spendingRequest.bankAccount?.lastName}
           />
           <TextField
             disabled

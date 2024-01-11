@@ -407,10 +407,17 @@ class ContactSerializer(serializers.Serializer):
 
 
 class BankAccountSerializer(serializers.Serializer):
-    name = serializers.CharField(
-        source="bank_account_name",
-        label="Nom du contact",
-        max_length=255,
+    firstName = serializers.CharField(
+        source="bank_account_first_name",
+        label="Prénom du titulaire",
+        max_length=200,
+        required=False,
+        allow_blank=True,
+    )
+    lastName = serializers.CharField(
+        source="bank_account_last_name",
+        label="Nom de famille du titulaire",
+        max_length=200,
         required=False,
         allow_blank=True,
     )
@@ -727,16 +734,16 @@ class SpendingRequestSerializer(serializers.ModelSerializer):
         for field in spending_request.missing_fields:
             if field.startswith("bank_account_"):
                 errors["bankAccount"] = errors.get("bankAccount", {})
-                errors["bankAccount"][
-                    field.replace("bank_account_", "")
-                ] = self.required_field_error_message(field)
+                subfield = snakecase_to_camelcase(field.replace("bank_account_", ""))
+                errors["bankAccount"][subfield] = self.required_field_error_message(
+                    field
+                )
                 continue
 
             if field.startswith("contact"):
                 errors["contact"] = errors.get("contact", {})
-                errors["contact"][
-                    field.replace("contact_", "")
-                ] = self.required_field_error_message(field)
+                subfield = snakecase_to_camelcase(field.replace("contact_", ""))
+                errors["contact"][subfield] = self.required_field_error_message(field)
                 continue
 
             errors[snakecase_to_camelcase(field)] = self.required_field_error_message(

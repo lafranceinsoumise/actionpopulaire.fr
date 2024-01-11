@@ -33,6 +33,7 @@ class SpendingRequestAdmin(VersionAdmin):
         "group_link",
         "spending_date",
         "modified",
+        "bank_transfer_label",
         "spending_request_actions",
     ]
     fieldsets = (
@@ -62,10 +63,12 @@ class SpendingRequestAdmin(VersionAdmin):
                     "category",
                     "category_precisions",
                     "explanation",
-                    "bank_account_name",
+                    "bank_account_first_name",
+                    "bank_account_last_name",
                     "bank_account_iban",
                     "bank_account_bic",
                     "bank_account_rib",
+                    "bank_transfer_label",
                 )
             },
         ),

@@ -3,7 +3,7 @@ from io import BytesIO
 
 import pandas as pd
 import reversion
-from django.db import transaction, IntegrityError
+from django.db import transaction
 from django.http import HttpResponse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -89,7 +89,7 @@ def format_spending_request_for_export(queryset):
         "Événement lié à la dépense": "event",
         "Date de la dépense": "spending_date",
         "Montant de la dépense": "amount",
-        "Raison sociale": "bank_account_name",
+        "Raison sociale": "bank_account_full_name",
         "IBAN": "bank_account_iban",
         "BIC": "bank_account_bic",
         "RIB": Coalesce("bank_account_rib.url", default=None),
@@ -160,7 +160,9 @@ mark_spending_request_as_paid.short_description = _(
 )
 
 
-def save_spending_request_admin_review(spending_request, to_status, comment=None):
+def save_spending_request_admin_review(
+    spending_request, to_status, comment=None, bank_transfer_label=""
+):
     with reversion.create_revision(atomic=True):
         from_status = spending_request.status
         if to_status == SpendingRequest.Status.VALIDATED and spending_request:
@@ -178,6 +180,7 @@ def save_spending_request_admin_review(spending_request, to_status, comment=None
             or get_revision_comment(to_status=to_status, from_status=from_status)
         )
         spending_request.status = to_status
+        spending_request.bank_transfer_label = bank_transfer_label
         spending_request.save()
 
         transaction.on_commit(

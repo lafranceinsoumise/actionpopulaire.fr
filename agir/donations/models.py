@@ -402,7 +402,8 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
         "spending_date",
         "contact_name",
         "contact_phone",
-        "bank_account_name",
+        "bank_account_first_name",
+        "bank_account_last_name",
         "bank_account_iban",
         "bank_account_bic",
         "bank_account_rib",
@@ -422,11 +423,13 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
         "contact_name",
         "contact_email",
         "contact_phone",
-        "bank_account_name",
+        "bank_account_first_name",
+        "bank_account_last_name",
         "bank_account_iban",
         "bank_account_bic",
         "bank_account_rib",
         "documents",
+        "bank_transfer_label",
     ]
 
     HISTORY_MESSAGES = {
@@ -557,8 +560,17 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
         null=True,
         blank=True,
     )
-    bank_account_name = models.CharField(
-        _("Titulaire du compte bancaire"), blank=True, null=False, max_length=200
+    bank_account_first_name = models.CharField(
+        _("Prénom du titulaire du compte bancaire"),
+        blank=True,
+        null=False,
+        max_length=200,
+    )
+    bank_account_last_name = models.CharField(
+        _("Nom de famille du titulaire du compte bancaire"),
+        blank=True,
+        null=False,
+        max_length=200,
     )
     bank_account_iban = IBANField(
         _("IBAN"), blank=True, null=False, allowed_countries=["FR"]
@@ -571,6 +583,12 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
         null=True,
         blank=True,
     )
+    bank_transfer_label = models.CharField(
+        _("Libellé de virement"),
+        blank=True,
+        null=False,
+        max_length=200,
+    )
 
     class Meta:
         permissions = (
@@ -578,6 +596,10 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
         )
         verbose_name = "Demande de dépense ou remboursement"
         verbose_name_plural = "Demandes de dépense ou remboursement"
+
+    @property
+    def bank_account_full_name(self):
+        return f"{self.bank_account_first_name} {self.bank_account_last_name}".strip().upper()
 
     @property
     def front_url(self):
