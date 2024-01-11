@@ -20,7 +20,7 @@ module.exports = merge.merge(common("dev"), {
   mode: "development",
   devtool: "eval-cheap-module-source-map",
   output: {
-    publicPath: `http://${serverName}/static/components/`,
+    publicPath: `http://${serverName}/`,
     devtoolModuleFilenameTemplate: "webpack://[absolute-resource-path]",
     filename: "[name].js",
     pathinfo: false,
@@ -43,20 +43,20 @@ module.exports = merge.merge(common("dev"), {
     host: serverName === "localhost" ? "localhost" : "0.0.0.0",
     port: port,
     devMiddleware: {
-      publicPath: `http://${serverName}/static/components/`,
+      publicPath: `http://${serverName}/`,
       writeToDisk: true,
     },
     client: {
       webSocketURL: `auto://${serverName}`,
     },
     static: {
-      directory: path.join(__dirname, "/assets/components/"),
+      directory: path.join(__dirname, "/assets/"),
       watch: false,
     },
     headers: {
       "Access-Control-Allow-Origin": "*",
     },
-    allowedHosts: ["agir.local"],
+    allowedHosts: ["agir.local", ".ap.lfi.site"],
   },
   plugins: [new ReactRefreshWebpackPlugin()],
 });

@@ -19,7 +19,7 @@ import onDOMReady from "@agir/lib/utils/onDOMReady";
  * Indique à webpack comment copier les fichiers de skins de tinymce dans
  */
 require.context(
-  "file-loader?name=[path][name].[ext]&context=node_modules/tinymce!tinymce/skins",
+  "file-loader?name=[path][name].[ext]&context=node_modules/tinymce&outputPath=static/!tinymce/skins",
   true,
   /.*/,
 );
@@ -33,7 +33,7 @@ const config = {
   language: "fr_FR",
   block_formats: "Paragraphe=p;Titre=h2;Sous-titre=h3;Petit titre=h4",
   skin: "oxide",
-  skin_url: "/static/components/skins/ui/oxide",
+  skin_url: "/static/skins/ui/oxide",
 };
 
 const initRichEditor = () => {
