@@ -33,9 +33,9 @@ class DisplayContactPhoneMixin:
             return ""
 
         display = ""
-        if object.contact_phone_status == object.CONTACT_PHONE_UNVERIFIED:
-            display = "✔"
         if object.contact_phone_status == object.CONTACT_PHONE_VERIFIED:
+            display = "✔"
+        if object.contact_phone_status == object.CONTACT_PHONE_UNVERIFIED:
             display = "✕"
         if object.contact_phone_status == object.CONTACT_PHONE_PENDING:
             display = "? "
