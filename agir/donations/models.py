@@ -410,6 +410,14 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
         "attachments",
     ]
 
+    REQUIRED_FOR_TRANSFER_FIELDS = [
+        "title",
+        "bank_account_full_name",
+        "bank_account_iban",
+        "bank_account_bic",
+        "bank_transfer_label",
+    ]
+
     DIFFED_FIELDS = [
         "title",
         "timing",
@@ -599,7 +607,7 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
 
     @property
     def bank_account_full_name(self):
-        return f"{self.bank_account_first_name} {self.bank_account_last_name}".strip().upper()
+        return f"{self.bank_account_last_name} {self.bank_account_first_name}".strip()
 
     @property
     def front_url(self):
@@ -673,6 +681,22 @@ class SpendingRequest(HistoryMixin, TimeStampedModel):
     @property
     def ready_for_review(self):
         return len(self.missing_fields) == 0 and self.is_valid_amount
+
+    @property
+    def ready_for_transfer(self):
+        if not self.status == self.Status.TO_PAY:
+            return False
+
+        missing_fields = [
+            field
+            for field in self.REQUIRED_FOR_TRANSFER_FIELDS
+            if hasattr(self, field) and getattr(self, field) in [None, "", []]
+        ]
+
+        if missing_fields:
+            return False
+
+        return True
 
     @property
     def done(self):
