@@ -127,7 +127,7 @@
     "babel-plugin-styled-components": "2.1.4",
     "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
     "babel-preset-env-modules": "^1.0.1",
-    "css-loader": "^6.8.1",
+    "css-loader": "^6.9.0",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.2",
