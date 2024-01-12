@@ -13,7 +13,7 @@ const StyledField = styled.div`
 
 const BankAccountField = (props) => {
   const { onChange, value = {}, error, disabled, required } = props;
-  const { name, iban, bic, rib } = value;
+  const { firstName, lastName, iban, bic, rib } = value;
 
   const handleChange = useCallback(
     (e) => {
@@ -32,15 +32,33 @@ const BankAccountField = (props) => {
   return (
     <StyledField>
       <TextField
-        label="Titulaire du compte"
-        id="name"
-        name="name"
-        value={name}
+        label="Prénom du titulaire du compte"
+        id="firstName"
+        name="firstName"
+        value={firstName}
         onChange={handleChange}
         disabled={disabled}
         required={required}
         error={
-          error && Array.isArray(error.name) ? error.name[0] : error?.name || ""
+          error && Array.isArray(error.firstName)
+            ? error.firstName[0]
+            : error?.firstName || ""
+        }
+        maxLength={255}
+        hasCounter={false}
+      />
+      <TextField
+        label="Nom du titulaire du compte"
+        id="lastName"
+        name="lastName"
+        value={lastName}
+        onChange={handleChange}
+        disabled={disabled}
+        required={required}
+        error={
+          error && Array.isArray(error.lastName)
+            ? error.lastName[0]
+            : error?.lastName || ""
         }
         maxLength={255}
         hasCounter={false}
@@ -90,13 +108,15 @@ BankAccountField.propTypes = {
   value: PropTypes.string,
   name: PropTypes.string.isRequired,
   value: PropTypes.shape({
-    name: PropTypes.string,
+    firstName: PropTypes.string,
+    lastName: PropTypes.string,
     iban: PropTypes.string,
     bic: PropTypes.string,
     rib: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   }),
   error: PropTypes.shape({
-    name: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
+    firstName: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
+    lastName: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
     iban: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
     bic: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
     rib: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),

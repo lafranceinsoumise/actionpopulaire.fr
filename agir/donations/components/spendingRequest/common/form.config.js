@@ -201,13 +201,24 @@ export const SPENDING_REQUEST_VALIDATION_CONSTRAINT = {
       notGreaterThan: "Le montant devrait être un nombre supérieur à 0",
     },
   },
-  "bankAccount.name": {
+  "bankAccount.firstName": {
     presence: {
       allowEmpty: false,
       message: "Ce champ est obligatoire",
     },
     length: {
-      maximum: 255,
+      maximum: 200,
+      tooLong:
+        "La valeur de ce champ ne peut pas dépasser les %{count} caractères",
+    },
+  },
+  "bankAccount.lastName": {
+    presence: {
+      allowEmpty: false,
+      message: "Ce champ est obligatoire",
+    },
+    length: {
+      maximum: 200,
       tooLong:
         "La valeur de ce champ ne peut pas dépasser les %{count} caractères",
     },

@@ -1,6 +1,7 @@
 from functools import partial
 
 import reversion
+from django.core.exceptions import FieldDoesNotExist
 from django.db import transaction
 from django.utils.html import format_html
 from django.utils.translation import ngettext
@@ -58,7 +59,7 @@ def admin_summary(spending_request):
         "contact_phone": "contact_phone",
         "group": ("group", group_formatter),
         "event": Coalesce("event", default=""),
-        "bank_account_name": "bank_account_name",
+        "bank_account_full_name": "bank_account_full_name",
         "bank_account_iban": "bank_account_iban",
         "bank_account_bic": "bank_account_bic",
         "bank_account_rib": ("bank_account_rib", bank_account_rib_formatter),
@@ -200,7 +201,13 @@ def get_spending_request_field_label(field):
     if field in ("attachments", "documents"):
         return "Pièces justificatives"
 
-    model_field = SpendingRequest._meta.get_field(field)
+    if field == "bank_account_full_name":
+        return "Titulaire du compte bancaire"
+
+    try:
+        model_field = SpendingRequest._meta.get_field(field)
+    except FieldDoesNotExist:
+        return field
 
     if field == "category_precision":
         return f"{model_field.verbose_name} (champ obsolète)"

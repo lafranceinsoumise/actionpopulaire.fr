@@ -12,6 +12,8 @@ from agir.donations.admin.actions import (
     export_spending_requests_to_xlsx,
     export_spending_requests_to_csv,
     mark_spending_request_as_paid,
+    generate_bank_transfers_from_spending_requests,
+    generate_bank_transfers_from_spending_requests_and_mark_as_paid,
 )
 from agir.donations.admin.views import HandleRequestView
 from agir.donations.models import (
@@ -25,6 +27,8 @@ from agir.lib.templatetags.display_lib import display_price_in_cent
 
 @admin.register(SpendingRequest)
 class SpendingRequestAdmin(VersionAdmin):
+    save_as = True
+    save_on_top = True
     list_display = [
         "title",
         "status",
@@ -33,6 +37,8 @@ class SpendingRequestAdmin(VersionAdmin):
         "group_link",
         "spending_date",
         "modified",
+        "bank_transfer_label",
+        "ready_for_transfer",
         "spending_request_actions",
     ]
     fieldsets = (
@@ -62,10 +68,12 @@ class SpendingRequestAdmin(VersionAdmin):
                     "category",
                     "category_precisions",
                     "explanation",
-                    "bank_account_name",
+                    "bank_account_first_name",
+                    "bank_account_last_name",
                     "bank_account_iban",
                     "bank_account_bic",
                     "bank_account_rib",
+                    "bank_transfer_label",
                 )
             },
         ),
@@ -82,6 +90,7 @@ class SpendingRequestAdmin(VersionAdmin):
         "show_amount",
         "spending_request_actions",
         "group_link",
+        "ready_for_transfer",
     )
     autocomplete_fields = ("group", "event")
     inlines = (inlines.DocumentInline, inlines.DeletedDocumentInline)
@@ -99,6 +108,8 @@ class SpendingRequestAdmin(VersionAdmin):
         export_spending_requests_to_csv,
         export_spending_requests_to_xlsx,
         mark_spending_request_as_paid,
+        generate_bank_transfers_from_spending_requests,
+        generate_bank_transfers_from_spending_requests_and_mark_as_paid,
     )
 
     class Media:
@@ -111,6 +122,10 @@ class SpendingRequestAdmin(VersionAdmin):
     @admin.display(description="Montant", ordering="amount")
     def show_amount(self, obj):
         return display_price(obj.amount)
+
+    @admin.display(description="Payable", boolean=True)
+    def ready_for_transfer(self, obj):
+        return obj and obj.ready_for_transfer
 
     @admin.display(description="Actions")
     def spending_request_actions(self, obj):

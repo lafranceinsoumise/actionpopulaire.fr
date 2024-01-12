@@ -10,6 +10,7 @@ import ContactField from "@agir/donations/spendingRequest/common/ContactField";
 import EventField from "@agir/donations/spendingRequest/common/EventField";
 import AgreementField from "@agir/donations/spendingRequest/common/SpendingRequestAgreement";
 import AppRedirect from "@agir/front/app/Redirect";
+import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import DateTimeField from "@agir/front/formComponents/DateTimeField";
 import RadioField from "@agir/front/formComponents/RadioField";
 import TextField from "@agir/front/formComponents/TextField";
@@ -141,6 +142,18 @@ const EditSpendingRequestForm = (props) => {
         ...((state && state[name]) || {}),
         [prop]: value,
       },
+    }));
+  }, []);
+
+  const handleChangeCampaign = useCallback((e) => {
+    const { name, checked } = e.target;
+    setErrors((state) => ({
+      ...state,
+      [name]: undefined,
+    }));
+    setData((state) => ({
+      ...state,
+      [name]: checked,
     }));
   }, []);
 
@@ -291,21 +304,37 @@ const EditSpendingRequestForm = (props) => {
       <StyledFieldset style={{ margin: 0 }}>
         <Hide
           $over
-          as={Button}
-          wrap
-          link
-          color="link"
-          icon="arrow-right"
-          route="spendingRequestHelp"
-          style={{ textAlign: "left" }}
+          style={{
+            textAlign: "right",
+            marginBottom: "1.5rem",
+            fontSize: "0.875rem",
+          }}
         >
-          Un doute ? Consultez le centre d'aide
+          <Button
+            link
+            small
+            color="link"
+            icon="arrow-right"
+            route="spendingRequestHelp"
+          >
+            Un doute ? Consultez le centre d'aide
+          </Button>
         </Hide>
         <Hide $under as={StyledLabel}>
           Détails (obligatoire)
         </Hide>
-        <RadioField
+        <CheckboxField
+          toggle
           autoFocus
+          disabled={isLoading}
+          id="campaign"
+          name="campaign"
+          value={data.campaign}
+          onChange={handleChangeCampaign}
+          label="Il s’agit d’une dépense dans le cadre d'une campagne électorale"
+        />
+        <hr />
+        <RadioField
           disabled={isLoading}
           id="timing"
           name="timing"

@@ -22,7 +22,7 @@ class HandleRequestView(AdminViewMixin, DetailView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_form(self):
-        kwargs = {}
+        kwargs = {"initial": {"bank_transfer_label": self.object.bank_transfer_label}}
         if self.request.method in ["POST", "PUT"]:
             kwargs.update({"data": self.request.POST})
 
@@ -49,8 +49,12 @@ class HandleRequestView(AdminViewMixin, DetailView):
         if form.is_valid():
             to_status = form.cleaned_data["status"]
             comment = form.cleaned_data.get("comment", None)
+            bank_transfer_label = form.cleaned_data.get("bank_transfer_label", "")
             save_spending_request_admin_review(
-                self.object, to_status=to_status, comment=comment
+                self.object,
+                to_status=to_status,
+                comment=comment,
+                bank_transfer_label=bank_transfer_label,
             )
 
             return HttpResponseRedirect(

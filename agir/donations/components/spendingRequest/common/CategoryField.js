@@ -146,9 +146,7 @@ const StyledField = styled.div`
   ${StyledOptions} {
     margin-top: 0.5rem;
     display: grid;
-    grid-auto-flow: column;
     grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: repeat(5, auto);
     gap: 0.5rem 1rem;
     width: 100%;
 

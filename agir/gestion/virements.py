@@ -1,11 +1,11 @@
+import base64
 import dataclasses
 import secrets
 from datetime import date
 from typing import Optional, List
 
-import base64
-
 import pandas as pd
+from django.utils.translation import ngettext
 from lxml import etree
 from sepaxml import SepaTransfer
 
@@ -21,6 +21,14 @@ class Partie:
     nom: str
     iban: IBAN
     bic: Optional[str] = None
+    label: Optional[str] = None
+
+
+BANK_TRANSFER_EMITTER = {
+    "LFI": Partie(
+        nom="LA FRANCE INSOUMISE", iban=IBAN("FR76 4255 9100 0008 0188 0226 293")
+    )
+}
 
 
 @dataclasses.dataclass
@@ -44,14 +52,38 @@ def generer_fichier_virement(
     if not emetteur.iban.is_valid():
         raise ValueError("L'IBAN émetteur n'est pas valide.")
 
-    beneficiaires_invalides = [
+    missing_labels = [
+        v.beneficiaire.label or v.beneficiaire.nom
+        for v in virements
+        if not v.description
+    ]
+
+    if missing_labels:
+        missing_labels = ",".join(f"« {b} »" for b in missing_labels)
+        raise ValueError(
+            f"Les virements pour les bénéficiaires suivants n'ont pas de libellé : {missing_labels}."
+        )
+
+    missing_full_names = [
+        v.beneficiaire.label or v.beneficiaire.nom
+        for v in virements
+        if not v.beneficiaire.nom
+    ]
+
+    if missing_full_names:
+        missing_full_names = ",".join(f"« {b} »" for b in missing_full_names)
+        raise ValueError(
+            f"Les bénéficiaires suivants n'ont pas de nom : {missing_full_names}."
+        )
+
+    invalid_ibans = [
         v.beneficiaire.nom for v in virements if not v.beneficiaire.iban.is_valid()
     ]
 
-    if beneficiaires_invalides:
-        beneficiaires_invalides = ",".join(f"« {b} »" for b in beneficiaires_invalides)
+    if invalid_ibans:
+        invalid_ibans = ",".join(f"« {b} »" for b in invalid_ibans)
         raise ValueError(
-            f"Les IBAN des émetteurs suivants sont invalides : {beneficiaires_invalides}."
+            f"Les IBAN des bénéficiaires suivants sont invalides : {invalid_ibans}."
         )
 
     fichier_sepa = SepaTransfer(
@@ -96,6 +128,41 @@ def generer_fichier_virement(
     return xml_content
 
 
+def validate_bank_transfer_recipients(recipients):
+    invalid_ibans = [
+        i for i, p in enumerate(recipients) if not p.iban or not p.iban.is_valid()
+    ]
+
+    if invalid_ibans:
+        base_message = ngettext(
+            "L'IBAN suivant n'est pas valide :",
+            f"{len(invalid_ibans)} IBAN ne sont pas valides :",
+            len(invalid_ibans),
+        )
+        message = "\n".join(
+            f"{i + 1}: {recipients[i].iban or '—'} [{recipients[i].label or recipients[i].nom}]"
+            for i in invalid_ibans
+        )
+
+        raise ValueError(f"{base_message}\n{message}")
+
+    missing_bics = [
+        i for i, p in enumerate(recipients) if not p.bic and not hasattr(p.iban, "bic")
+    ]
+
+    if missing_bics:
+        base_message = ngettext(
+            "Le BIC n'est pas connu pour l'IBAN suivant :",
+            f"Les BIC ne sont pas connus pour les {len(missing_bics)} IBAN suivants :",
+            len(missing_bics),
+        )
+        message = "\n".join(
+            f"{ i + 1 }: {recipients[i].iban} [{recipients[i].label or recipients[i].nom}]"
+            for i in missing_bics
+        )
+        raise ValueError(f"{base_message}\n{message}")
+
+
 def virements_depuis_dataframe(
     df, *, iban, nom, description, montant, bic=None, date_execution=None
 ):
@@ -111,24 +178,7 @@ def virements_depuis_dataframe(
         for _, r in df.iterrows()
     ]
 
-    iban_invalide = [i for i, p in enumerate(recipients) if not p.iban.is_valid()]
-
-    if iban_invalide:
-        base_message = "Certains IBAN ne sont pas valides :"
-        message = "\n".join(
-            f"{i+2}: {recipients[i].nom} ({recipients[i].iban})" for i in iban_invalide
-        )
-
-        raise ValueError(f"{base_message}\n{message}")
-
-    bic_inconnu = [
-        i for i, p in enumerate(recipients) if not p.bic and not hasattr(p.iban, "bic")
-    ]
-
-    if bic_inconnu:
-        base_message = "Les BIC ne sont pas connus pour les IBAN suivants :"
-        message = "\n".join(f"{i+2}: {recipients[i].iban}" for i in bic_inconnu)
-        raise ValueError(f"{base_message}\n{message}")
+    validate_bank_transfer_recipients(recipients)
 
     virements = [
         Virement(
@@ -138,6 +188,54 @@ def virements_depuis_dataframe(
             description=r[description],
         )
         for p, (_, r) in zip(recipients, df.iterrows())
+    ]
+
+    return virements
+
+
+def spending_requests_to_bank_transfers(spending_requests, date_execution=None):
+    if date_execution is None:
+        date_execution = date.today()
+
+    invalid_status_requests = [
+        (i, spending_request)
+        for i, spending_request in enumerate(spending_requests)
+        if spending_request.status != spending_request.Status.TO_PAY
+    ]
+
+    if invalid_status_requests:
+        base_message = ngettext(
+            "La demande suivante n'est pas indiquée comme « à payer » :",
+            f"Les {len(invalid_status_requests)} demandes suivante ne sont pas indiquées comme « à payer » :",
+            len(invalid_status_requests),
+        )
+        message = "\n".join(
+            f"{i + 1}: {spending_request.title}"
+            for i, spending_request in invalid_status_requests
+        )
+
+        raise ValueError(f"{base_message}\n{message}")
+
+    recipients = [
+        Partie(
+            nom=spending_request.bank_account_full_name.upper(),
+            iban=spending_request.bank_account_iban,
+            bic=spending_request.bank_account_bic.upper(),
+            label=spending_request.title,
+        )
+        for spending_request in spending_requests
+    ]
+
+    validate_bank_transfer_recipients(recipients)
+
+    virements = [
+        Virement(
+            beneficiaire=recipient,
+            montant=spending_request.amount,
+            date_execution=date_execution,
+            description=spending_request.bank_transfer_label,
+        )
+        for recipient, spending_request in zip(recipients, spending_requests)
     ]
 
     return virements
