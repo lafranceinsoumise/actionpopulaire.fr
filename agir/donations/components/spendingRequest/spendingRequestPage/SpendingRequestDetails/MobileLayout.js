@@ -146,6 +146,11 @@ const SpendingRequestDetails = (props) => {
 
         <h4>Type de dépense</h4>
         <p>Dépense {spendingRequestTiming.toLowerCase()}</p>
+        {spendingRequest.campaign && (
+          <p style={{ marginTop: "-.25rem" }}>
+            <em>demande effectuée dans le cadre d'une campagne électorale</em>
+          </p>
+        )}
 
         <h4>Motif de l'achat</h4>
         <p>{spendingRequest.explanation || <em>Non renseigné</em>}</p>
