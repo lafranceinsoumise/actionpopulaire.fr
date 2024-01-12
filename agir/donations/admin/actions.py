@@ -154,9 +154,10 @@ export_spending_requests_to_csv.select_across = True
 
 def mark_spending_request_as_paid(model_admin, request, queryset):
     to_status = SpendingRequest.Status.PAID
+    queryset_ids = list(queryset.values_list("id", flat=True))
     queryset.update(status=to_status)
 
-    for spending_request_pk in queryset.values_list("id", flat=True):
+    for spending_request_pk in queryset_ids:
         spending_request_notify_group_managers.delay(
             spending_request_pk, to_status=to_status
         )

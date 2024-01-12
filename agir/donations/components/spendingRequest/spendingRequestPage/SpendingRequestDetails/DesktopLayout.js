@@ -141,11 +141,13 @@ const SpendingRequestDetails = (props) => {
           </FlexLine>
           {spendingRequest.campaign && (
             <CheckboxField
+              small
               toggle
+              disabled
               readOnly
               id="campaign"
               name="campaign"
-              label="Il s’agit d’une dépense dans le cadre d'une campagne électorale"
+              label="Dépense effectuée dans le cadre d'une campagne électorale"
               value={spendingRequest.campaign}
             />
           )}

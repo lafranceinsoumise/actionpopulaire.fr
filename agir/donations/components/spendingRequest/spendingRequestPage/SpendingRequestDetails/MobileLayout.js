@@ -148,7 +148,7 @@ const SpendingRequestDetails = (props) => {
         <p>Dépense {spendingRequestTiming.toLowerCase()}</p>
         {spendingRequest.campaign && (
           <p style={{ marginTop: "-.25rem" }}>
-            <em>demande effectuée dans le cadre d'une campagne électorale</em>
+            <em>Demande effectuée dans le cadre d'une campagne électorale</em>
           </p>
         )}
 
