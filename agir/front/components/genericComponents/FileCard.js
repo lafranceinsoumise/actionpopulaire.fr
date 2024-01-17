@@ -6,6 +6,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
 import Card from "@agir/front/genericComponents/Card";
+import { useIsDesktop } from "@agir/front/genericComponents/grid";
 
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
@@ -38,6 +39,18 @@ const StyledCard = styled(Card)`
       white-space: nowrap;
       text-overflow: ellipsis;
     }
+
+    & > strong {
+      font-size: 0.75rem;
+      color: ${style.primary600};
+      background-color: ${style.primary100};
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.5rem;
+
+      @media (max-width: ${style.collapse}px) {
+        display: none;
+      }
+    }
   }
 
   & > p {
@@ -48,19 +61,25 @@ const StyledCard = styled(Card)`
 `;
 
 const FileCard = (props) => {
-  const { title, text, icon, downloadLabel, downloadIcon, route } = props;
+  const { title, text, icon, downloadLabel, downloadIcon, route, href, isNew } =
+    props;
+
+  const isDesktop = useIsDesktop();
 
   return (
     <StyledCard>
       <h5>
         <RawFeatherIcon name={icon || "file-text"} />
+        {isNew && <strong>Nouveau</strong>}
         <span>{title}</span>
       </h5>
       <p>{text}</p>
       <Button
+        block={!isDesktop}
         link
         small
         route={route}
+        href={href}
         color="primary"
         icon={downloadIcon || "download"}
       >
@@ -73,8 +92,10 @@ FileCard.propTypes = {
   title: PropTypes.node.isRequired,
   text: PropTypes.node.isRequired,
   icon: PropTypes.string,
-  route: PropTypes.string.isRequired,
+  route: PropTypes.string,
+  href: PropTypes.string,
   downloadLabel: PropTypes.node,
   downloadIcon: PropTypes.string,
+  isNew: PropTypes.bool,
 };
 export default FileCard;

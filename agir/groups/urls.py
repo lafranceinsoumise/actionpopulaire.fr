@@ -270,8 +270,13 @@ urlpatterns = [
         name="view_og_image_supportgroup",
     ),
     path(
-        "groupes/<uuid:pk>/gestion/membres/liste.csv",
+        "groupes/<uuid:pk>/membres/liste.csv",
         views.DownloadMemberListView.as_view(),
         name="download_member_list",
+    ),
+    path(
+        "groupes/<uuid:pk>/membres/emargement.pdf",
+        views.DownloadAttendanceListView.as_view(),
+        name="download_attendance_list",
     ),
 ]

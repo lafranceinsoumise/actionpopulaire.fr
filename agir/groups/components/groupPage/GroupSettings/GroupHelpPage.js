@@ -7,11 +7,13 @@ import FileCard from "@agir/front/genericComponents/FileCard";
 import HelpCenterCard from "@agir/front/genericComponents/HelpCenterCard";
 import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
 import Spacer from "@agir/front/genericComponents/Spacer";
-
 import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
 
+import { useGroup } from "@agir/groups/groupPage/hooks/group.js";
+
 const GroupHelpPage = (props) => {
-  const { onBack, illustration } = props;
+  const { groupPk, onBack, illustration } = props;
+  const group = useGroup(groupPk);
 
   return (
     <div>
@@ -29,6 +31,19 @@ const GroupHelpPage = (props) => {
       <Spacer size="1rem" />
       <StyledTitle>Documents</StyledTitle>
       <Spacer size=".5rem" />
+      {group?.routes?.downloadAttendanceList && (
+        <>
+          <FileCard
+            title="Liste d'émargement"
+            text="Une liste d'émargement des membres à utiliser lors des événements internes du groupe pour noter les personnes présentes"
+            icon="file-text"
+            href={group.routes.downloadAttendanceList}
+            downloadLabel="Télécharger la liste d'émargement"
+            isNew
+          />
+          <Spacer size="1rem" />
+        </>
+      )}
       <FileCard
         title="Attestation d'assurance de la France insoumise"
         text="Document utile en cas de réservation d'une salle pour les événements publics"
@@ -60,5 +75,6 @@ const GroupHelpPage = (props) => {
 GroupHelpPage.propTypes = {
   onBack: PropTypes.func,
   illustration: PropTypes.string,
+  groupPk: PropTypes.string,
 };
 export default GroupHelpPage;
