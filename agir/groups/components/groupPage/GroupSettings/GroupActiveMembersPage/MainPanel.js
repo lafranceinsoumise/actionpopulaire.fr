@@ -104,6 +104,20 @@ const GroupMemberMainPanel = (props) => {
       </Link>
       <Spacer size="0.5rem" />
       <Link
+        href={routes?.downloadAttendanceList}
+        style={{ display: "flex", alignItems: "flex-start" }}
+      >
+        <RawFeatherIcon
+          name="download"
+          width="1rem"
+          height="1rem"
+          style={{ paddingTop: "3px" }}
+        />
+        <Spacer size="0.5rem" />
+        Télécharger une liste d'émargement au format PDF
+      </Link>
+      <Spacer size="0.5rem" />
+      <Link
         href={routes?.membershipTransfer}
         style={{ display: "flex", alignItems: "flex-start" }}
       >

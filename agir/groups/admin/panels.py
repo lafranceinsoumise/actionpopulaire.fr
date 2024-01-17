@@ -357,6 +357,13 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
                 ),
                 "Exporter au format Excel",
             ),
+            (
+                admin_url(
+                    "admin:groups_supportgroup_export_memberships",
+                    args=(obj.pk, "pdf"),
+                ),
+                "Exporter la liste d'émargement (PDF)",
+            ),
         ]
 
         return format_html_join(

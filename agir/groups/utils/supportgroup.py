@@ -129,6 +129,9 @@ def get_supportgroup_routes(supportgroup, membership=None, user=None):
         "downloadMemberList": front_url(
             "download_member_list", kwargs={"pk": supportgroup.pk}
         ),
+        "downloadAttendanceList": front_url(
+            "download_attendance_list", kwargs={"pk": supportgroup.pk}
+        ),
     }
 
     if membership and not supportgroup.is_certified and supportgroup.is_certifiable:

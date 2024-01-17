@@ -16,6 +16,7 @@ from glom import glom, T
 from agir.groups.admin import actions
 from .forms import AddMemberForm
 from ..actions.automatic_memberships import maj_boucles, update_memberships_from_segment
+from ..actions.export import pdf_group_attendance_list
 from ..models import SupportGroup
 from ...lib.utils import front_url
 
@@ -260,6 +261,15 @@ def export_memberships_to_csv(group):
     return response
 
 
+def export_memberships_to_pdf_attendance_list(group):
+    pdf, hash = pdf_group_attendance_list(group)
+    filename = f"emargement_{slugify(group.name)}_{hash[:8]}.pdf"
+    res = HttpResponse(pdf, content_type="application/pdf")
+    res["Content-Disposition"] = f"attachment; filename={filename}"
+
+    return res
+
+
 def export_memberships(modeladmin, request, pk, as_format):
     if not modeladmin.has_change_permission(request) or not request.user.has_perm(
         "people.export_people"
@@ -275,6 +285,8 @@ def export_memberships(modeladmin, request, pk, as_format):
         return export_memberships_to_csv(group)
     if as_format == "xlsx":
         return export_memberships_to_xlsx(group)
+    if as_format == "pdf":
+        return export_memberships_to_pdf_attendance_list(group)
 
     return Http404(f"Le format {as_format} n'est pas supporté pour l'export")
 

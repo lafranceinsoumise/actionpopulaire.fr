@@ -39,6 +39,7 @@ from agir.authentication.view_mixins import (
     VerifyLinkSignatureMixin,
 )
 from agir.front.view_mixins import ChangeLocationBaseView
+from agir.groups.actions.export import pdf_group_attendance_list
 from agir.groups.actions.pressero import is_pressero_enabled, redirect_to_pressero
 from agir.groups.forms import (
     SupportGroupForm,
@@ -70,6 +71,7 @@ __all__ = [
     "InvitationAbuseReportingView",
     "TransferSupportGroupMembersView",
     "DownloadMemberListView",
+    "DownloadAttendanceListView",
 ]
 
 logger = logging.getLogger(__name__)
@@ -613,3 +615,16 @@ class DownloadMemberListView(BaseSupportGroupAdminView, DetailView):
         res.to_csv(path_or_buf=response, index=False)
 
         return response
+
+
+class DownloadAttendanceListView(BaseSupportGroupAdminView, DetailView):
+    permission_required = ("groups.download_member_list",)
+
+    def get(self, request, *args, **kwargs):
+        group = self.get_object()
+        pdf, hash = pdf_group_attendance_list(group)
+        filename = f"emargement_{slugify(group.name)}_{hash[:8]}.pdf"
+        res = HttpResponse(pdf, content_type="application/pdf")
+        res["Content-Disposition"] = f"attachment; filename={filename}"
+
+        return res

@@ -92,6 +92,7 @@ lxml = "^4.9.2"
 gspread = "^5.7.0"
 nested-multipart-parser = "^1.5.0"
 emoji = "^2.8.0"
+weasyprint = "^60.2"
 
 [tool.poetry.dev-dependencies]
 ipython = "*"
