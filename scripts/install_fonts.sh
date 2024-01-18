@@ -3,7 +3,7 @@
 _fontdir="/usr/share/fonts/truetype"
 _gfwgeturl="https://fonts.google.com/download?family="
 _gfdir="$_fontdir/google-fonts"
-_googlefonts="Lato Nunito Roboto Rubik"
+_googlefonts="Lato Nunito Poppins Roboto Rubik"
 
 echo "Installing Google Fonts"
 for _font in $_googlefonts

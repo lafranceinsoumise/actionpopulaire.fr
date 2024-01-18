@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ group.name }} · Liste d'émargement</title>
+  <meta name="description" content="Liste d'émargement de {{ group.name }}, générée le {{ datetime|date:'d/m/Y' }}.">
+  <meta name="author" content="Action populaire">
+  <meta name="generator" content="Action populaire">
+  <meta name="keywords" content="action populaire, émargement, {{ group.name|lower }}">
+  <style>
+    @page {
+      size: A4;
+      margin: 1.5cm;
+
+      @bottom-center {
+        font-family: Poppins, Arial, sans-serif;
+        font-size: 0.75rem;
+        line-height: 1.5;
+        content: '{{ group.name }} \A' counter(page) ' / ' counter(pages);
+        color: #777777;
+        white-space: pre-wrap;
+      }
+    }
+
+    html, body {
+      font-family: Poppins, Arial, sans-serif;
+      font-size: 12px;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    tr, td, th, tbody, thead, tfoot, th *, td * {
+      page-break-inside: avoid !important;
+      page-break-after: auto !important;
+    }
+
+
+    h1, h3 {
+      margin: 0.5rem 0;
+      color: #4d26b9;
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    strong {
+      font-weight: 600;
+    }
+
+    em {
+      color: #4f4f4f;
+      font-style: normal;
+    }
+
+    table {
+      margin: 2rem 0 0;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      color: #000a2c;
+    }
+
+    thead {
+      display: table-header-group;
+    }
+
+    tbody {
+      display: table-row-group;
+    }
+
+    col {
+      width: 36%;
+    }
+
+    col:last-child {
+      width: 24%;
+    }
+
+    th, td {
+      border-top: 1px solid #dfdfdf;
+      border-bottom: 1px solid #dfdfdf;
+      height: 2.5rem;
+      vertical-align: middle;
+    }
+
+    th {
+      padding: 0 0.5rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.875rem;
+      background: #f6f2fc;
+    }
+
+    table.meta th {
+      text-transform: none;
+      background: linear-gradient(to right, #f6f2fc, transparent);
+    }
+
+    td:not([colspan="2"]) {
+      padding: 0.5rem;
+    }
+
+    .description {
+      font-size: 0.875rem;
+    }
+  </style>
+</head>
+<body>
+<h1>{{ group.name }}</h1>
+<h3>Liste d'émargement du {{ datetime|date:'d F Y' }}</h3>
+<table class="meta">
+  <colgroup>
+    <col/>
+    <col/>
+    <col/>
+  </colgroup>
+  <thead>
+  <tr>
+    <th>Date de la réunion :</th>
+    <td colspan="2"></td>
+  </tr>
+  <tr>
+    <th>Objet de la réunion :</th>
+    <td colspan="2"></td>
+  </tr>
+  </thead>
+</table>
+<table class="members">
+  <colgroup>
+    <col/>
+    <col/>
+    <col/>
+  </colgroup>
+  <thead>
+  <tr>
+    <th>Nom</th>
+    <th>Description</th>
+    <th>Signature</th>
+  </tr>
+  </thead>
+  <tbody>
+  <!--{% for member in data %}-->
+    <tr>
+      <td class="name">
+        <!--{% if member.last_name and member.first_name %}-->
+          <strong>{{ member.last_name }}</strong> {{ member.first_name }}
+          <br/>
+          <small>({{ member.display_name }})</small>
+          <!--{% else %}-->
+          <strong>{{ member.display_name }}</strong>
+          <!--{% endif %}-->
+      </td>
+      <td class="description">
+        <strong>{{ member.description }}</strong>
+        <!--{% if member.group %}-->
+          <br/>
+          <em>— {{ member.group }}</em>
+          <!--{% endif %}-->
+      </td>
+      <td class="signature"></td>
+    </tr>
+    <!--{% endfor %}-->
+    {% for i in '1234567'|make_list %}
+    <tr>
+      <td class="name"></td>
+      <td class="description"></td>
+      <td class="signature"></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</body>
+</html>

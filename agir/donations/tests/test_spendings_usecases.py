@@ -68,7 +68,8 @@ class SpendingRequestTestCase(APITestCase):
             "explanation": "On en a VRAIMENT VRAIMENT besoin.",
             "spendingDate": date,
             "bankAccount": {
-                "name": "Super CLIENT",
+                "firstName": "Super",
+                "lastName": "CLIENT",
                 "iban": "FR96 9643 9954 500A 9L6K Z94T W60",
                 "bic": "ABNAFRPP",
                 "rib": SimpleUploadedFile(

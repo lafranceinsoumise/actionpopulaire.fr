@@ -7,6 +7,7 @@ import AttachmentList, {
   AttachmentItem,
 } from "@agir/donations/spendingRequest/common/AttachmentList";
 import CategoryCard from "@agir/donations/spendingRequest/common/CategoryCard";
+import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import PhoneField from "@agir/front/formComponents/PhoneField";
 import TextField from "@agir/front/formComponents/TextField";
 import Card from "@agir/front/genericComponents/Card";
@@ -138,6 +139,18 @@ const SpendingRequestDetails = (props) => {
               label="Date de l'achat"
             />
           </FlexLine>
+          {spendingRequest.campaign && (
+            <CheckboxField
+              small
+              toggle
+              disabled
+              readOnly
+              id="campaign"
+              name="campaign"
+              label="Dépense effectuée dans le cadre d'une campagne électorale"
+              value={spendingRequest.campaign}
+            />
+          )}
           <TextField
             disabled
             readOnly
@@ -205,10 +218,18 @@ const SpendingRequestDetails = (props) => {
           <TextField
             disabled
             readOnly
-            label="Titulaire du compte"
-            id="bankAccountName"
-            name="bankAccountName"
-            value={spendingRequest.bankAccount?.name}
+            label="Prénom du titulaire du compte"
+            id="bankAccountFirstName"
+            name="bankAccountFirstName"
+            value={spendingRequest.bankAccount?.firstName}
+          />
+          <TextField
+            disabled
+            readOnly
+            label="Nom du titulaire du compte"
+            id="bankAccountLastName"
+            name="bankAccountLastName"
+            value={spendingRequest.bankAccount?.lastName}
           />
           <TextField
             disabled

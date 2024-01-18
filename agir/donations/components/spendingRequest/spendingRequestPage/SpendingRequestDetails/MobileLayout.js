@@ -146,6 +146,11 @@ const SpendingRequestDetails = (props) => {
 
         <h4>Type de dépense</h4>
         <p>Dépense {spendingRequestTiming.toLowerCase()}</p>
+        {spendingRequest.campaign && (
+          <p style={{ marginTop: "-.25rem" }}>
+            <em>Demande effectuée dans le cadre d'une campagne électorale</em>
+          </p>
+        )}
 
         <h4>Motif de l'achat</h4>
         <p>{spendingRequest.explanation || <em>Non renseigné</em>}</p>
@@ -199,8 +204,13 @@ const SpendingRequestDetails = (props) => {
         <h4>Mode de paiement</h4>
         <p>Virement</p>
 
-        <h4>Titulaire du compte</h4>
-        <p>{spendingRequest.bankAccount?.name || <em>Non renseigné</em>}</p>
+        <h4>Prénom du titulaire du compte</h4>
+        <p>
+          {spendingRequest.bankAccount?.firstName || <em>Non renseigné</em>}
+        </p>
+
+        <h4>Nom du titulaire du compte</h4>
+        <p>{spendingRequest.bankAccount?.lastName || <em>Non renseigné</em>}</p>
 
         <h4>IBAN</h4>
         <p>{spendingRequest.bankAccount?.iban || <em>Non renseigné</em>}</p>

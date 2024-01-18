@@ -3,11 +3,13 @@ from io import BytesIO
 
 import pandas as pd
 import reversion
-from django.db import transaction, IntegrityError
-from django.http import HttpResponse
+from django.contrib import messages
+from django.db import transaction
+from django.http import HttpResponse, HttpResponseRedirect
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from glom import glom, T, Coalesce
+from sepaxml.validation import ValidationError
 
 from agir.donations.allocations import (
     create_spending_for_group,
@@ -17,6 +19,11 @@ from agir.donations.apps import DonsConfig
 from agir.donations.models import SpendingRequest
 from agir.donations.spending_requests import get_revision_comment
 from agir.donations.tasks import spending_request_notify_group_managers
+from agir.gestion.virements import (
+    spending_requests_to_bank_transfers,
+    generer_fichier_virement,
+    BANK_TRANSFER_EMITTER,
+)
 from agir.payments.models import Payment
 
 
@@ -89,7 +96,7 @@ def format_spending_request_for_export(queryset):
         "Événement lié à la dépense": "event",
         "Date de la dépense": "spending_date",
         "Montant de la dépense": "amount",
-        "Raison sociale": "bank_account_name",
+        "Raison sociale": "bank_account_full_name",
         "IBAN": "bank_account_iban",
         "BIC": "bank_account_bic",
         "RIB": Coalesce("bank_account_rib.url", default=None),
@@ -147,9 +154,10 @@ export_spending_requests_to_csv.select_across = True
 
 def mark_spending_request_as_paid(model_admin, request, queryset):
     to_status = SpendingRequest.Status.PAID
+    queryset_ids = list(queryset.values_list("id", flat=True))
     queryset.update(status=to_status)
 
-    for spending_request_pk in queryset.values_list("id", flat=True):
+    for spending_request_pk in queryset_ids:
         spending_request_notify_group_managers.delay(
             spending_request_pk, to_status=to_status
         )
@@ -158,9 +166,13 @@ def mark_spending_request_as_paid(model_admin, request, queryset):
 mark_spending_request_as_paid.short_description = _(
     "Indiquer ces demandes comme payées"
 )
+mark_spending_request_as_paid.allowed_permissions = ["change"]
+mark_spending_request_as_paid.select_across = True
 
 
-def save_spending_request_admin_review(spending_request, to_status, comment=None):
+def save_spending_request_admin_review(
+    spending_request, to_status, comment=None, bank_transfer_label=""
+):
     with reversion.create_revision(atomic=True):
         from_status = spending_request.status
         if to_status == SpendingRequest.Status.VALIDATED and spending_request:
@@ -178,6 +190,7 @@ def save_spending_request_admin_review(spending_request, to_status, comment=None
             or get_revision_comment(to_status=to_status, from_status=from_status)
         )
         spending_request.status = to_status
+        spending_request.bank_transfer_label = bank_transfer_label
         spending_request.save()
 
         transaction.on_commit(
@@ -189,3 +202,68 @@ def save_spending_request_admin_review(spending_request, to_status, comment=None
                 comment=comment,
             )
         )
+
+
+def generate_bank_transfers_from_spending_requests(
+    modeladmin, request, queryset, mark_as_paid=False
+):
+    error = None
+    try:
+        virements = spending_requests_to_bank_transfers(queryset)
+        data = generer_fichier_virement(
+            emetteur=BANK_TRANSFER_EMITTER["LFI"],
+            virements=virements,
+        )
+    except ValueError as e:
+        error = str(e)
+    except ValidationError as e:
+        error = (
+            (
+                "Le fichier SEPA généré contient des données invalides. Veuillez vérifier les données des demandes "
+                "sélectionnées et ressayer."
+            ),
+        )
+
+    if error:
+        modeladmin.message_user(
+            request,
+            error,
+            level=messages.WARNING,
+        )
+
+        return HttpResponseRedirect(request.get_full_path())
+
+    if mark_as_paid:
+        mark_spending_request_as_paid(modeladmin, request, queryset)
+
+    filename = f"Virements_{timezone.now().date()}.xml"
+    response = HttpResponse(data, content_type="application/xml")
+    response["Content-Disposition"] = "attachment; filename=%s" % filename
+
+    return response
+
+
+generate_bank_transfers_from_spending_requests.short_description = (
+    f"Générer le fichier de virement"
+)
+generate_bank_transfers_from_spending_requests.allowed_permissions = ["view"]
+generate_bank_transfers_from_spending_requests.select_across = True
+
+
+def generate_bank_transfers_from_spending_requests_and_mark_as_paid(
+    modeladmin,
+    request,
+    queryset,
+):
+    return generate_bank_transfers_from_spending_requests(
+        modeladmin, request, queryset, mark_as_paid=True
+    )
+
+
+generate_bank_transfers_from_spending_requests_and_mark_as_paid.short_description = (
+    f"Générer le fichier de virement et indiquer comme payées"
+)
+generate_bank_transfers_from_spending_requests_and_mark_as_paid.allowed_permissions = [
+    "view"
+]
+generate_bank_transfers_from_spending_requests_and_mark_as_paid.select_across = True
