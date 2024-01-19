@@ -21,7 +21,7 @@ class BaseMessageSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
     id = serializers.UUIDField(read_only=True)
     created = serializers.DateTimeField(read_only=True)
     author = serializers.SerializerMethodField()
-    text = serializers.CharField()
+    text = serializers.CharField(max_length=3000)
     image = serializers.ImageField(required=False)
 
     def get_author(self, obj):

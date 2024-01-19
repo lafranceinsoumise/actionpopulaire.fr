@@ -59,7 +59,7 @@ class AbstractMessage(BaseAPIResource):
         verbose_name="Auteur",
         null=True,
     )
-    text = models.TextField("Contenu", max_length=2000)
+    text = models.TextField("Contenu", max_length=3000)
     image = StdImageField()
     reports = GenericRelation(UserReport)
     deleted = models.BooleanField("Supprimé", default=False)

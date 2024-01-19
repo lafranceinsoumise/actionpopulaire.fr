@@ -87,6 +87,8 @@ const OnlineUrlField = (props) => {
             value={onlineUrl}
             onChange={handleChange}
             placeholder={placeholder}
+            maxLength={2000}
+            hasCounter={false}
           />
         </>
       )}

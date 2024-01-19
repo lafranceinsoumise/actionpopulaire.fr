@@ -95,6 +95,10 @@ export const FORM_FIELD_CONSTRAINTS = {
     optionalUrl: {
       message: "Indiquez une URL valide",
     },
+    length: {
+      maximum: 2000,
+      tooLong: "L'URL ne peut pas dépasser les %{count} caractères",
+    },
   },
   "location.name": {
     presence: {
