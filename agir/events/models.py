@@ -621,9 +621,7 @@ class Event(
     )
 
     online_url = models.URLField(
-        "Url de visio-conférence",
-        default="",
-        blank=True,
+        "Url de visio-conférence", default="", blank=True, max_length=2000
     )
 
     suggestion_segment = models.ForeignKey(
