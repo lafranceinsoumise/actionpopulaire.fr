@@ -25,7 +25,7 @@ const EMPTY_EVENTS = [
 ];
 
 const SUBJECT_MAX_LENGTH = 150;
-const TEXT_MAX_LENGTH = 2000;
+const TEXT_MAX_LENGTH = 3000;
 
 const StyledIconButton = styled.button`
   display: flex;
