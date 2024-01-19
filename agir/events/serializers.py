@@ -755,7 +755,7 @@ class CreateEventSerializer(serializers.Serializer):
     )
     organizerPerson = CurrentPersonField()
     onlineUrl = serializers.URLField(
-        source="online_url", required=False, allow_blank=True
+        source="online_url", required=False, allow_blank=True, max_length=2000
     )
     image = serializers.ImageField(
         required=False, allow_empty_file=True, allow_null=True
@@ -892,8 +892,10 @@ class UpdateEventSerializer(serializers.ModelSerializer):
     )
     startTime = DateTimeWithTimezoneField(source="start_time")
     endTime = DateTimeWithTimezoneField(source="end_time")
-    onlineUrl = serializers.URLField(source="online_url", allow_blank=True)
-    facebook = serializers.CharField(allow_blank=True)
+    onlineUrl = serializers.URLField(
+        source="online_url", allow_blank=True, max_length=2000
+    )
+    facebook = serializers.CharField(allow_blank=True, max_length=255)
     contact = NestedContactSerializer(source="*")
     image = serializers.ImageField(allow_empty_file=True, allow_null=True)
     location = LocationSerializer(source="*")

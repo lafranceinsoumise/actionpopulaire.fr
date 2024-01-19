@@ -31,6 +31,7 @@ class SpendingRequestAdmin(VersionAdmin):
     save_on_top = True
     list_display = [
         "title",
+        "is_campaign",
         "status",
         "category",
         "show_amount",
@@ -91,6 +92,7 @@ class SpendingRequestAdmin(VersionAdmin):
         "spending_request_actions",
         "group_link",
         "ready_for_transfer",
+        "is_campaign",
     )
     autocomplete_fields = ("group", "event")
     inlines = (inlines.DocumentInline, inlines.DeletedDocumentInline)
@@ -100,6 +102,7 @@ class SpendingRequestAdmin(VersionAdmin):
     list_filter = (
         filters.RequestStatusFilter,
         filters.SupportGroupFilter,
+        "campaign",
         "category",
         "timing",
         ("spending_date", DateRangeFilter),
@@ -114,6 +117,10 @@ class SpendingRequestAdmin(VersionAdmin):
 
     class Media:
         pass
+
+    @admin.display(description="Campagne", ordering="campaign", boolean=True)
+    def is_campaign(self, obj):
+        return obj.campaign
 
     @admin.display(description="Groupe", ordering="group")
     def group_link(self, obj):

@@ -618,7 +618,7 @@ class DownloadMemberListView(BaseSupportGroupAdminView, DetailView):
 
 
 class DownloadAttendanceListView(BaseSupportGroupAdminView, DetailView):
-    permission_required = ("groups.download_member_list",)
+    permission_required = ("groups.download_attendance_list",)
 
     def get(self, request, *args, **kwargs):
         group = self.get_object()

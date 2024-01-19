@@ -23,6 +23,9 @@ const EmojiPicker = lazy(
   () => import("@agir/front/formComponents/EmojiPicker"),
 );
 
+const PLACEHOLDER_MESSAGE = "Écrire une réponse";
+const COMMENT_MAX_LENGTH = 1000;
+
 const StyledCommentButton = styled.button`
   @media (max-width: ${style.collapse}px) {
     display: flex;
@@ -55,6 +58,7 @@ const StyledCommentButton = styled.button`
 const StyledField = styled.div``;
 const StyledAction = styled.div``;
 const StyledMessage = styled.div``;
+const StyledError = styled.p``;
 const StyledWrapper = styled.form`
   display: flex;
   margin-top: auto;
@@ -184,6 +188,17 @@ const StyledWrapper = styled.form`
       }
     }
 
+    ${StyledError} {
+      display: flex;
+      gap: 0.5rem;
+      background-color: ${style.redNSP};
+      color: ${style.white};
+      padding: 1rem;
+      border-radius: ${style.borderRadius};
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
     & > :last-child {
       @media (max-width: ${style.collapse}px) {
         visibility: ${({ $isExpanded }) =>
@@ -237,8 +252,6 @@ const StyledWrapper = styled.form`
     }
   }
 `;
-
-const PLACEHOLDER_MESSAGE = "Écrire une réponse";
 
 export const CommentButton = (props) => {
   const { onClick } = props;
@@ -431,9 +444,20 @@ const CommentField = (props) => {
               label={isFocused && user.displayName}
               disabled={isLoading}
               placeholder={placeholder || PLACEHOLDER_MESSAGE}
-              maxLength={1000}
+              maxLength={COMMENT_MAX_LENGTH}
               hasCounter={false}
             />
+            {value && value.length > COMMENT_MAX_LENGTH && (
+              <StyledError>
+                <RawFeatherIcon
+                  name="alert-circle"
+                  width="1rem"
+                  height="1rem"
+                />{" "}
+                Attention : le message ne peut pas dépasser les{" "}
+                {COMMENT_MAX_LENGTH} caractères.
+              </StyledError>
+            )}
             {isFocused && (
               <EmojiPicker
                 onOpen={handleEmojiOpen}
