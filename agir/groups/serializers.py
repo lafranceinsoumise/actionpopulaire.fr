@@ -591,6 +591,9 @@ class MemberPersonalInformationSerializer(serializers.ModelSerializer):
         if self.instance and not self.instance.personal_information_sharing_consent:
             for f in set(self.fields).intersection(self.Meta.restricted_fields):
                 del self.fields[f]
+        if self.instance and not self.instance.supportgroup.editable:
+            for f in set(self.fields).intersection(self.Meta.editable_only_fields):
+                del self.fields[f]
 
     class Meta:
         model = Membership
@@ -618,6 +621,13 @@ class MemberPersonalInformationSerializer(serializers.ModelSerializer):
             "firstName",
             "lastName",
             "gender",
+            "phone",
+            "address",
+            "isPoliticalSupport",
+            "isLiaison",
+            "hasGroupNotifications",
+        )
+        editable_only_fields = (
             "phone",
             "address",
             "isPoliticalSupport",

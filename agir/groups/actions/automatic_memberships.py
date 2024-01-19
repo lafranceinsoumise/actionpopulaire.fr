@@ -60,6 +60,8 @@ def apply_changes(supportgroup, target_memberships, metas, dry_run=False):
         membership.has_finance_managing_privilege = membership.meta.pop(
             "has_finance_managing_privilege", False
         )
+        # Ensure members personal information is shared within the group
+        membership.personal_information_sharing_consent = True
         # Ensure members are subscribed to main newsletter choices
         if not membership.person.subscribed:
             membership.person.subscribed = True
@@ -69,6 +71,7 @@ def apply_changes(supportgroup, target_memberships, metas, dry_run=False):
         updated_memberships,
         (
             "has_finance_managing_privilege",
+            "personal_information_sharing_consent",
             "meta",
         ),
     )
