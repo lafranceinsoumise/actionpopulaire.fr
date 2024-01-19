@@ -206,6 +206,10 @@ rules.add_perm(
     is_editable_group & is_authenticated_person & is_at_least_manager_for_group,
 )
 rules.add_perm(
+    "groups.download_attendance_list",
+    is_authenticated_person & is_at_least_manager_for_group,
+)
+rules.add_perm(
     "groups.transfer_members",
     is_editable_group & is_authenticated_person & is_at_least_manager_for_group,
 )
