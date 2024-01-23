@@ -5,12 +5,7 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
-import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
-import {
-  LIAISON_NEWSLETTER,
-  NEWSLETTERS,
-} from "@agir/front/authentication/common";
 
 const StyledWrapper = styled.div`
   h2 {
@@ -33,6 +28,10 @@ const StyledWrapper = styled.div`
   ul {
     padding-left: 1rem;
 
+    li {
+      list-style-type: "— ";
+    }
+
     li + li {
       margin-top: 0.25rem;
     }
@@ -53,14 +52,6 @@ const StyledWrapper = styled.div`
 
 const ConfirmContact = (props) => {
   const { data, onBack, onConfirm, isLoading } = props;
-  const newsletters = [
-    ...data.newsletters.map(
-      (n) => NEWSLETTERS[n]?.visible && NEWSLETTERS[n].label,
-    ),
-    data.group?.id &&
-      data.hasGroupNotifications &&
-      "Les actualités du groupe d'action",
-  ].filter(Boolean);
 
   return (
     <StyledWrapper>
@@ -76,28 +67,29 @@ const ConfirmContact = (props) => {
       </div>
       <Spacer size="1.5rem" />
       <ul>
-        {data.isPoliticalSupport ? (
-          <li>Veut rejoindre la France insoumise</li>
-        ) : null}
-        {newsletters.length > 0 ? (
+        {data.isLiaison && (
           <li>
-            Recevra les lettres d'information suivantes&nbsp;:{" "}
-            <ul>
-              {newsletters.map((n) => (
-                <li key={n} style={{ fontSize: "0.875rem" }}>
-                  {n}
-                </li>
-              ))}
-            </ul>
+            Cette personne sera correspondant·e de son immeuble ou de son
+            village pour les campagnes de la France insoumise
           </li>
-        ) : null}
-        {data.newsletters.includes(LIAISON_NEWSLETTER.value) ? (
-          <li>Sera correspondant·e de l’immeuble ou de village</li>
-        ) : null}
-        {data.group?.id ? (
+        )}
+        {data.group?.id && (
           <li>
-            Ces informations seront accessibles aux gestionnaires et
-            animateur·ices du groupe <strong>{data.group.name}</strong>
+            Les coordonnées de cette personnes seront accessibles aux
+            gestionnaires et animateur·ices du groupe{" "}
+            <strong>{data.group.name}</strong>
+          </li>
+        )}
+        {data.subscribed || data.group?.id ? (
+          <li>
+            Cette personne recevra{" "}
+            {[
+              data.subscribed && "les informations de la France insoumise",
+              data.group?.name &&
+                `l'actualité du groupe d'action ${data.group.name}`,
+            ]
+              .filter(Boolean)
+              .join(" et ")}
           </li>
         ) : null}
       </ul>
@@ -129,12 +121,13 @@ ConfirmContact.propTypes = {
     zip: PropTypes.string.isRequired,
     phone: PropTypes.string,
     email: PropTypes.string.isRequired,
-    isPoliticalSupport: PropTypes.bool.isRequired,
-    newsletters: PropTypes.arrayOf(PropTypes.string).isRequired,
+    subscribed: PropTypes.bool.isRequired,
+    isLiaison: PropTypes.bool.isRequired,
     group: PropTypes.object,
     hasGroupNotifications: PropTypes.bool,
     address: PropTypes.string,
     city: PropTypes.string,
+    country: PropTypes.string,
   }),
   onBack: PropTypes.func.isRequired,
   onConfirm: PropTypes.func.isRequired,

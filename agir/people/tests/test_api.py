@@ -116,10 +116,10 @@ class CreateContactAPITestCase(APITestCase):
             "city": "Paris",
             "country": "FR",
             "zip": "75010",
-            "newsletters": list(Person.MAIN_NEWSLETTER_CHOICES),
+            "subscribed": True,
+            "isLiaison": False,
             "group": str(self.group.id),
             "hasGroupNotifications": False,
-            "isPoliticalSupport": True,
         }
 
     def test_anonymous_cannot_create_a_contact(self):
@@ -174,13 +174,6 @@ class CreateContactAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 422)
         self.assertIn("phone", res.data)
 
-    def test_cannot_create_a_contact_with_invalid_newsletter_choice(self):
-        self.client.force_login(user=self.subscriber.role)
-        data = {**self.valid_data, "newsletters": ["not a newsletter"]}
-        res = self.client.post("/api/contacts/creer/", data=data)
-        self.assertEqual(res.status_code, 422)
-        self.assertIn("newsletters", res.data)
-
     def test_cannot_create_a_contact_with_an_empty_address(self):
         self.client.force_login(user=self.subscriber.role)
         data = {**self.valid_data, "address": ""}
@@ -222,7 +215,9 @@ class CreateContactAPITestCase(APITestCase):
         res = self.client.post("/api/contacts/creer/", data=data)
         self.assertEqual(res.status_code, 201)
         person_pk = res.data.get("id")
-        self.assertTrue(Person.objects.get(pk=person_pk).is_political_support)
+        self.assertTrue(
+            Person.objects.get(pk=person_pk).subscribed == data["subscribed"]
+        )
 
     def test_can_create_a_new_contact_withouth_email_if_phone_is_given(self):
         self.client.force_login(user=self.subscriber.role)
@@ -232,7 +227,9 @@ class CreateContactAPITestCase(APITestCase):
         res = self.client.post("/api/contacts/creer/", data=data)
         self.assertEqual(res.status_code, 201)
         person_pk = res.data.get("id")
-        self.assertTrue(Person.objects.get(pk=person_pk).is_political_support)
+        self.assertTrue(
+            Person.objects.get(pk=person_pk).subscribed == data["subscribed"]
+        )
 
     def test_can_update_a_contact_with_valid_data(self):
         self.client.force_login(user=self.subscriber.role)

@@ -25,7 +25,7 @@ export const validateContact = async (data) => {
   const url = getContactEndpoint("validateContact");
 
   try {
-    const response = await axios.post(url, body);
+    await axios.post(url, body);
     result.valid = true;
   } catch (e) {
     result.errors = (e.response && e.response.data) || { global: e.message };
