@@ -1,5 +1,5 @@
 import isPropValid from "@emotion/is-prop-valid";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 
@@ -73,10 +73,21 @@ RootComponent.propTypes = {
   fieldProps: PropTypes.object,
 };
 
-export const renderReactComponent = (component, node) => {
-  node &&
-    ReactDOM.render(<React.StrictMode>{component}</React.StrictMode>, node);
-};
+export const renderReactComponent = (
+  (roots = []) =>
+  (component, node) => {
+    if (!node) {
+      return;
+    }
+    let root = roots.find((r) => r.node === node)?.root;
+    if (!root) {
+      root = createRoot(node);
+      roots.push({ root, node });
+    }
+
+    root.render(<React.StrictMode>{component}</React.StrictMode>);
+  }
+)();
 
 export const mergeRefs = (...refs) => {
   const filteredRefs = refs.filter(Boolean);
@@ -96,4 +107,4 @@ export const mergeRefs = (...refs) => {
 export const validProps = (props) =>
   Object.entries(props)
     .filter(([k]) => isPropValid(k))
-    .reduce((o, [k, v]) => ({ ...o, k: v }), {});
+    .reduce((o, [_k, v]) => ({ ...o, k: v }), {});
