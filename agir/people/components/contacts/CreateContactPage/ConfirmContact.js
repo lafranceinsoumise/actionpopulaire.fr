@@ -38,9 +38,10 @@ const StyledWrapper = styled.div`
   }
 
   footer {
+    display: flex;
     line-height: 0;
+
     @media (max-width: ${style.collapse}px) {
-      display: flex;
       flex-flow: column-reverse nowrap;
 
       ${Button} {
