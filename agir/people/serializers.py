@@ -395,10 +395,8 @@ class ContactSerializer(serializers.ModelSerializer):
         allow_blank=True,
         label="Numéro de téléphone",
     )
-    isPoliticalSupport = serializers.BooleanField(
-        source="is_political_support", default=False
-    )
-    newsletters = PersonNewsletterListField(required=False, allow_empty=True)
+    subscribed = serializers.BooleanField(default=False)
+    isLiaison = serializers.BooleanField(source="is_liaison", default=False)
     address = serializers.CharField(
         required=False,
         allow_blank=False,
@@ -443,13 +441,13 @@ class ContactSerializer(serializers.ModelSerializer):
         model = models.Person
         fields = (
             "id",
-            "isPoliticalSupport",
+            "subscribed",
+            "isLiaison",
             "firstName",
             "lastName",
             "zip",
             "email",
             "phone",
-            "newsletters",
             "address",
             "city",
             "country",

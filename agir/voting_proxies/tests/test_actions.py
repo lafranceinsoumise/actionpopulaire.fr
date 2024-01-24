@@ -530,7 +530,7 @@ class FindVotingProxyCandidatesForRequestsTestCase(TestCase):
 
     @patch("agir.voting_proxies.actions.invite_voting_proxy_candidates")
     def test_cannot_invite_person_with_no_newsletters(self, send_invitations):
-        candidate = self.create_proxy_candidate(newsletters=[])
+        candidate = self.create_proxy_candidate(newsletters=[], subscribed=False)
         request = self.create_request()
         qs = VotingProxyRequest.objects.filter(pk=request.pk)
         send_invitations.assert_not_called()

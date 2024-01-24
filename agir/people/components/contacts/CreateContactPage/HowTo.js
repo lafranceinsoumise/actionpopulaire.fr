@@ -117,8 +117,8 @@ export const HowTo = (props) => {
           <li>
             <RawFeatherIcon strokeWidth={2} name="check-square" />
             <span>
-              <strong>Faites rejoindre Action populaire</strong> à de nouvelles
-              personnes&nbsp;!
+              <strong>Faites rejoindre la France insoumise</strong> à de
+              nouvelles personnes&nbsp;!
             </span>
           </li>
           <li>

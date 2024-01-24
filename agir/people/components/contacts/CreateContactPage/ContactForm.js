@@ -16,10 +16,6 @@ import NoGroupCard from "./NoGroupCard";
 
 import { searchGroups } from "@agir/groups/utils/api";
 import { scrollToError } from "@agir/front/app/utils";
-import {
-  LIAISON_NEWSLETTER,
-  getNewsletterOptions,
-} from "@agir/front/authentication/common";
 
 const StyledForm = styled.form`
   h2 {
@@ -44,6 +40,10 @@ const StyledForm = styled.form`
     margin: 0 0 0.5rem;
   }
 
+  p {
+    font-size: 0.875rem;
+  }
+
   em {
     font-weight: 400;
     font-style: italic;
@@ -53,34 +53,24 @@ const StyledForm = styled.form`
 
 const formatGroupOptions = (groups) =>
   Array.isArray(groups) && groups.length > 0
-    ? [
-        ...groups.map((group) => ({
-          ...group,
-          icon: "users",
-          value: group.id,
-          label: group.name,
-        })),
-        {
-          id: null,
-          value: "",
-          label: "Ne pas ajouter à un groupe",
-        },
-      ]
+    ? groups.map((group) => ({
+        ...group,
+        icon: "users",
+        value: group.id,
+        label: group.name,
+      }))
     : null;
 
 export const ContactForm = (props) => {
   const { initialData, errors, isLoading, onSubmit, groups } = props;
-  const newsletterOptions = useMemo(() => getNewsletterOptions(), []);
   const [data, setData] = useState({
     firstName: "",
     lastName: "",
     zip: "",
     email: "",
     phone: "",
-    isPoliticalSupport: true,
-    newsletters: newsletterOptions
-      .filter((n) => n.selected)
-      .map((n) => n.value),
+    subscribed: true,
+    isLiaison: false,
     ...(initialData || {}),
   });
   const [groupOptions, setGroupOptions] = useState(formatGroupOptions(groups));
@@ -101,46 +91,29 @@ export const ContactForm = (props) => {
     }));
   }, []);
 
-  const handleCheckisPoliticalSupport = useCallback((e) => {
+  const handleCheckLiaison = useCallback((e) => {
     const { checked } = e.target;
-    setData((state) => ({
-      ...state,
-      isPoliticalSupport: checked,
-      newsletters: checked
-        ? state.newsletters
-        : state.newsletters.filter((nl) => nl !== LIAISON_NEWSLETTER.value),
-      address: checked ? state.address : undefined,
-      city: checked ? state.city : undefined,
-      country: checked ? state.country : undefined,
-    }));
-  }, []);
-
-  const handleCheckNewsletter = useCallback((e) => {
-    const { name, checked } = e.target;
     setData((state) => {
       const newState = { ...state };
-      newState["newsletters"] = checked
-        ? [...state.newsletters, name]
-        : state.newsletters.filter((nl) => nl !== name);
-      if (name === LIAISON_NEWSLETTER.value) {
-        newState["address"] = checked ? "" : undefined;
-        newState["city"] = checked ? "" : undefined;
-        newState["country"] = checked ? "FR" : undefined;
-      }
+      newState.isLiaison = checked;
+      newState["address"] = checked ? "" : undefined;
+      newState["city"] = checked ? "" : undefined;
+      newState["country"] = checked ? "FR" : undefined;
+
       return newState;
     });
   }, []);
 
-  const handleSelectGroup = useCallback((group) => {
-    setData((state) => ({
-      ...state,
-      hasGroupNotifications: group?.id
-        ? state.hasGroupNotifications
-        : undefined,
-      group,
-    }));
-    setGroupOptions(formatGroupOptions(groups));
-  }, []);
+  const handleSelectGroup = useCallback(
+    (group) => {
+      setData((state) => ({
+        ...state,
+        group,
+      }));
+      setGroupOptions(formatGroupOptions(groups));
+    },
+    [groups],
+  );
 
   const handleSelectCountry = useCallback((country) => {
     setData((state) => ({
@@ -166,13 +139,17 @@ export const ContactForm = (props) => {
       setGroupOptions(results);
       return results;
     },
-    [groupOptions],
+    [groups],
   );
 
   const handleSubmit = useCallback(
     (e) => {
       e.preventDefault();
-      onSubmit(data);
+      onSubmit({
+        ...data,
+        group:
+          data.hasGroupNotifications && data.group ? data.group : undefined,
+      });
     },
     [onSubmit, data],
   );
@@ -240,6 +217,12 @@ export const ContactForm = (props) => {
         disabled={isLoading}
       />
       <Spacer data-scroll="email" size="1rem" />
+      <p>
+        Il est obligatoire de fournir soit l'adresse e-mail soit le téléphone,
+        mais il est vivement recommandé de demander les deux pour une meilleure
+        expérience.
+      </p>
+      <Spacer data-scroll="email" size="1rem" />
       <TextField
         label="E-mail"
         id="email"
@@ -262,35 +245,26 @@ export const ContactForm = (props) => {
         disabled={isLoading}
         helpText={<em>Facultatif si une adresse e-mail a été renseignée</em>}
       />
-      <Spacer data-scroll="newsletters" size="2rem" />
-      <h4>
-        &laquo;&nbsp;Souhaitez-vous rejoindre la France
-        insoumise&nbsp;?&nbsp;&raquo;
-      </h4>
+      <Spacer data-scroll="subscribed" size="2rem" />
+      <h4>Souhaitez-vous recevoir&nbsp;:</h4>
       <CheckboxField
-        label="Je souhaite rejoindre la France insoumise"
-        onChange={handleCheckisPoliticalSupport}
-        value={data.isPoliticalSupport}
-        id="isPoliticalSupport"
-        name="isPoliticalSupport"
+        label="Les informations de la France insoumise"
+        onChange={handleCheck}
+        value={data.subscribed}
+        id="subscribed"
+        name="subscribed"
         disabled={isLoading}
       />
-      <Spacer data-scroll="newsletters" size="1.5rem" />
-      <h4>Souhaitez-vous recevoir&nbsp;:</h4>
-      {newsletterOptions.map((option) => (
-        <React.Fragment key={option.value}>
-          <CheckboxField
-            label={option.label}
-            onChange={handleCheckNewsletter}
-            value={data.newsletters.includes(option.value)}
-            id={option.value}
-            name={option.value}
-            disabled={isLoading}
-          />
-          <Spacer size=".5rem" />
-        </React.Fragment>
-      ))}
-      <Spacer data-scroll="group" size="1.5rem" />
+      <Spacer data-scroll="group" size=".5rem" />
+      <CheckboxField
+        label="L'actualité du groupe d'action près de chez vous"
+        onChange={handleCheck}
+        value={data.hasGroupNotifications}
+        id="hasGroupNotifications"
+        name="hasGroupNotifications"
+        disabled={isLoading}
+      />
+      <Spacer size="1rem" />
       <SearchAndSelectField
         label="Groupe auquel ajouter le contact"
         placeholder="Choisissez un groupe d'action"
@@ -302,47 +276,30 @@ export const ContactForm = (props) => {
         name="group"
         defaultOptions={groupOptions}
         error={errors?.group}
+        disabled={isLoading || !data.hasGroupNotifications}
+      />
+      <Spacer size="2rem" />
+      <h4>
+        Souhaitez-vous devenir correspondant·e pour votre immeuble ou votre
+        village&nbsp;?
+      </h4>
+      <p>
+        <em>
+          &laquo;&nbsp;Nous vous enverrons des informations et du matériel pour
+          diffuser nos propositions et actions auprès de vos voisins et
+          voisines&nbsp;&raquo;
+        </em>
+      </p>
+      <Spacer size=".5rem" />
+      <CheckboxField
+        label="Devenir correspondant·e de l'immeuble ou du village"
+        onChange={handleCheckLiaison}
+        value={data.isLiaison}
+        id="isLiaison"
+        name="isLiaison"
         disabled={isLoading}
       />
-      {data.group?.id && (
-        <>
-          <Spacer size=".5rem" />
-          <CheckboxField
-            label="Je veux recevoir les actualités du groupe"
-            onChange={handleCheck}
-            value={data.hasGroupNotifications}
-            id="hasGroupNotifications"
-            name="hasGroupNotifications"
-            disabled={isLoading}
-          />
-        </>
-      )}
-      {data.isPoliticalSupport && (
-        <>
-          <Spacer size="1.5rem" />
-          <h4>
-            Souhaitez-vous devenir correspondant·e pour votre immeuble ou votre
-            village&nbsp;?
-          </h4>
-          <p>
-            <em>
-              &laquo;&nbsp;Nous vous enverrons des informations et du matériel
-              pour diffuser nos propositions et actions auprès de vos voisins et
-              voisines&nbsp;&raquo;
-            </em>
-          </p>
-          <Spacer size=".5rem" />
-          <CheckboxField
-            label="Devenir correspondant·e de l'immeuble ou du village"
-            onChange={handleCheckNewsletter}
-            value={data.newsletters.includes(LIAISON_NEWSLETTER.value)}
-            id={LIAISON_NEWSLETTER.value}
-            name={LIAISON_NEWSLETTER.value}
-            disabled={isLoading}
-          />
-        </>
-      )}
-      {data.newsletters.includes(LIAISON_NEWSLETTER.value) && (
+      {data.isLiaison && (
         <>
           <Spacer data-scroll="address" size="1rem" />
           <TextField

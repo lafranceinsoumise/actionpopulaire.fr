@@ -266,15 +266,25 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
 
         return person
 
-    def create_person(self, email, subscribed=False, **extra_fields):
+    def create_person(self, email, subscribed=False, is_liaison=False, **extra_fields):
         extra_fields.setdefault("is_staff", False)
         extra_fields.setdefault("is_superuser", False)
         extra_fields.setdefault("password", None)
+        extra_fields.setdefault("newsletters", [])
 
-        if subscribed is False:
+        if subscribed:
+            extra_fields["newsletters"] += [
+                choice
+                for choice in Person.MAIN_NEWSLETTER_CHOICES
+                if choice not in extra_fields["newsletters"]
+            ]
+
+        if (
+            is_liaison
+            and Person.Newsletter.LFI_LIAISONS.value not in extra_fields["newsletters"]
+        ):
             extra_fields.setdefault("newsletters", [])
-        else:
-            extra_fields.setdefault("newsletters", Person.MAIN_NEWSLETTER_CHOICES)
+            extra_fields["newsletters"].append(Person.Newsletter.LFI_LIAISONS.value)
 
         return self._create_person(email, **extra_fields)
 
