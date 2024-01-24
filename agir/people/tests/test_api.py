@@ -1,7 +1,8 @@
 from rest_framework.test import APITestCase
 
 from agir.groups.models import SupportGroup
-from agir.people.models import Person
+from agir.people.models import Person, PersonTag
+from agir.people.tags import media_tags
 
 
 class PersonProfileTestCase(APITestCase):
@@ -107,6 +108,10 @@ class CreateContactAPITestCase(APITestCase):
         self.existing_person = Person.objects.create_person(
             "une__personne@quiexiste.deja", create_role=True
         )
+        media_tag = PersonTag.objects.filter(
+            label__in=(label for label, _desc in media_tags)
+        ).first()
+        self.assertIsNotNone(media_tag)
         self.valid_data = {
             "firstName": "Foo",
             "lastName": "Bar",
@@ -120,6 +125,7 @@ class CreateContactAPITestCase(APITestCase):
             "isLiaison": False,
             "group": str(self.group.id),
             "hasGroupNotifications": False,
+            "mediaPreferences": [media_tag.label],
         }
 
     def test_anonymous_cannot_create_a_contact(self):
@@ -209,6 +215,16 @@ class CreateContactAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 422)
         self.assertIn("group", res.data)
 
+    def test_cannot_create_a_contact_with_an_invalid_media_tag(self):
+        media_tag = PersonTag.objects.create(
+            label="invalid", description="Not a media tag"
+        )
+        self.client.force_login(user=self.subscriber.role)
+        data = {**self.valid_data, "mediaPreferences": [media_tag.label]}
+        res = self.client.post("/api/contacts/creer/", data=data)
+        self.assertEqual(res.status_code, 422)
+        self.assertIn("mediaPreferences", res.data)
+
     def test_can_create_a_new_contact_with_valid_data(self):
         self.client.force_login(user=self.subscriber.role)
         data = {**self.valid_data}
@@ -249,3 +265,33 @@ class CreateContactAPITestCase(APITestCase):
         data = {**self.valid_data, "email": email}
         res = self.client.post("/api/contacts/creer/", data=data)
         self.assertTrue(self.group.members.filter(id=person.id).exists())
+
+    def test_persontags_are_created_for_the_contact(self):
+        email = "notags@agir.local"
+        self.client.force_login(user=self.subscriber.role)
+        tags = [label for label, _desc in media_tags]
+        data = {**self.valid_data, "email": email, "mediaPreferences": []}
+        res = self.client.post("/api/contacts/creer/", data=data)
+        self.assertEqual(res.status_code, 201)
+        person = Person.objects.get(pk=res.data.get("id"))
+        self.assertFalse(person.tags.filter(label__in=tags).exists())
+
+        email = "tags@agir.local"
+        missing_tag = tags.pop()
+        data = {**self.valid_data, "email": email, "mediaPreferences": tags}
+        res = self.client.post("/api/contacts/creer/", data=data)
+        person = Person.objects.get(pk=res.data.get("id"))
+        self.assertFalse(person.tags.filter(label=missing_tag).exists())
+        for tag in tags:
+            self.assertTrue(person.tags.filter(label=tag).exists(), person.tags.all())
+
+        data = {
+            **self.valid_data,
+            "email": email,
+            "mediaPreferences": [missing_tag],
+        }
+        res = self.client.post("/api/contacts/creer/", data=data)
+        person = Person.objects.get(pk=res.data.get("id"))
+        self.assertFalse(person.tags.filter(label=missing_tag).exists())
+        for tag in tags:
+            self.assertTrue(person.tags.filter(label=tag).exists(), person.tags.all())

@@ -23,69 +23,67 @@
       {% include "people/profile/profile_title.html" with tab_code="CONTACT" %}
       <div>
         <fieldset>
-          <legend>Adresses e-mail</legend>
-        </fieldset>
-        <div class="row">
-        {% if emails|length > 1 %}
-          <div class="table-responsive padbottommore">
-            <table class="table">
-            <tbody>
-            {% for email in emails %}
-              <tr {% if email.address == person.email %} class="active" {% endif %}>
-                <td><strong class="small">{{ email.address }}</strong></td>
-                <td>
-                  {% if email.address == person.email %}
-                    <span class="hidden-xs hidden-sm label label-info">
-                      L'adresse utilisée pour me contacter
-                    </span>
-                    <span class="hidden-md hidden-lg label label-info">
-                      Adresse utilisée
-                    </span>
-                  {% elif not email.bounced %}
-                    <a class="hidden-xs hidden-sm btn btn-sm btn-default " href="{% url "change_primary_mail" email.pk %}">
-                      Utiliser cette adresse pour me contacter
-                    </a>
-                    <a class="hidden-md hidden-lg btn btn-sm btn-default " href="{% url "change_primary_mail" email.pk %}">
-                      Utiliser cette adresse
-                    </a>
-                  {% elif email.bounced %}
-                    <p class="text-danger small">
-                      Cette adresse n'est plus utilisée car elle a mal fonctionné plusieurs fois. Cela peut être
-                      du à une boîte pleine ou à une erreur de votre fournisseur.
-                    </p><p class="small">
-                      <a href="{% url "change_primary_mail" email.pk %}">J'ai réglé le problème, utiliser cette adresse à nouveau</a>
-                    </p>
-                  {% endif %}
-                </td>
-                <td>
-                  {% if can_delete %}
-                    <a class="btn btn-sm btn-primary" href="{% url "delete_email" email.pk %}">
-                      Supprimer
-                    </a>
-                  {% endif %}
-                </td>
-              </tr>
-            {% endfor %}
-              <tr>
-                <td class="hidden-xs hidden-sm"></td>
-                <td class="hidden-xs hidden-sm"></td>
-                <td class="text-right" colspan="3">
-                  <a class="btn btn-sm btn-default btn-block" href="{% url "manage_account" %}">Ajouter ou changer d'adresse email</a>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          </div>
-        {% else %}
-          <p class="col-xs-12 col-md-8">{{ person.email }}</p>
-          <p class="col-xs-12 col-md-4"><a class="btn btn-sm btn-default" href="{% url "manage_account" %}">Ajouter ou changer d'adresse email</a></p>
-        {% endif %}
-        </div>
-        <fieldset>
           <legend>Notifications et e-mails Action Populaire</legend>
           <a href="{% url "list_activities.notification_settings" %}" class="btn btn-sm btn-info">
             Paramétrer mes notifications et emails
           </a>
+        </fieldset>
+        <fieldset>
+          <legend>Adresses e-mail</legend>
+          {% if emails|length > 1 %}
+            <div class="table-responsive">
+              <table class="table">
+              <tbody>
+              {% for email in emails %}
+                <tr {% if email.address == person.email %} class="active" {% endif %}>
+                  <td><strong class="small">{{ email.address }}</strong></td>
+                  <td>
+                    {% if email.address == person.email %}
+                      <span class="hidden-xs hidden-sm label label-info">
+                        L'adresse utilisée pour me contacter
+                      </span>
+                      <span class="hidden-md hidden-lg label label-info">
+                        Adresse utilisée
+                      </span>
+                    {% elif not email.bounced %}
+                      <a class="hidden-xs hidden-sm btn btn-sm btn-default " href="{% url "change_primary_mail" email.pk %}">
+                        Utiliser cette adresse pour me contacter
+                      </a>
+                      <a class="hidden-md hidden-lg btn btn-sm btn-default " href="{% url "change_primary_mail" email.pk %}">
+                        Utiliser cette adresse
+                      </a>
+                    {% elif email.bounced %}
+                      <p class="text-danger small">
+                        Cette adresse n'est plus utilisée car elle a mal fonctionné plusieurs fois. Cela peut être
+                        du à une boîte pleine ou à une erreur de votre fournisseur.
+                      </p><p class="small">
+                        <a href="{% url "change_primary_mail" email.pk %}">J'ai réglé le problème, utiliser cette adresse à nouveau</a>
+                      </p>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if can_delete %}
+                      <a class="btn btn-sm btn-primary" href="{% url "delete_email" email.pk %}">
+                        Supprimer
+                      </a>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+                <tr>
+                  <td class="hidden-xs hidden-sm"></td>
+                  <td class="hidden-xs hidden-sm"></td>
+                  <td class="text-right" colspan="3">
+                    <a class="btn btn-sm btn-default btn-block" href="{% url "manage_account" %}">Ajouter ou changer d'adresse email</a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          {% else %}
+            <p class="col-xs-12 col-md-8">{{ person.email }}</p>
+            <p class="col-xs-12 col-md-4"><a class="btn btn-sm btn-default" href="{% url "manage_account" %}">Ajouter ou changer d'adresse email</a></p>
+          {% endif %}
+          </div>
         </fieldset>
         {% crispy form %}
       </div>

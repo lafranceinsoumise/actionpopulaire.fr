@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
@@ -16,6 +16,14 @@ import NoGroupCard from "./NoGroupCard";
 
 import { searchGroups } from "@agir/groups/utils/api";
 import { scrollToError } from "@agir/front/app/utils";
+
+const MEDIA_PREFERENCE_OPTIONS = [
+  { value: "media__email", label: "E-mail" },
+  { value: "media__whatsapp", label: "WhatsApp" },
+  // { value: "media__telegram", label: "Telegram" },
+  { value: "media__sms", label: "SMS" },
+  { value: "media__courrier", label: "Courrier" },
+];
 
 const StyledForm = styled.form`
   h2 {
@@ -71,6 +79,7 @@ export const ContactForm = (props) => {
     phone: "",
     subscribed: true,
     isLiaison: false,
+    mediaPreferences: [],
     ...(initialData || {}),
   });
   const [groupOptions, setGroupOptions] = useState(formatGroupOptions(groups));
@@ -140,6 +149,25 @@ export const ContactForm = (props) => {
       return results;
     },
     [groups],
+  );
+
+  const handleCheckMediaPreferences = useCallback(
+    (e) => {
+      const { value, checked } = e.target;
+      if (checked && !data.mediaPreferences.includes(value)) {
+        setData((state) => ({
+          ...state,
+          mediaPreferences: [...data.mediaPreferences, value],
+        }));
+      }
+      if (!checked && data.mediaPreferences.includes(value)) {
+        setData((state) => ({
+          ...state,
+          mediaPreferences: data.mediaPreferences.filter((mp) => mp !== value),
+        }));
+      }
+    },
+    [data.mediaPreferences],
   );
 
   const handleSubmit = useCallback(
@@ -278,6 +306,24 @@ export const ContactForm = (props) => {
         error={errors?.group}
         disabled={isLoading || !data.hasGroupNotifications}
       />
+      <Spacer size="2rem" />
+      <h4>
+        Quels sont les moyens de communication que vous utilisez le plus
+        souvent&nbsp;?
+      </h4>
+      <Spacer data-scroll="mediaPreferences" size=".5rem" />
+      {MEDIA_PREFERENCE_OPTIONS.map((option) => (
+        <CheckboxField
+          key={option.value}
+          toggle
+          label={option.label}
+          onChange={handleCheckMediaPreferences}
+          value={data.mediaPreferences.includes(option.value)}
+          id={option.value}
+          inputValue={option.value}
+          disabled={isLoading}
+        />
+      ))}
       <Spacer size="2rem" />
       <h4>
         Souhaitez-vous devenir correspondant·e pour votre immeuble ou votre

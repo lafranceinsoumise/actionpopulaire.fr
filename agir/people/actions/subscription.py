@@ -205,11 +205,9 @@ DATE_2022_LIAISON_META_PROPERTY = "2022_liaison_since"
 
 
 def save_contact_information(data):
-    group = None
-    has_group_notifications = data.pop("hasGroupNotifications")
-
-    if "group" in data:
-        group = data.pop("group")
+    has_group_notifications = data.pop("hasGroupNotifications", False)
+    tags = data.pop("tags", None)
+    group = data.pop("group", None)
 
     with transaction.atomic():
         try:
@@ -260,6 +258,9 @@ def save_contact_information(data):
         transaction.on_commit(
             partial(notify_contact.delay, str(person.id), is_new=is_new)
         )
+
+    if tags and is_new:
+        person.tags.add(*tags)
 
     if group:
         # Create a follower type membership for the person if none exists already and

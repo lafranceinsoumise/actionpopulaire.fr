@@ -4,9 +4,7 @@
 
 from django.utils.translation import gettext_lazy as _
 
-from .models import PersonTag
-
-__all__ = ["skills_tags", "action_tags"]
+__all__ = ["skills_tags", "action_tags", "media_tags"]
 
 
 skills_tags = [
@@ -133,3 +131,11 @@ action_tags = {
         ),
     ],
 }
+
+media_tags = [
+    ("media__email", _("E-mail")),
+    ("media__whatsapp", _("WhatsApp")),
+    ("media__telegram", _("Telegram")),
+    ("media__sms", _("SMS")),
+    ("media__courrier", _("Courrier")),
+]

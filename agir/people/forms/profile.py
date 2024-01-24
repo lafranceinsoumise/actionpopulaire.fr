@@ -11,7 +11,7 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
-from agir.lib.form_components import HalfCol, FullCol, ThirdCol, TwoThirdCol
+from agir.lib.form_components import HalfCol, FullCol, ThirdCol
 from agir.lib.form_mixins import TagMixin, MetaFieldsMixin, ImageFormMixin
 from agir.lib.forms import MediaInHead
 from agir.lib.models import RE_FRENCH_ZIPCODE
@@ -19,7 +19,7 @@ from agir.lib.tasks import geocode_person
 from agir.people.form_mixins import ContactPhoneNumberMixin
 from agir.people.forms.mixins import LegacySubscribedMixin
 from agir.people.models import PersonTag, Person
-from agir.people.tags import skills_tags
+from agir.people.tags import skills_tags, media_tags
 from agir.people.tasks import (
     send_confirmation_change_email,
     send_confirmation_merge_account,
@@ -310,7 +310,12 @@ class InformationConfidentialityForm(Form):
         self.helper.layout = Layout(*self.get_fields())
 
 
-class ContactForm(LegacySubscribedMixin, ContactPhoneNumberMixin, forms.ModelForm):
+class ContactForm(
+    LegacySubscribedMixin, ContactPhoneNumberMixin, TagMixin, forms.ModelForm
+):
+    tags = media_tags
+    tag_model_class = PersonTag
+
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
         self.helper = FormHelper()
@@ -374,10 +379,14 @@ class ContactForm(LegacySubscribedMixin, ContactPhoneNumberMixin, forms.ModelFor
                     Row(ThirdCol("contact_phone"), HalfCol(validation_block)),
                     "subscribed_sms",
                 ),
+                Fieldset(
+                    "Moyens de communication préférés",
+                    *(tag for tag, label in self.tags),
+                ),
                 Row(
                     HalfCol(btn_no_mails),
                     ThirdCol(btn_submit, css_class="col-md-offset-2"),
-                    css_class="padtop",
+                    css_class="padtopmore",
                 ),
             ]
         )
