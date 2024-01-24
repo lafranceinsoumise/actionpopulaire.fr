@@ -2,6 +2,7 @@ from functools import partial
 
 from django.db import transaction
 from django.http import Http404
+from django.utils.translation import ugettext_lazy as _
 from django_countries.serializer_fields import CountryField
 from phonenumber_field.serializerfields import PhoneNumberField
 from rest_framework import serializers
@@ -21,7 +22,8 @@ from .actions.subscription import (
     SUBSCRIPTION_EMAIL_SENT_REDIRECT,
     save_contact_information,
 )
-from .models import Person
+from .models import Person, PersonTag
+from .tags import media_tags
 from .tasks import send_confirmation_email
 from ..groups.models import SupportGroup
 from ..lib.tasks import geocode_person
@@ -373,6 +375,7 @@ class PersonSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
 
 class ContactSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(read_only=True)
+    subscriber = CurrentPersonField()
     firstName = serializers.CharField(
         label="Prénom",
         max_length=person_fields["first_name"].max_length,
@@ -414,7 +417,16 @@ class ContactSerializer(serializers.ModelSerializer):
         queryset=SupportGroup.objects.active(), required=False, allow_null=True
     )
     hasGroupNotifications = serializers.BooleanField(write_only=True, default=False)
-    subscriber = CurrentPersonField()
+    mediaPreferences = serializers.SlugRelatedField(
+        source="tags",
+        slug_field="label",
+        many=True,
+        queryset=PersonTag.objects.filter(label__in=(tag for tag, _desc in media_tags)),
+        allow_empty=True,
+        error_messages={
+            "does_not_exist": _("« {value} » n'est pas un choix autorisé."),
+        },
+    )
 
     def validate(self, data):
         if not data.get("email") and not data.get("contact_phone"):
@@ -455,4 +467,5 @@ class ContactSerializer(serializers.ModelSerializer):
             "hasGroupNotifications",
             "subscriber",
             "meta",
+            "mediaPreferences",
         )

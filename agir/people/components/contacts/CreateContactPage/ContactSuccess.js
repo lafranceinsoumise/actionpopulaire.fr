@@ -3,7 +3,6 @@ import React from "react";
 import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
-import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 const StyledWrapper = styled.div`
