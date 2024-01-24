@@ -40,7 +40,7 @@ class PersonFormDisplay:
         if html:
             return ["Actions", *self.admin_fields_label, "Personne"]
 
-        return [*self.admin_fields_label, "id_personne", "email"]
+        return [*self.admin_fields_label, "id_personne", "date_inscription", "email"]
 
     def _get_form_and_submissions(self, submissions_or_form):
         if isinstance(submissions_or_form, PersonForm):
@@ -242,16 +242,25 @@ class PersonFormDisplay:
             return [
                 list(a) for a in zip(action_fields, id_fields, dates, person_fields)
             ]
-        else:
-            dates = [
-                localize(submission.created.astimezone(get_current_timezone()))
-                for submission in submissions
-            ]
-            id_persons = [
-                (str(s.person.id) if s.person else "Anonyme") for s in submissions
-            ]
-            emails = [(s.person.email if s.person else "") for s in submissions]
-            return [list(a) for a in zip(id_fields, dates, id_persons, emails)]
+
+        dates = [
+            localize(submission.created.astimezone(get_current_timezone()))
+            for submission in submissions
+        ]
+        id_persons = [
+            (str(s.person.id) if s.person else "Anonyme") for s in submissions
+        ]
+        created = [
+            (
+                localize(s.person.created.astimezone(get_current_timezone()))
+                if s.person
+                else ""
+            )
+            for s in submissions
+        ]
+        emails = [(s.person.email if s.person else "") for s in submissions]
+
+        return [list(a) for a in zip(id_fields, dates, id_persons, created, emails)]
 
     def get_form_field_labels(self, form, fieldsets_titles=False, html=True):
         """Renvoie un dictionnaire associant id de champs et libellés à présenter
