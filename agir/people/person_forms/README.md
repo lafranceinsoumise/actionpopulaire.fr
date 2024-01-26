@@ -904,8 +904,8 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
     4. un tableau d'identifiants de groupe -
        ex. `"choices": ["64ed1c08-6329-4bee-aaae-c3d6a1ca0ec7", "3a32fc55-7507-4d5f-bb57-a66daad63461"]`. La valeur par
        défaut est `membre`
-- `"group_type": "D" [string]`   
-   Le type de groupe auquel limiter l'affichage des options proposées. Les valeurs possibles sont :   
+- `"group_type": "D" [string]`
+   Le type de groupe auquel limiter l'affichage des options proposées. Les valeurs possibles sont :
     1.  `"Groupe fonctionnel"` ou `"F"`,
     2.  `"Groupe local"` ou `"L"`,
     3.  `"Groupe thématique"` ou `"B"`,
@@ -962,8 +962,8 @@ Un champs qui permet de sélectionner plusieurs groupes d'action à l'aide d'une
     4. un tableau d'identifiants de groupe -
        ex. `"choices": ["64ed1c08-6329-4bee-aaae-c3d6a1ca0ec7", "3a32fc55-7507-4d5f-bb57-a66daad63461"]`. La valeur par
        défaut est `membre`
-- `"group_type": "D" [string]`   
-   Le type de groupe auquel limiter l'affichage des options proposées. Les valeurs possibles sont :   
+- `"group_type": "D" [string]`
+   Le type de groupe auquel limiter l'affichage des options proposées. Les valeurs possibles sont :
     1.  `"Groupe fonctionnel"` ou `"F"`,
     2.  `"Groupe local"` ou `"L"`,
     3.  `"Groupe thématique"` ou `"B"`,
@@ -1042,21 +1042,21 @@ _Ce type n'a pas de paramètres obligatoires spécifiques._
 
 #### `person_tag`
 
-Un champs qui permet de sélectionner un ou plusieurs tags (PersonTag) et, optionnellement, de les ajouter à 
-la personne qui remplit le formulaire après la validation.   
+Un champs qui permet de sélectionner un ou plusieurs tags (PersonTag) et, optionnellement, de les ajouter à
+la personne qui remplit le formulaire après la validation.
 
 ##### Paramètres obligatoires
 
-- `"choices": [] [[string, number]]`   
-  La liste d'ids (nombre) ou de noms (chaîne de caractères) de tags parmi lesquels la personne pourra choisir.  
+- `"choices": [] [[string, number]]`
+  La liste d'ids (nombre) ou de noms (chaîne de caractères) de tags parmi lesquels la personne pourra choisir.
 
 ##### Paramètres optionnels
 
-- `"multiple": false [boolean]`   
+- `"multiple": false [boolean]`
    Permet d'autoriser la sélection de plusieurs tags, qui par défaut est limité à un seul.
-- `"person_field": false [boolean]`   
-   Si `true`, les tags selectionnés seront ajoutées à la personne qui remplit le formulaire. 
-   N.B. : il est uniquement possible d'**ajouter** des tags à l'aide des champs de ce type et pas 
+- `"person_field": false [boolean]`
+   Si `true`, les tags selectionnés seront ajoutées à la personne qui remplit le formulaire.
+   N.B. : il est uniquement possible d'**ajouter** des tags à l'aide des champs de ce type et pas
    d'en supprimer.
 
 ##### Examples
@@ -1722,12 +1722,12 @@ la personne qui remplit le formulaire après la validation.
     "fields": [
       {
         "id": "liaison",
-        "label": "Correspondant·e d'immeuble",
+        "label": "Relai insoumis",
         "type": "newsletters",
         "choices": [
           [
             "2022",
-            "J'accepte d'être correspondant·e d'immeuble"
+            "J'accepte d'être relai insoumis"
           ]
         ]
       },

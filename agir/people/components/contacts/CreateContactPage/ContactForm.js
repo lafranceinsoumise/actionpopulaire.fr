@@ -404,19 +404,19 @@ export const ContactForm = (props) => {
       ))}
       <Spacer size="2rem" />
       <h4>
-        Souhaitez-vous devenir correspondant·e pour votre immeuble ou votre
-        village&nbsp;?
+        Souhaitez-vous devenir un &laquo;&nbsp;relai
+        insoumis&nbsp;&raquo;&nbsp;?
       </h4>
       <p>
         <em>
-          &laquo;&nbsp;Nous vous enverrons des informations et du matériel pour
-          diffuser nos propositions et actions auprès de vos voisins et
-          voisines&nbsp;&raquo;
+          &laquo;&nbsp;Nous vous enverrons des informations ou du matériel pour
+          diffuser nos propositions et actions auprès de vos proches et vos
+          contacts&nbsp;&raquo;
         </em>
       </p>
       <Spacer size=".5rem" />
       <CheckboxField
-        label="Devenir correspondant·e de l'immeuble ou du village"
+        label="Devenir « relai insoumis »"
         onChange={handleCheckLiaison}
         value={data.isLiaison}
         id="isLiaison"
@@ -430,8 +430,8 @@ export const ContactForm = (props) => {
             label="Numéro et nom de la rue"
             helpText={
               <em>
-                Pour pouvoir vous envoyer des informations en tant que
-                correspondant·e
+                Pour pouvoir vous envoyer des informations en tant que relai
+                insoumis
               </em>
             }
             id="address"

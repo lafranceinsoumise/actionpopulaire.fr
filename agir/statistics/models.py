@@ -142,7 +142,7 @@ class AbsoluteStatistics(TimeStampedModel):
         default=0,
     )
     liaison_count = models.IntegerField(
-        verbose_name="Correspondant·es d'immeuble et de quartier",
+        verbose_name="Relais insoumis",
         null=False,
         blank=False,
         default=0,

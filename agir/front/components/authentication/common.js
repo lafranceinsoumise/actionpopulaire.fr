@@ -41,7 +41,7 @@ export const NEWSLETTERS = {
     visible: true,
   },
   LFI_liaisons: {
-    label: "Correspondant·es d'immeuble ou de rue",
+    label: "Relais insoumis",
     value: "LFI_liaisons",
     visible: false,
   },
