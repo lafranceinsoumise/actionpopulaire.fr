@@ -29,6 +29,8 @@ SUBSCRIPTION_TYPE_EXTERNAL = "EXT"
 SUBSCRIPTION_TYPE_ADMIN = "ADM"
 SUBSCRIPTION_TYPE_AP = "AP"
 SUBSCRIPTION_TYPE_LJI = "LJI"
+# Inscription depuis la plateforme d'inscription sur les listes électorales
+SUBSCRIPTION_TYPE_ISE = "ISE"
 
 SUBSCRIPTION_TYPE_CHOICES = (
     (
@@ -42,6 +44,7 @@ SUBSCRIPTION_TYPE_CHOICES = (
     (SUBSCRIPTION_TYPE_EXTERNAL, "Externe"),
     (SUBSCRIPTION_TYPE_AP, "Action Populaire"),
     (SUBSCRIPTION_TYPE_LJI, "Les jeunes insoumis"),
+    (SUBSCRIPTION_TYPE_ISE, "Plateforme d'inscription sur les listes électorales"),
 )
 SUBSCRIPTION_FIELD = {
     # TODO: Vérifier ce qui est encore utilisé et ce qui ne l'est plus
@@ -98,6 +101,7 @@ SUBSCRIPTIONS_EMAILS = {
             subject="Plus qu'un clic pour vous inscrire",
         ),
     },
+    SUBSCRIPTION_TYPE_ISE: {},
 }
 
 SUBSCRIPTION_NEWSLETTERS = {
@@ -109,6 +113,7 @@ SUBSCRIPTION_NEWSLETTERS = {
     SUBSCRIPTION_TYPE_NSP: set(),
     SUBSCRIPTION_TYPE_EXTERNAL: set(),
     SUBSCRIPTION_TYPE_AP: set(),
+    SUBSCRIPTION_TYPE_ISE: {*Person.MAIN_NEWSLETTER_CHOICES},
 }
 
 SUBSCRIPTION_EMAIL_SENT_REDIRECT = {
@@ -123,6 +128,7 @@ SUBSCRIPTION_SUCCESS_REDIRECT = {
     SUBSCRIPTION_TYPE_LJI: f"{settings.MAIN_DOMAIN}/bienvenue/",
     SUBSCRIPTION_TYPE_NSP: f"{settings.NSP_DOMAIN}/signature-confirmee/",
     SUBSCRIPTION_TYPE_AP: f"{settings.FRONT_DOMAIN}/bienvenue/",
+    SUBSCRIPTION_TYPE_ISE: f"{settings.ISE_DOMAIN}/bienvenue/",
 }
 
 
