@@ -389,7 +389,7 @@ class NewsletterChoices(models.TextChoices):
         "LFI_jeunes_insoumises",
         "Les informations destinées aux Jeunes insoumis·es",
     )
-    LFI_LIAISONS = "LFI_liaisons", "Correspondant·es d'immeuble ou de rue"
+    LFI_LIAISONS = "LFI_liaisons", "Relai insoumis"
     ILB = "ILB", "Les informations de l'Institut La Boétie"
     ELUES = "ELUES", "Les informations destinées aux élu·es"
 

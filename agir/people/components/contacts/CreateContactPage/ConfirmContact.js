@@ -68,12 +68,7 @@ const ConfirmContact = (props) => {
       </div>
       <Spacer size="1.5rem" />
       <ul>
-        {data.isLiaison && (
-          <li>
-            Cette personne sera correspondant·e de son immeuble ou de son
-            village pour les campagnes de la France insoumise
-          </li>
-        )}
+        {data.isLiaison && <li>Cette personne sera un « relai insoumis »</li>}
         {data.group?.id && (
           <li>
             Les coordonnées de cette personnes seront accessibles aux

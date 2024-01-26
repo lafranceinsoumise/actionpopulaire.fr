@@ -38,7 +38,7 @@ const GroupMemberFacts = (props) => {
           ? "Est abonné·e à l’actualité de votre groupe"
           : "N'est pas abonné·e à l’actualité de votre groupe"}
       </li>
-      {isLiaison && <li>Correspondant·e de son immeuble</li>}
+      {isLiaison && <li>Relai insoumis</li>}
     </StyledList>
   ) : null;
 };

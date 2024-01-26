@@ -27,7 +27,7 @@ def export_liaisons_to_csv(modeladmin, request, queryset):
     return liaisons_to_csv_response(queryset.liaisons())
 
 
-export_liaisons_to_csv.short_description = f"Exporter les correspondant·es en CSV"
+export_liaisons_to_csv.short_description = f"Exporter les relais insoumis en CSV"
 export_liaisons_to_csv.allowed_permissions = ["export"]
 export_liaisons_to_csv.select_across = True
 
@@ -46,12 +46,12 @@ def remove_from_liaisons(modeladmin, request, queryset):
 
     modeladmin.message_user(
         request,
-        f"Les personnes sélectionnées ont été supprimées de la liste des correspondant·es d'immeuble et de quartier",
+        f"Les personnes sélectionnées ont été supprimées de la liste des relais insoumis",
     )
     return HttpResponseRedirect(request.get_full_path())
 
 
-remove_from_liaisons.short_description = f"Supprimer de la liste des correspondant·es"
+remove_from_liaisons.short_description = f"Supprimer de la liste des relais insoumis"
 remove_from_liaisons.allowed_permissions = ["change"]
 remove_from_liaisons.select_across = True
 

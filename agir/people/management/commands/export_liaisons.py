@@ -12,9 +12,9 @@ from slugify import slugify
 from agir.lib.mailing import send_message
 from agir.people.models import Person
 
-EXPORT_EMAIL_SUBJECT_ALL = "Export de tout·es les correspondant·es d'immeuble"
+EXPORT_EMAIL_SUBJECT_ALL = "Export de tous les relais insoumis"
 EXPORT_EMAIL_SUBJECT_PERIOD = (
-    "Export des correspondant·es d'immeuble ajouté·es entre le %s et le %s"
+    "Export des relais insoumis ajouté·es entre le %s et le %s"
 )
 EXPORT_EMAIL_BODY = """
 Bonjour.
@@ -143,7 +143,7 @@ class Command(BaseCommand):
         )
 
         if not queryset.exists():
-            self.stderr.write("― Aucun·e correspondant·e d'immeuble trouvé !")
+            self.stderr.write("― Aucun relai insoumis trouvé !")
             return
 
         self.stdout.write(f"― {subject}\n")
@@ -152,14 +152,10 @@ class Command(BaseCommand):
 
         if emails:
             self.send_email(emails.split(","), subject, csv_string)
-            self.stdout.write(
-                f"― {queryset.count()} correspondant·es d'immeuble trouvé·es."
-            )
+            self.stdout.write(f"― {queryset.count()} relais insoumis trouvés.")
             self.stdout.write(f"― Un e-mail a été envoyé à : {emails}")
         else:
-            self.stdout.write(
-                f"― {queryset.count()} correspondant·es d'immeuble trouvé·es :\n\n"
-            )
+            self.stdout.write(f"― {queryset.count()} relais insoumis trouvés :\n\n")
             self.stdout.write(f"{csv_string}\n")
 
         self.stdout.write("― Au revoir !\n")

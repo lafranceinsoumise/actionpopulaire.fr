@@ -983,7 +983,7 @@ class ContactAdmin(admin.ModelAdmin):
     def is_liaison(self, obj):
         return obj.is_liaison
 
-    is_liaison.short_description = "Correspondant·e d'immeuble"
+    is_liaison.short_description = "Relai insoumis"
     is_liaison.boolean = True
 
     def subscriber(self, obj):
@@ -1012,8 +1012,8 @@ class ContactAdmin(admin.ModelAdmin):
 class Liaison(Person):
     class Meta:
         proxy = True
-        verbose_name = "correspondant·e d'immeuble et de quartier"
-        verbose_name_plural = "correspondant·es d'immeuble et de quartier"
+        verbose_name = "relai insoumis"
+        verbose_name_plural = "relais insoumis"
 
 
 @admin.register(Liaison)
@@ -1060,7 +1060,7 @@ class LiaisonAdmin(admin.ModelAdmin):
     def liaison_date(self, obj):
         return obj.liaison_date
 
-    liaison_date.short_description = "Correspondant·e depuis"
+    liaison_date.short_description = "Relai insoumis depuis"
     liaison_date.admin_order_field = "liaison_date"
 
     def get_queryset(self, *args, **kwargs):

@@ -133,11 +133,8 @@ export const HowTo = (props) => {
           <li>
             <RawFeatherIcon strokeWidth={2} name="map-pin" />
             <span>
-              <strong>
-                Essayez de recruter des correspondant·es d’immeuble ou de
-                village,
-              </strong>{" "}
-              qui pourront diffuser nos propositions et inciter leurs voisins à
+              <strong>Essayez de recruter des « relais insoumis »,</strong> qui
+              pourront diffuser nos propositions et inciter leurs proches à
               aller voter
             </span>
           </li>
