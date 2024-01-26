@@ -101,7 +101,23 @@ SUBSCRIPTIONS_EMAILS = {
             subject="Plus qu'un clic pour vous inscrire",
         ),
     },
-    SUBSCRIPTION_TYPE_ISE: {},
+    SUBSCRIPTION_TYPE_ISE: {
+        "confirmation": SubscriptionMessageInfo(
+            code="SUBSCRIPTION_CONFIRMATION_LFI_MESSAGE",
+            subject="Plus qu'un clic pour vous inscrire",
+            from_email=settings.EMAIL_FROM_LFI,
+        ),
+        "already_subscribed": SubscriptionMessageInfo(
+            "ALREADY_SUBSCRIBED_LFI_MESSAGE",
+            "Vous êtes déjà inscrit·e !",
+            from_email=settings.EMAIL_FROM_LFI,
+        ),
+        "welcome": SubscriptionMessageInfo(
+            "WELCOME_LFI_MESSAGE",
+            "Bienvenue sur la plateforme de la France insoumise",
+            from_email=settings.EMAIL_FROM_LFI,
+        ),
+    },
 }
 
 SUBSCRIPTION_NEWSLETTERS = {
@@ -121,6 +137,7 @@ SUBSCRIPTION_EMAIL_SENT_REDIRECT = {
     SUBSCRIPTION_TYPE_LJI: f"{settings.MAIN_DOMAIN}/consulter-vos-emails/",
     SUBSCRIPTION_TYPE_NSP: f"{settings.NSP_DOMAIN}/validez-votre-e-mail/",
     SUBSCRIPTION_TYPE_AP: f"{settings.FRONT_DOMAIN}/inscription/code/",
+    SUBSCRIPTION_TYPE_ISE: f"{settings.ISE_DOMAIN}/consulter-vos-emails/",
 }
 
 SUBSCRIPTION_SUCCESS_REDIRECT = {
