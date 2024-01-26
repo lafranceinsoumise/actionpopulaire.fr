@@ -1,7 +1,9 @@
+from datetime import date
 from functools import partial
 
 from django.db import transaction
 from django.http import Http404
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django_countries.serializer_fields import CountryField
 from phonenumber_field.serializerfields import PhoneNumberField
@@ -391,6 +393,12 @@ class ContactSerializer(serializers.ModelSerializer):
     zip = serializers.CharField(
         required=True, source="location_zip", label="Code postal"
     )
+    birthDate = serializers.DateField(
+        source="date_of_birth",
+        label="Date de naissance",
+        required=False,
+        allow_null=True,
+    )
     email = serializers.EmailField(required=False, allow_blank=True)
     phone = PhoneField(
         source="contact_phone",
@@ -428,6 +436,12 @@ class ContactSerializer(serializers.ModelSerializer):
         },
     )
 
+    def validate_birthDate(self, value):
+        if isinstance(value, date) and timezone.now().date() <= value:
+            raise ValidationError("Veuillez indiquer une date dans le passé")
+
+        return value
+
     def validate(self, data):
         if not data.get("email") and not data.get("contact_phone"):
             raise ValidationError(
@@ -458,6 +472,8 @@ class ContactSerializer(serializers.ModelSerializer):
             "firstName",
             "lastName",
             "zip",
+            "birthDate",
+            "gender",
             "email",
             "phone",
             "address",

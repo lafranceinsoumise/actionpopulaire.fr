@@ -7,7 +7,9 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import CountryField from "@agir/front/formComponents/CountryField";
+import DateTimeField from "@agir/front/formComponents/DateTimeField";
 import PhoneField from "@agir/front/formComponents/PhoneField";
+import RadioField from "@agir/front/formComponents/RadioField";
 import SearchAndSelectField from "@agir/front/formComponents/SearchAndSelectField";
 import TextField from "@agir/front/formComponents/TextField";
 
@@ -16,6 +18,12 @@ import NoGroupCard from "./NoGroupCard";
 
 import { searchGroups } from "@agir/groups/utils/api";
 import { scrollToError } from "@agir/front/app/utils";
+import { getISELink } from "@agir/elections/Common/utils";
+
+const GENDER_OPTIONS = [
+  { value: "F", label: "Femme" },
+  { value: "M", label: "Homme" },
+];
 
 const MEDIA_PREFERENCE_OPTIONS = [
   { value: "media__email", label: "E-mail" },
@@ -83,6 +91,7 @@ export const ContactForm = (props) => {
     ...(initialData || {}),
   });
   const [groupOptions, setGroupOptions] = useState(formatGroupOptions(groups));
+  const [today] = useState(new Date().toISOString().slice(0, 10));
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
@@ -99,6 +108,25 @@ export const ContactForm = (props) => {
       [name]: checked,
     }));
   }, []);
+
+  const handleChangeGender = useCallback((gender) => {
+    setData((state) => ({
+      ...state,
+      gender,
+    }));
+  });
+
+  const handleChangeBirthDate = useCallback(
+    (birthDate) => {
+      birthDate = birthDate && birthDate.slice(0, 10);
+      birthDate = birthDate < today ? birthDate : null;
+      setData((state) => ({
+        ...state,
+        birthDate,
+      }));
+    },
+    [today],
+  );
 
   const handleCheckLiaison = useCallback((e) => {
     const { checked } = e.target;
@@ -207,7 +235,7 @@ export const ContactForm = (props) => {
           <Spacer size="1.5rem" />
         </>
       )}
-      <h3>Nouveau contact</h3>
+      <h3>Informations personnelles</h3>
       <Spacer size="0.5rem" />
       <em>
         &laquo;&nbsp;Souhaitez-vous nous laisser votre
@@ -215,7 +243,7 @@ export const ContactForm = (props) => {
       </em>
       <Spacer data-scroll="firstName" size="1.5rem" />
       <TextField
-        label="Prénom*"
+        label="Prénom (obligatoire)"
         name="firstName"
         placeholder=""
         onChange={handleChange}
@@ -225,7 +253,7 @@ export const ContactForm = (props) => {
       />
       <Spacer data-scroll="lastName" size="1rem" />
       <TextField
-        label="Nom*"
+        label="Nom (obligatoire)"
         name="lastName"
         placeholder=""
         onChange={handleChange}
@@ -235,7 +263,7 @@ export const ContactForm = (props) => {
       />
       <Spacer data-scroll="zip" size="1rem" />
       <TextField
-        label="Code postal*"
+        label="Code postal (obligatoire)"
         id="zip"
         error={errors?.zip}
         name="zip"
@@ -244,11 +272,61 @@ export const ContactForm = (props) => {
         value={data.zip}
         disabled={isLoading}
       />
-      <Spacer data-scroll="email" size="1rem" />
+      <Spacer data-scroll="birthDate" size="1rem" />
+      <DateTimeField
+        required
+        type="date"
+        disabled={isLoading}
+        id="birthDate"
+        name="birthDate"
+        value={data.birthDate || null}
+        onChange={handleChangeBirthDate}
+        error={errors?.birthDate}
+        label="Date de naissance"
+        autoComplete="birthday"
+        helpText={
+          <em>
+            Facultatif mais utile pour la vérification de l'inscription sur les
+            listes électorales
+          </em>
+        }
+      />
+      <Spacer data-scroll="birthDate" size="1rem" />
+      <RadioField
+        disabled={isLoading}
+        id="gender"
+        name="gender"
+        value={data.gender}
+        onChange={handleChangeGender}
+        error={errors?.gender}
+        label="Genre à l'état civil"
+        options={GENDER_OPTIONS}
+        helpText={
+          <em>
+            Facultatif mais utile pour la vérification de l'inscription sur les
+            listes électorales
+          </em>
+        }
+      />
+      <Spacer size="1rem" />
+      <Button
+        link
+        block
+        disabled={!data.firstName || !data.lastName}
+        href={getISELink(data)}
+        target="_blank"
+        icon="external-link"
+        color="secondary"
+      >
+        Vérifier l'inscription sur les listes électorales
+      </Button>
+      <Spacer size="3rem" />
+      <h3>Informations de contact</h3>
+      <Spacer size="0.5rem" />
       <p>
-        Il est obligatoire de fournir soit l'adresse e-mail soit le téléphone,
-        mais il est vivement recommandé de demander les deux pour une meilleure
-        expérience.
+        Il est <strong>obligatoire</strong> de fournir soit l'adresse e-mail
+        soit le téléphone, mais il est vivement recommandé de renseigner les
+        deux pour une meilleure expérience.
       </p>
       <Spacer data-scroll="email" size="1rem" />
       <TextField
