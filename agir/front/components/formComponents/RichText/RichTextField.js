@@ -86,7 +86,7 @@ RichTextField.propTypes = {
   onChange: PropTypes.func,
   id: PropTypes.string,
   label: PropTypes.string,
-  helpText: PropTypes.string,
+  helpText: PropTypes.node,
   error: PropTypes.string,
   disabled: PropTypes.bool,
   placeholder: PropTypes.string,

@@ -323,7 +323,7 @@ SearchAndSelectField.propTypes = {
   defaultOptions: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
   id: PropTypes.string,
   label: PropTypes.string,
-  helpText: PropTypes.string,
+  helpText: PropTypes.node,
   error: PropTypes.string,
   isLoading: PropTypes.bool,
   minSearchTermLength: PropTypes.number,

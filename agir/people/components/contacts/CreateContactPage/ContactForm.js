@@ -312,6 +312,7 @@ export const ContactForm = (props) => {
       <Button
         link
         block
+        wrap
         disabled={!data.firstName || !data.lastName}
         href={getISELink(data)}
         target="_blank"

@@ -65,7 +65,7 @@ CustomField.propTypes = {
   Component: PropTypes.elementType.isRequired,
   id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   label: PropTypes.string,
-  helpText: PropTypes.string,
+  helpText: PropTypes.node,
   noSpacer: PropTypes.bool,
   className: PropTypes.string,
 };
