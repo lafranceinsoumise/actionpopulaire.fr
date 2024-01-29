@@ -9,7 +9,7 @@ from agir.authentication.tokens import subscription_confirmation_token_generator
 from agir.elus.models import types_elus, StatutMandat, MandatMunicipal
 from agir.groups.models import Membership
 from agir.lib.http import add_query_params_to_url
-from agir.people.models import Person
+from agir.people.models import Person, PersonTag
 
 
 def make_subscription_token(email, **kwargs):
@@ -203,6 +203,12 @@ def save_subscription_information(person, type, data, new=False):
                 model.objects.get_or_create(person=person, defaults=defaults)
             except model.MultipleObjectsReturned:
                 pass
+
+        if data.get("media_preferences", None):
+            tags = PersonTag.objects.filter(
+                label__in=data["media_preferences"].split(",")
+            )
+            person.tags.add(*tags)
 
         person.save()
 

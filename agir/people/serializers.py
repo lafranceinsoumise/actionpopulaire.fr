@@ -93,6 +93,14 @@ class SubscriptionRequestSerializer(serializers.Serializer):
         allow_blank=True,
     )
     contact_phone = PhoneNumberField(required=False, allow_blank=True)
+    date_of_birth = serializers.DateField(required=False)
+    gender = serializers.ChoiceField(
+        choices=Person.GENDER_CHOICES,
+        required=False,
+    )
+    media_preferences = serializers.MultipleChoiceField(
+        choices=media_tags, allow_empty=True, required=False
+    )
     mandat = serializers.ChoiceField(
         choices=("municipal", "maire", "departemental", "regional", "consulaire"),
         required=False,
@@ -106,7 +114,15 @@ class SubscriptionRequestSerializer(serializers.Serializer):
 
     referrer = serializers.CharField(required=False)
 
-    PERSON_FIELDS = ["location_zip", "first_name", "last_name", "contact_phone"]
+    PERSON_FIELDS = [
+        "location_zip",
+        "first_name",
+        "last_name",
+        "contact_phone",
+        "date_of_birth",
+        "gender",
+        "media_preferences",
+    ]
 
     def validate_email(self, value):
         if not subscription_mail_bucket.has_tokens(value):
@@ -128,6 +144,12 @@ class SubscriptionRequestSerializer(serializers.Serializer):
         # as people tend to add their city name to the location zip field
         max_length = person_fields["location_zip"].max_length
         value = value.split(" ")[0][:max_length]
+        return value
+
+    def validate_media_preferences(self, value):
+        if isinstance(value, set):
+            return ",".join(value)
+
         return value
 
     def validate(self, data):
