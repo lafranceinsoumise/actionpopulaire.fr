@@ -1,7 +1,6 @@
 import { addQueryStringParams } from "@agir/lib/utils/url";
 
-const ISE_URL =
-  "https://www.service-public.fr/particuliers/vosdroits/demarches-et-outils/ISE";
+const ISE_URL = "https://la-fi.fr/verifier";
 
 export const getISELink = (data) => {
   const params = {};
