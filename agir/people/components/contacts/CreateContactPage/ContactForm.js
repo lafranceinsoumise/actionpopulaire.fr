@@ -313,7 +313,6 @@ export const ContactForm = (props) => {
         link
         block
         wrap
-        disabled={!data.firstName || !data.lastName}
         href={getISELink(data)}
         target="_blank"
         icon="external-link"
