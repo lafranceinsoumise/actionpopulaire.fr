@@ -33,6 +33,7 @@ from agir.lib.admin.filters import (
 from agir.lib.admin.panels import CenterOnFranceMixin, DisplayContactPhoneMixin
 from agir.lib.admin.utils import display_link
 from agir.lib.utils import generate_token_params, front_url
+from agir.notifications.models import Subscription
 from agir.people.actions.stats import get_statistics_for_queryset
 from agir.people.admin import filters
 from agir.people.admin.actions import (
@@ -116,6 +117,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
                     "unsubscribe_from_all_newsletters",
                     "subscribed_sms",
                     "campaigns_link",
+                    "subscription_links",
                 )
             },
         ),
@@ -168,6 +170,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "role_totp_link",
         "unsubscribe_from_all_newsletters",
         "campaigns_link",
+        "subscription_links",
         "supportgroups",
         "events",
         "location_departement_id",
@@ -291,13 +294,34 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
 
     def campaigns_link(self, obj):
         return format_html(
-            '<a href="{}" class="button">Voir l\'historique</a>',
+            '<a href="{}" class="button" target="_blank">Voir l\'historique</a>',
             reverse("admin:nuntius_campaignsentevent_changelist")
             + "?subscriber_id__exact="
             + str(obj.pk),
         )
 
     campaigns_link.short_description = "Campagnes envoyées"
+
+    def subscription_links(self, obj):
+        if not obj or obj._state.adding:
+            return "-"
+
+        links = [
+            format_html(
+                '<a href="{}" class="button" target="_blank">✉️ Notifications e-mail activées</a>',
+                reverse("admin:notifications_subscription_changelist")
+                + f"?type={Subscription.SUBSCRIPTION_EMAIL}&person_id={str(obj.pk)}",
+            ),
+            format_html(
+                '<a href="{}" class="button" target="_blank">📱 Notifications push activées</a>',
+                reverse("admin:notifications_subscription_changelist")
+                + f"?type={Subscription.SUBSCRIPTION_PUSH}&person_id={str(obj.pk)}",
+            ),
+        ]
+
+        return mark_safe("&ensp;".join(links))
+
+    subscription_links.short_description = "Paramètres de notification"
 
     def rsvp_link(self, obj):
         if not obj or not obj.pk:
