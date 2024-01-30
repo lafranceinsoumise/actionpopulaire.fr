@@ -44,7 +44,7 @@ SUBSCRIPTION_TYPE_CHOICES = (
     (SUBSCRIPTION_TYPE_EXTERNAL, "Externe"),
     (SUBSCRIPTION_TYPE_AP, "Action Populaire"),
     (SUBSCRIPTION_TYPE_LJI, "Les jeunes insoumis"),
-    (SUBSCRIPTION_TYPE_ISE, "Plateforme d'inscription sur les listes électorales"),
+    (SUBSCRIPTION_TYPE_ISE, "OnVoteInsoumis.fr"),
 )
 SUBSCRIPTION_FIELD = {
     # TODO: Vérifier ce qui est encore utilisé et ce qui ne l'est plus

@@ -122,7 +122,7 @@ MAP_DOMAIN = os.environ.get(
 )
 NSP_DOMAIN = os.environ.get("NSP_DOMAIN", "http://localhost")
 NSP_AGIR_DOMAIN = os.environ.get("NSP_AGIR_DOMAIN", "http://localhost")
-ISE_DOMAIN = os.environ.get("NSP_AGIR_DOMAIN", "https://onvoteinsoumis.fr")
+ISE_DOMAIN = os.environ.get("ISE_DOMAIN", "https://onvoteinsoumis.fr")
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,agir.local").split(",")
 
