@@ -88,6 +88,7 @@ def shorten_url(url, secret=False, djan_url_type="LFI"):
             "token": settings.DJAN_API_KEY,
         },
         data={"url": url, "length": 10 if secret else 5},
+        headers={"Authorization": f"Bearer {settings.DJAN_API_KEY}"},
     )
     response.raise_for_status()
     return response.text
