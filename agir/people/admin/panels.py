@@ -310,12 +310,12 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
             format_html(
                 '<a href="{}" class="button" target="_blank">✉️ Notifications e-mail activées</a>',
                 reverse("admin:notifications_subscription_changelist")
-                + f"?type={Subscription.SUBSCRIPTION_EMAIL}&person_id={str(obj.pk)}",
+                + f"?type__exact={Subscription.SUBSCRIPTION_EMAIL}&person_id={str(obj.pk)}",
             ),
             format_html(
                 '<a href="{}" class="button" target="_blank">📱 Notifications push activées</a>',
                 reverse("admin:notifications_subscription_changelist")
-                + f"?type={Subscription.SUBSCRIPTION_PUSH}&person_id={str(obj.pk)}",
+                + f"?type__exact={Subscription.SUBSCRIPTION_PUSH}&person_id={str(obj.pk)}",
             ),
         ]
 
