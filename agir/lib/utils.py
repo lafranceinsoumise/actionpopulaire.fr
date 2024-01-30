@@ -84,9 +84,6 @@ def shorten_url(url, secret=False, djan_url_type="LFI"):
     djan_url = settings.DJAN_URL[djan_url_type]
     response = requests.post(
         f"{djan_url}/api/shorten",
-        params={
-            "token": settings.DJAN_API_KEY,
-        },
         data={"url": url, "length": 10 if secret else 5},
         headers={"Authorization": f"Bearer {settings.DJAN_API_KEY}"},
     )
