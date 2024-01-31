@@ -1,7 +1,10 @@
+from datetime import date
 from functools import partial
 
 from django.db import transaction
 from django.http import Http404
+from django.utils import timezone
+from django.utils.translation import ugettext_lazy as _
 from django_countries.serializer_fields import CountryField
 from phonenumber_field.serializerfields import PhoneNumberField
 from rest_framework import serializers
@@ -21,7 +24,8 @@ from .actions.subscription import (
     SUBSCRIPTION_EMAIL_SENT_REDIRECT,
     save_contact_information,
 )
-from .models import Person
+from .models import Person, PersonTag
+from .tags import media_tags
 from .tasks import send_confirmation_email
 from ..groups.models import SupportGroup
 from ..lib.tasks import geocode_person
@@ -89,6 +93,14 @@ class SubscriptionRequestSerializer(serializers.Serializer):
         allow_blank=True,
     )
     contact_phone = PhoneNumberField(required=False, allow_blank=True)
+    date_of_birth = serializers.DateField(required=False)
+    gender = serializers.ChoiceField(
+        choices=Person.GENDER_CHOICES,
+        required=False,
+    )
+    media_preferences = serializers.MultipleChoiceField(
+        choices=media_tags, allow_empty=True, required=False
+    )
     mandat = serializers.ChoiceField(
         choices=("municipal", "maire", "departemental", "regional", "consulaire"),
         required=False,
@@ -102,7 +114,15 @@ class SubscriptionRequestSerializer(serializers.Serializer):
 
     referrer = serializers.CharField(required=False)
 
-    PERSON_FIELDS = ["location_zip", "first_name", "last_name", "contact_phone"]
+    PERSON_FIELDS = [
+        "location_zip",
+        "first_name",
+        "last_name",
+        "contact_phone",
+        "date_of_birth",
+        "gender",
+        "media_preferences",
+    ]
 
     def validate_email(self, value):
         if not subscription_mail_bucket.has_tokens(value):
@@ -124,6 +144,12 @@ class SubscriptionRequestSerializer(serializers.Serializer):
         # as people tend to add their city name to the location zip field
         max_length = person_fields["location_zip"].max_length
         value = value.split(" ")[0][:max_length]
+        return value
+
+    def validate_media_preferences(self, value):
+        if isinstance(value, set):
+            return ",".join(value)
+
         return value
 
     def validate(self, data):
@@ -373,6 +399,7 @@ class PersonSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
 
 class ContactSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(read_only=True)
+    subscriber = CurrentPersonField()
     firstName = serializers.CharField(
         label="Prénom",
         max_length=person_fields["first_name"].max_length,
@@ -388,6 +415,12 @@ class ContactSerializer(serializers.ModelSerializer):
     zip = serializers.CharField(
         required=True, source="location_zip", label="Code postal"
     )
+    birthDate = serializers.DateField(
+        source="date_of_birth",
+        label="Date de naissance",
+        required=False,
+        allow_null=True,
+    )
     email = serializers.EmailField(required=False, allow_blank=True)
     phone = PhoneField(
         source="contact_phone",
@@ -395,10 +428,8 @@ class ContactSerializer(serializers.ModelSerializer):
         allow_blank=True,
         label="Numéro de téléphone",
     )
-    isPoliticalSupport = serializers.BooleanField(
-        source="is_political_support", default=False
-    )
-    newsletters = PersonNewsletterListField(required=False, allow_empty=True)
+    subscribed = serializers.BooleanField(default=False)
+    isLiaison = serializers.BooleanField(source="is_liaison", default=False)
     address = serializers.CharField(
         required=False,
         allow_blank=False,
@@ -416,7 +447,22 @@ class ContactSerializer(serializers.ModelSerializer):
         queryset=SupportGroup.objects.active(), required=False, allow_null=True
     )
     hasGroupNotifications = serializers.BooleanField(write_only=True, default=False)
-    subscriber = CurrentPersonField()
+    mediaPreferences = serializers.SlugRelatedField(
+        source="tags",
+        slug_field="label",
+        many=True,
+        queryset=PersonTag.objects.filter(label__in=(tag for tag, _desc in media_tags)),
+        allow_empty=True,
+        error_messages={
+            "does_not_exist": _("« {value} » n'est pas un choix autorisé."),
+        },
+    )
+
+    def validate_birthDate(self, value):
+        if isinstance(value, date) and timezone.now().date() <= value:
+            raise ValidationError("Veuillez indiquer une date dans le passé")
+
+        return value
 
     def validate(self, data):
         if not data.get("email") and not data.get("contact_phone"):
@@ -443,13 +489,15 @@ class ContactSerializer(serializers.ModelSerializer):
         model = models.Person
         fields = (
             "id",
-            "isPoliticalSupport",
+            "subscribed",
+            "isLiaison",
             "firstName",
             "lastName",
             "zip",
+            "birthDate",
+            "gender",
             "email",
             "phone",
-            "newsletters",
             "address",
             "city",
             "country",
@@ -457,4 +505,5 @@ class ContactSerializer(serializers.ModelSerializer):
             "hasGroupNotifications",
             "subscriber",
             "meta",
+            "mediaPreferences",
         )

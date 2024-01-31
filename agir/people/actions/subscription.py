@@ -9,7 +9,7 @@ from agir.authentication.tokens import subscription_confirmation_token_generator
 from agir.elus.models import types_elus, StatutMandat, MandatMunicipal
 from agir.groups.models import Membership
 from agir.lib.http import add_query_params_to_url
-from agir.people.models import Person
+from agir.people.models import Person, PersonTag
 
 
 def make_subscription_token(email, **kwargs):
@@ -29,6 +29,8 @@ SUBSCRIPTION_TYPE_EXTERNAL = "EXT"
 SUBSCRIPTION_TYPE_ADMIN = "ADM"
 SUBSCRIPTION_TYPE_AP = "AP"
 SUBSCRIPTION_TYPE_LJI = "LJI"
+# Inscription depuis la plateforme d'inscription sur les listes électorales
+SUBSCRIPTION_TYPE_ISE = "ISE"
 
 SUBSCRIPTION_TYPE_CHOICES = (
     (
@@ -42,6 +44,7 @@ SUBSCRIPTION_TYPE_CHOICES = (
     (SUBSCRIPTION_TYPE_EXTERNAL, "Externe"),
     (SUBSCRIPTION_TYPE_AP, "Action Populaire"),
     (SUBSCRIPTION_TYPE_LJI, "Les jeunes insoumis"),
+    (SUBSCRIPTION_TYPE_ISE, "OnVoteInsoumis.fr"),
 )
 SUBSCRIPTION_FIELD = {
     # TODO: Vérifier ce qui est encore utilisé et ce qui ne l'est plus
@@ -98,6 +101,23 @@ SUBSCRIPTIONS_EMAILS = {
             subject="Plus qu'un clic pour vous inscrire",
         ),
     },
+    SUBSCRIPTION_TYPE_ISE: {
+        "confirmation": SubscriptionMessageInfo(
+            code="SUBSCRIPTION_CONFIRMATION_LFI_MESSAGE",
+            subject="Plus qu'un clic pour vous inscrire",
+            from_email=settings.EMAIL_FROM_LFI,
+        ),
+        "already_subscribed": SubscriptionMessageInfo(
+            "ALREADY_SUBSCRIBED_LFI_MESSAGE",
+            "Vous êtes déjà inscrit·e !",
+            from_email=settings.EMAIL_FROM_LFI,
+        ),
+        "welcome": SubscriptionMessageInfo(
+            "WELCOME_LFI_MESSAGE",
+            "Bienvenue sur la plateforme de la France insoumise",
+            from_email=settings.EMAIL_FROM_LFI,
+        ),
+    },
 }
 
 SUBSCRIPTION_NEWSLETTERS = {
@@ -109,6 +129,7 @@ SUBSCRIPTION_NEWSLETTERS = {
     SUBSCRIPTION_TYPE_NSP: set(),
     SUBSCRIPTION_TYPE_EXTERNAL: set(),
     SUBSCRIPTION_TYPE_AP: set(),
+    SUBSCRIPTION_TYPE_ISE: {*Person.MAIN_NEWSLETTER_CHOICES},
 }
 
 SUBSCRIPTION_EMAIL_SENT_REDIRECT = {
@@ -116,6 +137,7 @@ SUBSCRIPTION_EMAIL_SENT_REDIRECT = {
     SUBSCRIPTION_TYPE_LJI: f"{settings.MAIN_DOMAIN}/consulter-vos-emails/",
     SUBSCRIPTION_TYPE_NSP: f"{settings.NSP_DOMAIN}/validez-votre-e-mail/",
     SUBSCRIPTION_TYPE_AP: f"{settings.FRONT_DOMAIN}/inscription/code/",
+    SUBSCRIPTION_TYPE_ISE: f"{settings.ISE_DOMAIN}/consulter-vos-emails/",
 }
 
 SUBSCRIPTION_SUCCESS_REDIRECT = {
@@ -123,6 +145,7 @@ SUBSCRIPTION_SUCCESS_REDIRECT = {
     SUBSCRIPTION_TYPE_LJI: f"{settings.MAIN_DOMAIN}/bienvenue/",
     SUBSCRIPTION_TYPE_NSP: f"{settings.NSP_DOMAIN}/signature-confirmee/",
     SUBSCRIPTION_TYPE_AP: f"{settings.FRONT_DOMAIN}/bienvenue/",
+    SUBSCRIPTION_TYPE_ISE: f"{settings.ISE_DOMAIN}/bienvenue/",
 }
 
 
@@ -181,6 +204,12 @@ def save_subscription_information(person, type, data, new=False):
             except model.MultipleObjectsReturned:
                 pass
 
+        if data.get("media_preferences", None):
+            tags = PersonTag.objects.filter(
+                label__in=data["media_preferences"].split(",")
+            )
+            person.tags.add(*tags)
+
         person.save()
 
 
@@ -205,11 +234,9 @@ DATE_2022_LIAISON_META_PROPERTY = "2022_liaison_since"
 
 
 def save_contact_information(data):
-    group = None
-    has_group_notifications = data.pop("hasGroupNotifications")
-
-    if "group" in data:
-        group = data.pop("group")
+    has_group_notifications = data.pop("hasGroupNotifications", False)
+    tags = data.pop("tags", None)
+    group = data.pop("group", None)
 
     with transaction.atomic():
         try:
@@ -260,6 +287,9 @@ def save_contact_information(data):
         transaction.on_commit(
             partial(notify_contact.delay, str(person.id), is_new=is_new)
         )
+
+    if tags and is_new:
+        person.tags.add(*tags)
 
     if group:
         # Create a follower type membership for the person if none exists already and

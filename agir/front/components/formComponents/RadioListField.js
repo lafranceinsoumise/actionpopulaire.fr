@@ -163,7 +163,7 @@ RadioListField.propTypes = {
   label: PropTypes.node,
   disabled: PropTypes.bool,
   error: PropTypes.string,
-  helpText: PropTypes.string,
+  helpText: PropTypes.node,
   small: PropTypes.bool,
 };
 

@@ -33,6 +33,7 @@ from agir.lib.admin.filters import (
 from agir.lib.admin.panels import CenterOnFranceMixin, DisplayContactPhoneMixin
 from agir.lib.admin.utils import display_link
 from agir.lib.utils import generate_token_params, front_url
+from agir.notifications.models import Subscription
 from agir.people.actions.stats import get_statistics_for_queryset
 from agir.people.admin import filters
 from agir.people.admin.actions import (
@@ -116,6 +117,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
                     "unsubscribe_from_all_newsletters",
                     "subscribed_sms",
                     "campaigns_link",
+                    "subscription_links",
                 )
             },
         ),
@@ -168,6 +170,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "role_totp_link",
         "unsubscribe_from_all_newsletters",
         "campaigns_link",
+        "subscription_links",
         "supportgroups",
         "events",
         "location_departement_id",
@@ -291,13 +294,34 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
 
     def campaigns_link(self, obj):
         return format_html(
-            '<a href="{}" class="button">Voir l\'historique</a>',
+            '<a href="{}" class="button" target="_blank">Voir l\'historique</a>',
             reverse("admin:nuntius_campaignsentevent_changelist")
             + "?subscriber_id__exact="
             + str(obj.pk),
         )
 
     campaigns_link.short_description = "Campagnes envoyées"
+
+    def subscription_links(self, obj):
+        if not obj or obj._state.adding:
+            return "-"
+
+        links = [
+            format_html(
+                '<a href="{}" class="button" target="_blank">✉️ Notifications e-mail activées</a>',
+                reverse("admin:notifications_subscription_changelist")
+                + f"?type__exact={Subscription.SUBSCRIPTION_EMAIL}&person_id={str(obj.pk)}",
+            ),
+            format_html(
+                '<a href="{}" class="button" target="_blank">📱 Notifications push activées</a>',
+                reverse("admin:notifications_subscription_changelist")
+                + f"?type__exact={Subscription.SUBSCRIPTION_PUSH}&person_id={str(obj.pk)}",
+            ),
+        ]
+
+        return mark_safe("&ensp;".join(links))
+
+    subscription_links.short_description = "Paramètres de notification"
 
     def rsvp_link(self, obj):
         if not obj or not obj.pk:
@@ -983,7 +1007,7 @@ class ContactAdmin(admin.ModelAdmin):
     def is_liaison(self, obj):
         return obj.is_liaison
 
-    is_liaison.short_description = "Correspondant·e d'immeuble"
+    is_liaison.short_description = "Relai insoumis"
     is_liaison.boolean = True
 
     def subscriber(self, obj):
@@ -1012,8 +1036,8 @@ class ContactAdmin(admin.ModelAdmin):
 class Liaison(Person):
     class Meta:
         proxy = True
-        verbose_name = "correspondant·e d'immeuble et de quartier"
-        verbose_name_plural = "correspondant·es d'immeuble et de quartier"
+        verbose_name = "relai insoumis"
+        verbose_name_plural = "relais insoumis"
 
 
 @admin.register(Liaison)
@@ -1060,7 +1084,7 @@ class LiaisonAdmin(admin.ModelAdmin):
     def liaison_date(self, obj):
         return obj.liaison_date
 
-    liaison_date.short_description = "Correspondant·e depuis"
+    liaison_date.short_description = "Relai insoumis depuis"
     liaison_date.admin_order_field = "liaison_date"
 
     def get_queryset(self, *args, **kwargs):

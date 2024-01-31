@@ -1,34 +1,30 @@
 import { addQueryStringParams } from "@agir/lib/utils/url";
 
-const ISE_URL =
-  "https://www.service-public.fr/particuliers/vosdroits/services-en-ligne-et-formulaires/ISE";
+const ISE_URL = "https://la-fi.fr/verifier";
 
 export const getISELink = (data) => {
   const params = {};
-  if (data.lastName) {
+  if (data?.lastName) {
     params.name = data.lastName;
   }
-  if (data.firstName) {
+  if (data?.firstName) {
     params.firstNames = data.firstName;
   }
-  if (data.gender.toLowerCase() === "f") {
+  if (data?.gender?.toLowerCase() === "f") {
     params.sexe = "feminin";
   }
-  if (data.gender.toLowerCase() === "m") {
+  if (data?.gender?.toLowerCase() === "m") {
     params.sexe = "masculin";
   }
-  if (data.birthDate || data.dateOfBirth) {
+  if (data?.birthDate || data.dateOfBirth) {
     const date = (data.birthDate || data.dateOfBirth).split("-");
     params.birthYear = date[0];
     params.birthMonth = date[1];
     params.birthDay = date[2];
   }
-  if (data?.votingLocation?.type === "commune") {
-    params.where = "france";
-  }
-  if (data?.votingLocation?.type === "consulate") {
-    params.where = "world";
-  }
+  params.where =
+    data?.votingLocation?.type === "consulate" ? "world" : "france";
+
   return addQueryStringParams(ISE_URL, params);
 };
 

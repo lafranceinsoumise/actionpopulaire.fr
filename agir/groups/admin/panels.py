@@ -435,7 +435,7 @@ class SupportGroupAdmin(VersionAdmin, CenterOnFranceMixin, OSMGeoAdmin):
 
     @admin.display(description="Actions")
     def certification_actions(self, obj):
-        if not obj:
+        if not obj or obj._state.adding:
             return "-"
 
         button = (

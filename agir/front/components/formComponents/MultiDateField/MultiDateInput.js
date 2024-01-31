@@ -430,7 +430,7 @@ MultiDateInput.propTypes = {
   initialValue: PropTypes.string,
   id: PropTypes.string,
   name: PropTypes.string,
-  helpText: PropTypes.string,
+  helpText: PropTypes.node,
   error: PropTypes.string,
   format: PropTypes.string,
   minDate: PropTypes.string,

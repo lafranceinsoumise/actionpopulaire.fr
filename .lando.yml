@@ -74,3 +74,6 @@ tooling:
     cmd: npm
   node:
     service: webpack
+  redis:
+    service: redis
+    cmd: redis-cli

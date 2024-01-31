@@ -282,6 +282,7 @@ def notify_contact(person_pk, is_new=False):
         "is_new": is_new,
         "subscription_date": person.created.strftime("%d/%m/%Y"),
         "dashboard_link": front_url("dashboard", absolute=True),
+        "donation_link": front_url("donation_landing_page", absolute=True),
         "account_link": front_url("contact", absolute=True),
         "delete_link": front_url("delete_account", absolute=True),
     }

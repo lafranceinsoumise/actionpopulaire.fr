@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
@@ -7,7 +7,9 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import CountryField from "@agir/front/formComponents/CountryField";
+import DateTimeField from "@agir/front/formComponents/DateTimeField";
 import PhoneField from "@agir/front/formComponents/PhoneField";
+import RadioField from "@agir/front/formComponents/RadioField";
 import SearchAndSelectField from "@agir/front/formComponents/SearchAndSelectField";
 import TextField from "@agir/front/formComponents/TextField";
 
@@ -16,10 +18,20 @@ import NoGroupCard from "./NoGroupCard";
 
 import { searchGroups } from "@agir/groups/utils/api";
 import { scrollToError } from "@agir/front/app/utils";
-import {
-  LIAISON_NEWSLETTER,
-  getNewsletterOptions,
-} from "@agir/front/authentication/common";
+import { getISELink } from "@agir/elections/Common/utils";
+
+const GENDER_OPTIONS = [
+  { value: "F", label: "Femme" },
+  { value: "M", label: "Homme" },
+];
+
+const MEDIA_PREFERENCE_OPTIONS = [
+  { value: "media__email", label: "E-mail" },
+  { value: "media__whatsapp", label: "WhatsApp" },
+  // { value: "media__telegram", label: "Telegram" },
+  { value: "media__sms", label: "SMS" },
+  { value: "media__courrier", label: "Courrier" },
+];
 
 const StyledForm = styled.form`
   h2 {
@@ -44,6 +56,10 @@ const StyledForm = styled.form`
     margin: 0 0 0.5rem;
   }
 
+  p {
+    font-size: 0.875rem;
+  }
+
   em {
     font-weight: 400;
     font-style: italic;
@@ -53,37 +69,29 @@ const StyledForm = styled.form`
 
 const formatGroupOptions = (groups) =>
   Array.isArray(groups) && groups.length > 0
-    ? [
-        ...groups.map((group) => ({
-          ...group,
-          icon: "users",
-          value: group.id,
-          label: group.name,
-        })),
-        {
-          id: null,
-          value: "",
-          label: "Ne pas ajouter à un groupe",
-        },
-      ]
+    ? groups.map((group) => ({
+        ...group,
+        icon: "users",
+        value: group.id,
+        label: group.name,
+      }))
     : null;
 
 export const ContactForm = (props) => {
   const { initialData, errors, isLoading, onSubmit, groups } = props;
-  const newsletterOptions = useMemo(() => getNewsletterOptions(), []);
   const [data, setData] = useState({
     firstName: "",
     lastName: "",
     zip: "",
     email: "",
     phone: "",
-    isPoliticalSupport: true,
-    newsletters: newsletterOptions
-      .filter((n) => n.selected)
-      .map((n) => n.value),
+    subscribed: true,
+    isLiaison: false,
+    mediaPreferences: [],
     ...(initialData || {}),
   });
   const [groupOptions, setGroupOptions] = useState(formatGroupOptions(groups));
+  const [today] = useState(new Date().toISOString().slice(0, 10));
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
@@ -101,46 +109,48 @@ export const ContactForm = (props) => {
     }));
   }, []);
 
-  const handleCheckisPoliticalSupport = useCallback((e) => {
-    const { checked } = e.target;
+  const handleChangeGender = useCallback((gender) => {
     setData((state) => ({
       ...state,
-      isPoliticalSupport: checked,
-      newsletters: checked
-        ? state.newsletters
-        : state.newsletters.filter((nl) => nl !== LIAISON_NEWSLETTER.value),
-      address: checked ? state.address : undefined,
-      city: checked ? state.city : undefined,
-      country: checked ? state.country : undefined,
+      gender,
     }));
-  }, []);
+  });
 
-  const handleCheckNewsletter = useCallback((e) => {
-    const { name, checked } = e.target;
+  const handleChangeBirthDate = useCallback(
+    (birthDate) => {
+      birthDate = birthDate && birthDate.slice(0, 10);
+      birthDate = birthDate < today ? birthDate : null;
+      setData((state) => ({
+        ...state,
+        birthDate,
+      }));
+    },
+    [today],
+  );
+
+  const handleCheckLiaison = useCallback((e) => {
+    const { checked } = e.target;
     setData((state) => {
       const newState = { ...state };
-      newState["newsletters"] = checked
-        ? [...state.newsletters, name]
-        : state.newsletters.filter((nl) => nl !== name);
-      if (name === LIAISON_NEWSLETTER.value) {
-        newState["address"] = checked ? "" : undefined;
-        newState["city"] = checked ? "" : undefined;
-        newState["country"] = checked ? "FR" : undefined;
-      }
+      newState.isLiaison = checked;
+      newState["address"] = checked ? "" : undefined;
+      newState["city"] = checked ? "" : undefined;
+      newState["country"] = checked ? "FR" : undefined;
+
       return newState;
     });
   }, []);
 
-  const handleSelectGroup = useCallback((group) => {
-    setData((state) => ({
-      ...state,
-      hasGroupNotifications: group?.id
-        ? state.hasGroupNotifications
-        : undefined,
-      group,
-    }));
-    setGroupOptions(formatGroupOptions(groups));
-  }, []);
+  const handleSelectGroup = useCallback(
+    (group) => {
+      setData((state) => ({
+        ...state,
+        group,
+      }));
+      setGroupOptions(formatGroupOptions(groups));
+    },
+    [groups],
+  );
 
   const handleSelectCountry = useCallback((country) => {
     setData((state) => ({
@@ -166,13 +176,36 @@ export const ContactForm = (props) => {
       setGroupOptions(results);
       return results;
     },
-    [groupOptions],
+    [groups],
+  );
+
+  const handleCheckMediaPreferences = useCallback(
+    (e) => {
+      const { value, checked } = e.target;
+      if (checked && !data.mediaPreferences.includes(value)) {
+        setData((state) => ({
+          ...state,
+          mediaPreferences: [...data.mediaPreferences, value],
+        }));
+      }
+      if (!checked && data.mediaPreferences.includes(value)) {
+        setData((state) => ({
+          ...state,
+          mediaPreferences: data.mediaPreferences.filter((mp) => mp !== value),
+        }));
+      }
+    },
+    [data.mediaPreferences],
   );
 
   const handleSubmit = useCallback(
     (e) => {
       e.preventDefault();
-      onSubmit(data);
+      onSubmit({
+        ...data,
+        group:
+          data.hasGroupNotifications && data.group ? data.group : undefined,
+      });
     },
     [onSubmit, data],
   );
@@ -202,7 +235,7 @@ export const ContactForm = (props) => {
           <Spacer size="1.5rem" />
         </>
       )}
-      <h3>Nouveau contact</h3>
+      <h3>Informations personnelles</h3>
       <Spacer size="0.5rem" />
       <em>
         &laquo;&nbsp;Souhaitez-vous nous laisser votre
@@ -210,7 +243,7 @@ export const ContactForm = (props) => {
       </em>
       <Spacer data-scroll="firstName" size="1.5rem" />
       <TextField
-        label="Prénom*"
+        label="Prénom (obligatoire)"
         name="firstName"
         placeholder=""
         onChange={handleChange}
@@ -220,7 +253,7 @@ export const ContactForm = (props) => {
       />
       <Spacer data-scroll="lastName" size="1rem" />
       <TextField
-        label="Nom*"
+        label="Nom (obligatoire)"
         name="lastName"
         placeholder=""
         onChange={handleChange}
@@ -230,7 +263,7 @@ export const ContactForm = (props) => {
       />
       <Spacer data-scroll="zip" size="1rem" />
       <TextField
-        label="Code postal*"
+        label="Code postal (obligatoire)"
         id="zip"
         error={errors?.zip}
         name="zip"
@@ -239,6 +272,62 @@ export const ContactForm = (props) => {
         value={data.zip}
         disabled={isLoading}
       />
+      <Spacer data-scroll="birthDate" size="1rem" />
+      <DateTimeField
+        required
+        type="date"
+        disabled={isLoading}
+        id="birthDate"
+        name="birthDate"
+        value={data.birthDate || null}
+        onChange={handleChangeBirthDate}
+        error={errors?.birthDate}
+        label="Date de naissance"
+        autoComplete="birthday"
+        helpText={
+          <em>
+            Facultatif mais utile pour la vérification de l'inscription sur les
+            listes électorales
+          </em>
+        }
+      />
+      <Spacer data-scroll="birthDate" size="1rem" />
+      <RadioField
+        disabled={isLoading}
+        id="gender"
+        name="gender"
+        value={data.gender}
+        onChange={handleChangeGender}
+        error={errors?.gender}
+        label="Genre à l'état civil"
+        options={GENDER_OPTIONS}
+        helpText={
+          <em>
+            Facultatif mais utile pour la vérification de l'inscription sur les
+            listes électorales
+          </em>
+        }
+      />
+      <Spacer size="1rem" />
+      <Button
+        link
+        block
+        wrap
+        href={getISELink(data)}
+        target="_blank"
+        icon="external-link"
+        color="secondary"
+      >
+        Vérifier l'inscription sur les listes électorales
+      </Button>
+      <Spacer size="3rem" />
+      <h3>Informations de contact</h3>
+      <Spacer size="0.5rem" />
+      <p>
+        Il est <strong>obligatoire</strong> de fournir soit l'adresse e-mail
+        soit le téléphone, mais il est vivement recommandé de renseigner les
+        deux pour une meilleure expérience.
+      </p>
       <Spacer data-scroll="email" size="1rem" />
       <TextField
         label="E-mail"
@@ -262,35 +351,26 @@ export const ContactForm = (props) => {
         disabled={isLoading}
         helpText={<em>Facultatif si une adresse e-mail a été renseignée</em>}
       />
-      <Spacer data-scroll="newsletters" size="2rem" />
-      <h4>
-        &laquo;&nbsp;Souhaitez-vous rejoindre la France
-        insoumise&nbsp;?&nbsp;&raquo;
-      </h4>
+      <Spacer data-scroll="subscribed" size="2rem" />
+      <h4>Souhaitez-vous recevoir&nbsp;:</h4>
       <CheckboxField
-        label="Je souhaite rejoindre la France insoumise"
-        onChange={handleCheckisPoliticalSupport}
-        value={data.isPoliticalSupport}
-        id="isPoliticalSupport"
-        name="isPoliticalSupport"
+        label="Les informations de la France insoumise"
+        onChange={handleCheck}
+        value={data.subscribed}
+        id="subscribed"
+        name="subscribed"
         disabled={isLoading}
       />
-      <Spacer data-scroll="newsletters" size="1.5rem" />
-      <h4>Souhaitez-vous recevoir&nbsp;:</h4>
-      {newsletterOptions.map((option) => (
-        <React.Fragment key={option.value}>
-          <CheckboxField
-            label={option.label}
-            onChange={handleCheckNewsletter}
-            value={data.newsletters.includes(option.value)}
-            id={option.value}
-            name={option.value}
-            disabled={isLoading}
-          />
-          <Spacer size=".5rem" />
-        </React.Fragment>
-      ))}
-      <Spacer data-scroll="group" size="1.5rem" />
+      <Spacer data-scroll="group" size=".5rem" />
+      <CheckboxField
+        label="L'actualité du groupe d'action près de chez vous"
+        onChange={handleCheck}
+        value={data.hasGroupNotifications}
+        id="hasGroupNotifications"
+        name="hasGroupNotifications"
+        disabled={isLoading}
+      />
+      <Spacer size="1rem" />
       <SearchAndSelectField
         label="Groupe auquel ajouter le contact"
         placeholder="Choisissez un groupe d'action"
@@ -302,55 +382,56 @@ export const ContactForm = (props) => {
         name="group"
         defaultOptions={groupOptions}
         error={errors?.group}
+        disabled={isLoading || !data.hasGroupNotifications}
+      />
+      <Spacer size="2rem" />
+      <h4>
+        Quels sont les moyens de communication que vous utilisez le plus
+        souvent&nbsp;?
+      </h4>
+      <Spacer data-scroll="mediaPreferences" size=".5rem" />
+      {MEDIA_PREFERENCE_OPTIONS.map((option) => (
+        <CheckboxField
+          key={option.value}
+          toggle
+          label={option.label}
+          onChange={handleCheckMediaPreferences}
+          value={data.mediaPreferences.includes(option.value)}
+          id={option.value}
+          inputValue={option.value}
+          disabled={isLoading}
+        />
+      ))}
+      <Spacer size="2rem" />
+      <h4>
+        Souhaitez-vous devenir un &laquo;&nbsp;relai
+        insoumis&nbsp;&raquo;&nbsp;?
+      </h4>
+      <p>
+        <em>
+          &laquo;&nbsp;Nous vous enverrons des informations ou du matériel pour
+          diffuser nos propositions et actions auprès de vos proches et vos
+          contacts&nbsp;&raquo;
+        </em>
+      </p>
+      <Spacer size=".5rem" />
+      <CheckboxField
+        label="Devenir « relai insoumis »"
+        onChange={handleCheckLiaison}
+        value={data.isLiaison}
+        id="isLiaison"
+        name="isLiaison"
         disabled={isLoading}
       />
-      {data.group?.id && (
-        <>
-          <Spacer size=".5rem" />
-          <CheckboxField
-            label="Je veux recevoir les actualités du groupe"
-            onChange={handleCheck}
-            value={data.hasGroupNotifications}
-            id="hasGroupNotifications"
-            name="hasGroupNotifications"
-            disabled={isLoading}
-          />
-        </>
-      )}
-      {data.isPoliticalSupport && (
-        <>
-          <Spacer size="1.5rem" />
-          <h4>
-            Souhaitez-vous devenir correspondant·e pour votre immeuble ou votre
-            village&nbsp;?
-          </h4>
-          <p>
-            <em>
-              &laquo;&nbsp;Nous vous enverrons des informations et du matériel
-              pour diffuser nos propositions et actions auprès de vos voisins et
-              voisines&nbsp;&raquo;
-            </em>
-          </p>
-          <Spacer size=".5rem" />
-          <CheckboxField
-            label="Devenir correspondant·e de l'immeuble ou du village"
-            onChange={handleCheckNewsletter}
-            value={data.newsletters.includes(LIAISON_NEWSLETTER.value)}
-            id={LIAISON_NEWSLETTER.value}
-            name={LIAISON_NEWSLETTER.value}
-            disabled={isLoading}
-          />
-        </>
-      )}
-      {data.newsletters.includes(LIAISON_NEWSLETTER.value) && (
+      {data.isLiaison && (
         <>
           <Spacer data-scroll="address" size="1rem" />
           <TextField
             label="Numéro et nom de la rue"
             helpText={
               <em>
-                Pour pouvoir vous envoyer des informations en tant que
-                correspondant·e
+                Pour pouvoir vous envoyer des informations en tant que relai
+                insoumis
               </em>
             }
             id="address"

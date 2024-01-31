@@ -275,7 +275,7 @@ DateTimeField.propTypes = {
   type: PropTypes.oneOf(["date", "time", "datetime"]),
   id: PropTypes.string,
   label: PropTypes.string,
-  helpText: PropTypes.string,
+  helpText: PropTypes.node,
   error: PropTypes.string,
   dateFieldProps: PropTypes.object,
   timeFieldProps: PropTypes.object,

@@ -1177,13 +1177,17 @@ class RSVPAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "person_link",
+        "person_created",
         "event_link",
         "payment_link",
         "status",
+        "rsvp_created",
         "guest_count",
     )
     fields = readonly_fields = (
         "id",
+        "rsvp_created",
+        "person_created",
         "status",
         "event_link",
         "person_link",
@@ -1230,6 +1234,14 @@ class RSVPAdmin(admin.ModelAdmin):
     @admin.display(description="Personne", ordering="person")
     def person_link(self, obj):
         return display_link(obj.person)
+
+    @admin.display(description="Inscrit·e sur AP depuis le", ordering="person__created")
+    def person_created(self, obj):
+        return obj.person.created.strftime("%d/%m/%Y")
+
+    @admin.display(description="Date d'inscription", ordering="created")
+    def rsvp_created(self, obj):
+        return obj.created.strftime("%d/%m/%Y")
 
     @admin.display(description="Numéro de téléphone")
     def person_contact_phone(self, obj):
