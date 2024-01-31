@@ -119,7 +119,9 @@ class SendVotingProxyRequestAcceptedTextMessagesTestCase(TestCase):
             send_voting_proxy_request_accepted_text_messages([unexisting_request_id])
 
     @patch("agir.voting_proxies.tasks.send_sms_message")
-    def test_should_send_a_text_message(self, send_sms_message):
+    @patch("agir.voting_proxies.tasks.shorten_url")
+    def test_should_send_a_text_message(self, shorten_url, send_sms_message):
+        shorten_url.return_value = "https://m2022.fr/short_url/"
         send_sms_message.assert_not_called()
 
         send_voting_proxy_request_accepted_text_messages([self.voting_proxy_request.pk])
