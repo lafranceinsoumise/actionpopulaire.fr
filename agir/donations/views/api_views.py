@@ -93,6 +93,7 @@ class CreateDonationAPIView(UpdateModelMixin, GenericAPIView):
             # parce que la session ne se "rendrait pas compte" qu'elle a changé
             # et cela ne serait donc pas persisté
             self.request.session[DONATION_SESSION_NAMESPACE] = {
+                **self.request.session.get(DONATION_SESSION_NAMESPACE, {}),
                 "new_subscription": {
                     "from_type": existing_subscription.type,
                     "type": payment_type,
@@ -102,7 +103,6 @@ class CreateDonationAPIView(UpdateModelMixin, GenericAPIView):
                     "effect_date": effect_date,
                     "end_date": end_date,
                 },
-                **self.request.session.get(DONATION_SESSION_NAMESPACE, {}),
             }
 
             return Response({"next": reverse("already_has_subscription")})
