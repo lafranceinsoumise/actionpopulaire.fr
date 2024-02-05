@@ -218,13 +218,12 @@ class RSVPEventView(SoftLoginRequiredMixin, DetailView):
                                 price,
                             )
                         )
-                    return self.redirect_to_event(
+                    return self.redirect_to_rsvp(
                         message=_(
                             "Merci de nous avoir signalé votre participation à cet événenement."
                         ),
                         level=messages.SUCCESS,
                     )
-
             else:
                 form.save()
                 return self.redirect_to_billing_form(form.submission)
@@ -241,7 +240,7 @@ class RSVPEventView(SoftLoginRequiredMixin, DetailView):
                 guests = guests_form.cleaned_data["guests"]
 
                 set_guest_number(self.event, self.request.user.person, guests)
-                return self.redirect_to_event(
+                return self.redirect_to_rsvp(
                     message=_("Merci, votre nombre d'invités a été mis à jour !"),
                     level=messages.SUCCESS,
                 )
@@ -265,7 +264,7 @@ class RSVPEventView(SoftLoginRequiredMixin, DetailView):
                     add_free_identified_guest(
                         self.event, self.request.user.person, form.submission
                     )
-                return self.redirect_to_event(
+                return self.redirect_to_rsvp(
                     message=_("Merci, votre invité a bien été enregistré !"),
                     level=messages.SUCCESS,
                 )
@@ -280,6 +279,12 @@ class RSVPEventView(SoftLoginRequiredMixin, DetailView):
             messages.add_message(request=self.request, level=level, message=message)
 
         return HttpResponseRedirect(reverse("view_event", args=[self.event.pk]))
+
+    def redirect_to_rsvp(self, *, message, level=messages.ERROR):
+        if message is not None:
+            messages.add_message(request=self.request, level=level, message=message)
+
+        return HttpResponseRedirect(reverse("rsvp_event", args=[self.event.pk]))
 
     def redirect_to_billing_form(self, submission=None, is_guest=False):
         if submission:
@@ -460,7 +465,7 @@ class EventPaidView(RedirectView):
             message=f"Votre inscription {payment.get_price_display()} pour l'événement « {event.name} » a bien été enregistré. "
             f"Votre inscription sera confirmée dès validation du paiement.",
         )
-        return reverse("view_event", args=[self.kwargs["payment"].meta["event_id"]])
+        return reverse("rsvp_event", args=[self.kwargs["payment"].meta["event_id"]])
 
 
 def notification_listener(payment):
