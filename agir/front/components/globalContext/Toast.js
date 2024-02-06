@@ -120,6 +120,7 @@ export const Toast = (props) => {
           ...t,
           type: TOAST_TYPES[t.type.toUpperCase()],
           onClose: () => {
+            typeof t.onClose === "function" && t.onClose();
             onClear(t.toastId);
           },
         },

@@ -2,30 +2,31 @@ import { DateTime, Interval } from "luxon";
 import PropTypes from "prop-types";
 import React, { useCallback, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { mutate } from "swr";
 import styled from "styled-components";
+import { mutate } from "swr";
 
+import * as api from "@agir/events/common/api";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getIsConnected, getRoutes } from "@agir/front/globalContext/reducers";
-import * as api from "@agir/events/common/api";
+import { useToast } from "@agir/front/globalContext/hooks";
 
-import style from "@agir/front/genericComponents/_variables.scss";
-import Button from "@agir/front/genericComponents/Button";
 import Link from "@agir/front/app/Link";
-import { Hide } from "@agir/front/genericComponents/grid";
+import Button from "@agir/front/genericComponents/Button";
 import Popin from "@agir/front/genericComponents/Popin";
+import style from "@agir/front/genericComponents/_variables.scss";
+import { Hide } from "@agir/front/genericComponents/grid";
 
-import { displayHumanDate, displayIntervalEnd } from "@agir/lib/utils/time";
 import { routeConfig } from "@agir/front/app/routes.config";
+import { displayHumanDate, displayIntervalEnd } from "@agir/lib/utils/time";
 
-import JoiningDetails from "./JoiningDetails";
-import AddGroupAttendee from "./AddGroupAttendee";
 import ButtonMenu from "@agir/front/genericComponents/ButtonMenu";
+import AddGroupAttendee from "./AddGroupAttendee";
+import JoiningDetails from "./JoiningDetails";
 import QuitEventButton from "./QuitEventButton";
 
-import logger from "@agir/lib/utils/logger";
-import StaticToast from "@agir/front/genericComponents/StaticToast";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import StaticToast from "@agir/front/genericComponents/StaticToast";
+import logger from "@agir/lib/utils/logger";
 
 const log = logger(__filename);
 
@@ -137,7 +138,10 @@ const Actions = (props) => {
   } = props;
 
   const [isLoading, setIsLoading] = useState(false);
+  const [disabled, setIsDisabled] = useState(false);
   const [showQuitEvent, setShowQuitEvent] = useState(false);
+
+  const sendToast = useToast();
 
   const handleQuitEvent = (e) => {
     e.preventDefault();
@@ -150,19 +154,30 @@ const Actions = (props) => {
       setIsLoading(true);
 
       if (hasPrice || hasSubscriptionForm) {
-        log.debug("Has price or subscription form, redirection.");
         window.location.href = routes.rsvp;
         return;
       }
 
       try {
         const response = await api.rsvpEvent(id);
+        if (response.error?.redirectTo) {
+          window.location.href = response.error.redirectTo;
+          return;
+        }
         if (response.error) {
-          log.error(response.error);
           await mutate(api.getEventEndpoint("getEvent", { eventPk: id }));
+          setIsDisabled(true);
+          sendToast(
+            typeof response.error.detail === "string"
+              ? response.error.detail
+              : "Une erreur est survenue",
+            "ERROR",
+          );
         }
       } catch (err) {
-        window.location.reload();
+        sendToast(err, "ERROR", {
+          onClose: () => window.location.reload(),
+        });
       }
 
       setIsLoading(false);
@@ -175,7 +190,7 @@ const Actions = (props) => {
         }),
       );
     },
-    [id, hasPrice, routes, hasSubscriptionForm],
+    [id, hasPrice, routes, hasSubscriptionForm, sendToast],
   );
 
   if (past) {
@@ -212,7 +227,7 @@ const Actions = (props) => {
   if (!logged) {
     return (
       <StyledActions>
-        <Button color="secondary" disabled={true}>
+        <Button color="secondary" disabled>
           Participer à l'événement
         </Button>
       </StyledActions>
@@ -238,7 +253,7 @@ const Actions = (props) => {
           <Button
             color="primary"
             loading={isLoading}
-            disabled={isLoading}
+            disabled={disabled || isLoading}
             onClick={handleRSVP}
           >
             Participer

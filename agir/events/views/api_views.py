@@ -591,7 +591,10 @@ class RSVPEventAPIView(DestroyAPIView, CreateAPIView):
                 detail={"redirectTo": reverse("pay_event")},
             )
 
-        rsvp_to_free_event(self.event, self.person)
+        try:
+            rsvp_to_free_event(self.event, self.person)
+        except RSVPException as e:
+            raise PermissionDenied(detail=str(e))
 
         return Response(status=status.HTTP_201_CREATED)
 
