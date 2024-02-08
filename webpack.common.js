@@ -15,7 +15,7 @@ const TerserPlugin = require("terser-webpack-plugin");
 const WebpackBar = require("webpackbar");
 
 const packageConfig = require(path.resolve(__dirname, "package.json"));
-const DISTPATH = path.resolve(__dirname, "assets/components");
+const DISTPATH = path.resolve(__dirname, "assets/");
 
 const isDirectory = (f) => fs.statSync(f).isDirectory();
 const directoryHasFile = (f) => (d) => fs.readdirSync(d).includes(f);
@@ -239,7 +239,7 @@ module.exports = (type = CONFIG_TYPES.ES5) => ({
   ),
   plugins: [
     ...htmlPlugins(type),
-    new MiniCssExtractPlugin({ filename: "[name]-[chunkhash].css" }),
+    new MiniCssExtractPlugin({ filename: "static/css/[name]-[chunkhash].css" }),
     type !== CONFIG_TYPES.DEV &&
       new webpack.IgnorePlugin({
         resourceRegExp: /^\.\/locale$/,
@@ -251,7 +251,7 @@ module.exports = (type = CONFIG_TYPES.ES5) => ({
           __dirname,
           "agir/front/components/serviceWorker/serviceWorker.js",
         ),
-        swDest: "service-worker.js",
+        swDest: "static/service-worker.js",
         maximumFileSizeToCacheInBytes: 7000000,
         mode: "production",
         exclude: [
@@ -319,11 +319,12 @@ module.exports = (type = CONFIG_TYPES.ES5) => ({
   output: {
     libraryTarget: "window",
     library: ["Agir", "[name]"],
-    filename: `[name]-[chunkhash].${
+    filename: `static/components/[name]-[chunkhash].${
       type === CONFIG_TYPES.ES2015 ? "mjs" : "js"
     }?cv=7`,
     path: DISTPATH,
     clean: type === CONFIG_TYPES.DEV,
+    assetModuleFilename: "static/files/[hash][ext][query]",
   },
   module: {
     rules: [
