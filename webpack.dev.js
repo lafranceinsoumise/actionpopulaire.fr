@@ -1,8 +1,11 @@
 const path = require("path");
 const merge = require("webpack-merge");
 const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
-
 const common = require("./webpack.common.js");
+
+require("dotenv").config({
+  path: path.join(__dirname, ".env"),
+});
 
 // Exemples de config :
 //
@@ -56,7 +59,9 @@ module.exports = merge.merge(common("dev"), {
     headers: {
       "Access-Control-Allow-Origin": "*",
     },
-    allowedHosts: ["agir.local", ".ap.lfi.site"],
+    allowedHosts: process.env.ALLOWED_HOSTS
+      ? process.env.ALLOWED_HOSTS.split(",").map((host) => host.trim())
+      : ["agir.local", ".ap.lfi.site"],
   },
   plugins: [new ReactRefreshWebpackPlugin()],
 });

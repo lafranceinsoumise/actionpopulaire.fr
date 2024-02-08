@@ -487,8 +487,8 @@ STATIC_URL = "/static/"
 STATIC_ROOT = os.environ.get("STATIC_ROOT")
 
 STATICFILES_DIRS = []
-if (BASE_DIR / "assets" / " static").is_dir():
-    STATICFILES_DIRS.append(BASE_DIR / "assets" / " static")
+if (BASE_DIR.parent / "assets" / "static").is_dir():
+    STATICFILES_DIRS.append(BASE_DIR.parent / "assets" / "static")
 
 if not DEBUG:
     STATICFILES_STORAGE = (
