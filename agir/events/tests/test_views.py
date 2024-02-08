@@ -456,7 +456,9 @@ class RSVPTestCase(TestCase):
             data={"guests": 1},
         )
         self.assertRedirects(
-            response, reverse("view_event", kwargs={"pk": self.simple_event.pk})
+            response,
+            reverse("rsvp_event", kwargs={"pk": self.simple_event.pk}),
+            fetch_redirect_response=False,
         )
         self.assertEqual(2, self.simple_event.participants)
 
@@ -509,7 +511,6 @@ class RSVPTestCase(TestCase):
     def test_can_rsvp_to_form_event(self, rsvp_notification, mock_partial):
         self.client.force_login(self.person.role)
 
-        event_url = reverse("view_event", kwargs={"pk": self.form_event.pk})
         rsvp_url = reverse("rsvp_event", kwargs={"pk": self.form_event.pk})
 
         response = self.client.get(rsvp_url)
@@ -518,7 +519,7 @@ class RSVPTestCase(TestCase):
         response = self.client.post(
             rsvp_url, data={"custom-field": "another custom value"}
         )
-        self.assertRedirects(response, event_url)
+        self.assertRedirects(response, rsvp_url)
         msgs = list(messages.get_messages(response.wsgi_request))
         self.assertEqual(msgs[0].level, messages.SUCCESS)
 
@@ -557,7 +558,6 @@ class RSVPTestCase(TestCase):
 
         self.client.force_login(self.already_rsvped.role)
 
-        event_url = reverse("view_event", kwargs={"pk": self.form_event.pk})
         rsvp_url = reverse("rsvp_event", kwargs={"pk": self.form_event.pk})
 
         response = self.client.get(rsvp_url)
@@ -566,7 +566,7 @@ class RSVPTestCase(TestCase):
         response = self.client.post(
             rsvp_url, data={"custom-field": "another custom value", "is_guest": "yes"}
         )
-        self.assertRedirects(response, event_url)
+        self.assertRedirects(response, rsvp_url)
         msgs = list(messages.get_messages(response.wsgi_request))
         self.assertEqual(msgs[0].level, messages.SUCCESS)
 
@@ -863,7 +863,6 @@ class RSVPTestCase(TestCase):
 
         self.client.force_login(self.person.role)
 
-        event_url = reverse("view_event", kwargs={"pk": self.form_event.pk})
         rsvp_url = reverse("rsvp_event", kwargs={"pk": self.form_event.pk})
 
         response = self.client.get(rsvp_url)
@@ -874,7 +873,7 @@ class RSVPTestCase(TestCase):
         response = self.client.post(
             rsvp_url, data={"custom-field": "another custom value"}
         )
-        self.assertRedirects(response, event_url)
+        self.assertRedirects(response, rsvp_url)
         msgs = list(messages.get_messages(response.wsgi_request))
         self.assertEqual(msgs[0].level, messages.SUCCESS)
 
@@ -938,7 +937,7 @@ class RSVPTestCase(TestCase):
         response = self.client.post(
             rsvp_url, data={"custom-field": "another custom value", "price": "0"}
         )
-        self.assertRedirects(response, event_url)
+        self.assertRedirects(response, rsvp_url)
         msgs = list(messages.get_messages(response.wsgi_request))
         self.assertEqual(msgs[0].level, messages.SUCCESS)
 

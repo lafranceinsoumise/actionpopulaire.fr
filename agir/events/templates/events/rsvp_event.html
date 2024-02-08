@@ -22,6 +22,13 @@
       </ol>
       {% if rsvp %}
         <h3 class="h2">Votre inscription</h3>
+        <div>
+        {% if submission and submission.form.html_confirmation_note %}
+          <div>
+            {{ submission.form.html_confirmation_note }}
+          </div>
+          <hr />
+        {% endif %}
         <h3 class="h2"><span class="label label-primary">{{ rsvp.get_status_display }}</span></h3>
         {% if rsvp.payment %}
           <div class="panel panel-primary">
@@ -63,7 +70,7 @@
         {% endif %}
 
         {% if submission_data %}
-          <h4>Voici les informations que vous avez donné :</h4>
+          <h4>Voici les informations que vous avez données :</h4>
 
           <div class="panel panel-default">
             {% include "people/includes/personform_submission_data.html" with submission_data=submission_data %}

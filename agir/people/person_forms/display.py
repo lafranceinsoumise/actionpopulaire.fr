@@ -169,9 +169,11 @@ class PersonFormDisplay:
         elif field_type == "commune":
             try:
                 if isinstance(value, int):
-                    return Commune.objects.get(pk=value)
-                type, code = value.split("-")
-                return Commune.objects.get(type=type, code=code)
+                    commune = Commune.objects.get(pk=value)
+                else:
+                    type, code = value.split("-")
+                    commune = Commune.objects.get(type=type, code=code)
+                return commune.nom
             except (ValueError, Commune.DoesNotExist):
                 value = value
 
