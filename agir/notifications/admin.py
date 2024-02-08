@@ -52,7 +52,12 @@ class SubscriptionAdmin(admin.ModelAdmin):
         return False
 
     def has_delete_permission(self, request, obj=None):
-        return False
+        if (
+            f"{self.model._meta.app_label}/{self.model._meta.model_name}"
+            in request.path
+        ):
+            return False
+        return True
 
     class Media:
         pass
