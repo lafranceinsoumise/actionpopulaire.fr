@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Exists, OuterRef
 from django.urls import reverse
 from django.utils.html import format_html
 
@@ -10,7 +10,7 @@ from agir.lib.admin.autocomplete_filter import (
 )
 from agir.lib.admin.form_fields import AutocompleteSelectModel
 from agir.mailing.models import Segment
-from agir.people.models import PersonQualification
+from agir.people.models import PersonQualification, PersonEmail
 
 
 class SegmentFilter(AutocompleteRelatedModelFilter):
@@ -70,11 +70,15 @@ class BouncedEmailFilter(admin.SimpleListFilter):
         )
 
     def queryset(self, request, queryset):
-        if self.value() == "1":
-            return queryset.exclude(emails___bounced=False)
-
-        if self.value() == "0":
-            return queryset.filter(emails___bounced=False)
+        if self.value() in ("0", "1"):
+            has_valid = self.value() == "0"
+            return queryset.annotate(
+                has_valid=Exists(
+                    PersonEmail.objects.filter(person_id=OuterRef("id")).filter(
+                        _bounced=False
+                    )
+                )
+            ).filter(has_valid=has_valid)
 
         return queryset
 
