@@ -77,8 +77,7 @@ ENABLE_API = os.environ.get("ENABLE_API", "n").lower() in YES_VALUES or DEBUG
 ENABLE_ADMIN = os.environ.get("ENABLE_ADMIN", "n").lower() in YES_VALUES or DEBUG
 ENABLE_FRONT = os.environ.get("ENABLE_FRONT", "n").lower() in YES_VALUES or DEBUG
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = Path(__file__).absolute().parent.parent
 
 TEST_RUNNER = "agir.api.test_runner.TestRunner"
 
@@ -255,7 +254,7 @@ ROOT_URLCONF = "agir.api.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": ["assets/components/includes"],
+        "DIRS": ["assets/includes"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -487,7 +486,10 @@ STATIC_URL = "/static/"
 
 STATIC_ROOT = os.environ.get("STATIC_ROOT")
 
-STATICFILES_DIRS = [os.path.join(os.path.dirname(BASE_DIR), "assets")]
+STATICFILES_DIRS = []
+if (BASE_DIR.parent / "assets" / "static").is_dir():
+    STATICFILES_DIRS.append(BASE_DIR.parent / "assets" / "static")
+
 if not DEBUG:
     STATICFILES_STORAGE = (
         "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
@@ -1025,7 +1027,7 @@ if municipales_campagnes_filename:
     municipales_campagnes_filename = Path(municipales_campagnes_filename)
     if not municipales_campagnes_filename.is_absolute():
         municipales_campagnes_filename = (
-            Path(BASE_DIR).parent / municipales_campagnes_filename
+            BASE_DIR.parent / municipales_campagnes_filename
         )
     with municipales_campagnes_filename.open("r") as f:
         MUNICIPALES_CAMPAGNES = json.load(f)
@@ -1039,7 +1041,7 @@ PUSH_NOTIFICATIONS_SETTINGS = {
     "WP_PRIVATE_KEY": os.environ.get("WEBPUSH_PRIVATE_KEY"),
     "WP_CLAIMS": {"sub": "mailto: site@lafranceinsoumise.fr"},
     "APNS_AUTH_KEY_PATH": os.environ.get(
-        "APNS_AUTH_KEY_PATH", os.path.join(os.path.dirname(BASE_DIR), "..", "apns.p8")
+        "APNS_AUTH_KEY_PATH", BASE_DIR.parent / "apns.p8"
     ),
     "APNS_AUTH_KEY_ID": os.environ.get("APNS_AUTH_KEY_ID"),
     "APNS_TEAM_ID": os.environ.get("APNS_TEAM_ID"),

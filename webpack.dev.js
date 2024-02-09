@@ -1,8 +1,11 @@
 const path = require("path");
 const merge = require("webpack-merge");
 const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
-
 const common = require("./webpack.common.js");
+
+require("dotenv").config({
+  path: path.join(__dirname, ".env"),
+});
 
 // Exemples de config :
 //
@@ -20,7 +23,7 @@ module.exports = merge.merge(common("dev"), {
   mode: "development",
   devtool: "eval-cheap-module-source-map",
   output: {
-    publicPath: `http://${serverName}/static/components/`,
+    publicPath: `http://${serverName}/`,
     devtoolModuleFilenameTemplate: "webpack://[absolute-resource-path]",
     filename: "[name].js",
     pathinfo: false,
@@ -43,20 +46,22 @@ module.exports = merge.merge(common("dev"), {
     host: serverName === "localhost" ? "localhost" : "0.0.0.0",
     port: port,
     devMiddleware: {
-      publicPath: `http://${serverName}/static/components/`,
+      publicPath: `http://${serverName}/`,
       writeToDisk: true,
     },
     client: {
       webSocketURL: `auto://${serverName}`,
     },
     static: {
-      directory: path.join(__dirname, "/assets/components/"),
+      directory: path.join(__dirname, "/assets/"),
       watch: false,
     },
     headers: {
       "Access-Control-Allow-Origin": "*",
     },
-    allowedHosts: ["agir.local"],
+    allowedHosts: process.env.ALLOWED_HOSTS
+      ? process.env.ALLOWED_HOSTS.split(",").map((host) => host.trim())
+      : ["agir.local", ".ap.lfi.site"],
   },
   plugins: [new ReactRefreshWebpackPlugin()],
 });
