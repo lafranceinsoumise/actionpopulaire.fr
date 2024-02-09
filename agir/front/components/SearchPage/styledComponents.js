@@ -2,8 +2,6 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import CheckboxField from "@agir/front/formComponents/CheckboxField";
-
 export const StyledContainer = styled.div`
   width: 100%;
   max-width: 1100px;
@@ -16,17 +14,15 @@ export const StyledContainer = styled.div`
     padding: 20px 12px 3rem;
   }
 
-  h1 {
-    font-size: 22px;
-  }
-  h2 {
-    font-size: 18px;
-    span {
-      font-weight: normal;
-    }
+  h3 {
+    font-size: 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+
+    span {
+      font-weight: normal;
+    }
   }
 `;
 

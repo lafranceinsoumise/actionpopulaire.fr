@@ -8,36 +8,28 @@ export const useSearchResults = (search, type, filters) => {
   const [errors, setErrors] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  let filtersValue = {};
-  Object.entries(filters).map(([key, value]) => {
-    let v;
-    if (typeof value !== "object") {
-      v = value;
-    } else {
-      v = value?.value;
-    }
-    filtersValue = { ...filtersValue, [key]: v };
-  });
+  useEffect(() => {
+    (async () => {
+      if (search.length < 3) {
+        return;
+      }
+      setIsLoading(true);
+      setErrors(null);
 
-  useEffect(async () => {
-    if (search.length < 3) {
-      return;
-    }
-    setIsLoading(true);
-    setErrors(null);
-    const { data, error } = await getSearch({
-      search,
-      type,
-      filters: filtersValue,
-    });
-    setIsLoading(false);
-    if (error) {
-      setErrors(error);
-      return;
-    }
+      const { data, error } = await getSearch({
+        search,
+        type,
+        filters,
+      });
+      setIsLoading(false);
+      if (error) {
+        setErrors(error);
+        return;
+      }
 
-    setGroups(data.groups);
-    setEvents(data.events);
+      setGroups(data.groups);
+      setEvents(data.events);
+    })();
   }, [search, type, filters]);
 
   return [groups, events, errors, isLoading];

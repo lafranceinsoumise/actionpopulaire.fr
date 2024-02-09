@@ -70,13 +70,7 @@ const SearchBar = () => {
   const inputRef = useRef();
   const location = window.location;
 
-  let currentSearch = "";
-  if (location.pathname.includes(routeConfig.search.path)) {
-    const urlParams = new URLSearchParams(location.search);
-    currentSearch = urlParams.get("q") || "";
-  }
-
-  const [value, setValue] = useState(currentSearch);
+  const [value, setValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const handleFocus = useCallback(() => {
     setIsFocused(true);
@@ -91,6 +85,11 @@ const SearchBar = () => {
       inputRef.current.focus();
     }
   }, []);
+
+  if (location.pathname.includes(routeConfig.search.path)) {
+    return null;
+  }
+
   return (
     <SearchBarWrapper
       method="get"

@@ -157,7 +157,7 @@ export const useRoute = (route, routeParams) => {
   };
 };
 
-export const useLocationState = () => {
+export const useLocationState = (singleParamKey = null) => {
   const { search, pathname } = useLocation();
   const history = useHistory();
 
@@ -182,6 +182,11 @@ export const useLocationState = () => {
     [pathname, history, params],
   );
 
+  const setSingleParam = useCallback(
+    (value) => singleParamKey && setParams(singleParamKey, value),
+    [singleParamKey, setParams],
+  );
+
   const clearParams = useCallback(() => {
     history.replace({
       pathname,
@@ -189,5 +194,11 @@ export const useLocationState = () => {
     });
   }, [pathname, history]);
 
-  return [params, setParams, !!search ? clearParams : undefined];
+  return singleParamKey
+    ? [
+        params[singleParamKey],
+        setSingleParam,
+        !!search ? clearParams : undefined,
+      ]
+    : [params, setParams, !!search ? clearParams : undefined];
 };

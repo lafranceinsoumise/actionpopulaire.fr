@@ -20,6 +20,7 @@ from agir.activity.models import Activity
 from agir.carte.models import StaticMapImage
 from agir.lib.admin.utils import admin_url
 from agir.lib.form_fields import CustomJSONEncoder
+from agir.lib.geo import filter_queryset_by_commune
 from agir.lib.models import (
     BaseAPIResource,
     AbstractLabel,
@@ -203,6 +204,9 @@ class SupportGroupQuerySet(models.QuerySet):
             return qs.filter(warning_date__date__lt=expiration_limit)
 
         return qs.filter(warning_date__date__gte=expiration_limit)
+
+    def for_commune(self, commune):
+        return filter_queryset_by_commune(self, commune)
 
 
 class MembershipQuerySet(models.QuerySet):
