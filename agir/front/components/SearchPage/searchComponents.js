@@ -43,20 +43,33 @@ const StyledMapButton = styled.div`
 
 const StyledHeaderSearch = styled.div`
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-
-  > div:first-child {
-    max-width: 480px;
-  }
-  h1 {
-    margin: 0;
-  }
+  flex-flow: row nowrap;
+  align-items: flex-end;
+  gap: 0.5rem;
 
   @media (max-width: ${style.collapse}px) {
     flex-direction: column-reverse;
-    h1 {
-      font-size: 20px;
+    align-items: stretch;
+  }
+
+  & > *:last-child {
+    flex: 0 0 auto;
+
+    @media (max-width: ${style.collapse}px) {
+      max-width: 100%;
+    }
+  }
+
+  & > *:first-child {
+    flex: 1 1 auto;
+  }
+
+  h2 {
+    font-size: 2rem;
+    margin: 0 0 0.5rem;
+
+    @media (max-width: ${style.collapse}px) {
+      font-size: 1.5rem;
     }
   }
 `;
@@ -94,15 +107,25 @@ const SearchBarInput = styled.input`
   }
 `;
 
+const StyledWarning = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  color: ${(props) => props.theme.vermillon};
+  font-size: 0.875rem;
+  font-weight: 600;
+`;
+
 export const SearchTooShort = ({ search }) => {
   if (!search || search?.length >= 3) {
     return null;
   }
   return (
-    <>
-      <Spacer size="1rem" />
-      Rentrez au moins 3 caractères pour effectuer une recherche
-    </>
+    <StyledWarning>
+      <RawFeatherIcon name="alert-circle" /> Rentrez au moins 3 caractères pour
+      effectuer une recherche
+    </StyledWarning>
   );
 };
 SearchTooShort.propTypes = {
@@ -112,14 +135,11 @@ SearchTooShort.propTypes = {
 export const HeaderSearch = ({ querySearch, mapRoute }) => (
   <StyledHeaderSearch>
     <div>
-      <h1>
-        <Hide $over>Rechercher</Hide>
-        {!querySearch && <Hide $under>Recherche : "{querySearch}"</Hide>}
-      </h1>
-      <Hide $under as="div" style={{ marginTop: "0.5rem" }}>
+      <h2>Rechercher</h2>
+      <p>
         Recherchez des événements et des groupes d'actions par nom, commune,
         code postal...
-      </Hide>
+      </p>
     </div>
     {!!mapRoute && (
       <StyledMapButton>

@@ -6,7 +6,6 @@ import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer";
-import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 import EventCard from "@agir/front/genericComponents/EventCard";
 import GroupSuggestionCard from "@agir/groups/groupPage/GroupSuggestionCard";
 import { GroupSuggestionCarousel } from "@agir/groups/groupPage/GroupSuggestions";
@@ -27,7 +26,7 @@ const CarrouselContainer = styled.div`
   margin-right: -12px;
 `;
 
-const StyledSubtitle = styled.h3`
+const StyledSubtitle = styled.h4`
   font-size: 1rem;
   line-height: 1.5;
   font-weight: 600;
@@ -96,7 +95,7 @@ EventList.propTypes = {
 };
 
 export const ListTitle = ({ name, length = 0, onShowMore }) => (
-  <h2>
+  <h3>
     <div>
       {name} {length > 0 && <span>{length}</span>}
     </div>
@@ -105,7 +104,7 @@ export const ListTitle = ({ name, length = 0, onShowMore }) => (
         Voir tout
       </Button>
     )}
-  </h2>
+  </h3>
 );
 
 ListTitle.propTypes = {

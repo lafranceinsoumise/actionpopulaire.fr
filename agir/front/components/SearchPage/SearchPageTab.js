@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useState } from "react";
+import React from "react";
 
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
@@ -21,7 +21,6 @@ const SearchPageTab = (props) => {
     events,
     filters,
     applyFilter,
-    resetFilters,
     onTabChange,
     isLoading,
     hasSearch,
@@ -87,7 +86,6 @@ SearchPageTab.propTypes = {
   events: PropTypes.array,
   filters: PropTypes.object,
   applyFilter: PropTypes.func,
-  resetFilters: PropTypes.func,
   onTabChange: PropTypes.func,
   isLoading: PropTypes.bool,
   hasSearch: PropTypes.bool,

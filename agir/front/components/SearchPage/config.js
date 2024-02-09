@@ -4,7 +4,7 @@ export const TABS = {
   all: {
     id: "all",
     label: "Tout",
-    searchPlaceholder: "Rechercher sur Action Populaire",
+    searchPlaceholder: "Rechercher un groupe ou un événement",
     mapRoute: "eventMap",
     hasFilters: false,
     hasEvents: true,
@@ -44,12 +44,12 @@ export const EventSort = [
   { label: <>Alphabétique &darr;</>, value: SORTERS.ALPHA_DESC },
 ];
 export const EventCategory = [
-  { label: "Tous les événements", value: 0 },
+  { label: "Tous les événements", value: null },
   { label: "Passés", value: "PAST" },
-  { label: "A venir", value: "FUTURE" },
+  { label: "A venir", value: "UPCOMING" },
 ];
 export const EventType = [
-  { label: "Tous les types", value: 0 },
+  { label: "Tous les types", value: null },
   { label: "Réunion privée de groupe", value: "G" },
   { label: "Événement public", value: "M" },
   { label: "Action publique", value: "A" },
@@ -61,7 +61,7 @@ export const GroupSort = [
   { label: <>Alphabétique &darr;</>, value: SORTERS.ALPHA_DESC },
 ];
 export const GroupType = [
-  { label: "Tous les groupes", value: 0 },
+  { label: "Tous les groupes", value: null },
   { label: "Certifiés", value: "CERTIFIED" },
   { label: "Non certifiés", value: "NOT_CERTIFIED" },
   { label: "Groupe local", value: "L" },
