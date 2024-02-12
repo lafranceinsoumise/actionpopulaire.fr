@@ -1,24 +1,24 @@
-import { http, HttpResponse } from "msw";
+import { http, HttpResponse, delay } from "msw";
 import React, { useState } from "react";
 
-import VotingLocationField from "./VotingLocationField";
-import TEST_DATA from "@agir/front/mockData/communesConsulats";
-import { getElectionEndpoint } from "./api";
+import CommuneField from "./CommuneField";
+import TEST_DATA from "@agir/front/mockData/communes";
 
 export default {
-  component: VotingLocationField,
-  title: "VotingProxies/VotingLocationField",
+  component: CommuneField,
+  title: "Form/CommuneField",
   parameters: {
     layout: "padded",
     msw: {
       handlers: [
-        http.get(getElectionEndpoint("searchVotingLocation"), ({ request }) => {
+        http.get("/data-france/communes/chercher/", ({ request }) => {
           const url = new URL(request.url);
           const search = url.searchParams.get("q");
-          const results = TEST_DATA.filter((o) =>
+          const results = TEST_DATA.results.filter((o) =>
             new RegExp(search, "gi").test(JSON.stringify(Object.values(o))),
           );
-          return HttpResponse.json(results);
+          delay("real");
+          return HttpResponse.json({ results });
         }),
       ],
     },
@@ -27,14 +27,34 @@ export default {
 
 const Template = (args) => {
   const [value, setValue] = useState(args.value);
-  return <VotingLocationField {...args} value={value} onChange={setValue} />;
+  return (
+    <div
+      style={{
+        boxSizing: "border-box",
+        padding: "32px 16px",
+        maxWidth: "480px",
+        margin: "0 auto",
+      }}
+    >
+      <CommuneField {...args} value={value} onChange={setValue} />
+      <pre>
+        Value :{" "}
+        {value ? (
+          <strong>{JSON.stringify(value, null, "  ")}</strong>
+        ) : (
+          <em>empty</em>
+        )}
+      </pre>
+    </div>
+  );
 };
 
 export const Default = Template.bind({});
 Default.args = {
-  id: "location",
-  name: "location",
-  label: "Lieu",
-  helpText: "Cherchez en commencant par un 'A'",
+  id: "commune",
+  name: "commune",
+  label: "Commune",
+  helpText: "Cherchez en commencant par un 'A' ou par '6'",
   error: "",
+  types: ["COM", "ARM"],
 };
