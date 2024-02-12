@@ -145,6 +145,19 @@ export const routeConfig = {
     Component: RouteComponents.EventPage,
     hideFeedbackButton: true,
   }),
+  eventRequiredDocuments: new RouteConfig({
+    id: "eventRequiredDocuments",
+    path: "/evenements/:eventPk/documents/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.HARD,
+    label: "Documents de l'événement",
+    Component: RouteComponents.EventRequiredDocuments,
+    backLink: {
+      route: "events",
+      label: "Liste des événements",
+      isProtected: true,
+    },
+  }),
   eventSpeaker: new RouteConfig({
     id: "eventSpeaker",
     path: "/evenements/demandes/intervenant-e/",

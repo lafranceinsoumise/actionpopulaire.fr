@@ -43,6 +43,12 @@ const Routes = {
         /* webpackChunkName: "r-createevent" */ "@agir/events/createEventPage/CreateEvent"
       ),
   ),
+  EventRequiredDocuments: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-eventrequireddocuments" */ "@agir/events/eventRequiredDocuments/EventRequiredDocumentsPage"
+      ),
+  ),
   GroupsPage: lazy(
     () =>
       import(
