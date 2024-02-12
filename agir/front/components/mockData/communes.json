@@ -1,0 +1,109 @@
+{
+  "results": [
+    {
+      "code": "46312",
+      "type": "COM",
+      "nom": "Strenquels",
+      "code_departement": "46",
+      "nom_departement": "Lot"
+    },
+    {
+      "code": "59582",
+      "type": "COM",
+      "nom": "Strazeele",
+      "code_departement": "59",
+      "nom_departement": "Nord"
+    },
+    {
+      "code": "68330",
+      "type": "COM",
+      "nom": "Strueth",
+      "code_departement": "68",
+      "nom_departement": "Haut-Rhin"
+    },
+    {
+      "code": "67483",
+      "type": "COM",
+      "nom": "Struth",
+      "code_departement": "67",
+      "nom_departement": "Bas-Rhin"
+    },
+    {
+      "code": "67482",
+      "type": "COM",
+      "nom": "Strasbourg",
+      "code_departement": "67",
+      "nom_departement": "Bas-Rhin"
+    },
+    {
+      "code": "75056",
+      "type": "COM",
+      "nom": "Paris",
+      "code_departement": "75",
+      "nom_departement": "Paris"
+    },
+    {
+      "code": "58206",
+      "type": "COM",
+      "nom": "Parigny-la-Rose",
+      "code_departement": "58",
+      "nom_departement": "Ni\u00e8vre"
+    },
+    {
+      "code": "72231",
+      "type": "COM",
+      "nom": "Parign\u00e9-l'\u00c9v\u00eaque",
+      "code_departement": "72",
+      "nom_departement": "Sarthe"
+    },
+    {
+      "code": "53174",
+      "type": "COM",
+      "nom": "Parign\u00e9-sur-Braye",
+      "code_departement": "53",
+      "nom_departement": "Mayenne"
+    },
+    {
+      "code": "72230",
+      "type": "COM",
+      "nom": "Parign\u00e9-le-P\u00f4lin",
+      "code_departement": "72",
+      "nom_departement": "Sarthe"
+    },
+    {
+      "code": "58207",
+      "type": "COM",
+      "nom": "Parigny-les-Vaux",
+      "code_departement": "58",
+      "nom_departement": "Ni\u00e8vre"
+    },
+    {
+      "code": "71343",
+      "type": "COM",
+      "nom": "Paris-l'H\u00f4pital",
+      "code_departement": "71",
+      "nom_departement": "Sa\u00f4ne-et-Loire"
+    },
+    {
+      "code": "42166",
+      "type": "COM",
+      "nom": "Parigny",
+      "code_departement": "42",
+      "nom_departement": "Loire"
+    },
+    {
+      "code": "30193",
+      "type": "COM",
+      "nom": "Parignargues",
+      "code_departement": "30",
+      "nom_departement": "Gard"
+    },
+    {
+      "code": "81202",
+      "type": "COM",
+      "nom": "Parisot",
+      "code_departement": "81",
+      "nom_departement": "Tarn"
+    }
+  ]
+}
