@@ -304,7 +304,6 @@ EventRequiredDocuments.propTypes = {
     subtype: PropTypes.shape({
       id: PropTypes.number.isRequired,
       description: PropTypes.string.isRequired,
-      isVisible: PropTypes.bool,
     }),
   }),
   status: PropTypes.string,
