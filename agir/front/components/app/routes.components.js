@@ -37,6 +37,24 @@ const Routes = {
         /* webpackChunkName: "r-eventpage" */ "@agir/events/eventPage/EventPage"
       ),
   ),
+  MissingDocumentsPage: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-missingdocumentspage" */ "@agir/events/eventRequiredDocuments/MissingDocuments/MissingDocumentsPage"
+      ),
+  ),
+  EventRequiredDocuments: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-eventrequireddocuments" */ "@agir/events/eventRequiredDocuments/EventRequiredDocumentsPage"
+      ),
+  ),
+  GroupsPage: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-groupspage" */ "@agir/groups/groupsPage/GroupsPage"
+      ),
+  ),
   CreateEvent: lazy(
     () =>
       import(

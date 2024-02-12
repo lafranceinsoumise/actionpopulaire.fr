@@ -1,18 +1,20 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
+import { useMissingRequiredEventDocuments } from "@agir/events/common/hooks";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getIsSessionLoaded } from "@agir/front/globalContext/reducers";
 
 import TokTokCard from "@agir/events/TokTok/TokTokCard";
 import Link from "@agir/front/app/Link";
+import Redirect from "@agir/front/app/Redirect";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-import { Container, Hide } from "@agir/front/genericComponents/grid";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 import Spacer from "@agir/front/genericComponents/Spacer";
+import { Container, Hide } from "@agir/front/genericComponents/grid";
 
 import EventForm from "./EventForm";
 
@@ -122,6 +124,17 @@ const InfoBlock = (props) => (
 
 const CreateEvent = () => {
   const isSessionLoaded = useSelector(getIsSessionLoaded);
+  const { projects } = useMissingRequiredEventDocuments();
+
+  const isBlocked = useMemo(
+    () =>
+      Array.isArray(projects) && projects.some((project) => project.isBlocking),
+    [projects],
+  );
+
+  if (isBlocked) {
+    return <Redirect route="missingEventDocuments" />;
+  }
 
   return (
     <PageFadeIn wait={<CreateEventSkeleton />} ready={isSessionLoaded}>
