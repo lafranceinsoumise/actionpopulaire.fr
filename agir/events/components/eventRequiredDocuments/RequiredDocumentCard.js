@@ -66,6 +66,18 @@ const StyledCard = styled.div`
       color: ${(props) => props.theme.black700};
       text-align: left;
     }
+
+    ${Button} {
+      width: 100%;
+      padding: 1rem 1.3rem;
+      margin: 0;
+
+      @media (min-width: ${(props) => props.theme.collapse}px) {
+        justify-content: flex-start;
+        display: inline-flex;
+        width: auto;
+      }
+    }
   }
 `;
 
@@ -94,22 +106,17 @@ const RequiredDocumentCard = (props) => {
         {!downloadOnly ? (
           <>
             <Button
-              color={onDismiss ? "primary" : "default"}
               onClick={() => onUpload(type)}
-              icon="upload"
-              small={embedded}
+              color={onDismiss ? "primary" : "default"}
             >
+              <RawFeatherIcon name="upload" style={{ marginRight: "0.5rem" }} />
               Ajouter un justificatif
             </Button>
             {onDismiss && (
               <>
                 <InlineSpacer size="1rem" />
-                <Button
-                  color="secondary"
-                  onClick={() => onDismiss(type)}
-                  icon="x"
-                  small={embedded}
-                >
+                <Button color="secondary" onClick={() => onDismiss(type)}>
+                  <RawFeatherIcon name="x" style={{ marginRight: "0.5rem" }} />
                   Non applicable
                 </Button>
               </>

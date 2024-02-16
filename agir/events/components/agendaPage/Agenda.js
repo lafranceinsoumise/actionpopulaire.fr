@@ -14,7 +14,6 @@ import RenderIfVisibile from "@agir/front/genericComponents/RenderIfVisible";
 import { Hide, useIsDesktop } from "@agir/front/genericComponents/grid";
 
 import UpcomingEvents from "@agir/events/common/UpcomingEvents";
-import MissingDocumentsWidget from "@agir/events/eventRequiredDocuments/MissingDocuments/MissingDocumentsWidget";
 import Onboarding from "@agir/front/genericComponents/Onboarding";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
@@ -173,7 +172,6 @@ const Agenda = () => {
         ready={isReady}
         wait={<Skeleton />}
       >
-        <MissingDocumentsWidget />
         {rsvpedEvents && rsvpedEvents.length > 0 ? (
           <Hide $over style={{ padding: "0 0 2rem" }}>
             <h2

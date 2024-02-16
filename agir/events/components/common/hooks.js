@@ -52,21 +52,8 @@ export const useEventsByDay = (events, dayFormatFn = displayHumanDay) => {
             return days;
           }, {})
         : undefined,
-    [events, dayFormatFn],
+    [events],
   );
 
   return byDay;
-};
-
-export const useMissingRequiredEventDocuments = () => {
-  const { data: projects, ...rest } = useSWR(getEventEndpoint("eventProjects"));
-
-  if (Array.isArray(projects)) {
-    return {
-      projects: projects.filter((project) => project.missingDocumentCount > 0),
-      ...rest,
-    };
-  }
-
-  return { projects, ...rest };
 };

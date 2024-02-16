@@ -7,20 +7,18 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import { createEvent } from "@agir/events/common/api";
 import {
   DEFAULT_FORM_DATA,
-  HAS_CAMPAIGN_FUNDING_FIELD,
   validateData,
 } from "@agir/events/common/eventForm.config";
 import { useEventFormOptions } from "@agir/events/common/hooks";
 import { routeConfig } from "@agir/front/app/routes.config";
-import { scrollToError } from "@agir/front/app/utils";
 
-import OrganizerGroupField from "@agir/events/common/OrganizerGroupField";
 import UnloadPrompt from "@agir/front/app/UnloadPrompt";
 import LocationField from "@agir/front/formComponents/LocationField";
-import LocationItems from "@agir/front/formComponents/LocationField/LocationItems";
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer";
-import CampaignFundingField from "./CampaignFundingField";
+
+import OrganizerGroupField from "@agir/events/common/OrganizerGroupField";
+import { scrollToError } from "@agir/front/app/utils";
 import ContactField from "./ContactField";
 import DateField from "./DateField";
 import DescriptionField from "./DescriptionField";
@@ -28,6 +26,7 @@ import EventImageField from "./EventImageField";
 import NameField from "./NameField";
 import OnlineUrlField from "./OnlineUrlField";
 import SubtypeField from "./SubtypeField";
+import LocationItems from "@agir/front/formComponents/LocationField/LocationItems";
 
 const StyledGlobalError = styled.p`
   padding: 0 0 1rem;
@@ -87,7 +86,6 @@ const EventForm = () => {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [newEventPk, setNewEventPk] = useState(null);
-  const [campaignFunding, setCampaignFunding] = useState(false);
 
   const history = useHistory();
   const { search } = useLocation();
@@ -139,11 +137,6 @@ const EventForm = () => {
       startTime,
       endTime,
     }));
-  }, []);
-
-  const updateCampaignFunding = useCallback((value) => {
-    setCampaignFunding(value);
-    !!value && setErrors((state) => ({ ...state, campaignFunding: undefined }));
   }, []);
 
   useEffect(() => {
@@ -201,11 +194,6 @@ const EventForm = () => {
       e.preventDefault();
       setErrors({});
       let errors = validateData(formData);
-      if (HAS_CAMPAIGN_FUNDING_FIELD && !campaignFunding) {
-        errors = errors || {};
-        errors.campaignFunding =
-          "Confirmez ces informations pour créer l'événement";
-      }
       if (formData.image && !formData.image.hasLicense) {
         errors = errors || {};
         errors.image =
@@ -231,7 +219,7 @@ const EventForm = () => {
       }
       setNewEventPk(result.data.id);
     },
-    [campaignFunding, formData],
+    [formData],
   );
 
   useEffect(() => {
@@ -407,21 +395,6 @@ const EventForm = () => {
           required
         />
       </fieldset>
-      {HAS_CAMPAIGN_FUNDING_FIELD && (
-        <>
-          <Spacer size="2rem" data-scroll="campaignFunding" />
-          <CampaignFundingField
-            onChange={updateCampaignFunding}
-            disabled={isLoading}
-            groupPk={formData?.organizerGroup?.id}
-            isCertified={!!formData?.organizerGroup?.isCertified}
-            isPrivate={formData?.subtype?.type === "G"}
-            needsDocuments={!!formData?.subtype?.needsDocuments}
-            endTime={formData?.endTime}
-            error={errors?.campaignFunding}
-          />
-        </>
-      )}
       <Spacer size="1rem" data-scroll="global" />
       {errors && errors.global && (
         <StyledGlobalError>{errors.global}</StyledGlobalError>

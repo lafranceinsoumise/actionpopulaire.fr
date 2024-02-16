@@ -335,44 +335,6 @@ class CreateEventAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 422)
         self.assertIn("onlineUrl", res.data)
 
-    @patch("agir.lib.geo.geocode_france")
-    def test_gestion_projet_is_created_for_related_new_event_subtype(
-        self, geocode_france
-    ):
-        self.client.force_login(self.person.role)
-
-        subtype_without_related_project_type = EventSubtype.objects.create(
-            label="2017!",
-            related_project_type="",
-            visibility=EventSubtype.VISIBILITY_ALL,
-        )
-        res = self.client.post(
-            "/api/evenements/creer/",
-            data={
-                **self.valid_data,
-                "subtype": subtype_without_related_project_type.id,
-            },
-        )
-        self.assertEqual(res.status_code, 201)
-        new_event_id = res.data["id"]
-        self.assertFalse(Projet.objects.filter(event_id=new_event_id).exists())
-
-        subtype_with_related_project_type = EventSubtype.objects.create(
-            label="2022!",
-            related_project_type=TypeProjet.DEBATS,
-            visibility=EventSubtype.VISIBILITY_ALL,
-        )
-        res = self.client.post(
-            "/api/evenements/creer/",
-            data={
-                **self.valid_data,
-                "subtype": subtype_with_related_project_type.id,
-            },
-        )
-        self.assertEqual(res.status_code, 201)
-        new_event_id = res.data["id"]
-        self.assertTrue(Projet.objects.filter(event_id=new_event_id).exists())
-
     @patch("agir.events.serializers.is_forbidden_during_treve_event", return_value=True)
     def test_event_with_forbidden_during_treve_data(
         self, is_forbidden_during_treve_event

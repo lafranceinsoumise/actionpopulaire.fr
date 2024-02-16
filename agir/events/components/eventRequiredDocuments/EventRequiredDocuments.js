@@ -172,7 +172,7 @@ const EventRequiredDocuments = (props) => {
 
   return (
     <StyledWrapper $embedded={embedded}>
-      {!embedded && <BackLink style={{ marginLeft: 0 }} />}
+      {!embedded && <BackLink />}
       {!embedded && (
         <>
           <header>
@@ -251,13 +251,9 @@ const EventRequiredDocuments = (props) => {
             </>
           )}
           {isCollapsed ? (
-            <Button
-              style={{ width: "100%" }}
-              onClick={expand}
-              icon="chevron-down"
-              rightIcon
-            >
-              Voir tout
+            <Button style={{ width: "100%" }} onClick={expand}>
+              Voir tout&ensp;
+              <FeatherIcon width="1rem" height="1rem" name="chevron-down" />
             </Button>
           ) : (
             unrequired.map((type, i) => (
@@ -304,6 +300,7 @@ EventRequiredDocuments.propTypes = {
     subtype: PropTypes.shape({
       id: PropTypes.number.isRequired,
       description: PropTypes.string.isRequired,
+      isVisible: PropTypes.bool,
     }),
   }),
   status: PropTypes.string,
@@ -311,10 +308,12 @@ EventRequiredDocuments.propTypes = {
   requiredDocumentTypes: PropTypes.arrayOf(PropTypes.string),
   documents: PropTypes.arrayOf(PropTypes.object),
   limitDate: PropTypes.string,
+
   subtypes: PropTypes.arrayOf(PropTypes.object),
-  onSaveDocument: PropTypes.func,
-  onDismissDocument: PropTypes.func,
-  onChangeSubtype: PropTypes.func,
+
+  onSaveDocument: PropTypes.func.isRequired,
+  onDismissDocument: PropTypes.func.isRequired,
+  onChangeSubtype: PropTypes.func.isRequired,
   isLoading: PropTypes.bool,
   errors: PropTypes.object,
   embedded: PropTypes.bool,
