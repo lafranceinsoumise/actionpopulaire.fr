@@ -38,7 +38,9 @@ class Command(BaseCommand):
 
         if event is not None:
             try:
-                project = Projet.objects.get(event=event)
+                project = Projet.objects.exclude(etat__in=Projet.ETATS_FINAUX).get(
+                    event=event
+                )
             except Projet.DoesNotExist:
                 self.stderr.write(f"No project found for event {event.id}!")
                 return
@@ -79,7 +81,9 @@ class Command(BaseCommand):
 
             tomorrow_event_pks = [
                 project.event_id
-                for project in Projet.objects.filter(
+                for project in Projet.objects.exclude(
+                    etat__in=Projet.ETATS_FINAUX
+                ).filter(
                     event__visibility=Event.VISIBILITY_PUBLIC,
                     event__start_time__date=tomorrow.date(),
                 )
