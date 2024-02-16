@@ -425,7 +425,11 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         return obj.is_past()
 
     def get_has_project(self, obj):
-        return Projet.objects.filter(event=obj).exists()
+        return (
+            Projet.objects.exclude(etat__in=Projet.ETATS_FINAUX)
+            .filter(event=obj)
+            .exists()
+        )
 
     def get_textDescription(self, obj):
         if isinstance(obj.description, str):
@@ -1106,7 +1110,11 @@ class UpdateEventSerializer(serializers.ModelSerializer):
                 if validated_data["organizerGroup"] is not None:
                     changed_supportgroup = str(validated_data["organizerGroup"].pk)
 
-                if Projet.objects.filter(event=event).exists():
+                if (
+                    Projet.objects.exclude(etat__in=Projet.ETATS_FINAUX)
+                    .filter(event=event)
+                    .exists()
+                ):
                     Projet.objects.from_event(event, event.organizers.first().role)
 
             transaction.on_commit(
