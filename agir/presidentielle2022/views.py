@@ -50,18 +50,17 @@ class TokTokAPIView(RetrieveAPIView):
                             memberships__person_id=self.request.user.person.id
                         )
                         .active()
-                        .certified()
                         .annotate(membership_type=F("memberships__membership_type"))
                         .filter(membership_type__gte=Membership.MEMBERSHIP_TYPE_MEMBER)
                         .order_by("-membership_type", "name")
                     ),
-                    to_attr="certified_groups_with_active_membership",
+                    to_attr="groups_with_active_membership",
                 )
             ).all(),
             id=self.request.user.person.id,
         )
 
-        if len(person.certified_groups_with_active_membership) == 0:
+        if len(person.groups_with_active_membership) == 0:
             raise PermissionDenied(detail={"error": "not_a_group_member"})
 
         return person

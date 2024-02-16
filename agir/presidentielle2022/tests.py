@@ -119,6 +119,9 @@ class TokTokAPITestCase(APITestCase):
         self.uncertified_group = SupportGroup.objects.create(
             name="Uncertified", certification_date=None
         )
+        self.unpublished_group = SupportGroup.objects.create(
+            name="Unpublished", certification_date=None, published=False
+        )
 
     def test_anonymous_cannot_access_data(self):
         self.client.logout()
@@ -132,14 +135,28 @@ class TokTokAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 403)
         self.assertEqual(res.data["error"], "not_a_group_member")
 
-    def test_person_without_a_certified_group_cannot_access_data(self):
-        misfit = Person.objects.create_insoumise("misfit@agir.test", create_role=True)
+    def test_unpublished_group_member_cannot_access_data(self):
+        banned = Person.objects.create_insoumise("banned@agir.test", create_role=True)
+        Membership.objects.create(
+            supportgroup_id=self.unpublished_group.id,
+            person_id=banned.id,
+            membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
+        )
+        self.client.force_login(banned.role)
+        res = self.client.get("/api/2022/toktok/")
+        self.assertEqual(res.status_code, 403)
+        self.assertEqual(res.data["error"], "not_a_group_member")
+
+    def test_uncertified_group_follower_cannot_access_data(self):
+        follower = Person.objects.create_insoumise(
+            "follower@agir.test", create_role=True
+        )
         Membership.objects.create(
             supportgroup_id=self.uncertified_group.id,
-            person_id=misfit.id,
-            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+            person_id=follower.id,
+            membership_type=Membership.MEMBERSHIP_TYPE_FOLLOWER,
         )
-        self.client.force_login(misfit.role)
+        self.client.force_login(follower.role)
         res = self.client.get("/api/2022/toktok/")
         self.assertEqual(res.status_code, 403)
         self.assertEqual(res.data["error"], "not_a_group_member")
@@ -158,6 +175,22 @@ class TokTokAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 403)
         self.assertEqual(res.data["error"], "not_a_group_member")
 
+    def test_person_without_a_certified_group_can_access_data(self):
+        misfit = Person.objects.create_insoumise("misfit@agir.test", create_role=True)
+        Membership.objects.create(
+            supportgroup_id=self.uncertified_group.id,
+            person_id=misfit.id,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+        )
+        self.client.force_login(misfit.role)
+        res = self.client.get("/api/2022/toktok/")
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.data["id"], str(misfit.id))
+        self.assertEqual(res.data["displayName"], misfit.display_name)
+        self.assertEqual(res.data["isManager"], True)
+        self.assertEqual(len(res.data["groups"]), 1)
+        self.assertEqual(res.data["groups"][0]["id"], self.uncertified_group.id)
+
     def test_certified_group_member_can_access_data(self):
         member = Person.objects.create_insoumise("member@agir.test", create_role=True)
         Membership.objects.create(
@@ -170,13 +203,44 @@ class TokTokAPITestCase(APITestCase):
             person_id=member.id,
             membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
         )
+        Membership.objects.create(
+            supportgroup_id=self.unpublished_group.id,
+            person_id=member.id,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+        )
         self.client.force_login(member.role)
         res = self.client.get("/api/2022/toktok/")
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.data["id"], str(member.id))
         self.assertEqual(res.data["displayName"], member.display_name)
-        self.assertEqual(res.data["isManager"], False)
-        self.assertEqual(len(res.data["groups"]), 1)
+        self.assertEqual(res.data["isManager"], True)
+        self.assertEqual(len(res.data["groups"]), 2)
+        self.assertEqual(res.data["groups"][0]["id"], self.certified_group.id)
+
+    def test_uncertified_group_manager_can_access_data(self):
+        manager = Person.objects.create_insoumise("manager@agir.test", create_role=True)
+        Membership.objects.create(
+            supportgroup_id=self.uncertified_group.id,
+            person_id=manager.id,
+            membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
+        )
+        Membership.objects.create(
+            supportgroup_id=self.certified_group.id,
+            person_id=manager.id,
+            membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
+        )
+        Membership.objects.create(
+            supportgroup_id=self.unpublished_group.id,
+            person_id=manager.id,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+        )
+        self.client.force_login(manager.role)
+        res = self.client.get("/api/2022/toktok/")
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.data["id"], str(manager.id))
+        self.assertEqual(res.data["displayName"], manager.display_name)
+        self.assertEqual(res.data["isManager"], True)
+        self.assertEqual(len(res.data["groups"]), 2)
         self.assertEqual(res.data["groups"][0]["id"], self.certified_group.id)
 
     def test_certified_group_manager_can_access_data(self):
@@ -191,11 +255,16 @@ class TokTokAPITestCase(APITestCase):
             person_id=manager.id,
             membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
         )
+        Membership.objects.create(
+            supportgroup_id=self.unpublished_group.id,
+            person_id=manager.id,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+        )
         self.client.force_login(manager.role)
         res = self.client.get("/api/2022/toktok/")
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.data["id"], str(manager.id))
         self.assertEqual(res.data["displayName"], manager.display_name)
         self.assertEqual(res.data["isManager"], True)
-        self.assertEqual(len(res.data["groups"]), 1)
+        self.assertEqual(len(res.data["groups"]), 2)
         self.assertEqual(res.data["groups"][0]["id"], self.certified_group.id)
