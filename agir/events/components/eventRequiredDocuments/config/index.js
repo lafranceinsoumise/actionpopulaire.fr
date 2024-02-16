@@ -1,1 +1,1 @@
-export * from "./config.default";
+export * from "./config.europeennes2024";
