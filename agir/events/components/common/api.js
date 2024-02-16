@@ -199,7 +199,7 @@ export const addEventProjectDocument = async (eventPk, data) => {
   });
 
   try {
-    const response = await axios.post(url, body, { headers });
+    const response = await axios.post(url, body, { headers: undefined });
     result.data = response.data;
   } catch (e) {
     if (!e.response || !e.response.data) {
