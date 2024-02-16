@@ -35,6 +35,10 @@ const StyledCard = styled.figure`
       align-items: center;
       justify-content: flex-start;
 
+      & > * {
+        flex: 0 0 auto;
+      }
+
       span {
         font-weight: 500;
         flex: 1 1 auto;
