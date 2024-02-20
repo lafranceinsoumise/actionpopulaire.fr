@@ -191,7 +191,9 @@ class UserSupportGroupsView(BaseAppSoftAuthView):
 
 class ThematicGroupsView(BaseAppCachedView):
     meta_title = "Les groupes thématiques de l'espace programme - La France insoumise"
-    meta_image = urljoin(settings.FRONT_DOMAIN, static("front/images/AEC-mini.png"))
+    meta_image = urljoin(
+        settings.FRONT_DOMAIN, static("front/images/thematic_groups.jpg")
+    )
 
     def get_api_preloads(self):
         return [*super().get_api_preloads(), reverse_lazy("api_thematic_groups")]
