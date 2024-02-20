@@ -4,6 +4,7 @@ import re
 import requests
 from data_france.models import CodePostal, Commune, Departement
 from django.contrib.gis.geos import Point
+from django.db.models import Q
 from unidecode import unidecode
 
 from .data import code_postal_vers_code_departement
@@ -408,3 +409,19 @@ def get_commune(item):
             commune = communes[0]
 
     return commune
+
+
+def filter_queryset_by_commune(queryset, commune):
+    if isinstance(commune, str):
+        commune = Commune.objects.filter(code=commune).first()
+
+    if not isinstance(commune, Commune):
+        return queryset.none()
+
+    if commune.geometry is not None:
+        return queryset.filter(
+            Q(location_citycode=commune.code)
+            | Q(coordinates__intersects=commune.geometry)
+        )
+
+    return queryset.filter(location_citycode=commune)

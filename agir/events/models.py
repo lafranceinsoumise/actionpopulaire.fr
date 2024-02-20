@@ -37,6 +37,7 @@ from agir.gestion.typologies import TypeProjet, TypeDocument
 from agir.groups.models import Membership, SupportGroup
 from agir.lib import html
 from agir.lib.form_fields import CustomJSONEncoder, DateTimePickerWidget
+from agir.lib.geo import filter_queryset_by_commune
 from agir.lib.html import textify, sanitize_html
 from agir.lib.model_fields import FacebookEventField
 from agir.lib.models import (
@@ -289,6 +290,9 @@ class EventQuerySet(models.QuerySet):
                 segment.id for segment in segments if segment.is_included(person)
             ]
         )
+
+    def for_commune(self, commune):
+        return filter_queryset_by_commune(self, commune)
 
 
 class ParticipationQuerySetMixin:

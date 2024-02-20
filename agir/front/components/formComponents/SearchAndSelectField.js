@@ -216,12 +216,17 @@ const StyledField = styled.label`
 
 const Control = ({ children, ...props }) => (
   <components.Control {...props}>
-    <RawFeatherIcon name="search" width="1rem" height="1rem" />
+    {!!props.selectProps.searchIcon && (
+      <RawFeatherIcon name="search" width="1rem" height="1rem" />
+    )}
     {children}
   </components.Control>
 );
 Control.propTypes = {
   children: PropTypes.node,
+  selectProps: PropTypes.shape({
+    searchIcon: PropTypes.bool,
+  }),
 };
 
 const Option = (props) => {
@@ -271,6 +276,8 @@ const SearchAndSelectField = (props) => {
     label,
     helpText,
     minSearchTermLength = 3,
+    searchIcon = true,
+    className = "",
     ...rest
   } = props;
 
@@ -296,6 +303,8 @@ const SearchAndSelectField = (props) => {
       {helpText && <StyledHelpText>{helpText}</StyledHelpText>}
       <Async
         {...rest}
+        className={`${className} select-search-container`.trim()}
+        searchIcon={searchIcon}
         value={value}
         isLoading={isLoading}
         loadOptions={onSearch}
@@ -325,7 +334,9 @@ SearchAndSelectField.propTypes = {
   label: PropTypes.string,
   helpText: PropTypes.node,
   error: PropTypes.string,
+  className: PropTypes.string,
   isLoading: PropTypes.bool,
+  searchIcon: PropTypes.bool,
   minSearchTermLength: PropTypes.number,
 };
 

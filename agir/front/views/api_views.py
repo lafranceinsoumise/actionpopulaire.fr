@@ -61,13 +61,16 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
         group_type=None,
         sort=None,
         inactive=None,
+        commune=None,
         country=None,
         **kwargs,
     ):
         groups = self.group_queryset
 
         # Filters
-        if country:
+        if commune:
+            groups = groups.for_commune(commune)
+        elif country:
             groups = groups.filter(location_country=country)
 
         if group_type:
@@ -106,14 +109,19 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
         event_type=None,
         schedule=None,
         sort=None,
+        commune=None,
         country=None,
         **kwargs,
     ):
         events = self.event_queryset
 
         # Filters
-        if country:
+
+        if commune:
+            events = events.for_commune(commune)
+        elif country:
             events = events.filter(location_country=country)
+
         if event_type:
             events = events.filter(subtype__type=event_type)
         if schedule == self.EVENT_FILTER_PAST:
@@ -156,30 +164,32 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
             self.RESULT_TYPE_EVENTS: [],
         }
 
-        result_limit = 20 if query_type is not None else 3
+        base_filters = {
+            "result_limit": 20 if query_type is not None else 3,
+            "commune": request.GET.get("filters[commune]"),
+            "country": request.GET.get("filters[country]"),
+        }
 
         if query_type is None or query_type == self.RESULT_TYPE_GROUPS:
-            filters = {
+            group_filters = {
                 "group_type": request.GET.get("filters[groupType]"),
                 "sort": request.GET.get("filters[groupSort]"),
                 "inactive": request.GET.get("filters[groupInactive]"),
-                "country": request.GET.get("filters[country]"),
             }
             results[self.RESULT_TYPE_GROUPS] = self.get_groups(
-                query, result_limit=result_limit, **filters
+                query, **base_filters, **group_filters
             )
 
         if query_type is None or query_type == self.RESULT_TYPE_EVENTS:
-            filters = {
+            event_filters = {
                 "event_type": request.GET.get("filters[eventType]"),
                 "schedule": request.GET.get("filters[eventSchedule]"),
                 "sort": request.GET.get("filters[eventSort]"),
-                "country": request.GET.get("filters[country]"),
             }
             results[self.RESULT_TYPE_EVENTS] = self.get_events(
                 query,
-                result_limit=result_limit,
-                **filters,
+                **base_filters,
+                **event_filters,
             )
 
         return Response(results)
