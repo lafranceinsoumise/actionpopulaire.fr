@@ -1,6 +1,7 @@
 import React from "react";
 
 import GroupMemberList from "./GroupMemberList.js";
+import Link from "@agir/front/app/Link";
 
 export default {
   component: GroupMemberList,
@@ -60,6 +61,24 @@ export const WithAddButton = Template.bind({});
 WithAddButton.args = {
   ...Default.args,
   addButtonLabel: "Ajouter votre binôme",
+};
+
+export const WithExtraActions = Template.bind({});
+WithExtraActions.args = {
+  ...Default.args,
+  extraActions: [
+    {
+      label: "Changer l'animation du groupe",
+      icon: "refresh-cw",
+      onClick: () => alert("A"),
+    },
+    {
+      label: "Je ne souhaite plus animer mon groupe",
+      icon: "arrow-right",
+      as: Link,
+      route: "groups",
+    },
+  ],
 };
 
 export const SortableAndSearchable = Template.bind({});

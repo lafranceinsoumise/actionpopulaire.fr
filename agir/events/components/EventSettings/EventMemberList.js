@@ -6,7 +6,7 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import EventMember from "./EventMember";
-import ButtonAddList from "@agir/front/genericComponents/ObjectManagement/ButtonAddList.js";
+import { ButtonAddList } from "@agir/front/genericComponents/ObjectManagement/ListButton";
 
 const MemberList = styled.div`
   box-shadow: ${style.cardShadow};

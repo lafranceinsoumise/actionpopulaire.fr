@@ -3,7 +3,9 @@ import PropTypes from "prop-types";
 import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
-import ButtonAddList from "@agir/front/genericComponents/ObjectManagement/ButtonAddList";
+import ListButton, {
+  ButtonAddList,
+} from "@agir/front/genericComponents/ObjectManagement/ListButton";
 import SelectField from "@agir/front/formComponents/SelectField";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import TextField from "@agir/front/formComponents/TextField";
@@ -81,6 +83,7 @@ const GroupMemberList = ({
   isLoading,
   sortable,
   searchable,
+  extraActions,
 }) => {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState(SORTING_OPTIONS[0]);
@@ -143,6 +146,8 @@ const GroupMemberList = ({
       {onAdd && addButtonLabel && (
         <ButtonAddList onClick={onAdd} label={addButtonLabel} />
       )}
+      {Array.isArray(extraActions) &&
+        extraActions.map((action) => <ListButton key={action} {...action} />)}
     </MemberList>
   );
 };
@@ -154,6 +159,7 @@ GroupMemberList.propTypes = {
   isLoading: PropTypes.bool,
   sortable: PropTypes.bool,
   searchable: PropTypes.bool,
+  extraActions: PropTypes.arrayOf(PropTypes.object),
 };
 
 export default GroupMemberList;

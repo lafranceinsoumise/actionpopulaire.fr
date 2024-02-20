@@ -1,6 +1,6 @@
 import React from "react";
 
-import ButtonAddList from "./ButtonAddList.js";
+import { ButtonAddList } from "./ListButton";
 
 export default {
   component: ButtonAddList,
