@@ -569,7 +569,9 @@ def get_form_field(field_descriptor: dict, is_submission_edition=False, instance
     raise ValueError(f"Unkwnown field type: '{field_type}'")
 
 
-def form_value_to_python(field_descriptor, value):
+def form_value_to_python(
+    field_descriptor, value, is_submission_edition=False, person=None
+):
     if field_descriptor is None:
         return value
 
@@ -586,7 +588,10 @@ def form_value_to_python(field_descriptor, value):
     elif field_descriptor.get("type") == "file":
         return value
 
-    field_instance = get_form_field(field_descriptor, is_submission_edition=False)
+    field_instance = get_form_field(
+        field_descriptor, is_submission_edition=is_submission_edition, instance=person
+    )
+
     try:
         return field_instance.to_python(value)
     except ValidationError:
@@ -599,20 +604,25 @@ def form_value_to_python(field_descriptor, value):
         return str(value)
 
 
-def get_data_from_submission(s):
-    data = s.data
-    fields = s.form.fields_dict
+def get_data_from_submission(submission, is_submission_edition=False):
+    data = submission.data
+    fields = submission.form.fields_dict
+    person = submission.person
 
-    model_fields = {k for k in data if k in fields and is_actual_model_field(fields[k])}
+    model_fields = {
+        key for key in data if key in fields and is_actual_model_field(fields[key])
+    }
 
     return {
         **{
-            k: form_value_to_python(fields.get(k), v)
-            for k, v in data.items()
-            if k not in model_fields
+            key: form_value_to_python(
+                fields.get(key), value, is_submission_edition, person
+            )
+            for key, value in data.items()
+            if key not in model_fields
         },
         **{
-            k: Person._meta.get_field(k).formfield().to_python(data[k])
-            for k in model_fields
+            key: Person._meta.get_field(key).formfield().to_python(data[key])
+            for key in model_fields
         },
     }

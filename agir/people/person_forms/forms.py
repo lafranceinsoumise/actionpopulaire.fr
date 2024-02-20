@@ -67,9 +67,11 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
         super().__init__(*args, data=data, **kwargs)
 
         if self.person_form_instance.editable and self.submission is not None:
-            for id, value in get_data_from_submission(self.submission).items():
-                self.initial[id] = value
             self.is_submission_edition = True
+            for id, value in get_data_from_submission(
+                self.submission, self.is_submission_edition
+            ).items():
+                self.initial[id] = value
 
         self.parts = []
         self.tags = []
