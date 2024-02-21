@@ -112,6 +112,8 @@ const StyledField = styled.div`
   ${StyledError} {
     display: ${({ $invalid }) => ($invalid ? "flex" : "none")};
     color: ${(props) => props.theme.redNSP};
+    font-size: 0.875rem;
+    line-height: 1.5;
   }
 `;
 

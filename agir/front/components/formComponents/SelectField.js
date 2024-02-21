@@ -6,6 +6,7 @@ import styled, { keyframes } from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const slideIn = keyframes`
   from {
@@ -57,6 +58,10 @@ const StyledField = styled.label`
 
   ${StyledHelpText} {
     line-height: 1.5;
+
+    small {
+      font-size: 0.875rem;
+    }
   }
 
   .select__indicator-separator {
@@ -99,6 +104,16 @@ const StyledField = styled.label`
       white-space: nowrap;
       text-overflow: ellipsis;
       overflow: hidden;
+    }
+
+    ${RawFeatherIcon} {
+      color: ${(props) => props.theme.black700};
+      width: 1.5rem;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      margin: 0;
     }
   }
 
@@ -205,6 +220,21 @@ const StyledField = styled.label`
   }
 `;
 
+const Control = ({ children, ...props }) => (
+  <components.Control {...props}>
+    {!!props.selectProps.searchIcon && (
+      <RawFeatherIcon name="search" width="1rem" height="1rem" />
+    )}
+    {children}
+  </components.Control>
+);
+Control.propTypes = {
+  children: PropTypes.node,
+  selectProps: PropTypes.shape({
+    searchIcon: PropTypes.bool,
+  }),
+};
+
 const SelectMenuList = (props) => {
   const {
     setValue,
@@ -254,6 +284,8 @@ const SelectField = (props) => {
     isSearchable,
     small,
     noWrapOptions,
+    searchIcon = false,
+    className = "",
     ...rest
   } = props;
 
@@ -273,6 +305,8 @@ const SelectField = (props) => {
       {helpText && <StyledHelpText>{helpText}</StyledHelpText>}
       <Select
         {...rest}
+        className={`${className} select-container`.trim()}
+        searchIcon={searchIcon}
         noOptionsMessage={() => "Aucune option disponible"}
         maxMenuHeight={maxMenuHeight}
         classNamePrefix="select"
@@ -287,6 +321,7 @@ const SelectField = (props) => {
         menuShouldScrollIntoView={false}
         components={{
           Menu: CustomMenu,
+          Control,
         }}
       />
       <StyledError>{error}</StyledError>
@@ -305,6 +340,8 @@ SelectField.propTypes = {
   isSearchable: PropTypes.bool,
   small: PropTypes.bool,
   noWrapOptions: PropTypes.bool,
+  searchIcon: PropTypes.bool,
+  className: PropTypes.string,
 };
 
 export default SelectField;
