@@ -55,6 +55,7 @@ from agir.groups.tasks import (
 )
 from agir.lib.display import genrer, display_liststring
 from agir.lib.export import dict_to_camelcase
+from agir.lib.geo import is_in_france
 from agir.lib.http import add_query_params_to_url
 from agir.lib.utils import front_url
 from agir.people.models import Person
@@ -215,7 +216,7 @@ class CreateSupportGroupView(HardLoginRequiredMixin, TemplateView):
                 )
             )
 
-        if (
+        if is_in_france(person) and (
             not person.contact_phone
             or not person.contact_phone_status == person.CONTACT_PHONE_VERIFIED
         ):
