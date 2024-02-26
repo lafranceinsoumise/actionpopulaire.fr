@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 
 import { getSearch } from "./api.js";
 
-export const useSearchResults = (search, type, filters) => {
+export const useSearchResults = (search = "", type, filters) => {
   const [groups, setGroups] = useState([]);
   const [events, setEvents] = useState([]);
   const [errors, setErrors] = useState(null);
@@ -10,7 +10,7 @@ export const useSearchResults = (search, type, filters) => {
 
   useEffect(() => {
     (async () => {
-      if (search.length < 3) {
+      if (!search || search.length < 3) {
         return;
       }
       setIsLoading(true);
