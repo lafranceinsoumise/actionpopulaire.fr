@@ -96,6 +96,7 @@ const StyledThumbnail = styled.div`
 const StyledWrapper = styled.div`
   display: grid;
   width: 100%;
+  max-width: 21rem;
   height: auto;
   grid-template-columns: auto 1fr auto;
   grid-template-rows: ${(props) => (props.$small ? "2rem" : "3rem")} auto auto;
@@ -105,6 +106,10 @@ const StyledWrapper = styled.div`
   border-radius: ${(props) => props.theme.borderRadius};
   box-shadow: ${(props) => props.theme.cardShadow};
   font-size: ${(props) => (props.$small ? "0.75rem" : "0.875rem")};
+
+  @media (max-width: ${(props) => props.theme.collapse}px) {
+    max-width: 100%;
+  }
 
   & > ${RawFeatherIcon} {
     grid-area: icon;
@@ -159,14 +164,16 @@ const StyledWrapper = styled.div`
     grid-area: image;
     display: block;
     width: 100%;
-    height: 14rem;
+    height: auto;
+    max-height: 14rem;
+    min-height: 5rem;
     object-fit: cover;
     object-position: center center;
   }
 `;
 
 const MessageAttachment = (props) => {
-  const { file, name, small = false, thumbnail = small, onDelete } = props;
+  const { file, name, small = false, thumbnail = false, onDelete } = props;
   const isImage = useMemo(
     () => name && name.match(/\.(jpg|jpeg|png|gif)$/i),
     [name],
@@ -203,7 +210,7 @@ const MessageAttachment = (props) => {
   }
 
   return (
-    <StyledWrapper $small={small && !isImage}>
+    <StyledWrapper $small={small && !isImage} $image={!isImage}>
       {!isImage && <RawFeatherIcon name="paperclip" />}
       <strong>{name}</strong>
       {onDelete ? (

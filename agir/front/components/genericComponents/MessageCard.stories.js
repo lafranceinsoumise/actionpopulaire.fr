@@ -1,21 +1,84 @@
+import { http, HttpResponse, delay } from "msw";
 import React from "react";
 
 import MessageCard from "./MessageCard";
 
+const mockComments = {
+  count: 3,
+  previous: null,
+  next: null,
+  results: [
+    {
+      id: "comment-0",
+      author: {
+        id: "Isabelle",
+        displayName: "Isabelle Guérini",
+      },
+      text: "Est-ce que c’est possible de commencer un peu plus tard ? Ma fille termine le karaté et j’arriverai à la maison tout juste...",
+      created: "2021-01-09 12:30:00",
+      attachment: null,
+    },
+    {
+      id: "comment-1",
+      author: {
+        id: "Isabelle",
+        displayName: "Isabelle Guérini",
+      },
+      text: "Est-ce que c’est possible de commencer un peu plus tard ?\n\nMa fille termine le karaté et j’arriverai à la maison tout juste...",
+      created: "2022-01-09 12:30:00",
+      attachment: {
+        name: "document.pdf",
+        file: "https://picsum.photos/640/360",
+      },
+    },
+    {
+      id: "comment-2",
+      author: {
+        id: "Isabelle",
+        displayName: "Isabelle Guérini",
+      },
+      text: "Est-ce que c’est possible de commencer un peu plus tard ?\n\nMa fille termine le karaté et j’arriverai à la maison tout juste...",
+      created: "2023-01-09 12:30:00",
+      attachment: {
+        name: "image.jpg",
+        file: "https://picsum.photos/640/360",
+      },
+    },
+  ],
+};
+
 export default {
   component: MessageCard,
   title: "Generic/MessageCard",
-  decorators: [
-    (story) => (
-      <div
-        style={{
-          maxWidth: 700,
-        }}
-      >
-        {story()}
-      </div>
-    ),
-  ],
+  parameters: {
+    layout: "padded",
+    msw: {
+      handlers: [
+        http.get("/api/groupes/messages/:message/comments/", ({ params }) => {
+          delay("real");
+          return HttpResponse.json(
+            params.message === "no-comment"
+              ? { count: 0, results: [] }
+              : mockComments,
+          );
+        }),
+        http.get("/api/groupes/messages/:message/participants/", () => {
+          delay("real");
+          return HttpResponse.json({
+            total: 1789,
+            active: [
+              {
+                id: "Bill",
+                displayName: "Bill Murray",
+                image: "https://loremflickr.com/200/200",
+                isAuthor: true,
+              },
+            ],
+          });
+        }),
+      ],
+    },
+  },
 };
 
 const Template = (args) => {
@@ -103,55 +166,60 @@ Default.args = {
       groups: [{ id: "A", name: "Groupe d'action 1" }],
     },
   },
-  commentCount: 2,
-  comments: [
-    {
-      id: "comment-1",
-      author: {
-        id: "Isabelle",
-        displayName: "Isabelle Guérini",
-      },
-      text: "Est-ce que c’est possible de commencer un peu plus tard ? Ma fille termine le karaté et j’arriverai à la maison tout juste...",
-      created: "2021-01-09 12:30:00",
-    },
-    {
-      id: "comment-2",
-      author: {
-        id: "Isabelle",
-        displayName: "Isabelle Guérini",
-      },
-      text: "Est-ce que c’est possible de commencer un peu plus tard ? Ma fille termine le karaté et j’arriverai à la maison tout juste...",
-      created: "2021-01-09 12:30:00",
-    },
-  ],
 };
 
 export const NoComments = Template.bind({});
 NoComments.args = {
   ...Default.args,
-  comments: [],
-  commentCount: 0,
+  message: {
+    ...Default.args.message,
+    id: "no-comment",
+  },
 };
 
 export const NoEvent = Template.bind({});
 NoEvent.args = {
-  ...NoComments.args,
+  ...Default.args,
   message: {
-    ...NoComments.args.message,
+    ...Default.args.message,
     linkedEvent: null,
   },
 };
 
 export const MultilineMessage = Template.bind({});
 MultilineMessage.args = {
-  ...NoComments.args,
+  ...Default.args,
   message: {
-    ...NoComments.args.message,
+    ...Default.args.message,
     text: `
       Un message
       sur
       plusieurs lignes.
       Point.
     `,
+  },
+};
+
+export const WithAttachment = Template.bind({});
+WithAttachment.args = {
+  ...Default.args,
+  message: {
+    ...Default.args.message,
+    attachment: {
+      name: "document.pdf",
+      file: "https://picsum.photos/640/360",
+    },
+  },
+};
+
+export const WithImage = Template.bind({});
+WithImage.args = {
+  ...Default.args,
+  message: {
+    ...Default.args.message,
+    attachment: {
+      name: "image.jpg",
+      file: "https://picsum.photos/640/360",
+    },
   },
 };

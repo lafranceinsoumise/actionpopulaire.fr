@@ -42,6 +42,7 @@ import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 
 import { useCommentsSWR } from "@agir/msgs/common/hooks";
 import { StyledLoader } from "@agir/msgs/MessagePage/MessageThreadMenu";
+import MessageAttachment from "../formComponents/MessageAttachment";
 
 export const StyledInlineMenuItems = styled.div`
   cursor: pointer;
@@ -149,6 +150,10 @@ const StyledContent = styled.div`
   @media (max-width: ${style.collapse}px) {
     font-size: 0.875rem;
     line-height: 1.6;
+  }
+
+  & > p:last-of-type {
+    margin-bottom: 0;
   }
 `;
 export const StyledHeader = styled.div`
@@ -472,6 +477,7 @@ const MessageCard = (props) => {
     created,
     linkedEvent,
     lastUpdate,
+    attachment,
     isLocked,
     readonly,
   } = message;
@@ -668,6 +674,7 @@ const MessageCard = (props) => {
           <StyledContent onClick={handleClick}>
             <ParsedString>{text}</ParsedString>
           </StyledContent>
+          <MessageAttachment file={attachment?.file} name={attachment?.name} />
           {!!event && <EventCard {...event} />}
           <StyledComments $empty={!comments?.length}>
             <PageFadeIn ready={comments.length > 0}>
@@ -757,6 +764,10 @@ MessageCard.propTypes = {
     text: PropTypes.string.isRequired,
     linkedEvent: PropTypes.object,
     lastUpdate: PropTypes.string,
+    attachment: PropTypes.shape({
+      file: PropTypes.string,
+      name: PropTypes.string,
+    }),
     isLocked: PropTypes.bool,
     readonly: PropTypes.bool,
     requiredMembershipType: PropTypes.number,
