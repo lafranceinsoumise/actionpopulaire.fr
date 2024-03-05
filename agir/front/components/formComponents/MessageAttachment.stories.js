@@ -29,7 +29,7 @@ const Template = ({ name, file, ...args }) => {
 
     setValue({
       name: file.name,
-      file: URL.createObjectURL(file),
+      file,
     });
   }, []);
 

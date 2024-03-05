@@ -1,8 +1,33 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useRef } from "react";
 import styled from "styled-components";
 
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+
+const StyledIconButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.5rem;
+  width: 1.5rem;
+  border: none;
+  padding: 0;
+  margin: -1px 0 0;
+  text-decoration: none;
+  background: inherit;
+  cursor: pointer;
+  text-align: center;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  color: ${(props) => props.theme.black1000};
+
+  &:hover,
+  &:focus {
+    border: none;
+    outline: none;
+    opacity: 0.6;
+  }
+`;
 
 const StyledThumbnail = styled.div`
   position: relative;
@@ -172,12 +197,87 @@ const StyledWrapper = styled.div`
   }
 `;
 
+export const useFileInput = (onChange) => {
+  const attachmentInputRef = useRef(null);
+
+  const handleChange = useCallback(
+    (e) => {
+      const file =
+        e?.target?.files && e.target.files[e.target.files.length - 1];
+
+      file &&
+        onChange({
+          name: file.name,
+          file,
+        });
+    },
+    [onChange],
+  );
+
+  const handleClear = useCallback(() => {
+    onChange(null);
+    attachmentInputRef.current.value = null;
+  }, [onChange]);
+
+  const handleAttach = useCallback(() => {
+    attachmentInputRef.current.click();
+  }, []);
+
+  const input = useMemo(
+    () => (
+      <input
+        style={{ display: "none" }}
+        type="file"
+        ref={attachmentInputRef}
+        onChange={handleChange}
+      />
+    ),
+    [handleChange],
+  );
+
+  return [handleClear, handleAttach, input];
+};
+
+export const IconFileInput = (props) => {
+  return (
+    <StyledIconButton type="button" {...props}>
+      <RawFeatherIcon
+        name="paperclip"
+        strokeWidth={1.5}
+        width="1.5rem"
+        height="1.5rem"
+      />
+    </StyledIconButton>
+  );
+};
+
 const MessageAttachment = (props) => {
-  const { file, name, small = false, thumbnail = false, onDelete } = props;
+  const {
+    file,
+    name,
+    small = false,
+    thumbnail = false,
+    onDelete,
+    tabIndex,
+    ...rest
+  } = props;
+
   const isImage = useMemo(
     () => name && name.match(/\.(jpg|jpeg|png|gif)$/i),
     [name],
   );
+
+  const fileURI = useMemo(() => {
+    if (!file) {
+      return "";
+    }
+
+    if (typeof file === "string") {
+      return file;
+    }
+
+    return URL.createObjectURL(file);
+  }, [file]);
 
   const handleDelete = useCallback(
     (e) => {
@@ -197,11 +297,21 @@ const MessageAttachment = (props) => {
 
   if (thumbnail) {
     return (
-      <StyledThumbnail as="a" download={name} href={file}>
+      <StyledThumbnail
+        {...rest}
+        as={onDelete ? undefined : "button"}
+        download={onDelete ? undefined : name}
+        href={onDelete ? undefined : fileURI}
+        tabIndex={tabIndex}
+      >
         {!isImage && <RawFeatherIcon name="file-text" />}
-        {isImage ? <img src={file} alt={name} /> : <strong>{name}</strong>}
+        {isImage ? <img src={fileURI} alt={name} /> : <strong>{name}</strong>}
         {onDelete && (
-          <button aria-label="Supprimer la pièce-jointe" onClick={handleDelete}>
+          <button
+            tabIndex={tabIndex}
+            aria-label="Supprimer la pièce-jointe"
+            onClick={handleDelete}
+          >
             <RawFeatherIcon name="x" />
           </button>
         )}
@@ -210,26 +320,36 @@ const MessageAttachment = (props) => {
   }
 
   return (
-    <StyledWrapper $small={small && !isImage} $image={!isImage}>
+    <StyledWrapper {...rest} $small={small && !isImage} $image={!isImage}>
       {!isImage && <RawFeatherIcon name="paperclip" />}
       <strong>{name}</strong>
       {onDelete ? (
-        <button aria-label="Supprimer la pièce-jointe" onClick={handleDelete}>
+        <button
+          tabIndex={tabIndex}
+          aria-label="Supprimer la pièce-jointe"
+          onClick={handleDelete}
+        >
           <RawFeatherIcon name="trash-2" />
         </button>
       ) : (
-        <a aria-label="Télécharger la pièce-jointe" download={name} href={file}>
+        <a
+          tabIndex={tabIndex}
+          aria-label="Télécharger la pièce-jointe"
+          download={name}
+          href={fileURI}
+        >
           <RawFeatherIcon name="download" />
         </a>
       )}
-      {isImage && <img src={file} alt={name} />}
+      {isImage && <img src={fileURI} alt={name} />}
     </StyledWrapper>
   );
 };
 
 MessageAttachment.propTypes = {
-  file: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
+  file: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  name: PropTypes.string,
+  tabIndex: PropTypes.number,
   small: PropTypes.bool,
   thumbnail: PropTypes.bool,
   onDelete: PropTypes.func,

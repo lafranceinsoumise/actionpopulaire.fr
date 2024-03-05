@@ -7,7 +7,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import Button from "@agir/front/genericComponents/Button";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import ModalWrapper from "@agir/front/genericComponents/Modal";
-
+import { useFileInput } from "@agir/front/formComponents/MessageAttachment";
 import GroupStep from "./GroupStep";
 import EventStep from "./EventStep";
 import MessageStep from "./MessageStep";
@@ -60,13 +60,20 @@ const StyledModalHeader = styled.header`
 
   @media (max-width: ${style.collapse}px) {
     display: ${({ $mobile }) => ($mobile ? "flex" : "none")};
-    justify-content: space-between;
-    height: 64px;
+    align-items: center;
+    height: 4rem;
     padding: 0 1rem;
+    gap: 0.5rem;
     position: sticky;
     top: 0;
     background-color: white;
     z-index: 1;
+  }
+
+  & > * {
+    @media (max-width: ${style.collapse}px) {
+      flex: 0 0 auto;
+    }
   }
 
   h4 {
@@ -80,6 +87,10 @@ const StyledModalHeader = styled.header`
   ${StyledIconButton} {
     grid-column: 2/3;
     grid-row: 1/2;
+
+    @media (max-width: ${style.collapse}px) {
+      margin-right: auto;
+    }
   }
 `;
 const StyledModalBody = styled.div`
@@ -160,7 +171,11 @@ const Modal = (props) => {
 
   const [subject, setSubject] = useState(message?.subject || "");
   const [text, setText] = useState(message?.text || "");
-  const [errors, setErrors] = useState({});
+  const [attachment, setAttachment] = useState(message?.attachment || null);
+  const [handleClearAttachment, handleAttach, attachmentInput] =
+    useFileInput(setAttachment);
+
+  const [errors, setErrors] = useState(null);
 
   const [hasBackButton, setHasBackButton] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(
@@ -179,7 +194,14 @@ const Modal = (props) => {
       return !!selectedGroup;
     }
     return true;
-  }, [isLoading, subject, text, groups, selectedEvent, selectedGroup]);
+  }, [isLoading, groups, selectedEvent, selectedGroup]);
+
+  const eventOptions = useMemo(() => {
+    if (!Array.isArray(events) || events.length === 0) {
+      return [...EMPTY_EVENTS];
+    }
+    return [...EMPTY_EVENTS, ...events];
+  }, [events]);
 
   const handleChangeMessage = useCallback((prop, text) => {
     if (prop === "subject") {
@@ -207,6 +229,15 @@ const Modal = (props) => {
     setHasBackButton(false);
   }, []);
 
+  const handleSendOnCtrlEnter = useCallback(
+    (e) => {
+      if (maySend && e.ctrlKey && e.keyCode === 13) {
+        handleSend();
+      }
+    },
+    [maySend, handleSend],
+  );
+
   const handleSend = useCallback(() => {
     if (!subject || !text) {
       setErrors({
@@ -231,6 +262,7 @@ const Modal = (props) => {
     maySend &&
       onSend({
         ...(initialMessage || {}),
+        attachment,
         subject: subject.trim(),
         text: text.trim(),
         linkedEvent: selectedEvent,
@@ -242,6 +274,7 @@ const Modal = (props) => {
     initialMessage,
     subject,
     text,
+    attachment,
     selectedEvent,
     selectedGroup,
   ]);
@@ -257,27 +290,12 @@ const Modal = (props) => {
   }, [shouldShow, initialMessage]);
 
   useEffect(() => {
-    setErrors({ ...errors, subject: null });
+    setErrors((errs) => ({ ...errs, subject: null }));
   }, [subject]);
+
   useEffect(() => {
-    setErrors({ ...errors, text: null });
+    setErrors((errs) => ({ ...errs, text: null }));
   }, [text]);
-
-  const handleSendOnCtrlEnter = useCallback(
-    (e) => {
-      if (maySend && e.ctrlKey && e.keyCode === 13) {
-        handleSend();
-      }
-    },
-    [maySend, handleSend],
-  );
-
-  const eventOptions = useMemo(() => {
-    if (!Array.isArray(events) || events.length === 0) {
-      return [...EMPTY_EVENTS];
-    }
-    return [...EMPTY_EVENTS, ...events];
-  }, [events]);
 
   return (
     <ModalWrapper shouldShow={shouldShow} noScroll>
@@ -296,14 +314,25 @@ const Modal = (props) => {
             <RawFeatherIcon name={hasBackButton ? "arrow-left" : "x"} />
           </StyledIconButton>
           {(selectedEvent || !!groupPk) && (
-            <Button
-              color="secondary"
-              small
-              disabled={!maySend}
-              onClick={handleSend}
-            >
-              Envoyer
-            </Button>
+            <>
+              <Button
+                small
+                icon="paperclip"
+                color="choose"
+                onClick={handleAttach}
+              >
+                Joindre
+              </Button>
+              {attachmentInput}
+              <Button
+                color="secondary"
+                small
+                disabled={!maySend}
+                onClick={handleSend}
+              >
+                Envoyer
+              </Button>
+            </>
           )}
         </StyledModalHeader>
         <StyledModalBody onKeyDown={handleSendOnCtrlEnter}>
@@ -321,9 +350,12 @@ const Modal = (props) => {
               text={text}
               subject={subject}
               event={selectedEvent}
+              attachment={attachment}
               user={user}
               onChange={handleChangeMessage}
               onClearEvent={handleClearEvent}
+              onAttach={handleAttach}
+              onClearAttachment={handleClearAttachment}
               disabled={isLoading}
               errors={errors}
               maxLength={TEXT_MAX_LENGTH}
@@ -358,9 +390,12 @@ Modal.propTypes = {
     text: PropTypes.string,
     linkedEvent: PropTypes.object,
     group: PropTypes.object,
+    attachment: PropTypes.object,
   }),
   onSend: PropTypes.func.isRequired,
   user: PropTypes.object,
   isLoading: PropTypes.bool,
+  groupPk: PropTypes.string,
+  onBoarding: PropTypes.bool,
 };
 export default Modal;

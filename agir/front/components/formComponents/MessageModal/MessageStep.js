@@ -1,14 +1,17 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useRef, Suspense } from "react";
+import React, { Suspense, useCallback, useRef } from "react";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
-import { displayShortDate } from "@agir/lib/utils/time";
 import { lazy } from "@agir/front/app/utils";
 import Spacer from "@agir/front/genericComponents/Spacer";
+import style from "@agir/front/genericComponents/_variables.scss";
+import { displayShortDate } from "@agir/lib/utils/time";
 
-import Avatar from "@agir/front/genericComponents/Avatar";
+import MessageAttachment, {
+  IconFileInput,
+} from "@agir/front/formComponents/MessageAttachment";
 import TextField from "@agir/front/formComponents/TextField";
+import Avatar from "@agir/front/genericComponents/Avatar";
 import StaticToast from "@agir/front/genericComponents/StaticToast";
 
 const EmojiPicker = lazy(
@@ -17,12 +20,12 @@ const EmojiPicker = lazy(
 
 const StyledLabel = styled.div``;
 const StyledMessage = styled.div``;
-const StyledCounter = styled.span`
+const StyledCounter = styled.p`
   font-size: 1rem;
   font-weight: 400;
   line-height: 1;
   color: ${({ $invalid }) => ($invalid ? style.redNSP : "inherit")};
-  margin-left: auto;
+  text-align: right;
 
   @media (max-width: ${style.collapse}px) {
     display: inline;
@@ -143,8 +146,10 @@ const StyledWrapper = styled.div`
     footer {
       display: flex;
       flex-flow: row nowrap;
+      gap: 1rem;
       justify-content: flex-start;
       align-items: center;
+      margin-top: 2rem;
 
       & > * {
         @media (max-width: ${style.collapse}px) {
@@ -162,9 +167,12 @@ const MessageStep = (props) => {
     subject,
     text,
     event,
+    attachment,
     user,
     onChange,
     onClearEvent,
+    onAttach,
+    onClearAttachment,
     maxLength,
     subjectMaxLength,
     groupPk,
@@ -205,7 +213,7 @@ const MessageStep = (props) => {
       ];
     }
   }, []);
-
+  console.log(errors);
   return (
     <StyledWrapper>
       {!!groupPk && (
@@ -287,6 +295,17 @@ const MessageStep = (props) => {
           maxLength={maxLength}
           hasCounter={false}
         />
+        {typeof maxLength === "number" && text.length >= maxLength / 2 && (
+          <StyledCounter $invalid={text.length > maxLength}>
+            {text.length}/{maxLength}
+          </StyledCounter>
+        )}
+        <Spacer size="0.5rem" />
+        <MessageAttachment
+          file={attachment?.file}
+          name={attachment?.name}
+          onDelete={onClearAttachment}
+        />
         <footer>
           <Suspense fallback={null}>
             <EmojiPicker
@@ -294,20 +313,16 @@ const MessageStep = (props) => {
               onSelect={handleEmojiSelect}
             />
           </Suspense>
-          {typeof maxLength === "number" && text.length >= maxLength / 2 && (
-            <StyledCounter $invalid={text.length > maxLength}>
-              {text.length}/{maxLength}
-            </StyledCounter>
-          )}
+          <IconFileInput onClick={onAttach} />
         </footer>
-        {errors?.subject && (
-          <StaticToast style={{ marginTop: "1rem" }}>
-            {errors.subject}
-          </StaticToast>
-        )}
-        {errors?.text && (
-          <StaticToast style={{ marginTop: "1rem" }}>{errors.text}</StaticToast>
-        )}
+        {errors &&
+          Object.entries(errors)
+            .filter(([_key, err]) => !!err)
+            .map(([key, err]) => (
+              <StaticToast key={key} style={{ marginTop: "1rem" }}>
+                {err}
+              </StaticToast>
+            ))}
       </StyledMessage>
     </StyledWrapper>
   );
@@ -317,13 +332,27 @@ MessageStep.propTypes = {
   subject: PropTypes.string,
   text: PropTypes.string,
   event: PropTypes.object,
+  attachment: PropTypes.shape({
+    file: PropTypes.string,
+    name: PropTypes.string,
+  }),
   user: PropTypes.shape({
     displayName: PropTypes.string.isRequired,
     image: PropTypes.string,
+    groups: PropTypes.arrayOf(PropTypes.shape),
   }).isRequired,
   onChange: PropTypes.func,
   onClearEvent: PropTypes.func,
+  onAttach: PropTypes.func,
+  onClearAttachment: PropTypes.func,
   maxLength: PropTypes.number,
   subjectMaxLength: PropTypes.number,
+  errors: PropTypes.shape({
+    text: PropTypes.string,
+    subject: PropTypes.string,
+    attachment: PropTypes.string,
+  }),
+  groupPk: PropTypes.string,
+  onBoarding: PropTypes.bool,
 };
 export default MessageStep;

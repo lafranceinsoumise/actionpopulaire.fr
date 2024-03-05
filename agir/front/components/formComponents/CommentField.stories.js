@@ -2,6 +2,7 @@ import React from "react";
 
 import CommentField, { CommentButton } from "./CommentField";
 import Comment from "./Comment";
+import MessageAttachment from "./MessageAttachment";
 
 export default {
   component: CommentField,
@@ -17,15 +18,15 @@ const user = {
 };
 
 export const Default = () => {
-  const [messages, setMessages] = React.useState(["Bonjour."]);
+  const [messages, setMessages] = React.useState([["Bonjour."]]);
   const [isLoading, setIsLoading] = React.useState(false);
   const scrollerRef = React.useRef();
-  const handleSend = React.useCallback(async (message) => {
+  const handleSend = React.useCallback(async (message, attachment) => {
     await new Promise((resolve) => {
       setIsLoading(true);
       setTimeout(() => {
         setIsLoading(false);
-        setMessages((state) => [...state, message.trim()]);
+        setMessages((state) => [...state, [message.trim(), attachment]]);
         resolve();
       }, 3000);
     });
@@ -38,9 +39,11 @@ export const Default = () => {
         background: "lightgrey",
         minHeight: "100vh",
         padding: "16px",
+        maxWidth: "100%",
+        overflowX: "hidden",
       }}
     >
-      {messages.map((message) => (
+      {messages.map(([message, attachment]) => (
         <p
           style={{
             background: "white",
@@ -56,17 +59,14 @@ export const Default = () => {
           <br />
           {message}
           <br />
-          <small>
-            <code>{JSON.stringify(message)}</code>
-          </small>
+          <br />
+          <MessageAttachment file={attachment?.file} name={attachment?.name} />
         </p>
       ))}
       <div
         style={{
-          boxSizing: "border-box",
-          padding: "0",
           maxWidth: "480px",
-          margin: "0 auto",
+          margin: "2rem auto",
         }}
       >
         <CommentField
