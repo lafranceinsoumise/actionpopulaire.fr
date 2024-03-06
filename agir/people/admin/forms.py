@@ -16,10 +16,8 @@ from agir.lib.google_sheet import (
     check_sheet_permissions,
 )
 from agir.people.models import Person, PersonEmail
-from agir.people.person_forms.actions import (
-    validate_custom_fields,
-    get_people_form_class,
-)
+from agir.people.person_forms.actions import validate_custom_fields
+from agir.people.person_forms.forms import PersonFormController
 from agir.people.person_forms.models import PersonForm
 from agir.people.person_forms.schema import schema
 
@@ -136,8 +134,9 @@ class PersonFormSandboxForm(forms.ModelForm):
     def _post_clean(self):
         super()._post_clean()
         try:
-            klass = get_people_form_class(self.instance)
-            klass()
+            form_controller = PersonFormController(
+                person_form=self.instance, instance=None
+            )
         except Exception:
             self.add_error(
                 None,
@@ -196,8 +195,7 @@ class PersonFormForm(forms.ModelForm):
         super()._post_clean()
 
         try:
-            klass = get_people_form_class(self.instance)
-            klass()
+            PersonFormController(person_form=self.instance)
         except Exception:
             self.add_error(
                 None,

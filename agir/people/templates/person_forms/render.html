@@ -1,0 +1,8 @@
+
+  {% for fieldset in fieldsets %}
+    {% if fieldset.multiple %}
+      {% include "person_forms/multiple_fieldset.html" %}
+    {% else %}
+      {% include "person_forms/standard_fieldset.html" %}
+    {% endif %}
+  {% endfor %}

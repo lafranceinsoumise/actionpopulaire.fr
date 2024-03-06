@@ -10,8 +10,8 @@ from nuntius.models import Campaign
 
 from agir.api.redis import using_separate_redis_server
 from agir.people.models import Person, PersonTag, PersonForm, PersonFormSubmission
-from agir.people.person_forms.actions import get_people_form_class
 from agir.people.person_forms.display import default_person_form_display
+from agir.people.person_forms.forms import PersonFormController
 
 
 class SetUpPersonFormsMixin:
@@ -625,16 +625,25 @@ class FieldsTestCase(TestCase):
             ],
         )
 
-        form_class = get_people_form_class(person_form)
-        form = form_class(data={"person": "test@example.com"}, instance=self.person)
-        self.assertFalse(form.is_valid())
-        form.has_error("person", code="selected_self")
+        form_controller = PersonFormController(
+            data={"person": "test@example.com"},
+            instance=self.person,
+            person_form=person_form,
+        )
+        self.assertFalse(form_controller.is_valid())
+        self.assertTrue(
+            form_controller.main_form.has_error("person", code="selected_self")
+        )
 
         person_form.custom_fields[0]["fields"][0]["allow_self"] = True
 
-        form_class = get_people_form_class(person_form)
-        form = form_class(data={"person": "test@example.com"}, instance=self.person)
-        self.assertTrue(form.is_valid())
+        form_controller = PersonFormController(
+            data={"person": "test@example.com"},
+            instance=self.person,
+            person_form=person_form,
+        )
+
+        self.assertTrue(form_controller.is_valid())
 
     # utilise un token bucket
     @using_separate_redis_server

@@ -1,0 +1,13 @@
+{% load crispy_forms_filters %}
+
+<fieldset>
+  <legend>{{ fieldset.title }}</legend>
+  {% if fieldset.intro_html %}
+  {% autoescape off %}
+    {{ fieldset.intro_html }}
+  {% endautoescape %}
+  {% endif %}
+  {% for field in fieldset.fields %}
+    {{ field.field_instance|as_crispy_field }}
+  {% endfor %}
+</fieldset>

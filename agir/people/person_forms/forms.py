@@ -1,27 +1,22 @@
 import os
-from copy import copy
 from pathlib import PurePath
 from uuid import uuid4
 
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
 from django import forms
-from django.core.exceptions import ValidationError
 from django.core.files import File
 from django.core.files.storage import default_storage
+from django.forms import formset_factory
+from django.template.loader import get_template
 from django.utils.text import slugify
 
-from agir.lib.form_components import *
-from agir.lib.form_mixins import MetaFieldsMixin
 from agir.lib.token_bucket import TokenBucket
-from agir.people.person_forms.field_groups import get_form_part
 from .fields import (
     is_actual_model_field,
     get_data_from_submission,
     get_form_field,
     FileList,
 )
-from ..models import Person, PersonFormSubmission
+from ..models import PersonFormSubmission
 
 check_person_email_bucket = TokenBucket("PersonFormPersonChoice", 10, 600)
 
@@ -31,187 +26,252 @@ class SuperHiddenDisplay(forms.HiddenInput):
         return ""
 
 
-class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
-    """base form class for using PersonForm models
+class PersonFormController:
+    """Contrôleur pour les formulaires de personnes.
 
-    It should not be used by itself, but only with people.actions.get_people_form_class
+    Cette classe est notamment responsable pour la gestion :
+
+    - des champs cachés, qui doivent être « peuplés » à partir des champs GET de l'URL, et non du POST
+    - de la création du formulaire principal, et des FormSet correspondant à chaque fieldset multiple
+    - de l'orchestration de la validation générale.
+
     """
 
-    person_form_instance = None
-    hidden_fields = {}
-    is_submission_edition = False
+    def __init__(
+        self,
+        person_form,
+        instance=None,
+        data=None,
+        files=None,
+        query_params=None,
+        submission=None,
+        initial=None,
+        base_class=forms.Form,
+        **kwargs,
+    ):
+        self.data = data
+        self.files = files
+        self.query_params = query_params
+        self.base_class = base_class
+        self.initial = initial
+        self.kwargs = kwargs
 
-    def get_meta_fields(self):
-        return [
-            field["id"]
-            for fieldset in self.person_form_instance.custom_fields
-            for field in fieldset.get("fields", [])
-            if field.get("person_field") and not is_actual_model_field(field)
+        self.tags_to_add = []
+        self.errors = []
+
+        self.person_form_instance = person_form
+        self.submitter = instance
+
+        self.submission = submission
+        self.edition = bool(submission)
+
+        self.description = self.get_description()
+
+        self.main_form = self.get_main_form()
+        self.formsets = self.get_formsets()
+        self.hidden_form = self.get_hidden_form()
+
+        if self.hidden_form and not self.hidden_form.is_valid():
+            self.errors.append("Le lien que vous avez suivi est invalide.")
+
+    def get_description(self):
+        """deep clone form description to avoid issues with modifying it"""
+        main_field = None
+
+        if not self.person_form_instance._state.adding:
+            main_field = self.person_form_instance.main_question_field
+            all_tags = list(self.person_form_instance.tags.all())
+            # if main_question is not specified or only one tag is selected: automatically add the tag(s)
+            if len(all_tags) <= 1 or not main_field:
+                self.tags_to_add += all_tags
+
+        description = [
+            *([main_field] if main_field else []),
+            *[
+                {**fieldset, "fields": [{**f} for f in fieldset.get("fields", [])]}
+                for fieldset in self.person_form_instance.custom_fields
+            ],
         ]
 
-    def __init__(self, *args, query_params=None, data=None, **kwargs):
-        self.submission = kwargs.pop("submission", None)
+        return description
 
-        if self.person_form_instance.config.get("hidden_fields"):
-            self.hidden_fields = {
-                desc["id"]: desc
-                for desc in self.person_form_instance.config["hidden_fields"]
-            }
+    def get_main_form_fields(self):
+        return [
+            desc
+            for fieldset in self.description
+            if not fieldset.get("multiple", False)
+            for desc in fieldset["fields"]
+        ]
 
-        # s'assurer que les informations des champs hidden fields viennent forcément de GET
-        if data is not None and query_params is not None:
-            data = copy(data)  # to make it mutable
-            for f in self.hidden_fields:
-                data[f] = query_params.get(f)
+    def get_person_fields(self):
+        return [
+            desc
+            for desc in self.get_main_form_fields()
+            if desc.get("person_field", False)
+        ]
 
-        super().__init__(*args, data=data, **kwargs)
+    def get_main_form_initial(self):
+        initial = {}
 
-        if self.person_form_instance.editable and self.submission is not None:
+        # Il faut initialiser les person fields (y compris les champs meta) à partir de la valeur de l'objet
+        if self.submitter:
+            for field in self.get_person_fields():
+                if is_actual_model_field(field):
+                    initial[field["id"]] = getattr(self.submitter, field["id"])
+                else:
+                    initial[field["id"]] = self.submitter.meta.get(field["id"])
+
+        # Si nous sommes dans le cas d'une édition, préremplir les champs avec les valeurs actuelles
+        if self.edition:
             for id, value in get_data_from_submission(self.submission).items():
-                self.initial[id] = value
-            self.is_submission_edition = True
+                initial[id] = value
 
-        self.parts = []
-        self.tags = []
+        if self.initial:
+            initial.update(self.initial)
 
-        # lors de la création et du test du formulaire, celui-ci n'a pas encore d'ID, et on ne peut pas manipuler
-        # ses tags
-        if not self.person_form_instance._state.adding:
-            self.tag_queryset = list(self.person_form_instance.tags.all())
+        return initial
 
-            if self.person_form_instance.main_question_fields:
-                # if main_question is specified and more than one tag selected: allow the person to choose the tag
-                self.parts.append(
-                    get_form_part(
-                        {
-                            "title": " ",
-                            "fields": self.person_form_instance.main_question_fields,
-                        }
-                    )
-                )
-            elif self.tag_queryset:
-                # if main_question is not specified or only one tag is selected: automatically add the tag(s)
-                self.tags += self.tag_queryset
-
-        opts = self._meta
-        if opts.fields:
-            for f in opts.fields:
-                self.fields[f].required = True
-
-        self.helper = FormHelper()
-        self.helper.form_method = "POST"
-        if self.person_form_instance.campaign_template is not None:
-            self.helper.add_input(
-                Submit(
-                    "preview",
-                    "Prévisualiser l'email",
-                    formtarget="_blank",
-                    css_class="btn btn-primary btn-block margintopmore btn-submit",
-                )
+    def get_main_form(self):
+        fields_descriptors = self.get_main_form_fields()
+        fields = {
+            f["id"]: get_form_field(
+                f,
+                edition=self.edition,
+                instance=self.submitter,
             )
+            for f in fields_descriptors
+        }
 
-        self.helper.add_input(
-            Submit(
-                "submit",
-                self.person_form_instance.submit_label,
-                disabled=self.person_form_instance.campaign_template is not None,
-                css_class="btn btn-primary btn-block margintopmore btn-submit",
-            )
+        fields["_controller"] = self
+
+        form_klass = type("MainForm", (self.base_class,), fields)
+
+        form = form_klass(
+            data=self.data,
+            files=self.files,
+            initial=self.get_main_form_initial(),
+            **self.kwargs,
         )
-        self.helper.layout = Layout()
 
-        if self.person_form_instance.custom_fields:
-            self.parts += [
-                get_form_part(part) for part in self.person_form_instance.custom_fields
-            ]
+        return form
 
-        for part in self.parts:
-            part.set_up_fields(self, self.is_submission_edition)
+    def get_formsets(self):
+        formset_fieldsets = [
+            fs
+            for fs in self.person_form_instance.custom_fields
+            if fs.get("multiple", False)
+        ]
+        extra = 0 if self.edition else 1
 
-        self.update_meta_initial()
+        formsets = {}
 
-        # Vérifier les potentiels risques de sécurité ici (forger un lien qui préremplit un formulaire
-        # différement de ce qu'on aurait souhaité).
-        if query_params is not None:
-            for field in self.fields:
-                if field in query_params:
-                    self.initial[field] = query_params[field]
+        for fieldset in formset_fieldsets:
+            # d'abord créer la classe de formulaire
+            form_klass = type(
+                f"{fieldset['id']}Form",
+                (forms.Form,),
+                {f["id"]: get_form_field(f, self.edition) for f in fieldset["fields"]},
+            )
+            formset_klass = formset_factory(form_klass, extra=extra)
 
-        for id, field_desc in self.hidden_fields.items():
-            self.fields[id] = get_form_field(
-                {**field_desc, "widget": SuperHiddenDisplay()},
-                is_submission_edition=self.is_submission_edition,
+            data = self.data and {
+                k: v for k, v in self.data.items() if k.startswith(f'{fieldset["id"]}-')
+            }
+            initial = None
+            if self.edition:
+                initial = self.submission.data.get(fieldset["id"])
+
+            formsets[fieldset["id"]] = formset_klass(
+                data=data, initial=initial, prefix=fieldset["id"]
             )
 
-    def clean(self):
-        cleaned_data = super().clean()
+        return formsets
 
-        for id, field_descriptor in self.person_form_instance.fields_dict.items():
-            if field_descriptor.get("type") == "person":
-                if not check_person_email_bucket.has_tokens(self.instance.pk):
-                    self.add_error(
-                        id,
-                        ValidationError(
-                            "Vous avez fait trop d'erreurs. Par sécurité, vous devez attendre avant d'essayer d'autres adresses emails."
-                        ),
-                    )
-                elif (
-                    not field_descriptor.get("allow_self")
-                    and cleaned_data.get(id) == self.instance.pk
-                ):
-                    self.add_error(
-                        id,
-                        ValidationError(
-                            "Vous ne pouvez pas vous indiquer vous-mêmes.",
-                            code="selected_self",
-                        ),
-                    )
-            elif field_descriptor.get("type") == "person_tag" and field_descriptor.get(
-                "person_field", False
-            ):
-                tags = cleaned_data.get(field_descriptor.get("id"), [])
-                tags = tags if not tags or isinstance(tags, list) else [tags]
-                if tags:
-                    self.tags += tags
+    def get_hidden_form(self):
+        if self.query_params is None:
+            return None
 
-            if (
-                self.is_submission_edition
-                and not field_descriptor.get("editable", False)
-                and cleaned_data.get(id) != self.initial.get(id)
-            ):
-                self.add_error(
-                    id, ValidationError("Ce champ ne peut pas être modifié.")
+        hidden_fields = {
+            desc["id"]: get_form_field(desc)
+            for desc in self.person_form_instance.config.get("hidden_fields", [])
+        }
+        form_klass = type("HiddenForm", (forms.Form,), hidden_fields)
+        return form_klass(
+            data=self.query_params,
+        )
+
+    def render(self):
+        for fieldset in self.description:
+            if fieldset.get("multiple", False):
+                fieldset["formset"] = self.formsets[fieldset["id"]]
+            else:
+                for field in fieldset["fields"]:
+                    field["field_instance"] = self.main_form[field["id"]]
+
+        template = get_template("person_forms/render.html")
+
+        context = {"controller": self, "fieldsets": self.description}
+        return template.render(context=context)
+
+    def is_valid(self):
+        if (
+            not self.main_form.is_valid()
+            or not self.hidden_form.is_valid()
+            or any(not formset.is_valid() for formset in self.formsets)
+        ):
+            return False
+
+        self.cleaned_data = cleaned_data = {}
+        cleaned_data.update(self.hidden_form.cleaned_data)
+        cleaned_data.update(self.main_form.cleaned_data)
+
+        for formset in self.formsets:
+            cleaned_data[formset.prefix] = formset.clean()
+
+        if any(
+            field.get("type") == "person"
+            for fieldset in self.description
+            for field in fieldset.get("fields", [])
+        ):
+            if not check_person_email_bucket.has_tokens(self.submitter.pk):
+                self.errors.append(
+                    "Vous avez fait trop de tentatives de remplissage de ce formulaire. Veuillez patienter un peu avant de recommencer."
                 )
+                return False
 
-        for part in self.parts:
-            if hasattr(part, "clean"):
-                cleaned_data = part.clean(self, cleaned_data)
+        return True
 
-        return cleaned_data
+    def save_submitter(self, person=None):
+        """Save the submitter information from the person_fields"""
+        person = person or self.submitter
 
-    @property
-    def submission_data(self):
-        data = {}
-        for part in self.parts:
-            data.update(part.collect_results(self.cleaned_data))
+        for desc in self.get_person_fields():
+            if desc["id"] in self.cleaned_data:
+                setattr(person, desc["id"], self.cleaned_data[desc["id"]])
+            elif desc["type"] == "person_tag":
+                field_tags = self.cleaned_data[desc["id"]]
+                if field_tags:
+                    self.tags_to_add.extend(
+                        field_tags if isinstance(field_tags, list) else [field_tags]
+                    )
 
-        for f in self.hidden_fields:
-            data[f] = self.cleaned_data[f]
+        person.save()
 
-        return data
+        if self.tags_to_add:
+            # Fields of type tags are only used to ADD tags to a person (except for person_form_instance tags
+            # which are meant to be exclusive and thus are all removed before addition)
+            other_tags = list(
+                person.tags.difference(self.person_form_instance.tags.all())
+            )
 
-    def save(self, commit=True):
-        # We never want to create a new Person
-        if not self.instance._state.adding:
-            return super().save(commit=commit)
-        return self.save_submission()
+            person.tags.set(other_tags + self.tags_to_add)
 
-    def save_submission(self, person=None):
-        """
-        Can be used to save a submission without saving the Person
-        """
+        return person
 
-        data = self.submission_data
+    def save_submission(self, person=None, **kwargs):
+        """Saves a submission instance with the information from the forms"""
+
+        data = self.cleaned_data or {}
 
         # making sure files are saved
         for key, value in data.items():
@@ -222,28 +282,18 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
             elif isinstance(value, FileList):
                 data[key] = [self._save_file(v, key) for v in value]
 
+        data.update(kwargs)
+
         if self.submission is not None:
             self.submission.data = data
             self.submission.save()
         else:
+            person = person or self.submitter
             self.submission = PersonFormSubmission.objects.create(
                 person=person, form=self.person_form_instance, data=data
             )
 
         return self.submission
-
-    def _save_m2m(self):
-        if self.tags:
-            # Fields of type tags are only used to ADD tags to a person (except for person_form_instance tags
-            # which are meant to be exclusive and thus are all removed before addition)
-            self.instance.tags.set(
-                list(
-                    self.instance.tags.difference(self.person_form_instance.tags.all())
-                )
-                + self.tags
-            )
-
-        self.save_submission(self.instance)
 
     def _save_file(self, file, field_name):
         form_slug = self.person_form_instance.slug
@@ -256,7 +306,3 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
         )
         stored_file = default_storage.save(path, file)
         return default_storage.url(stored_file)
-
-    class Meta:
-        model = Person
-        fields = []

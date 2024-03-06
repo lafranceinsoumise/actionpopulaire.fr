@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.admin.widgets import AutocompleteSelectMultiple
 from django.core.exceptions import PermissionDenied
+from django.db import transaction
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import reverse, get_object_or_404
 from django.template.response import TemplateResponse
@@ -19,13 +20,18 @@ from unidecode import unidecode
 
 from agir.events import actions
 from agir.events.admin.filters import EventFilterSet
-from agir.events.admin.forms import NewParticipantForm
+from agir.events.admin.forms import ChooseParticipantForm
 from agir.events.models import Event, EventSubtype, Calendar
 from agir.lib.admin.panels import AdminViewMixin
-from agir.people.person_forms.actions import get_people_form_class
 from agir.people.person_forms.fields import is_actual_model_field
 from .forms import AddOrganizerForm
+from ..actions.rsvps import rsvp_to_free_event, rsvp_to_paid_event_and_create_payment
 from ..tasks import copier_participants_vers_feuille_externe
+from ...people.models import Person
+from ...people.person_forms.forms import PersonFormController
+
+
+CHOOSE_PARTICIPANT_SESSION_KEY = "choose-participant-session-key"
 
 
 def add_organizer(model_admin, request, pk):
@@ -185,10 +191,11 @@ class EventSummaryView(AdminViewMixin, FilterView):
         return self.render_to_response(context)
 
 
-class AddParticipantView(SingleObjectMixin, FormView):
+class ChooseParticipantView(AdminViewMixin, SingleObjectMixin, FormView):
     model_admin = None
     queryset = Event.objects.filter(subscription_form__isnull=False)
     template_name = "admin/events/add_participant.html"
+    form_class = ChooseParticipantForm
 
     def get(self, request, *args, **kwargs):
         self.object = self.event = self.get_object()
@@ -201,17 +208,101 @@ class AddParticipantView(SingleObjectMixin, FormView):
         self.object = self.event = self.get_object()
         return super().post(request, *args, **kwargs)
 
-    def get_form_class(self):
-        person_form = self.event.subscription_form
+    def form_valid(self, form):
+        cleaned_data = form.cleaned_data
 
-        return get_people_form_class(
-            person_form,
-            base_form=NewParticipantForm,
-            include_inherited_model_fields=True,
+        if cleaned_data.get("existing_person"):
+            self.request.session[CHOOSE_PARTICIPANT_SESSION_KEY] = {
+                "event": self.object.id,
+                "existing_person": cleaned_data["existing_person"].id,
+            }
+        else:
+            cleaned_data.pop("existing_person", None)
+            self.request.session[CHOOSE_PARTICIPANT_SESSION_KEY] = {
+                "event": self.object.id,
+                **cleaned_data,
+            }
+
+        return HttpResponseRedirect(reverse("admin:events_event_add_participant"))
+
+    def get_context_data(self, **kwargs):
+        kwargs = super().get_context_data()
+        form = kwargs["form"]
+        fieldsets = [
+            ("Compte existant", {"fields": ["existing_person"]}),
+            (
+                "Nouveau compte",
+                {"fields": ["email", "is_political_support", "newsletter"]},
+            ),
+        ]
+
+        admin_helpers = self.get_admin_helpers(form=form, fieldsets=fieldsets)
+
+        kwargs.update(
+            {
+                "title": _("Ajouter un participant à l'événement: %s")
+                % self.event.name,
+                "form": form,
+                "original": self.event,
+                "change": True,
+                "show_save": True,
+                "media": self.model_admin.media + admin_helpers["admin_form"].media,
+                **admin_helpers,
+            }
         )
 
-    @cached_property
-    def additional_billing_fields(self):
+        return kwargs
+
+
+class AddParticipantView(SingleObjectMixin, FormView):
+    model_admin = None
+    queryset = Event.objects.filter(subscription_form__isnull=False)
+    template_name = "admin/events/add_participant.html"
+
+    def extract_session_data(self):
+        if (
+            CHOOSE_PARTICIPANT_SESSION_KEY not in self.request.session
+            or self.request.session[CHOOSE_PARTICIPANT_SESSION_KEY].get("event")
+            != self.object.id
+        ):
+            return False
+
+        if self.request.session[CHOOSE_PARTICIPANT_SESSION_KEY].get("existing_person"):
+            self.person = self.request.session[CHOOSE_PARTICIPANT_SESSION_KEY][
+                "existing_person"
+            ]
+            self.new_person_info = None
+        else:
+            self.person = None
+            self.new_person_info = self.request.session[CHOOSE_PARTICIPANT_SESSION_KEY]
+            if not self.new_person_info.get("new_person_email"):
+                return False
+
+        return True
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.event = self.get_object()
+
+        if not self.extract_session_data():
+            return HttpResponseRedirect(
+                reverse("admin:events_event_choose_participant")
+            )
+
+        if not self.event.subscription_form:
+            raise Http404()
+
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.event = self.get_object()
+        if not self.extract_session_data():
+            return HttpResponseRedirect(
+                reverse("admin:events_event_choose_participant")
+            )
+
+        return super().post(request, *args, **kwargs)
+
+    def get_additional_billing_fields(self):
         form_person_fields = {
             f
             for f, descriptor in self.event.subscription_form.fields_dict.items()
@@ -219,11 +310,17 @@ class AddParticipantView(SingleObjectMixin, FormView):
         }
 
         return [
-            f for f in NewParticipantForm._meta.fields if f not in form_person_fields
+            f for f in ChooseParticipantForm._meta.fields if f not in form_person_fields
         ] + ["payment_mode"]
 
     def get_form(self, form_class=None):
-        form = super().get_form(form_class)
+        kwargs = self.get_form_kwargs()
+
+        self.form_controller = PersonFormController(
+            **kwargs,
+        )
+
+        form = self.form_controller.main_form
         if self.event.is_free:
             for field in self.additional_billing_fields:
                 form.fields.pop(field)
@@ -234,11 +331,18 @@ class AddParticipantView(SingleObjectMixin, FormView):
         return form
 
     def get_form_kwargs(self):
-        return {
-            "model_admin": self.model_admin,
-            "event": self.event,
-            **super().get_form_kwargs(),
-        }
+        kwargs = super().get_form_kwargs()
+        kwargs.update(
+            {
+                "model_admin": self.model_admin,
+                "event": self.event,
+                "base_form": ChooseParticipantForm,
+                "person_form": self.event.subscription_form,
+                "submitter": self.person,
+            }
+        )
+
+        return kwargs
 
     def get_context_data(self, **kwargs):
         kwargs = super().get_context_data()
@@ -251,54 +355,71 @@ class AddParticipantView(SingleObjectMixin, FormView):
                 ("Facturation", {"fields": self.additional_billing_fields})
             ]
 
-        admin_form = admin.helpers.AdminForm(form, fieldsets, {})
+        admin_helpers = self.get_admin_helpers(form=form, fieldsets=fieldsets)
 
         kwargs.update(
             {
                 "title": _("Ajouter un participant à l'événement: %s")
-                % escape(self.event.name),
-                "adminform": admin_form,
+                % self.event.name,
                 "form": form,
-                "is_popup": True,
-                "opts": self.model_admin.model._meta,
                 "original": self.event,
                 "change": True,
-                "add": False,
-                "save_as": False,
                 "show_save": True,
-                "has_delete_permission": self.model_admin.has_delete_permission(
-                    self.request, self.event
-                ),
-                "has_add_permission": self.model_admin.has_add_permission(self.request),
-                "has_change_permission": self.model_admin.has_change_permission(
-                    self.request, self.event
-                ),
-                "has_view_permission": self.model_admin.has_view_permission(
-                    self.request, self.event
-                ),
-                "has_editable_inline_admin_formsets": False,
-                "media": self.model_admin.media + admin_form.media,
+                "media": self.model_admin.media + admin_helpers["admin_form"].media,
+                **admin_helpers,
             }
         )
 
         return kwargs
 
     def form_valid(self, form):
-        form.save()
+        with transaction.atomic():
+            if not self.person:
+                newsletters = (
+                    Person.MAIN_NEWSLETTER_CHOICES
+                    if self.new_person_info.get("newsletter")
+                    else []
+                )
 
-        if (
-            self.event.is_free
-            or self.event.get_price(form.submission and form.submission.data) == 0
-        ):
-            form.free_rsvp()
-            self.model_admin.message_user(
-                self.request,
-                "La personne a bien été inscrite à l'événement.",
-                messages.SUCCESS,
-            )
-            return HttpResponseRedirect(self.request.path)
+                self.person = Person.objects.create_person(
+                    email=self.new_person_info["email"],
+                    is_political_support=self.new_person_info.get(
+                        "is_political_support", False
+                    ),
+                    newsletters=newsletters,
+                )
 
-        return form.redirect_to_payment()
+            self.form_controller.save_submitter(self.person)
+            submission = self.form_controller.save_submission(self.person)
+
+            if (
+                self.event.is_free
+                or self.event.get_price(submission and submission.data) == 0
+            ):
+                rsvp_to_free_event(self.event, self.person, submission)
+
+                self.model_admin.message_user(
+                    self.request,
+                    "La personne a bien été inscrite à l'événement.",
+                    messages.SUCCESS,
+                )
+                return HttpResponseRedirect(
+                    reverse("admin:events_event_choose_participant")
+                )
+            else:
+                payment = rsvp_to_paid_event_and_create_payment(
+                    self.event,
+                    self.person,
+                    form.cleaned_data["payment_mode"],
+                    submission,
+                )
+
+                if form.cleaned_data["payment_mode"].can_admin:
+                    return HttpResponseRedirect(
+                        reverse("admin:payments_payment_change", args=(payment.id,))
+                    )
+
+                return HttpResponseRedirect(payment.get_payment_url())
 
 
 def generate_mailing_campaign(model_admin, request, pk):

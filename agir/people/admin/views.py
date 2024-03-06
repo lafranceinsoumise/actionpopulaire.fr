@@ -22,8 +22,8 @@ from agir.people.admin.forms import (
     PersonFormSandboxForm,
 )
 from agir.people.models import Person
-from agir.people.person_forms.actions import get_people_form_class
 from agir.people.person_forms.display import default_person_form_display
+from agir.people.person_forms.forms import PersonFormController
 from agir.people.person_forms.models import PersonForm
 from agir.people.tasks import copier_toutes_reponses_vers_feuille_externe
 
@@ -266,8 +266,9 @@ class PersonFormSandboxView(AdminViewMixin, UpdateView):
         return PersonFormSandboxForm
 
     def get_person_form_class(self):
-        return get_people_form_class(self.person_form_instance)(
-            instance=self.get_person()
+        return PersonFormController(
+            person_form=self.person_form_instance,
+            instance=self.get_person(),
         )
 
     def get_context_data(self, **kwargs):

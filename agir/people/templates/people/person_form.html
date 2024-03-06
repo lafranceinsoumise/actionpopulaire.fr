@@ -37,11 +37,16 @@
     {{ person_form.html_unauthorized_message }}
   </div>
 {% elif person_form.is_open %}
-  <div class="col-xs-12 intro">
+  <div class="intro">
     {{ person_form.html_description }}
   </div>
-  <div class="col-xs-12 intro">
-    {% crispy form %}
+  <div class="intro">
+  <form method="post">
+    {% csrf_token %}
+    {{ form.render }}
+
+    <input type="submit" value="Envoyer" class="btn btn-primary btn btn-primary btn-block margintopmore btn-submit">
+  </form>
   </div>
   {% if person_form.campaign_template %}
     <script>

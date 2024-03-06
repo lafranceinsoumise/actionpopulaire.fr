@@ -503,7 +503,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
                         "admin:events_event_rsvps_download_results",
                         "Télécharger les inscriptions",
                     ),
-                    ("admin:events_event_add_participant", "Inscrire quelqu'un"),
+                    ("admin:events_event_choose_participant", "Inscrire quelqu'un"),
                 ]
             )
 
@@ -637,7 +637,14 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
                 name="events_event_add_organizer",
             ),
             path(
-                "<uuid:pk>/add_participant/",
+                "<uuid:pk>/add_participant/1",
+                self.admin_site.admin_view(
+                    views.ChooseParticipantView.as_view(model_admin=self)
+                ),
+                name="events_event_choose_participant",
+            ),
+            path(
+                "<uuid:pk>/add_participant/2",
                 self.admin_site.admin_view(
                     views.AddParticipantView.as_view(model_admin=self)
                 ),

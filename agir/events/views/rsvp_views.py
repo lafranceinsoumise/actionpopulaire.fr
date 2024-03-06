@@ -19,7 +19,6 @@ from agir.payments.actions.payments import redirect_to_payment
 from agir.payments.models import Payment
 from agir.people.actions.subscription import SUBSCRIPTION_TYPE_EXTERNAL
 from agir.people.models import PersonFormSubmission
-from agir.people.person_forms.actions import get_people_form_class
 from agir.people.person_forms.display import default_person_form_display
 from agir.people.views import ConfirmSubscriptionView
 from ..actions.rsvps import (
@@ -39,6 +38,7 @@ from ..actions.rsvps import (
 )
 from ..forms import BillingForm, GuestsForm, BaseRSVPForm, ExternalRSVPForm
 from ..models import Event, RSVP, IdentifiedGuest
+from ...people.person_forms.forms import PersonFormController
 
 
 class RSVPEventView(SoftLoginRequiredMixin, DetailView):
@@ -56,8 +56,6 @@ class RSVPEventView(SoftLoginRequiredMixin, DetailView):
         if self.event.subscription_form is None:
             return None
 
-        form_class = get_people_form_class(self.event.subscription_form, BaseRSVPForm)
-
         kwargs = {
             "instance": None
             if self.user_is_already_rsvped
@@ -65,10 +63,19 @@ class RSVPEventView(SoftLoginRequiredMixin, DetailView):
             "is_guest": self.user_is_already_rsvped,
         }
 
+        person = None if self.user_is_already_rsvped else self.request.user.person
+
         if self.request.method in ("POST", "PUT"):
             kwargs["data"] = self.request.POST
 
-        return form_class(**kwargs)
+        return PersonFormController(
+            is_guest=self.user_is_already_rsvped,
+            instance=person,
+            base_class=BaseRSVPForm,
+            person_form=self.event.subscription_form,
+            data=self.request.POST,
+            files=self.request.FILES,
+        )
 
     def can_post_form(self):
         person_form = self.event.subscription_form
@@ -191,9 +198,7 @@ class RSVPEventView(SoftLoginRequiredMixin, DetailView):
             if form.cleaned_data["is_guest"]:
                 self.redirect_to_event(message=self.default_error_message)
 
-            price = (
-                0 if self.event.is_free else self.event.get_price(form.submission_data)
-            )
+            price = 0 if self.event.is_free else self.event.get_price(form.cleaned_data)
             cagnotte = (
                 self.event.payment_parameters
                 and self.event.payment_parameters.get("cagnotte")
@@ -201,11 +206,12 @@ class RSVPEventView(SoftLoginRequiredMixin, DetailView):
 
             if price == 0 or cagnotte:
                 with transaction.atomic():
-                    form.save()
+                    form.save_submitter()
+                    submission = form.save_submission()
                     rsvp_to_free_event(
                         self.event,
                         self.request.user.person,
-                        form_submission=form.submission,
+                        form_submission=submission,
                     )
 
                     if price != 0:
@@ -225,8 +231,9 @@ class RSVPEventView(SoftLoginRequiredMixin, DetailView):
                         level=messages.SUCCESS,
                     )
             else:
-                form.save()
-                return self.redirect_to_billing_form(form.submission)
+                form.save_submitter()
+                submission = form.save_submission()
+                return self.redirect_to_billing_form(submission)
         except RSVPException as e:
             return self.redirect_to_event(message=str(e))
 
@@ -257,20 +264,20 @@ class RSVPEventView(SoftLoginRequiredMixin, DetailView):
             if not form.cleaned_data["is_guest"]:
                 return self.redirect_to_event(message=self.default_error_message)
 
-            if self.event.is_free or self.event.get_price(form.submission_data) == 0:
+            if self.event.is_free or self.event.get_price(form.cleaned_data) == 0:
                 with transaction.atomic():
                     # do not save the person, only the submission
-                    form.save_submission(self.request.user.person)
+                    submission = form.save_submission(self.request.user.person)
                     add_free_identified_guest(
-                        self.event, self.request.user.person, form.submission
+                        self.event, self.request.user.person, submission
                     )
                 return self.redirect_to_rsvp(
                     message=_("Merci, votre invité a bien été enregistré !"),
                     level=messages.SUCCESS,
                 )
             else:
-                form.save_submission(self.request.user.person)
-                return self.redirect_to_billing_form(form.submission, is_guest=True)
+                submission = form.save_submission(self.request.user.person)
+                return self.redirect_to_billing_form(submission, is_guest=True)
         except RSVPException as e:
             return self.redirect_to_event(message=str(e))
 

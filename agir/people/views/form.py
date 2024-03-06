@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
 from django.core.files import File
+from django.db import transaction
 from django.http import Http404
 from django.http.response import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
@@ -22,8 +23,8 @@ from agir.front.view_mixins import ObjectOpengraphMixin
 from agir.mailing.actions import create_campaign_from_submission
 from agir.people import tasks
 from agir.people.models import PersonForm, PersonFormSubmission
-from agir.people.person_forms.actions import get_people_form_class
 from agir.people.person_forms.display import default_person_form_display
+from agir.people.person_forms.forms import PersonFormController
 
 
 class BasePeopleFormView(UpdateView, ObjectOpengraphMixin):
@@ -55,7 +56,21 @@ class BasePeopleFormView(UpdateView, ObjectOpengraphMixin):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs["query_params"] = self.request.GET
+
+        kwargs["person_form"] = self.person_form_instance
+        if self.request.method == "POST":
+            kwargs["data"] = self.request.POST
+        kwargs["query_params"] = self.request
+        kwargs["instance"] = (
+            self.request.user.person if self.request.user.is_authenticated else None
+        )
+        kwargs["files"] = self.request.FILES
+
         return kwargs
+
+    def get_form(self):
+        kwargs = self.get_form_kwargs()
+        return PersonFormController(**kwargs)
 
     def get_object(self, queryset=None):
         if self.request.user.is_authenticated:
@@ -66,9 +81,6 @@ class BasePeopleFormView(UpdateView, ObjectOpengraphMixin):
             return self.get_queryset().get(slug=self.kwargs["slug"])
         except PersonForm.DoesNotExist:
             raise Http404("Ce formulaire n'existe pas.")
-
-    def get_form_class(self):
-        return get_people_form_class(self.person_form_instance)
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
@@ -110,8 +122,7 @@ class BasePeopleFormView(UpdateView, ObjectOpengraphMixin):
             and "preview" in self.request.POST
         ):
             preview = self.person_form_instance.campaign_template.message_content_html
-            for field in form.cleaned_data:
-                value = form.cleaned_data[field]
+            for field, value in form.cleaned_data.items:
                 # Generate a data URL image for the email preview
                 if isinstance(value, File):
                     value = self.make_data_url_from_image_file(value)
@@ -119,26 +130,29 @@ class BasePeopleFormView(UpdateView, ObjectOpengraphMixin):
 
             return HttpResponse(preview)
 
-        r = super().form_valid(form)
+        with transaction.atomic():
+            if form.submitter:
+                form.save_submitter()
+            submission = form.save_submission()
 
         if self.person_form_instance.send_confirmation:
-            tasks.send_person_form_confirmation.delay(form.submission.pk)
+            tasks.send_person_form_confirmation.delay(submission.pk)
         if self.person_form_instance.send_answers_to:
-            tasks.send_person_form_notification.delay(form.submission.pk)
+            tasks.send_person_form_notification.delay(submission.pk)
         if self.person_form_instance.lien_feuille_externe:
-            tasks.copier_reponse_vers_feuille_externe.delay(form.submission.pk)
+            tasks.copier_reponse_vers_feuille_externe.delay(submission.pk)
 
         if self.person_form_instance.campaign_template:
             data = {}
-            for key, value in form.submission.data.items():
+            for key, value in submission.data.items():
                 data[key] = value
             create_campaign_from_submission(
                 data,
-                form.submission.person,
+                submission.person,
                 self.person_form_instance.campaign_template,
             )
 
-        return r
+        return HttpResponseRedirect(self.get_success_url())
 
 
 @method_decorator(never_cache, name="get")

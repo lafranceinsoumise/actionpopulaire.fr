@@ -5,16 +5,12 @@ from django import forms
 from django.template.defaultfilters import floatformat
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from phonenumber_field.formfields import PhoneNumberField
 
-from agir.events.actions import legal
 from agir.lib.form_components import *
 from agir.lib.form_mixins import (
     GeocodingBaseForm,
-    MetaFieldsMixin,
 )
 from agir.payments.payment_modes import PaymentModeField
-from agir.people.forms import BasePersonForm
 from .models import Event, OrganizerConfig, EventImage
 from .tasks import (
     send_external_rsvp_confirmation,
@@ -26,7 +22,6 @@ from ..people.models import Person, PersonFormSubmission
 __all__ = [
     "AddOrganizerForm",
     "EventGeocodingForm",
-    "EventLegalForm",
     "UploadEventImageForm",
     "AuthorForm",
     "BillingForm",
@@ -248,7 +243,7 @@ class GuestsForm(forms.Form):
     guests = forms.IntegerField()
 
 
-class BaseRSVPForm(BasePersonForm):
+class BaseRSVPForm(forms.Form):
     is_guest = forms.BooleanField(required=False, widget=forms.HiddenInput())
 
     def __init__(self, *args, is_guest=False, **kwargs):

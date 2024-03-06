@@ -1,0 +1,21 @@
+{% load crispy_forms_tags %}
+
+{{ fieldset.formset.management_form }}
+
+<fieldset id="fieldset_{{ fieldset.formset.prefix }}">
+  <legend>{{ fieldset.title }}</legend>
+  {% if fieldset.intro_html %}
+  {% autoescape off %}
+    {{ fieldset.intro_html }}
+  {% endautoescape %}
+  {% endif %}
+  {% for form in fieldset.formset %}
+    {% crispy form %}
+  {% endfor %}
+</fieldset>
+
+<script>
+  let prefix = "{{ fieldset.formset.prefix }}";
+  let fieldset = document.getElementById("fieldset_" + prefix);
+    let forms = document.querySelector()
+</script>

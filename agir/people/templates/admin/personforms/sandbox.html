@@ -37,7 +37,7 @@
           {{ person_form.title }}
         </h2>
         {{ person_form.html_description }}
-        {% crispy person_form_form %}
+        {{ person_form_form.render }}
         <script>
           document.getElementById("submit-id-submit").disabled = "disabled";
           document.addEventListener("DOMContentLoaded", function () {

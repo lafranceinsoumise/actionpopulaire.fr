@@ -1,5 +1,7 @@
+import dataclasses
 import logging
 from functools import partial
+from typing import Optional, List
 from uuid import UUID
 
 import django_countries
@@ -194,7 +196,9 @@ class PersonChoiceField(forms.CharField):
         )
     }
 
-    def __init__(self, *args, allow_self=False, allow_inactive=False, **kwargs):
+    def __init__(
+        self, *args, allow_self=False, allow_inactive=False, instance=None, **kwargs
+    ):
         kwargs.setdefault(
             "help_text",
             "Entrez l'adresse email d'une personne inscrite sur la plateforme.",
@@ -203,6 +207,7 @@ class PersonChoiceField(forms.CharField):
         super().__init__(*args, **kwargs)
         self.allow_self = allow_self
         self.allow_inactive = allow_inactive
+        self.instance = instance
 
     def to_python(self, value):
         if value in self.empty_values:
@@ -211,6 +216,11 @@ class PersonChoiceField(forms.CharField):
         try:
             value = Person.objects.get_by_natural_key(value.strip())
         except Person.DoesNotExist:
+            raise ValidationError(
+                self.error_messages["invalid_choice"], code="invalid_choice"
+            )
+
+        if not self.allow_self and value == self.instance:
             raise ValidationError(
                 self.error_messages["invalid_choice"], code="invalid_choice"
             )
@@ -536,15 +546,32 @@ def is_actual_model_field(field_descriptor):
     )
 
 
-def get_form_field(field_descriptor: dict, is_submission_edition=False, instance=None):
+def get_form_field(field_descriptor: dict, edition=False, instance=None):
     field_descriptor = field_descriptor.copy()
+
+    if is_actual_model_field(field_descriptor):
+        model_field = Person._meta.get_field(field_descriptor["id"])
+        kwargs = {
+            k: v
+            for k, v in field_descriptor.items()
+            if k
+            in [
+                "required",
+                "label",
+                "help_text",
+                "error_messages",
+            ]
+        }
+
+        return model_field.formfield(**kwargs)
+
     field_type = field_descriptor.pop("type")
     field_descriptor.pop("id")
     field_descriptor.pop("person_field", None)
     editable = field_descriptor.pop("editable", False)
-    if is_submission_edition:
+    if edition:
         field_descriptor["disabled"] = not editable
-    if is_submission_edition and not editable:
+    if edition and not editable:
         field_descriptor["help_text"] = (
             field_descriptor.get("help_text", "")
             + " Ce champ ne peut pas être modifié."
@@ -562,7 +589,7 @@ def get_form_field(field_descriptor: dict, is_submission_edition=False, instance
         )
 
     if klass:
-        if getattr(klass, "instance_in_kwargs", False):
+        if getattr(klass, "instance_in_kwargs", False) or field_type == "person":
             return klass(**field_descriptor, instance=instance)
         return klass(**field_descriptor)
 
@@ -586,7 +613,7 @@ def form_value_to_python(field_descriptor, value):
     elif field_descriptor.get("type") == "file":
         return value
 
-    field_instance = get_form_field(field_descriptor, is_submission_edition=False)
+    field_instance = get_form_field(field_descriptor, edition=False)
     try:
         return field_instance.to_python(value)
     except ValidationError:

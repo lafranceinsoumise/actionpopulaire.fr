@@ -213,37 +213,36 @@ class PersonForm(TimeStampedModel):
         return self.config.get("submit_label", "Envoyer")
 
     @property
-    def main_question_fields(self):
+    def main_question_field(self):
         tag_queryset = self.tags.all()
         if self.main_question and len(tag_queryset) > 1:
-            return [
-                {
-                    "id": self.MAIN_QUESTION_FIELD_ID,
-                    "type": "person_tag",
-                    "label": self.main_question,
-                    "queryset": tag_queryset,
-                    "required": True,
-                    "person_field": True,
-                    "editable": True,
-                }
-            ]
+            return {
+                "id": self.MAIN_QUESTION_FIELD_ID,
+                "type": "person_tag",
+                "label": self.main_question,
+                "queryset": tag_queryset,
+                "required": True,
+                "person_field": True,
+                "editable": True,
+            }
 
-        return []
+        return None
 
     @property
     def fields_dict(self):
-        return OrderedDict(
-            (field["id"], field)
-            for field in chain(
-                self.main_question_fields,
-                (
-                    field
-                    for fieldset in self.custom_fields
-                    for field in fieldset.get("fields", [])
-                ),
-                self.config.get("hidden_fields", []),
-            )
+        fields = {}
+        main_question_field = self.main_question_field
+        if main_question_field:
+            fields[main_question_field["id"]] = main_question_field
+
+        fields.update(
+            {
+                field["id"]: field
+                for fieldset in self.custom_fields
+                for field in fieldset.get("fields", [])
+            }
         )
+        return fields
 
     @property
     def is_open(self):

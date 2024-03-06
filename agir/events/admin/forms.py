@@ -3,22 +3,15 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.forms import BooleanField
-from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
-from agir.events.actions.rsvps import (
-    rsvp_to_paid_event_and_create_payment,
-    rsvp_to_free_event,
-)
-from agir.events.forms import BILLING_FIELDS
 from agir.events.models import EventSubtype, RSVP
 from agir.payments.models import Payment
 from agir.payments.payment_modes import PaymentModeField
 from agir.people.models import Person
-from agir.people.person_forms.forms import BasePersonForm
 from .. import models
 from ..apps import DEFAULT_ADMIN_MODES
 from ..tasks import send_organizer_validation_notification
@@ -230,7 +223,7 @@ class AddOrganizerForm(forms.Form):
         )
 
 
-class NewParticipantForm(BasePersonForm):
+class ChooseParticipantForm(forms.Form):
     existing_person = forms.ModelChoiceField(
         label="Compte existant",
         queryset=Person.objects.all(),
@@ -238,7 +231,7 @@ class NewParticipantForm(BasePersonForm):
         required=False,
     )
 
-    new_person_email = forms.EmailField(
+    email = forms.EmailField(
         label="ou si non-inscrit, email d'inscription", required=False
     )
 
@@ -253,8 +246,6 @@ class NewParticipantForm(BasePersonForm):
         label="La personne souhaite recevoir les emails de la France insoumise",
     )
 
-    payment_mode = PaymentModeField(required=True, payment_modes=DEFAULT_ADMIN_MODES)
-
     def __init__(self, *args, model_admin, event, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -265,11 +256,6 @@ class NewParticipantForm(BasePersonForm):
             admin_site=model_admin.admin_site,
             choices=self.fields["existing_person"].choices,
         )
-
-        if event.payment_parameters.get("admin_payment_modes"):
-            self.fields["payment_mode"].payment_modes = event.payment_parameters[
-                "admin_payment_modes"
-            ]
 
         if "location_address2" in self.fields:
             self.fields["location_address2"].required = False
@@ -324,22 +310,35 @@ class NewParticipantForm(BasePersonForm):
         return existing_person
 
     def clean(self):
-        if (
-            "existing_person" in self.cleaned_data
-            and self.cleaned_data["existing_person"] is not None
+        cleaned_data = super().clean()
+
+        if not cleaned_data.get("existing_person") and not cleaned_data.get(
+            "new_person_email"
         ):
-            self.data = self.data.dict()
-            for f in self._meta.fields:
-                if f not in self.cleaned_data:
-                    self.data[f] = getattr(self.cleaned_data["existing_person"], f)
+            self.add_error(
+                None,
+                "Indiquez un compte existant, ou indiquez l'adresse email à utiliser pour créer un compte.",
+            )
 
-        return self.cleaned_data
+        if not cleaned_data.get("existing_person") and cleaned_data.get(
+            "new_person_email"
+        ):
+            try:
+                cleaned_data["existing_person"] = Person.objects.get_by_natural_key(
+                    email=cleaned_data["new_person_email"]
+                )
+            except Person.DoesNotExist:
+                pass
 
-    @property
-    def submission_data(self):
-        data = BasePersonForm.submission_data.fget(self)
-        data["admin"] = True
-        return data
+
+class ParticipantInformationForm(forms.Form):
+    payment_mode = PaymentModeField(required=True, payment_modes=DEFAULT_ADMIN_MODES)
+
+    def __init__(self, *args, event, **kwargs):
+        if event.payment_parameters.get("admin_payment_modes"):
+            self.fields["payment_mode"].payment_modes = event.payment_parameters[
+                "admin_payment_modes"
+            ]
 
     def save(self, commit=True):
         cleaned_data = self.cleaned_data
@@ -373,28 +372,6 @@ class NewParticipantForm(BasePersonForm):
                 self.instance.add_email(cleaned_data["new_person_email"])
 
         return self.instance
-
-    def free_rsvp(self):
-        rsvp_to_free_event(self.event, self.instance, self.submission)
-
-    def redirect_to_payment(self):
-        payment = rsvp_to_paid_event_and_create_payment(
-            self.event,
-            self.instance,
-            self.cleaned_data["payment_mode"],
-            self.submission,
-        )
-
-        if self.cleaned_data["payment_mode"].can_admin:
-            return HttpResponseRedirect(
-                reverse("admin:payments_payment_change", args=(payment.id,))
-            )
-
-        return HttpResponseRedirect(payment.get_payment_url())
-
-    class Meta:
-        model = Person
-        fields = BILLING_FIELDS
 
 
 class EventSubtypeAdminForm(forms.ModelForm):
