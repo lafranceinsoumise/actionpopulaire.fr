@@ -5,7 +5,11 @@
       <div class="list-group-item">
         <dt class="list-group-item-heading" title="{{ item.label|capfirst }}">{{ item.label|capfirst }}</dt>
         {% if item.value %}
-          <dd class="list-group-item-text" title="{{ item.value }}">{{ item.value }}</dd>
+          {% if item.value == "True" or item.value == "False" %}
+            <dd class="list-group-item-text" title="{{ item.value }}">{{ item.value|yesno:"<i aria-label='Oui' class='fa fa-check'/>,<i aria-label='Non' class='fa fa-times' />" }}</dd>
+          {% else %}
+            <dd class="list-group-item-text" title="{{ item.value }}">{{ item.value }}</dd>
+            {% endif %}
         {% else %}
           <dd class="list-group-item-text">&mdash;</dd>
         {% endif %}
