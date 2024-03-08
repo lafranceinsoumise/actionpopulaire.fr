@@ -76,13 +76,22 @@ def open_sheet(sheet: GoogleSheetId):
 
 def check_sheet_permissions(sheet: GoogleSheetId):
     gc = gspread.service_account(settings.GCE_KEY_FILE)
+
     try:
         spreadsheet = gc.open_by_key(sheet.sid)
+    except PermissionError:
+        raise ValidationError(
+            "Action populaire n'a pas la permission de modifier la feuille Google sheet."
+        )
+    except gspread.exceptions.SpreadsheetNotFound:
+        raise ValidationError("Cette spreadsheet n'existe pas.")
     except gspread.exceptions.APIError as e:
         if e.args[0]["code"] == 404:
             raise ValidationError("Cette spreadsheet n'existe pas.")
         elif e.args[0]["code"] == 403:
-            raise ValidationError("Donnez l'accès à cette spreadsheet.")
+            raise ValidationError(
+                "Action populaire n'a pas la permission de modifier la feuille Google sheet."
+            )
         raise
 
     try:

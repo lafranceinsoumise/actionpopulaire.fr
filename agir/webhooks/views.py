@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from agir.people.models import PersonEmail
+from agir.mailing.metrics import ses_bounced_metric, sendgrid_bounced_metric
 
 logger = logging.getLogger(__name__)
 
@@ -65,6 +66,7 @@ class SesBounceView(BounceView):
         if message["notificationType"] != "Bounce":
             return response
 
+        ses_bounced_metric.inc()
         logger.info(f"Amazon Bounce: {json.dumps(message)}")
 
         if message["bounce"]["bounceType"] != "Permanent":
@@ -80,5 +82,6 @@ class SendgridBounceView(BounceView):
         for webhook in request.data:
             if webhook["event"] != "bounce" and webhook["event"] != "dropped":
                 continue
+            sendgrid_bounced_metric.inc()
             self.handle_bounce(webhook["email"])
         return Response({"status": "Accepted"}, 202)

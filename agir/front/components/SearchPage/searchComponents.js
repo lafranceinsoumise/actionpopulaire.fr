@@ -174,7 +174,7 @@ export const InputSearch = ({ inputSearch, updateSearch, placeholder }) => (
         onChange={updateSearch}
         autoComplete="off"
         maxLength="512"
-        value={inputSearch.slice(0, 512)}
+        value={inputSearch?.slice(0, 512)}
       />
     </SearchBarWrapper>
   </div>

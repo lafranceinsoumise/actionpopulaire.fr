@@ -5,7 +5,17 @@
       <div class="list-group-item">
         <dt class="list-group-item-heading" title="{{ item.label|capfirst }}">{{ item.label|capfirst }}</dt>
         {% if item.value %}
-          <dd class="list-group-item-text" title="{{ item.value }}">{{ item.value }}</dd>
+          {% if item.value is True %}
+            <dd class="list-group-item-text" title="{{ item.value }}">
+              <i aria-label='Oui' class='fa fa-check'></i>
+            </dd>
+          {% elif item.value is False %}
+            <dd class="liste-group-item-text" title="{{ item.value }}">
+              <i aria-label='Non' class='fa fa-times'></i>
+            </dd>
+          {% else %}
+            <dd class="list-group-item-text" title="{{ item.value }}">{{ item.value }}</dd>
+          {% endif %}
         {% else %}
           <dd class="list-group-item-text">&mdash;</dd>
         {% endif %}

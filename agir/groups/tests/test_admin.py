@@ -79,7 +79,7 @@ class LastManagerLoginFilterTest(TestCase):
             "one_month@agir.test", create_role=True
         )
         self.one_month_old_login_person.role.last_login = today - relativedelta(
-            months=1
+            months=1, days=5
         )
         self.one_month_old_login_person.role.save()
         Membership.objects.create(
@@ -89,13 +89,13 @@ class LastManagerLoginFilterTest(TestCase):
         )
 
         self.two_month_old_login_group = SupportGroup.objects.create(
-            name="two_mont_old_login"
+            name="two_month_old_login"
         )
         self.two_month_old_login_person = Person.objects.create_person(
             "two_month@agir.test", create_role=True
         )
         self.two_month_old_login_person.role.last_login = today - relativedelta(
-            months=2
+            months=2, days=5
         )
         self.two_month_old_login_person.role.save()
         Membership.objects.create(

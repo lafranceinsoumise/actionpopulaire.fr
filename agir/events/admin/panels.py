@@ -762,7 +762,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
 
     @admin.display(description="Actions")
     def mailing_actions(self, obj):
-        if not obj or not obj.subtype.campaign_template:
+        if not obj or not obj.pk or not obj.subtype.campaign_template:
             return "-"
 
         if obj.email_campaign:

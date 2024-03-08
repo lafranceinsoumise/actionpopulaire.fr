@@ -176,6 +176,35 @@ class ManageSupportGroupTestCase(SupportGroupMixin, TestCase):
 
     @mock.patch.object(SupportGroupForm, "geocoding_task")
     @mock.patch("agir.groups.forms.send_support_group_creation_notification")
+    def test_can_create_group_with_unverified_phone_number_if_abroad(
+        self,
+        _patched_send_support_group_creation_notification,
+        _patched_geocode_support_group,
+    ):
+        person = Person.objects.create_insoumise(
+            "nophone@pers.on",
+            create_role=True,
+            first_name="Jane",
+            last_name="Doe",
+            gender=Person.GENDER_OTHER,
+            contact_phone="",
+            location_country="MX",
+        )
+        self.client.force_login(person.role)
+
+        response = self.client.get(reverse("create_group"))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        person.contact_phone = "+33600000000"
+        person.contact_phone_status = Person.CONTACT_PHONE_UNVERIFIED
+        person.save()
+        self.client.force_login(person.role)
+
+        response = self.client.get(reverse("create_group"))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    @mock.patch.object(SupportGroupForm, "geocoding_task")
+    @mock.patch("agir.groups.forms.send_support_group_creation_notification")
     def test_can_create_group(
         self,
         patched_send_support_group_creation_notification,
