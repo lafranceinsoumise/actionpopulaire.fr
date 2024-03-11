@@ -43,6 +43,7 @@ import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 import { useCommentsSWR } from "@agir/msgs/common/hooks";
 import { StyledLoader } from "@agir/msgs/MessagePage/MessageThreadMenu";
 import MessageAttachment from "../formComponents/MessageAttachment";
+import { last } from "lodash";
 
 export const StyledInlineMenuItems = styled.div`
   cursor: pointer;
@@ -395,50 +396,49 @@ const StyledLoadComments = styled.div`
   }
 `;
 
-const MessageHeader = ({ message, subject, isManager, isAuthor }) => {
+const MessageHeader = ({ message, subject, isManager, isAuthor, readOnly }) => {
   const isDesktop = useIsDesktop();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const hasModal = isDesktop && !readOnly && !message?.readonly;
 
   const showModal = () => {
-    if (!isDesktop) {
+    if (!hasModal) {
       return;
     }
     setIsModalOpen(true);
   };
 
   return (
-    <>
-      <StyledMessageHeader>
-        <div style={{ display: "flex" }}>
-          {isDesktop && (
-            <RawFeatherIcon name="mail" style={{ marginRight: "1rem" }} />
-          )}
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <StyledSubject onClick={showModal}>{subject}</StyledSubject>
-            <MessageDetails message={message} />
-          </div>
+    <StyledMessageHeader>
+      <div style={{ display: "flex" }}>
+        <RawFeatherIcon name="mail" style={{ marginRight: "1rem" }} />
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <StyledSubject onClick={showModal}>{subject}</StyledSubject>
+          <MessageDetails message={message} />
         </div>
-        {!message?.readonly && isDesktop && (
+      </div>
+      {hasModal && (
+        <>
           <div>
             {(isManager || isAuthor) && <ButtonLockMessage message={message} />}
             <Spacer size="0.5rem" style={{ display: "inline-block" }} />
             {<ButtonMuteMessage message={message} />}
           </div>
-        )}
-      </StyledMessageHeader>
-      <ModalConfirmation
-        shouldShow={isModalOpen}
-        shouldDismissOnClick={false}
-        onClose={() => setIsModalOpen(false)}
-      >
-        <h3>{subject}</h3>
-      </ModalConfirmation>
-    </>
+          <ModalConfirmation
+            shouldShow={isModalOpen}
+            shouldDismissOnClick={false}
+            onClose={() => setIsModalOpen(false)}
+          >
+            <h3>{subject}</h3>
+          </ModalConfirmation>
+        </>
+      )}
+    </StyledMessageHeader>
   );
 };
 MessageHeader.propTypes = {
@@ -449,6 +449,7 @@ MessageHeader.propTypes = {
   subject: PropTypes.string.isRequired,
   isManager: PropTypes.bool,
   isAuthor: PropTypes.bool,
+  readOnly: PropTypes.bool,
 };
 
 const MessageCard = (props) => {
@@ -466,8 +467,9 @@ const MessageCard = (props) => {
     onEdit,
     onReport,
     withMobileCommentField,
-    withBottomButton,
+    readOnly,
     autoScrollOnComment,
+    commentErrors,
   } = props;
 
   const {
@@ -579,6 +581,7 @@ const MessageCard = (props) => {
           message={message}
           isManager={isManager}
           isAuthor={isAuthor}
+          readOnly={readOnly}
         />
       )}
       <StyledWrapper
@@ -713,6 +716,7 @@ const MessageCard = (props) => {
                     onSend={handleComment}
                     autoScroll={autoScrollOnComment}
                     scrollerRef={messageCardRef}
+                    errors={commentErrors}
                   />
                 ) : (
                   <ResponsiveLayout
@@ -728,13 +732,14 @@ const MessageCard = (props) => {
                     onClick={onClick && handleClick}
                     autoScroll={autoScrollOnComment}
                     scrollerRef={messageCardRef}
+                    errors={commentErrors}
                   />
                 ))}
             </StyledNewComment>
           </StyledComments>
-          {withBottomButton && (
+          {readOnly && (
             <div style={{ textAlign: "center" }}>
-              <Button small onClick={handleClick}>
+              <Button small color="secondary" onClick={handleClick}>
                 Rejoindre la conversation
               </Button>
             </div>
@@ -784,7 +789,8 @@ MessageCard.propTypes = {
   isLoading: PropTypes.bool,
   withMobileCommentField: PropTypes.bool,
   isManager: PropTypes.bool,
-  withBottomButton: PropTypes.bool,
+  readOnly: PropTypes.bool,
   autoScrollOnComment: PropTypes.bool,
+  commentErrors: PropTypes.object,
 };
 export default MessageCard;

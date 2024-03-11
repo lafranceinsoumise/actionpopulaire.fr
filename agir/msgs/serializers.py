@@ -1,4 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
+from django.core import validators
+from django.db import transaction
 from django.db.models import Exists, OuterRef
 from rest_framework import serializers
 
@@ -7,22 +9,52 @@ from agir.events.serializers import EventListSerializer
 from agir.groups.models import Membership
 from agir.groups.models import SupportGroup
 from agir.lib.serializers import FlexibleFieldsMixin, CurrentPersonField
+from agir.lib.validators import FileSizeValidator
 from agir.msgs.actions import get_message_unread_comment_count
 from agir.msgs.models import (
     SupportGroupMessage,
     SupportGroupMessageComment,
     UserReport,
+    MessageAttachment,
 )
 from agir.people.models import Person
 from agir.people.serializers import PersonSerializer
+
+
+class MessageAttachmentSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(
+        label="Nom", max_length=200, required=True, allow_null=False, allow_blank=False
+    )
+    file = serializers.FileField(
+        label="Fichier",
+        allow_empty_file=False,
+        allow_null=False,
+        validators=[
+            validators.FileExtensionValidator(MessageAttachment.ALLOWED_EXTENSIONS),
+            FileSizeValidator(MessageAttachment.MAX_SIZE),
+        ],
+    )
+
+    class Meta:
+        model = MessageAttachment
+        fields = ("id", "name", "file", "created", "modified")
+        read_only_fields = ("id", "created", "modified")
 
 
 class BaseMessageSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
     id = serializers.UUIDField(read_only=True)
     created = serializers.DateTimeField(read_only=True)
     author = serializers.SerializerMethodField()
-    text = serializers.CharField(max_length=3000)
-    image = serializers.ImageField(required=False)
+    text = serializers.CharField(
+        label="Texte",
+        max_length=3000,
+        required=False,
+        allow_blank=True,
+        allow_null=False,
+    )
+    attachment = MessageAttachmentSerializer(
+        label="Pièce-jointe", allow_null=True, required=False
+    )
 
     def get_author(self, obj):
         if obj.author is not None:
@@ -33,11 +65,48 @@ class BaseMessageSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
             ).data
         return {"id": None, "displayName": "Utilisateur·ice supprimé·e", "image": None}
 
+    def validate_instance(self, instance):
+        if not instance.text and not instance.attachment:
+            raise serializers.ValidationError(
+                {"details": "Il ne pas possible d'envoyer un message vide."}
+            )
+
+        return instance
+
+    def create(self, validated_data):
+        with transaction.atomic():
+            attachment = validated_data.pop("attachment", None)
+            message = super().create(validated_data)
+
+            if attachment:
+                attachment = MessageAttachment.objects.create(**attachment)
+                message.attachment = attachment
+                message.save()
+
+            return self.validate_instance(message)
+
+    def update(self, message, validated_data):
+        with transaction.atomic():
+            attachment = validated_data.pop("attachment", None)
+            message = super().update(message, validated_data)
+
+            if attachment:
+                attachment = MessageAttachment.objects.create(**attachment)
+                message.attachment = attachment
+                message.save()
+
+            if attachment is None and message.attachment:
+                message.attachment.delete()
+
+            message.refresh_from_db()
+
+            return self.validate_instance(message)
+
 
 class MessageCommentSerializer(BaseMessageSerializer):
     class Meta:
         model = SupportGroupMessageComment
-        fields = ("id", "author", "text", "image", "created")
+        fields = ("id", "author", "text", "attachment", "created")
 
 
 class LinkedEventField(serializers.RelatedField):
@@ -79,6 +148,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
         "text",
         "group",
         "linkedEvent",
+        "attachment",
         "recentComments",
         "commentCount",
         "requiredMembershipType",
@@ -93,6 +163,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
         "text",
         "group",
         "linkedEvent",
+        "attachment",
         "lastUpdate",
         "requiredMembershipType",
         "isLocked",
@@ -156,6 +227,16 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
         if count > self.RECENT_COMMENT_LIMIT:
             return count
 
+    def validate_instance(self, instance):
+        instance = super().validate_instance(instance)
+
+        if not instance.subject:
+            raise serializers.ValidationError(
+                {"subject": "L'objet du message ne peut pas être vide."}
+            )
+
+        return instance
+
     class Meta:
         model = SupportGroupMessage
         fields = (
@@ -164,11 +245,10 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
             "author",
             "subject",
             "text",
-            "image",
+            "attachment",
             "group",
             "linkedEvent",
             "recentComments",
-            "comments",
             "commentCount",
             "lastUpdate",
             "requiredMembershipType",
@@ -278,7 +358,6 @@ class UserMessagesSerializer(BaseMessageSerializer):
     lastComment = serializers.SerializerMethodField(
         method_name="get_last_comment", read_only=True
     )
-
     requiredMembershipType = serializers.ChoiceField(
         source="required_membership_type",
         required=False,
@@ -338,6 +417,7 @@ class UserMessagesSerializer(BaseMessageSerializer):
             "subject",
             "text",
             "group",
+            "attachment",
             "unreadCommentCount",
             "isAuthor",
             "lastUpdate",

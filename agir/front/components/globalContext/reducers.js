@@ -186,6 +186,7 @@ export const messages = (state = {}, action) => {
         if (newMessage) {
           newState[newMessage.id] = {
             ...newMessage,
+            lastUpdate: Date.now(),
             comments: Array.isArray(newMessage.comments)
               ? [...newMessage.comments, action.comment]
               : [...newMessage.recentComments, action.comment],
@@ -210,6 +211,7 @@ export const messages = (state = {}, action) => {
         if (newMessage) {
           newState[newMessage.id] = {
             ...newMessage,
+            lastUpdate: Date.now(),
             comments: Array.isArray(newMessage.comments)
               ? newMessage.comments
               : newMessage.recentComments,

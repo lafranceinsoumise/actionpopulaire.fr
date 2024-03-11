@@ -83,12 +83,10 @@ const MobileGroupPage = (props) => {
 
   const getMessageURL = useCallback(
     (messagePk) =>
-      routeConfig.groupMessage &&
-      routeConfig.groupMessage.getLink({
-        groupPk: group.id,
+      routeConfig.messages.getLink({
         messagePk: messagePk,
       }),
-    [group],
+    [],
   );
 
   const handleClickMessage = useCallback(

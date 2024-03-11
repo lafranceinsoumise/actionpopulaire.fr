@@ -159,8 +159,8 @@ def get_message_unread_comment_count(person_pk, message_pk):
 
 def get_user_messages(person):
     return (
-        SupportGroupMessage.objects.filter(id__in=get_viewable_messages_ids(person))
-        .select_related("supportgroup", "author")
+        SupportGroupMessage.objects.with_serializer_prefetch()
+        .filter(id__in=get_viewable_messages_ids(person))
         .prefetch_related(
             Prefetch(
                 "comments",

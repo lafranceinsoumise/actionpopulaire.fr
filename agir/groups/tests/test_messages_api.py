@@ -1,8 +1,10 @@
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils import timezone
 from rest_framework.test import APITestCase
 
 from agir.events.models import Event
 from agir.groups.models import SupportGroup, Membership
+from agir.lib.tests.test_utils import multipartify
 from agir.msgs.models import SupportGroupMessage, SupportGroupMessageComment
 from agir.people.models import Person
 
@@ -59,7 +61,7 @@ class GroupMessagesTestAPICase(APITestCase):
             },
         )
         self.assertEqual(res.data["results"][0]["text"], "Lorem")
-        # self.assertEqual(res.data["results"][0]["image"], None)
+        self.assertEqual(res.data["results"][0]["attachment"], None)
         self.assertIn("recentComments", res.data["results"][0])
         self.assertIn("commentCount", res.data["results"][0])
         self.assertNotIn("comments", res.data["results"][0])
@@ -126,10 +128,86 @@ class GroupMessagesTestAPICase(APITestCase):
         res = self.client.get(f"/api/groupes/{self.group.pk}/messages/")
         self.assertEqual(res.status_code, 401)
 
+    def test_manager_cannot_post_message_without_subject(self):
+        self.client.force_login(self.manager.role)
+        res = self.client.post(
+            f"/api/groupes/{self.group.pk}/messages/",
+            data={
+                "subject": "",
+                "text": "Lorem",
+                "linkedEvent": str(self.event.pk),
+            },
+        )
+        self.assertEqual(res.status_code, 422)
+        self.assertIn("subject", res.data)
+
+    def test_manager_cannot_post_message_without_text_or_attachment(self):
+        self.client.force_login(self.manager.role)
+        res = self.client.post(
+            f"/api/groupes/{self.group.pk}/messages/",
+            data={
+                "subject": "A message",
+                "text": "",
+                "linkedEvent": str(self.event.pk),
+            },
+        )
+        self.assertEqual(res.status_code, 422)
+        self.assertIn("details", res.data)
+
+    def test_manager_cannot_post_message_with_unsupported_format_attachment(self):
+        self.client.force_login(self.manager.role)
+        res = self.client.post(
+            f"/api/groupes/{self.group.pk}/messages/",
+            format="multipart",
+            data=multipartify(
+                {
+                    "subject": "A message",
+                    "text": "",
+                    "linkedEvent": str(self.event.pk),
+                    "attachment": {
+                        "name": "doc.xyz",
+                        "file": SimpleUploadedFile(
+                            "doc.xyz",
+                            b"Le document",
+                            content_type="application/xyz",
+                        ),
+                    },
+                }
+            ),
+        )
+        self.assertEqual(res.status_code, 422)
+        self.assertIn("attachment", res.data)
+
+    def test_manager_can_post_message_without_text_with_an_attachment(self):
+        self.client.force_login(self.manager.role)
+        res = self.client.post(
+            f"/api/groupes/{self.group.pk}/messages/",
+            format="multipart",
+            data=multipartify(
+                {
+                    "subject": "A message",
+                    "text": "",
+                    "linkedEvent": str(self.event.pk),
+                    "attachment": {
+                        "name": "doc.pdf",
+                        "file": SimpleUploadedFile(
+                            "doc.pdf",
+                            b"Le document",
+                            content_type="application/pdf",
+                        ),
+                    },
+                }
+            ),
+        )
+        self.assertEqual(res.status_code, 201)
+        self.assertEqual(self.group.messages.first().text, "")
+        self.assertIsNotNone(self.group.messages.first().attachment)
+
     def test_manager_can_post_message_without_event(self):
         self.client.force_login(self.manager.role)
         res = self.client.post(
-            f"/api/groupes/{self.group.pk}/messages/", data={"text": "Lorem"}
+            f"/api/groupes/{self.group.pk}/messages/",
+            data={"subject": "A message", "text": "Lorem"},
         )
         self.assertEqual(res.status_code, 201)
         self.assertEqual(self.group.messages.first().text, "Lorem")
@@ -139,7 +217,7 @@ class GroupMessagesTestAPICase(APITestCase):
         self.client.force_login(self.manager.role)
         res = self.client.post(
             f"/api/groupes/{self.group.pk}/messages/",
-            data={"text": "Lorem", "linkedEvent": None},
+            data={"subject": "A message", "text": "Lorem", "linkedEvent": None},
         )
         self.assertEqual(res.status_code, 201)
         self.assertEqual(self.group.messages.first().text, "Lorem")
@@ -149,7 +227,11 @@ class GroupMessagesTestAPICase(APITestCase):
         self.client.force_login(self.manager.role)
         res = self.client.post(
             f"/api/groupes/{self.group.pk}/messages/",
-            data={"text": "Lorem", "linkedEvent": str(self.event.pk)},
+            data={
+                "subject": "A message",
+                "text": "Lorem",
+                "linkedEvent": str(self.event.pk),
+            },
         )
         self.assertEqual(res.status_code, 201)
         self.assertEqual(self.group.messages.first().text, "Lorem")
@@ -182,7 +264,7 @@ class GroupMessagesTestAPICase(APITestCase):
             },
         )
         self.assertEqual(res.data["text"], "Lorem")
-        # self.assertEqual(res.data["image"], None)
+        self.assertEqual(res.data["attachment"], None)
         self.assertEqual(
             res.data["group"],
             {"id": self.group.id, "name": self.group.name, "isManager": False},
@@ -208,9 +290,44 @@ class GroupMessagesTestAPICase(APITestCase):
         res = self.client.get(f"/api/groupes/messages/{message.pk}/")
         self.assertEqual(res.status_code, 403)
 
+    def test_author_cannot_empty_message_subject(self):
+        message = SupportGroupMessage.objects.create(
+            supportgroup=self.group,
+            author=self.manager,
+            text="Lorem",
+            subject="A message",
+            attachment=None,
+        )
+        self.client.force_login(self.manager.role)
+        res = self.client.patch(
+            f"/api/groupes/messages/{message.pk}/",
+            data={"subject": ""},
+        )
+        self.assertEqual(res.status_code, 422)
+        self.assertIn("subject", res.data)
+
+    def test_author_cannot_empty_message_text_and_attachment(self):
+        message = SupportGroupMessage.objects.create(
+            supportgroup=self.group,
+            author=self.manager,
+            text="Lorem",
+            subject="A message",
+            attachment=None,
+        )
+        self.client.force_login(self.manager.role)
+        res = self.client.patch(
+            f"/api/groupes/messages/{message.pk}/",
+            data={"text": ""},
+        )
+        self.assertEqual(res.status_code, 422)
+        self.assertIn("details", res.data)
+
     def test_author_can_edit_message(self):
         message = SupportGroupMessage.objects.create(
-            supportgroup=self.group, author=self.manager, text="Lorem"
+            supportgroup=self.group,
+            author=self.manager,
+            text="Lorem",
+            subject="A message",
         )
         self.client.force_login(self.manager.role)
         res = self.client.patch(
@@ -222,7 +339,10 @@ class GroupMessagesTestAPICase(APITestCase):
 
     def test_non_author_cannot_edit_message(self):
         message = SupportGroupMessage.objects.create(
-            supportgroup=self.group, author=self.manager, text="Lorem"
+            supportgroup=self.group,
+            author=self.manager,
+            text="Lorem",
+            subject="A message",
         )
         self.create_other_manager()
         self.client.force_login(self.other_manager.role)
@@ -293,7 +413,7 @@ class GroupMessagesTestAPICase(APITestCase):
             membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
         )
         message = SupportGroupMessage.objects.create(
-            supportgroup=group, author=self.manager, text="Lorem"
+            supportgroup=group, author=self.manager, text="Lorem", subject="A message?"
         )
 
         self.client.force_login(self.manager.role)
@@ -368,7 +488,7 @@ class GroupMessageCommentAPITestCase(APITestCase):
             },
         )
         self.assertEqual(results[0]["text"], "Lorem")
-        self.assertEqual(results[0]["image"], None)
+        self.assertEqual(results[0]["attachment"], None)
 
     def test_deleted_comments_are_hidden(self):
         SupportGroupMessageComment.objects.create(
@@ -386,6 +506,53 @@ class GroupMessageCommentAPITestCase(APITestCase):
         self.client.force_login(self.non_member.role)
         res = self.client.get(f"/api/groupes/messages/{self.message.pk}/comments/")
         self.assertEqual(res.status_code, 403)
+
+    def test_member_cannot_post_comment_with_unsupported_format_attachment(self):
+        self.client.force_login(self.member.role)
+        res = self.client.post(
+            f"/api/groupes/messages/{self.message.pk}/comments/",
+            format="multipart",
+            data=multipartify(
+                {
+                    "subject": "A message",
+                    "text": "",
+                    "attachment": {
+                        "name": "doc.xyz",
+                        "file": SimpleUploadedFile(
+                            "doc.xyz",
+                            b"Le document",
+                            content_type="application/xyz",
+                        ),
+                    },
+                }
+            ),
+        )
+        self.assertEqual(res.status_code, 422)
+        self.assertIn("attachment", res.data)
+
+    def test_member_can_post_comment_without_text_with_an_attachment(self):
+        self.client.force_login(self.member.role)
+        res = self.client.post(
+            f"/api/groupes/messages/{self.message.pk}/comments/",
+            format="multipart",
+            data=multipartify(
+                {
+                    "subject": "A message",
+                    "text": "",
+                    "attachment": {
+                        "name": "doc.pdf",
+                        "file": SimpleUploadedFile(
+                            "doc.pdf",
+                            b"Le document",
+                            content_type="application/pdf",
+                        ),
+                    },
+                }
+            ),
+        )
+        self.assertEqual(res.status_code, 201)
+        self.assertEqual(self.message.comments.first().text, "")
+        self.assertIsNotNone(self.message.comments.first().attachment)
 
     def test_member_can_post_comment(self):
         self.client.force_login(self.member.role)

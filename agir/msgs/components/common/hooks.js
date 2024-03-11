@@ -255,6 +255,8 @@ export const useMessageActions = (
   const [selectedGroupEvents, setSelectedGroupEvents] = useState([]);
   const [selectedComment, setSelectedComment] = useState(null);
   const [messageAction, setMessageAction] = useState("");
+  const [messageErrors, setMessageErrors] = useState(null);
+  const [commentErrors, setCommentErrors] = useState(null);
 
   const canWriteNewMessage =
     !!user && Array.isArray(messageRecipients) && messageRecipients.length > 0;
@@ -298,24 +300,31 @@ export const useMessageActions = (
   const saveMessage = useCallback(
     async (message) => {
       setIsLoading(true);
-      shouldDismissAction.current = true;
+      setMessageErrors(null);
+      shouldDismissAction.current = false;
       try {
-        const result = message.id
+        const { data, error } = message.id
           ? await groupAPI.updateMessage(message)
           : await groupAPI.createMessage(message.group.id, message);
+
+        if (error) {
+          typeof error === "string"
+            ? setMessageErrors({ details: "Une erreur est survenue" })
+            : setMessageErrors(error);
+          setIsLoading(false);
+          return;
+        }
+        shouldDismissAction.current = true;
         setIsLoading(false);
         mutateMessages();
         if (message.id) {
-          mutate(
-            `/api/groupes/messages/${message.id}/`,
-            () => result.data,
-            false,
-          );
+          mutate(`/api/groupes/messages/${message.id}/`, () => data, false);
         } else {
-          onSelectMessage(result.data.id);
+          onSelectMessage(data.id);
         }
       } catch (e) {
         setIsLoading(false);
+        setMessageErrors({ details: e.message });
       }
     },
     [onSelectMessage, mutateMessages],
@@ -324,19 +333,28 @@ export const useMessageActions = (
   const writeNewComment = useCallback(
     async (comment) => {
       setIsLoading(true);
+      setCommentErrors(null);
       try {
-        const response = await groupAPI.createComment(
+        const { error } = await groupAPI.createComment(
           selectedMessage.id,
           comment,
         );
+        if (error) {
+          typeof error === "string"
+            ? setCommentErrors({ details: "Une erreur est survenue" })
+            : setCommentErrors(error);
+          setIsLoading(false);
+          return;
+        }
         setIsLoading(false);
         mutateComments();
         onSelectMessage(selectedMessage.id);
       } catch (e) {
         setIsLoading(false);
+        setCommentErrors({ details: e.message });
       }
     },
-    [selectedMessage, onSelectMessage],
+    [selectedMessage, onSelectMessage, mutateComments],
   );
 
   const onDelete = useCallback(async () => {
@@ -398,15 +416,10 @@ export const useMessageActions = (
 
   const dismissMessageAction = useCallback(() => {
     if (messageAction === "delete" && selectedMessage && selectedComment) {
-      mutate(`/api/groupes/messages/${selectedMessage.id}/`, (data) => ({
-        ...data,
-        comments: Array.isArray(data?.comments)
-          ? data.comments.filter((comment) => comment.id === selectedComment.id)
-          : [],
-      }));
+      mutateComments();
     } else if (messageAction === "delete") {
-      mutateMessages();
       onSelectMessage(null);
+      mutateMessages();
     }
     setMessageAction("");
     setSelectedComment(null);
@@ -417,6 +430,7 @@ export const useMessageActions = (
     selectedMessage,
     onSelectMessage,
     mutateMessages,
+    mutateComments,
   ]);
 
   useEffect(() => {
@@ -429,6 +443,9 @@ export const useMessageActions = (
     messageAction,
     selectedGroupEvents,
     selectedComment,
+
+    messageErrors,
+    commentErrors,
 
     writeNewMessage: canWriteNewMessage ? writeNewMessage : undefined,
     writeNewComment,

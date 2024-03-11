@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { Suspense, useCallback, useRef } from "react";
+import React, { Suspense, useCallback, useMemo, useRef } from "react";
 import styled from "styled-components";
 
 import { lazy } from "@agir/front/app/utils";
@@ -160,6 +160,47 @@ const StyledWrapper = styled.div`
   }
 `;
 
+const MessageErrors = ({ errors }) => {
+  const formattedErrors = useMemo(() => {
+    if (!errors) {
+      return [];
+    }
+
+    let errs = { ...errors };
+
+    if (errors.attachment) {
+      errs.attachment = [];
+      Object.values(errors.attachment)
+        .filter(Boolean)
+        .forEach((err) =>
+          Array.isArray(err)
+            ? err.forEach((e) => errs.attachment.push(e))
+            : errs.attachment.push(err),
+        );
+    }
+
+    errs = Object.entries(errs).filter(
+      ([_key, err]) => !!err && err.length > 0,
+    );
+
+    if (errs.length === 0) {
+      return [];
+    }
+
+    return errs;
+  }, [errors]);
+
+  return formattedErrors.map(([key, err]) => (
+    <StaticToast key={key} style={{ marginTop: "0.5rem" }}>
+      {Array.isArray(err)
+        ? err.map((errorMessage) => (
+            <span key={errorMessage}>{errorMessage}</span>
+          ))
+        : err}
+    </StaticToast>
+  ));
+};
+
 const MessageStep = (props) => {
   const {
     disabled,
@@ -213,7 +254,7 @@ const MessageStep = (props) => {
       ];
     }
   }, []);
-  console.log(errors);
+
   return (
     <StyledWrapper>
       {!!groupPk && (
@@ -315,14 +356,7 @@ const MessageStep = (props) => {
           </Suspense>
           <IconFileInput onClick={onAttach} />
         </footer>
-        {errors &&
-          Object.entries(errors)
-            .filter(([_key, err]) => !!err)
-            .map(([key, err]) => (
-              <StaticToast key={key} style={{ marginTop: "1rem" }}>
-                {err}
-              </StaticToast>
-            ))}
+        <MessageErrors errors={errors} />
       </StyledMessage>
     </StyledWrapper>
   );
@@ -348,9 +382,9 @@ MessageStep.propTypes = {
   maxLength: PropTypes.number,
   subjectMaxLength: PropTypes.number,
   errors: PropTypes.shape({
-    text: PropTypes.string,
-    subject: PropTypes.string,
-    attachment: PropTypes.string,
+    text: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
+    subject: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
+    attachment: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
   }),
   groupPk: PropTypes.string,
   onBoarding: PropTypes.bool,

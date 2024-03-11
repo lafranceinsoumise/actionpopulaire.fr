@@ -10,6 +10,10 @@ const StyledContent = styled.p`
     min-height: 1em;
     font-size: inherit;
     line-height: inherit;
+
+    &:empty  {
+      display: none;
+    }
   }
 `;
 
@@ -66,6 +70,7 @@ const ParsedString = ({ children, ...rest }) => {
       return null;
     }
     const spans = children
+      .trim()
       .split("\n")
       .map((paragraph, i) => (
         <span key={i + "__" + paragraph}>{parseString(paragraph)}</span>

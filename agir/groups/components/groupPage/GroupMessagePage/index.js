@@ -48,12 +48,10 @@ const Page = ({ groupPk, messagePk }) => {
 
   const messageURL = useMemo(
     () =>
-      routeConfig.groupMessage &&
-      routeConfig.groupMessage.getLink({
-        groupPk,
+      routeConfig.messages.getLink({
         messagePk,
       }),
-    [groupPk, messagePk],
+    [messagePk],
   );
 
   const groupURL = useMemo(

@@ -157,6 +157,7 @@ const Modal = (props) => {
     onSelectGroup,
     groupPk,
     onBoarding,
+    errors,
   } = props;
 
   const initialMessage = useMemo(() => {
@@ -174,8 +175,6 @@ const Modal = (props) => {
   const [attachment, setAttachment] = useState(message?.attachment || null);
   const [handleClearAttachment, handleAttach, attachmentInput] =
     useFileInput(setAttachment);
-
-  const [errors, setErrors] = useState(null);
 
   const [hasBackButton, setHasBackButton] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(
@@ -229,36 +228,7 @@ const Modal = (props) => {
     setHasBackButton(false);
   }, []);
 
-  const handleSendOnCtrlEnter = useCallback(
-    (e) => {
-      if (maySend && e.ctrlKey && e.keyCode === 13) {
-        handleSend();
-      }
-    },
-    [maySend, handleSend],
-  );
-
   const handleSend = useCallback(() => {
-    if (!subject || !text) {
-      setErrors({
-        subject: !subject && "L'objet du message est obligatoire",
-        text: !text && "Un corps de message est obligatoire",
-      });
-      return false;
-    }
-    if (subject?.trim()?.length > SUBJECT_MAX_LENGTH) {
-      setErrors({
-        subject: `L'objet du message doit comporter moins de ${SUBJECT_MAX_LENGTH} caractères`,
-      });
-      return false;
-    }
-    if (text?.trim()?.length > TEXT_MAX_LENGTH) {
-      setErrors({
-        text: `Le message doit comporter moins de ${TEXT_MAX_LENGTH} caractères`,
-      });
-      return false;
-    }
-
     maySend &&
       onSend({
         ...(initialMessage || {}),
@@ -279,23 +249,25 @@ const Modal = (props) => {
     selectedGroup,
   ]);
 
+  const handleSendOnCtrlEnter = useCallback(
+    (e) => {
+      if (maySend && e.ctrlKey && e.keyCode === 13) {
+        handleSend();
+      }
+    },
+    [maySend, handleSend],
+  );
+
   useEffect(() => {
     if (shouldShow) {
       setSubject(initialMessage?.subject || "");
       setText(initialMessage?.text || "");
+      setAttachment(initialMessage?.attachment || null);
       setSelectedEvent(initialMessage?.linkedEvent || null);
       setSelectedGroup(initialMessage?.group || null);
       setHasBackButton(false);
     }
   }, [shouldShow, initialMessage]);
-
-  useEffect(() => {
-    setErrors((errs) => ({ ...errs, subject: null }));
-  }, [subject]);
-
-  useEffect(() => {
-    setErrors((errs) => ({ ...errs, text: null }));
-  }, [text]);
 
   return (
     <ModalWrapper shouldShow={shouldShow} noScroll>
@@ -397,5 +369,6 @@ Modal.propTypes = {
   isLoading: PropTypes.bool,
   groupPk: PropTypes.string,
   onBoarding: PropTypes.bool,
+  errors: PropTypes.object,
 };
 export default Modal;

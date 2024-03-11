@@ -3,6 +3,7 @@ import React, {
   Suspense,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -145,6 +146,10 @@ const StyledWrapper = styled.form`
       gap: 0;
     }
 
+    ${StyledTextField} {
+      grid-row: 2 / 3;
+    }
+
     ${StyledMessageAttachment} {
       margin-bottom: 0.5rem;
     }
@@ -173,7 +178,19 @@ const StyledWrapper = styled.form`
     ${StyledError} {
       color: ${(props) => props.theme.redNSP};
       font-size: 0.875rem;
-      margin-top: 0.5rem;
+      display: block;
+      display: flex;
+      margin-top: 0;
+      gap: 0.25rem;
+      flex-direction: column;
+
+      & > span {
+        display: block;
+      }
+    }
+
+    ${StyledError} + ${StyledError} {
+      margin-top: 0.25rem;
     }
   }
 
@@ -215,6 +232,47 @@ const StyledWrapper = styled.form`
   }
 `;
 
+const CommentErrors = ({ errors }) => {
+  const formattedErrors = useMemo(() => {
+    if (!errors) {
+      return [];
+    }
+
+    let errs = { ...errors };
+
+    if (errors.attachment) {
+      errs.attachment = [];
+      Object.values(errors.attachment)
+        .filter(Boolean)
+        .forEach((err) =>
+          Array.isArray(err)
+            ? err.forEach((e) => errs.attachment.push(e))
+            : errs.attachment.push(err),
+        );
+    }
+
+    errs = Object.entries(errs).filter(
+      ([_key, err]) => !!err && err.length > 0,
+    );
+
+    if (errs.length === 0) {
+      return [];
+    }
+
+    return errs;
+  }, [errors]);
+
+  return formattedErrors.map(([key, err]) => (
+    <StyledError key={key}>
+      {Array.isArray(err)
+        ? err.map((errorMessage) => (
+            <span key={errorMessage}>{errorMessage}</span>
+          ))
+        : err}
+    </StyledError>
+  ));
+};
+
 export const CommentButton = (props) => {
   const { onClick } = props;
   return onClick ? (
@@ -233,6 +291,7 @@ const CommentField = (props) => {
     initialValue,
     id,
     comments,
+    errors,
     onSend,
     isLoading,
     readonly,
@@ -248,17 +307,17 @@ const CommentField = (props) => {
   const textFieldCursorPosition = useRef();
 
   const [isFocused, setIsFocused] = useState(false);
-  const [value, setValue] = useState(initialValue || "");
+  const [text, setText] = useState(initialValue || "");
   const [attachment, setAttachment] = useState(null);
   const [onClearAttachment, onAttach, attachmentInput] =
     useFileInput(setAttachment);
 
   const isDesktop = useIsDesktop();
-  const isEmpty = !value.trim() && !attachment;
+  const isEmpty = !text.trim() && !attachment;
   const isExpanded = !isEmpty || isFocused;
-  const maySend = !isLoading && !isEmpty && value.trim().length <= 1000;
+  const maySend = !isLoading && !isEmpty && text.trim().length <= 1000;
 
-  const { height } = useResizeObserver(messageRef);
+  const { height } = useResizeObserver(rootElementRef);
 
   const updateScroll = useCallback(() => {
     const scrollerElement = scrollerRef.current;
@@ -293,34 +352,34 @@ const CommentField = (props) => {
   }, []);
 
   const handleInputChange = useCallback((e) => {
-    setValue(e.target.value);
+    setText(e.target.value);
   }, []);
 
   const handleInputKeyDown = useCallback(
     (e) => {
       if (maySend && e.ctrlKey && e.keyCode === 13) {
-        onSend(value);
+        onSend({ text, attachment });
         hasSubmitted.current = true;
       }
     },
-    [maySend, value, onSend],
+    [maySend, text, attachment, onSend],
   );
 
   const handleEmojiSelect = useCallback(
     (emoji) => {
       if (!Array.isArray(textFieldCursorPosition.current)) {
-        setValue(value + emoji);
+        setText(text + emoji);
         return;
       }
       const [start, end] = textFieldCursorPosition.current;
-      const newValue = value.slice(0, start) + emoji + value.slice(end);
+      const newValue = text.slice(0, start) + emoji + text.slice(end);
       textFieldCursorPosition.current = [
         start + emoji.length,
         start + emoji.length,
       ];
-      setValue(newValue);
+      setText(newValue);
     },
-    [value],
+    [text],
   );
 
   const handleEmojiOpen = useCallback(() => {
@@ -340,11 +399,11 @@ const CommentField = (props) => {
       e.preventDefault();
       blurOnClickOutside(e);
       if (maySend) {
-        onSend(value, attachment);
+        onSend({ text: text, attachment });
         hasSubmitted.current = true;
       }
     },
-    [blurOnClickOutside, maySend, onSend, value, attachment],
+    [blurOnClickOutside, maySend, onSend, text, attachment],
   );
 
   useEffect(() => {
@@ -362,11 +421,12 @@ const CommentField = (props) => {
   }, [isFocused, isEmpty, attachment, blurOnClickOutside, blurOnFocusOutside]);
 
   useEffect(() => {
-    if (!isLoading && hasSubmitted.current) {
+    if (!isLoading && hasSubmitted.current && !errors) {
       hasSubmitted.current = false;
-      setValue("");
+      setText("");
+      setAttachment(null);
     }
-  }, [isLoading]);
+  }, [isLoading, errors]);
 
   useEffect(() => {
     updateScroll();
@@ -374,7 +434,7 @@ const CommentField = (props) => {
 
   useEffect(() => {
     scrollerRef.current?.scrollTo(0, scrollerRef.current.scrollHeight);
-  }, [scrollerRef, isFocused, height, value]);
+  }, [scrollerRef, isFocused, height, text]);
 
   if (readonly) {
     return null;
@@ -402,33 +462,11 @@ const CommentField = (props) => {
         onClick={handleFocus}
         onTouchStart={handleFocus}
       >
-        {isExpanded &&
-          (attachment ? (
-            <StyledMessageAttachment
-              thumbnail
-              file={attachment?.file}
-              name={attachment?.name}
-              onDelete={onClearAttachment}
-              tabIndex={3}
-            />
-          ) : (
-            <div />
-          ))}
-        {isExpanded && <IconFileInput onClick={handleAttach} tabIndex={4} />}
-        {isExpanded && isDesktop && (
-          <Suspense fallback={null}>
-            <EmojiPicker
-              onOpen={handleEmojiOpen}
-              onSelect={handleEmojiSelect}
-              tabIndex={5}
-            />
-          </Suspense>
-        )}
         <StyledTextField
           ref={textFieldRef}
           textArea
           id={id}
-          value={value}
+          value={text}
           onChange={handleInputChange}
           onKeyDown={handleInputKeyDown}
           onFocus={handleFocus}
@@ -438,14 +476,28 @@ const CommentField = (props) => {
           placeholder={placeholder || PLACEHOLDER_MESSAGE}
           maxLength={COMMENT_MAX_LENGTH}
           hasCounter={false}
-          tabIndex={1}
         />
-        {value && value.length > COMMENT_MAX_LENGTH && (
-          <StyledError>
-            Attention : le message ne peut pas dépasser les {COMMENT_MAX_LENGTH}{" "}
-            caractères.
-          </StyledError>
+        {isExpanded &&
+          (attachment ? (
+            <StyledMessageAttachment
+              thumbnail
+              file={attachment?.file}
+              name={attachment?.name}
+              onDelete={onClearAttachment}
+            />
+          ) : (
+            <div />
+          ))}
+        {isExpanded && <IconFileInput onClick={handleAttach} />}
+        {isExpanded && isDesktop && (
+          <Suspense fallback={null}>
+            <EmojiPicker
+              onOpen={handleEmojiOpen}
+              onSelect={handleEmojiSelect}
+            />
+          </Suspense>
         )}
+        {isExpanded && <CommentErrors errors={errors} />}
       </StyledMessage>
       <StyledAction>
         {isLoading && <AnimatedMoreHorizontal />}
@@ -473,6 +525,7 @@ CommentField.propTypes = {
   initialValue: PropTypes.string,
   id: PropTypes.string,
   comments: PropTypes.array,
+  errors: PropTypes.object,
   onSend: PropTypes.func.isRequired,
   isLoading: PropTypes.bool,
   readonly: PropTypes.bool,

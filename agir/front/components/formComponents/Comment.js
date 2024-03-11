@@ -163,6 +163,10 @@ const StyledWrapper = styled(animated.div)`
       font-size: inherit;
       font-family: inherit;
       line-height: 1.65;
+
+      &:empty {
+        display: none;
+      }
     }
   }
 `;

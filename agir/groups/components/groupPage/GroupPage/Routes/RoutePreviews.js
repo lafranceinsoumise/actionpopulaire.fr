@@ -227,7 +227,7 @@ export const MessagesRoutePreview = (props) => {
                   message={message}
                   comments={message.comments || message.recentComments || []}
                   onClick={onClickMessage}
-                  withBottomButton
+                  readOnly
                 />
                 <Spacer size="1.5rem" style={{ backgroundColor: "inherit" }} />
               </Fragment>

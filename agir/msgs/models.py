@@ -1,11 +1,18 @@
+import os
+
 import reversion
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
+from django.core import validators
 from django.db import models
-from stdimage import StdImageField
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 from agir.groups.models import Membership
+from agir.lib.documents import hash_file
 from agir.lib.models import TimeStampedModel, BaseAPIResource
+from agir.lib.storage import OverwriteStorage
+from agir.lib.validators import FileSizeValidator
 
 
 class UserReport(TimeStampedModel):
@@ -30,7 +37,60 @@ class UserReport(TimeStampedModel):
         verbose_name_plural = "Signalements"
 
 
+def message_attachment_upload_to(instance, filename):
+    content_hash = hash_file(instance.file)
+    filename_base, filename_ext = os.path.splitext(filename)
+    now = timezone.now().strftime("%Y/%m")
+
+    return f"{instance._meta.app_label}/attachment/{now}/{content_hash}{filename_ext}"
+
+
+class MessageAttachment(BaseAPIResource):
+    ALLOWED_EXTENSIONS = [
+        "pdf",
+        "doc",
+        "docx",
+        "odt",
+        "xls",
+        "xlsx",
+        "ods",
+        "ppt",
+        "pptx",
+        "odp",
+        "png",
+        "jpeg",
+        "jpg",
+        "gif",
+    ]
+    MAX_SIZE = 10 * 1024 * 1024
+
+    name = models.CharField(_("Nom"), null=False, blank=False, max_length=200)
+    file = models.FileField(
+        _("Fichier"),
+        upload_to=message_attachment_upload_to,
+        storage=OverwriteStorage(),
+        validators=[
+            FileSizeValidator(MAX_SIZE),
+            validators.FileExtensionValidator(ALLOWED_EXTENSIONS),
+        ],
+    )
+
+    class Meta:
+        verbose_name = _("Pièce-jointe")
+        verbose_name_plural = _("Pièces-jointes")
+        ordering = ("created",)
+
+
 class SupportGroupMessageQuerySet(models.QuerySet):
+    def with_serializer_prefetch(self):
+        return self.select_related(
+            "author",
+            "supportgroup",
+            "linked_event",
+            "linked_event__subtype",
+            "attachment",
+        )
+
     def active(self):
         return self.filter(
             deleted=False,
@@ -42,6 +102,9 @@ class SupportGroupMessageQuerySet(models.QuerySet):
 
 
 class SupportGroupMessageCommentQuerySet(models.QuerySet):
+    def with_serializer_prefetch(self):
+        return self.select_related("author", "attachment")
+
     def active(self):
         return self.filter(
             deleted=False,
@@ -60,9 +123,16 @@ class AbstractMessage(BaseAPIResource):
         null=True,
     )
     text = models.TextField("Contenu", max_length=3000)
-    image = StdImageField()
     reports = GenericRelation(UserReport)
     deleted = models.BooleanField("Supprimé", default=False)
+    attachment = models.OneToOneField(
+        "msgs.MessageAttachment",
+        on_delete=models.SET_NULL,
+        verbose_name="Pièce-jointe",
+        related_name="%(class)s",
+        related_query_name="%(class)ss",
+        null=True,
+    )
 
     class Meta:
         abstract = True

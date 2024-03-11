@@ -17,7 +17,6 @@ import {
 
 import {
   getMessages,
-  getMessageById,
   getIsLoadingMessages,
   getIsUpdatingMessages,
 } from "@agir/front/globalContext/reducers";
@@ -189,13 +188,12 @@ export const useMessageActions = (props) => {
 
   const saveMessage = useCallback(
     (message) => {
-      if (message.id) {
-        shouldDismiss.current = true;
-        dispatch(messageActions.updateMessage(message));
-      } else {
-        shouldDismiss.current = true;
-        dispatch(messageActions.createMessage(group, message));
-      }
+      shouldDismiss.current = true;
+      dispatch(
+        message.id
+          ? messageActions.updateMessage(message)
+          : messageActions.createMessage(group, message),
+      );
     },
     [dispatch, group],
   );

@@ -55,7 +55,7 @@ export const EventMessages = (props) => {
               message={message}
               comments={message.comments || message.recentComments || []}
               onClick={handleClickMessage}
-              withBottomButton
+              readOnly
             />
             <Spacer size="1.5rem" style={{ backgroundColor: "inherit" }} />
           </Fragment>

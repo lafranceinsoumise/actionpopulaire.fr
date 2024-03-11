@@ -4,6 +4,23 @@ import styled from "styled-components";
 
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
+const ACCEPTED_CONTENT_TYPES = [
+  "application/pdf", // pdf
+  "application/msword", // doc
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // do
+  "application/vnd.oasis.opendocument.text", // odt
+  "application/vnd.ms-excel", // xls
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // xlsx
+  "application/vnd.oasis.opendocument.spreadsheet", // ods
+  "application/vnd.ms-powerpoint", // ppt
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation", // pptx
+  "application/vnd.oasis.opendocument.presentation", // odp
+  "image/png", // png
+  "image/jpeg", // jpeg
+  "image/jpg", // jpg
+  "image/gif", // gif
+];
+
 const StyledIconButton = styled.button`
   display: inline-flex;
   align-items: center;
@@ -230,6 +247,7 @@ export const useFileInput = (onChange) => {
         type="file"
         ref={attachmentInputRef}
         onChange={handleChange}
+        accept={ACCEPTED_CONTENT_TYPES.join(", ")}
       />
     ),
     [handleChange],
