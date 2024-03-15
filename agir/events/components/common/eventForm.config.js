@@ -9,6 +9,8 @@ let startDate = DateTime.now()
   .plus({ days: 1 });
 let endDate = startDate.plus({ hours: 1 });
 
+export const HAS_CAMPAIGN_FUNDING_FIELD = false;
+
 export const DEFAULT_FORM_DATA = {
   name: "",
   organizerGroup: null,

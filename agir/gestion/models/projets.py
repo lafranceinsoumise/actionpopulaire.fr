@@ -68,6 +68,8 @@ class Projet(ModeleGestionMixin, TimeStampedModel):
         RENVOI = "REN", "Renvoyé par l'équipe financière"
         CLOTURE = "CLO", "Clôturé"
 
+    ETATS_FINAUX = (Etat.REFUSE, Etat.CLOTURE)
+
     TRANSITIONS = {
         Etat.CREE_PLATEFORME: [
             Transition(

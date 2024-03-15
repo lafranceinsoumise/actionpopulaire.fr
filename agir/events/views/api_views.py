@@ -726,7 +726,9 @@ class EventProjectPermission(GlobalOrObjectPermissions):
 class EventProjectsAPIView(ListAPIView):
     permission_classes = (IsPersonPermission,)
     serializer_class = EventProjectListItemSerializer
-    queryset = Projet.objects.filter(event__isnull=False)
+    queryset = Projet.objects.exclude(etat__in=Projet.ETATS_FINAUX).filter(
+        event__isnull=False
+    )
 
     # Get projects from events user organize or is manager from group organizer
     def get_queryset(self):
@@ -789,7 +791,9 @@ class CreateEventProjectDocumentAPIView(CreateAPIView):
         CreateEventProjectDocumentPermission,
     )
     serializer_class = EventProjectDocumentSerializer
-    queryset = Projet.objects.filter(event__isnull=False)
+    queryset = Projet.objects.exclude(etat__in=Projet.ETATS_FINAUX).filter(
+        event__isnull=False
+    )
     lookup_field = "event_id"
 
     def check_object_permissions(self, request, obj):
