@@ -3,7 +3,11 @@ const baseConfig = webpackConfig(webpackConfig.CONFIG_TYPES.DEV);
 
 module.exports = {
   stories: ["../agir/*/components/**/*.stories.js"],
-  addons: ["@storybook/addon-links", "@storybook/addon-essentials"],
+  addons: [
+    "@storybook/addon-links",
+    "@storybook/addon-essentials",
+    "@storybook/addon-webpack5-compiler-babel"
+  ],
   staticDirs: ["../.storybook/public"],
   webpackFinal: (config) => {
     config.module.rules.push({

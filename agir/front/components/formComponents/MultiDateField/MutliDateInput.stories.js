@@ -6,7 +6,6 @@ export default {
   title: "Form/MultiDateField/Input",
   parameters: {
     layout: "padded",
-    actions: { argTypesRegex: "^on.*" },
   },
 };
 
