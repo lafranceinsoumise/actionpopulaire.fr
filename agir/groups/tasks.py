@@ -30,6 +30,11 @@ from agir.people.actions.subscription import make_subscription_token
 from agir.people.models import Person
 from .actions.invitation import make_abusive_invitation_report_link
 from .utils.certification import check_certification_criteria
+from ..msgs.actions import (
+    get_comment_recipients,
+    get_comment_participants,
+    filter_with_subscription,
+)
 
 NOTIFIED_CHANGES = {
     "name": "information",
@@ -560,42 +565,39 @@ def send_message_notification_email(message_pk):
 
 @emailing_task(post_save=True)
 def send_comment_notification_email(comment_pk):
-    comment = SupportGroupMessageComment.objects.get(pk=comment_pk)
+    comment = SupportGroupMessageComment.objects.select_related(
+        "message__supportgroup", "author"
+    ).get(pk=comment_pk)
     message = comment.message
     supportgroup = message.supportgroup
     author_membership = Membership.objects.filter(
-        person=comment.author, supportgroup=supportgroup
+        person=comment.author, supportgroup_id=message.supportgroup_id
     ).first()
-    muted_recipients = message.recipient_mutedlist.values("id")
 
-    # Private comment: send only to allowed membership and initial author
     if message.required_membership_type > Membership.MEMBERSHIP_TYPE_FOLLOWER:
-        recipient_ids = supportgroup.memberships.filter(
-            membership_type__gte=message.required_membership_type
-        ).values_list("person_id", flat=True)
-    # Public comment: send to all group members who ever commented
+        # Private comment: send only to allowed membership and initial author
+        recipients = filter_with_subscription(
+            get_comment_recipients(comment),
+            comment=comment,
+            subscription_type=Subscription.SUBSCRIPTION_EMAIL,
+            activity_type=Activity.TYPE_NEW_COMMENT_RESTRICTED,
+        )
     else:
-        recipient_ids = message.comments.values_list("author_id", flat=True)
-
-    recipients = Person.objects.filter(
-        id__in=recipient_ids,
-        notification_subscriptions__membership__supportgroup=supportgroup,
-        notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
-        notification_subscriptions__activity_type=Activity.TYPE_NEW_COMMENT_RESTRICTED,
-    )
-
-    recipients = recipients | Person.objects.filter(id=message.author.id)
-    recipients = recipients.exclude(
-        Q(id=comment.author_id) | Q(id__in=muted_recipients)
-    ).distinct()
+        # Public comment: send to all group members who ever commented
+        recipients = filter_with_subscription(
+            get_comment_participants(comment),
+            comment=comment,
+            subscription_type=Subscription.SUBSCRIPTION_EMAIL,
+            activity_type=Activity.TYPE_NEW_COMMENT_RESTRICTED,
+        )
 
     if len(recipients) == 0:
         return
 
     subject = clean_subject_email(
-        message.subject
+        f"Nouvelle réponse au message « {message.subject} »"
         if message.subject
-        else f"Nouveau message de {message.author.display_name}"
+        else f"Nouvelle réponse de {comment.author.display_name}"
     )
 
     author_membership_type = genrer_membership(

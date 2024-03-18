@@ -7,11 +7,12 @@ from agir.events.serializers import EventListSerializer
 from agir.groups.models import Membership
 from agir.groups.models import SupportGroup
 from agir.lib.serializers import FlexibleFieldsMixin, CurrentPersonField
-from agir.msgs.actions import get_message_unread_comment_count
+from agir.msgs.actions import get_message_unread_comment_count, RECENT_COMMENT_LIMIT
 from agir.msgs.models import (
     SupportGroupMessage,
     SupportGroupMessageComment,
     UserReport,
+    SupportGroupMessageRecipient,
 )
 from agir.people.models import Person
 from agir.people.serializers import PersonSerializer
@@ -70,7 +71,6 @@ class LinkedEventField(serializers.RelatedField):
 
 
 class SupportGroupMessageSerializer(BaseMessageSerializer):
-    RECENT_COMMENT_LIMIT = 4
     LIST_FIELDS = (
         "id",
         "created",
@@ -140,20 +140,24 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
         }
 
     def get_recentComments(self, obj):
-        recent_comments = (
-            obj.comments.active()
-            .select_related("author")
-            .order_by("-created")[: self.RECENT_COMMENT_LIMIT]
-        )
-        if recent_comments is not None:
-            recent_comments = MessageCommentSerializer(
-                reversed(recent_comments), context=self.context, many=True
-            ).data
+        if hasattr(obj, "recent_comments"):
+            recent_comments = obj.recent_comments
+        else:
+            recent_comments = obj.comments.active().order_by("-created")[
+                :RECENT_COMMENT_LIMIT
+            ]
+
+        recent_comments = MessageCommentSerializer(
+            reversed(recent_comments), context=self.context, many=True
+        ).data
         return recent_comments
 
     def get_commentCount(self, obj):
-        count = obj.comments.active().count()
-        if count > self.RECENT_COMMENT_LIMIT:
+        if hasattr(obj, "comment_count"):
+            count = obj.comment_count
+        else:
+            count = obj.comments.active().count()
+        if count > RECENT_COMMENT_LIMIT:
             return count
 
     class Meta:
@@ -272,8 +276,8 @@ class UserMessagesSerializer(BaseMessageSerializer):
     lastUpdate = serializers.DateTimeField(
         source="last_update", default=None, read_only=True
     )
-    isUnread = serializers.BooleanField(
-        source="is_unread", default=False, read_only=True
+    isUnread = serializers.SerializerMethodField(
+        read_only=True, method_name="get_is_unread"
     )
     lastComment = serializers.SerializerMethodField(
         method_name="get_last_comment", read_only=True
@@ -309,20 +313,27 @@ class UserMessagesSerializer(BaseMessageSerializer):
         }
 
     def get_unread_comment_count(self, message):
-        user = self.context["request"].user
-        if not user.is_authenticated or not user.person:
-            return 0
-        return get_message_unread_comment_count(user.person.pk, message.pk)
+        if hasattr(message, "unread_comment_count"):
+            return message.unread_comment_count
+        return
 
     def get_is_author(self, message):
         user = self.context["request"].user
         return user.is_authenticated and user.person and message.author == user.person
 
+    def get_is_unread(self, message):
+        if hasattr(message, "last_reading_date"):
+            return message.last_reading_date is None
+
+        user = self.context["request"].user
+        if user.is_authenticated and user.person:
+            return SupportGroupMessageRecipient.objects.filter(
+                message=message, person=user.person
+            ).exists()
+
     def get_last_comment(self, message):
-        if hasattr(message, "_pf_last_comment"):
-            comment = (
-                message._pf_last_comment.pop() if message._pf_last_comment else None
-            )
+        if hasattr(message, "recent_comments"):
+            comment = message.recent_comments[0] if message.recent_comments else None
         else:
             comment = message.comments.active().order_by("-created").first()
         if comment is None:

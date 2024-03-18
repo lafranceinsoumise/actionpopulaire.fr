@@ -69,11 +69,6 @@ def merge_tags(p1, p2, _field):
     p1.tags.add(*missing_tags)
 
 
-def merge_muted_messages(p1, p2, _field):
-    muted_messages = p2.messages_muted.all().difference(p1.messages_muted.all())
-    p1.messages_muted.add(*muted_messages)
-
-
 def merge_email_addresses(p1, p2, _field):
     # we reassign email addresses as well
     # use list to make sure the querysets are evaluated now, before modifying the addresses
@@ -208,7 +203,6 @@ MERGE_STRATEGIES = {
     "memberships": merge_memberships,
     "supportgroupmessage": merge_reassign_related,
     "supportgroupmessagecomment": merge_reassign_related,
-    "messages_muted": merge_muted_messages,
     "userreport": merge_reassign_related,
     "poll_choices": merge_reassign_related,
     "payments": merge_reassign_related,

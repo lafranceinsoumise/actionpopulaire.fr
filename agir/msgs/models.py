@@ -93,12 +93,6 @@ class SupportGroupMessage(AbstractMessage):
         choices=Membership.MEMBERSHIP_TYPE_CHOICES,
         default=Membership.MEMBERSHIP_TYPE_FOLLOWER,
     )
-    recipient_mutedlist = models.ManyToManyField(
-        "people.Person",
-        related_name="messages_muted",
-        verbose_name="Liste de personnes en sourdine",
-        blank=True,
-    )
     is_locked = models.BooleanField(
         verbose_name="Message verrouillé",
         default=False,
@@ -155,6 +149,8 @@ class SupportGroupMessageRecipient(TimeStampedModel):
         related_name="readers",
         null=False,
     )
+
+    muted = models.BooleanField(verbose_name="En sourdine", default=False)
 
     def __str__(self):
         return f"{self.recipient} --> {self.message}"
