@@ -608,9 +608,7 @@ def send_comment_notification_email(comment_pk):
             "", "<p>{}</p>", ((p,) for p in comment.text.split("\n"))
         ),
         "DISPLAY_NAME": comment.author.display_name,
-        "MESSAGE_LINK": front_url(
-            "view_group_message", args=[supportgroup.pk, comment_pk]
-        ),
+        "MESSAGE_LINK": front_url("user_message_details", args=(message.pk,)),
         "AUTHOR_STATUS": format_html(
             '{} de <a href="{}">{}</a>',
             author_membership_type,
