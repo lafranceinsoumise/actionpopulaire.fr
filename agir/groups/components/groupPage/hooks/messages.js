@@ -131,8 +131,7 @@ export const useMessage = (group, messagePk) => {
   };
 };
 
-export const useMessageActions = (props) => {
-  const { user, group } = props;
+export const useMessageActions = (group) => {
   const isManager = (group && group.isManager) || false;
 
   const dispatch = useDispatch();
@@ -140,51 +139,16 @@ export const useMessageActions = (props) => {
 
   const shouldDismiss = useRef(false);
 
-  const [selectedMessage, setSelectedMessage] = useState(null);
-  const [selectedComment, setSelectedComment] = useState(null);
-  const [messageAction, setMessageAction] = useState("");
+  const [hasMessageModal, setHasMessageModal] = useState(false);
 
   const writeNewMessage = useCallback(() => {
-    setMessageAction("create");
-  }, []);
-  const editMessage = useCallback((message) => {
-    setSelectedMessage(message);
-    setMessageAction("edit");
-  }, []);
-  const confirmReport = useCallback((message) => {
-    setSelectedMessage(message);
-    setMessageAction("report");
-  }, []);
-  const confirmDelete = useCallback((message) => {
-    setSelectedMessage(message);
-    setMessageAction("delete");
-  }, []);
-
-  const confirmReportComment = useCallback((comment, message) => {
-    setSelectedComment(comment);
-    setSelectedMessage(message);
-    setMessageAction("report");
-  }, []);
-
-  const confirmDeleteComment = useCallback((comment, message) => {
-    setSelectedComment(comment);
-    setSelectedMessage(message);
-    setMessageAction("delete");
+    setHasMessageModal(true);
   }, []);
 
   const dismissMessageAction = useCallback(() => {
-    setMessageAction("");
-    setSelectedMessage(null);
-    setSelectedComment(null);
+    setHasMessageModal(false);
     shouldDismiss.current = false;
   }, []);
-
-  const writeNewComment = useCallback(
-    (comment, message) => {
-      dispatch(messageActions.createComment(comment, message));
-    },
-    [dispatch],
-  );
 
   const saveMessage = useCallback(
     (message) => {
@@ -198,71 +162,16 @@ export const useMessageActions = (props) => {
     [dispatch, group],
   );
 
-  const onDelete = useCallback(() => {
-    if (!selectedMessage && !selectedComment) {
-      return;
-    }
-    if (selectedMessage && selectedComment) {
-      dispatch(messageActions.deleteComment(selectedComment, selectedMessage));
-    } else if (selectedMessage) {
-      dispatch(messageActions.deleteMessage(selectedMessage));
-    }
-  }, [dispatch, selectedMessage, selectedComment]);
-
-  const onReport = useCallback(() => {
-    if (!selectedMessage && !selectedComment) {
-      return;
-    }
-    if (selectedMessage && selectedComment) {
-      dispatch(messageActions.reportComment(selectedComment));
-    } else if (selectedMessage) {
-      dispatch(messageActions.reportMessage(selectedMessage));
-    }
-  }, [dispatch, selectedMessage, selectedComment]);
-
   useEffect(() => {
     !isUpdating && shouldDismiss.current && dismissMessageAction();
   }, [isUpdating, dismissMessageAction]);
 
-  const isAuthor = useMemo(() => {
-    if (!selectedMessage && !selectedComment) {
-      return false;
-    }
-    if (selectedComment) {
-      return user && selectedComment && selectedComment.author.id === user.id;
-    }
-    return user && selectedMessage && selectedMessage.author.id === user.id;
-  }, [user, selectedMessage, selectedComment]);
-
   return {
     isUpdating,
-
-    selectedMessage,
-    selectedComment,
-
-    messageAction,
+    hasMessageModal,
     dismissMessageAction,
-
     writeNewMessage: isManager ? writeNewMessage : undefined,
-    editMessage: isManager ? editMessage : undefined,
-    confirmDelete: isManager ? confirmDelete : undefined,
-    confirmReport,
     saveMessage,
-
-    writeNewComment,
-    confirmDeleteComment,
-    confirmReportComment,
-
-    onDelete: messageAction === "delete" || isManager ? onDelete : undefined,
-
-    onReport:
-      messageAction === "report" || (isManager && !isAuthor)
-        ? onReport
-        : undefined,
-
-    hasMessageModal: messageAction === "edit" || messageAction === "create",
-    hasMessageActionModal:
-      messageAction === "delete" || messageAction === "report",
   };
 };
 
