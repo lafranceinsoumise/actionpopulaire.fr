@@ -12,7 +12,6 @@ from agir.lib.sms.common import SMSSendException, to_7bit_string
 from agir.lib.utils import shorten_url, front_url
 from agir.voting_proxies.models import VotingProxyRequest, VotingProxy
 
-SMS_SENDER = "Melenchon22"
 REPORT_RECIPIENT_EMAIL = "procurations@actionpopulaire.fr"
 
 
@@ -65,7 +64,10 @@ def send_voting_proxy_request_confirmation(voting_proxy_request_pks):
         "Votre demande est enregistrée. Nous vous recontacterons dès qu'un-e volontaire sera disponible pour prendre "
         "votre procuration."
     )
-    send_sms_message(message, voting_proxy_request.contact_phone, sender=SMS_SENDER)
+    send_sms_message(
+        message,
+        voting_proxy_request.contact_phone,
+    )
 
 
 @post_save_task()
@@ -91,7 +93,7 @@ def send_matching_request_to_voting_proxy(voting_proxy_pk, voting_proxy_request_
         kwargs={"pk": voting_proxy_pk},
         query={"vpr": ",".join([str(pk) for pk in voting_proxy_request_pks])},
     )
-    link = shorten_url(link, secret=True, djan_url_type="M2022")
+    link = shorten_url(link, secret=True)
 
     # Send proposition EMAIL
     send_voting_proxy_request_email.delay(
@@ -107,7 +109,10 @@ def send_matching_request_to_voting_proxy(voting_proxy_pk, voting_proxy_request_
         f"Quelqu'un près de chez vous a besoin d'une procuration {voting_dates} ! "
         f"Confirmez votre disponibilité : {link}"
     )
-    send_sms_message(message, voting_proxy.contact_phone, sender=SMS_SENDER)
+    send_sms_message(
+        message,
+        voting_proxy.contact_phone,
+    )
 
 
 @emailing_task()
@@ -174,7 +179,7 @@ def send_voting_proxy_request_accepted_text_messages(voting_proxy_request_pks):
         "voting_proxy_request_details",
         query={"vpr": ",".join([str(pk) for pk in voting_proxy_request_pks])},
     )
-    link = shorten_url(link, secret=True, djan_url_type="M2022")
+    link = shorten_url(link, secret=True)
 
     # Send acceptance EMAIL to request owner
     send_voting_proxy_request_email.delay(
@@ -192,7 +197,8 @@ def send_voting_proxy_request_accepted_text_messages(voting_proxy_request_pks):
         f"{voting_dates} ! {link}"
     )
     send_sms_message(
-        request_owner_message, voting_proxy_request.contact_phone, sender=SMS_SENDER
+        request_owner_message,
+        voting_proxy_request.contact_phone,
     )
 
     # Send acceptance EMAIL to voting proxy
@@ -200,7 +206,7 @@ def send_voting_proxy_request_accepted_text_messages(voting_proxy_request_pks):
         "accepted_voting_proxy_requests",
         kwargs={"pk": voting_proxy_request.proxy.pk},
     )
-    link = shorten_url(link, secret=True, djan_url_type="M2022")
+    link = shorten_url(link, secret=True)
 
     voting_proxy_message = format_html(
         f"Vous avez accepté de voter pour {voting_proxy_request.first_name} {voting_dates}."
@@ -225,7 +231,6 @@ def send_voting_proxy_request_accepted_text_messages(voting_proxy_request_pks):
     send_sms_message(
         voting_proxy_message,
         voting_proxy_request.proxy.contact_phone,
-        sender=SMS_SENDER,
     )
 
 
@@ -242,7 +247,10 @@ def send_voting_proxy_information_for_request(voting_proxy_request_pk):
     )
     # Send information SMS
     message = voting_proxy_request.get_voting_proxy_information()
-    send_sms_message(message, voting_proxy_request.contact_phone, sender=SMS_SENDER)
+    send_sms_message(
+        message,
+        voting_proxy_request.contact_phone,
+    )
 
 
 @post_save_task()
@@ -289,7 +297,8 @@ def send_voting_proxy_request_confirmed_text_messages(voting_proxy_request_pks):
 
     # Send confirmation SMS
     send_sms_message(
-        message, voting_proxy_request.proxy.contact_phone, sender=SMS_SENDER
+        message,
+        voting_proxy_request.proxy.contact_phone,
     )
 
 
@@ -308,7 +317,7 @@ def send_voting_proxy_request_confirmation_reminder(voting_proxy_request_pks):
         "voting_proxy_request_details",
         query={"vpr": ",".join([str(pk) for pk in voting_proxy_request_pks])},
     )
-    link = shorten_url(link, secret=True, djan_url_type="M2022")
+    link = shorten_url(link, secret=True)
 
     # Send confirmation reminder EMAIL to request owner
     send_voting_proxy_request_email.delay(
@@ -326,14 +335,15 @@ def send_voting_proxy_request_confirmation_reminder(voting_proxy_request_pks):
         f"procuration de vote a été établie à son nom et que tout est prêt pour le jour du scrutin. {link}"
     )
     send_sms_message(
-        request_owner_message, voting_proxy_request.contact_phone, sender=SMS_SENDER
+        request_owner_message,
+        voting_proxy_request.contact_phone,
     )
 
     link = front_url(
         "accepted_voting_proxy_requests",
         kwargs={"pk": voting_proxy_request.proxy.pk},
     )
-    link = shorten_url(link, secret=True, djan_url_type="M2022")
+    link = shorten_url(link, secret=True)
 
     # Send confirmation reminder EMAIL to voting proxy
     send_voting_proxy_request_email.delay(
@@ -355,7 +365,8 @@ def send_voting_proxy_request_confirmation_reminder(voting_proxy_request_pks):
         f"Son numéro : {voting_proxy_request.contact_phone} - {link}"
     )
     send_sms_message(
-        proxy_message, voting_proxy_request.proxy.contact_phone, sender=SMS_SENDER
+        proxy_message,
+        voting_proxy_request.proxy.contact_phone,
     )
 
 

@@ -35,6 +35,10 @@ class AbstractVoter(BaseAPIResource):
             datetime(2022, 6, 19, 0, 0, 0, tzinfo=pytz.timezone("Europe/Paris")).date(),
             "19 juin 2022 — 2nd tour des législatives",
         ),
+        (
+            datetime(2024, 6, 9, 0, 0, 0, tzinfo=pytz.timezone("Europe/Paris")).date(),
+            "9 juin 2024 — Élections européennes 2024",
+        ),
     )
 
     first_name = models.CharField(
