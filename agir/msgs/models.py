@@ -6,6 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core import validators
 from django.db import models
 from django.utils import timezone
+from django.utils.html import format_html_join
 from django.utils.translation import gettext_lazy as _
 
 from agir.groups.models import Membership
@@ -133,6 +134,24 @@ class AbstractMessage(BaseAPIResource):
         related_query_name="%(class)ss",
         null=True,
     )
+
+    @property
+    def content(self):
+        if self.text:
+            return self.text
+
+        if self.attachment:
+            return (
+                f"— Ce message ne contient pas de texte, uniquement une pièce-jointe."
+            )
+
+        return ""
+
+    @property
+    def html_content(self):
+        return format_html_join(
+            "", "<p>{}</p>", ((p,) for p in self.content.split("\n"))
+        )
 
     class Meta:
         abstract = True

@@ -140,6 +140,8 @@ def new_comment_restricted_notifications(comment):
         notification_subscriptions__activity_type=Activity.TYPE_NEW_COMMENT_RESTRICTED,
     )
 
+    send_comment_notification_email.delay(comment.pk)
+
     Activity.objects.bulk_create(
         [
             Activity(
@@ -158,8 +160,6 @@ def new_comment_restricted_notifications(comment):
         ],
         send_post_save_signal=True,
     )
-
-    send_comment_notification_email.delay(comment.pk)
 
 
 @transaction.atomic()
@@ -213,6 +213,8 @@ def new_comment_notifications(comment):
         .exclude(id__in=muted_recipients)
     )
 
+    send_comment_notification_email.delay(comment.pk)
+
     Activity.objects.bulk_create(
         [
             Activity(
@@ -231,8 +233,6 @@ def new_comment_notifications(comment):
         ],
         send_post_save_signal=True,
     )
-
-    send_comment_notification_email.delay(comment.pk)
 
 
 @transaction.atomic()

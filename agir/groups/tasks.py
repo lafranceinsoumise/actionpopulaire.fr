@@ -7,7 +7,7 @@ from django.db.models import Q
 from django.template.defaultfilters import date as _date
 from django.template.loader import render_to_string
 from django.utils import timezone
-from django.utils.html import format_html_join, format_html
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from agir.activity.models import Activity
@@ -530,9 +530,7 @@ def send_message_notification_email(message_pk):
     author_status = genrer_membership(message.author.gender, membership_type)
 
     bindings = {
-        "MESSAGE_HTML": format_html_join(
-            "", "<p>{}</p>", ((p,) for p in message.text.split("\n"))
-        ),
+        "MESSAGE_HTML": message.html_content,
         "DISPLAY_NAME": message.author.display_name,
         "MESSAGE_LINK": front_url("user_message_details", kwargs={"pk": message_pk}),
         "AUTHOR_STATUS": format_html(
@@ -547,6 +545,7 @@ def send_message_notification_email(message_pk):
         subject = message.subject
     else:
         subject = f"Nouveau message de {message.author.display_name}"
+
     subject = clean_subject_email(subject)
 
     send_mosaico_email(
@@ -604,9 +603,7 @@ def send_comment_notification_email(comment_pk):
     )
 
     bindings = {
-        "MESSAGE_HTML": format_html_join(
-            "", "<p>{}</p>", ((p,) for p in comment.text.split("\n"))
-        ),
+        "MESSAGE_HTML": comment.html_content,
         "DISPLAY_NAME": comment.author.display_name,
         "MESSAGE_LINK": front_url("user_message_details", args=(message.pk,)),
         "AUTHOR_STATUS": format_html(

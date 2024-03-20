@@ -49,7 +49,7 @@ class MessageAdminMixin:
             "</details>",
             "open" if is_comment else "",
             mark_safe(message.subject if message.subject else "-"),
-            mark_safe(obj.text),
+            mark_safe(obj.html_content),
         )
 
     @admin.display(description="Nombre de signalements")
