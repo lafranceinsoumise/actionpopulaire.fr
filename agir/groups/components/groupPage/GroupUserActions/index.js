@@ -60,6 +60,7 @@ const ConnectedUserActions = (props) => {
   const [openDialog, setOpenDialog] = useState(null);
   const [joiningStep, setJoiningStep] = useState(0);
   const [messageModalOpen, setMessageModalOpen] = useState(false);
+  const [messageErrors, setMessageErrors] = useState(null);
 
   const closeDialog = useCallback(() => {
     setOpenDialog(null);
@@ -174,13 +175,25 @@ const ConnectedUserActions = (props) => {
     setMessageModalOpen(true);
   }, [closeJoinDialog]);
 
-  const closeMessageModal = useCallback(() => setMessageModalOpen(false), []);
+  const closeMessageModal = useCallback(() => {
+    setMessageModalOpen(false);
+    setMessageErrors(null);
+  }, []);
 
   const sendPrivateMessage = useCallback(
     async (message) => {
-      const { subject, text } = message;
-      const result = await api.createPrivateMessage(id, { subject, text });
-      onSelectMessage(result.data.id);
+      setMessageErrors(null);
+      const { subject, text, attachment } = message;
+      const { data, error } = await api.createPrivateMessage(id, {
+        subject,
+        text,
+        attachment,
+      });
+      if (error) {
+        setMessageErrors(error);
+      } else {
+        onSelectMessage(data.id);
+      }
     },
     [id, onSelectMessage],
   );
@@ -242,6 +255,7 @@ const ConnectedUserActions = (props) => {
               groupPk={id}
               onSend={sendPrivateMessage}
               onClose={closeMessageModal}
+              errors={messageErrors}
               onBoarding
             />
           )}

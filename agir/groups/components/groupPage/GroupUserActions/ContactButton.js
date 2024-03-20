@@ -38,6 +38,7 @@ const ContactButton = (props) => {
 
   const onSelectMessage = useSelectMessage();
   const [messageModalOpen, setMessageModalOpen] = useState(hasMessage);
+  const [messageErrors, setMessageErrors] = useState(null);
 
   const redirectToLogin = useCallback(() => {
     urlParams.set("contact", 1);
@@ -48,16 +49,20 @@ const ContactButton = (props) => {
     });
   }, [location, urlParams, history]);
 
-  const handleMessageClose = useCallback(() => setMessageModalOpen(false), []);
+  const handleMessageClose = useCallback(() => {
+    setMessageModalOpen(false);
+    setMessageErrors(null);
+  }, []);
   const handleMessageOpen = useCallback(() => setMessageModalOpen(true), []);
 
-  const sendPrivateMessage = async (msg) => {
-    const message = {
-      subject: msg.subject,
-      text: msg.text,
-    };
-    const result = await groupAPI.createPrivateMessage(id, message);
-    onSelectMessage(result.data?.id);
+  const sendPrivateMessage = async ({ subject, text, attachment }) => {
+    const message = { subject, text, attachment };
+    const { data, error } = await groupAPI.createPrivateMessage(id, message);
+    if (error) {
+      setMessageErrors(error);
+    } else {
+      onSelectMessage(data.id);
+    }
   };
 
   if (hasModal) {
@@ -91,6 +96,7 @@ const ContactButton = (props) => {
           groupPk={id}
           onSend={sendPrivateMessage}
           onClose={handleMessageClose}
+          errors={messageErrors}
         />
       ) : (
         <ModalConfirmation
