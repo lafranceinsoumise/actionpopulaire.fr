@@ -10,7 +10,7 @@ from agir.groups.models import Membership
 from agir.groups.models import SupportGroup
 from agir.lib.serializers import FlexibleFieldsMixin, CurrentPersonField
 from agir.lib.validators import FileSizeValidator
-from agir.msgs.actions import get_message_unread_comment_count, RECENT_COMMENT_LIMIT
+from agir.msgs.actions import RECENT_COMMENT_LIMIT
 from agir.msgs.models import (
     SupportGroupMessage,
     SupportGroupMessageComment,
@@ -69,7 +69,7 @@ class BaseMessageSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
     def validate_instance(self, instance):
         if not instance.text and not instance.attachment:
             raise serializers.ValidationError(
-                {"details": "Il ne pas possible d'envoyer un message vide."}
+                {"details": "Il n'est pas possible d'envoyer un message vide."}
             )
 
         return instance
