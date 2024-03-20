@@ -6,10 +6,15 @@ from rest_framework.response import Response
 
 from agir.groups.models import Membership, SupportGroup
 from agir.lib.pagination import APIPageNumberPagination
-from agir.msgs.actions import get_unread_message_count, get_viewable_messages_ids
+from agir.msgs.actions import (
+    get_unread_message_count,
+    get_viewable_messages_ids,
+    prefetch_recent_comments,
+)
 from agir.msgs.models import (
     SupportGroupMessage,
     SupportGroupMessageRecipient,
+    SupportGroupMessageComment,
 )
 from agir.msgs.serializers import (
     UserReportSerializer,
@@ -87,6 +92,11 @@ class UserMessagesAPIView(ListAPIView):
     def get_queryset(self):
         person = self.request.user.person
         return get_user_messages(person)
+
+    def paginate_queryset(self, queryset):
+        page = super().paginate_queryset(queryset)
+        prefetch_recent_comments(page)
+        return page
 
 
 @api_view(["GET"])

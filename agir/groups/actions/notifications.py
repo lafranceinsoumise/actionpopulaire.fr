@@ -1,6 +1,8 @@
 from functools import partial
 
 from django.db import transaction
+from django.db.models import Exists, OuterRef, Q
+from django.db.models.functions import Coalesce
 
 from agir.activity.models import Activity
 from agir.groups.models import SupportGroup, Membership
@@ -11,6 +13,13 @@ from agir.groups.tasks import (
     send_message_notification_email,
     send_comment_notification_email,
 )
+from agir.msgs.actions import (
+    get_comment_recipients,
+    filter_with_subscription,
+    get_comment_participants,
+    get_comment_other_recipients,
+)
+from agir.msgs.models import SupportGroupMessageRecipient, SupportGroupMessageComment
 from agir.notifications.models import Subscription
 from agir.people.models import Person
 
@@ -119,11 +128,14 @@ def new_message_notifications(message):
     send_message_notification_email.delay(message.pk)
 
 
-@transaction.atomic()
 # Group comment with required membership type
+@transaction.atomic()
 def new_comment_restricted_notifications(comment):
+    """Group comment with required membership type"""
     message_initial = comment.message
-    muted_recipients = message_initial.recipient_mutedlist.values("id")
+    muted_recipients = Person.objects.filter(
+        read_messages__message=message_initial, read_messages__muted=True
+    ).values("id")
     allowed_memberships = message_initial.supportgroup.memberships.filter(
         membership_type__gte=message_initial.required_membership_type
     )
@@ -133,6 +145,19 @@ def new_comment_restricted_notifications(comment):
     recipients_id = set(list(recipients_id) + [message_initial.author_id])
 
     # Get only recipients with notification allowed
+    recipients = Person.objects.annotate(
+        muted=Exists(
+            SupportGroupMessageRecipient.objects.filter(
+                person_id=OuterRef("id"), message_id=comment.message_id, muted=True
+            )
+        )
+    ).filter(
+        muted=False,
+        memberships__supportgroup_id=message_initial.supportgroup_id,
+        membership_type__gte=message_initial.required_membership_type,
+        notificationsubscriptions__membership=message_initial.supportgroup,
+    )
+
     recipients_allowed_notif = message_initial.supportgroup.members.filter(
         notification_subscriptions__membership__supportgroup=message_initial.supportgroup,
         notification_subscriptions__person__in=recipients_id,
@@ -162,75 +187,90 @@ def new_comment_restricted_notifications(comment):
     )
 
 
+def make_comment_notification_activity(comment, recipient):
+    if recipient.is_comment_author or comment.message.author_id == recipient.id:
+        activity_type = Activity.TYPE_NEW_COMMENT_RESTRICTED
+    else:
+        activity_type = Activity.TYPE_NEW_COMMENT
+
+    return Activity(
+        individual=comment.author,
+        supportgroup=comment.message.supportgroup,
+        type=activity_type,
+        recipient=recipient,
+        status=Activity.STATUS_UNDISPLAYED,
+        meta={
+            "message": str(comment.message_id),
+            "comment": str(comment.pk),
+        },
+    )
+
+
 @transaction.atomic()
-def new_comment_notifications(comment):
-    if comment.message.required_membership_type > Membership.MEMBERSHIP_TYPE_FOLLOWER:
-        new_comment_restricted_notifications(comment)
-        return
-
+def new_comment_notifications(comment: SupportGroupMessageComment):
     message_initial = comment.message
-    muted_recipients = message_initial.recipient_mutedlist.values("id")
-    comment_authors = list(message_initial.comments.values_list("author_id", flat=True))
-    comment_authors = set(comment_authors + [message_initial.author_id])
 
-    participant_recipients = message_initial.supportgroup.members.exclude(
-        id__in=muted_recipients
-    ).filter(
-        notification_subscriptions__membership__supportgroup=message_initial.supportgroup,
-        notification_subscriptions__person__in=comment_authors,
-        notification_subscriptions__type=Subscription.SUBSCRIPTION_PUSH,
-        notification_subscriptions__activity_type=Activity.TYPE_NEW_COMMENT_RESTRICTED,
-    )
-
-    Activity.objects.bulk_create(
-        [
-            Activity(
-                individual=comment.author,
-                supportgroup=message_initial.supportgroup,
-                type=Activity.TYPE_NEW_COMMENT_RESTRICTED,
-                recipient=r,
-                status=Activity.STATUS_UNDISPLAYED,
-                meta={
-                    "message": str(message_initial.pk),
-                    "comment": str(comment.pk),
-                },
-            )
-            for r in participant_recipients
-            if r.pk != comment.author.pk
-        ],
-        send_post_save_signal=True,
-    )
-
-    other_recipients = (
-        message_initial.supportgroup.members.exclude(
-            id__in=participant_recipients.values_list("id", flat=True)
+    if message_initial.required_membership_type > Membership.MEMBERSHIP_TYPE_FOLLOWER:
+        # pour un message de pour lequel le membership est limité, on considère que tous les
+        # participants font partie de la conversation
+        restricted_recipients = filter_with_subscription(
+            get_comment_recipients(comment),
+            comment=comment,
+            subscription_type=Subscription.SUBSCRIPTION_PUSH,
+            activity_type=Activity.TYPE_NEW_COMMENT_RESTRICTED,
         )
-        .filter(
-            notification_subscriptions__membership__supportgroup=message_initial.supportgroup,
-            notification_subscriptions__type=Subscription.SUBSCRIPTION_PUSH,
-            notification_subscriptions__activity_type=Activity.TYPE_NEW_COMMENT,
+
+        other_recipients = []
+    else:
+        # sinon, on considère comme participants à la conversation l'auteur du message et tous les
+        # auteurs de commentaires
+        restricted_recipients = filter_with_subscription(
+            get_comment_participants(comment),
+            comment=comment,
+            subscription_type=Subscription.SUBSCRIPTION_PUSH,
+            activity_type=Activity.TYPE_NEW_COMMENT_RESTRICTED,
         )
-        .exclude(id__in=muted_recipients)
-    )
+
+        other_recipients = filter_with_subscription(
+            get_comment_other_recipients(comment),
+            comment=comment,
+            subscription_type=Subscription.SUBSCRIPTION_PUSH,
+            activity_type=Activity.TYPE_NEW_COMMENT,
+        )
+
+    restricted_activities = [
+        Activity(
+            individual=comment.author,
+            supportgroup=message_initial.supportgroup,
+            type=Activity.TYPE_NEW_COMMENT_RESTRICTED,
+            recipient=r,
+            status=Activity.STATUS_UNDISPLAYED,
+            meta={
+                "message": str(message_initial.pk),
+                "comment": str(comment.pk),
+            },
+        )
+        for r in restricted_recipients
+    ]
+    other_activities = [
+        Activity(
+            individual=comment.author,
+            supportgroup=message_initial.supportgroup,
+            type=Activity.TYPE_NEW_COMMENT,
+            recipient=r,
+            status=Activity.STATUS_UNDISPLAYED,
+            meta={
+                "message": str(message_initial.pk),
+                "comment": str(comment.pk),
+            },
+        )
+        for r in other_recipients
+    ]
 
     send_comment_notification_email.delay(comment.pk)
 
     Activity.objects.bulk_create(
-        [
-            Activity(
-                individual=comment.author,
-                supportgroup=message_initial.supportgroup,
-                type=Activity.TYPE_NEW_COMMENT,
-                recipient=r,
-                status=Activity.STATUS_UNDISPLAYED,
-                meta={
-                    "message": str(message_initial.pk),
-                    "comment": str(comment.pk),
-                },
-            )
-            for r in other_recipients
-            if r.pk != comment.author.pk
-        ],
+        restricted_activities + other_activities,
         send_post_save_signal=True,
     )
 

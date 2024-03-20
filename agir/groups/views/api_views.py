@@ -105,7 +105,11 @@ from agir.lib.rest_framework_permissions import (
     IsPersonPermission,
     IsActionPopulaireClientPermission,
 )
-from agir.msgs.models import SupportGroupMessage, SupportGroupMessageComment
+from agir.msgs.models import (
+    SupportGroupMessage,
+    SupportGroupMessageComment,
+    SupportGroupMessageRecipient,
+)
 
 from agir.msgs.serializers import (
     SupportGroupMessageSerializer,
@@ -446,6 +450,7 @@ class GroupMessagesAPIView(ListCreateAPIView):
         # Messages where user is author or allowed
         return (
             self.supportgroup.messages.with_serializer_prefetch()
+            .prefetch_related("comments")
             .active()
             .filter(Q(required_membership_type__lte=user_permission) | Q(author=person))
             .order_by("-created")
@@ -495,7 +500,9 @@ class GroupMessageNotificationStatusAPIView(RetrieveUpdateAPIView):
     def get(self, request, *args, **kwargs):
         message = self.get_object()
         person = self.request.user.person
-        is_muted = message.recipient_mutedlist.filter(pk=person.pk).exists()
+        is_muted = SupportGroupMessageRecipient.filter(
+            recipient=person, message=message, muted=True
+        ).exists()
         return Response(is_muted)
 
     def update(self, request, *args, **kwargs):
@@ -507,10 +514,9 @@ class GroupMessageNotificationStatusAPIView(RetrieveUpdateAPIView):
 
         person = self.request.user.person
 
-        if is_muted:
-            message.recipient_mutedlist.add(person)
-        elif message.recipient_mutedlist.filter(pk=person.pk).exists():
-            message.recipient_mutedlist.remove(person)
+        SupportGroupMessageRecipient.objects.update_or_create(
+            message=message, person=person, defaults={"muted": is_muted}
+        )
 
         return Response(is_muted)
 
@@ -543,6 +549,7 @@ class GroupMessageLockedStatusAPIView(RetrieveUpdateAPIView):
 class GroupSingleMessageAPIView(RetrieveUpdateDestroyAPIView):
     queryset = (
         SupportGroupMessage.objects.with_serializer_prefetch()
+        .prefetch_related("comments")
         .active()
         .annotate(
             last_update=Greatest(

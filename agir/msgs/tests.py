@@ -11,6 +11,7 @@ from agir.msgs.actions import (
     update_recipient_message,
     get_unread_message_count,
     get_message_unread_comment_count,
+    get_user_messages,
 )
 from agir.msgs.models import (
     UserReport,
@@ -282,19 +283,26 @@ class UserMessagesAPITestCase(APITestCase):
         results = response.data["results"]
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0]["id"], str(read_message.id))
-        self.assertEqual(results[0]["unreadCommentCount"], 0)
         self.assertTrue(results[0]["isUnread"])
+        self.assertEqual(results[0]["unreadCommentCount"], 0)
 
         SupportGroupMessageComment.objects.create(
             author=commenter, message=read_message, text="Comment"
         )
+
+        msgs = get_user_messages(self.user)
+        msg = msgs[0]
+        self.assertEqual(msg.id, read_message.id)
+        self.assertEqual(msg.comment_count, 1)
+        self.assertEqual(msg.unread_comment_count, 1)
+
         response = self.client.get("/api/user/messages/")
         self.assertEqual(response.status_code, 200)
         results = response.data["results"]
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0]["id"], str(read_message.id))
-        self.assertEqual(results[0]["unreadCommentCount"], 1)
         self.assertTrue(results[0]["isUnread"])
+        self.assertEqual(results[0]["unreadCommentCount"], 1)
 
         SupportGroupMessageRecipient.objects.create(
             message=read_message, recipient=self.user
@@ -476,12 +484,12 @@ class GetUnreadMessageCountActionTestCase(APITestCase):
         SupportGroupMessageComment.objects.create(
             author=writer, message=message, text="1.1"
         )
-        unread_message_count = get_unread_message_count(new_member.pk)
+        unread_message_count = get_unread_message_count(new_member)
         self.assertEqual(unread_message_count, 0)
 
         # The person joins the group
         Membership.objects.create(supportgroup=supportgroup, person=new_member)
-        unread_message_count = get_unread_message_count(new_member.pk)
+        unread_message_count = get_unread_message_count(new_member)
         self.assertEqual(unread_message_count, 0)
 
         # A second comment for the message is created after the person has joined the group
@@ -515,7 +523,10 @@ class GetUnreadMessageCountActionTestCase(APITestCase):
             type__in=(Activity.TYPE_NEW_COMMENT, Activity.TYPE_NEW_COMMENT_RESTRICTED),
         )
         self.assertEqual(len(activities), 1)
-        message.recipient_mutedlist.add(self.user_referent)
+
+        SupportGroupMessageRecipient.objects.create(
+            message=message, recipient=self.user_referent, muted=True
+        )
 
         comment = SupportGroupMessageComment.objects.create(
             author=self.user_member, message=message, text="commentaire"
@@ -671,14 +682,14 @@ class GetUnreadMessageCommentCountActionTestCase(APITestCase):
             author=self.writer, message=self.message, text="1.1"
         )
         unread_comment_count = get_message_unread_comment_count(
-            self.reader.pk, self.message.pk
+            self.reader, self.message
         )
         self.assertEqual(unread_comment_count, 0)
 
         # The person joins the group
         Membership.objects.create(supportgroup=self.supportgroup, person=self.reader)
         unread_comment_count = get_message_unread_comment_count(
-            self.reader.pk, self.message.pk
+            self.reader, self.message
         )
         self.assertEqual(unread_comment_count, 0)
 
@@ -687,7 +698,7 @@ class GetUnreadMessageCommentCountActionTestCase(APITestCase):
             author=self.writer, message=self.message, text="1.2"
         )
         unread_comment_count = get_message_unread_comment_count(
-            self.reader.pk, self.message.pk
+            self.reader, self.message
         )
         self.assertEqual(unread_comment_count, 1)
 
@@ -696,7 +707,7 @@ class GetUnreadMessageCommentCountActionTestCase(APITestCase):
             recipient=self.reader, message=self.message
         )
         unread_comment_count = get_message_unread_comment_count(
-            self.reader.pk, self.message.pk
+            self.reader, self.message
         )
         self.assertEqual(unread_comment_count, 0)
 
@@ -708,7 +719,7 @@ class GetUnreadMessageCommentCountActionTestCase(APITestCase):
             author=self.writer, message=self.message, text="1.4"
         )
         unread_comment_count = get_message_unread_comment_count(
-            self.reader.pk, self.message.pk
+            self.reader, self.message
         )
         self.assertEqual(unread_comment_count, 2)
 
@@ -717,7 +728,7 @@ class GetUnreadMessageCommentCountActionTestCase(APITestCase):
             author=self.reader, message=self.message, text="Comment from reader 1"
         )
         unread_comment_count = get_message_unread_comment_count(
-            self.writer.pk, self.message.pk
+            self.writer, self.message
         )
         self.assertEqual(unread_comment_count, 1)
 
@@ -729,7 +740,7 @@ class GetUnreadMessageCommentCountActionTestCase(APITestCase):
         self.reader.role.is_active = False
         self.reader.role.save()
         unread_comment_count = get_message_unread_comment_count(
-            self.writer.pk, self.message.pk
+            self.writer, self.message
         )
         self.assertEqual(unread_comment_count, 0)
 

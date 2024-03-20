@@ -9,7 +9,6 @@
   "search": "/recherche/",
   "personalPayments": "/profil/paiements/",
   "alreadyContributor": "/deja-contributeur-ice/",
-
   "campaignEventDocumentHelp": "https://infos.actionpopulaire.fr/documents-comptes-de-campagne/",
   "campaignFundingHelp": "https://infos.actionpopulaire.fr/compte-de-la-campagne-presidentielle/documents-comptes-de-campagne/",
   "charteEquipes": "https://lafranceinsoumise.fr/groupes-action/charte-groupes-dappui-de-france-insoumise/",
@@ -31,9 +30,10 @@
   "cafePopulaireRequest": "https://actionpopulaire.fr/formulaires/demande-cafe-populaire/",
   "livretAnimateurice": "https://infos.actionpopulaire.fr/wp-content/uploads/2021/05/Livret-de-lanimateur-%E2%80%94-Action-Populaire.pdf",
   "attestationAssurance": "https://infos.actionpopulaire.fr/assurance.pdf",
-
+  "programme": "https://programme.lafranceinsoumise.fr/",
+  "avenir-en-commun": "https://programme.lafranceinsoumise.fr/programme/livre/",
+  "nupesPlatform": "https://programme.lafranceinsoumise.fr/programme-partage/",
   "melenchon2022": "https://melenchon2022.fr",
-  "programme": "https://melenchon2022.fr/programme/",
   "comparateur": "https://melenchon2022.fr/comparateur/",
   "agenda": "https://melenchon2022.fr/agenda/",
   "publicMeeting": "https://melenchon2022.fr/reunions-publiques/",
@@ -41,21 +41,18 @@
   "votingProxyLandingPage": "https://melenchon2022.fr/procurations/",
   "pollingStationAssessorForm": "https://melenchon2022.fr/assesseurs-delegues/",
   "pollingStationOfficerGuide": "https://infos.actionpopulaire.fr/wp-content/uploads/2022/05/Document-pour-assesseurs-2022-legislatives.pdf",
-
   "lafranceinsoumise": "https://lafranceinsoumise.fr",
   "materiel": "https://materiel.actionpopulaire.fr/",
   "coupDeFil": "https://actionpopulaire.fr/formulaires/volontaires-campagne-appels-presidentielle/",
-
   "jlmBlog": "https://melenchon.fr",
   "linsoumission": "https://linsoumission.fr",
   "feedbackForm": "https://actionpopulaire.fr/formulaires/votre-avis/",
-  "noussommespour": { "home": "https://noussommespour.fr" },
-
+  "noussommespour": {
+    "home": "https://noussommespour.fr"
+  },
   "discordInsoumis": "https://discord-insoumis.fr/",
   "toktok": "https://toktok.actionpopulaire.fr",
   "toktokVideo": "https://youtu.be/IKxzvHmscEo",
-
   "nupes": "https://nupes-2022.fr",
-  "nupesCandidates": "https://nupes-2022.fr/les-candidats/",
-  "nupesPlatform": "https://nupes-2022.fr/le-programme/"
+  "nupesCandidates": "https://nupes-2022.fr/les-candidats/"
 }
