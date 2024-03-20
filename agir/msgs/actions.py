@@ -24,23 +24,8 @@ from agir.people.models import Person
 
 RECENT_COMMENT_LIMIT = 4
 
-# Requête alternative : le nombre de messages qui ont au moins un commentaire nouveau / non utilisé pour le moment
-MESSAGES_WITH_UNREAD_COMMENTS_COUNT_REQUEST = """
-SELECT COUNT(*) FROM msgs_supportgroupmessage message
- LEFT JOIN msgs_supportgroupmessagerecipient recipient ON recipient.message_id = message.id
- JOIN groups_membership membership ON message.supportgroup_id = membership.supportgroup_id 
- WHERE recipient.recipient_id = '74178da8-d8d9-422e-b16f-6aa2b253a9de'
- AND membership.person_id = '74178da8-d8d9-422e-b16f-6aa2b253a9de'
- AND membership.membership_type >= message.required_membership_type
- AND (
-   recipient.id IS NULL
-OR GREATEST(recipient.modified, membership.modified) < COALESCE(
-  (SELECT MAX(comment.modified) FROM msgs_supportgroupmessagecomment comment WHERE comment.message_id = message.id), message.modified)
- );
-"""
 
-
-"""Pour simplifier le raisonnement, on compte séparément les messages et les commentaires
+"""Pour simplifier le raisonnement, on compte séparément les messages et commentaires non lus.
 
 Cela correspond aux deux sous-requêtes WITH.
 """
@@ -61,11 +46,9 @@ WITH messages AS (
     AND membership.membership_type >= message.required_membership_type
     -- exclude own messages
     AND message.author_id != %(person_id)s
-    -- exclude muted messages (coalescing because recipient is null if the message has never been seen)
-    AND NOT COALESCE(recipient.muted, FALSE)
     -- include only messages created after joining the group
     AND message.created > membership.created
-    -- include only messages not read
+    -- include only messages not read (no need to control for muting, since a muted message has been seen anyway)
     AND recipient.id IS NULL
 ),
 comments AS (
@@ -75,49 +58,38 @@ comments AS (
       JOIN authentication_role message_author_role ON message_author_role.id = message_author.role_id
       JOIN people_person comment_author ON comment_author.id = comment.author_id
       JOIN authentication_role comment_author_role ON comment_author_role.id = comment_author.role_id
-      JOIN groups_membership membership
+      -- left join, because person can see messages she sent to other groups
+      LEFT JOIN groups_membership membership
         ON membership.supportgroup_id = message.supportgroup_id AND membership.person_id = %(person_id)s
       LEFT JOIN msgs_supportgroupmessagerecipient recipient 
         ON recipient.message_id = message.id AND recipient.recipient_id = %(person_id)s
     -- exclude comments on deleted messages and deleted comments
     WHERE NOT message.deleted
     AND NOT comment.deleted
+    -- exclude own comments
+    AND comment.author_id != %(person_id)s
     -- exclude messages and comments of inactive users
     AND message_author_role.is_active
     AND comment_author_role.is_active
-    -- do not include messages whose author is current user to avoid double counting
-    AND message.author_id != %(person_id)s
-    -- include only messages current user is allowed to see
-    AND membership.membership_type >= message.required_membership_type
-    -- exclude own comments
-    AND comment.author_id != %(person_id)s
+    -- only on messages the person can see: either they have the required membership_type, or they are the message's 
+    -- author
+    AND (
+      membership.membership_type >= message.required_membership_type
+      OR (
+        membership.membership_type IS NULL
+        AND message.author_id = %(person_id)s
+      )
+    )
     -- exclude muted messages (coalescing because recipient is null if the message has never been seen)  
     AND NOT COALESCE(recipient.muted, FALSE)
     -- include only messages created after both the person joined the group AND the last time the person saw the message
-    -- note that while recipient.modified might be null (if the message has never been seen), PostgreSQL's GREATEST
-    -- ignore NULL values 
-    AND comment.created > GREATEST(recipient.modified, membership.created)
-),
-comments_on_ownmessages AS (
-    SELECT COUNT(*) AS total FROM msgs_supportgroupmessagecomment comment
-      JOIN people_person comment_author ON comment_author.id = comment.author_id
-      JOIN authentication_role comment_author_role ON comment_author_role.id = comment_author.role_id
-      JOIN msgs_supportgroupmessage message ON message.id = comment.message_id
-      LEFT JOIN msgs_supportgroupmessagerecipient recipient ON recipient.message_id = message.id
-    -- exclude comments on deleted messages and deleted comments
-    WHERE NOT message.deleted
-    AND NOT comment.deleted
-    -- exclude comments of inactive users (we assume the reader is active)
-    AND comment_author_role.is_active
-    -- limit to messages authored by the person
-    AND message.author_id = %(person_id)s
-    -- exclude muted messages (coalescing because recipient is null if the message has never been seen)  
-    AND NOT COALESCE(recipient.muted, FALSE)  
-    -- include only messages modified since seen, coalescing on the creation of the message
-    AND comment.created > COALESCE(recipient.modified, message.created) 
+    -- note that while recipient.modified might be null (if the message has never been seen). PostgreSQL's GREATEST
+    -- ignore NULL values.
+    -- message.created is added as a default value for cases where both recipient and membership are NULL
+    AND comment.created > GREATEST(recipient.modified, membership.created, message.created)
 )
-SELECT messages.total + comments.total + comments_on_ownmessages.total AS total 
-FROM messages JOIN comments ON true JOIN comments_on_ownmessages ON true;
+SELECT messages.total + comments.total AS total 
+FROM messages JOIN comments ON true;
 """
 
 

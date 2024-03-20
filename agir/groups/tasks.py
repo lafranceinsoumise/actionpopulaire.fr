@@ -594,10 +594,13 @@ def send_comment_notification_email(comment_pk):
     if len(recipients) == 0:
         return
 
+    # TODO: utiliser les identifiants de message plutôt que le sujet pour permettre le regroupement
     subject = clean_subject_email(
-        f"Nouvelle réponse au message « {message.subject} »"
+        # on utilise le sujet du *message* initial pour pousser les clients mail à regrouper les différentes
+        # notifications liées à un même message.
+        message.subject
         if message.subject
-        else f"Nouvelle réponse de {comment.author.display_name}"
+        else f"Nouveau message de {comment.author.display_name}"
     )
 
     author_membership_type = genrer_membership(
