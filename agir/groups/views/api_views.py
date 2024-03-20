@@ -515,7 +515,7 @@ class GroupMessageNotificationStatusAPIView(RetrieveUpdateAPIView):
         person = self.request.user.person
 
         SupportGroupMessageRecipient.objects.update_or_create(
-            message=message, person=person, defaults={"muted": is_muted}
+            message=message, recipient=person, defaults={"muted": is_muted}
         )
 
         return Response(is_muted)
@@ -547,14 +547,9 @@ class GroupMessageLockedStatusAPIView(RetrieveUpdateAPIView):
 
 @method_decorator(never_cache, name="get")
 class GroupSingleMessageAPIView(RetrieveUpdateDestroyAPIView):
-    queryset = (
-        SupportGroupMessage.objects.with_serializer_prefetch()
-        .prefetch_related("comments")
-        .active()
-        .annotate(
-            last_update=Greatest(
-                Max("comments__created"), "created", output_field=DateTimeField()
-            )
+    queryset = SupportGroupMessage.objects.active().annotate(
+        last_update=Greatest(
+            Max("comments__created"), "created", output_field=DateTimeField()
         )
     )
     serializer_class = SupportGroupMessageSerializer
@@ -562,6 +557,14 @@ class GroupSingleMessageAPIView(RetrieveUpdateDestroyAPIView):
         IsPersonPermission,
         GroupMessagePermissions,
     )
+
+    def get_queryset(self):
+        return (
+            super()
+            .get_queryset()
+            .with_serializer_prefetch()
+            .prefetch_related("comments")
+        )
 
     def get_object(self):
         message = super().get_object()
