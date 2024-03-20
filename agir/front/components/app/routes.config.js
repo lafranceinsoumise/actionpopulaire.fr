@@ -216,15 +216,6 @@ export const routeConfig = {
     Component: RouteComponents.GroupPage,
     isPartial: true,
   }),
-  groupMessage: new RouteConfig({
-    id: "groupMessage",
-    path: "/groupes/:groupPk/message/:messagePk/",
-    exact: true,
-    neededAuthentication: AUTHENTICATION.SOFT,
-    label: "Message du groupe",
-    Component: RouteComponents.GroupMessagePage,
-    hideFeedbackButton: true,
-  }),
   createGroupSpendingRequest: new RouteConfig({
     id: "createGroupSpendingRequest",
     path: "/groupes/:groupPk/depenses/creer/",

@@ -122,9 +122,10 @@ const DesktopThreadList = (props) => {
     notificationSettingLink,
     lastItemRef,
     messageCount,
+    commentErrors,
   } = props;
 
-  const [scrollableRef, bottomRef] = useAutoScrollToBottom(
+  const [_scrollableRef, bottomRef] = useAutoScrollToBottom(
     selectedMessage?.comments?.length,
     selectedMessagePk,
   );
@@ -170,6 +171,7 @@ const DesktopThreadList = (props) => {
             onDeleteComment={onDeleteComment}
             isManager={selectedMessage.group.isManager}
             groupURL={groupURL}
+            commentErrors={commentErrors}
           />
         )}
         <span
@@ -200,6 +202,7 @@ const MobileThreadList = (props) => {
     notificationSettingLink,
     lastItemRef,
     messageCount,
+    commentErrors,
   } = props;
 
   const [scrollableRef, bottomRef] = useAutoScrollToBottom(
@@ -254,6 +257,7 @@ const MobileThreadList = (props) => {
               onDeleteComment={onDeleteComment}
               isManager={selectedMessage?.group.isManager}
               groupURL={groupURL}
+              commentErrors={commentErrors}
             />
           )}
           <span
@@ -300,6 +304,7 @@ DesktopThreadList.propTypes =
       onReportComment: PropTypes.func,
       onDeleteComment: PropTypes.func,
       writeNewMessage: PropTypes.func,
+      commentErrors: PropTypes.object,
     };
 
 export default MessageThreadList;

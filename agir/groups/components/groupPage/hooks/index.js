@@ -6,7 +6,7 @@ import {
   usePastEvents,
   usePastEventReports,
 } from "./events";
-import { useMessages, useMessage } from "./messages";
+import { useMessages } from "./messages";
 
 export const useGroupDetail = (groupPk) => {
   const group = useGroup(groupPk);
@@ -40,30 +40,5 @@ export const useGroupDetail = (groupPk) => {
     messages,
     loadMoreMessages,
     isLoadingMessages,
-  };
-};
-
-export const useGroupMessage = (groupPk, messagePk) => {
-  const group = useGroup(groupPk);
-  const upcomingEvents = useUpcomingEvents(
-    group && group.isMember ? group : null,
-  );
-  const { pastEvents, loadMorePastEvents: loadMoreEvents } = usePastEvents(
-    group && group.isMember ? group : null,
-  );
-
-  const { message, isLoading } = useMessage(group, messagePk);
-
-  const events = useMemo(
-    () => [...(upcomingEvents || []), ...(pastEvents || [])],
-    [upcomingEvents, pastEvents],
-  );
-
-  return {
-    group,
-    message,
-    events,
-    loadMoreEvents,
-    isLoading,
   };
 };

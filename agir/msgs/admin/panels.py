@@ -20,7 +20,7 @@ class SupportGroupMessageCommentAdmin(MessageAdminMixin, VersionAdmin):
         "author_link",
         "message_link",
         "text",
-        "image",
+        "attachment_display",
         "deleted",
     )
     readonly_fields = (
@@ -28,7 +28,7 @@ class SupportGroupMessageCommentAdmin(MessageAdminMixin, VersionAdmin):
         "author_link",
         "message_link",
         "text",
-        "image",
+        "attachment_display",
         "created",
         "modified",
     )
@@ -66,8 +66,8 @@ class SupportGroupMessageAdmin(MessageAdminMixin, VersionAdmin):
         "author_link",
         "group",
         "text",
-        "image",
         "event",
+        "attachment_display",
         "required_membership_type",
         "readonly",
         "is_locked",
@@ -78,8 +78,8 @@ class SupportGroupMessageAdmin(MessageAdminMixin, VersionAdmin):
         "author_link",
         "group",
         "text",
-        "image",
         "event",
+        "attachment_display",
         "required_membership_type",
         "created",
         "modified",

@@ -1,6 +1,8 @@
+import hashlib
 import io
 import os
 import subprocess
+from functools import partial
 
 from django.core.files import File
 from django.template import engines
@@ -87,3 +89,14 @@ def rsvg_convert(
         raise TicketGenerationException("Return code: %d" % rsvg.returncode)
 
     return File(io.BytesIO(output), name=filename)
+
+
+DEFAULT_BLOCK_SIZE = 65536
+
+
+def hash_file(file, block_size=DEFAULT_BLOCK_SIZE):
+    hasher = hashlib.md5()
+    for buf in iter(partial(file.read, block_size), b""):
+        hasher.update(buf)
+
+    return hasher.hexdigest()

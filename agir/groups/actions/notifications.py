@@ -165,6 +165,8 @@ def new_comment_restricted_notifications(comment):
         notification_subscriptions__activity_type=Activity.TYPE_NEW_COMMENT_RESTRICTED,
     )
 
+    send_comment_notification_email.delay(comment.pk)
+
     Activity.objects.bulk_create(
         [
             Activity(
@@ -183,8 +185,6 @@ def new_comment_restricted_notifications(comment):
         ],
         send_post_save_signal=True,
     )
-
-    send_comment_notification_email.delay(comment.pk)
 
 
 def make_comment_notification_activity(comment, recipient):
@@ -267,12 +267,12 @@ def new_comment_notifications(comment: SupportGroupMessageComment):
         for r in other_recipients
     ]
 
+    send_comment_notification_email.delay(comment.pk)
+
     Activity.objects.bulk_create(
         restricted_activities + other_activities,
         send_post_save_signal=True,
     )
-
-    send_comment_notification_email.delay(comment.pk)
 
 
 @transaction.atomic()

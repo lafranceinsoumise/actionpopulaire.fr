@@ -61,12 +61,6 @@ const Routes = {
         /* webpackChunkName: "r-grouppage" */ "@agir/groups/groupPage/GroupPage"
       ),
   ),
-  GroupMessagePage: lazy(
-    () =>
-      import(
-        /* webpackChunkName: "r-groupmessagepage" */ "@agir/groups/groupPage/GroupMessagePage"
-      ),
-  ),
   GroupMap: lazy(
     () =>
       import(

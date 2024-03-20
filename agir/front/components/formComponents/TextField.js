@@ -135,6 +135,7 @@ const TextField = forwardRef((props, ref) => {
     large,
     dark,
     icon,
+    className,
     ...rest
   } = props;
 
@@ -153,6 +154,7 @@ const TextField = forwardRef((props, ref) => {
 
   return (
     <StyledField
+      className={className}
       htmlFor={id}
       $valid={!error}
       $invalid={!!error}
@@ -217,6 +219,7 @@ TextField.propTypes = {
   large: PropTypes.bool,
   dark: PropTypes.bool,
   icon: PropTypes.string,
+  className: PropTypes.string,
 };
 
 TextField.defaultProps = {

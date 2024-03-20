@@ -15,7 +15,10 @@ const MessageModal = (props) => {
     loadMoreEvents,
     onSelectGroup,
     isLoading,
+    errors,
   } = props;
+
+  const messageId = message?.id;
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -29,8 +32,8 @@ const MessageModal = (props) => {
   }, [onDismiss]);
 
   useMemo(() => {
-    message ? handleOpen() : handleClose();
-  }, [message, handleOpen, handleClose]);
+    messageId ? handleOpen() : handleClose();
+  }, [messageId, handleOpen, handleClose]);
 
   return (
     <>
@@ -46,6 +49,7 @@ const MessageModal = (props) => {
         isLoading={isLoading}
         message={message}
         onSend={onSend}
+        errors={errors}
       />
     </>
   );
@@ -67,5 +71,6 @@ MessageModal.propTypes = {
   onDismiss: PropTypes.func,
   user: PropTypes.object,
   isLoading: PropTypes.bool,
+  errors: PropTypes.object,
 };
 export default MessageModal;

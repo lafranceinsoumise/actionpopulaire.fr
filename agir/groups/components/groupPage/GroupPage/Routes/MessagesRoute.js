@@ -4,16 +4,14 @@ import React from "react";
 import GroupMessages from "@agir/groups/groupPage/GroupMessages";
 
 const MessagesRoute = ({
-  group,
   allEvents,
   isLoadingMessages,
-  loadMorePastEvents,
   onClickMessage,
+  loadMorePastEvents,
   ...rest
 }) => (
   <GroupMessages
     {...rest}
-    group={group}
     events={allEvents}
     isLoading={isLoadingMessages}
     onClick={onClickMessage}

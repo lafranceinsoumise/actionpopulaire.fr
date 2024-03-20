@@ -54,7 +54,6 @@ from agir.groups.serializers import (
     SupportGroupExternalLinkSerializer,
     MemberPersonalInformationSerializer,
     ThematicGroupSerializer,
-    SupportGroupSearchResultSerializer,
 )
 from agir.groups.utils.supportgroup import is_active_group_filter
 from agir.lib.pagination import (
@@ -450,10 +449,10 @@ class GroupMessagesAPIView(ListCreateAPIView):
 
         # Messages where user is author or allowed
         return (
-            self.supportgroup.messages.active()
-            .filter(Q(required_membership_type__lte=user_permission) | Q(author=person))
-            .select_related("author", "linked_event", "linked_event__subtype")
+            self.supportgroup.messages.with_serializer_prefetch()
             .prefetch_related("comments")
+            .active()
+            .filter(Q(required_membership_type__lte=user_permission) | Q(author=person))
             .order_by("-created")
         )
 
@@ -482,7 +481,7 @@ class GroupMessagesPrivateAPIView(GroupMessagesAPIView):
         pass
 
     def get_required_membership_type(self):
-        ## Fallback to managers if the group has no referents
+        # Fallback to managers if the group has no referents
         return (
             Membership.MEMBERSHIP_TYPE_REFERENT
             if self.supportgroup.referents
@@ -549,11 +548,9 @@ class GroupMessageLockedStatusAPIView(RetrieveUpdateAPIView):
 @method_decorator(never_cache, name="get")
 class GroupSingleMessageAPIView(RetrieveUpdateDestroyAPIView):
     queryset = (
-        SupportGroupMessage.objects.active()
-        .select_related(
-            "supportgroup", "linked_event", "linked_event__subtype", "author"
-        )
+        SupportGroupMessage.objects.with_serializer_prefetch()
         .prefetch_related("comments")
+        .active()
         .annotate(
             last_update=Greatest(
                 Max("comments__created"), "created", output_field=DateTimeField()
@@ -619,7 +616,11 @@ class GroupMessageCommentsAPIView(ListCreateAPIView):
         super().initial(request, *args, **kwargs)
 
     def get_queryset(self):
-        return self.message.comments.active().order_by("-created")
+        return (
+            self.message.comments.with_serializer_prefetch()
+            .active()
+            .order_by("-created")
+        )
 
     def perform_create(self, serializer):
         with transaction.atomic():
@@ -631,7 +632,7 @@ class GroupMessageCommentsAPIView(ListCreateAPIView):
 
 
 class GroupSingleCommentAPIView(UpdateAPIView, DestroyAPIView):
-    queryset = SupportGroupMessageComment.objects.active()
+    queryset = SupportGroupMessageComment.objects.with_serializer_prefetch().active()
     serializer_class = MessageCommentSerializer
     permission_classes = (
         IsPersonPermission,

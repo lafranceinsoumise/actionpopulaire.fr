@@ -2,6 +2,7 @@ import React from "react";
 
 import CommentField, { CommentButton } from "./CommentField";
 import Comment from "./Comment";
+import MessageAttachment from "./MessageAttachment";
 
 export default {
   component: CommentField,
@@ -16,102 +17,31 @@ const user = {
   image: "https://loremflickr.com/200/200",
 };
 
-export const Default = () => {
-  const [messages, setMessages] = React.useState(["Bonjour."]);
+const Template = (args) => {
+  const [messages, setMessages] = React.useState([args.initialMessage]);
   const [isLoading, setIsLoading] = React.useState(false);
-  const scrollerRef = React.useRef();
-  const handleSend = React.useCallback(async (message) => {
-    await new Promise((resolve) => {
-      setIsLoading(true);
-      setTimeout(() => {
-        setIsLoading(false);
-        setMessages((state) => [...state, message.trim()]);
-        resolve();
-      }, 3000);
-    });
-  }, []);
+  const [errors, setErrors] = React.useState(args.errors);
 
-  return (
-    <div
-      ref={scrollerRef}
-      style={{
-        background: "lightgrey",
-        minHeight: "100vh",
-        padding: "16px",
-      }}
-    >
-      {messages.map((message) => (
-        <p
-          style={{
-            background: "white",
-            borderRadius: "8px",
-            maxWidth: "480px",
-            padding: "0.875rem",
-            margin: "8px auto",
-            fontSize: "14px",
-          }}
-          key={message}
-        >
-          <strong>{user.displayName}</strong>
-          <br />
-          {message}
-          <br />
-          <small>
-            <code>{JSON.stringify(message)}</code>
-          </small>
-        </p>
-      ))}
-      <div
-        style={{
-          boxSizing: "border-box",
-          padding: "0",
-          maxWidth: "480px",
-          margin: "0 auto",
-        }}
-      >
-        <CommentField
-          key={messages.length}
-          isLoading={isLoading}
-          onSend={handleSend}
-          id={`comment${messages.length}`}
-          user={user}
-          scrollerRef={scrollerRef}
-        />
-      </div>
-    </div>
-  );
-};
-
-export const WithComments = () => {
-  const [messages, setMessages] = React.useState([
-    {
-      id: 0,
-      text: "Bonjour !",
-      author: {
-        displayName: "Quelqu'un",
-        image: `https://images.dicebear.com/api/human/${String(
-          Math.random(),
-        ).replace(".", "")}.svg?background=%23ffffff`,
-      },
-      created: new Date().toUTCString(),
-    },
-  ]);
-  const [isLoading, setIsLoading] = React.useState(false);
   const scrollerRef = React.useRef();
   const handleSend = React.useCallback(async (text) => {
     await new Promise((resolve) => {
       setIsLoading(true);
+      setErrors(null);
       setTimeout(() => {
         setIsLoading(false);
-        setMessages((state) => [
-          ...state,
-          {
-            id: state.length,
-            author: user,
-            text,
-            created: new Date().toUTCString(),
-          },
-        ]);
+        if (args.errors) {
+          setErrors(args.errors);
+        } else {
+          setMessages((state) => [
+            ...state,
+            {
+              id: state.length,
+              author: user,
+              text,
+              created: new Date().toUTCString(),
+            },
+          ]);
+        }
         resolve();
       }, 3000);
     });
@@ -120,7 +50,7 @@ export const WithComments = () => {
   return (
     <div
       style={{
-        background: "lightgrey",
+        background: "white",
         minHeight: "100vh",
         padding: "16px",
       }}
@@ -152,10 +82,41 @@ export const WithComments = () => {
           id={`comment${messages.length}`}
           user={user}
           scrollerRef={scrollerRef}
+          errors={errors}
         />
       </div>
     </div>
   );
+};
+
+export const Default = Template.bind({});
+Default.args = {
+  initialMessage: {
+    id: 0,
+    text: "Bonjour !",
+    author: {
+      displayName: "Quelqu'un",
+      image: `https://images.dicebear.com/api/human/${String(
+        Math.random(),
+      ).replace(".", "")}.svg?background=%23ffffff`,
+    },
+    created: new Date().toUTCString(),
+  },
+};
+
+export const WithErrors = Template.bind({});
+WithErrors.args = {
+  ...Default.args,
+  errors: {
+    text: "Beaucoup trop long comme texte !",
+    attachment: {
+      name: "Nope !",
+      file: [
+        "L'extension de fichier « webm » n’est pas autorisée. Les extensions autorisées sont :  pdf, doc, docx, odt, xls, xlsx, ods, ppt, pptx, odp, png, jpeg, jpg, gif.",
+        "Le fichier joint est beaucoup trop grand",
+      ],
+    },
+  },
 };
 
 export const ButtonOnly = () => {

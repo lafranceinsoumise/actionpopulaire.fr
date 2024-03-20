@@ -13,14 +13,14 @@ class MessageAdminMixin:
         "modified",
         "author_link",
         "text",
-        "image",
+        "attachment_display",
         "deleted",
     )
     readonly_fields = (
         "id",
         "author_link",
         "text",
-        "image",
+        "attachment_display",
         "created",
         "modified",
     )
@@ -49,7 +49,7 @@ class MessageAdminMixin:
             "</details>",
             "open" if is_comment else "",
             mark_safe(message.subject if message.subject else "-"),
-            mark_safe(obj.text),
+            mark_safe(obj.html_content),
         )
 
     @admin.display(description="Nombre de signalements")
@@ -72,6 +72,26 @@ class MessageAdminMixin:
                     "object_id": str(obj.id),
                 },
             ),
+        )
+
+    @admin.display(description="Pièce-jointe")
+    def attachment_display(self, obj):
+        if not obj.attachment:
+            return "-"
+
+        if obj.attachment.name.lower().endswith((".png", ".jpg", ".jpeg", ".gif")):
+            return format_html(
+                "<figure style='margin:0;padding:0;'><img title='{name}' width='400' height='400' "
+                "style='clear:right; display: block; width:auto; height: auto; max-width: 400px; max-height: 400px;' "
+                "src='{url}' /><figcaption><a href='{url}' target='_blank'>{name}</a></figcaption></figure>",
+                url=obj.attachment.file.url,
+                name=obj.attachment.name,
+            )
+
+        return format_html(
+            '<a href={url} target="_blank" download={name}>{name}</a>',
+            url=obj.attachment.file.url,
+            name=obj.attachment.name,
         )
 
     def has_delete_permission(self, request, obj=None):

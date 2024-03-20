@@ -34,7 +34,7 @@ WITH messages AS (
     SELECT COUNT(*) AS total FROM msgs_supportgroupmessage message
       JOIN people_person message_author ON message_author.id = message.author_id
       JOIN authentication_role message_author_role ON message_author_role.id = message_author.role_id
-      JOIN groups_membership membership 
+      JOIN groups_membership membership
         ON membership.supportgroup_id = message.supportgroup_id AND membership.person_id = %(person_id)s
       LEFT JOIN msgs_supportgroupmessagerecipient recipient
         ON recipient.message_id = message.id AND recipient.recipient_id = %(person_id)s
@@ -61,7 +61,7 @@ comments AS (
       -- left join, because person can see messages she sent to other groups
       LEFT JOIN groups_membership membership
         ON membership.supportgroup_id = message.supportgroup_id AND membership.person_id = %(person_id)s
-      LEFT JOIN msgs_supportgroupmessagerecipient recipient 
+      LEFT JOIN msgs_supportgroupmessagerecipient recipient
         ON recipient.message_id = message.id AND recipient.recipient_id = %(person_id)s
     -- exclude comments on deleted messages and deleted comments
     WHERE NOT message.deleted
@@ -71,7 +71,7 @@ comments AS (
     -- exclude messages and comments of inactive users
     AND message_author_role.is_active
     AND comment_author_role.is_active
-    -- only on messages the person can see: either they have the required membership_type, or they are the message's 
+    -- only on messages the person can see: either they have the required membership_type, or they are the message's
     -- author
     AND (
       membership.membership_type >= message.required_membership_type
@@ -80,7 +80,7 @@ comments AS (
         AND message.author_id = %(person_id)s
       )
     )
-    -- exclude muted messages (coalescing because recipient is null if the message has never been seen)  
+    -- exclude muted messages (coalescing because recipient is null if the message has never been seen)
     AND NOT COALESCE(recipient.muted, FALSE)
     -- include only messages created after both the person joined the group AND the last time the person saw the message
     -- note that while recipient.modified might be null (if the message has never been seen). PostgreSQL's GREATEST
@@ -88,7 +88,7 @@ comments AS (
     -- message.created is added as a default value for cases where both recipient and membership are NULL
     AND comment.created > GREATEST(recipient.modified, membership.created, message.created)
 )
-SELECT messages.total + comments.total AS total 
+SELECT messages.total + comments.total AS total
 FROM messages JOIN comments ON true;
 """
 
@@ -175,8 +175,8 @@ def get_message_unread_comment_count(person: Person, message: SupportGroupMessag
 
 def get_user_messages(person):
     return (
-        SupportGroupMessage.objects.active()
-        .select_related("supportgroup", "author")
+        SupportGroupMessage.objects.with_serializer_prefetch()
+        .active()
         .annotate(
             # sous-requête en doublon, mais je ne vois pas d'autre solution avec Django
             last_reading_date=Subquery(
@@ -338,14 +338,14 @@ def prefetch_recent_comments(qs):
     comments = SupportGroupMessageComment.objects.raw(
         """
         WITH comments AS (
-            SELECT 
+            SELECT
               id,
               created,
               modified,
               message_id,
               author_id,
               text,
-              image,
+              attachment_id,
               deleted,
               row_number() OVER (PARTITION BY message_id ORDER BY created DESC) AS rang
             FROM msgs_supportgroupmessagecomment
