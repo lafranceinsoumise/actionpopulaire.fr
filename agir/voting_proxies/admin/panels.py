@@ -243,7 +243,7 @@ class VotingProxyAdmin(VoterModelAdmin):
         link = front_url(
             "accepted_voting_proxy_requests", kwargs={"pk": voting_proxy.pk}
         )
-        link = shorten_url(link, secret=True, djan_url_type="M2022")
+        link = shorten_url(link, secret=True)
 
         return format_html(
             f'<a class="button" href="{link}" target="_blank">'
@@ -372,7 +372,7 @@ class VotingProxyRequestAdmin(VoterModelAdmin):
                 "voting_proxy_request_details",
                 query={"vpr": ",".join([str(pk) for pk in related_requests])},
             )
-            link = shorten_url(link, secret=True, djan_url_type="M2022")
+            link = shorten_url(link, secret=True)
 
             return format_html(
                 f'<a class="button" href="{link}" target="_blank">➡ Lien vers la page de confirmation</a>'

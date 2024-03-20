@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -56,6 +56,12 @@ const VotingDateFields = (props) => {
       ),
     [options],
   );
+
+  useEffect(() => {
+    activeOptions.length === 1 &&
+      !value.includes(activeOptions[0].value) &&
+      onChange([activeOptions[0].value]);
+  }, [value, activeOptions, onChange]);
 
   return (
     <StyledFieldset>

@@ -607,7 +607,7 @@ class PostElectionRedirectView(RedirectView):
         return super().get(request, *args, **kwargs)
 
 
-class VotingProxyView(PostElectionRedirectView):
+class VotingProxyView(BaseAppCachedView):
     meta_title = "Se porter volontaire pour voter par procuration - Action Populaire"
     meta_description = (
         "Prenez une procuration près de chez vous, pour voter pour les candidats-es de l'Union Populaire "
@@ -617,7 +617,7 @@ class VotingProxyView(PostElectionRedirectView):
     meta_image = urljoin(settings.FRONT_DOMAIN, static("front/assets/og_image_vp.jpg"))
 
 
-class VotingProxyRequestView(PostElectionRedirectView):
+class VotingProxyRequestView(BaseAppCachedView):
     meta_title = "Voter par procuration — Action Populaire"
     meta_description = (
         "Faites la demande qu'un·e volontaire de votre ville vote à votre place pour les candidats-es de "
@@ -627,7 +627,7 @@ class VotingProxyRequestView(PostElectionRedirectView):
     meta_image = urljoin(settings.FRONT_DOMAIN, static("front/assets/og_image_vpr.jpg"))
 
 
-class PollingStationOfficerView(PostElectionRedirectView):
+class PollingStationOfficerView(BaseAppCachedView):
     meta_title = "Devenir assesseur·e ou délégué·e — Action Populaire"
     meta_description = (
         "Pour la réussite de ce scrutin, il est nécessaire que nous ayons un maximum d'assesseur⋅es "
