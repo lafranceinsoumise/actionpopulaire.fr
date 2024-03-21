@@ -70,6 +70,7 @@ def send_message(
     reply_to=None,
     attachments=None,
     connection=None,
+    headers=None,
 ):
     email = EmailMultiAlternatives(
         subject=subject,
@@ -78,6 +79,7 @@ def send_message(
         reply_to=reply_to,
         connection=connection,
         to=[recipient.email if isinstance(recipient, Person) else recipient],
+        headers=headers,
     )
     if html is not None:
         email.attach_alternative(html, "text/html")
@@ -166,6 +168,7 @@ def send_template_email(
     backend=None,
     reply_to=None,
     attachments=None,
+    headers=None,
 ):
     template = get_template(template_name)
 
@@ -189,6 +192,7 @@ def send_template_email(
                 reply_to=reply_to,
                 attachments=attachments,
                 connection=connection,
+                headers=headers,
             )
 
 
@@ -202,6 +206,7 @@ def send_mosaico_email(
     backend=None,
     reply_to=None,
     attachments=None,
+    headers=None,
 ):
     """Send an email from a Mosaico template
 
@@ -268,6 +273,7 @@ def send_mosaico_email(
                 reply_to=reply_to,
                 connection=connection,
                 attachments=attachments,
+                headers=headers,
             )
 
 

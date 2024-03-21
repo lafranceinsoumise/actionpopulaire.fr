@@ -1,3 +1,4 @@
+import re
 from collections import OrderedDict
 
 import ics
@@ -66,6 +67,11 @@ GROUP_MEMBERSHIP_LIMIT_NOTIFICATION_STEPS = [
     -14,  # 16 members
     -19,  # 11 members
 ]
+
+
+def get_id_for_message_notification(message: SupportGroupMessage, sender: str):
+    sender_domain = re.search(r"@([^>]+)>$", sender).group(1)
+    return f"<message-{message.id}@{sender_domain}>"
 
 
 @emailing_task(post_save=True)
@@ -553,12 +559,15 @@ def send_message_notification_email(message_pk):
 
     subject = clean_subject_email(subject)
 
+    message_id = get_id_for_message_notification(message, settings.EMAIL_FROM)
+
     send_mosaico_email(
         code="NEW_MESSAGE",
         subject=subject,
         from_email=settings.EMAIL_FROM,
         recipients=recipients,
         bindings=bindings,
+        headers={"Message-Id": message_id},
     )
 
 
@@ -593,13 +602,14 @@ def send_comment_notification_email(comment_pk):
     if len(recipients) == 0:
         return
 
-    # TODO: utiliser les identifiants de message plutôt que le sujet pour permettre le regroupement
+    original_message_id = get_id_for_message_notification(message, settings.EMAIL_FROM)
+
     subject = clean_subject_email(
         # on utilise le sujet du *message* initial pour pousser les clients mail à regrouper les différentes
         # notifications liées à un même message.
-        message.subject
+        f"Re: {message.subject}"
         if message.subject
-        else f"Nouveau message de {comment.author.display_name}"
+        else f"Re: Nouveau message de {comment.author.display_name}"
     )
 
     author_membership_type = genrer_membership(
@@ -625,6 +635,7 @@ def send_comment_notification_email(comment_pk):
         from_email=settings.EMAIL_FROM,
         recipients=recipients,
         bindings=bindings,
+        headers={"In-Reply-To": original_message_id, "References": original_message_id},
     )
 
 
