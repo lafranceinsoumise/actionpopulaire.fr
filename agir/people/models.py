@@ -2,6 +2,7 @@ import secrets
 import warnings
 from datetime import datetime
 from functools import reduce
+from itertools import chain
 from operator import or_
 
 import phonenumbers
@@ -677,6 +678,55 @@ class Person(
     def __repr__(self):
         return f"{self.__class__.__name__}(pk={self.pk!r}, email={self.display_email})"
 
+    def as_json(self):
+        common_fields = [
+            "id",
+            "first_name",
+            "last_name",
+            "display_name",
+            "gender",
+            "newsletters",
+            "subscribed_sms",
+            "action_radius",
+            "location_name",
+            "location_address1",
+            "location_address2",
+            "location_zip",
+            "location_state",
+            "location_city",
+            "location_country",
+        ]
+
+        return {
+            "created": self.created,
+            **{f: getattr(self, f) for f in common_fields},
+            "compte actif": self.role and self.role.is_active,
+            "soutien politique": self.is_political_support,
+            "date de naissance": self.date_of_birth,
+            "emails": [e.address for e in self.emails.all()],
+            "téléphone": self.contact_phone and self.contact_phone.as_e164,
+            "groupes": [m.as_json() for m in self.memberships.all()],
+            "rsvps": [r.as_json() for r in self.rsvps.all()],
+            "qualifications": [q.as_json() for q in self.person_qualifications.all()],
+            "documents": [d.as_json() for d in self.documents.all()],
+            "mandats": [
+                m.as_json()
+                for m in chain(
+                    self.mandats_municipaux.all(),
+                    self.mandats_departementaux.all(),
+                    self.mandats_regionaux.all(),
+                    self.mandats_consulaires.all(),
+                    self.mandats_deputes.all(),
+                    self.mandats_deputes_europeens.all(),
+                )
+            ],
+            "notes CRP": self.crp or None,
+            "notes réseau des élus": self.commentaires or None,
+            "paiements": [p.as_json() for p in self.payments.all()],
+            "abonnements": [s.as_json() for s in self.subscriptions.all()],
+            "formulaires": [s.as_json() for s in self.form_submissions.all()],
+        }
+
     @property
     def is_agir(self):
         return self.is_insoumise and self.created <= datetime(
@@ -1097,6 +1147,15 @@ class PersonQualification(TimeStampedModel):
             range=self.get_range_display(),
         )
 
+    def as_json(self):
+        return {
+            "id": self.id,
+            "qualification": self.qualification.label,
+            "group": self.supportgroup.as_json() if self.supportgroup else None,
+            "start_time": self.start_time,
+            "end_time": self.end_time,
+        }
+
     class Meta:
         verbose_name = _("statut d'une personne")
         verbose_name_plural = _("statuts")
@@ -1248,3 +1307,12 @@ class Document(models.Model):
         blank=False,
         null=False,
     )
+
+    def as_json(self):
+        return {
+            "id": self.id,
+            "titre": self.titre,
+            "date": self.date,
+            "type": self.get_type_display(),
+            "fichier": self.fichier.url,
+        }

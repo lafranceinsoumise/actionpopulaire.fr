@@ -231,6 +231,17 @@ class Payment(ExportModelOperationsMixin("payment"), TimeStampedModel, LocationM
         verbose_name = "Paiement"
         verbose_name_plural = "Paiements"
 
+    def as_json(self):
+        return {
+            "id": self.id,
+            "type": self.type,
+            "mode": self.mode,
+            "price": self.price / 100,
+            "status": self.get_status_display(),
+            "subscription": self.subscription_id,
+            "meta": self.meta,
+        }
+
 
 class SubscriptionQueryset(models.QuerySet):
     def active(self):
@@ -362,6 +373,17 @@ class Subscription(ExportModelOperationsMixin("subscription"), TimeStampedModel)
 
     def __str__(self):
         return "Abonnement n°" + str(self.id)
+
+    def as_json(self):
+        return {
+            "id": self.id,
+            "status": self.get_status_display(),
+            "montant": self.price / 100,
+            "type": self.type,
+            "mode": self.mode,
+            "effect_date": self.effect_date,
+            "end_date": self.effect_date,
+        }
 
     class Meta:
         verbose_name = "Paiement récurrent"
