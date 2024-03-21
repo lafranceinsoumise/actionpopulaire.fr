@@ -570,6 +570,14 @@ class SupportGroup(
     def __repr__(self):
         return f"{self.__class__.__name__}(id={str(self.pk)!r}, name={self.name!r})"
 
+    def as_json(self):
+        return {
+            "id": self.id,
+            "created": self.created,
+            "name": self.name,
+            "url": front_url("view_group", args=(self.pk,), absolute=True),
+        }
+
 
 class SupportGroupTag(AbstractLabel):
     class Meta:
@@ -741,6 +749,15 @@ class Membership(ExportModelOperationsMixin("membership"), TimeStampedModel):
             )
 
         self.has_finance_managing_privilege = value
+
+    def as_json(self):
+        return {
+            "id": self.id,
+            "created": self.created,
+            "group": self.supportgroup.as_json(),
+            "type": self.get_membership_type_display(),
+            "personal_information_sharing_consent": self.personal_information_sharing_consent,
+        }
 
 
 class TransferOperation(models.Model):
