@@ -124,7 +124,7 @@ export const updateMessage = async (message) => {
   const url = getGroupEndpoint("updateMessage", { messagePk: message.id });
   const body = formatMessage(message);
   try {
-    const response = await axios.put(url, body);
+    const response = await axios.patch(url, body);
     result.data = response.data;
   } catch (e) {
     result.error = (e.response && e.response.data) || e.message;

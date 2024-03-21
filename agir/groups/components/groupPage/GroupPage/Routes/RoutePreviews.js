@@ -192,7 +192,7 @@ AgendaRoutePreview.propTypes = {
 };
 
 export const MessagesRoutePreview = (props) => {
-  const { user, messages, goToMessagesTab, isLoadingMessages } = props;
+  const { group, user, messages, goToMessagesTab, isLoadingMessages } = props;
 
   if (
     (!isLoadingMessages && !Array.isArray(messages)) ||
@@ -225,6 +225,10 @@ export const MessagesRoutePreview = (props) => {
                   user={user}
                   message={message}
                   comments={message.comments || message.recentComments || []}
+                  backLink={{
+                    route: "groupDetails",
+                    routeParams: { groupPk: group.id, activeTab: "messages" },
+                  }}
                 />
                 <Spacer size="1.5rem" style={{ backgroundColor: "inherit" }} />
               </Fragment>
@@ -235,6 +239,7 @@ export const MessagesRoutePreview = (props) => {
   );
 };
 MessagesRoutePreview.propTypes = {
+  group: PropTypes.object,
   user: PropTypes.object,
   messages: PropTypes.arrayOf(PropTypes.object),
   goToMessagesTab: PropTypes.func,

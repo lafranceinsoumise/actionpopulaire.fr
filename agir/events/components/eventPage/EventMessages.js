@@ -40,6 +40,10 @@ export const EventMessages = (props) => {
               user={user}
               message={message}
               comments={message.comments || message.recentComments || []}
+              backLink={{
+                route: "eventDetails",
+                routeParams: { eventPk },
+              }}
             />
             <Spacer size="1.5rem" style={{ backgroundColor: "inherit" }} />
           </Fragment>

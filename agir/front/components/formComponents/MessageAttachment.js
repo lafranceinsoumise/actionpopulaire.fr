@@ -2,6 +2,8 @@ import PropTypes from "prop-types";
 import React, { useCallback, useMemo, useRef } from "react";
 import styled from "styled-components";
 
+import { useMobileApp } from "@agir/front/app/hooks";
+
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const ACCEPTED_CONTENT_TYPES = [
@@ -280,6 +282,8 @@ const MessageAttachment = (props) => {
     ...rest
   } = props;
 
+  const { isMobileApp } = useMobileApp();
+
   const isImage = useMemo(
     () => name && name.match(/\.(jpg|jpeg|png|gif)$/i),
     [name],
@@ -355,6 +359,8 @@ const MessageAttachment = (props) => {
           aria-label="Télécharger la pièce-jointe"
           download={name}
           href={fileURI}
+          target={!isMobileApp ? "_blank" : undefined}
+          rel="noreferrer"
         >
           <RawFeatherIcon name="download" />
         </a>

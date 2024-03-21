@@ -230,14 +230,14 @@ export const useSelectMessage = () => {
   const history = useHistory();
   const handleSelect = useCallback(
     (messagePk, doNotPush = false) => {
-      if (doNotPush) {
-        history.replace(routeConfig.messages.getLink({ messagePk }));
-      } else {
-        history.push(routeConfig.messages.getLink({ messagePk }));
-      }
+      const fn = doNotPush ? history.replace : history.push;
+      fn(routeConfig.messages.getLink({ messagePk }), {
+        backLink: { route: "messages" },
+      });
     },
     [history],
   );
+
   return handleSelect;
 };
 

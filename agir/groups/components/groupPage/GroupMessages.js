@@ -134,6 +134,10 @@ export const GroupMessages = (props) => {
                     user={user}
                     message={message}
                     comments={message.comments || message.recentComments}
+                    backLink={{
+                      route: "groupDetails",
+                      routeParams: { groupPk: group.id, activeTab: "messages" },
+                    }}
                   />
                   <Spacer size="1.5rem" />
                 </Fragment>
@@ -164,6 +168,7 @@ export const GroupMessages = (props) => {
 };
 GroupMessages.propTypes = {
   group: PropTypes.shape({
+    id: PropTypes.string,
     isManager: PropTypes.bool,
   }),
   user: PropTypes.object,

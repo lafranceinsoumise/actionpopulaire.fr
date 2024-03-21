@@ -88,7 +88,7 @@ class BaseMessageSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
 
     def update(self, message, validated_data):
         with transaction.atomic():
-            attachment = validated_data.pop("attachment", None)
+            attachment = validated_data.pop("attachment", False)
             message = super().update(message, validated_data)
 
             if attachment:

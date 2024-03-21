@@ -31,7 +31,7 @@ import {
 } from "./StyledComponents";
 
 const MessageReadonlyCard = (props) => {
-  const { user, message, groupURL, isManager } = props;
+  const { user, message, groupURL, isManager, backLink } = props;
 
   const { group, author, text, created, linkedEvent, lastUpdate, attachment } =
     message;
@@ -149,6 +149,7 @@ const MessageReadonlyCard = (props) => {
               route="messages"
               routeParams={{ messagePk: message.id }}
               color="secondary"
+              backLink={backLink}
             >
               Voir la conversation
             </Button>
@@ -188,6 +189,7 @@ MessageReadonlyCard.propTypes = {
   }).isRequired,
   groupURL: PropTypes.string,
   isManager: PropTypes.bool,
+  backLink: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
 };
 
 export default MessageReadonlyCard;
