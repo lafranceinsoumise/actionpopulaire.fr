@@ -49,14 +49,16 @@ const StyledIconButton = styled.button`
 `;
 
 const StyledThumbnail = styled.div`
-  position: relative;
   width: 3.5rem;
   height: 3.5rem;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
+  position: relative;
   border-radius: ${(props) => props.theme.borderRadius};
-  box-shadow: ${(props) => props.theme.cardShadow};
+  background-color: white;
+  border: none;
+  padding: 0;
+  margin: 0;
+  appearance: none;
+  -moz-appearance: none;
 
   &,
   &:hover,
@@ -69,39 +71,49 @@ const StyledThumbnail = styled.div`
     outline: 1px dotted ${(props) => props.theme.black700};
   }
 
-  & > ${RawFeatherIcon} {
-    flex: 1 1 auto;
-    background-color: ${(props) => props.theme.secondary500};
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    & > svg {
-      width: 1.5rem;
-      height: 1.5rem;
-    }
-  }
-
-  & > strong {
-    flex: 0 0 auto;
-    font-weight: 400;
-    padding: 2px 4px;
-    white-space: nowrap;
-    max-width: 100%;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    text-align: center;
-    font-size: 0.625rem;
-    line-height: 1.5;
-  }
-
-  & > img {
-    display: block;
+  & > div {
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    object-position: center center;
-    border-radius: inherit;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    border-radius: ${(props) => props.theme.borderRadius};
+    box-shadow: ${(props) => props.theme.cardShadow};
+    overflow: hidden;
+
+    & > ${RawFeatherIcon} {
+      flex: 1 1 auto;
+      background-color: ${(props) => props.theme.secondary500};
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      & > svg {
+        width: 1.5rem;
+        height: 1.5rem;
+      }
+    }
+
+    & > strong {
+      flex: 0 0 auto;
+      font-weight: 400;
+      padding: 2px 4px;
+      white-space: nowrap;
+      max-width: 100%;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      text-align: center;
+      font-size: 0.625rem;
+      line-height: 1.5;
+    }
+
+    & > img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+    }
   }
 
   & > button {
@@ -119,6 +131,9 @@ const StyledThumbnail = styled.div`
     border: 1px solid ${(props) => props.theme.black200};
     color: ${(props) => props.theme.black500};
     cursor: pointer;
+    padding: 0;
+    width: 1.25rem;
+    height: 1.25rem;
 
     &:hover,
     &:focus {
@@ -126,9 +141,6 @@ const StyledThumbnail = styled.div`
     }
 
     & > ${RawFeatherIcon} {
-      height: 1.25rem;
-      height: 1.25rem;
-
       & > svg {
         width: 1rem;
         height: 1rem;
@@ -209,8 +221,8 @@ const StyledWrapper = styled.div`
     display: block;
     width: 100%;
     height: auto;
-    max-height: 14rem;
     min-height: 5rem;
+    max-height: 14rem;
     object-fit: cover;
     object-position: center center;
   }
@@ -326,8 +338,10 @@ const MessageAttachment = (props) => {
         href={onDelete ? undefined : fileURI}
         tabIndex={tabIndex}
       >
-        {!isImage && <RawFeatherIcon name="file-text" />}
-        {isImage ? <img src={fileURI} alt={name} /> : <strong>{name}</strong>}
+        <div>
+          {!isImage && <RawFeatherIcon name="file-text" />}
+          {isImage ? <img src={fileURI} alt={name} /> : <strong>{name}</strong>}
+        </div>
         {onDelete && (
           <button
             tabIndex={tabIndex}

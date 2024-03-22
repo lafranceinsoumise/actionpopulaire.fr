@@ -85,7 +85,7 @@ ThumbnailFile.args = {
 export const Image = Template.bind({});
 Image.args = {
   name: "image.jpg",
-  file: "https://placekitten.com/640/360",
+  file: "https://placekitten.com/200/300",
   small: false,
   thumbnail: false,
   hasDelete: true,
