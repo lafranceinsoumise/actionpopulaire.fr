@@ -20,18 +20,11 @@ class CreateAndSendSupportGroupMessageView(AdminViewMixin, FormView):
 
         return super().dispatch(request, *args, **kwargs)
 
-    def get_form(self, form_class=None):
-        kwargs = {}
-        if self.request.method in ["POST", "PUT"]:
-            kwargs.update({"data": self.request.POST})
-
-        return self.form_class(**kwargs)
-
     def get_context_data(self, **kwargs):
         if "form" not in kwargs:
             kwargs["form"] = self.get_form()
 
-        return super().get_context_data(
+        data = super().get_context_data(
             title=_("Envoi d'un message de groupe"),
             change=True,
             add=False,
@@ -40,11 +33,14 @@ class CreateAndSendSupportGroupMessageView(AdminViewMixin, FormView):
             show_save_and_continue=False,
             show_save_and_add_another=False,
             show_delete=False,
+            has_file_field=True,
             **self.get_admin_helpers(
                 kwargs["form"], kwargs["form"].fields, kwargs["form"].Meta.fieldsets
             ),
             **kwargs,
         )
+
+        return data
 
     def post(self, request, *args, **kwargs):
         form = self.get_form()

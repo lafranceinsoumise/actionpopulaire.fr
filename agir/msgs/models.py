@@ -126,12 +126,12 @@ class AbstractMessage(BaseAPIResource):
     text = models.TextField("Contenu", max_length=3000)
     reports = GenericRelation(UserReport)
     deleted = models.BooleanField("Supprimé", default=False)
-    attachment = models.OneToOneField(
+    attachment = models.ForeignKey(
         "msgs.MessageAttachment",
         on_delete=models.SET_NULL,
         verbose_name="Pièce-jointe",
-        related_name="%(class)s",
-        related_query_name="%(class)ss",
+        related_name="%(class)ss",
+        related_query_name="%(class)s",
         null=True,
     )
 

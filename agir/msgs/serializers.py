@@ -95,9 +95,9 @@ class BaseMessageSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
                 attachment = MessageAttachment.objects.create(**attachment)
                 message.attachment = attachment
                 message.save()
-
-            if attachment is None and message.attachment:
-                message.attachment.delete()
+            elif attachment is None and message.attachment:
+                message.attachment = None
+                message.save()
 
             message.refresh_from_db()
 

@@ -40,7 +40,9 @@ class MessageAdminMixin:
     @admin.display(description="Texte")
     def text_preview(self, obj):
         is_comment = hasattr(obj, "message")
+        has_attachment = obj.attachment is not None
         message = obj.message if is_comment else obj
+        subject = "📎 " + message.subject if has_attachment else message.subject
 
         return format_html(
             "<details style='width:240px;' {}>"
@@ -48,7 +50,7 @@ class MessageAdminMixin:
             "<blockquote>{}</blockquote>"
             "</details>",
             "open" if is_comment else "",
-            mark_safe(message.subject if message.subject else "-"),
+            mark_safe(subject or "-"),
             mark_safe(obj.html_content),
         )
 
