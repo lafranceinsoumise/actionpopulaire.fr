@@ -35,18 +35,23 @@ export const useUnreadMessageCount = () => {
     : 0;
 };
 
-export const useCommentsSWR = (messagePk) => {
+export const useCommentsSWR = (messagePk, autorefresh = false) => {
   const { data, error, isValidating, mutate, size, setSize } = useSWRInfinite(
     (index) =>
       messagePk &&
       `/api/groupes/messages/${messagePk}/comments/?page=${
         index + 1
       }&page_size=${COMMENTS_PAGE_SIZE}`,
-    {
-      revalidateIfStale: false,
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-    },
+    autorefresh
+      ? {
+          refreshInterval: 10000,
+          dedupingInterval: 10000,
+          focusThrottleInterval: 10000,
+          shouldRetryOnError: false,
+          revalidateIfStale: false,
+          revalidateAll: true,
+        }
+      : undefined,
   );
 
   const comments = useMemo(() => {
