@@ -96,7 +96,7 @@ weasyprint = "^60.2"
 
 [tool.poetry.dev-dependencies]
 ipython = "*"
-black = "==23.1.0"
+black = "==24.3.0"
 coverage = "*"
 django-debug-toolbar = "*"
 redislite = "==6.2.805324"  # used for testing - locked to 6.2.805324 version to avoid breaking "run-tests" GitHub action workflow
