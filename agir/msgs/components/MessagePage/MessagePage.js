@@ -69,7 +69,7 @@ const MessagePage = ({ messagePk }) => {
 
   const lastItemRef = useInfiniteScroll(loadMore, isLoadingMore);
 
-  const { mutate: mutateComments } = useCommentsSWR(messagePk);
+  const { mutate: mutateComments } = useCommentsSWR(messagePk, false);
 
   const {
     isLoading,

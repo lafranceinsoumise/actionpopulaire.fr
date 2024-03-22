@@ -42,7 +42,7 @@ const MessageReadonlyCard = (props) => {
     loadMore: loadMoreComments,
     isLoadingMore: isLoadingComments,
     mutate: mutateComments,
-  } = useCommentsSWR(message.id);
+  } = useCommentsSWR(message.id, false);
 
   const messageCardRef = useRef();
   const isDesktop = useIsDesktop();

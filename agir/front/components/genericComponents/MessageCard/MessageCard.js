@@ -85,7 +85,7 @@ const MessageCard = (props) => {
     loadMore: loadMoreComments,
     isLoadingMore: isLoadingComments,
     mutate: mutateComments,
-  } = useCommentsSWR(message.id);
+  } = useCommentsSWR(message.id, true);
 
   const messageCardRef = useRef();
   const isDesktop = useIsDesktop();
