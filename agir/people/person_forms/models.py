@@ -296,6 +296,13 @@ class PersonForm(TimeStampedModel):
     def __str__(self):
         return "« {} »".format(self.title)
 
+    def as_json(self):
+        return {
+            "id": self.id,
+            "title": self.title,
+            "url": front_url("view_person_form", args=(self.id,)),
+        }
+
     class Meta:
         verbose_name = _("Formulaire")
         ordering = ("-created",)
@@ -319,6 +326,13 @@ class PersonFormSubmission(
     )
 
     data = JSONField(_("Données"), default=dict, encoder=CustomJSONEncoder)
+
+    def as_json(self):
+        return {
+            "id": self.id,
+            "form": self.form.as_json(),
+            "data": self.data,
+        }
 
     def __str__(self):
         return f"{self.form.title} : réponse de {str(self.person)}"

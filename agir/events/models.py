@@ -1086,6 +1086,18 @@ class Event(
             self, group, as_person=person, exclude_organizer=exclude_organizer
         )
 
+    def as_json(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "url": front_url(
+                "view_event",
+                args=(self.id,),
+            ),
+            "start_time": self.start_time,
+            "end_time": self.end_time,
+        }
+
 
 class EventSubtype(BaseSubtype):
     TYPE_GROUP_MEETING = "G"
@@ -1495,6 +1507,16 @@ class RSVP(ExportModelOperationsMixin("rsvp"), TimeStampedModel):
         # If the event is not free, check if the rsvp payment can be cancelled
         return self.payment.can_cancel() is True
 
+    def as_json(self):
+        return {
+            "id": self.id,
+            "event": self.event.as_json(),
+            "status": self.status,
+            "status_label": self.get_status_display(),
+            "payment": self.payment_id,
+            "form_submission": self.form_submission_id,
+        }
+
 
 class IdentifiedGuest(ExportModelOperationsMixin("identified_guest"), models.Model):
     objects = IdentifiedGuestQuerySet.as_manager()
@@ -1569,6 +1591,13 @@ class OrganizerConfig(ExportModelOperationsMixin("organizer_config"), models.Mod
             raise ValidationError(
                 {"as_group": "Le groupe doit être un groupe que vous gérez."}
             )
+
+    def as_json(self):
+        return {
+            "id": self.id,
+            "event": self.event.as_json(),
+            "group": self.as_group.as_json(),
+        }
 
 
 event_image_path = FilePattern(

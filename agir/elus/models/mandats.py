@@ -227,6 +227,14 @@ class MandatAbstrait(UniqueWithinDates, MandatHistoryMixin, models.Model):
     def nom_conseil(self):
         return self.conseil.nom
 
+    def as_json(self):
+        return {
+            "id": self.id,
+            "statut": self.get_statut_display(),
+            "dates": [self.dates.lower, self.dates.upper],
+            "email_officiel": self.email_officiel and self.email_officiel.address,
+        }
+
     class Meta:
         abstract = True
 
@@ -319,6 +327,15 @@ class MandatMunicipal(MandatAbstrait):
     class Meta:
         verbose_name_plural = "Mandats municipaux"
         ordering = ("conseil", "person")
+
+    def as_json(self):
+        return {
+            **super().as_json(),
+            "type": "municipal",
+            "commune": self.nom_conseil,
+            "mandat": self.get_mandat_display(),
+            "communautaire": self.get_communautaire_display(),
+        }
 
     def __str__(self):
         if hasattr(self, "person") and hasattr(self, "conseil"):
@@ -430,6 +447,14 @@ class MandatDepartemental(MandatAbstrait):
         verbose_name_plural = "Mandats départementaux"
         ordering = ("conseil", "person")
 
+    def as_json(self):
+        return {
+            **super().as_json(),
+            "type": "départemental",
+            "département": self.nom_conseil,
+            "mandat": self.get_mandat_display(),
+        }
+
     def __str__(self):
         if self.person is not None:
             if self.conseil is None:
@@ -533,6 +558,14 @@ class MandatRegional(MandatAbstrait):
         verbose_name = "Mandat régional"
         verbose_name_plural = "Mandats régionaux"
         ordering = ("conseil", "person")
+
+    def as_json(self):
+        return {
+            **super().as_json(),
+            "type": "régional",
+            "région": self.nom_conseil,
+            "mandat": self.get_mandat_display(),
+        }
 
     def __str__(self):
         if self.person:
@@ -639,6 +672,14 @@ class MandatConsulaire(MandatAbstrait):
 
         return "Nouveau mandat consulaire"
 
+    def as_json(self):
+        return {
+            **super().as_json(),
+            "type": "consulaire",
+            "circonscription": self.nom_conseil,
+            "mandat": self.get_mandat_display(),
+        }
+
     def titre_complet(self, conseil_avant=False):
         titre = genrer(self.person.gender, self.get_mandat_display())
         conseil = (
@@ -714,6 +755,13 @@ class MandatDepute(MandatAbstrait):
     def __str__(self):
         return f"{self.person}, {self.titre_complet()}"
 
+    def as_json(self):
+        return {
+            **super().as_json(),
+            "type": "assemblée nationale",
+            "circonscription": self.nom_conseil,
+        }
+
     class Meta:
         verbose_name = "Mandat de député⋅e"
         verbose_name_plural = "Mandats de député⋅e"
@@ -747,6 +795,12 @@ class MandatDeputeEuropeen(MandatAbstrait):
         return genrer(
             self.person.gender, "député européen", "députée européenne", "député"
         )
+
+    def as_json(self):
+        return {
+            **super().as_json(),
+            "type": "parlement européen",
+        }
 
     class Meta:
         verbose_name = "Mandat de député⋅e européen⋅ne"
