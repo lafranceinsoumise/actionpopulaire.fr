@@ -69,7 +69,7 @@ const MessagePage = ({ messagePk }) => {
 
   const lastItemRef = useInfiniteScroll(loadMore, isLoadingMore);
 
-  const { mutate: mutateComments } = useCommentsSWR(messagePk);
+  const { mutate: mutateComments } = useCommentsSWR(messagePk, false);
 
   const {
     isLoading,
@@ -87,6 +87,8 @@ const MessagePage = ({ messagePk }) => {
     dismissMessageAction,
     getSelectedGroupEvents,
     saveMessage,
+    messageErrors,
+    commentErrors,
   } = useMessageActions(
     user,
     messageRecipients,
@@ -148,6 +150,7 @@ const MessagePage = ({ messagePk }) => {
                 isLoading={isLoading}
                 message={messageAction === "edit" ? currentMessage : null}
                 onSend={saveMessage}
+                errors={messageErrors}
               />
             )}
             {currentMessage && (
@@ -180,6 +183,7 @@ const MessagePage = ({ messagePk }) => {
                 onComment={writeNewComment}
                 lastItemRef={lastItemRef}
                 messageCount={messageCount}
+                commentErrors={commentErrors}
               />
             ) : (
               <EmptyMessagePage />

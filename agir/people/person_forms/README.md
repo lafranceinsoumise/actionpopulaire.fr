@@ -494,7 +494,7 @@ valeurs peuvent être sélectionnées.
 
 #### `multiple_choice`
 
-Un champs qui permet le choix parmi plusieurs valeurs prédéfinies grâce à une liste déroulante. Plusieurs valeurs
+Un champs qui permet le choix parmi plusieurs valeurs prédéfinies grâce à une liste de cases à cocher. Plusieurs valeurs
 peuvent être sélectionnées.
 
 ##### Paramètres obligatoires

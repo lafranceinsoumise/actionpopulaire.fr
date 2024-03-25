@@ -2,20 +2,24 @@ from django import forms
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin.widgets import AutocompleteSelectMultiple
+from django.db import transaction
+from django.template.defaultfilters import filesizeformat
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from agir.groups.actions.notifications import new_message_notifications
 from agir.groups.models import SupportGroup
 from agir.lib import data
-from agir.msgs.models import SupportGroupMessage
+from agir.msgs.models import SupportGroupMessage, MessageAttachment
 from agir.people.models import Person
+from agir.people.person_forms.fields import FileField
 
 
 class AdminSupportGroupMessage:
     DEFAULTS = {"is_locked": True, "readonly": True}
 
-    def __init__(self, message, supportgroups):
+    def __init__(self, message, attachment, supportgroups):
+        self.attachment = attachment
         self.instances = []
         for supportgroup in supportgroups:
             self.instances.append(self.get_message_for_group(message, supportgroup))
@@ -44,11 +48,20 @@ class AdminSupportGroupMessage:
         return self.format_message_text(message)
 
     def save(self):
-        self.instances = SupportGroupMessage.objects.bulk_create(self.instances)
-        for instance in self.instances:
-            new_message_notifications(instance)
+        with transaction.atomic():
+            if self.attachment:
+                attachment = MessageAttachment.objects.create(
+                    name=self.attachment.name, file=self.attachment
+                )
+                for instance in self.instances:
+                    instance.attachment = attachment
 
-        return self.instances
+            self.instances = SupportGroupMessage.objects.bulk_create(self.instances)
+
+            for instance in self.instances:
+                new_message_notifications(instance)
+
+            return self.instances
 
 
 class SupportGroupMessageCreateForm(forms.ModelForm):
@@ -102,6 +115,18 @@ class SupportGroupMessageCreateForm(forms.ModelForm):
         choices=data.departements_choices, required=False, label=_("Département")
     )
 
+    attachment_file = FileField(
+        label=_("Pièce-jointe"),
+        required=False,
+        allow_empty_file=False,
+        max_size=MessageAttachment.MAX_SIZE,
+        allowed_extensions=MessageAttachment.ALLOWED_EXTENSIONS,
+        help_text=f"""
+        Taille maximale : {filesizeformat(MessageAttachment.MAX_SIZE)}<br />
+        Extensions acceptées : {", ".join(MessageAttachment.ALLOWED_EXTENSIONS)}.
+        """,
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["subject"].required = True
@@ -150,7 +175,9 @@ class SupportGroupMessageCreateForm(forms.ModelForm):
 
     def save(self, commit=True):
         return AdminSupportGroupMessage(
-            self.instance, self.cleaned_data.get("supportgroups")
+            self.instance,
+            self.cleaned_data.get("attachment_file"),
+            self.cleaned_data.get("supportgroups"),
         ).save()
 
     class Meta:
@@ -163,6 +190,7 @@ class SupportGroupMessageCreateForm(forms.ModelForm):
             "author",
             "subject",
             "text",
+            "attachment_file",
         )
         fieldsets = (
             (
@@ -179,6 +207,7 @@ class SupportGroupMessageCreateForm(forms.ModelForm):
                         "author",
                         "subject",
                         "text",
+                        "attachment_file",
                     ),
                 },
             ),

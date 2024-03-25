@@ -10,6 +10,7 @@ import Avatar from "@agir/front/genericComponents/Avatar";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import InlineMenu from "@agir/front/genericComponents/InlineMenu";
 import ParsedString from "@agir/front/genericComponents/ParsedString";
+import MessageAttachment from "./MessageAttachment";
 
 const StyledInlineMenuItems = styled.div`
   cursor: pointer;
@@ -152,6 +153,9 @@ const StyledWrapper = styled(animated.div)`
     flex: 1 1 auto;
     font-size: 0.875rem;
     margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 
     article {
       margin: 0;
@@ -159,13 +163,17 @@ const StyledWrapper = styled(animated.div)`
       font-size: inherit;
       font-family: inherit;
       line-height: 1.65;
+
+      &:empty {
+        display: none;
+      }
     }
   }
 `;
 
 const Comment = (props) => {
   const { comment, onDelete, onReport, isAuthor, isManager } = props;
-  const { author, text, created } = comment;
+  const { author, text, attachment, created } = comment;
 
   const canDelete = typeof onDelete === "function" && (isAuthor || isManager);
   const canReport = typeof onReport === "function" && !isAuthor;
@@ -224,6 +232,7 @@ const Comment = (props) => {
         </StyledMessageHeader>
         <StyledMessageContent>
           <ParsedString as="article">{text}</ParsedString>
+          <MessageAttachment file={attachment?.file} name={attachment?.name} />
         </StyledMessageContent>
       </StyledMessage>
     </StyledWrapper>
@@ -237,6 +246,10 @@ Comment.propTypes = {
       image: PropTypes.string,
     }).isRequired,
     text: PropTypes.string.isRequired,
+    attachment: PropTypes.shape({
+      name: PropTypes.string,
+      file: PropTypes.string,
+    }),
     created: PropTypes.string,
   }).isRequired,
   isAuthor: PropTypes.bool,

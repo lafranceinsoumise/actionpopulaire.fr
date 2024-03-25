@@ -64,6 +64,7 @@ const WithGroupStepModal = (args) => {
     />
   );
 };
+
 export const WithGroupStep = WithGroupStepModal.bind({});
 WithGroupStep.args = {
   ...Default.args,
@@ -116,6 +117,10 @@ WithInitialData.args = {
       name: "Event A",
       startTime: "2021-01-09 10:04:19",
       type: "G",
+    },
+    attachment: {
+      name: "image.png",
+      file: "https://picsum.photos/640/360",
     },
     subject: "Un beau message",
     text: "Bonjour !",

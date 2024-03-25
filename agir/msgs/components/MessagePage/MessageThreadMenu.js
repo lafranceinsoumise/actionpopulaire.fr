@@ -12,7 +12,7 @@ import { useNotificationSettingLink } from "@agir/notifications/NotificationSett
 
 import MessageThreadCard from "./MessageThreadCard";
 import InlineMenu from "@agir/front/genericComponents/InlineMenu";
-import { StyledInlineMenuItems } from "@agir/front/genericComponents/MessageCard";
+import { StyledInlineMenuItems } from "@agir/front/genericComponents/MessageCard/StyledComponents";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import { setAllMessagesRead } from "@agir/groups/utils/api";
 

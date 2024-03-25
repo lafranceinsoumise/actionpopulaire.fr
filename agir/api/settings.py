@@ -552,9 +552,13 @@ SOCIAL_AUTH_PIPELINE = (
     # Éléments par défaut pour récupérer les détails depuis les services tiers,
     # vérifier que le compte est actif, et vérifier si un utilisateur est déjà
     # associé
+    # récupère les détails renvoyés par le service tiers
     "social_core.pipeline.social_auth.social_details",
+    # extrait le username des détails renvoyés par le service tiers
     "social_core.pipeline.social_auth.social_uid",
+    # vérifie si l'utilisateur est autorisé ; par défaut, applique la logique de whitelisting de social_auth
     "social_core.pipeline.social_auth.auth_allowed",
+    # vérifie et renvoie, si elle existe déjà
     "social_core.pipeline.social_auth.social_user",
     # Identifie s'il existe un compte sur agir avec l'adresse email.
     "social_core.pipeline.social_auth.associate_by_email",

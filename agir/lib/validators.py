@@ -61,7 +61,7 @@ class MaxDaysDeltaValidator(DaysDeltaValidatorMixin, validators.MaxValueValidato
 @deconstructible
 class FileSizeValidator:
     message = _(
-        "Ce fichier est trop gros. Seuls les fichiers de moins de %(max_size) sont acceptés."
+        "Ce fichier est trop gros. Seuls les fichiers de moins de %(max_size)s sont acceptés."
     )
     code = "file_too_big"
 

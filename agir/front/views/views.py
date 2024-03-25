@@ -224,6 +224,13 @@ class UserMessageView(
         ]
 
 
+class GroupMessageRedirectView(RedirectView):
+    permanent = False
+
+    def get_redirect_url(self, *args, pk=None, message_pk=None, **kwargs):
+        return front_url("user_message_details", kwargs={"pk": message_pk})
+
+
 ## DONATION VIEWS
 
 

@@ -150,15 +150,16 @@ export const Footer = (props) => {
           <div>
             <h3>Le programme</h3>
             <p>
+              <Link route="programme">Le site du programme</Link>
               <Link route="thematicGroups">Les groupes thématiques</Link>
+              <Link route="avenir-en-commun" target="_blank">
+                Le programme l'Avenir en commun
+              </Link>
               <Link route="nupesPlatform" target="_blank">
                 Le programme de la{" "}
                 <abbr title="Nouvelle Union Populaire Écologique et sociale">
                   NUPES
                 </abbr>
-              </Link>
-              <Link route="programme" target="_blank">
-                Le programme l'Avenir en commun
               </Link>
             </p>
           </div>
@@ -166,15 +167,15 @@ export const Footer = (props) => {
           <div>
             <h3>Les autres sites</h3>
             <p>
+              <Link route="lafranceinsoumise">La France insoumise</Link>
+              <Link route="linsoumission">L'insoumission</Link>
+              <Link route="jlmBlog">Le blog de Jean-Luc Mélenchon</Link>
               <Link route="nupes" target="_blank">
                 La{" "}
                 <abbr title="Nouvelle Union Populaire Écologique et sociale">
                   NUPES
                 </abbr>
               </Link>
-              <Link route="lafranceinsoumise">La France insoumise</Link>
-              <Link route="linsoumission">L'insoumission</Link>
-              <Link route="jlmBlog">Le blog de Jean-Luc Mélenchon</Link>
             </p>
           </div>
 

@@ -86,7 +86,7 @@ const BackLink = (props) => {
       label: linkProps.label,
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname, state]);
+  }, [pathname, backLink, state]);
 
   const internalRouteConfig = useMemo(() => {
     return (linkProps?.route && routeConfig[linkProps.route]) || DEFAULT_ROUTE;

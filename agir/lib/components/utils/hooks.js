@@ -301,8 +301,11 @@ export const useResizeObserver = (ref, callback) => {
       }
 
       const entry = entries[0];
-      setWidth(entry.contentRect.width);
-      setHeight(entry.contentRect.height);
+      const width = entry.contentRect.width;
+      const height = entry.contentRect.height;
+
+      setWidth(width);
+      setHeight(height);
 
       if (callback) {
         callback(entry.contentRect);
@@ -316,12 +319,16 @@ export const useResizeObserver = (ref, callback) => {
       return;
     }
 
-    let RO = new ResizeObserver((entries) => handleResize(entries));
-    RO.observe(ref.current);
+    let ROEntries = [];
+    let RO = new ResizeObserver((entries) => {
+      ROEntries = entries;
+      window.requestAnimationFrame(() => handleResize(entries));
+    });
+    ref.current && RO.observe(ref.current);
 
     return () => {
+      ROEntries.forEach((entry) => entry.target.remove());
       RO.disconnect();
-      RO = null;
     };
   }, [ref, handleResize]);
 

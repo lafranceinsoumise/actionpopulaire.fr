@@ -8,7 +8,6 @@ import { getMessageSubject } from "@agir/msgs/common/utils";
 import { timeAgo } from "@agir/lib/utils/time";
 
 import Avatars from "@agir/front/genericComponents/Avatars";
-import { MEMBERSHIP_TYPES } from "@agir/groups/utils/group";
 import { StyledCard } from "./styledComponents";
 
 const StyledUnreadItemBadge = styled.span`

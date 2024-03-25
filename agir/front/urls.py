@@ -98,7 +98,7 @@ supportgroup_patterns = [
     ),
     path(
         "message/<uuid:message_pk>/",
-        views.BaseAppSoftAuthView.as_view(),
+        views.GroupMessageRedirectView.as_view(),
         name="view_group_message",
     ),
     path(

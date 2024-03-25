@@ -5,7 +5,7 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-import MessageCard from "@agir/front/genericComponents/MessageCard";
+import { MessageReadonlyCard } from "@agir/front/genericComponents/MessageCard";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 import Spacer from "@agir/front/genericComponents/Spacer";
@@ -192,8 +192,7 @@ AgendaRoutePreview.propTypes = {
 };
 
 export const MessagesRoutePreview = (props) => {
-  const { user, messages, goToMessagesTab, onClickMessage, isLoadingMessages } =
-    props;
+  const { group, user, messages, goToMessagesTab, isLoadingMessages } = props;
 
   if (
     (!isLoadingMessages && !Array.isArray(messages)) ||
@@ -222,12 +221,14 @@ export const MessagesRoutePreview = (props) => {
           {Array.isArray(messages) &&
             messages.map((message) => (
               <Fragment key={message.id}>
-                <MessageCard
+                <MessageReadonlyCard
                   user={user}
                   message={message}
                   comments={message.comments || message.recentComments || []}
-                  onClick={onClickMessage}
-                  withBottomButton
+                  backLink={{
+                    route: "groupDetails",
+                    routeParams: { groupPk: group.id, activeTab: "messages" },
+                  }}
                 />
                 <Spacer size="1.5rem" style={{ backgroundColor: "inherit" }} />
               </Fragment>
@@ -238,6 +239,7 @@ export const MessagesRoutePreview = (props) => {
   );
 };
 MessagesRoutePreview.propTypes = {
+  group: PropTypes.object,
   user: PropTypes.object,
   messages: PropTypes.arrayOf(PropTypes.object),
   goToMessagesTab: PropTypes.func,

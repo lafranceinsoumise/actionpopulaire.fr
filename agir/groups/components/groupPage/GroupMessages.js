@@ -1,16 +1,15 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { Fragment } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import { withMessageActions } from "@agir/groups/groupPage/hooks/messages";
+import { useMessageActions } from "@agir/groups/groupPage/hooks/messages";
 
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer";
-import MessageCard from "@agir/front/genericComponents/MessageCard";
+import { MessageReadonlyCard } from "@agir/front/genericComponents/MessageCard";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
-import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 
@@ -18,15 +17,10 @@ import MessageModalTrigger, {
   FloatingTrigger as FloatingMessageModalTrigger,
 } from "@agir/front/formComponents/MessageModal/Trigger";
 import MessageModal from "@agir/front/formComponents/MessageModal/Modal";
-import MessageActionModal from "@agir/front/formComponents/MessageActionModal";
 import { PromoMessage } from "@agir/groups/messages/PromoMessageModal";
 
 const StyledButton = styled.div`
   text-align: center;
-
-  @media (max-width: ${style.collapse}px) {
-    box-shadow: ${style.elaborateShadow} inset;
-  }
 
   ${Button} {
     &,
@@ -40,7 +34,7 @@ const StyledButton = styled.div`
 
       @media (max-width: ${style.collapse}px) {
         width: 100%;
-        margin-top: 1rem;
+        margin-bottom: 1.5rem;
         font-size: 0.875rem;
         box-shadow: ${style.elaborateShadow};
       }
@@ -75,32 +69,22 @@ const StyledWrapper = styled.div`
 
 export const GroupMessages = (props) => {
   const {
-    user,
     group,
+    user,
     events,
     messages,
-    selectedMessage,
-    messageAction,
     isLoading,
-    isUpdating,
-    hasMessageModal,
-    hasMessageActionModal,
-    getMessageURL,
-    onClick,
     loadMoreEvents,
     loadMoreMessages,
-    writeNewMessage,
-    editMessage,
-    confirmReport,
-    confirmDelete,
-    writeNewComment,
-    confirmReportComment,
-    confirmDeleteComment,
-    dismissMessageAction,
-    saveMessage,
-    onDelete,
-    onReport,
   } = props;
+
+  const {
+    isUpdating,
+    hasMessageModal,
+    dismissMessageAction,
+    writeNewMessage,
+    saveMessage,
+  } = useMessageActions(group);
 
   const isManager = group && group.isManager;
 
@@ -135,18 +119,9 @@ export const GroupMessages = (props) => {
           events={events}
           loadMoreEvents={loadMoreEvents}
           isLoading={isUpdating}
-          message={selectedMessage}
           onSend={saveMessage}
         />
       ) : null}
-      <MessageActionModal
-        action={hasMessageActionModal ? messageAction : undefined}
-        shouldShow={hasMessageActionModal}
-        onClose={dismissMessageAction}
-        onReport={onReport}
-        onDelete={onDelete}
-        isLoading={isUpdating}
-      />
       <PageFadeIn
         ready={!isLoading && Array.isArray(messages)}
         wait={<Skeleton style={{ margin: "1rem 0" }} />}
@@ -154,25 +129,18 @@ export const GroupMessages = (props) => {
         <StyledMessages>
           {Array.isArray(messages) && messages.length > 0
             ? messages.map((message) => (
-                <>
-                  <MessageCard
-                    key={message.id}
-                    message={message}
+                <Fragment key={message.id}>
+                  <MessageReadonlyCard
                     user={user}
+                    message={message}
                     comments={message.comments || message.recentComments}
-                    onClick={onClick}
-                    onEdit={editMessage}
-                    onComment={writeNewComment}
-                    onReport={confirmReport}
-                    onDelete={confirmDelete}
-                    onDeleteComment={confirmDeleteComment}
-                    onReportComment={confirmReportComment}
-                    messageURL={getMessageURL && getMessageURL(message.id)}
-                    isManager={isManager}
-                    isLoading={isUpdating}
+                    backLink={{
+                      route: "groupDetails",
+                      routeParams: { groupPk: group.id, activeTab: "messages" },
+                    }}
                   />
-                  <Spacer size="1rem" />
-                </>
+                  <Spacer size="1.5rem" />
+                </Fragment>
               ))
             : null}
 
@@ -200,35 +168,17 @@ export const GroupMessages = (props) => {
 };
 GroupMessages.propTypes = {
   group: PropTypes.shape({
+    id: PropTypes.string,
     isManager: PropTypes.bool,
   }),
   user: PropTypes.object,
   events: PropTypes.arrayOf(PropTypes.object),
   messages: PropTypes.arrayOf(PropTypes.object),
-  selectedMessage: PropTypes.object,
-  messageAction: PropTypes.string,
   isLoading: PropTypes.bool,
-  isUpdating: PropTypes.bool,
   isManager: PropTypes.bool,
-  hasMessageModal: PropTypes.bool,
-  hasMessageActionModal: PropTypes.bool,
-  getMessageURL: PropTypes.func,
   onClick: PropTypes.func,
   loadMoreEvents: PropTypes.func,
   loadMoreMessages: PropTypes.func,
-  writeNewMessage: PropTypes.func,
-  editMessage: PropTypes.func,
-  confirmReport: PropTypes.func,
-  confirmDelete: PropTypes.func,
-  writeNewComment: PropTypes.func,
-  confirmReportComment: PropTypes.func,
-  confirmDeleteComment: PropTypes.func,
-  dismissMessageAction: PropTypes.func,
-  saveMessage: PropTypes.func,
-  onDelete: PropTypes.func,
-  onReport: PropTypes.func,
 };
 
-const ConnectedGroupMessages = withMessageActions(GroupMessages);
-
-export default ConnectedGroupMessages;
+export default GroupMessages;

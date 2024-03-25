@@ -1,5 +1,6 @@
-import axios from "@agir/lib/utils/axios";
 import querystring from "query-string";
+import axios from "@agir/lib/utils/axios";
+import { objectToFormData } from "@agir/lib/utils/forms";
 
 export const ENDPOINT = {
   getGroup: "/api/groupes/:groupPk/",
@@ -67,10 +68,18 @@ export const getGroupEndpoint = (key, params, querystringParams) => {
   return endpoint;
 };
 
-export const formatMessage = (message) => ({
-  ...message,
-  linkedEvent: (message.linkedEvent && message.linkedEvent.id) || null,
-});
+export const formatMessage = (message) => {
+  const data = {
+    ...message,
+    linkedEvent: (message.linkedEvent && message.linkedEvent.id) || null,
+  };
+
+  if (data.attachment && typeof data.attachment.file === "string") {
+    data.attachment = undefined;
+  }
+
+  return data.attachment ? objectToFormData(data) : data;
+};
 
 export const createMessage = async (groupPk, message) => {
   const result = {
@@ -79,6 +88,7 @@ export const createMessage = async (groupPk, message) => {
   };
   const url = getGroupEndpoint("createMessage", { groupPk });
   const body = formatMessage(message);
+
   try {
     const response = await axios.post(url, body);
     result.data = response.data;
@@ -114,7 +124,7 @@ export const updateMessage = async (message) => {
   const url = getGroupEndpoint("updateMessage", { messagePk: message.id });
   const body = formatMessage(message);
   try {
-    const response = await axios.put(url, body);
+    const response = await axios.patch(url, body);
     result.data = response.data;
   } catch (e) {
     result.error = (e.response && e.response.data) || e.message;
@@ -245,15 +255,13 @@ export const getComments = async (messagePk) => {
   return result;
 };
 
-export const createComment = async (messagePk, comment) => {
+export const createComment = async (messagePk, data) => {
   const result = {
     data: null,
     error: null,
   };
   const url = getGroupEndpoint("createComment", { messagePk });
-  const body = {
-    text: comment,
-  };
+  const body = formatMessage(data);
   try {
     const response = await axios.post(url, body);
     result.data = response.data;
