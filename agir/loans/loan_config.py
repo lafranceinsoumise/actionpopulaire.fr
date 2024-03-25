@@ -6,7 +6,6 @@ from num2words import num2words
 from agir.lib.display import display_price
 from agir.lib.iban import to_iban
 from agir.loans import views
-from agir.loans.data.banks import iban_to_bic
 from agir.loans.display import (
     display_place_of_birth,
     display_full_address,
@@ -24,7 +23,7 @@ def default_description_context_generator(payment: Payment):
     return {
         "payment": payment,
         "iban": str(to_iban(payment.meta.get("iban"))),
-        "bic": payment.meta.get("bic") or iban_to_bic(iban),
+        "bic": payment.meta.get("bic") or iban.bic,
         "loan_recipient": payment_type.loan_recipient,
     }
 
