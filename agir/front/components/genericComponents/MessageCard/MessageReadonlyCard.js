@@ -64,9 +64,11 @@ const MessageReadonlyCard = (props) => {
   }, [lastUpdate, mutateComments]);
 
   const isPrivateMessage =
+    !message.readonly &&
     message.requiredMembershipType > MEMBERSHIP_TYPES.MEMBER;
 
   let subject = getMessageSubject(message);
+
   if (isPrivateMessage && !subject) {
     subject = `Message privé avec les animateur⋅ices de '${group.name}'`;
   }

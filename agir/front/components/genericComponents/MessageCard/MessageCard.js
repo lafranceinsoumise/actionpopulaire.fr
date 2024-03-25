@@ -169,9 +169,11 @@ const MessageCard = (props) => {
   }, [lastUpdate, mutateComments]);
 
   const isOrganizerMessage =
+    !message.readonly &&
     message.requiredMembershipType > MEMBERSHIP_TYPES.MEMBER;
 
   let subject = getMessageSubject(message);
+
   if (isOrganizerMessage && !subject) {
     subject = `Message privé avec les animateur⋅ices de '${group.name}'`;
   }
