@@ -162,6 +162,7 @@ const StyledWrapper = styled.div`
   border-radius: ${(props) => props.theme.borderRadius};
   box-shadow: ${(props) => props.theme.cardShadow};
   font-size: ${(props) => (props.$small ? "0.75rem" : "0.875rem")};
+  cursor: ${(props) => (props.onClick ? "pointer" : "default")};
 
   @media (max-width: ${(props) => props.theme.collapse}px) {
     max-width: 100%;
@@ -295,6 +296,7 @@ const MessageAttachment = (props) => {
   } = props;
 
   const { isMobileApp } = useMobileApp();
+  const downloadLinkRef = useRef();
 
   const isImage = useMemo(
     () => name && name.match(/\.(jpg|jpeg|png|gif)$/i),
@@ -324,6 +326,13 @@ const MessageAttachment = (props) => {
     },
     [onDelete],
   );
+
+  const handleDownload = useCallback((e) => {
+    downloadLinkRef.current &&
+      e.target !== downloadLinkRef.current &&
+      !downloadLinkRef.current.contains(e.target) &&
+      downloadLinkRef.current.click();
+  }, []);
 
   if (!file) {
     return null;
@@ -356,7 +365,12 @@ const MessageAttachment = (props) => {
   }
 
   return (
-    <StyledWrapper {...rest} $small={small && !isImage} $image={!isImage}>
+    <StyledWrapper
+      {...rest}
+      $small={small && !isImage}
+      $image={!isImage}
+      onClick={onDelete ? undefined : handleDownload}
+    >
       {!isImage && <RawFeatherIcon name="paperclip" />}
       <strong>{name}</strong>
       {onDelete ? (
@@ -369,6 +383,7 @@ const MessageAttachment = (props) => {
         </button>
       ) : (
         <a
+          ref={downloadLinkRef}
           tabIndex={tabIndex}
           aria-label="Télécharger la pièce-jointe"
           download={name}
