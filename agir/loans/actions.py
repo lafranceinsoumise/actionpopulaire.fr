@@ -11,7 +11,6 @@ from sepaxml import SepaTransfer
 
 from agir.lib.documents import html_to_pdf
 from agir.lib.iban import to_iban
-from agir.loans.data.banks import iban_to_bic
 from agir.payments.models import Payment
 
 
@@ -54,7 +53,7 @@ def generate_reimbursement_file(config: Mapping[str, str], payments: Iterable[Pa
         if not iban.is_valid():
             raise ValueError(f"L'IBAN pour le paiement {payment!r} n'est pas valide")
 
-        bic = payment.meta.get("bic", iban_to_bic(iban))
+        bic = payment.meta.get("bic", iban.bic)
         if bic is None:
             raise ValueError(f"Le BIC pour le paiement {payment!r} est inconnu")
 
