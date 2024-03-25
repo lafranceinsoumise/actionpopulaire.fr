@@ -71,39 +71,32 @@ class LastManagerLoginFilterTest(TestCase):
             supportgroup=self.recently_logged_in_group,
             membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
         )
-
         self.one_month_old_login_group = SupportGroup.objects.create(
             name="one_month_old_login"
         )
         self.one_month_old_login_person = Person.objects.create_person(
             "one_month@agir.test", create_role=True
         )
-        self.one_month_old_login_person.role.last_login = today - relativedelta(
-            months=1, days=5
-        )
+        self.one_month_old_login_person.role.last_login = today - relativedelta(days=36)
         self.one_month_old_login_person.role.save()
         Membership.objects.create(
             person=self.one_month_old_login_person,
             supportgroup=self.one_month_old_login_group,
             membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
         )
-
         self.two_month_old_login_group = SupportGroup.objects.create(
             name="two_month_old_login"
         )
         self.two_month_old_login_person = Person.objects.create_person(
             "two_month@agir.test", create_role=True
         )
-        self.two_month_old_login_person.role.last_login = today - relativedelta(
-            months=2, days=5
-        )
+        self.two_month_old_login_person.role.last_login = today - relativedelta(days=64)
         self.two_month_old_login_person.role.save()
         Membership.objects.create(
             person=self.two_month_old_login_person,
             supportgroup=self.two_month_old_login_group,
             membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
         )
-
         self.not_yet_logged_in_group = SupportGroup.objects.create(
             name="not_yet_logged_in"
         )
@@ -213,7 +206,7 @@ class LastManagerLoginFilterTest(TestCase):
         f = LastManagerLoginFilter(
             None,
             {
-                "last_manager_login": (timezone.now() - relativedelta(days=36))
+                "last_manager_login": (timezone.now() - relativedelta(days=40))
                 .date()
                 .strftime("%Y-%m-%d")
             },
