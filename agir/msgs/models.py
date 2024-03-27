@@ -221,6 +221,13 @@ class SupportGroupMessageComment(AbstractMessage):
     class Meta:
         verbose_name = "Commentaire de messages de groupe"
         verbose_name_plural = "Commentaires de messages de groupe"
+        indexes = (
+            models.Index(
+                "message_id",
+                models.F("created").desc(),
+                name="message_comment_creation",
+            ),
+        )
 
 
 class SupportGroupMessageRecipient(TimeStampedModel):
