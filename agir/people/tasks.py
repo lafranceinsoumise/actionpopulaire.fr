@@ -36,40 +36,46 @@ from .person_forms.models import PersonForm
 logger = logging.getLogger(__name__)
 
 
-@emailing_task()
-def send_welcome_mail(person_pk, type):
-    person = Person.objects.prefetch_related("emails").get(pk=person_pk)
-    message_info = SUBSCRIPTIONS_EMAILS[type].get("welcome")
+def send_email(type, email, **kwargs):
+    message_info = SUBSCRIPTIONS_EMAILS[type].get(email, None)
+    kwargs.setdefault("bindings", {})
 
-    if message_info:
-        send_mosaico_email(
+    if not message_info:
+        return
+
+    if getattr(message_info, "template_name"):
+        return send_template_email(
+            template_name=message_info.template_name,
+            from_email=message_info.from_email,
+            **kwargs,
+        )
+
+    if getattr(message_info, "code"):
+        return send_mosaico_email(
             code=message_info.code,
             subject=message_info.subject,
             from_email=message_info.from_email,
-            bindings={"PROFILE_LINK": front_url("personal_information")},
-            recipients=[person],
+            **kwargs,
         )
+
+
+@emailing_task()
+def send_welcome_mail(person_pk, type):
+    person = Person.objects.prefetch_related("emails").get(pk=person_pk)
+    send_email(type, "welcome", recipients=[person])
 
 
 @emailing_task()
 def send_confirmation_email(email, type=SUBSCRIPTION_TYPE_LFI, metadata=None, **kwargs):
     if PersonEmail.objects.filter(address__iexact=email).exists():
-        p = Person.objects.get_by_natural_key(email)
-
+        person = Person.objects.get_by_natural_key(email)
         if "already_subscribed" in SUBSCRIPTIONS_EMAILS[type]:
-            message_info = SUBSCRIPTIONS_EMAILS[type]["already_subscribed"]
-
-            send_mosaico_email(
-                code=message_info.code,
-                subject=message_info.subject,
-                from_email=message_info.from_email,
-                bindings={
-                    "PANEL_LINK": front_url("dashboard", auto_login=True),
-                    "AGO": pretty_time_since(p.created),
-                },
-                recipients=[p],
+            send_email(
+                type,
+                "already_subscribed",
+                bindings={"AGO": pretty_time_since(person.created)},
+                recipients=[person],
             )
-
         return
 
     fields = {
@@ -90,14 +96,11 @@ def send_confirmation_email(email, type=SUBSCRIPTION_TYPE_LFI, metadata=None, **
     }
     confirm_subscription_url += "?" + urlencode(query_args)
 
-    message_info = SUBSCRIPTIONS_EMAILS[type]["confirmation"]
-
-    send_mosaico_email(
-        code=message_info.code,
-        subject=message_info.subject,
-        from_email=message_info.from_email,
-        recipients=[email],
+    send_email(
+        type,
+        "confirmation",
         bindings={"CONFIRMATION_URL": confirm_subscription_url},
+        recipients=[email],
     )
 
 

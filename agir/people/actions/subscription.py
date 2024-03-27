@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from functools import partial
+from typing import Optional
 
 from django.conf import settings
 from django.db import transaction
@@ -18,8 +19,9 @@ def make_subscription_token(email, **kwargs):
 
 @dataclass
 class SubscriptionMessageInfo:
-    code: str
-    subject: str
+    code: Optional[str] = ""
+    template_name: Optional[str] = ""
+    subject: Optional[str] = ""
     from_email: str = settings.EMAIL_FROM
 
 
@@ -53,21 +55,31 @@ SUBSCRIPTION_FIELD = {
     SUBSCRIPTION_TYPE_LJI: "is_political_support",
 }
 
+LFI_SUBSCRIPTION_EMAILS = {
+    "confirmation": SubscriptionMessageInfo(
+        template_name="people/email/LFI/subscription_confirmation.html",
+        from_email=settings.EMAIL_FROM_LFI,
+    ),
+    "already_subscribed": SubscriptionMessageInfo(
+        template_name="people/email/LFI/already_subscribed.html",
+        from_email=settings.EMAIL_FROM_LFI,
+    ),
+    "welcome": SubscriptionMessageInfo(
+        template_name="people/email/LFI/welcome.html",
+        from_email=settings.EMAIL_FROM_LFI,
+    ),
+}
+
 SUBSCRIPTIONS_EMAILS = {
-    SUBSCRIPTION_TYPE_LFI: {
-        "confirmation": SubscriptionMessageInfo(
-            code="SUBSCRIPTION_CONFIRMATION_LFI_MESSAGE",
-            subject="Plus qu'un clic pour vous inscrire",
-            from_email=settings.EMAIL_FROM_LFI,
-        ),
+    SUBSCRIPTION_TYPE_AP: {
         "already_subscribed": SubscriptionMessageInfo(
-            "ALREADY_SUBSCRIBED_LFI_MESSAGE",
-            "Vous êtes déjà inscrit·e !",
+            template_name="people/email/already_subscribed.html",
         ),
-        "welcome": SubscriptionMessageInfo(
-            "WELCOME_LFI_MESSAGE", "Bienvenue sur la plateforme de la France insoumise"
+        "confirmation": SubscriptionMessageInfo(
+            template_name="people/email/subscription_confirmation.html",
         ),
     },
+    SUBSCRIPTION_TYPE_LFI: LFI_SUBSCRIPTION_EMAILS,
     SUBSCRIPTION_TYPE_NSP: {
         "confirmation": SubscriptionMessageInfo(
             code="SUBSCRIPTION_CONFIRMATION_NSP_MESSAGE",
@@ -75,49 +87,9 @@ SUBSCRIPTIONS_EMAILS = {
             from_email=settings.EMAIL_FROM_MELENCHON_2022,
         )
     },
-    SUBSCRIPTION_TYPE_LJI: {
-        "confirmation": SubscriptionMessageInfo(
-            code="SUBSCRIPTION_CONFIRMATION_LFI_MESSAGE",
-            subject="Plus qu'un clic pour vous inscrire",
-            from_email="Les Jeunes Insoumis·es <nepasrepondre@lafranceinsoumise.fr>",
-        ),
-        "already_subscribed": SubscriptionMessageInfo(
-            "ALREADY_SUBSCRIBED_LFI_MESSAGE",
-            "Vous êtes déjà inscrit·e !",
-        ),
-        "welcome": SubscriptionMessageInfo(
-            "WELCOME_LFI_MESSAGE",
-            "Bienvenue sur la plateforme de la France insoumise et des Jeunes Insoumis·es !",
-        ),
-    },
+    SUBSCRIPTION_TYPE_LJI: LFI_SUBSCRIPTION_EMAILS,
+    SUBSCRIPTION_TYPE_ISE: LFI_SUBSCRIPTION_EMAILS,
     SUBSCRIPTION_TYPE_EXTERNAL: {},
-    SUBSCRIPTION_TYPE_AP: {
-        "already_subscribed": SubscriptionMessageInfo(
-            code="EXISTING_EMAIL_SUBSCRIPTION",
-            subject="Vous êtes déjà inscrit·e !",
-        ),
-        "confirmation": SubscriptionMessageInfo(
-            code="SUBSCRIPTION_CONFIRMATION_MESSAGE",
-            subject="Plus qu'un clic pour vous inscrire",
-        ),
-    },
-    SUBSCRIPTION_TYPE_ISE: {
-        "confirmation": SubscriptionMessageInfo(
-            code="SUBSCRIPTION_CONFIRMATION_LFI_MESSAGE",
-            subject="Plus qu'un clic pour vous inscrire",
-            from_email=settings.EMAIL_FROM_LFI,
-        ),
-        "already_subscribed": SubscriptionMessageInfo(
-            "ALREADY_SUBSCRIBED_LFI_MESSAGE",
-            "Vous êtes déjà inscrit·e !",
-            from_email=settings.EMAIL_FROM_LFI,
-        ),
-        "welcome": SubscriptionMessageInfo(
-            "WELCOME_LFI_MESSAGE",
-            "Bienvenue sur la plateforme de la France insoumise",
-            from_email=settings.EMAIL_FROM_LFI,
-        ),
-    },
 }
 
 SUBSCRIPTION_NEWSLETTERS = {
