@@ -43,7 +43,6 @@ from agir.events.serializers import (
     EventReportPersonFormSerializer,
 )
 from agir.groups.models import SupportGroup, Membership
-from agir.msgs.actions import get_viewables_messages
 from agir.msgs.serializers import SupportGroupMessageSerializer
 from agir.people.models import Person
 from agir.people.person_forms.models import PersonForm
@@ -95,6 +94,7 @@ from ..tasks import (
 from ...event_requests.serializers import EventAssetSerializer
 from ...groups.tasks import send_new_group_event_email, notify_new_group_event
 from ...lib.models import LocationMixin
+from ...msgs.actions import get_event_messages
 
 
 class EventAPIView(RetrieveAPIView):
@@ -844,8 +844,4 @@ class EventMessagesAPIView(ListAPIView):
     def get_queryset(self):
         person = self.request.user.person
 
-        return (
-            get_viewables_messages(person)
-            .filter(linked_event=self.event)
-            .order_by("-created")
-        )
+        return get_event_messages(self.event, person)

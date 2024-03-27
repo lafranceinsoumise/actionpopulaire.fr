@@ -4,13 +4,11 @@ from django.db.models import (
     Subquery,
     Exists,
     Q,
-    Max,
-    DateTimeField,
-    F,
     Count,
     Value,
 )
-from django.db.models.functions import Greatest, Coalesce
+from django.db.models.functions import Coalesce
+from django.utils import timezone
 
 from agir.activity.models import Activity
 from agir.groups.models import Membership
@@ -92,6 +90,98 @@ SELECT messages.total + comments.total AS total
 FROM messages JOIN comments ON true;
 """
 
+USER_MESSAGES_BASE_REQUEST = """
+  SELECT
+    message.id,
+    message.author_id,
+    COALESCE(
+      (
+        SELECT comment.created
+        FROM msgs_supportgroupmessagecomment AS comment
+        WHERE comment.message_id = message.id
+        ORDER BY comment.created DESC
+        LIMIT 1
+      ),
+      message.created
+    ) AS last_comment_date
+  FROM msgs_supportgroupmessage AS message
+"""
+
+USER_MESSAGES_WITH_REQUEST = f"""
+WITH message AS (
+  {USER_MESSAGES_BASE_REQUEST}
+  JOIN groups_membership AS membership ON (
+    membership.supportgroup_id = message.supportgroup_id
+    AND membership.person_id = %(person_id)s
+  )
+  WHERE
+    membership.membership_type >= message.required_membership_type
+    AND NOT message.deleted
+    -- s'assurer qu'on ne renvoie pas de commentaire inclus dans l'autre requête
+    AND message.author_id != %(person_id)s
+
+  UNION ALL
+
+  {USER_MESSAGES_BASE_REQUEST}
+  WHERE author_id = %(person_id)s
+    AND NOT message.deleted
+)
+"""
+
+"""Requête faite main pour récupérer de façon performante les identifiants des derniers messages.
+
+Pour que la base de données utilise les index (plutôt que des scans séquentiels), les techniques suivantes sont
+employées :
+- utiliser une sous-requête `SELECT ... ORDER BY ... LIMIT 1` pour récupérer la date du dernier commentaire plutôt
+  qu'une agrégation MAX, ce qui permet d'utiliser l'index (message_id, created) sur la table des commentaires
+- séparer la recherche des messages pour lesquels on est autorisé grâce à son statut de membre de ceux dont on est
+  l'auteur pour permettre à postgresql d'utiliser l'index approprié pour chaque sous-requête. UNION ALL permet
+  d'éviter une déduplication inutile si on fait attention à exclure les messages dont on est l'auteur dans le cas 1.
+- Classer les résultats dans un second temps seulement, par une autre requête, et appliquer la limite à ce moment-là.
+- Finalement, réaliser la jointure sur les auteurs dans la dernière requête seulement, ce qui permet de s'assurer
+  qu'elle n'est réalisée que pour le petit nombre de résultats couverts par le LIMIT.
+"""
+USER_MESSAGES_IDS_REQUEST = f"""
+{USER_MESSAGES_WITH_REQUEST}
+
+SELECT
+  message.id,
+  last_comment_date
+FROM message
+JOIN people_person AS author ON message.author_id = author.id
+JOIN authentication_role AS role ON role.id = author.role_id
+WHERE role.is_active
+ORDER BY message.last_comment_date DESC
+OFFSET %(offset)s
+LIMIT %(limit)s;"""
+
+USER_MESSAGES_COUNT_REQUEST = f"""
+{USER_MESSAGES_WITH_REQUEST}
+
+SELECT COUNT(message.id) FROM message
+JOIN people_person AS author ON message.author_id = author.id
+JOIN authentication_role AS role ON role.id = author.role_id
+WHERE role.is_active;
+"""
+
+
+USER_MESSAGES_READ_ALL_REQUEST = f"""
+INSERT INTO msgs_supportgroupmessagerecipient (message_id, recipient_id, created, modified)
+(
+  {USER_MESSAGES_WITH_REQUEST}
+
+  SELECT
+    id,
+    %(person_id)s,
+    %(now)s,
+    %(now)s
+  FROM message
+)
+WHERE true
+ON CONFLICT (message_id, recipient_id)
+DO UPDATE SET modified = %(now)s;
+"""
+
 
 def update_recipient_message(message, recipient):
     obj, created = SupportGroupMessageRecipient.objects.update_or_create(
@@ -101,30 +191,12 @@ def update_recipient_message(message, recipient):
     return obj, created
 
 
-def get_viewables_messages(person):
-    """Retourne tous les messages visibles par l'utilisateur
-
-    Un message est visible si :
-    - il est dans un groupe d'action dont l'utilisateur est membre
-    - son champ required_membership_type est inférieur au champ membership_type du Membership de la personne
-    """
-    return (
-        SupportGroupMessage.objects.active()
-        .annotate(
-            has_required_membership_type=Exists(
-                person.memberships.filter(
-                    supportgroup_id=OuterRef("supportgroup_id"),
-                    membership_type__gte=OuterRef("required_membership_type"),
-                )
-            )
+def read_all_user_messages(person):
+    """Indique tous les messages de l'utilisateur comme lus"""
+    with connection.cursor() as cursor:
+        cursor.execute(
+            USER_MESSAGES_READ_ALL_REQUEST, {"person_id": person, "now": timezone.now()}
         )
-        .filter(Q(author_id=person.id) | Q(has_required_membership_type=True))
-    )
-
-
-def get_viewable_messages_ids(person):
-    message_ids = get_viewables_messages(person).values_list("id", flat=True)
-    return list(set(message_ids))
 
 
 def get_unread_message_count(person):
@@ -173,79 +245,101 @@ def get_message_unread_comment_count(person: Person, message: SupportGroupMessag
     )
 
 
-def get_user_messages(person):
-    return (
-        SupportGroupMessage.objects.with_serializer_prefetch()
-        .active()
-        .annotate(
-            # sous-requête en doublon, mais je ne vois pas d'autre solution avec Django
-            last_reading_date=Subquery(
+def get_user_messages_count(person):
+    with connection.cursor() as cursor:
+        cursor.execute(USER_MESSAGES_COUNT_REQUEST, {"person_id": person.id})
+        return cursor.fetchone()[0]
+
+
+def get_base_user_messages_qs(person):
+    return SupportGroupMessage.objects.with_serializer_prefetch().annotate(
+        # sous-requête en doublon, mais je ne vois pas d'autre solution avec Django
+        last_reading_date=Subquery(
+            SupportGroupMessageRecipient.objects.filter(
+                recipient=person, message=OuterRef("id")
+            ).values("modified")
+        ),
+        muted=Coalesce(
+            Subquery(
                 SupportGroupMessageRecipient.objects.filter(
                     recipient=person, message=OuterRef("id")
-                ).values("modified")
+                ).values("muted")
             ),
-            muted=Coalesce(
-                Subquery(
-                    SupportGroupMessageRecipient.objects.filter(
-                        recipient=person, message=OuterRef("id")
-                    ).values("muted")
-                ),
-                Value(False),
+            Value(False),
+        ),
+        joined_group=Subquery(
+            Membership.objects.filter(
+                person=person,
+                supportgroup=OuterRef("supportgroup_id"),
+                membership_type__gte=OuterRef("required_membership_type"),
+            ).values("created")
+        ),
+        comment_count=Coalesce(
+            Subquery(
+                SupportGroupMessageComment.objects.filter(
+                    message=OuterRef("id"),
+                    deleted=False,
+                    author__role__is_active=True,
+                )
+                .values("message_id")
+                .order_by("message_id")
+                .annotate(c=Count("id"))
+                .values("c")
             ),
-            joined_group=Subquery(
-                Membership.objects.filter(
-                    person=person, supportgroup=OuterRef("supportgroup_id")
-                ).values("created")
+            0,
+        ),
+        unread_comment_count=Coalesce(
+            Subquery(
+                SupportGroupMessageComment.objects.filter(
+                    message=OuterRef("id"),
+                    deleted=False,
+                    author__role__is_active=True,
+                    created__gte=Coalesce(
+                        OuterRef("last_reading_date"), OuterRef("joined_group")
+                    ),
+                )
+                .exclude(author=person)
+                .values("message_id")
+                .order_by("message_id")
+                .annotate(c=Count("id"))
+                .values("c")
             ),
-            last_update=Greatest(
-                Max("comments__created"), "created", output_field=DateTimeField()
-            ),
-            comment_count=Coalesce(
-                Subquery(
-                    SupportGroupMessageComment.objects.filter(
-                        message=OuterRef("id"),
-                        deleted=False,
-                        author__role__is_active=True,
-                    )
-                    .values("message_id")
-                    .order_by("message_id")
-                    .annotate(c=Count("id"))
-                    .values("c")
-                ),
-                0,
-            ),
-            unread_comment_count=Coalesce(
-                Subquery(
-                    SupportGroupMessageComment.objects.filter(
-                        message=OuterRef("id"),
-                        deleted=False,
-                        author__role__is_active=True,
-                        created__gte=Coalesce(
-                            OuterRef("last_reading_date"), OuterRef("joined_group")
-                        ),
-                    )
-                    .exclude(author=person)
-                    .values("message_id")
-                    .order_by("message_id")
-                    .annotate(c=Count("id"))
-                    .values("c")
-                ),
-                0,
-            ),
-        )
-        .filter(
-            # user has required membership type
-            Q(
-                supportgroup__memberships__person=person,
-                supportgroup__memberships__membership_type__gte=F(
-                    "required_membership_type"
-                ),
-            )
-            # or user is author of the message
-            | Q(author=person),
-        )
-        .order_by("-last_update", "-created")
+            0,
+        ),
     )
+
+
+def get_user_messages(person, start=0, stop=20):
+    with connection.cursor() as cursor:
+        cursor.execute(
+            USER_MESSAGES_IDS_REQUEST,
+            {
+                "person_id": person.id,
+                "offset": start,
+                "limit": stop - start,
+            },
+        )
+        results = cursor.fetchall()
+
+    message_ids = [m for m, _ in results]
+
+    messages = list(get_base_user_messages_qs(person).filter(id__in=message_ids))
+
+    messages_map = {m.id: m for m in messages}
+
+    # on rajoute la date de dernier commentaire à partir de la dernière requête
+    for id, last_update in results:
+        # cas extrême où un des messages a été supprimé entre la première et la deuxième requête
+        if id in messages:
+            messages[id].last_update = last_update
+
+    # on remet les messages dans l'ordre
+    messages = [messages_map[id] for id in message_ids if id in messages_map]
+
+    # on précharge les commentaires correspondants
+    prefetch_recent_comments(messages)
+
+    return messages
 
 
 def get_comment_recipients(comment: SupportGroupMessageComment):
@@ -314,6 +408,12 @@ def get_comment_other_recipients(comment: SupportGroupMessageComment):
     ).filter(
         Q(with_subscription=True)
         & ~(Q(is_comment_author=True) | Q(id=comment.message.author_id))
+    )
+
+
+def get_event_messages(event, person):
+    return get_base_user_messages_qs(person).filter(
+        Q(joined_group__isnull=False) | Q(author=person), linked_event=event
     )
 
 

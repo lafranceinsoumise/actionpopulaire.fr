@@ -1,20 +1,18 @@
-from django.db import transaction
-from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.exceptions import NotFound
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
+from rest_framework.utils.urls import replace_query_param
 
 from agir.groups.models import Membership, SupportGroup
 from agir.lib.pagination import APIPageNumberPagination
 from agir.msgs.actions import (
     get_unread_message_count,
-    get_viewable_messages_ids,
-    prefetch_recent_comments,
+    read_all_user_messages,
+    get_user_messages_count,
 )
 from agir.msgs.models import (
     SupportGroupMessage,
-    SupportGroupMessageRecipient,
-    SupportGroupMessageComment,
 )
 from agir.msgs.serializers import (
     UserReportSerializer,
@@ -60,43 +58,63 @@ class UserMessagesAllReadAPIView(RetrieveAPIView):
 
     def get(self, request, *args, **kwargs):
         person = self.request.user.person
-        person_message_ids = get_viewable_messages_ids(person)
-        with transaction.atomic():
-            old_message_ids = SupportGroupMessageRecipient.objects.filter(
-                message_id__in=person_message_ids, recipient=person
-            ).values_list("message_id", flat=True)
-            SupportGroupMessageRecipient.objects.bulk_create(
-                (
-                    SupportGroupMessageRecipient(
-                        message_id=message_id, recipient=person
-                    )
-                    for message_id in person_message_ids
-                    if message_id not in old_message_ids
-                ),
-                ignore_conflicts=True,
-            )
+        read_all_user_messages(person)
 
-            SupportGroupMessageRecipient.objects.filter(
-                message_id__in=old_message_ids, recipient=person
-            ).update(modified=timezone.now())
-
-            return Response(True)
+        return Response(True)
 
 
 class UserMessagesAPIView(ListAPIView):
     serializer_class = UserMessagesSerializer
-    queryset = SupportGroupMessage.objects.active()
     permission_classes = (IsPersonPermission,)
-    pagination_class = APIPageNumberPagination
+    pagination_class = None
 
-    def get_queryset(self):
+    def list(self, request, *args, **kwargs):
+        paginator = APIPageNumberPagination()
+
+        page_size = paginator.get_page_size(self.request)
+        total_messages = get_user_messages_count(self.request.user.person)
+
+        # la valeur par défaut est pour le cas sans message
+        max_page = (total_messages - 1) // page_size + 1 or 1
+
+        page_number = self.request.query_params.get(paginator.page_query_param, 1)
+        if page_number in paginator.last_page_strings:
+            page_number = max_page
+
+        try:
+            page_number = int(page_number)
+        except (TypeError, ValueError):
+            raise NotFound("Page incorrecte")
+
+        if not (1 <= page_number <= max_page):
+            raise NotFound("Page incorrecte")
+
         person = self.request.user.person
-        return get_user_messages(person)
+        messages = get_user_messages(
+            person, (page_number - 1) * page_size, page_number * page_size
+        )
+        serializer = self.get_serializer(messages, many=True)
 
-    def paginate_queryset(self, queryset):
-        page = super().paginate_queryset(queryset)
-        prefetch_recent_comments(page)
-        return page
+        url = self.request.build_absolute_uri()
+        next_url = (
+            None
+            if page_number == max_page
+            else replace_query_param(url, paginator.page_query_param, page_number + 1)
+        )
+        prev_url = (
+            None
+            if page_number == 1
+            else replace_query_param(url, paginator.page_query_param, page_number - 1)
+        )
+
+        return Response(
+            {
+                "count": total_messages,
+                "next": next_url,
+                "previous": prev_url,
+                "results": serializer.data,
+            }
+        )
 
 
 @api_view(["GET"])
