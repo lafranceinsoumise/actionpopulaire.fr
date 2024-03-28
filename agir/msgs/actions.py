@@ -166,7 +166,7 @@ WHERE role.is_active;
 
 
 USER_MESSAGES_READ_ALL_REQUEST = f"""
-INSERT INTO msgs_supportgroupmessagerecipient (message_id, recipient_id, created, modified)
+INSERT INTO msgs_supportgroupmessagerecipient (message_id, recipient_id, created, modified, muted)
 (
   {USER_MESSAGES_WITH_REQUEST}
 
@@ -174,10 +174,10 @@ INSERT INTO msgs_supportgroupmessagerecipient (message_id, recipient_id, created
     id,
     %(person_id)s,
     %(now)s,
-    %(now)s
+    %(now)s,
+    FALSE
   FROM message
 )
-WHERE true
 ON CONFLICT (message_id, recipient_id)
 DO UPDATE SET modified = %(now)s;
 """
@@ -195,7 +195,8 @@ def read_all_user_messages(person):
     """Indique tous les messages de l'utilisateur comme lus"""
     with connection.cursor() as cursor:
         cursor.execute(
-            USER_MESSAGES_READ_ALL_REQUEST, {"person_id": person, "now": timezone.now()}
+            USER_MESSAGES_READ_ALL_REQUEST,
+            {"person_id": person.id, "now": timezone.now()},
         )
 
 
