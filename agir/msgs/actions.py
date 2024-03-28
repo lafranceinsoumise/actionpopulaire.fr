@@ -331,8 +331,8 @@ def get_user_messages(person, start=0, stop=20):
     # on rajoute la date de dernier commentaire à partir de la dernière requête
     for id, last_update in results:
         # cas extrême où un des messages a été supprimé entre la première et la deuxième requête
-        if id in messages:
-            messages[id].last_update = last_update
+        if id in messages_map:
+            messages_map[id].last_update = last_update
 
     # on remet les messages dans l'ordre
     messages = [messages_map[id] for id in message_ids if id in messages_map]
