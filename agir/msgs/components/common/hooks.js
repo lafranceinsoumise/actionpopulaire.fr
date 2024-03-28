@@ -15,6 +15,7 @@ import { useCurrentLocation } from "@agir/front/app/utils";
 
 const MESSAGES_PAGE_SIZE = 10;
 const COMMENTS_PAGE_SIZE = 15;
+const REFRESH_INTERVAL = 10 * 60 * 1000;
 
 export const useUnreadMessageCount = () => {
   const [isReady] = useTimeout(3000);
@@ -22,9 +23,9 @@ export const useUnreadMessageCount = () => {
   const { data } = useSWR(
     isReady() && session?.user && "/api/user/messages/unread_count/",
     {
-      refreshInterval: 10000,
-      dedupingInterval: 10000,
-      focusThrottleInterval: 10000,
+      refreshInterval: REFRESH_INTERVAL,
+      dedupingInterval: REFRESH_INTERVAL,
+      focusThrottleInterval: REFRESH_INTERVAL,
       shouldRetryOnError: false,
       revalidateIfStale: false,
     },
@@ -44,9 +45,9 @@ export const useCommentsSWR = (messagePk, autorefresh = false) => {
       }&page_size=${COMMENTS_PAGE_SIZE}`,
     autorefresh
       ? {
-          refreshInterval: 10000,
-          dedupingInterval: 10000,
-          focusThrottleInterval: 10000,
+          refreshInterval: REFRESH_INTERVAL,
+          dedupingInterval: REFRESH_INTERVAL,
+          focusThrottleInterval: REFRESH_INTERVAL,
           shouldRetryOnError: false,
           revalidateIfStale: false,
           revalidateAll: true,
@@ -206,7 +207,7 @@ export const useMessageSWR = (messagePk) => {
     }
     const updatedMessage = messages.find((m) => m.id === currentMessage.id);
     if (
-      updatedMessage &&
+      !updatedMessage ||
       updatedMessage.lastUpdate === currentMessage.lastUpdate
     ) {
       return;
