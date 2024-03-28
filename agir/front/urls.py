@@ -490,6 +490,7 @@ urlpatterns = [
     path("500/", views.BaseAppCachedView.as_view()),
     path("test/layout/", views.LayoutCssTestView.as_view()),
     path("test/react/", views.ReactCssTestView.as_view()),
+    path("test/email/<path:template>/", views.EmailTestView.as_view()),
     path("test/fontawesome/", views.FontAwesomeTestView.as_view()),
     ## REDIRECT / EXTERNAL VIEWS
     path("nsp/", views.NSPView.as_view(), name="nsp"),

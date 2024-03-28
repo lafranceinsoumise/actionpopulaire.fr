@@ -1,5 +1,7 @@
 from dataclasses import dataclass
+from datetime import timedelta
 from functools import partial
+from typing import Optional
 
 from django.conf import settings
 from django.db import transaction
@@ -18,8 +20,9 @@ def make_subscription_token(email, **kwargs):
 
 @dataclass
 class SubscriptionMessageInfo:
-    code: str
-    subject: str
+    code: Optional[str] = ""
+    template_name: Optional[str] = ""
+    subject: Optional[str] = ""
     from_email: str = settings.EMAIL_FROM
 
 
@@ -53,19 +56,39 @@ SUBSCRIPTION_FIELD = {
     SUBSCRIPTION_TYPE_LJI: "is_political_support",
 }
 
+LFI_SUBSCRIPTION_EMAILS = {
+    "confirmation": SubscriptionMessageInfo(
+        template_name="people/email/LFI/subscription_confirmation.html",
+        from_email=settings.EMAIL_FROM_LFI,
+    ),
+    "already_subscribed": SubscriptionMessageInfo(
+        template_name="people/email/LFI/already_subscribed.html",
+        from_email=settings.EMAIL_FROM_LFI,
+    ),
+    "welcome": SubscriptionMessageInfo(
+        template_name="people/email/LFI/welcome.html",
+        from_email=settings.EMAIL_FROM_LFI,
+    ),
+}
+
 SUBSCRIPTIONS_EMAILS = {
-    SUBSCRIPTION_TYPE_LFI: {
+    SUBSCRIPTION_TYPE_AP: {
+        "already_subscribed": SubscriptionMessageInfo(
+            template_name="people/email/already_subscribed.html",
+        ),
         "confirmation": SubscriptionMessageInfo(
-            code="SUBSCRIPTION_CONFIRMATION_LFI_MESSAGE",
-            subject="Plus qu'un clic pour vous inscrire",
+            template_name="people/email/subscription_confirmation.html",
+        ),
+    },
+    SUBSCRIPTION_TYPE_LFI: {
+        **LFI_SUBSCRIPTION_EMAILS,
+        "onboarding_1": SubscriptionMessageInfo(
+            template_name="people/email/LFI/onboarding_1.html",
             from_email=settings.EMAIL_FROM_LFI,
         ),
-        "already_subscribed": SubscriptionMessageInfo(
-            "ALREADY_SUBSCRIBED_LFI_MESSAGE",
-            "Vous êtes déjà inscrit·e !",
-        ),
-        "welcome": SubscriptionMessageInfo(
-            "WELCOME_LFI_MESSAGE", "Bienvenue sur la plateforme de la France insoumise"
+        "onboarding_2": SubscriptionMessageInfo(
+            template_name="people/email/LFI/onboarding_2.html",
+            from_email=settings.EMAIL_FROM_LFI,
         ),
     },
     SUBSCRIPTION_TYPE_NSP: {
@@ -75,49 +98,9 @@ SUBSCRIPTIONS_EMAILS = {
             from_email=settings.EMAIL_FROM_MELENCHON_2022,
         )
     },
-    SUBSCRIPTION_TYPE_LJI: {
-        "confirmation": SubscriptionMessageInfo(
-            code="SUBSCRIPTION_CONFIRMATION_LFI_MESSAGE",
-            subject="Plus qu'un clic pour vous inscrire",
-            from_email="Les Jeunes Insoumis·es <nepasrepondre@lafranceinsoumise.fr>",
-        ),
-        "already_subscribed": SubscriptionMessageInfo(
-            "ALREADY_SUBSCRIBED_LFI_MESSAGE",
-            "Vous êtes déjà inscrit·e !",
-        ),
-        "welcome": SubscriptionMessageInfo(
-            "WELCOME_LFI_MESSAGE",
-            "Bienvenue sur la plateforme de la France insoumise et des Jeunes Insoumis·es !",
-        ),
-    },
+    SUBSCRIPTION_TYPE_LJI: LFI_SUBSCRIPTION_EMAILS,
+    SUBSCRIPTION_TYPE_ISE: LFI_SUBSCRIPTION_EMAILS,
     SUBSCRIPTION_TYPE_EXTERNAL: {},
-    SUBSCRIPTION_TYPE_AP: {
-        "already_subscribed": SubscriptionMessageInfo(
-            code="EXISTING_EMAIL_SUBSCRIPTION",
-            subject="Vous êtes déjà inscrit·e !",
-        ),
-        "confirmation": SubscriptionMessageInfo(
-            code="SUBSCRIPTION_CONFIRMATION_MESSAGE",
-            subject="Plus qu'un clic pour vous inscrire",
-        ),
-    },
-    SUBSCRIPTION_TYPE_ISE: {
-        "confirmation": SubscriptionMessageInfo(
-            code="SUBSCRIPTION_CONFIRMATION_LFI_MESSAGE",
-            subject="Plus qu'un clic pour vous inscrire",
-            from_email=settings.EMAIL_FROM_LFI,
-        ),
-        "already_subscribed": SubscriptionMessageInfo(
-            "ALREADY_SUBSCRIBED_LFI_MESSAGE",
-            "Vous êtes déjà inscrit·e !",
-            from_email=settings.EMAIL_FROM_LFI,
-        ),
-        "welcome": SubscriptionMessageInfo(
-            "WELCOME_LFI_MESSAGE",
-            "Bienvenue sur la plateforme de la France insoumise",
-            from_email=settings.EMAIL_FROM_LFI,
-        ),
-    },
 }
 
 SUBSCRIPTION_NEWSLETTERS = {
@@ -305,3 +288,58 @@ def save_contact_information(data):
         )
 
     return person
+
+
+def schedule_onboarding_emails(dry_run=False):
+    from agir.people.tasks import send_onboarding_emails
+
+    today = timezone.now().date()
+    scheduled = {}
+
+    for subscription_type, emails in SUBSCRIPTIONS_EMAILS.items():
+        # Sent 1st onboarding emails to people who subscribed exactly seven days ago and have no donations
+        if "onboarding_1" in emails:
+            scheduled.setdefault(subscription_type, {})
+            recipients = list(
+                Person.objects.exclude(role__is_active=False)
+                .filter(payments__isnull=True, subscriptions__isnull=True)
+                .filter(created__date=today - timedelta(days=7))
+                .filter(
+                    **{
+                        f"meta__subscriptions__{subscription_type}__isnull": False,
+                    }
+                )
+                .values_list("pk", flat=True)
+            )
+            scheduled[subscription_type]["onboarding_1"] = len(recipients)
+
+            if not dry_run:
+                send_onboarding_emails.delay(
+                    subscription_type, "onboarding_1", recipients
+                )
+
+        # Sent 2nd onboarding emails to people who subscribed exactly ten days ago and have joined no group
+        if "onboarding_2" in emails:
+            scheduled.setdefault(subscription_type, {})
+            recipients = list(
+                Person.objects.exclude(role__is_active=False)
+                .exclude(
+                    memberships__supportgroup__published=True,
+                    memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MEMBER,
+                )
+                .filter(created__date=today - timedelta(days=10))
+                .filter(
+                    **{
+                        f"meta__subscriptions__{subscription_type}__isnull": False,
+                    }
+                )
+                .values_list("pk", flat=True)
+            )
+            scheduled[subscription_type]["onboarding_2"] = len(recipients)
+
+            if not dry_run:
+                send_onboarding_emails.delay(
+                    subscription_type, "onboarding_2", recipients
+                )
+
+    return scheduled
