@@ -1,48 +1,30 @@
-import datetime
-import json
-from json import JSONEncoder
-from uuid import UUID
-
-from django.core.management import CommandError
-from django.db.models.fields.related import RelatedField
-from django_countries.fields import Country
-
 from agir.lib.commands import BaseCommand
-from agir.people.models import Person
-
-
-class ExportJSONEncoder(JSONEncoder):
-    def default(self, o):
-        if isinstance(
-            o,
-            (
-                datetime.date,
-                datetime.datetime,
-            ),
-        ):
-            return o.isoformat()
-        if isinstance(o, UUID):
-            return str(o)
-
-        if isinstance(o, Country):
-            return o.code
-
-        return super().default(o)
+from agir.people.actions.subscription import schedule_onboarding_emails
 
 
 class Command(BaseCommand):
-    def add_arguments(self, parser):
-        super().add_arguments(parser)
-        parser.add_argument("email")
+    language = "en"
+    help = "Send onboarding emails to new members"
+    dry_run = False
+    silent = False
 
-    def execute(self, email, dry_run=False, silent=False, **options):
-        try:
-            person = Person.objects.get_by_natural_key(email)
-        except Person.DoesNotExist:
-            raise CommandError("Pas de personne avec cette adresse email.")
+    def print_result(self, result):
+        if not result:
+            self.log(f"✖  Aucun email n'a été envoyé.")
 
-        data = person.as_json()
-        self.stdout.write(
-            json.dumps(data, indent=4, sort_keys=True, cls=ExportJSONEncoder)
-        )
-        self.stdout.write("\n")
+        for type, emails in result.items():
+            self.info(f"Type d'inscription : {type}")
+
+            for email, count in emails.items():
+                message = (
+                    f"{email} ⟶ {count} e-mail{'s' if count != 1 else ''} scheduled"
+                )
+                if count > 0:
+                    self.success(message)
+                else:
+                    self.error(message)
+
+    def handle(self, **options):
+        self.log(f"\n✉ Sending onboarding emails...\n\n")
+        result = schedule_onboarding_emails(dry_run=self.dry_run)
+        self.print_result(result)

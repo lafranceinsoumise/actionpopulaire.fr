@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import timedelta
 from functools import partial
 from typing import Optional
 
@@ -79,7 +80,17 @@ SUBSCRIPTIONS_EMAILS = {
             template_name="people/email/subscription_confirmation.html",
         ),
     },
-    SUBSCRIPTION_TYPE_LFI: LFI_SUBSCRIPTION_EMAILS,
+    SUBSCRIPTION_TYPE_LFI: {
+        **LFI_SUBSCRIPTION_EMAILS,
+        "onboarding_1": SubscriptionMessageInfo(
+            template_name="people/email/LFI/onboarding_1.html",
+            from_email=settings.EMAIL_FROM_LFI,
+        ),
+        "onboarding_2": SubscriptionMessageInfo(
+            template_name="people/email/LFI/onboarding_2.html",
+            from_email=settings.EMAIL_FROM_LFI,
+        ),
+    },
     SUBSCRIPTION_TYPE_NSP: {
         "confirmation": SubscriptionMessageInfo(
             code="SUBSCRIPTION_CONFIRMATION_NSP_MESSAGE",
@@ -277,3 +288,58 @@ def save_contact_information(data):
         )
 
     return person
+
+
+def schedule_onboarding_emails(dry_run=False):
+    from agir.people.tasks import send_onboarding_emails
+
+    today = timezone.now().date()
+    scheduled = {}
+
+    for subscription_type, emails in SUBSCRIPTIONS_EMAILS.items():
+        # Sent 1st onboarding emails to people who subscribed exactly seven days ago and have no donations
+        if "onboarding_1" in emails:
+            scheduled.setdefault(subscription_type, {})
+            recipients = list(
+                Person.objects.exclude(role__is_active=False)
+                .filter(payments__isnull=True, subscriptions__isnull=True)
+                .filter(created__date=today - timedelta(days=7))
+                .filter(
+                    **{
+                        f"meta__subscriptions__{subscription_type}__isnull": False,
+                    }
+                )
+                .values_list("pk", flat=True)
+            )
+            scheduled[subscription_type]["onboarding_1"] = len(recipients)
+
+            if not dry_run:
+                send_onboarding_emails.delay(
+                    subscription_type, "onboarding_1", recipients
+                )
+
+        # Sent 2nd onboarding emails to people who subscribed exactly ten days ago and have joined no group
+        if "onboarding_2" in emails:
+            scheduled.setdefault(subscription_type, {})
+            recipients = list(
+                Person.objects.exclude(role__is_active=False)
+                .exclude(
+                    memberships__supportgroup__published=True,
+                    memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MEMBER,
+                )
+                .filter(created__date=today - timedelta(days=10))
+                .filter(
+                    **{
+                        f"meta__subscriptions__{subscription_type}__isnull": False,
+                    }
+                )
+                .values_list("pk", flat=True)
+            )
+            scheduled[subscription_type]["onboarding_2"] = len(recipients)
+
+            if not dry_run:
+                send_onboarding_emails.delay(
+                    subscription_type, "onboarding_2", recipients
+                )
+
+    return scheduled
