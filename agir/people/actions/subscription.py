@@ -31,6 +31,7 @@ SUBSCRIPTION_TYPE_AP = "AP"
 SUBSCRIPTION_TYPE_LJI = "LJI"
 # Inscription depuis la plateforme d'inscription sur les listes électorales
 SUBSCRIPTION_TYPE_ISE = "ISE"
+SUBSCRIPTION_TYPE_EU24 = "EU24"
 
 SUBSCRIPTION_TYPE_CHOICES = (
     (
@@ -45,12 +46,14 @@ SUBSCRIPTION_TYPE_CHOICES = (
     (SUBSCRIPTION_TYPE_AP, "Action Populaire"),
     (SUBSCRIPTION_TYPE_LJI, "Les jeunes insoumis"),
     (SUBSCRIPTION_TYPE_ISE, "OnVoteInsoumis.fr"),
+    (SUBSCRIPTION_TYPE_EU24, "Européennes 2024"),
 )
 SUBSCRIPTION_FIELD = {
     # TODO: Vérifier ce qui est encore utilisé et ce qui ne l'est plus
     SUBSCRIPTION_TYPE_LFI: "is_political_support",
     SUBSCRIPTION_TYPE_NSP: "is_political_support",
     SUBSCRIPTION_TYPE_LJI: "is_political_support",
+    SUBSCRIPTION_TYPE_EU24: "is_political_support",
 }
 
 SUBSCRIPTIONS_EMAILS = {
@@ -118,6 +121,23 @@ SUBSCRIPTIONS_EMAILS = {
             from_email=settings.EMAIL_FROM_LFI,
         ),
     },
+    SUBSCRIPTION_TYPE_EU24: {
+        "confirmation": SubscriptionMessageInfo(
+            code="SUBSCRIPTION_CONFIRMATION_LFI_MESSAGE",
+            subject="Plus qu'un clic pour vous inscrire",
+            from_email=settings.EMAIL_FROM_LFI,
+        ),
+        "already_subscribed": SubscriptionMessageInfo(
+            "ALREADY_SUBSCRIBED_LFI_MESSAGE",
+            "Vous êtes déjà inscrit·e !",
+            from_email=settings.EMAIL_FROM_LFI,
+        ),
+        "welcome": SubscriptionMessageInfo(
+            "WELCOME_LFI_MESSAGE",
+            "Bienvenue sur la plateforme de la France insoumise",
+            from_email=settings.EMAIL_FROM_LFI,
+        ),
+    },
 }
 
 SUBSCRIPTION_NEWSLETTERS = {
@@ -130,6 +150,7 @@ SUBSCRIPTION_NEWSLETTERS = {
     SUBSCRIPTION_TYPE_EXTERNAL: set(),
     SUBSCRIPTION_TYPE_AP: set(),
     SUBSCRIPTION_TYPE_ISE: {*Person.MAIN_NEWSLETTER_CHOICES},
+    SUBSCRIPTION_TYPE_EU24: {*Person.MAIN_NEWSLETTER_CHOICES},
 }
 
 SUBSCRIPTION_EMAIL_SENT_REDIRECT = {
@@ -138,6 +159,7 @@ SUBSCRIPTION_EMAIL_SENT_REDIRECT = {
     SUBSCRIPTION_TYPE_NSP: f"{settings.NSP_DOMAIN}/validez-votre-e-mail/",
     SUBSCRIPTION_TYPE_AP: f"{settings.FRONT_DOMAIN}/inscription/code/",
     SUBSCRIPTION_TYPE_ISE: f"{settings.ISE_DOMAIN}/consulter-vos-emails/",
+    SUBSCRIPTION_TYPE_EU24: f"{settings.MAIN_DOMAIN}/consulter-vos-emails/",
 }
 
 SUBSCRIPTION_SUCCESS_REDIRECT = {
@@ -146,6 +168,7 @@ SUBSCRIPTION_SUCCESS_REDIRECT = {
     SUBSCRIPTION_TYPE_NSP: f"{settings.NSP_DOMAIN}/signature-confirmee/",
     SUBSCRIPTION_TYPE_AP: f"{settings.FRONT_DOMAIN}/bienvenue/",
     SUBSCRIPTION_TYPE_ISE: f"{settings.ISE_DOMAIN}/bienvenue/",
+    SUBSCRIPTION_TYPE_EU24: f"{settings.MAIN_DOMAIN}/bienvenue/",
 }
 
 
