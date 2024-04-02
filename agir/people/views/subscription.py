@@ -153,7 +153,7 @@ class ConfirmSubscriptionView(View):
         elif not already_created and "welcome" in SUBSCRIPTIONS_EMAILS[self.type]:
             from ..tasks import send_welcome_mail
 
-            send_welcome_mail.delay(self.person.pk, type=self.type)
+            send_welcome_mail.delay(self.person.pk, self.type)
 
         hard_login(self.request, self.person)
 
