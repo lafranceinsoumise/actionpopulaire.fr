@@ -72,14 +72,12 @@ def send_welcome_mail(person_pk, subscription_type):
 
 
 @emailing_task()
-def send_confirmation_email(
-    email, subscription_type=SUBSCRIPTION_TYPE_LFI, metadata=None, **kwargs
-):
+def send_confirmation_email(email, type=SUBSCRIPTION_TYPE_LFI, metadata=None, **kwargs):
     if PersonEmail.objects.filter(address__iexact=email).exists():
         person = Person.objects.get_by_natural_key(email)
-        if "already_subscribed" in SUBSCRIPTIONS_EMAILS[subscription_type]:
+        if "already_subscribed" in SUBSCRIPTIONS_EMAILS[type]:
             send_email(
-                subscription_type,
+                type,
                 "already_subscribed",
                 bindings={"AGO": pretty_time_since(person.created)},
                 recipients=[person],
@@ -88,7 +86,7 @@ def send_confirmation_email(
 
     fields = {
         "email": email,
-        "type": subscription_type,
+        "type": type,
         **kwargs,
     }
     if metadata:
@@ -98,7 +96,7 @@ def send_confirmation_email(
     confirm_subscription_url = front_url(
         "subscription_confirm",
         auto_login=False,
-        nsp=subscription_type == SUBSCRIPTION_TYPE_NSP,
+        nsp=type == SUBSCRIPTION_TYPE_NSP,
     )
     query_args = {
         **fields,
@@ -107,7 +105,7 @@ def send_confirmation_email(
     confirm_subscription_url += "?" + urlencode(query_args)
 
     send_email(
-        subscription_type,
+        type,
         "confirmation",
         bindings={"CONFIRMATION_URL": confirm_subscription_url},
         recipients=[email],
