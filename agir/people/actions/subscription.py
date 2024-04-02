@@ -57,6 +57,7 @@ SUBSCRIPTION_FIELD = {
     SUBSCRIPTION_TYPE_LFI: "is_political_support",
     SUBSCRIPTION_TYPE_NSP: "is_political_support",
     SUBSCRIPTION_TYPE_LJI: "is_political_support",
+    SUBSCRIPTION_TYPE_EU24: "is_political_support",
 }
 
 LFI_SUBSCRIPTION_EMAILS = {
