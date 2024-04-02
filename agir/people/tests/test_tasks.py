@@ -1,8 +1,8 @@
-from django.test import TestCase
 from django.core import mail
+from django.test import TestCase
 
-from agir.people.models import Person
 from agir.people import tasks
+from agir.people.models import Person
 
 
 class PeopleTasksTestCase(TestCase):
@@ -10,7 +10,7 @@ class PeopleTasksTestCase(TestCase):
         self.person = Person.objects.create_insoumise("me@me.org", create_role=True)
 
     def test_welcome_mail(self):
-        tasks.send_welcome_mail(self.person.pk, type="LFI")
+        tasks.send_welcome_mail(self.person.pk, "LFI")
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].recipients(), [self.person.email])
@@ -27,7 +27,7 @@ class PeopleTasksTestCase(TestCase):
         )
         person.role.is_active = False
         person.role.save()
-        tasks.send_welcome_mail(person.pk, type="LFI")
+        tasks.send_welcome_mail(person.pk, "LFI")
 
         self.assertEqual(len(mail.outbox), 0)
 
@@ -36,6 +36,6 @@ class PeopleTasksTestCase(TestCase):
             "inactiverole@me.org", create_role=False
         )
         person.save()
-        tasks.send_welcome_mail(person.pk, type="LFI")
+        tasks.send_welcome_mail(person.pk, "LFI")
 
         self.assertEqual(len(mail.outbox), 1)

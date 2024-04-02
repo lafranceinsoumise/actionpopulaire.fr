@@ -1,0 +1,88 @@
+{% extends email_template %}
+
+{% block subject %}
+  Bienvenue à la France insoumise !
+{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block logo %}{% with logo="LFI" %}{{ block.super }}{% endwith %}{% endblock %}
+
+{% block html_content %}
+  <p>{{ greetings }}</p>
+
+  <p style="margin-top: 2rem;font-weight: bold;">
+    Vous venez de rejoindre la France insoumise. Bienvenue !
+  </p>
+
+  <p style="margin-top: 2rem;">
+    Au sein de notre mouvement, chacun·e est libre de s’engager selon ses envies, ses disponibilités et à la hauteur
+    de ses moyens pour diffuser notre programme et permettre qu’un autre monde soit possible.
+  </p>
+
+  <p style="margin-top: 2rem;">
+    <strong>Pour commencer</strong>, nous vous proposons de consulter le livret d’accueil des nouvelles et des nouveaux
+    qui vous expliquera les différentes manières d’aider la France insoumise, ainsi que la brochure “Qu’est-ce que la
+    France insoumise ?”.
+  </p>
+
+  <p style="text-align: center;margin-top: 2rem;">
+    <a href="https://infos.actionpopulaire.fr/livret-accueil.pdf" style="box-sizing: border-box; display: inline-block; width: 100%; max-width: 400px; text-decoration: none; color: #FFFFFF; font-weight: bold; padding: 1rem; background-color: #3F2682; font-size: 1rem;">
+      Livret d'accueil
+    </a>
+    <br/>
+    <br/>
+    <a href="https://lafranceinsoumise.fr/quest-ce-que-la-france-insoumise/" style="box-sizing: border-box; display: inline-block; width: 100%; max-width: 400px; text-decoration: none; color: #FFFFFF; font-weight: bold; padding: 1rem; background-color: #F53B3B; font-size: 1rem;">
+      Qu’est-ce que la France insoumise ?
+    </a>
+  </p>
+
+  <p style="margin-top: 2rem;">
+    Si vous souhaitez vous impliquer, vous pouvez maintenant rejoindre un groupe d’action près de chez vous et
+    retrouver toutes leurs actions sur <a href="{{ FRONT_DOMAIN }}?{{ MERGE_LOGIN }}">Action populaire, notre réseau social d’action</a>.
+  </p>
+
+  <p style="text-align: center;margin-top: 2rem;">
+    <a href="{{ FRONT_DOMAIN }}{% url "group_map_page" %}?{{ MERGE_LOGIN }}" style="box-sizing: border-box; display: inline-block; width: 100%; max-width: 400px; text-decoration: none; color: #FFFFFF; font-weight: bold; padding: 1rem; background-color: #3F2682; font-size: 1rem;">
+      Retrouver les groupes près de chez moi
+    </a>
+    <br/>
+    <br/>
+    <a href="{{ FRONT_DOMAIN }}{% url "event_map_page" %}?{{ MERGE_LOGIN }}" style="box-sizing: border-box; display: inline-block; width: 100%; max-width: 400px; text-decoration: none; color: #FFFFFF; font-weight: bold; padding: 1rem; background-color: #F53B3B; font-size: 1rem;">
+      Retrouver les événements près de chez moi
+    </a>
+  </p>
+
+  <p style="margin-top: 2rem;">
+    N’hésitez pas à nous en dire plus sur vous dans votre profil afin que nous puissions vous envoyer plus
+    d’informations susceptibles de vous plaire !
+  </p>
+
+  <p style="text-align: center;margin-top: 2rem;">
+    <a href="{{ FRONT_DOMAIN }}{% url "personal_information" %}" style="box-sizing: border-box; display: inline-block; width: 100%; max-width: 400px; text-decoration: none; color: #3F2682; font-weight: bold; padding: 1rem; background-color: #FFFFFF; font-size: 1rem; border: 1px solid #3F2682;">
+      J'en dis plus sur moi
+    </a>
+  </p>
+
+  <p style="margin-top: 2rem;">
+    <strong>Enfin, vous pouvez aussi contribuer à la réussite de la France insoumise en faisant un don.</strong>
+    Si vous êtes imposables, ces dons ouvrent droit à une réduction fiscale à hauteur de 66 % du montant du don pour
+    les personnes assujetties à l’impôt sur le revenu. Chaque euro compte !
+  </p>
+
+  <p style="text-align: center;margin-top: 2rem;">
+    <a href="{{ FRONT_DOMAIN }}{% url "donation_landing_page" %}?{{ MERGE_LOGIN }}" style="box-sizing: border-box; display: inline-block; width: 100%; max-width: 400px; text-decoration: none; color: #FFFFFF; font-weight: bold; padding: 1rem; background-color: #3F2682; font-size: 1rem;">
+      Faire un don au mouvement
+    </a>
+  </p>
+
+  <p style="margin-top: 2rem;">
+    En vous remerciant pour votre engagement et votre aide,
+  </p>
+
+  <p style="margin-top: 2rem;">Amitiés<br><br>La France insoumise.</p>
+{% endblock %}
+
+{% block app_banner %}{% with app_banner=True %}{{ block.super }}{% endwith %}{% endblock %}
+
+{% block html_footer %}{% endblock %}

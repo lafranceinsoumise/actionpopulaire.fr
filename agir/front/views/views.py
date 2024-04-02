@@ -10,6 +10,8 @@ from django.http import (
     FileResponse,
     HttpResponseRedirect,
 )
+from django.template import TemplateDoesNotExist
+from django.template.loader import get_template
 from django.templatetags.static import static
 from django.urls import reverse_lazy, reverse
 from django.utils.decorators import method_decorator
@@ -18,6 +20,7 @@ from django.views.decorators import cache
 from django.views.generic import View, RedirectView, TemplateView
 from django.views.generic.detail import BaseDetailView
 
+from agir.api.context_processors import basic_information
 from agir.authentication.view_mixins import (
     HardLoginRequiredMixin,
     SoftLoginRequiredMixin,
@@ -39,8 +42,10 @@ from agir.front.view_mixins import (
 from agir.groups.models import SupportGroupSubtype
 from agir.groups.views.public_views import SupportGroupDetailMixin
 from agir.lib.http import add_query_params_to_url
+from agir.lib.mailing import get_context_from_bindings
 from agir.lib.utils import generate_token_params, front_url
 from agir.msgs.models import SupportGroupMessage
+from agir.people.models import Person
 
 cache_decorators = [cache.cache_page(30), cache.cache_control(public=True)]
 
@@ -103,6 +108,25 @@ class LayoutCssTestView(TemplateView):
 
 class ReactCssTestView(BaseAppCachedView):
     template_name = "front/react_view_css_test.html"
+
+
+class EmailTestView(BaseAppCachedView):
+    def get_template_names(self):
+        try:
+            template_name = self.kwargs.get("template")
+            get_template(template_name)
+            return template_name
+        except TemplateDoesNotExist:
+            raise Http404
+
+    def get_context_data(self, **kwargs):
+        recipient = Person.objects.get_by_natural_key(email=settings.EMAIL_SUPPORT)
+        context = get_context_from_bindings(None, recipient, self.request.GET.dict())
+        kwargs.update(context)
+        kwargs.update(basic_information(None))
+        kwargs["email_template"] = "mail_templates/layout.html"
+
+        return super().get_context_data(**kwargs)
 
 
 class FontAwesomeTestView(BaseAppCachedView):

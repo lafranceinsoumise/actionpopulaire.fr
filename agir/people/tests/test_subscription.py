@@ -1,5 +1,5 @@
 import re
-from datetime import datetime, timedelta
+from datetime import datetime
 from unittest import mock
 from unittest.mock import patch
 
@@ -162,7 +162,7 @@ class SubscriptionConfirmationTestCase(TestCase):
         send_confirmation_email(**data)
 
         self.assertEqual(len(mail.outbox), 1)
-        self.assertRegex(mail.outbox[0].body, r"vous êtes déjà avec nous !")
+        self.assertRegex(mail.outbox[0].body, r"vous êtes déjà insoumis·e !")
 
     def test_can_subscribe_with_nsp(self):
         data = {

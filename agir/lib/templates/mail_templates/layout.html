@@ -8,7 +8,7 @@
   <title>TITLE</title>
 
   <style type="text/css">
-    body{ Margin: 0; padding: 0; }
+    body{ Margin: 0; padding: 2rem 0; }
     img{ border: 0; display: block; }
 
     td.vb-outer{ padding-left: 9px; padding-right: 9px; }
@@ -105,7 +105,7 @@
     }
      #ko_footerBlock_2 .long-text p{ Margin: 1em 0px }  #ko_footerBlock_2 .long-text p:last-child{ Margin-bottom: 0px }  #ko_footerBlock_2 .long-text p:first-child{ Margin-top: 0px } </style>
 </head>
-<body style="Margin: 0; padding: 0; background-color: #ffffff; color: #919191;" vlink="#919191" text="#919191" bgcolor="#ffffff" alink="#919191">
+<body style="Margin: 0; padding: 2rem 0; background-color: #ffffff; color: #919191;" vlink="#919191" text="#919191" bgcolor="#ffffff" alink="#919191">
 
   <center>
 
@@ -158,9 +158,9 @@
     </tr>
   </tbody></table>
   {% endblock %}
-
-
-  <table class="vb-outer" style="background-color: #ffffff;" id="ko_actionpopulaireBlock_1" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#ffffff">
+  {% block logo %}
+  {% if logo == "LFI" %}
+    <table class="vb-outer" style="background-color: #ffffff;" id="ko_lfiBlock_1" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#ffffff">
           <tbody><tr>
               <td class="vb-outer" style="padding-left: 9px; padding-right: 9px; background-color: #ffffff;" valign="top" bgcolor="#ffffff" align="center">
 
@@ -170,9 +170,9 @@
                           <tbody><tr>
                               <td valign="top" align="center">
 
-                                  <!--[if (gte mso 9)|(lte ie 8)]><table align="center" border="0" cellspacing="0" cellpadding="0" width="112" style="width: 112px;"><tr><td align="center" valign="top"><![endif]-->
-                                  <div style="display: inline-block; max-width: 258px; vertical-align: top; width: 100%;" class="mobile-full">
-                                      <img style="border: 0px; display: block; width: 100%; max-width: 167px;" src="{{ FRONT_DOMAIN }}{% static "emails/logo_ap.png" %}" alt="Logo Action populaire" width="167" vspace="0" hspace="0" border="0">
+                                  <!--[if (gte mso 9)|(lte ie 8)]><table align="center" border="0" cellspacing="0" cellpadding="0" width="201" style="width: 201px;"><tr><td align="center" valign="top"><![endif]-->
+                                  <div style="display: inline-block; max-width: 201px; vertical-align: top; width: 100%;" class="mobile-full">
+                                      <img style="border: 0px; display: block; width: 100%; max-width: 201px;" src="{{ FRONT_DOMAIN }}{% static "emails/logo_lfi.png" %}" alt="Logo La France insoumise" width="201" vspace="0" hspace="0" border="0">
                                   </div>
                                   <!--[if (gte mso 9)|(lte ie 8)]></td></tr></table><![endif]-->
 
@@ -184,88 +184,112 @@
 
               </td>
           </tr>
-      </tbody></table><table class="vb-outer" style="background-color: #ffffff;" id="ko_hrBlock_2" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#ffffff">
-    <tbody><tr>
-      <td class="vb-outer" style="padding-left: 9px; padding-right: 9px; background-color: #ffffff;" valign="top" bgcolor="#ffffff" align="center">
-
-<!--[if (gte mso 9)|(lte ie 8)]><table align="center" border="0" cellspacing="0" cellpadding="0" width="570"><tr><td align="center" valign="top"><![endif]-->
-        <div class="oldwebkit" style="max-width: 570px;">
-        <table class="vb-container halfpad" style="border-collapse: separate; border-spacing: 9px; padding-left: 9px; padding-right: 9px; width: 100%; max-width: 570px; background-color: #ffffff;" width="570" cellspacing="9" cellpadding="0" border="0" bgcolor="#ffffff">
+      </tbody>
+    </table>
+  {% else %}
+    <table class="vb-outer" style="background-color: #ffffff;" id="ko_actionpopulaireBlock_1" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#ffffff">
           <tbody><tr>
-            <td style="background-color: #ffffff;" valign="top" bgcolor="#ffffff" align="center">
-              <table style="width: 100%;" width="100%" cellspacing="0" cellpadding="0" border="0">
-                <tbody><tr>
-                  <td style="font-size: 1px; line-height: 1px; width: 100%; background-color: #E0E0E0;" width="100%" height="1">&nbsp;</td>
-                </tr>
-              </tbody></table>
-            </td>
-          </tr>
-        </tbody></table>
-        </div>
-<!--[if (gte mso 9)|(lte ie 8)]></td></tr></table><![endif]-->
-      </td>
-    </tr>
-  </tbody></table><table class="vb-outer" style="background-color: #ffffff;" id="ko_textBlock_8" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#ffffff">
-    <tbody><tr>
-      <td class="vb-outer" style="padding-left: 9px; padding-right: 9px; background-color: #ffffff;" valign="top" bgcolor="#ffffff" align="center">
+              <td class="vb-outer" style="padding-left: 9px; padding-right: 9px; background-color: #ffffff;" valign="top" bgcolor="#ffffff" align="center">
 
-<!--[if (gte mso 9)|(lte ie 8)]><table align="center" border="0" cellspacing="0" cellpadding="0" width="570"><tr><td align="center" valign="top"><![endif]-->
-        <div class="oldwebkit" style="max-width: 570px;">
-        <table class="vb-container fullpad" style="border-collapse: separate; border-spacing: 18px; padding-left: 0; padding-right: 0; width: 100%; max-width: 570px; background-color: #ffffff;" width="570" cellspacing="18" cellpadding="0" border="0" bgcolor="#ffffff">
-          <tbody><tr>
-            <td class="long-text links-color" style="text-align: left; font-size: 16px; font-family: Arial, Helvetica, sans-serif; color: #000a2c;" align="left">
-              {% block html_content %}
-              {% endblock %}
-            </td>
-          </tr>
-        </tbody></table>
-        </div>
-<!--[if (gte mso 9)|(lte ie 8)]></td></tr></table><![endif]-->
-      </td>
-    </tr>
-  </tbody></table><table class="vb-outer" style="background-color: #ffffff;" id="ko_hrBlock_9" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#ffffff">
-    <tbody><tr>
-      <td class="vb-outer" style="padding-left: 9px; padding-right: 9px; background-color: #ffffff;" valign="top" bgcolor="#ffffff" align="center">
+                  <!--[if (gte mso 9)|(lte ie 8)]><table align="center" border="0" cellspacing="0" cellpadding="0" width="570"><tr><td align="center" valign="top"><![endif]-->
+                  <div class="oldwebkit" style="max-width: 570px;">
+                      <table style="border-collapse: separate; border-spacing: 18px; padding-left: 0; padding-right: 0; width: 100%; max-width: 570px;" class="vb-container fullpad" width="570" cellspacing="18" cellpadding="0" border="0">
+                          <tbody><tr>
+                              <td valign="top" align="center">
 
-<!--[if (gte mso 9)|(lte ie 8)]><table align="center" border="0" cellspacing="0" cellpadding="0" width="570"><tr><td align="center" valign="top"><![endif]-->
-        <div class="oldwebkit" style="max-width: 570px;">
-        <table class="vb-container halfpad" style="border-collapse: separate; border-spacing: 9px; padding-left: 9px; padding-right: 9px; width: 100%; max-width: 570px; background-color: #ffffff;" width="570" cellspacing="9" cellpadding="0" border="0" bgcolor="#ffffff">
-          <tbody><tr>
-            <td style="background-color: #ffffff;" valign="top" bgcolor="#ffffff" align="center">
-              <table style="width: 100%;" width="100%" cellspacing="0" cellpadding="0" border="0">
-                <tbody><tr>
-                  <td style="font-size: 1px; line-height: 1px; width: 100%; background-color: #E0E0E0;" width="100%" height="1">&nbsp;</td>
-                </tr>
-              </tbody></table>
-            </td>
-          </tr>
-        </tbody></table>
-        </div>
-<!--[if (gte mso 9)|(lte ie 8)]></td></tr></table><![endif]-->
-      </td>
-    </tr>
-  </tbody></table><table class="vb-outer" style="background-color: #ffffff;" id="ko_textBlock_10" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#ffffff">
-    <tbody><tr>
-      <td class="vb-outer" style="padding-left: 9px; padding-right: 9px; background-color: #ffffff;" valign="top" bgcolor="#ffffff" align="center">
+                                  <!--[if (gte mso 9)|(lte ie 8)]><table align="center" border="0" cellspacing="0" cellpadding="0" width="112" style="width: 112px;"><tr><td align="center" valign="top"><![endif]-->
+                                  <div style="display: inline-block; max-width: 333px; vertical-align: top; width: 100%;" class="mobile-full">
+                                      <img style="border: 0px; display: block; width: 100%; max-width: 333px;" src="{{ FRONT_DOMAIN }}{% static "emails/logo_ap.png" %}" alt="Logo Action populaire" width="333" vspace="0" hspace="0" border="0">
+                                  </div>
+                                  <!--[if (gte mso 9)|(lte ie 8)]></td></tr></table><![endif]-->
 
-<!--[if (gte mso 9)|(lte ie 8)]><table align="center" border="0" cellspacing="0" cellpadding="0" width="570"><tr><td align="center" valign="top"><![endif]-->
-        <div class="oldwebkit" style="max-width: 570px;">
-        <table class="vb-container fullpad" style="border-collapse: separate; border-spacing: 18px; padding-left: 0; padding-right: 0; width: 100%; max-width: 570px; background-color: #ffffff;" width="570" cellspacing="18" cellpadding="0" border="0" bgcolor="#ffffff">
-          <tbody><tr>
-            <td class="long-text links-color" style="text-align: left; font-size: 13px; font-family: Arial, Helvetica, sans-serif; color: #0A1C2D;" align="left">
-              {% block html_footer %}
-                Vous souhaitez recevoir moins d'emails de notre part ?
-                <a href="{{ preferences_link }}">Modifiez vos préférences</a> ou
-                <a href="{{ unsubscribe_link }}">désinscrivez-vous</a>.
-              {% endblock %}
-            </td>
+                              </td>
+                          </tr>
+                      </tbody></table>
+                  </div>
+                  <!--[if (gte mso 9)|(lte ie 8)]></td></tr></table><![endif]-->
+
+              </td>
           </tr>
-        </tbody></table>
-        </div>
-<!--[if (gte mso 9)|(lte ie 8)]></td></tr></table><![endif]-->
-      </td>
-    </tr>
-  </tbody></table>
+      </tbody>
+    </table>
+  {% endif %}
+  {% endblock %}
+  <table class="vb-outer" style="background-color: #ffffff;" id="ko_textBlock_8" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#ffffff">
+      <tbody><tr>
+        <td class="vb-outer" style="padding-left: 9px; padding-right: 9px; background-color: #ffffff;" valign="top" bgcolor="#ffffff" align="center">
+
+  <!--[if (gte mso 9)|(lte ie 8)]><table align="center" border="0" cellspacing="0" cellpadding="0" width="570"><tr><td align="center" valign="top"><![endif]-->
+          <div class="oldwebkit" style="max-width: 570px;">
+          <table class="vb-container fullpad" style="border-collapse: separate; border-spacing: 18px; padding-left: 0; padding-right: 0; width: 100%; max-width: 570px; background-color: #ffffff;" width="570" cellspacing="18" cellpadding="0" border="0" bgcolor="#ffffff">
+            <tbody><tr>
+              <td class="long-text links-color" style="text-align: left; font-size: 16px; font-family: Arial, Helvetica, sans-serif; color: #000a2c;" align="left">
+                {% block html_content %}
+                {% endblock %}
+              </td>
+            </tr>
+          </tbody></table>
+          </div>
+  <!--[if (gte mso 9)|(lte ie 8)]></td></tr></table><![endif]-->
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  {% block app_banner %}
+  {% if app_banner %}
+    <table class="vb-outer" style="background-color: #ffffff;" id="ko_lfiBlock_1" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#ffffff">
+          <tbody><tr>
+              <td class="vb-outer" style="padding-left: 9px; padding-right: 9px; background-color: #ffffff;" valign="top" bgcolor="#ffffff" align="center">
+
+                  <!--[if (gte mso 9)|(lte ie 8)]><table align="center" border="0" cellspacing="0" cellpadding="0" width="800"><tr><td align="center" valign="top"><![endif]-->
+                  <div class="oldwebkit" style="max-width: 800px;">
+                      <table style="border-collapse: separate; border-spacing: 18px; padding-left: 0; padding-right: 0; width: 100%; max-width: 800px;" class="vb-container fullpad" width="800" cellspacing="18" cellpadding="0" border="0">
+                          <tbody><tr>
+                              <td valign="top" align="center">
+
+                                  <!--[if (gte mso 9)|(lte ie 8)]><table align="center" border="0" cellspacing="0" cellpadding="0" width="800" style="width: 800px;"><tr><td align="center" valign="top"><![endif]-->
+                                  <div style="display: inline-block; max-width: 800px; vertical-align: top; width: 100%;" class="mobile-full">
+                                      <a href="https://infos.actionpopulaire.fr/telecharger-action-populaire/">
+                                          <img style="border: 0px; display: block; width: 100%; max-width: 800px;" src="{{ FRONT_DOMAIN }}{% static "emails/app_banner.png" %}" alt="Télécharger l'application Action populaire" width="800" vspace="0" hspace="0" border="0">
+                                      </a>
+                                  </div>
+                                  <!--[if (gte mso 9)|(lte ie 8)]></td></tr></table><![endif]-->
+
+                              </td>
+                          </tr>
+                      </tbody></table>
+                  </div>
+                  <!--[if (gte mso 9)|(lte ie 8)]></td></tr></table><![endif]-->
+
+              </td>
+          </tr>
+      </tbody>
+    </table>
+  {% endif %}
+  {% endblock %}
+  <table class="vb-outer" style="background-color: #ffffff;" id="ko_textBlock_10" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#ffffff">
+      <tbody><tr>
+        <td class="vb-outer" style="padding-left: 9px; padding-right: 9px; background-color: #ffffff;" valign="top" bgcolor="#ffffff" align="center">
+
+  <!--[if (gte mso 9)|(lte ie 8)]><table align="center" border="0" cellspacing="0" cellpadding="0" width="570"><tr><td align="center" valign="top"><![endif]-->
+          <div class="oldwebkit" style="max-width: 570px;">
+          <table class="vb-container fullpad" style="border-collapse: separate; border-spacing: 18px; padding-left: 0; padding-right: 0; width: 100%; max-width: 570px; background-color: #ffffff;" width="570" cellspacing="18" cellpadding="0" border="0" bgcolor="#ffffff">
+            <tbody><tr>
+              <td class="long-text links-color" style="text-align: left; font-size: 13px; font-family: Arial, Helvetica, sans-serif; color: #0A1C2D;" align="left">
+                {% block html_footer %}
+                  Vous souhaitez recevoir moins d'emails de notre part ?
+                  <a href="{{ preferences_link }}">Modifiez vos préférences</a> ou
+                  <a href="{{ unsubscribe_link }}">désinscrivez-vous</a>.
+                {% endblock %}
+              </td>
+            </tr>
+          </tbody></table>
+          </div>
+  <!--[if (gte mso 9)|(lte ie 8)]></td></tr></table><![endif]-->
+        </td>
+      </tr>
+    </tbody>
+  </table>
 
 
   </center>
