@@ -34,6 +34,8 @@ SUBSCRIPTION_TYPE_AP = "AP"
 SUBSCRIPTION_TYPE_LJI = "LJI"
 # Inscription depuis la plateforme d'inscription sur les listes électorales
 SUBSCRIPTION_TYPE_ISE = "ISE"
+# Inscription depuis le site de campagne des européennes 2024
+SUBSCRIPTION_TYPE_EU24 = "EU24"
 
 SUBSCRIPTION_TYPE_CHOICES = (
     (
@@ -48,6 +50,7 @@ SUBSCRIPTION_TYPE_CHOICES = (
     (SUBSCRIPTION_TYPE_AP, "Action Populaire"),
     (SUBSCRIPTION_TYPE_LJI, "Les jeunes insoumis"),
     (SUBSCRIPTION_TYPE_ISE, "OnVoteInsoumis.fr"),
+    (SUBSCRIPTION_TYPE_EU24, "Européennes 2024"),
 )
 SUBSCRIPTION_FIELD = {
     # TODO: Vérifier ce qui est encore utilisé et ce qui ne l'est plus
@@ -71,6 +74,17 @@ LFI_SUBSCRIPTION_EMAILS = {
     ),
 }
 
+LFI_ONBOARDING_EMAILS = {
+    "onboarding_1": SubscriptionMessageInfo(
+        template_name="people/email/LFI/onboarding_1.html",
+        from_email=settings.EMAIL_FROM_LFI,
+    ),
+    "onboarding_2": SubscriptionMessageInfo(
+        template_name="people/email/LFI/onboarding_2.html",
+        from_email=settings.EMAIL_FROM_LFI,
+    ),
+}
+
 SUBSCRIPTIONS_EMAILS = {
     SUBSCRIPTION_TYPE_AP: {
         "already_subscribed": SubscriptionMessageInfo(
@@ -80,17 +94,7 @@ SUBSCRIPTIONS_EMAILS = {
             template_name="people/email/subscription_confirmation.html",
         ),
     },
-    SUBSCRIPTION_TYPE_LFI: {
-        **LFI_SUBSCRIPTION_EMAILS,
-        "onboarding_1": SubscriptionMessageInfo(
-            template_name="people/email/LFI/onboarding_1.html",
-            from_email=settings.EMAIL_FROM_LFI,
-        ),
-        "onboarding_2": SubscriptionMessageInfo(
-            template_name="people/email/LFI/onboarding_2.html",
-            from_email=settings.EMAIL_FROM_LFI,
-        ),
-    },
+    SUBSCRIPTION_TYPE_LFI: {**LFI_SUBSCRIPTION_EMAILS, **LFI_ONBOARDING_EMAILS},
     SUBSCRIPTION_TYPE_NSP: {
         "confirmation": SubscriptionMessageInfo(
             code="SUBSCRIPTION_CONFIRMATION_NSP_MESSAGE",
@@ -100,6 +104,7 @@ SUBSCRIPTIONS_EMAILS = {
     },
     SUBSCRIPTION_TYPE_LJI: LFI_SUBSCRIPTION_EMAILS,
     SUBSCRIPTION_TYPE_ISE: LFI_SUBSCRIPTION_EMAILS,
+    SUBSCRIPTION_TYPE_EU24: {**LFI_SUBSCRIPTION_EMAILS, **LFI_ONBOARDING_EMAILS},
     SUBSCRIPTION_TYPE_EXTERNAL: {},
 }
 
@@ -113,6 +118,7 @@ SUBSCRIPTION_NEWSLETTERS = {
     SUBSCRIPTION_TYPE_EXTERNAL: set(),
     SUBSCRIPTION_TYPE_AP: set(),
     SUBSCRIPTION_TYPE_ISE: {*Person.MAIN_NEWSLETTER_CHOICES},
+    SUBSCRIPTION_TYPE_EU24: {*Person.MAIN_NEWSLETTER_CHOICES},
 }
 
 SUBSCRIPTION_EMAIL_SENT_REDIRECT = {
@@ -121,6 +127,7 @@ SUBSCRIPTION_EMAIL_SENT_REDIRECT = {
     SUBSCRIPTION_TYPE_NSP: f"{settings.NSP_DOMAIN}/validez-votre-e-mail/",
     SUBSCRIPTION_TYPE_AP: f"{settings.FRONT_DOMAIN}/inscription/code/",
     SUBSCRIPTION_TYPE_ISE: f"{settings.ISE_DOMAIN}/consulter-vos-emails/",
+    SUBSCRIPTION_TYPE_EU24: f"{settings.MAIN_DOMAIN}/consulter-vos-emails/",
 }
 
 SUBSCRIPTION_SUCCESS_REDIRECT = {
@@ -129,6 +136,7 @@ SUBSCRIPTION_SUCCESS_REDIRECT = {
     SUBSCRIPTION_TYPE_NSP: f"{settings.NSP_DOMAIN}/signature-confirmee/",
     SUBSCRIPTION_TYPE_AP: f"{settings.FRONT_DOMAIN}/bienvenue/",
     SUBSCRIPTION_TYPE_ISE: f"{settings.ISE_DOMAIN}/bienvenue/",
+    SUBSCRIPTION_TYPE_EU24: f"{settings.MAIN_DOMAIN}/bienvenue/",
 }
 
 
