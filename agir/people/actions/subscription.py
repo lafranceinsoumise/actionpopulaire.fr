@@ -94,6 +94,9 @@ SUBSCRIPTIONS_EMAILS = {
         "confirmation": SubscriptionMessageInfo(
             template_name="people/email/subscription_confirmation.html",
         ),
+        "welcome": SubscriptionMessageInfo(
+            template_name="people/email/welcome.html",
+        ),
     },
     SUBSCRIPTION_TYPE_LFI: {**LFI_SUBSCRIPTION_EMAILS, **LFI_ONBOARDING_EMAILS},
     SUBSCRIPTION_TYPE_NSP: {

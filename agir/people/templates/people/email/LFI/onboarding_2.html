@@ -29,16 +29,16 @@
 
   <p style="margin-top: 2rem;">
     Si vous souhaitez vous impliquer, vous pouvez rejoindre un groupe d’action près de chez vous et retrouver toutes
-    leurs actions sur <a href="{{ FRONT_DOMAIN }}?{{ MERGE_LOGIN }}">Action populaire, notre réseau social d’action</a>.
+    leurs actions sur <a href="{{ FRONT_DOMAIN }}">Action populaire, notre réseau social d’action</a>.
   </p>
 
   <p style="text-align: center;margin-top: 2rem;">
-    <a href="{{ FRONT_DOMAIN }}{% url "group_map_page" %}?{{ MERGE_LOGIN }}" style="box-sizing: border-box; display: inline-block; width: 100%; max-width: 400px; text-decoration: none; color: #FFFFFF; font-weight: bold; padding: 1rem; background-color: #3F2682; font-size: 1rem;">
+    <a href="{{ urls.group_map_page }}" style="box-sizing: border-box; display: inline-block; width: 100%; max-width: 400px; text-decoration: none; color: #FFFFFF; font-weight: bold; padding: 1rem; background-color: #3F2682; font-size: 1rem;">
       Retrouver les groupes près de chez moi
     </a>
     <br/>
     <br/>
-    <a href="{{ FRONT_DOMAIN }}{% url "event_map_page" %}?{{ MERGE_LOGIN }}" style="box-sizing: border-box; display: inline-block; width: 100%; max-width: 400px; text-decoration: none; color: #FFFFFF; font-weight: bold; padding: 1rem; background-color: #F53B3B; font-size: 1rem;">
+    <a href="{{ urls.event_map_page }}" style="box-sizing: border-box; display: inline-block; width: 100%; max-width: 400px; text-decoration: none; color: #FFFFFF; font-weight: bold; padding: 1rem; background-color: #F53B3B; font-size: 1rem;">
       Retrouver les événements près de chez moi
     </a>
   </p>

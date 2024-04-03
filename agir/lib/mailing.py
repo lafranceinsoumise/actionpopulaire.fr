@@ -92,19 +92,44 @@ def send_message(
     email.send()
 
 
-def get_context_from_bindings(code, recipient, bindings):
-    """Finalizes the bindings and create a Context for templating"""
-    bindings = dict(bindings)
+def add_connection_params_to_autologin_url(recipient, bindings, add_merge_login=True):
+    if (
+        isinstance(recipient, Person)
+        and recipient.role is not None
+        and recipient.role.is_active
+    ):
+        connection_params = generate_token_params(recipient)
 
-    if isinstance(recipient, Person):
-        if recipient.role is not None and recipient.role.is_active:
-            connection_params = generate_token_params(recipient)
-            for key, value in bindings.items():
-                if isinstance(value, AutoLoginUrl):
-                    bindings[key] = add_params_to_urls(value, connection_params)
+        for key, value in bindings.items():
+            if isinstance(value, AutoLoginUrl):
+                bindings[key] = add_params_to_urls(value, connection_params)
+
+            if isinstance(value, dict):
+                bindings[key] = add_connection_params_to_autologin_url(
+                    recipient, bindings[key], add_merge_login=False
+                )
+
+        if add_merge_login:
             bindings["merge_login"] = bindings["MERGE_LOGIN"] = urlencode(
                 connection_params
             )
+
+    return bindings
+
+
+def get_context_from_bindings(code, recipient, bindings):
+    """Finalizes the bindings and create a Context for templating"""
+    bindings = dict(bindings)
+    is_person = isinstance(recipient, Person)
+
+    if "urls" in bindings:
+        bindings["urls"] = {
+            name: front_url(name, absolute=True, auto_login=is_person)
+            for name in bindings["urls"]
+        }
+
+    if is_person:
+        add_connection_params_to_autologin_url(recipient, bindings)
 
         bindings["email"] = bindings["EMAIL"] = recipient.email
         bindings["greetings"] = bindings["formule_adresse"] = bindings[
@@ -139,6 +164,7 @@ def render_email_template(template, context):
         **context,
         **basic_information(None),
     }
+
     subject = template.render(
         {
             **context,

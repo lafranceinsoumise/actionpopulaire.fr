@@ -62,13 +62,22 @@ def send_email(subscription_type, email, **kwargs):
 @emailing_task()
 def send_onboarding_emails(subscription_type, email, recipient_pks):
     recipients = Person.objects.with_prefetched_email().filter(pk__in=recipient_pks)
+    bindings = {"urls": ["donation_landing_page", "group_map_page", "event_map_page"]}
     send_email(subscription_type, email, recipients=recipients)
 
 
 @emailing_task()
 def send_welcome_mail(person_pk, subscription_type):
     person = Person.objects.with_prefetched_email().get(pk=person_pk)
-    send_email(subscription_type, "welcome", recipients=[person])
+    bindings = {
+        "urls": [
+            "group_map_page",
+            "event_map_page",
+            "personal_information",
+            "donation_landing_page",
+        ]
+    }
+    send_email(subscription_type, "welcome", bindings=bindings, recipients=[person])
 
 
 @emailing_task()
@@ -79,7 +88,10 @@ def send_confirmation_email(email, type=SUBSCRIPTION_TYPE_LFI, metadata=None, **
             send_email(
                 type,
                 "already_subscribed",
-                bindings={"AGO": pretty_time_since(person.created)},
+                bindings={
+                    "AGO": pretty_time_since(person.created),
+                    "urls": ["personal_information"],
+                },
                 recipients=[person],
             )
         return
@@ -292,8 +304,10 @@ def notify_contact(person_pk, is_new=False):
     bindings = {
         "is_new": is_new,
         "subscription_date": person.created.strftime("%d/%m/%Y"),
-        "dashboard_link": front_url("dashboard", absolute=True),
-        "donation_link": front_url("donation_landing_page", absolute=True),
+        "dashboard_link": front_url("dashboard", absolute=True, auto_login=True),
+        "donation_link": front_url(
+            "donation_landing_page", absolute=True, auto_login=True
+        ),
         "account_link": front_url("contact", absolute=True),
         "delete_link": front_url("delete_account", absolute=True),
     }
