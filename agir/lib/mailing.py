@@ -140,6 +140,9 @@ def get_context_from_bindings(code, recipient, bindings):
         ] = recipient.formule_adresse_insoumise
     else:
         bindings["email"] = bindings["EMAIL"] = recipient
+        bindings["greetings"] = bindings["formule_adresse"] = bindings[
+            "greetings_insoumise"
+        ] = bindings["formule_adresse_insoumise"] = "Bonjour"
 
     bindings["preferences_link"] = bindings["PREFERENCES_LINK"] = front_url("contact")
     bindings["unsubscribe_link"] = bindings["UNSUBSCRIBE_LINK"] = front_url(
