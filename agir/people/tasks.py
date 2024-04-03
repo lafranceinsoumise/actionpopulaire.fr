@@ -63,7 +63,7 @@ def send_email(subscription_type, email, **kwargs):
 def send_onboarding_emails(subscription_type, email, recipient_pks):
     recipients = Person.objects.with_prefetched_email().filter(pk__in=recipient_pks)
     bindings = {"urls": ["donation_landing_page", "group_map_page", "event_map_page"]}
-    send_email(subscription_type, email, recipients=recipients)
+    send_email(subscription_type, email, bindings=bindings, recipients=recipients)
 
 
 @emailing_task()
