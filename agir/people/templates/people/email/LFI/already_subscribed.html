@@ -1,0 +1,50 @@
+{% extends email_template %}
+
+{% block subject %}
+  Vous êtes déjà à la France insoumise !
+{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block logo %}
+  {% with logo="LFI" %}
+        {{ block.super }}
+  {% endwith %}
+{% endblock %}
+
+{% block html_content %}
+  <p>{{ greetings }},</p>
+
+  <p style="margin-top: 2rem;">
+    Nous sommes heureux que vous souhaitiez nous rejoindre...
+  </p>
+
+  <p style="margin-top: 2rem;">
+    Mais vous êtes déjà insoumis·e ! Nous pouvons même vous dire que vous nous avez rejoint <strong>{{ AGO }}</strong>.
+  </p>
+
+  <p style="margin-top: 2rem;">
+    Si vous souhaitiez simplement accéder à votre compte, utilisez le bouton ci-dessous :
+  </p>
+
+  <p style="text-align: center;margin-top: 2rem;">
+    <a href="{{ urls.personal_information }}" style="box-sizing: border-box; display: inline-block; width: 100%; max-width: 400px; text-decoration: none; color: #FFFFFF; font-weight: bold; padding: 1rem 1.5rem; background-color: #F53B3B; font-size: 1rem;">
+      J’accède à mon profil
+    </a>
+  </p>
+
+  <p style="margin-top: 2rem;">
+    Si vous souhaitez rejoindre un groupe près de chez vous ou participer à un événement, vous pouvez consulter
+    <a href="{{ FRONT_DOMAIN }}">Action populaire, notre réseau social d’action</a>.
+  </p>
+
+  <p style="text-align: center;margin-top: 2rem;">
+    <a href="{{ FRONT_DOMAIN }}" style="box-sizing: border-box; display: inline-block; width: 100%; max-width: 400px; text-decoration: none; color: #000A2C; font-weight: bold; padding: 1rem 1.5rem; background-color: #F4ED0F; font-size: 1rem;">
+      Je me connecte à Action populaire
+    </a>
+  </p>
+
+  <p style="margin-top: 2rem;">Amitiés<br><br>La France insoumise.</p>
+{% endblock %}
+
+{% block html_footer %}{% endblock %}

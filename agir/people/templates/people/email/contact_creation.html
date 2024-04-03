@@ -5,10 +5,10 @@
 {% endblock %}
 
 {% block html_content %}
-  <p>{{ greetings }}</p>
+  <p>{{ greetings }},</p>
 
   <p>
-    Vous avez rejoint la plateforme <a style="font-weight: bold;" href="{{ dashboard_link }}?{{ merge_login }}">Action populaire</a> parce qu'un
+    Vous avez rejoint la plateforme <a style="font-weight: bold;" href="{{ dashboard_link }}">Action populaire</a> parce qu'un
     autre membre vous a ajouté·e.
   </p>
   <p>
@@ -21,7 +21,7 @@
   </p>
 
   <p style="margin-top: 2rem;font-family: Arial, Helvetica, sans-serif; text-align: center;">
-    <a href="{{ dashboard_link }}?{{ merge_login }}"
+    <a href="{{ dashboard_link }}"
        style="display: inline-block; text-decoration: none; color: #000A2C; font-weight: bold; padding: 14px; background-color: #F4ED0F; border-radius: 5px; font-size: 1.25em;">
       Voir Action populaire
     </a>
@@ -42,7 +42,7 @@
   </p>
 
   <p style="font-family: Arial, Helvetica, sans-serif; text-align: center;">
-    <a href="{{ donation_link }}?{{ merge_login }}"
+    <a href="{{ donation_link }}"
        style="display: inline-block; text-decoration: none; color: white; font-weight: bold; padding: 14px; background-color: #e93a55; border-radius: 5px; font-size: 1.25em;">
       Faire un don
     </a>
@@ -67,7 +67,7 @@
     </p>
   {% else %}
     <p>
-      Vous aviez déjà un compte sur <a style="font-weight: bold;" href="{{ dashboard_link }}?{{ merge_login }}">Action populaire</a> depuis
+      Vous aviez déjà un compte sur <a style="font-weight: bold;" href="{{ dashboard_link }}">Action populaire</a> depuis
       le {{ subscription_date }}&nbsp;: par sécurité, vos informations n'ont pas été mises à jour.
     </p>
     <p>
@@ -75,7 +75,7 @@
       votre profil&nbsp;:
     </p>
     <p style="font-family: Arial, Helvetica, sans-serif; text-align: center;">
-      <a href="{{ account_link }}?{{ merge_login }}"
+      <a href="{{ account_link }}"
          style="display: inline-block; text-decoration: none; color: white; font-weight: bold; padding: 14px; background-color: #571aff; border-radius: 5px; font-size: 1.25em;">
         Voir mes informations personnelles
       </a>

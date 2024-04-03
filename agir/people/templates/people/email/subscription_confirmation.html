@@ -1,0 +1,48 @@
+{% extends email_template %}
+
+{% block subject %}
+  Confirmez votre adresse e-mail
+{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block html_content %}
+  <p>{{ greetings }},</p>
+
+  <p style="margin-top: 2rem;">
+    Vous n'êtes plus qu'à un clic de rejoindre Action populaire.
+  </p>
+
+  <p style="margin-top: 2rem;">
+    Action populaire est le réseau social d'action de la France insoumise.
+    En le rejoignant, vous vous engagez à en respecter
+    <a href="https://lafranceinsoumise.fr/principes/">les Principes</a>,
+    <a href="https://lafranceinsoumise.fr/lfi-comment-ca-marche/">le fonctionnement</a>
+    et <a href="https://programme.lafranceinsoumise.fr/programme/livre/">le programme</a>.
+  </p>
+
+  <p style="margin-top: 2rem;text-align: center;">
+    <a href="{{ CONFIRMATION_URL }}" style="display: inline-block;box-sizing: border-box; text-decoration: none; color: #000a2c; font-weight: bold; padding: 1rem 1.5rem; background-color: #F4ED0F; border-radius: 5px; font-size: 1rem;">
+      Je rejoins Action populaire
+    </a>
+  </p>
+
+  <p style="margin-top: 2rem;font-style: italic;">
+    Si cela ne fonctionne pas, vous pouvez aussi copier/coller le lien suivant dans votre navigateur :
+    <a href="{{ CONFIRMATION_URL }}" style="word-wrap: anywhere;">{{ CONFIRMATION_URL }}</a>
+  </p>
+
+  <p style="margin-top: 2rem;">
+    <strong>Pourquoi cette confirmation ?</strong>
+    Cette étape nous permet de vérifier que vous êtes bien propriétaire de l'adresse e-mail dont l'inscription est demandée.
+  </p>
+
+  <p style="margin-top: 2rem;font-style: italic;">
+    Si vous n'êtes pas à l'origine de cette demande d'inscription, ignorez ce message :
+    nous ne conserverons aucune information vous concernant.
+  </p>
+
+  <p style="margin-top: 2rem;">Amitiés<br><br>L'équipe d'Action Populaire</p>
+{% endblock %}
+
+{% block html_footer %}{% endblock %}

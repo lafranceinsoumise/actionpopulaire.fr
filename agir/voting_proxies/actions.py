@@ -109,7 +109,7 @@ def create_or_update_voting_proxy(data):
     if is_new_person and "welcome" in SUBSCRIPTIONS_EMAILS[SUBSCRIPTION_TYPE_AP]:
         from agir.people.tasks import send_welcome_mail
 
-        send_welcome_mail.delay(person.pk, type=SUBSCRIPTION_TYPE_AP)
+        send_welcome_mail.delay(person.pk, SUBSCRIPTION_TYPE_AP)
 
     geocode_person.delay(person.pk)
     data.update(
