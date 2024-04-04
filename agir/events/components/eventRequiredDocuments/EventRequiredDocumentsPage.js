@@ -5,6 +5,7 @@ import useSWR from "swr";
 import EventRequiredDocuments from "./EventRequiredDocuments";
 
 import OpenGraphTags from "@agir/front/app/OpenGraphTags";
+import Redirect from "@agir/front/app/Redirect";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 
 import {
@@ -14,7 +15,6 @@ import {
   updateEventProject,
 } from "@agir/events/common/api";
 import { useEventFormOptions } from "@agir/events/common/hooks";
-import Redirect from "@agir/front/app/Redirect";
 import { routeConfig } from "@agir/front/app/routes.config";
 
 const EventRequiredDocumentsUploadPage = (props) => {

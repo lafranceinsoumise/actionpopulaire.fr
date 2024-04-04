@@ -22,8 +22,6 @@ vous devrez envoyer a minima ces justificatifs ou indiquer qu'ils ne sont pas n�
  Téléchargez dès maintenant les modèles vierges qui vous seront nécessaires sur la page des documents de l'événement
 >> {{ DOCUMENTS_LINK }}
 
-Attention :
-vous ne pourrez plus créer d’événement public après le {{ DOCUMENT_DEADLINE }} sans avoir complété la page des documents.
 Aller aux documents de l'événement : {{ DOCUMENTS_LINK }}
   
 Amitiés,  

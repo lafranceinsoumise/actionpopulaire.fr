@@ -211,9 +211,9 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     volunteerApplicationFormLink = serializers.URLField(
         source="volunteer_application_form.front_url", read_only=True
     )
-    # hasProject = serializers.SerializerMethodField(
-    #     read_only=True, method_name="get_has_project"
-    # )
+    hasProject = serializers.SerializerMethodField(
+        read_only=True, method_name="get_has_project"
+    )
 
     def __init__(self, instance=None, data=empty, fields=None, **kwargs):
         self.is_event_card = fields == self.EVENT_CARD_FIELDS
@@ -425,7 +425,11 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         return obj.is_past()
 
     def get_has_project(self, obj):
-        return Projet.objects.filter(event=obj).exists()
+        return (
+            Projet.objects.exclude(etat__in=Projet.ETATS_FINAUX)
+            .filter(event=obj)
+            .exists()
+        )
 
     def get_textDescription(self, obj):
         if isinstance(obj.description, str):
@@ -865,6 +869,11 @@ class CreateEventSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         event = Event.objects.create(**validated_data)
+
+        # Create a gestion project if needed for the event's subtype
+        if event.subtype.related_project_type:
+            Projet.objects.from_event(event, event.organizers.first().role)
+
         self.schedule_tasks(event, validated_data)
         return event
 
@@ -1100,6 +1109,13 @@ class UpdateEventSerializer(serializers.ModelSerializer):
                 # Add group to changed data if one has been specified
                 if validated_data["organizerGroup"] is not None:
                     changed_supportgroup = str(validated_data["organizerGroup"].pk)
+
+                if (
+                    Projet.objects.exclude(etat__in=Projet.ETATS_FINAUX)
+                    .filter(event=event)
+                    .exists()
+                ):
+                    Projet.objects.from_event(event, event.organizers.first().role)
 
             transaction.on_commit(
                 partial(
