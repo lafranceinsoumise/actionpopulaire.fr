@@ -7,11 +7,11 @@ import attGraImg from "@agir/events/eventRequiredDocuments/images/ATT-GRA.jpg";
 import attEspImg from "@agir/events/eventRequiredDocuments/images/ATT-ESP.jpg";
 
 const attConTemplate =
-  "https://media.actionpopulaire.fr/legislatives/2022/document/attestation_concours_en_nature.pdf";
+  "https://media.actionpopulaire.fr/europeennes/2024/document/attestation_concours_en_nature.pdf";
 const attRegTemplate =
-  "https://media.actionpopulaire.fr/legislatives/2022/document/attestation_mise_a_disposition_etablissement.pdf";
+  "https://media.actionpopulaire.fr/europeennes/2024/document/attestation_mise_a_disposition_etablissement.pdf";
 const attGraTemplate =
-  "https://media.actionpopulaire.fr/legislatives/2022/document/attestation_salle_municipale.pdf";
+  "https://media.actionpopulaire.fr/europeennes/2024/document/attestation_salle_municipale.pdf";
 
 export const EVENT_DOCUMENT_TYPES = {
   "ATT-CON": {
