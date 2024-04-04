@@ -18,9 +18,6 @@ Envoyez a minima ces justificatifs ou indiquez qu'ils ne sont pas nécessaire av
   * Copie de la demande d'autorisation d'occupation de l'espace public - {{ DOCUMENTS_LINK }}
   {% endif %}
 
-Attention :
-vous ne pourrez plus créer d’événement public après le {{ DOCUMENT_DEADLINE }} sans avoir complété la page des documents de cet événement.
-
 > J'envoie les documents : {{ DOCUMENTS_LINK }}
   
  Si nécessaire, vous pouvez téléchargez dès maintenant les modèles vierges qui vous seront nécessaires sur la page des documents de l'événement :
