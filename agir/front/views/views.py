@@ -52,7 +52,9 @@ cache_decorators = [cache.cache_page(30), cache.cache_control(public=True)]
 
 class BasicOpenGraphMixin(SimpleOpengraphMixin):
     meta_title = "Action Populaire"
-    meta_description = "Action Populaire est le réseau social d'action de la France insoumise et de la NUPES."
+    meta_description = (
+        "Action Populaire est le réseau social d'action de la France insoumise."
+    )
     meta_type = "website"
     meta_image = urljoin(settings.FRONT_DOMAIN, static("front/assets/og_image_NSP.jpg"))
 
@@ -377,10 +379,7 @@ class SupportGroupContributionView(RedirectView):
 class EventDetailView(
     EventDetailMixin, BaseDetailView, ObjectOpengraphMixin, ReactBaseView
 ):
-    meta_description = (
-        "Participez et organisez des événements pour soutenir les propositions de la France insoumise et "
-        "de la NUPES"
-    )
+    meta_description = "Participez et organisez des événements pour soutenir les propositions de la France insoumise"
 
     def get_api_preloads(self):
         return [reverse_lazy("api_event_details", kwargs=self.kwargs)]
@@ -433,7 +432,7 @@ class SearchView(BaseAppCachedView):
 class SupportGroupDetailView(
     SupportGroupDetailMixin, BaseDetailView, ObjectOpengraphMixin, ReactBaseView
 ):
-    meta_description = "Rejoignez les groupes d'action de votre quartier pour soutenir les propositions de la France insoumise et de la NUPES"
+    meta_description = "Rejoignez les groupes d'action de votre quartier pour soutenir les propositions de la France insoumise"
 
     def get_api_preloads(self):
         return [

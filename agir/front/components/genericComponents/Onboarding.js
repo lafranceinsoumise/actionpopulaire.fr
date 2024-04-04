@@ -53,7 +53,7 @@ const ONBOARDING_TYPE = {
       <>
         <p>
           Commencez dès aujourd’hui à organiser des actions pour soutenir les
-          propositions de la France insoumise et de la <em>NUPES</em>.
+          propositions de la France insoumise.
         </p>
         <p>
           Besoin d’inspiration pour animer votre groupe&nbsp;?{" "}
@@ -79,8 +79,7 @@ const ONBOARDING_TYPE = {
       <span key="text">
         Créez votre groupe en quelques clics, et commencez dès aujourd’hui à
         organiser des actions pour soutenir les propositions de la France
-        insoumise et de la <em>NUPES</em>. Besoin d’inspiration pour animer
-        votre groupe&nbsp;?{" "}
+        insoumise. Besoin d’inspiration pour animer votre groupe&nbsp;?{" "}
       </span>,
       routes.newGroupHelp && (
         <a key="link" href={routes.newGroupHelp}>

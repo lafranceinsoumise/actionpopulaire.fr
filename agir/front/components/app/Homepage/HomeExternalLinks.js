@@ -85,9 +85,8 @@ const HomeExternalLinks = () => {
         <span>et les campagnes du mouvement</span>
       </h4>
       <p>
-        Action Populaire est le réseau social d’action de la France Insoumise et
-        de la <em>NUPES</em>. Pour retrouver l’actualité, rendez-vous sur nos
-        sites&nbsp;:
+        Action Populaire est le réseau social d’action de la France Insoumise.
+        Pour retrouver l’actualité, rendez-vous sur nos sites&nbsp;:
       </p>
       <nav>
         <a href="https://lafranceinsoumise.fr/">
