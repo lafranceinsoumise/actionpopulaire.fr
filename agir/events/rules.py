@@ -103,7 +103,9 @@ def is_editable_event(role, event=None):
 
 @rules.predicate
 def has_event_with_missing_documents(role):
-    organized_event_projects = Projet.objects.filter(
+    organized_event_projects = Projet.objects.exclude(
+        etat__in=Projet.ETATS_FINAUX
+    ).filter(
         event__in=role.person.organized_events.exclude(
             subtype__related_project_type=""
         ).exclude(visibility=Event.VISIBILITY_ADMIN)
