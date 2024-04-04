@@ -149,7 +149,7 @@ export const FooterBanner = () => {
         <article>
           <p>
             <strong>Action Populaire</strong> est le réseau social d’action de
-            la France insoumise et de la <em>NUPES</em>.
+            la France insoumise.
           </p>
         </article>
         <div>

@@ -79,6 +79,7 @@ const SignUp = () => {
   const [hasCountryField, setHasCountryField] = useState(false);
 
   const [rgpdChecked, setRgpdChecked] = useState(false);
+  const [moralAgreementChecked, setMoralAgreementChecked] = useState(false);
   const [formData, setFormData] = useState(defaultData);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState({});
@@ -87,10 +88,21 @@ const SignUp = () => {
     setHasCountryField(true);
   }, []);
 
-  const handleRgpdCheck = useCallback(() => {
-    setError({ ...error, rgpd: null });
-    setRgpdChecked(!rgpdChecked);
-  }, [error, rgpdChecked]);
+  const handleRgpdCheck = useCallback(
+    (e) => {
+      setError({ ...error, agreements: null });
+      setRgpdChecked(e.target.checked);
+    },
+    [error],
+  );
+
+  const handleMoralAgreementCheck = useCallback(
+    (e) => {
+      setError({ ...error, agreements: null });
+      setMoralAgreementChecked(e.target.checked);
+    },
+    [error],
+  );
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
@@ -107,9 +119,10 @@ const SignUp = () => {
     async (e) => {
       e.preventDefault();
       setError({});
-      if (!rgpdChecked) {
+      if (!rgpdChecked || !moralAgreementChecked) {
         setError({
-          rgpd: "Vous devez accepter la politique de conservation des données pour continuer",
+          agreements:
+            "Vous devez accepter la politique de conservation des données et l'engagement ci-dessus pour pouvoir continuer",
         });
         return;
       }
@@ -123,7 +136,7 @@ const SignUp = () => {
       const route = routeConfig.codeSignup.getLink();
       history.push(route, { ...(location.state || {}), email: formData.email });
     },
-    [formData, history, location, rgpdChecked],
+    [formData, history, location, rgpdChecked, moralAgreementChecked],
   );
 
   return (
@@ -207,22 +220,55 @@ const SignUp = () => {
             <>
               J'accepte que mes informations soient traitées par Action
               Populaire, conformément à la&nbsp;
-              <a
-                href="https://infos.actionpopulaire.fr/mentions-legales/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <Link route="legal" target="_blank" rel="noopener noreferrer">
                 politique de conservation des données
-              </a>
+              </Link>
             </>
           }
           value={rgpdChecked}
           onChange={handleRgpdCheck}
           disabled={isLoading}
+          error={error.rgpd}
+        />
+
+        <CheckboxField
+          name="moralAgreement"
+          label={
+            <>
+              Action populaire est le réseau social d'action de la France
+              insoumise. En m'inscrivant, je m'engage à en respecter{" "}
+              <Link route="principes" target="_blank" rel="noopener noreferrer">
+                les Principes
+              </Link>
+              ,{" "}
+              <Link
+                route="fonctionnement"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                le fonctionnement
+              </Link>{" "}
+              et{" "}
+              <Link
+                route="avenir-en-commun"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                le programme
+              </Link>
+              .
+            </>
+          }
+          value={moralAgreementChecked}
+          onChange={handleMoralAgreementCheck}
+          disabled={isLoading}
+          error={error.moralAgreement}
         />
       </div>
 
-      {error && !!error.rgpd && <StaticToast>{error.rgpd}</StaticToast>}
+      {error && !!error.agreements && (
+        <StaticToast>{error.agreements}</StaticToast>
+      )}
       {error && !!error.global && <StaticToast>{error.global}</StaticToast>}
 
       <Button

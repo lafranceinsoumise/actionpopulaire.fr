@@ -53,9 +53,7 @@ const LeftBlockDesktop = () => {
         </Link>
         <Title>
           Le réseau social d’action{" "}
-          <InlineBlock>
-            de la France insoumise et de la <em>NUPES</em>
-          </InlineBlock>
+          <InlineBlock>de la France insoumise</InlineBlock>
         </Title>
       </div>
       <BackgroundDesktop />

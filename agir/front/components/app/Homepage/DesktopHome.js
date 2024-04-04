@@ -83,8 +83,7 @@ const Home = () => {
       <header>
         <h2>Passez à l'action&nbsp;!</h2>
         <h5>
-          Action Populaire est le réseau social d'action de la France insoumise
-          et de la <em>NUPES</em>.
+          Action Populaire est le réseau social d'action de la France insoumise.
         </h5>
         <div>
           <Button color="primary" link route="signup">
