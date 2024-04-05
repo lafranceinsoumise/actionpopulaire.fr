@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import React, { useState } from "react";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import ButtonLockMessage from "@agir/front/genericComponents/ButtonLockMessage";
 import ButtonMuteMessage from "@agir/front/genericComponents/ButtonMuteMessage";

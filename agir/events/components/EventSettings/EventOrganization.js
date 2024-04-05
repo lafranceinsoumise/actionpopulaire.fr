@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import React, { useState, useMemo } from "react";
 import useSWR from "swr";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 import * as api from "@agir/events/common/api";
 
 import Spacer from "@agir/front/genericComponents/Spacer.js";

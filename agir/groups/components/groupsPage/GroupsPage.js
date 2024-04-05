@@ -12,7 +12,7 @@ import GroupCard from "@agir/groups/groupComponents/GroupCard";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
 
 const StyledContainer = styled.div`

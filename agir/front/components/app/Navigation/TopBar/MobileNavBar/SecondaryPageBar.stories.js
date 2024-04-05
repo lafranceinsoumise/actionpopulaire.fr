@@ -1,6 +1,6 @@
 import React from "react";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 import user from "@agir/front/mockData/user";
 
 import SecondaryPageBar from "./SecondaryPageBar";

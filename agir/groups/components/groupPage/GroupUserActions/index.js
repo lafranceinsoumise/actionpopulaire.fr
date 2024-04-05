@@ -19,7 +19,7 @@ import { routeConfig } from "@agir/front/app/routes.config";
 import { useSelectMessage } from "@agir/msgs/common/hooks";
 import { useToast } from "@agir/front/globalContext/hooks.js";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 const StyledContent = styled.div`
   padding: 0;

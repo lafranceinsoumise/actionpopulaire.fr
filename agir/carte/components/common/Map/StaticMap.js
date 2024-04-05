@@ -8,7 +8,7 @@ import React, {
 } from "react";
 import styled, { keyframes } from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 import fontawesome from "@agir/lib/utils/fontawesome";
 
 import { fontawesomeIsLoaded } from "@agir/carte/map/utils";

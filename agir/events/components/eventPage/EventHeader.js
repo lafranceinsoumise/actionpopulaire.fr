@@ -13,7 +13,7 @@ import { useToast } from "@agir/front/globalContext/hooks";
 import Link from "@agir/front/app/Link";
 import Button from "@agir/front/genericComponents/Button";
 import Popin from "@agir/front/genericComponents/Popin";
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 import { Hide } from "@agir/front/genericComponents/grid";
 
 import { routeConfig } from "@agir/front/app/routes.config";

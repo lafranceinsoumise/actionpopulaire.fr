@@ -3,7 +3,7 @@ import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 import useSWR from "swr";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import FeedbackButton from "@agir/front/allPages/FeedbackButton";
 import ActionButtons from "@agir/front/app/ActionButtons/ActionButtons";

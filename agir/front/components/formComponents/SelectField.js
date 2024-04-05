@@ -3,7 +3,7 @@ import React, { useCallback } from "react";
 import Select, { components } from "react-select";
 import styled, { keyframes } from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
 

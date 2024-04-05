@@ -3,7 +3,7 @@ import React, { useState, useCallback } from "react";
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
 import Link from "@agir/front/app/Link";
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
 
 const Form = styled.form`

@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import React, { useCallback, useRef } from "react";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 const Image = styled.div`
   flex: 0 0 130px;

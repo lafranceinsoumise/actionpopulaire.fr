@@ -11,7 +11,7 @@ import {
 import { animated, useTransition } from "@react-spring/web";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 import Panel from "@agir/front/genericComponents/Panel";

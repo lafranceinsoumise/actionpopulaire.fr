@@ -3,7 +3,7 @@ import React, { useMemo } from "react";
 import { useScrollbarWidth } from "react-use";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 const Tab = styled.button`
   background-color: transparent;

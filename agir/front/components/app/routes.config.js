@@ -1,6 +1,6 @@
 import pathToRegexp from "path-to-regexp-es";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 import logger from "@agir/lib/utils/logger";
 
 import { AUTHENTICATION } from "@agir/front/authentication/common";

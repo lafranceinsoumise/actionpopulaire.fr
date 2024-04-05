@@ -3,7 +3,7 @@ import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 import useSWRImmutable from "swr/immutable";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import BottomSheet from "@agir/front/genericComponents/BottomSheet";
 import ListUsers from "@agir/msgs/MessagePage/ListUsers";

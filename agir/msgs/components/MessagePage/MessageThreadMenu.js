@@ -3,7 +3,7 @@ import React from "react";
 import { useLocation } from "react-router-dom";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
 import Link from "@agir/front/app/Link";

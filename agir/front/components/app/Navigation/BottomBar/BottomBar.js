@@ -3,7 +3,7 @@ import React from "react";
 import styled from "styled-components";
 
 import CONFIG from "@agir/front/app/Navigation/navigation.config";
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import CounterBadge from "@agir/front/app/Navigation/CounterBadge";
 import Link from "@agir/front/app/Link";

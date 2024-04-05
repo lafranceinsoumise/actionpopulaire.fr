@@ -4,7 +4,7 @@ import React from "react";
 import { IconList, IconListItem } from "./FeatherIcon";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 const StyledCard = styled(Card)`
   margin-bottom: 24px;

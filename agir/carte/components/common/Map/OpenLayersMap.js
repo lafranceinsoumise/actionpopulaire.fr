@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled, { keyframes } from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import logger from "@agir/lib/utils/logger";
 

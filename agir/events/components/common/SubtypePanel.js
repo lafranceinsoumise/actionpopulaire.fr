@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import React, { Fragment, useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import { EVENT_TYPES, getEventSubtypeInfo } from "@agir/events/common/utils";
 import { useResponsiveMemo } from "@agir/front/genericComponents/grid";

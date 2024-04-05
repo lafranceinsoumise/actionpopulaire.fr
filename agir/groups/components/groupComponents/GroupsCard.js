@@ -5,7 +5,7 @@ import styled from "styled-components";
 import { routeConfig } from "@agir/front/app/routes.config";
 import { routeConfig as eventRouteConfig } from "@agir/events/EventSettings/routes.config";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import Link from "@agir/front/app/Link";

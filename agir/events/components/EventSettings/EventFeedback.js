@@ -5,7 +5,7 @@ import useSWR from "swr";
 import { useToast } from "@agir/front/globalContext/hooks.js";
 import * as api from "@agir/events/common/api";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import ImageField from "@agir/front/formComponents/ImageField";
 import Button from "@agir/front/genericComponents/Button";

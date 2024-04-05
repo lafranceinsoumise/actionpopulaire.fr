@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import React, { useState, useCallback } from "react";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";

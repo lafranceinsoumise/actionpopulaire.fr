@@ -4,7 +4,7 @@ import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 import useSWR from "swr";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import EventTextList from "@agir/events/groupUpcomingEventPage/EventTextList";
 import RadioField from "@agir/front/formComponents/RadioField";

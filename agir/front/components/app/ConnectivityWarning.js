@@ -6,7 +6,7 @@ import { useIsOffline } from "@agir/front/offline/hooks";
 import { useDownloadBanner } from "@agir/front/app/hooks.js";
 import logger from "@agir/lib/utils/logger";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 const log = logger(__filename);
 

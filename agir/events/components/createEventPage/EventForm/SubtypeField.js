@@ -3,7 +3,7 @@ import React, { useCallback, useMemo } from "react";
 import { useHistory, useRouteMatch } from "react-router-dom";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import SubtypePanel from "@agir/events/common/SubtypePanel";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";

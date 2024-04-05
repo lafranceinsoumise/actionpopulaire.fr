@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import useSWR from "swr";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import DateField from "@agir/events/createEventPage/EventForm/DateField";
 import EventSubtypeField from "@agir/events/EventSettings/EventSubtypeField";

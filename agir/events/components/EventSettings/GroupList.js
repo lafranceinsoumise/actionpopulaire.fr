@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 
 import styled from "styled-components";
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import GroupItem from "./GroupItem";
 import ButtonAddList from "@agir/front/genericComponents/ObjectManagement/ButtonAddList.js";

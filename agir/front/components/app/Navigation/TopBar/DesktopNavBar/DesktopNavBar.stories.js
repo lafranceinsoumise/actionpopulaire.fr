@@ -2,7 +2,7 @@ import React from "react";
 
 import user from "@agir/front/mockData/user";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import { DesktopNavBar } from "./DesktopNavBar";
 

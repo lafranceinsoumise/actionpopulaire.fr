@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 import { FaUsers } from "@agir/front/genericComponents/FaIcon";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 const StyledOption = styled.button`
   display: flex;

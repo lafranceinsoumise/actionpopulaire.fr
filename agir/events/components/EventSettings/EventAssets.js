@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import React, { Fragment } from "react";
 import useSWRImmutable from "swr/immutable";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import FileCard from "@agir/front/genericComponents/FileCard";
 import HelpCenterCard from "@agir/front/genericComponents/HelpCenterCard";

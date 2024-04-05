@@ -1,7 +1,7 @@
 import illustrationLFIBGD from "./images/illustration_FI_BG_D.jpg";
 import illustrationLFIBGM from "./images/illustration_FI_BG_M.jpg";
 import logo from "@agir/front/genericComponents/logos/LFI-NUPES-Violet-H.webp";
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 const theme = {
   default: style,

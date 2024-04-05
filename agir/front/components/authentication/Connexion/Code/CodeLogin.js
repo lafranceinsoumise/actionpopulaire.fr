@@ -10,7 +10,7 @@ import styled from "styled-components";
 import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
