@@ -42,6 +42,12 @@ class PollingStationOfficer(BaseAPIResource, SimpleLocationMixin):
             datetime(2022, 6, 19, 0, 0, 0, tzinfo=pytz.timezone("Europe/Paris")).date(),
             "19 juin 2022 — 2nd tour des législatives",
         ),
+        (
+            datetime(2024, 6, 9, 0, 0, 0, tzinfo=pytz.timezone("Europe/Paris")).date(),
+            "Dimanche 9 juin 2024 (samedi 8 juin pour la Guadeloupe, la Martinique, "
+            "la Guyane, la Polynésie française et les Français·es de l'étranger résidant sur le continent américain) — "
+            "Élections européennes 2024",
+        ),
     )
 
     objects = PollingStationOfficerQuerySet.as_manager()
