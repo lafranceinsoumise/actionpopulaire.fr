@@ -189,12 +189,16 @@ export const ActionTools = () => {
           <strong>Se porter volontaire pour prendre une procuration</strong>
           <span>
             Inscrivez-vous comme volontaire et prenez une procuration de vote
-            d’un·e citoyen·ne pour le 12 et 19 juin
+            d’un·e citoyen·ne pour les élections européennes du 9 juin 2024 (8
+            juin pour la Guadeloupe, la Martinique, la Guyane, la Polynésie
+            française et les Français·es de l'étranger résidant sur le continent
+            américain)
           </span>
         </span>
         <RawFeatherIcon aria-hidden="true" name="chevron-right" />
       </StyledCardItem>
-      <StyledCardItem route="newPollingStationOfficer">
+      {/*
+        <StyledCardItem route="newPollingStationOfficer">
         <i
           aria-hidden="true"
           css={`
@@ -242,6 +246,7 @@ export const ActionTools = () => {
         </span>
         <RawFeatherIcon aria-hidden="true" name="chevron-right" />
       </StyledCardItem>
+      */}
       <StyledCardItem as="span">
         <i
           aria-hidden="true"
