@@ -204,66 +204,83 @@ def save_spending_request_admin_review(
         )
 
 
-def generate_bank_transfers_from_spending_requests(
-    modeladmin, request, queryset, mark_as_paid=False
+def bank_transfers_from_spending_requests_factory(
+    name, mark_as_paid=False, emitter="LFI"
 ):
-    error = None
-    try:
-        virements = spending_requests_to_bank_transfers(queryset)
-        data = generer_fichier_virement(
-            emetteur=BANK_TRANSFER_EMITTER["LFI"],
-            virements=virements,
-        )
-    except ValueError as e:
-        error = str(e)
-    except ValidationError as e:
-        error = (
-            (
-                "Le fichier SEPA généré contient des données invalides. Veuillez vérifier les données des demandes "
-                "sélectionnées et ressayer."
-            ),
-        )
+    def fn(modeladmin, request, queryset):
+        error = None
+        try:
+            virements = spending_requests_to_bank_transfers(queryset)
+            data = generer_fichier_virement(
+                emetteur=BANK_TRANSFER_EMITTER[emitter],
+                virements=virements,
+            )
+        except ValueError as e:
+            error = str(e)
+        except ValidationError as e:
+            error = (
+                (
+                    "Le fichier SEPA généré contient des données invalides. Veuillez vérifier les données des demandes "
+                    "sélectionnées et ressayer."
+                ),
+            )
 
-    if error:
-        modeladmin.message_user(
-            request,
-            error,
-            level=messages.WARNING,
-        )
+        if error:
+            modeladmin.message_user(
+                request,
+                error,
+                level=messages.WARNING,
+            )
 
-        return HttpResponseRedirect(request.get_full_path())
+            return HttpResponseRedirect(request.get_full_path())
 
+        if mark_as_paid:
+            mark_spending_request_as_paid(modeladmin, request, queryset)
+
+        filename = f"{emitter}__Virements_{timezone.now().date()}.xml"
+        response = HttpResponse(data, content_type="application/xml")
+        response["Content-Disposition"] = "attachment; filename=%s" % filename
+
+        return response
+
+    short_description = f"{emitter} : Générer le fichier de virement"
     if mark_as_paid:
-        mark_spending_request_as_paid(modeladmin, request, queryset)
+        short_description += " et indiquer comme payées"
 
-    filename = f"Virements_{timezone.now().date()}.xml"
-    response = HttpResponse(data, content_type="application/xml")
-    response["Content-Disposition"] = "attachment; filename=%s" % filename
+    fn.short_description = short_description
+    fn.allowed_permissions = ["view"]
+    fn.select_across = True
+    fn.__name__ = name
 
-    return response
+    return fn
 
 
-generate_bank_transfers_from_spending_requests.short_description = (
-    f"Générer le fichier de virement"
+bank_transfers_from_spending_requests = bank_transfers_from_spending_requests_factory(
+    "bank_transfers_from_spending_requests_factory",
+    mark_as_paid=False,
+    emitter="LFI",
 )
-generate_bank_transfers_from_spending_requests.allowed_permissions = ["view"]
-generate_bank_transfers_from_spending_requests.select_across = True
 
-
-def generate_bank_transfers_from_spending_requests_and_mark_as_paid(
-    modeladmin,
-    request,
-    queryset,
-):
-    return generate_bank_transfers_from_spending_requests(
-        modeladmin, request, queryset, mark_as_paid=True
+bank_transfers_from_spending_requests_and_mark_as_paid = (
+    bank_transfers_from_spending_requests_factory(
+        "bank_transfers_from_spending_requests_and_mark_as_paid",
+        mark_as_paid=True,
+        emitter="LFI",
     )
-
-
-generate_bank_transfers_from_spending_requests_and_mark_as_paid.short_description = (
-    f"Générer le fichier de virement et indiquer comme payées"
 )
-generate_bank_transfers_from_spending_requests_and_mark_as_paid.allowed_permissions = [
-    "view"
-]
-generate_bank_transfers_from_spending_requests_and_mark_as_paid.select_across = True
+
+campaign_bank_transfers_from_spending_requests = (
+    bank_transfers_from_spending_requests_factory(
+        "campaign_bank_transfers_from_spending_requests",
+        mark_as_paid=False,
+        emitter="AFCE_LFI_2024",
+    )
+)
+
+campaign_bank_transfers_from_spending_requests_and_mark_as_paid = (
+    bank_transfers_from_spending_requests_factory(
+        "campaign_bank_transfers_from_spending_requests_and_mark_as_paid",
+        mark_as_paid=True,
+        emitter="AFCE_LFI_2024",
+    )
+)

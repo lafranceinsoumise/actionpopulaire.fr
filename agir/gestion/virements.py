@@ -27,7 +27,10 @@ class Partie:
 BANK_TRANSFER_EMITTER = {
     "LFI": Partie(
         nom="LA FRANCE INSOUMISE", iban=IBAN("FR76 4255 9100 0008 0188 0226 293")
-    )
+    ),
+    "AFCE_LFI_2024": Partie(
+        nom="AFCE LFI 2024", iban=IBAN("FR76 4255 9100 0008 0272 0559 312")
+    ),
 }
 
 
