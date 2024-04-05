@@ -66,7 +66,7 @@ def send_new_polling_station_officer_to_campaign_manager(polling_station_officer
     if polling_station_officer.remarks:
         bindings["REMARKS"] = f"Remarques : {polling_station_officer.remarks}"
 
-    subject = f"[Législatives 2022] {polling_station_officer.first_name.upper()} "
+    subject = f"[Européennes 2024] {polling_station_officer.first_name.upper()} "
     if polling_station_officer.gender == PollingStationOfficer.GENDER_FEMALE:
         subject += (
             "s'est portée volontaire pour être assesseure/déléguée de bureau de vote"
@@ -79,7 +79,7 @@ def send_new_polling_station_officer_to_campaign_manager(polling_station_officer
     send_mosaico_email(
         code="NEW_POLLING_STATION_OFFICER",
         subject=subject,
-        from_email="legislatives@melenchon2022.fr",
+        from_email="procurations@actionpopulaire.fr",
         recipients=[campaign_manager.get("email")],
         bindings=bindings,
     )
