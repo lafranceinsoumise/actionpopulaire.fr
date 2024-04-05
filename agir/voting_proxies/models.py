@@ -37,7 +37,9 @@ class AbstractVoter(BaseAPIResource):
         ),
         (
             datetime(2024, 6, 9, 0, 0, 0, tzinfo=pytz.timezone("Europe/Paris")).date(),
-            "9 juin 2024 — Élections européennes 2024",
+            "Dimanche 9 juin 2024 (samedi 8 juin pour la Guadeloupe, la Martinique, "
+            "la Guyane, la Polynésie française et les Français·es de l'étranger résidant sur le continent américain) — "
+            "Élections européennes 2024",
         ),
     )
 

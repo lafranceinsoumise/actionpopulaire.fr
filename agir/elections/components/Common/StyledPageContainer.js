@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React from "react";
 
 import ThemeProvider from "@agir/front/theme/ThemeProvider";
@@ -10,17 +11,17 @@ import {
   StyledLogo,
 } from "./StyledComponents";
 
-import theme from "@agir/front/genericComponents/themes/nupes";
+import defaultTheme from "@agir/front/genericComponents/themes/eu24";
 
-const StyledPageContainer = ({ children }) => (
+const StyledPageContainer = ({ theme = defaultTheme, children }) => (
   <ThemeProvider theme={theme}>
     <StyledPage>
       <StyledIllustration aria-hidden="true" />
       <StyledBody>
         <StyledMain>
           <StyledLogo
-            alt="Logo NUPES"
-            route="nupes"
+            alt="Logo la France insoumise"
+            route="lafranceinsoumise"
             rel="noopener noreferrer"
             target="_blank"
           />
@@ -30,5 +31,10 @@ const StyledPageContainer = ({ children }) => (
     </StyledPage>
   </ThemeProvider>
 );
+
+StyledPageContainer.propTypes = {
+  theme: PropTypes.object,
+  children: PropTypes.node,
+};
 
 export default StyledPageContainer;

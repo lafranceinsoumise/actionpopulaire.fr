@@ -5,20 +5,22 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 
 const NewVotingProxyRequestSuccess = () => (
   <FormSuccess>
-    <h2>Demande envoyée</h2>
-    <Spacer size="0.875rem" />
+    <h2>Votre demande a bien été enregistrée !</h2>
+    <Spacer size="2rem" />
     <p>
-      La demande de prise de votre procuration sera envoyée à des soutiens de
-      Jean‑Luc Mélenchon de votre commune&nbsp;/&nbsp; circonscription
-      consulaire.
+      Votre demande de procuration sera envoyée aux insoumis·es de votre commune
+      ou de votre circonscription consulaire.
     </p>
     <Spacer size="0.875rem" />
     <p>
-      <strong>Vous recevrez un SMS et un e-mail</strong> lorsqu’une personne se
-      manifestera pour porter votre procuration. Vous pourrez alors prendre
-      contact avec elle et établir la procuration avec ses informations
-      personnelles.
+      <strong>
+        Vous recevrez un SMS et un e-mail lorsqu'une personne sera volontaire
+        pour prendre votre procuration.
+      </strong>{" "}
+      Vous pourrez alors prendre contact avec elle et établir la procuration
+      avec ses informations personnelles.
     </p>
+    <Spacer size="1rem" />
   </FormSuccess>
 );
 

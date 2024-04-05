@@ -70,6 +70,7 @@ const VotingDateFields = (props) => {
       <StyledField>
         {activeOptions.map((option) => (
           <CheckboxField
+            toggle={activeOptions.length === 1}
             key={option.value}
             name={name}
             label={option.label}

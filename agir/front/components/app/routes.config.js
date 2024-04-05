@@ -557,6 +557,18 @@ export const routeConfig = {
     hideFooter: true,
     appOnlyTopBar: true,
   }),
+  votingProxyLandingPage: new RouteConfig({
+    id: "votingProxyLandingPage",
+    path: "/procuration/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Espace procurations de vote",
+    Component: RouteComponents.VotingProxyLandingPage,
+    hasLayout: false,
+    hideFeedbackButton: true,
+    hideFooter: true,
+    appOnlyTopBar: true,
+  }),
   newVotingProxy: new RouteConfig({
     id: "newVotingProxy",
     path: "/procuration/prendre-une-procuration/",

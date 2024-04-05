@@ -1,9 +1,10 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
+import styled from "styled-components";
 import useSWR from "swr";
 
-import Button from "@agir/front/genericComponents/Button";
-import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
+import Link from "@agir/front/app/Link";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 import Spacer from "@agir/front/genericComponents/Spacer";
@@ -13,6 +14,25 @@ import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage";
 import VotingProxyWidget from "./VotingProxyWidget";
 
 import { getVotingProxyEndpoint } from "@agir/voting_proxies/Common/api";
+
+import { votingProxyRequestTheme } from "@agir/voting_proxies/Common/themes";
+
+const StyledList = styled.ul`
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+
+  li {
+    display: flex;
+    align-items: start;
+    gap: 1rem;
+
+    & > :first-child {
+      flex: 0 0 auto;
+      color: ${(props) => props.theme.primary500};
+    }
+  }
+`;
 
 const getVotingProxyRequestsIdsFromURLSearchParams = (search) => {
   if (!search) {
@@ -50,34 +70,60 @@ const VotingProxyRequestDetails = () => {
   }
 
   return (
-    <StyledPageContainer>
+    <StyledPageContainer theme={votingProxyRequestTheme}>
       <PageFadeIn ready={typeof data !== "undefined"} wait={<Skeleton />}>
         {data && (
           <>
-            <h2
-              css={`
-                color: ${({ theme }) => theme.primary500};
-              `}
-            >
-              Établissez votre procuration
+            <h2>
+              {data.length === 1
+                ? "Votre demande de procuration"
+                : "Vos demandes de procuration"}
             </h2>
-            <Spacer size="1.5rem" />
-            <p>Vos demandes de procuration de vote ont été acceptées.</p>
-            <h5>Maintenant&nbsp;:</h5>
-            <ol>
+            <Spacer size="1rem" />
+            <p>
+              {data.length === 1
+                ? "Votre demande de procuration de vote a été acceptée."
+                : "Vos demandes de procuration de vote ont été acceptées."}{" "}
+              Maintenant&nbsp;:
+            </p>
+            <Spacer size="1rem" />
+            <StyledList>
               <li>
-                Recevez les informations personnelles de la personne qui a
-                accepté de voter pour vous par SMS et par e-mail
-              </li>
-              <li>Remplissez votre procuration en ligne</li>
-              <li>
-                Déplacez-vous en commissariat ou gendarmerie pour vérifier votre
-                identité et valider la procuration
+                <FeatherIcon name="arrow-right" />
+                <span>
+                  Recevez les informations personnelles de la personne qui a
+                  accepté de voter pour vous par SMS et par e-mail.
+                </span>
               </li>
               <li>
-                Une fois la procuration validée, prévenez le ou la volontaire.
+                <FeatherIcon name="arrow-right" />
+                <span>
+                  Remplissez votre procuration sur{" "}
+                  <Link
+                    href="https://www.maprocuration.gouv.fr/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ fontWeight: 600 }}
+                  >
+                    le site du service public
+                  </Link>{" "}
+                  (environ 3 min.)
+                </span>
               </li>
-            </ol>
+              <li>
+                <FeatherIcon name="arrow-right" />
+                <span>
+                  Déplacez-vous au commissariat ou à la gendarmerie pour
+                  vérifier votre identité et valider la procuration
+                </span>
+              </li>
+              <li>
+                <FeatherIcon name="arrow-right" />
+                <span>
+                  Une fois la procuration validée, prévenez le ou la volontaire
+                </span>
+              </li>
+            </StyledList>
             <Spacer size="1.5rem" />
             <div
               css={`
@@ -90,41 +136,7 @@ const VotingProxyRequestDetails = () => {
                 <VotingProxyWidget key={request.id} request={request} />
               ))}
             </div>
-            <Spacer size="1.5rem" />
-            <div
-              css={`
-                text-align: center;
-              `}
-            >
-              <Button
-                link
-                wrap
-                href="https://www.maprocuration.gouv.fr/"
-                target="_blank"
-                rel="noopener noreferrer"
-                color="success"
-                icon="external-link"
-                rightIcon
-                css={`
-                  font-size: 1.25rem;
-                  height: 4.25rem;
-                  padding: 0 2.5rem;
-                  line-height: 1.2;
-                `}
-              >
-                Établir la procuration
-              </Button>
-              <p
-                css={`
-                  padding: 0.5rem 0;
-                  font-size: 0.875rem;
-                  color: ${({ theme }) => theme.black500};
-                `}
-              >
-                en 2mn sur le site du service public
-              </p>
-            </div>
-            <Spacer size="1.5rem" />
+            <Spacer size="2rem" />
             <footer
               css={`
                 font-size: 0.875rem;

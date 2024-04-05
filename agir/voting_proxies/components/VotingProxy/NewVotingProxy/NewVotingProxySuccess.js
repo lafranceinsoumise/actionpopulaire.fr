@@ -7,25 +7,27 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 
 const NewVotingProxySuccess = ({ votingProxy }) => (
   <FormSuccess>
-    <h2>Demande enregistrée</h2>
-    <Spacer size="0.875rem" />
-    <p>Vos disponibilités ont bien été enregistrées.</p>
-    <Spacer size="0.875rem" />
+    <h2>
+      Votre proposition d'être volontaire pour prendre une procuration a bien
+      été enregistrée !
+    </h2>
+    <Spacer size="2rem" />
     <p>
-      Vous pouvez vérifier tout de suite si une demande est en attente, ou alors
-      nous vous recontacterons dès qu'un·e demande de procuration sera créée
-      près de chez vous.
+      Vous pouvez vérifier tout de suite si une demande de procuration est en
+      attente ou nous vous contacterons dès qu'une personne cherchera à donner
+      une procuration près de chez vous.
     </p>
     <Spacer size="0.875rem" />
-    <p>Merci de votre engagement&nbsp;!</p>
-    <Spacer size="1rem" />
+    <p>Merci pour votre disponibilité et votre aide !</p>
+    <Spacer size="2rem" />
     <Button
       link
       wrap
+      icon="arrow-right"
       color="primary"
       route="replyToVotingProxyRequests"
       routeParams={{
-        votingProxyPk: votingProxy.id,
+        votingProxyPk: votingProxy?.id,
       }}
     >
       Voir si une demande est en attente près de chez moi

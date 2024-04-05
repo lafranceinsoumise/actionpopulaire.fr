@@ -14,6 +14,7 @@ import NoRequestFound from "./NoRequestFound";
 
 import { routeConfig } from "@agir/front/app/routes.config";
 import { getVotingProxyEndpoint } from "@agir/voting_proxies/Common/api";
+import { votingProxyTheme } from "@agir/voting_proxies/Common/themes";
 
 const getVotingProxyRequestsIdsFromURLSearchParams = (search) => {
   if (!search) {
@@ -53,7 +54,7 @@ const ReplyToVotingProxyRequests = (props) => {
   }
 
   return (
-    <StyledPageContainer>
+    <StyledPageContainer theme={votingProxyTheme}>
       <PageFadeIn ready={typeof data !== "undefined"} wait={<Skeleton />}>
         {data && data.requests.length > 0 ? (
           <ReplyingForm

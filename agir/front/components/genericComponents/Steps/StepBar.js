@@ -16,6 +16,10 @@ const StyledSteps = styled.div`
     h5 {
       color: inherit;
       font-size: 0.875rem;
+
+      @media (max-width: ${(props) => props.theme.collapse}px) {
+        margin-bottom: 0.5rem;
+      }
     }
 
     & > div {
@@ -35,13 +39,17 @@ const StyledSteps = styled.div`
   }
 
   article {
-    padding: 0.5rem 0 2rem;
+    padding: 0.5rem 0 2.5rem;
   }
 
   footer {
     display: flex;
     flex-flow: row nowrap;
     gap: 0.5rem;
+
+    & > * {
+      flex: 1 1 auto;
+    }
   }
 `;
 
@@ -76,21 +84,27 @@ const StepBar = (props) => {
       <article>{steps[current]}</article>
       <footer>
         {typeof steps[current - 1] !== "undefined" && (
-          <Button type="button" onClick={goToPrevious}>
+          <Button icon="arrow-left" type="button" onClick={goToPrevious}>
             Précédent
           </Button>
         )}
         {typeof steps[current + 1] !== "undefined" && (
-          <Button type="button" color="danger" onClick={goToNext}>
+          <Button
+            icon="arrow-right"
+            type="button"
+            color="primary"
+            onClick={goToNext}
+          >
             Suivant
           </Button>
         )}
         {onSubmit && current === last && (
           <Button
+            icon="send"
             loading={isLoading}
             disabled={disabled}
             type="submit"
-            color="danger"
+            color="primary"
           >
             Envoyer
           </Button>

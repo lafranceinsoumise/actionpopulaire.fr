@@ -237,6 +237,11 @@ contribution_patterns = [
 
 voting_proxy_patterns = [
     path(
+        "",
+        views.VotingProxyRequestView.as_view(),
+        name="voting_proxy_landing_page",
+    ),
+    path(
         "donner-ma-procuration/",
         views.VotingProxyRequestView.as_view(),
         name="new_voting_proxy_request",

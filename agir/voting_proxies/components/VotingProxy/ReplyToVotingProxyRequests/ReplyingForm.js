@@ -4,6 +4,7 @@ import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
+import FaIcon from "@agir/front/genericComponents/FaIcon";
 import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
@@ -15,10 +16,13 @@ import AcceptedRequests from "./AcceptedRequests";
 
 import { replyToVotingProxyRequests } from "@agir/voting_proxies/Common/api";
 
+import voteIcon from "@agir/voting_proxies/Common/images/vote.svg";
+
 const StyledRecap = styled.div`
   padding: 1rem 1.5rem;
-  background-color: ${({ theme }) => theme.primary50};
+  background-color: ${({ theme }) => theme.white};
   border-radius: ${({ theme }) => theme.borderRadius};
+  border: 1px solid ${({ theme }) => theme.black100};
 
   h5,
   p {
@@ -26,25 +30,26 @@ const StyledRecap = styled.div`
     padding: 0;
     display: flex;
     align-items: center;
+  }
 
+  p {
+    display: flex;
+    align-items: start;
+    line-height: 1.5;
+    gap: 1rem;
+
+    ${FaIcon},
     ${RawFeatherIcon} {
-      flex: 0 0 auto;
-      width: 0.875rem;
-      height: 0.875rem;
-      margin-right: 0.5rem;
+      color: ${(props) => props.theme.black500};
 
       @media (max-width: 350px) {
         display: none;
       }
     }
-  }
 
-  p > span {
-    color: ${({ theme }) => theme.primary500};
-  }
-
-  p > strong {
-    text-transform: capitalize;
+    & > strong {
+      text-transform: capitalize;
+    }
   }
 
   p + p {
@@ -53,15 +58,29 @@ const StyledRecap = styled.div`
 `;
 
 const StyledWrapper = styled.div`
-  h2,
-  p {
-    &::first-letter {
-      text-transform: capitalize;
-    }
-  }
+  header {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.5rem 1.5rem;
+    padding: 1rem 1.5rem;
+    background-color: ${(props) => props.theme.primary50};
+    border-radius: ${(props) => props.theme.borderRadius};
 
-  h2 {
-    color: ${({ theme }) => theme.primary500};
+    img {
+      grid-column: 1 / 2;
+      grid-row: span 2;
+      align-self: center;
+    }
+
+    h2,
+    p {
+      grid-column: 2/3;
+      grid-row: span 1;
+
+      &::first-letter {
+        text-transform: capitalize;
+      }
+    }
   }
 
   footer {
@@ -150,15 +169,17 @@ const ReplyingForm = (props) => {
 
   return (
     <StyledWrapper>
-      <h2>
-        {firstName}, prenez la procuration de {voter.firstName}
-      </h2>
-      <Spacer size="1rem" />
-      <p>
-        {voter.firstName} n'est pas disponible pour se déplacer lors{" "}
-        {requests.length === 1 ? "d'un jour" : "de certains jours"} de vote.
-        Vous êtes présent·e&nbsp;? <strong>Prenez sa procuration&nbsp;!</strong>
-      </p>
+      <header>
+        <img src={voteIcon} width="60" height="60" />
+        <h2>
+          {firstName}, prenez la procuration de {voter.firstName}
+        </h2>
+        <p>
+          {voter.firstName} n'est pas disponible pour aller voter le 9 juin
+          prochain pour les élections européennes. Vous êtes présent·e ? Prenez
+          sa procuration.
+        </p>
+      </header>
       <Spacer size="1.5rem" />
       <StyledRecap>
         <h5>Lieu</h5>
@@ -166,19 +187,19 @@ const ReplyingForm = (props) => {
         {voter.commune && (
           <p>
             <RawFeatherIcon name="map-pin" />
-            {voter.commune}
+            <strong>{voter.commune}</strong>
           </p>
         )}
         {voter.consulate && (
           <p>
             <RawFeatherIcon name="map-pin" />
-            {voter.consulate}
+            <strong>{voter.consulate}</strong>
           </p>
         )}
         {voter.pollingStationNumber && (
           <p>
-            <RawFeatherIcon name="map-pin" />
-            Bureau de vote&nbsp;: {voter.pollingStationNumber}
+            <FaIcon icon="booth-curtain:regular" size="1.5rem" />
+            <strong>Bureau de vote&nbsp;: {voter.pollingStationNumber}</strong>
           </p>
         )}
         <Spacer size="1rem" />
@@ -187,15 +208,41 @@ const ReplyingForm = (props) => {
         {votingDates.map((date) => (
           <p key={date}>
             <RawFeatherIcon name="calendar" />
-            {date}
+            <strong>{date}</strong>
           </p>
         ))}
       </StyledRecap>
       <Spacer size="0.5rem" />
       <Spacer size="1.5rem" />
+      <div
+        css={`
+          display: flex;
+          align-items: start;
+          gap: 1rem;
+
+          & > :first-child {
+            flex: 0 0 auto;
+            color: ${(props) => props.theme.primary500};
+          }
+        `}
+      >
+        <RawFeatherIcon name="arrow-right" />
+        <p>
+          <strong>
+            Cette proposition de prise de procuration ne vous convient
+            pas&nbsp;?
+          </strong>
+          <br />
+          Vous n'avez rien à faire&nbsp;! Vous recevrez une nouvelle proposition
+          lorsqu'une nouvelle demande sera créée près de chez vous.
+        </p>
+      </div>
+      <Spacer size="1.5rem" />
       <form onSubmit={acceptRequests}>
         <CheckboxField
           required
+          toggle
+          small
           disabled={isLoading}
           value={hasDataSharingConsent}
           onChange={handleChangeDataSharingConsent}
@@ -214,19 +261,10 @@ const ReplyingForm = (props) => {
             ⚠&ensp;{errors?.global || "Une erreur est survenue."}
           </p>
         )}
-        <Spacer size="1.5rem" />
-        <p style={{ fontSize: "0.875rem" }}>
-          <strong>
-            Cette proposition de prise de procuration ne vous convient
-            pas&nbsp;?
-          </strong>
-          <br />
-          Vous n'avez rien à faire&nbsp;! Vous recevrez une nouvelle proposition
-          lorsqu'une nouvelle demande sera créée près de chez vous.
-        </p>
         <Spacer size="1rem" />
         <Button
           wrap
+          block
           disabled={isLoading || !!errors?.global}
           loading={isAccepting}
           type="submit"
@@ -237,12 +275,13 @@ const ReplyingForm = (props) => {
         <Spacer size="1rem" />
         <Button
           wrap
+          block
           disabled={isLoading}
           loading={isDeclining}
           type="button"
           onClick={declineRequests}
         >
-          Je ne suis plus disponible
+          Je ne suis plus disponible (me retirer de la liste des volontaires)
         </Button>
       </form>
       <Spacer size="2rem" />

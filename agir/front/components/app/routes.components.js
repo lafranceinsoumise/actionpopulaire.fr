@@ -223,6 +223,12 @@ const Routes = {
         /* webpackChunkName: "r-searcheventpage" */ "@agir/front/SearchPage/SearchEventPage"
       ),
   ),
+  VotingProxyLandingPage: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-votingproxylandingpage" */ "@agir/voting_proxies/VotingProxyLandingPage"
+      ),
+  ),
   NewVotingProxyRequest: lazy(
     () =>
       import(

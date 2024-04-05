@@ -18,19 +18,6 @@ const ABROAD_POLLING_STATION_OPTIONS = ABROAD_POLLING_STATIONS.map(
   },
 );
 
-const HelpText = (
-  <span>
-    Vous pouvez vérifier votre bureau de vote sur votre carte éléctorale ou sur{" "}
-    <a
-      href="https://www.service-public.fr/particuliers/vosdroits/services-en-ligne-et-formulaires/ISE"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      le site du service public
-    </a>
-  </span>
-);
-
 const sortOptionsByCountries = (countries) => {
   if (Array.isArray(countries) && countries.length > 0) {
     return ABROAD_POLLING_STATION_OPTIONS.reduce((arr, option) => {
@@ -101,13 +88,9 @@ const PollingStationField = ({ isAbroad, ...rest }) => {
   }, [name, onChange, wasAbroad, isAbroad]);
 
   return isAbroad ? (
-    <AbroadPollingStationField
-      helpText={HelpText}
-      label="Bureau de vote"
-      {...rest}
-    />
+    <AbroadPollingStationField label="Bureau de vote" {...rest} />
   ) : (
-    <TextField helpText={HelpText} label="Bureau de vote" {...rest} />
+    <TextField label="Bureau de vote" placeholder="Exemple : 0032" {...rest} />
   );
 };
 
