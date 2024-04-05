@@ -12,8 +12,10 @@ from agir.donations.admin.actions import (
     export_spending_requests_to_xlsx,
     export_spending_requests_to_csv,
     mark_spending_request_as_paid,
-    generate_bank_transfers_from_spending_requests,
-    generate_bank_transfers_from_spending_requests_and_mark_as_paid,
+    bank_transfers_from_spending_requests,
+    bank_transfers_from_spending_requests_and_mark_as_paid,
+    campaign_bank_transfers_from_spending_requests,
+    campaign_bank_transfers_from_spending_requests_and_mark_as_paid,
 )
 from agir.donations.admin.views import HandleRequestView
 from agir.donations.models import (
@@ -111,8 +113,10 @@ class SpendingRequestAdmin(VersionAdmin):
         export_spending_requests_to_csv,
         export_spending_requests_to_xlsx,
         mark_spending_request_as_paid,
-        generate_bank_transfers_from_spending_requests,
-        generate_bank_transfers_from_spending_requests_and_mark_as_paid,
+        bank_transfers_from_spending_requests,
+        bank_transfers_from_spending_requests_and_mark_as_paid,
+        campaign_bank_transfers_from_spending_requests,
+        campaign_bank_transfers_from_spending_requests_and_mark_as_paid,
     )
 
     class Media:
