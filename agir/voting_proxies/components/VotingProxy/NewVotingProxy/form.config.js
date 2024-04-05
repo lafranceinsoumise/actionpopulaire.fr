@@ -92,7 +92,9 @@ export const VOTING_PROXY_CONSTRAINTS = {
       message: "Ce champ ne peut être vide.",
     },
     date: {
-      message: "Indiquez une date valide",
+      latest: "2006-06-09",
+      notValid: "Indiquez une date valide",
+      tooLate: "Vous devez avoir 18 ans le jour du vote pour pouvoir voter",
     },
   },
   phone: {
