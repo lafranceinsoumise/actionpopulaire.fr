@@ -281,7 +281,7 @@ const VotingProxyForm = (props) => {
               onChange={handleChange}
               error={errors?.city}
               label="Votre commune (obligatoire)"
-              helpText="Celle où vous êtes en ce moment, qui peut être différente de celle où vous êtes inscrit·e"
+              helpText="Celle où vous vous trouverez le jour du vote, qui peut être différente de celle où vous êtes inscrit·e"
               autoComplete="locality"
             />
           </fieldset>

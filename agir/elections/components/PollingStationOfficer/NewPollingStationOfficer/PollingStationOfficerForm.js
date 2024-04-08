@@ -307,8 +307,8 @@ const PollingStationOfficerForm = (props) => {
           value={data.firstName}
           onChange={handleChange}
           error={errors?.firstName}
-          label="Prénoms"
-          helpText="Tous vos prénoms, tels qu'ils apparaissent sur la carte électorale"
+          label="Vos prénoms (obligatoire)"
+          helpText="Tous vos prénoms tels qu'ils apparaissent sur votre pièce d'identité"
           autoComplete="given-name"
         />
         <Spacer size="1rem" />
@@ -320,8 +320,8 @@ const PollingStationOfficerForm = (props) => {
           value={data.lastName}
           onChange={handleChange}
           error={errors?.lastName}
-          label="Nom de famille"
-          helpText="Votre nom de famille, tel qu'il apparaît sur la carte électorale"
+          label="Votre nom de famille (obligatoire)"
+          helpText="Tel qu'il apparaît sur votre pièce d'identité"
           autoComplete="family-name"
         />
         <Spacer size="1rem" />
@@ -332,7 +332,7 @@ const PollingStationOfficerForm = (props) => {
           value={data.birthName}
           onChange={handleChange}
           error={errors?.birthName}
-          label="Nom de naissance (si necessaire)"
+          label="Votre nom de naissance (si nécessaire)"
           helpText="Indiquer votre nom de naissance si, par exemple, vous vous êtes marié·e"
         />
         <Spacer size="1rem" />
@@ -344,7 +344,7 @@ const PollingStationOfficerForm = (props) => {
           value={data.gender}
           onChange={handleChangeGender}
           error={errors?.gender}
-          label="Genre (à l'état civil)"
+          label="Votre genre à l'état civil (obligatoire)"
           options={options?.gender || []}
         />
         <Spacer size="1rem" />
@@ -357,7 +357,7 @@ const PollingStationOfficerForm = (props) => {
           value={data.birthDate}
           onChange={handleChangeBirthDate}
           error={errors?.birthDate}
-          label="Date de naissance"
+          label="Date de naissance (obligatoire)"
           autoComplete="birthday"
         />
         <Spacer size="1rem" />
@@ -369,7 +369,7 @@ const PollingStationOfficerForm = (props) => {
           value={data.birthCity}
           onChange={handleChange}
           error={errors?.birthCity}
-          label="Commune de naissance"
+          label="Votre commune de naissance (obligatoire)"
         />
         <Spacer size="1rem" />
         <CountryField
@@ -380,7 +380,7 @@ const PollingStationOfficerForm = (props) => {
           value={data.birthCountry}
           onChange={handleChangeBirthCountry}
           error={errors?.birthCountry}
-          label="Pays de naissance"
+          label="Votre pays de naissance (obligatoire)"
         />
       </fieldset>
       <fieldset>
@@ -393,7 +393,7 @@ const PollingStationOfficerForm = (props) => {
           value={data.address1}
           onChange={handleChange}
           error={errors?.address1}
-          label="Adresse"
+          label="Votre adresse (obligatoire)"
           autoComplete="address-line1"
         />
         <Spacer size="1rem" />
@@ -417,7 +417,7 @@ const PollingStationOfficerForm = (props) => {
           value={data.zip}
           onChange={handleChange}
           error={errors?.zip}
-          label="Code postal"
+          label="Votre code postal (obligatoire)"
           autoComplete="postal-code"
         />
         <Spacer size="1rem" />
@@ -429,7 +429,7 @@ const PollingStationOfficerForm = (props) => {
           value={data.city}
           onChange={handleChange}
           error={errors?.city}
-          label="Commune"
+          label="Votre commune (obligatoire)"
           autoComplete="locality"
         />
         <Spacer size="1rem" />
@@ -441,7 +441,7 @@ const PollingStationOfficerForm = (props) => {
           value={data.country}
           onChange={handleChangeCountry}
           error={errors?.country}
-          label="Pays"
+          label="Votre pays (obligatoire)"
         />
       </fieldset>
       <fieldset>
@@ -458,7 +458,7 @@ const PollingStationOfficerForm = (props) => {
             errors?.votingCommune ||
             errors?.votingConsulate
           }
-          label="Commune ou ambassade d'inscription aux listes électorales"
+          label="Commune ou ambassade d'inscription aux listes électorales (obligatoire)"
         />
         <Spacer size="1rem" />
         <PollingStationField
@@ -470,7 +470,7 @@ const PollingStationOfficerForm = (props) => {
           onChange={handleChange}
           value={data.pollingStation}
           error={errors?.pollingStation}
-          label="Bureau de vote"
+          label="Bureau de vote (obligatoire)"
           helpText={
             <span>
               Vous pouvez vérifier votre bureau de vote sur votre carte
@@ -493,7 +493,8 @@ const PollingStationOfficerForm = (props) => {
           onChange={handleChange}
           value={data.voterId}
           error={errors?.voterId}
-          label="Numéro national d'électeur"
+          label="Numéro national d'électeur (8 à 9 chiffres, obligatoire)"
+          placeholder="Exemple : 776922959"
           helpText={
             <span>
               Vous pouvez retrouver votre numéro national d'électeur sur votre
@@ -516,7 +517,7 @@ const PollingStationOfficerForm = (props) => {
           onChange={handleSelectVotingCirconscriptionLegislative}
           value={data.votingCirconscriptionLegislative}
           error={errors?.votingCirconscriptionLegislative}
-          label="Circonscription législative d'inscription"
+          label="Circonscription législative d'inscription (obligatoire)"
           options={options?.votingCirconscriptionLegislative}
           votingLocation={data?.votingLocation}
         />
@@ -531,7 +532,7 @@ const PollingStationOfficerForm = (props) => {
           value={data.role}
           onChange={handleChangeRole}
           error={errors?.role}
-          label="Rôle"
+          label="Rôle (obligatoire)"
           placeholder="Choisir un rôle"
           options={options?.role || []}
         />
@@ -558,7 +559,7 @@ const PollingStationOfficerForm = (props) => {
           value={!!data?.hasMobility}
           onChange={handleChangeHasMobility}
           error={errors?.hasMobility}
-          label="Je suis disponible à tenir un autre bureau de vote que celui dans lequel je suis inscrit·e, si nécessaire"
+          label="Je suis disponible pour tenir un autre bureau de vote que celui dans lequel je suis inscrit·e, si nécessaire"
         />
       </fieldset>
       <fieldset>
@@ -572,7 +573,7 @@ const PollingStationOfficerForm = (props) => {
           value={data.phone}
           onChange={handleChange}
           error={errors?.phone}
-          label="Téléphone mobile"
+          label="Votre numéro de téléphone mobile (obligatoire)"
           autoComplete="tel"
         />
         <Spacer size="1rem" />
@@ -585,8 +586,8 @@ const PollingStationOfficerForm = (props) => {
           value={data.email}
           onChange={handleChange}
           error={errors?.email}
-          label="Adresse e-mail"
-          helpText="Important : si vous vous êtes déjà inscrit·e sur lafranceinsoumise.fr ou melenchon2022.fr, utilisez la même adresse e-mail."
+          label="Votre adresse e-mail (obligatoire)"
+          helpText="Important : si vous vous êtes déjà inscrit·e sur lafranceinsoumise.fr ou actionpopulaire.fr, utilisez la même adresse e-mail."
           autoComplete="email"
         />
         <Spacer size="1rem" />
@@ -602,7 +603,7 @@ const PollingStationOfficerForm = (props) => {
           onChange={handleChange}
           error={errors?.remarks}
           label="Remarques ou question (facultatif)"
-          helpText="Quand êtes-vous disponible pour être contacté·e, en semaine et le week-end ?"
+          helpText="Quand êtes-vous disponible pour être contacté·e, en semaine et le week-end ?"
         />
         <Spacer size="1rem" />
         <CheckboxField
@@ -611,17 +612,7 @@ const PollingStationOfficerForm = (props) => {
           name="dataAgreement"
           value={hasDataAgreement}
           onChange={handleChangeDataAgreement}
-          label={
-            <>
-              J'autorise Action Populaire à partager mes coordonnées pour être
-              mis·e en contact avec les équipes de campagne de la{" "}
-              <abbr title="Nouvelle Union Populaire Écologique et Sociale">
-                NUPES
-              </abbr>{" "}
-              près de chez moi, dans le cadre de la désignation des assesseur·es
-              et délégué·es de bureau de vote
-            </>
-          }
+          label="J'autorise la France insoumise à partager mes coordonnées pour être mis·e en contact avec les équipes militantes près de chez moi, dans le cadre de la désignation des assesseur·es et délégué·es de bureau de vote"
         />
         {globalError && (
           <p
