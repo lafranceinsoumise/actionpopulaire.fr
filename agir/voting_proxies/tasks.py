@@ -239,11 +239,21 @@ def send_voting_proxy_information_for_request(voting_proxy_request_pk):
     voting_proxy_request = VotingProxyRequest.objects.get(pk=voting_proxy_request_pk)
     # Send information EMAIL
     message = voting_proxy_request.get_voting_proxy_information(as_html=True)
+    link = front_url(
+        "voting_proxy_request_details",
+        query={"vpr": voting_proxy_request_pk},
+    )
     send_voting_proxy_request_email.delay(
         [voting_proxy_request.email],
         subject="Les informations de votre procuration de vote",
-        intro="Retrouvez ci-dessous les informations pour établir votre procuration de vote :",
+        intro=format_html(
+            "Retrouvez ci-dessous les informations pour établir votre procuration de vote sur <a href='{}'>"
+            "le site du service public</a> :",
+            "https://www.maprocuration.gouv.fr/",
+        ),
         body=message,
+        link_label="Voir la page de la procuration",
+        link_href=link,
     )
     # Send information SMS
     message = voting_proxy_request.get_voting_proxy_information()
