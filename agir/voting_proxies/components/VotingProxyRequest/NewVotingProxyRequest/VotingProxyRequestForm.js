@@ -183,7 +183,8 @@ const VotingProxyRequestForm = (props) => {
             value={data.votingDates}
             onChange={handleChangeVotingDates}
             error={errors?.votingDates}
-            label="Pour quelle(s) date(s) avez-vous besoin de donner procuration ?"
+            label="Pour quelles dates avez-vous besoin de donner procuration ? (obligatoire)"
+            labelSingle="Pour quelle date avez-vous besoin de donner procuration :"
             options={votingDateOptions}
           />
           <Spacer size="1rem" />
@@ -197,7 +198,7 @@ const VotingProxyRequestForm = (props) => {
             error={
               errors?.votingLocation || errors?.commune || errors?.consulate
             }
-            label="Commune ou ambassade d'inscription aux listes électorales"
+            label="Commune ou ambassade d'inscription aux listes électorales (obligatoire)"
           />
           <Spacer size="1rem" />
           <PollingStationField
@@ -209,7 +210,7 @@ const VotingProxyRequestForm = (props) => {
             value={data.pollingStationNumber}
             onChange={handleChangePollingStation}
             error={errors?.pollingStationNumber}
-            label="Votre bureau de vote"
+            label="Votre bureau de vote (obligatoire)"
             helpText={
               <>
                 Vous pouvez vérifier votre bureau de vote sur votre carte
@@ -236,7 +237,7 @@ const VotingProxyRequestForm = (props) => {
             value={data.firstName}
             onChange={handleChange}
             error={errors?.firstName}
-            label="Vos prénoms"
+            label="Vos prénoms (obligatoire)"
             helpText="Tous vos prénoms tels qu'ils apparaissent sur votre pièce d'identité"
             autoComplete="given-name"
           />
@@ -249,7 +250,7 @@ const VotingProxyRequestForm = (props) => {
             value={data.lastName}
             onChange={handleChange}
             error={errors?.lastName}
-            label="Votre nom de famille"
+            label="Votre nom de famille (obligatoire)"
             helpText="Tel qu'il apparaît sur votre pièce d'identité"
             autoComplete="family-name"
           />
@@ -263,7 +264,7 @@ const VotingProxyRequestForm = (props) => {
             value={data.phone}
             onChange={handleChange}
             error={errors?.phone}
-            label="Votre numéro de téléphone mobile"
+            label="Votre numéro de téléphone mobile (obligatoire)"
             helpText="Vous recevrez un SMS pour la mise en relation avec la personne qui prendra votre procuration"
             autoComplete="tel"
           />
@@ -277,7 +278,7 @@ const VotingProxyRequestForm = (props) => {
             value={data.email}
             onChange={handleChange}
             error={errors?.email}
-            label="Votre adresse e-mail"
+            label="Votre adresse e-mail (obligatoire)"
             helpText="Important : si vous vous êtes déjà inscrit·e sur lafranceinsoumise.fr ou actionpopulaire.fr, utilisez la même adresse e-mail."
             autoComplete="email"
           />

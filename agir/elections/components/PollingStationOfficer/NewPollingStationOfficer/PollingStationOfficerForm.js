@@ -544,7 +544,8 @@ const PollingStationOfficerForm = (props) => {
           value={data.availableVotingDates}
           onChange={handleChangeAvailableVotingDates}
           error={errors?.availableVotingDates}
-          label="Dates de disponibilité"
+          label="Dates de disponibilité (obligatoire)"
+          labelSingle="Date du scrutin :"
           options={options?.availableVotingDates || []}
         />
         <Spacer size="1rem" />

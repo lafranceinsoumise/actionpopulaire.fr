@@ -204,7 +204,7 @@ const VotingProxyForm = (props) => {
             error={
               errors?.votingLocation || errors?.commune || errors?.consulate
             }
-            label="Commune ou ambassade d'inscription aux listes électorales"
+            label="Commune ou ambassade d'inscription aux listes électorales (obligatoire)"
           />
           <Spacer size="1rem" />
           <ElectoralInfoLink />
@@ -218,7 +218,7 @@ const VotingProxyForm = (props) => {
             onChange={handleChangePollingStation}
             value={data.pollingStationNumber}
             error={errors?.pollingStationNumber}
-            label="Bureau de vote"
+            label="Bureau de vote (obligatoire)"
           />
           <Spacer size="1rem" />
           <TextField
@@ -228,7 +228,7 @@ const VotingProxyForm = (props) => {
             onChange={handleChange}
             value={data.voterId}
             error={errors?.voterId}
-            label="Numéro national d'électeur (8 à 9 chiffres)"
+            label="Numéro national d'électeur (8 à 9 chiffres, obligatoire)"
             placeholder="Exemple : 776922959"
           />
           <Spacer size="1rem" />
@@ -240,7 +240,8 @@ const VotingProxyForm = (props) => {
             value={data.votingDates}
             onChange={handleChangeVotingDates}
             error={errors?.votingDates}
-            label="Dates de disponibilité"
+            label="Dates de disponibilité (obligatoire)"
+            labelSingle="Date du scrutin :"
             options={votingDateOptions}
           />
         </fieldset>
@@ -255,7 +256,7 @@ const VotingProxyForm = (props) => {
               value={data.address}
               onChange={handleChange}
               error={errors?.address}
-              label="Votre adresse"
+              label="Votre adresse (obligatoire)"
               autoComplete="address-line1"
             />
             <Spacer size="1rem" />
@@ -267,7 +268,7 @@ const VotingProxyForm = (props) => {
               value={data.zip}
               onChange={handleChange}
               error={errors?.zip}
-              label="Votre code postal"
+              label="Votre code postal (obligatoire)"
               autoComplete="postal-code"
             />
             <Spacer size="1rem" />
@@ -279,7 +280,7 @@ const VotingProxyForm = (props) => {
               value={data.city}
               onChange={handleChange}
               error={errors?.city}
-              label="Votre commune"
+              label="Votre commune (obligatoire)"
               autoComplete="locality"
             />
           </fieldset>
@@ -294,7 +295,7 @@ const VotingProxyForm = (props) => {
             value={data.firstName}
             onChange={handleChange}
             error={errors?.firstName}
-            label="Vos prénoms"
+            label="Vos prénoms (obligatoire)"
             helpText="Tous vos prénoms tels qu'ils apparaissent sur votre pièce d'identité"
             autoComplete="given-name"
           />
@@ -307,7 +308,7 @@ const VotingProxyForm = (props) => {
             value={data.lastName}
             onChange={handleChange}
             error={errors?.lastName}
-            label="Votre nom de famille"
+            label="Votre nom de famille (obligatoire)"
             helpText="Tel qu'il apparaît sur votre pièce d'identité"
             autoComplete="family-name"
           />
@@ -321,7 +322,7 @@ const VotingProxyForm = (props) => {
             value={data.dateOfBirth}
             onChange={handleChangeDateOfBirth}
             error={errors?.dateOfBirth}
-            label="Votre date de naissance"
+            label="Votre date de naissance (obligatoire)"
             autoComplete="birthday"
           />
         </fieldset>
@@ -336,7 +337,7 @@ const VotingProxyForm = (props) => {
             value={data.phone}
             onChange={handleChange}
             error={errors?.phone}
-            label="Votre numéro de téléphone mobile"
+            label="Votre numéro de téléphone mobile (obligatoire)"
             helpText="Vous recevrez un SMS pour la mise en relation avec la personne qui vous donnera procuration"
             autoComplete="tel"
           />
@@ -350,7 +351,7 @@ const VotingProxyForm = (props) => {
             value={data.email}
             onChange={handleChange}
             error={errors?.email}
-            label="Votre adresse e-mail"
+            label="Votre adresse e-mail (obligatoire)"
             helpText="Important : si vous vous êtes déjà inscrit·e sur lafranceinsoumise.fr ou actionpopulaire.fr, utilisez la même adresse e-mail."
             autoComplete="email"
           />
@@ -365,7 +366,7 @@ const VotingProxyForm = (props) => {
             value={data.remarks}
             onChange={handleChange}
             error={errors?.remarks}
-            label="Vos disponibilité (facultatif)"
+            label="Vos disponibilités (facultatif)"
             helpText="Quand êtes-vous disponible pour être contacté·e, en semaine et le week-end ?"
           />
           <Spacer size="1rem" />

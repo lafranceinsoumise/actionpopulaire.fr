@@ -53,7 +53,9 @@ export const VOTING_PROXY_CONSTRAINTS = {
       message: "Ce champ est obligatoire",
     },
     length: {
+      minimum: 8,
       maximum: 255,
+      tooShort: "La valeur de ce champ doit avoir %{count} caractères minimum",
       tooLong:
         "La valeur de ce champ ne peut pas dépasser les %{count} caractères",
     },
