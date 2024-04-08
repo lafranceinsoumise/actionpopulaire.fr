@@ -11,6 +11,7 @@ import {
   confirmVotingProxyRequests,
   cancelVotingProxyRequests,
 } from "@agir/voting_proxies/Common/api";
+import { useToast } from "@agir/front/globalContext/hooks";
 
 const StyledWidget = styled.div`
   padding: 1rem 1.5rem;
@@ -49,6 +50,8 @@ const VotingProxyWidget = (props) => {
   );
   const [shouldConfirm, setShouldConfirm] = useState(false);
 
+  const sendToast = useToast();
+
   const dismissConfirm = useCallback(() => {
     setShouldConfirm(false);
   }, []);
@@ -60,8 +63,16 @@ const VotingProxyWidget = (props) => {
     setIsLoading(false);
     if (result.error) {
       setError(result.error);
+      return;
     }
-  }, [request]);
+    sendToast(
+      <>
+        Les informations de procuration vous ont été envoyées{" "}
+        <strong>par SMS et par e-mail</strong>
+      </>,
+      "SUCCESS",
+    );
+  }, [request, sendToast]);
 
   const confirm = useCallback(async () => {
     if (!shouldConfirm) {
@@ -75,10 +86,11 @@ const VotingProxyWidget = (props) => {
     setShouldConfirm(false);
     if (result.error) {
       setError(result.error);
-    } else {
-      setIsConfirmed(true);
+      return;
     }
-  }, [shouldConfirm, request]);
+    setIsConfirmed(true);
+    sendToast("Votre procuration a bien été validée !", "SUCCESS");
+  }, [shouldConfirm, request, sendToast]);
 
   const cancel = useCallback(async () => {
     if (!shouldConfirm) {
@@ -92,10 +104,11 @@ const VotingProxyWidget = (props) => {
     setShouldConfirm(false);
     if (result.error) {
       setError(result.error);
-    } else {
-      setIsCancelled(true);
+      return;
     }
-  }, [shouldConfirm, request]);
+    setIsCancelled(true);
+    sendToast("Votre demande de procuration a bien été annulée !", "SUCCESS");
+  }, [shouldConfirm, request, sendToast]);
 
   return (
     <StyledWidget>

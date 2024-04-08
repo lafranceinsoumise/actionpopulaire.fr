@@ -160,7 +160,7 @@ export const BaseButton = styled.button
     min-height: 1px;
     white-space: inherit;
     text-overflow: inherit;
-    overflow: inherit;
+    overflow: ${({ link }) => (link ? "hidden" : "inherit")};
   }
 `;
 

@@ -7,13 +7,7 @@ import { MailTo } from "@agir/elections/Common/StyledComponents";
 
 const NewPollingStationOfficerHowTo = () => (
   <div>
-    <h2
-      css={`
-        color: ${({ theme }) => theme.primary500};
-      `}
-    >
-      Devenir assesseur·e ou délégué·e
-    </h2>
+    <h2>Devenir assesseur·e ou délégué·e</h2>
     <Spacer size="0.5rem" />
     <p>
       <strong>
@@ -83,7 +77,7 @@ const NewPollingStationOfficerHowTo = () => (
       </ul>
       <Spacer size="0.5rem" />
       Le jour du vote, pour assurer un bon déroulement du scrutin, privilégions
-      la désignation d’assesseur·es ou à défaut, de délégué·e·s. Les seconds
+      la désignation d’assesseur·es ou, à défaut, de délégué·e·s. Les seconds
       n’ont qu’un rôle d’observation et de rappel à la loi électorale. Ils ne
       sont pas membres du bureau de vote.
       <Spacer size="1rem" />
@@ -142,10 +136,9 @@ const NewPollingStationOfficerHowTo = () => (
     <p
       css={`
         color: ${(props) => props.theme.black500};
-        font-size: 0.875rem;
       `}
     >
-      ⏱️ Durée du formulaire&nbsp;:&nbsp;4mn
+      ⏱️ Durée du formulaire&nbsp;:&nbsp;4 minutes
     </p>
   </div>
 );

@@ -35,7 +35,16 @@ const StyledFieldset = styled.fieldset`
 `;
 
 const VotingDateFields = (props) => {
-  const { name, value, onChange, options, error, label, helpText } = props;
+  const {
+    name,
+    value,
+    onChange,
+    options,
+    error,
+    label,
+    labelSingle,
+    helpText,
+  } = props;
 
   const handleChange = useCallback(
     ({ target }) => {
@@ -57,6 +66,14 @@ const VotingDateFields = (props) => {
     [options],
   );
 
+  const displayLabel = useMemo(() => {
+    if (labelSingle && activeOptions.length === 1) {
+      return labelSingle;
+    }
+
+    return label;
+  }, [label, labelSingle, activeOptions]);
+
   useEffect(() => {
     activeOptions.length === 1 &&
       !value.includes(activeOptions[0].value) &&
@@ -65,7 +82,7 @@ const VotingDateFields = (props) => {
 
   return (
     <StyledFieldset>
-      {label && <StyledLabel>{label}</StyledLabel>}
+      {label && <StyledLabel>{displayLabel}</StyledLabel>}
       {helpText && <StyledHelpText>{helpText}</StyledHelpText>}
       <StyledField>
         {activeOptions.map((option) => (
@@ -100,6 +117,7 @@ VotingDateFields.propTypes = {
   disabled: PropTypes.bool,
   error: PropTypes.string,
   label: PropTypes.node,
+  labelSingle: PropTypes.arrayOf(PropTypes.node),
   helpText: PropTypes.node,
 };
 
