@@ -614,7 +614,7 @@ class VotingProxyView(BaseAppCachedView):
         "aux élections européennes du 9 juin 2024."
     )
     meta_type = "website"
-    # meta_image = urljoin(settings.FRONT_DOMAIN, static("front/assets/og_image_vp.jpg"))
+    meta_image = urljoin(settings.FRONT_DOMAIN, static("front/assets/og_image_vp.jpg"))
 
 
 class VotingProxyRequestView(BaseAppCachedView):
@@ -624,7 +624,7 @@ class VotingProxyRequestView(BaseAppCachedView):
         "l'Union Populaire aux élections européennes du 9 juin 2024."
     )
     meta_type = "website"
-    # meta_image = urljoin(settings.FRONT_DOMAIN, static("front/assets/og_image_vpr.jpg"))
+    meta_image = urljoin(settings.FRONT_DOMAIN, static("front/assets/og_image_vpr.jpg"))
 
 
 class PollingStationOfficerView(BaseAppCachedView):
@@ -634,7 +634,7 @@ class PollingStationOfficerView(BaseAppCachedView):
         "et de délégué⋅es dans le plus grand nombre de bureaux de vote de la circonscription."
     )
     meta_type = "website"
-    # meta_image = urljoin(settings.FRONT_DOMAIN, static("front/assets/og_image_pso.jpg"))
+    meta_image = urljoin(settings.FRONT_DOMAIN, static("front/assets/og_image_pso.jpg"))
 
 
 class EventSpeakerView(SoftLoginRequiredMixin, ReactBaseView):
