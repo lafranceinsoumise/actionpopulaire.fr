@@ -136,10 +136,9 @@ const NewPollingStationOfficerHowTo = () => (
     <p
       css={`
         color: ${(props) => props.theme.black500};
-        font-size: 0.875rem;
       `}
     >
-      ⏱️ Durée du formulaire&nbsp;:&nbsp;4mn
+      ⏱️ Durée du formulaire&nbsp;:&nbsp;4 minutes
     </p>
   </div>
 );

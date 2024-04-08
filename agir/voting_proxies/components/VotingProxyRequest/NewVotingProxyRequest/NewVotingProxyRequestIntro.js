@@ -24,10 +24,9 @@ const NewVotingProxyRequestIntro = () => (
     <p
       css={`
         color: ${({ theme }) => theme.black500};
-        font-size: 0.875rem;
       `}
     >
-      ⏱️ Durée du formulaire&nbsp;:&nbsp;1mn
+      ⏱️ Durée du formulaire&nbsp;:&nbsp;1 minute
     </p>
   </div>
 );
