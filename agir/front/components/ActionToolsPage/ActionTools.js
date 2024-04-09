@@ -8,6 +8,8 @@ import FaIcon from "@agir/front/genericComponents/FaIcon";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import { Hide } from "@agir/front/genericComponents/grid";
 
+import vpIcon from "@agir/voting_proxies/Common/images/vp_icon.svg";
+
 const StyledCardItem = styled(Link)`
   padding: 1.5rem;
   display: flex;
@@ -15,7 +17,7 @@ const StyledCardItem = styled(Link)`
   gap: ${(props) => (props.$highlight ? 1.5 : 1)}rem;
   box-shadow: ${({ theme }) => theme.cardShadow};
   background-color: ${(props) =>
-    props.$highlight ? props.theme.primary50 : props.theme.white};
+    props.$highlight ? props.theme[props.$highlight] : props.theme.white};
 
   @media (max-width: ${({ theme }) => theme.collapse}px) {
     align-items: flex-start;
@@ -42,7 +44,7 @@ const StyledCardItem = styled(Link)`
   }
 
   & > i,
-  & > ${RawFeatherIcon}, & > ${Button} {
+  & > ${RawFeatherIcon}, & > ${Button}, & > img {
     flex: 0 0 auto;
 
     @media (max-width: 360px) {
@@ -85,7 +87,34 @@ const StyledCard = styled.ul`
 export const ActionTools = () => {
   return (
     <StyledCard>
-      <StyledCardItem route="donationLanding" $highlight>
+      <StyledCardItem route="votingProxyLandingPage" $highlight="secondary100">
+        <img width="58" height="53" src={vpIcon} />
+        <span>
+          <strong>Espace procurations</strong>
+          <span>
+            Absent·e le 9 juin ? Faites une procuration !
+            <br />
+            Disponible le 9 juin ? Prenez la procuration d'une personne absente
+            pour voter !
+          </span>
+          <Hide
+            $over
+            as="span"
+            css={`
+              display: inline-flex;
+              flex-wrap: wrap;
+              gap: 0.5rem;
+              margin-top: 0.25rem;
+            `}
+          >
+            <Button small link route="donationLanding" color="primary">
+              Faire un don
+            </Button>
+          </Hide>
+        </span>
+        <RawFeatherIcon aria-hidden="true" name="chevron-right" />
+      </StyledCardItem>
+      <StyledCardItem route="donationLanding" $highlight="primary50">
         <i
           aria-hidden="true"
           css={`
@@ -171,28 +200,6 @@ export const ActionTools = () => {
           <span>
             Commandez et recevez chez vous des tracts, des affiches et des
             objets des campagnes du mouvement.
-          </span>
-        </span>
-        <RawFeatherIcon aria-hidden="true" name="chevron-right" />
-      </StyledCardItem>
-      <StyledCardItem route="newVotingProxy">
-        <i
-          aria-hidden="true"
-          css={`
-            background-color: ${({ theme }) => theme.votingProxyOrange};
-            color: ${({ theme }) => theme.white};
-          `}
-        >
-          <RawFeatherIcon name="edit-3" />
-        </i>
-        <span>
-          <strong>Se porter volontaire pour prendre une procuration</strong>
-          <span>
-            Inscrivez-vous comme volontaire et prenez une procuration de vote
-            d’un·e citoyen·ne pour les élections européennes du 9 juin 2024 (8
-            juin pour la Guadeloupe, la Martinique, la Guyane, la Polynésie
-            française et les Français·es de l'étranger résidant sur le continent
-            américain)
           </span>
         </span>
         <RawFeatherIcon aria-hidden="true" name="chevron-right" />
