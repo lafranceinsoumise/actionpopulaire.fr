@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import React, { forwardRef, useLayoutEffect, useRef } from "react";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 import { mergeRefs } from "@agir/lib/utils/react";
 
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";

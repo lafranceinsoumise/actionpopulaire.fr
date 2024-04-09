@@ -13,7 +13,7 @@ import SoftLoginModal, {
   SOFT_LOGIN_MODAL_TAGS,
 } from "@agir/front/authentication/SoftLoginModal";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 import "react-toastify/dist/ReactToastify.min.css";
 
 export const TOAST_TYPES = {

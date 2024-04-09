@@ -5,20 +5,22 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 import Steps, { useSteps } from "@agir/front/genericComponents/Steps";
 
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
+import Link from "@agir/front/app/Link";
 import PhoneField from "@agir/front/formComponents/PhoneField";
 import TextField from "@agir/front/formComponents/TextField";
 
 import PollingStationField from "@agir/elections/Common/PollingStationField";
-import VotingLocationField from "@agir/elections/Common/VotingLocationField";
 import VotingDateFields from "@agir/elections/Common/VotingDateFields";
+import VotingLocationField from "@agir/elections/Common/VotingLocationField";
+import FormFooter from "@agir/voting_proxies/Common/FormFooter";
 
-import NewVotingProxyRequestIntro from "./NewVotingProxyRequestIntro";
 import NewVotingProxyRequestHowTo from "./NewVotingProxyRequestHowTo";
+import NewVotingProxyRequestIntro from "./NewVotingProxyRequestIntro";
 import NewVotingProxyRequestSuccess from "./NewVotingProxyRequestSuccess";
 
 import {
-  createVotingProxyRequestOptions,
   createVotingProxyRequest,
+  createVotingProxyRequestOptions,
 } from "@agir/voting_proxies/Common/api";
 import { getInitialData, validateVotingProxyRequest } from "./form.config";
 
@@ -147,138 +149,165 @@ const VotingProxyRequestForm = (props) => {
   }, []);
 
   if (isCreated) {
-    return <NewVotingProxyRequestSuccess />;
+    return (
+      <>
+        <NewVotingProxyRequestSuccess />
+        <Spacer size="4rem" />
+        <FormFooter />
+      </>
+    );
   }
 
   const globalError = errors?.global || errors?.detail;
 
   return (
-    <Steps
-      as="form"
-      onSubmit={handleSubmit}
-      isLoading={isLoading}
-      disabled={!hasDataAgreement || isLoading}
-      title="Voter par procuration"
-      step={formStep}
-      goToPrevious={goToPreviousFormStep}
-      goToNext={goToNextFormStep}
-    >
-      <NewVotingProxyRequestIntro />
-      <NewVotingProxyRequestHowTo />
-      <fieldset>
-        <VotingDateFields
-          required
-          disabled={isLoading}
-          id="votingDates"
-          name="votingDates"
-          value={data.votingDates}
-          onChange={handleChangeVotingDates}
-          error={errors?.votingDates}
-          label="Pour quelle(s) date(s) avez-vous besoin de donner procuration ?"
-          options={votingDateOptions}
-        />
-        <Spacer size="1rem" />
-        <VotingLocationField
-          required
-          disabled={isLoading}
-          id="votingLocation"
-          name="votingLocation"
-          value={data.votingLocation}
-          onChange={handleSelectPollingLocation}
-          error={errors?.votingLocation || errors?.commune || errors?.consulate}
-          label="Commune ou ambassade d'inscription aux listes électorales"
-        />
-        <Spacer size="1rem" />
-        <PollingStationField
-          isAbroad={data.votingLocation?.type === "consulate"}
-          countries={data?.votingLocation?.countries}
-          disabled={isLoading}
-          id="pollingStationNumber"
-          name="pollingStationNumber"
-          value={data.pollingStationNumber}
-          onChange={handleChangePollingStation}
-          error={errors?.pollingStationNumber}
-          label="Bureau de vote"
-        />
-      </fieldset>
-      <fieldset>
-        <TextField
-          autoFocus
-          required
-          disabled={isLoading}
-          id="firstName"
-          name="firstName"
-          value={data.firstName}
-          onChange={handleChange}
-          error={errors?.firstName}
-          label="Prénoms"
-          helpText="Tous vos prénoms, tels qu'ils apparaissent sur la carte électorale"
-          autoComplete="given-name"
-        />
-        <Spacer size="1rem" />
-        <TextField
-          required
-          disabled={isLoading}
-          id="lastName"
-          name="lastName"
-          value={data.lastName}
-          onChange={handleChange}
-          error={errors?.lastName}
-          label="Nom de famille"
-          helpText="Votre nom de famille, tel qu'il apparaît sur la carte électorale"
-          autoComplete="family-name"
-        />
-        <Spacer size="1rem" />
-        <PhoneField
-          required
-          disabled={isLoading}
-          id="phone"
-          name="phone"
-          type="phone"
-          value={data.phone}
-          onChange={handleChange}
-          error={errors?.phone}
-          label="Téléphone mobile"
-          helpText="📱Vous recevrez un SMS pour être mis·e en relation avec votre mandant·e"
-          autoComplete="tel"
-        />
-        <Spacer size="1rem" />
-        <TextField
-          required
-          disabled={isLoading}
-          id="email"
-          name="email"
-          type="email"
-          value={data.email}
-          onChange={handleChange}
-          error={errors?.email}
-          label="Adresse e-mail"
-          helpText="Important : si vous vous êtes déjà inscrit·e sur lafranceinsoumise.fr ou melenchon2022.fr, utilisez la même adresse e-mail."
-          autoComplete="email"
-        />
-        <Spacer size="1rem" />
-        <CheckboxField
-          disabled={isLoading}
-          id="dataAgreement"
-          name="dataAgreement"
-          value={hasDataAgreement}
-          onChange={handleChangeDataAgreement}
-          label="J'autorise Action Populaire à partager mes coordonnées pour être mis·e en contact dans le cadre d'une procuration"
-        />
-        {globalError && (
-          <p
-            css={`
-              padding: 1rem 0 0;
-              margin: 0;
-              font-size: 1rem;
-              color: ${({ theme }) => theme.redNSP};
-            `}
-          >
-            {Array.isArray(globalError) ? globalError[0] : globalError}
-          </p>
-        )}
-      </fieldset>
-    </Steps>
+    <>
+      <Steps
+        as="form"
+        onSubmit={handleSubmit}
+        isLoading={isLoading}
+        disabled={!hasDataAgreement || isLoading}
+        title="Faire une procuration pour que quelqu'un vote à ma place"
+        step={formStep}
+        goToPrevious={goToPreviousFormStep}
+        goToNext={goToNextFormStep}
+      >
+        <NewVotingProxyRequestIntro />
+        <NewVotingProxyRequestHowTo />
+        <fieldset>
+          <VotingDateFields
+            required
+            disabled={isLoading}
+            id="votingDates"
+            name="votingDates"
+            value={data.votingDates}
+            onChange={handleChangeVotingDates}
+            error={errors?.votingDates}
+            label="Pour quelles dates avez-vous besoin de donner procuration ? (obligatoire)"
+            labelSingle="Pour quelle date avez-vous besoin de donner procuration :"
+            options={votingDateOptions}
+          />
+          <Spacer size="1rem" />
+          <VotingLocationField
+            required
+            disabled={isLoading}
+            id="votingLocation"
+            name="votingLocation"
+            value={data.votingLocation}
+            onChange={handleSelectPollingLocation}
+            error={
+              errors?.votingLocation || errors?.commune || errors?.consulate
+            }
+            label="Commune ou ambassade d'inscription aux listes électorales (obligatoire)"
+          />
+          <Spacer size="1rem" />
+          <PollingStationField
+            isAbroad={data.votingLocation?.type === "consulate"}
+            countries={data?.votingLocation?.countries}
+            disabled={isLoading}
+            id="pollingStationNumber"
+            name="pollingStationNumber"
+            value={data.pollingStationNumber}
+            onChange={handleChangePollingStation}
+            error={errors?.pollingStationNumber}
+            label="Votre bureau de vote (obligatoire)"
+            helpText={
+              <>
+                Vous pouvez vérifier votre bureau de vote sur votre carte
+                électorale ou sur{" "}
+                <Link
+                  href="https://www.service-public.fr/particuliers/vosdroits/services-en-ligne-et-formulaires/ISE"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  le site du service public
+                </Link>
+                .
+              </>
+            }
+          />
+        </fieldset>
+        <fieldset>
+          <TextField
+            autoFocus
+            required
+            disabled={isLoading}
+            id="firstName"
+            name="firstName"
+            value={data.firstName}
+            onChange={handleChange}
+            error={errors?.firstName}
+            label="Vos prénoms (obligatoire)"
+            helpText="Tous vos prénoms tels qu'ils apparaissent sur votre pièce d'identité"
+            autoComplete="given-name"
+          />
+          <Spacer size="1rem" />
+          <TextField
+            required
+            disabled={isLoading}
+            id="lastName"
+            name="lastName"
+            value={data.lastName}
+            onChange={handleChange}
+            error={errors?.lastName}
+            label="Votre nom de famille (obligatoire)"
+            helpText="Tel qu'il apparaît sur votre pièce d'identité"
+            autoComplete="family-name"
+          />
+          <Spacer size="1rem" />
+          <PhoneField
+            required
+            disabled={isLoading}
+            id="phone"
+            name="phone"
+            type="phone"
+            value={data.phone}
+            onChange={handleChange}
+            error={errors?.phone}
+            label="Votre numéro de téléphone mobile (obligatoire)"
+            helpText="Vous recevrez un SMS pour la mise en relation avec la personne qui prendra votre procuration"
+            autoComplete="tel"
+          />
+          <Spacer size="1rem" />
+          <TextField
+            required
+            disabled={isLoading}
+            id="email"
+            name="email"
+            type="email"
+            value={data.email}
+            onChange={handleChange}
+            error={errors?.email}
+            label="Votre adresse e-mail (obligatoire)"
+            helpText="Important : si vous vous êtes déjà inscrit·e sur lafranceinsoumise.fr ou actionpopulaire.fr, utilisez la même adresse e-mail."
+            autoComplete="email"
+          />
+          <Spacer size="1rem" />
+          <CheckboxField
+            disabled={isLoading}
+            id="dataAgreement"
+            name="dataAgreement"
+            value={hasDataAgreement}
+            onChange={handleChangeDataAgreement}
+            label="J’autorise la France insoumise à partager mes coordonnées pour être mis·e en contact dans le cadre d’une procuration"
+          />
+          {globalError && (
+            <p
+              css={`
+                padding: 1rem 0 0;
+                margin: 0;
+                font-size: 1rem;
+                color: ${({ theme }) => theme.redNSP};
+              `}
+            >
+              {Array.isArray(globalError) ? globalError[0] : globalError}
+            </p>
+          )}
+        </fieldset>
+      </Steps>
+      <Spacer size="0.5rem" />
+      <FormFooter votingProxyLink={formStep === 0} />
+    </>
   );
 };
 

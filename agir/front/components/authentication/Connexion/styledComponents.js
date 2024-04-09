@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 import bgMobile from "@agir/front/genericComponents/images/login_bg_mobile.svg";
 
 export const MainBlock = styled.div`

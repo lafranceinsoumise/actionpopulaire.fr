@@ -7,7 +7,7 @@ import useSWR from "swr";
 
 import "swiper/scss";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import { getActionsForUser } from "./actions.config";
 

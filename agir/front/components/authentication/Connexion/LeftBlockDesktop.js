@@ -2,7 +2,7 @@ import React from "react";
 import LogoAP from "@agir/front/genericComponents/LogoAP";
 import bgDesktop from "@agir/front/genericComponents/images/login_bg_desktop.svg";
 import styled from "styled-components";
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 import Link from "@agir/front/app/Link";
 
 const LeftBlock = styled.div`

@@ -5,7 +5,7 @@ import styled from "styled-components";
 import { mutate } from "swr";
 import useSWRImmutable from "swr/immutable";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
 import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";

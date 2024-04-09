@@ -10,7 +10,7 @@ import CenteredLayout from "@agir/front/app/Layout/CenteredLayout";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getRoutes } from "@agir/front/globalContext/reducers";
 

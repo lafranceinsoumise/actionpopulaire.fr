@@ -175,6 +175,78 @@ export const ActionTools = () => {
         </span>
         <RawFeatherIcon aria-hidden="true" name="chevron-right" />
       </StyledCardItem>
+      <StyledCardItem route="newVotingProxy">
+        <i
+          aria-hidden="true"
+          css={`
+            background-color: ${({ theme }) => theme.votingProxyOrange};
+            color: ${({ theme }) => theme.white};
+          `}
+        >
+          <RawFeatherIcon name="edit-3" />
+        </i>
+        <span>
+          <strong>Se porter volontaire pour prendre une procuration</strong>
+          <span>
+            Inscrivez-vous comme volontaire et prenez une procuration de vote
+            d’un·e citoyen·ne pour les élections européennes du 9 juin 2024 (8
+            juin pour la Guadeloupe, la Martinique, la Guyane, la Polynésie
+            française et les Français·es de l'étranger résidant sur le continent
+            américain)
+          </span>
+        </span>
+        <RawFeatherIcon aria-hidden="true" name="chevron-right" />
+      </StyledCardItem>
+      {/*
+        <StyledCardItem route="newPollingStationOfficer">
+        <i
+          aria-hidden="true"
+          css={`
+            background-color: ${({ theme }) => theme.referralPink};
+            color: ${({ theme }) => theme.white};
+          `}
+        >
+          <svg
+            width="25"
+            height="24"
+            viewBox="0 0 25 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <g clipPath="url(#clip0_5242_40128)">
+              <path
+                d="M3.5 15H2C1.44772 15 1 15.4477 1 16V21C1 21.5523 1.44772 22 2 22H22C22.5523 22 23 21.5523 23 21V16.5C23 15.9477 22.5523 15.5 22 15.5H20.5M5.5 15.5V3C5.5 2.44772 5.94772 2 6.5 2H17.5C18.0523 2 18.5 2.44771 18.5 3V15.5C18.5 16.0523 18.0523 16.5 17.5 16.5H6.5C5.94772 16.5 5.5 16.0523 5.5 15.5Z"
+                stroke="white"
+                strokeWidth="2"
+              />
+              <path
+                d="M9 8.6L10.299 10.1588C10.6754 10.6105 11.3585 10.6415 11.7743 10.2257L15 7"
+                stroke="white"
+                strokeWidth="2"
+              />
+            </g>
+            <defs>
+              <clipPath id="clip0_5242_40128">
+                <rect
+                  width="24"
+                  height="24"
+                  fill="white"
+                  transform="translate(0.5)"
+                />
+              </clipPath>
+            </defs>
+          </svg>
+        </i>
+        <span>
+          <strong>Devenir assesseur·e ou délégué·e</strong>
+          <span>
+            Pour la réussite de ce scrutin, soyons dans le plus grand nombre de
+            bureaux de vote.
+          </span>
+        </span>
+        <RawFeatherIcon aria-hidden="true" name="chevron-right" />
+      </StyledCardItem>
+      */}
       <StyledCardItem as="span">
         <i
           aria-hidden="true"

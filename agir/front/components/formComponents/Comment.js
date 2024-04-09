@@ -3,7 +3,7 @@ import React, { useCallback } from "react";
 import { animated, useTransition } from "@react-spring/web";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 import { timeAgo } from "@agir/lib/utils/time";
 
 import Avatar from "@agir/front/genericComponents/Avatar";

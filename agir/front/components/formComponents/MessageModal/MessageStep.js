@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 import { lazy } from "@agir/front/app/utils";
 import Spacer from "@agir/front/genericComponents/Spacer";
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 import { displayShortDate } from "@agir/lib/utils/time";
 
 import MessageAttachment, {

@@ -2,7 +2,6 @@ import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
-import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 const StyledWrapper = styled.div`
@@ -49,10 +48,10 @@ const FormSuccess = ({ children }) => {
       </svg>
       <Spacer size="0.875rem" />
       {children}
-      <Spacer size="2.5rem" />
+      <Spacer size="1.5rem" />
       <footer>
-        <Button link route="nupes">
-          Fermer
+        <Button color="dismiss" icon="arrow-right" link route="eu2024">
+          Retourner sur le site
         </Button>
       </footer>
     </StyledWrapper>

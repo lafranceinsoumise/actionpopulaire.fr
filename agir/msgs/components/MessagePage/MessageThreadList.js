@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from "react";
 import { useIntersection, usePrevious } from "react-use";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Panel from "@agir/front/genericComponents/Panel";

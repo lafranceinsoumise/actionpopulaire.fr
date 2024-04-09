@@ -4,7 +4,7 @@ import useSWR from "swr";
 
 import { useToast } from "@agir/front/globalContext/hooks.js";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import Spacer from "@agir/front/genericComponents/Spacer";
 import Button from "@agir/front/genericComponents/Button";

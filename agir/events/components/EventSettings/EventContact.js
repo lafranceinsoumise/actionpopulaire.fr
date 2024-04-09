@@ -5,7 +5,7 @@ import useSWR, { mutate } from "swr";
 import { useToast } from "@agir/front/globalContext/hooks.js";
 import * as api from "@agir/events/common/api";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";

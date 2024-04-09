@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled, { keyframes } from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import Link from "@agir/front/app/Link";
 
@@ -160,7 +160,7 @@ export const BaseButton = styled.button
     min-height: 1px;
     white-space: inherit;
     text-overflow: inherit;
-    overflow: inherit;
+    overflow: ${({ link }) => (link ? "hidden" : "inherit")};
   }
 `;
 

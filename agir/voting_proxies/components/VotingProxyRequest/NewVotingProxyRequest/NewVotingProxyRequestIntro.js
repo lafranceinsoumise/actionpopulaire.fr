@@ -1,55 +1,32 @@
 import React from "react";
-import styled from "styled-components";
 
-import Link from "@agir/front/app/Link";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 const NewVotingProxyRequestIntro = () => (
   <div>
-    <h2
-      css={`
-        color: ${({ theme }) => theme.primary500};
-      `}
-    >
-      Permettre à une personne de voter à ma place
-    </h2>
+    <h2>Permettre à une personne de voter à ma place</h2>
     <Spacer size="1rem" />
     <p>
-      Vous souhaitez voter pour Jean-Luc Mélenchon et/ou nos candidat·es aux
-      législatives en 2022{" "}
-      <strong>
-        mais vous ne pourrez pas vous déplacer à votre bureau de vote&nbsp;?
-        Faites une procuration&nbsp;!
-      </strong>
-    </p>
-    <Spacer size="0.5rem" />
-    <p>
-      Le plus pratique reste de demander à un·e proche ou bien à votre voisin·e.
-    </p>
-    <Spacer size="0.5rem" />
-    <p>
-      Sinon, remplissez ce formulaire et nous vous mettrons en relation avec
-      un·e volontaire disponible pour porter votre procuration et voter à votre
-      place.
+      Vous souhaitez voter pour la liste de l'Union populaire menée par Manon
+      Aubry aux élections européennes mais vous serez absent ou dans
+      l'impossibilité de vous rendre au bureau de vote le dimanche 9 juin
+      prochain  ? <strong>Faites une procuration !</strong>
     </p>
     <Spacer size="1rem" />
+    <p>Le plus simple est de demander à un proche ou bien à un·e voisin·e.</p>
+    <Spacer size="1rem" />
     <p>
-      <em>
-        Disponible un jour de vote&nbsp;?{" "}
-        <Link route="newVotingProxy">
-          Je suis volontaire pour prendre une procuration
-        </Link>
-        .
-      </em>
+      Si personne de votre entourage ne peut prendre votre procuration,
+      remplissez ce formulaire et nous vous mettrons en relation avec une
+      personne disponible pour aller voter à votre place avec votre procuration.
     </p>
     <Spacer size="1rem" />
     <p
       css={`
-        color: ${(props) => props.theme.black500};
-        font-size: 0.875rem;
+        color: ${({ theme }) => theme.black500};
       `}
     >
-      ⏱️ Durée du formulaire&nbsp;:&nbsp;1mn
+      ⏱️ Durée du formulaire&nbsp;:&nbsp;1 minute
     </p>
   </div>
 );

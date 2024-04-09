@@ -8,7 +8,7 @@ import Button from "@agir/front/genericComponents/Button";
 import Card from "@agir/front/genericComponents/Card";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import StyledCard from "./StyledCard";
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import { routeConfig } from "@agir/front/app/routes.config";
 

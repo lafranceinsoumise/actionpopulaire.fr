@@ -3,7 +3,7 @@ import React from "react";
 import styled from "styled-components";
 import useSWR from "swr";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";

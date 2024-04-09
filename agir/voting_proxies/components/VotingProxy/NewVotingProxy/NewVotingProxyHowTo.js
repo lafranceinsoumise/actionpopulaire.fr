@@ -1,74 +1,78 @@
 import React from "react";
+import styled from "styled-components";
 
-import Link from "@agir/front/app/Link";
 import Spacer from "@agir/front/genericComponents/Spacer";
-import { MailTo } from "@agir/elections/Common/StyledComponents";
+import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
+
+const StyledList = styled.ul`
+  list-style-type: none;
+  padding: 0;
+
+  li {
+    display: flex;
+    align-items: start;
+    gap: 1rem;
+
+    & > :first-child {
+      flex: 0 0 auto;
+      color: ${(props) => props.theme.primary500};
+    }
+  }
+`;
 
 const NewVotingProxyHowTo = () => (
   <div>
-    <h2
-      css={`
-        color: ${({ theme }) => theme.primary500};
-      `}
-    >
-      Se porter volontaire pour prendre une procuration
-    </h2>
+    <h2>Se porter volontaire pour prendre une procuration</h2>
     <Spacer size="1rem" />
     <p>
-      Vous êtes disponible les jours de vote et vous souhaitez prendre la
-      procuration d'un·e citoyen·ne&nbsp;: merci pour votre aide&nbsp;! Notre
-      force est dans le nombre.
+      Vous êtes disponible le dimanche 9 juin, jour du vote pour les élections
+      européennes, et vous souhaitez prendre la procuration d'une personne
+      absente pour voter. Merci pour votre aide !
     </p>
-    <Spacer size="0.5rem" />
-    <ol>
+    <Spacer size="1rem" />
+    <StyledList>
       <li>
-        <strong>Remplissez ce formulaire</strong> en indiquant vos coordonnées
-        et disponibilités
+        <FeatherIcon name="arrow-right" />
+        <span>
+          <strong>Remplissez ce formulaire</strong> en indiquant vos coordonnées
+        </span>
       </li>
       <Spacer size="0.5rem" />
       <li>
-        <strong>Vous recevrez un SMS</strong> à valider dès lors qu'un·e
-        électeur·ice proche de chez vous souhaitera porter une procuration
+        <FeatherIcon name="arrow-right" />
+        <span>
+          <strong>Vous recevrez un SMS à valider</strong> quand une personne
+          proche de chez vous souhaitera faire une procuration.
+        </span>
       </li>
       <Spacer size="0.5rem" />
       <li>
-        <strong>Vous allez voter en son nom</strong> le jour du scrutin dans son
-        bureau de vote
+        <FeatherIcon name="arrow-right" />
+        <span>
+          <strong>Vous allez voter en son nom</strong> le jour du scrutin dans
+          son bureau de vote
+        </span>
       </li>
-    </ol>
-    <Spacer size="1rem" />
-    <p>
-      <em>
-        Vous ne vous pouvez pas vous déplacer les jours de scrutin&nbsp;?{" "}
-        <Link route="newVotingProxyRequest">
-          Permettez à quelqu'un de voter à votre place
-        </Link>
-        .
-      </em>
-    </p>
+    </StyledList>
     <Spacer size="1rem" />
     <p
       css={`
-        font-size: 0.875rem;
-        background-color: ${({ theme }) => theme.primary50};
+        line-height: 1.5;
         padding: 1rem;
+        background-color: ${({ theme }) => theme.primary50};
         border-radius: ${({ theme }) => theme.borderRadius};
       `}
     >
-      Depuis le 1er janvier 2022, il est possible de voter pour une personne
-      inscrite sur les listes électorales d'une autre commune.
-      <br />
+      Depuis le 1er janvier 2022,{" "}
+      <strong>
+        il est possible de voter pour une personne inscrite sur les listes
+        électorales d'une autre commune.
+      </strong>{" "}
       Ainsi, si vous votez dans la commune A, vous pourrez voter pour un·e
-      électeur·ice qui vote dans la commune B - en revanche, vous devrez
-      toujours vous rendre dans son bureau de vote le jour du scrutin.
-      <br />
-      <br />
-      Ainsi, pour vous mettre en contact avec des électeur·ices, nous
-      privilégierons votre adresse actuelle, si celle-ci est différente de votre
-      commune d'inscription.
+      électeur·rice qui est inscrit·e dans la commune B. Cependant, vous devrez
+      vous rendre dans son bureau de vote pour voter à sa place le jour du
+      scrutin.
     </p>
-    <Spacer size="1rem" />
-    <MailTo />
   </div>
 );
 

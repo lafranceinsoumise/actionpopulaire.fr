@@ -8,7 +8,7 @@ import React, {
 } from "react";
 
 import { formatEvent } from "@agir/events/common/utils";
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 import useCopyToClipboard from "@agir/front/genericComponents/useCopyToClipboard";
 import { timeAgo } from "@agir/lib/utils/time";
 import { useCommentsSWR } from "@agir/msgs/common/hooks";

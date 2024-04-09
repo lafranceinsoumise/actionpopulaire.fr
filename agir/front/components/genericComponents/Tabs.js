@@ -4,7 +4,7 @@ import { useSpring, animated } from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 const StyledMenu = styled.nav`
   position: sticky;

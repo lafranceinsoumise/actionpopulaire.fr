@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 import { addQueryStringParams } from "@agir/lib/utils/url";
 
 const UI_AVATARS_BASE_URL = "https://eu.ui-avatars.com/api/";

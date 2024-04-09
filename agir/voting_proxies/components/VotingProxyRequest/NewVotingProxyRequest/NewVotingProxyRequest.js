@@ -8,11 +8,13 @@ import Skeleton from "@agir/front/genericComponents/Skeleton";
 import StyledPageContainer from "@agir/elections/Common/StyledPageContainer";
 import VotingProxyRequestForm from "./VotingProxyRequestForm";
 
+import { votingProxyRequestTheme } from "@agir/voting_proxies/Common/themes";
+
 const NewVotingProxyRequest = () => {
   const { data: session } = useSWR("/api/session/");
 
   return (
-    <StyledPageContainer>
+    <StyledPageContainer theme={votingProxyRequestTheme}>
       <PageFadeIn
         ready={typeof session !== "undefined"}
         wait={

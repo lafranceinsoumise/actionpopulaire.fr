@@ -6,7 +6,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 
 import "swiper/scss";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";

@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { mutate } from "swr";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import * as api from "@agir/events/common/api";
 import * as apiGroup from "@agir/groups/utils/api";

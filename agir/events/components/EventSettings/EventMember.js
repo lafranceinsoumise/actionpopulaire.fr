@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 import { FaMicrophone, FaLock } from "@agir/front/genericComponents/FaIcon";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import Avatar from "@agir/front/genericComponents/Avatar";
 import { GENDER, getGenderedWord } from "@agir/lib/utils/display";

@@ -11,12 +11,11 @@ import VectorSource from "ol/source/Vector";
 import XYZ from "ol/source/XYZ";
 import Fill from "ol/style/Fill";
 import Icon from "ol/style/Icon";
-import Stroke from "ol/style/Stroke";
 import Style from "ol/style/Style";
 import Text from "ol/style/Text";
 import View from "ol/View";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 import fontawesome from "@agir/lib/utils/fontawesome";
 
 import markerIcon from "./marker.svg";
@@ -133,14 +132,14 @@ export function makeStyle(config, options = {}) {
         }),
       }),
     ];
-  } else if (style.iconUrl && style.iconAnchor) {
+  } else if (config.iconUrl && config.iconAnchor) {
     return new Style({
       image: new Icon({
-        anchor: style.iconAnchor,
+        anchor: config.iconAnchor,
         anchorXUnits: "pixels",
         anchorYUnits: "pixels",
         opacity: 1,
-        src: style.iconUrl,
+        src: config.iconUrl,
       }),
     });
   }

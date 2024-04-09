@@ -1,6 +1,6 @@
 import isPropValid from "@emotion/is-prop-valid";
 import PropTypes from "prop-types";
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
 
 const cardTypes = {

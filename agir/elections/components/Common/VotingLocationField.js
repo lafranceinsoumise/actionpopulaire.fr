@@ -27,6 +27,7 @@ const VotingLocationField = (props) => {
   return (
     <SearchAndSelectField
       {...rest}
+      isClearable
       minSearchTermLength={1}
       isLoading={isLoading}
       value={value}

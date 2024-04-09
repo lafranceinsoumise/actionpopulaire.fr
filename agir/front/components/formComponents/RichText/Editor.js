@@ -3,7 +3,7 @@ import React, { useCallback, useState } from "react";
 import ReactQuill, { Quill } from "react-quill";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import "react-quill/dist/quill.snow.css";
 

@@ -14,10 +14,13 @@ import {
   cancelVotingProxyRequestAcceptation,
 } from "@agir/voting_proxies/Common/api";
 
+import { WarningBlock } from "@agir/elections/Common/StyledComponents";
+
 const StyledRecap = styled.div`
   padding: 1rem 1.5rem;
-  background-color: ${({ theme }) => theme.primary50};
+  background-color: ${({ theme }) => theme.white};
   border-radius: ${({ theme }) => theme.borderRadius};
+  border: 1px solid ${({ theme }) => theme.black100};
 
   h5,
   p {
@@ -25,25 +28,25 @@ const StyledRecap = styled.div`
     padding: 0;
     display: flex;
     align-items: center;
+  }
+
+  p {
+    display: flex;
+    align-items: start;
+    line-height: 1.5;
+    gap: 1rem;
 
     ${RawFeatherIcon} {
-      flex: 0 0 auto;
-      width: 0.875rem;
-      height: 0.875rem;
-      margin-right: 0.5rem;
+      color: ${(props) => props.theme.black500};
 
       @media (max-width: 350px) {
         display: none;
       }
     }
-  }
 
-  p > span {
-    color: ${({ theme }) => theme.primary500};
-  }
-
-  p > strong {
-    text-transform: capitalize;
+    & > strong {
+      text-transform: capitalize;
+    }
   }
 
   p + p {
@@ -57,10 +60,6 @@ const StyledWrapper = styled.div`
     &::first-letter {
       text-transform: capitalize;
     }
-  }
-
-  h2 {
-    color: ${({ theme }) => theme.primary500};
   }
 
   footer {
@@ -83,22 +82,21 @@ const AcceptedRequest = (props) => {
     <>
       <Spacer size="1rem" />
       <StyledRecap>
-        <p>
+        <p style={{ display: "block" }}>
           Voter pour&nbsp;:&nbsp;<strong>{request.firstName}</strong>
         </p>
         <p>
           <RawFeatherIcon name="calendar" />
-          {request.votingDate}
+          <strong>{request.votingDate}</strong>
         </p>
         <p>
           <RawFeatherIcon name="map-pin" />
-          {request.commune || request.consulate}
+          <strong>{request.commune || request.consulate}</strong>
         </p>
-        <Spacer size="1rem" />
+        <Spacer size="1.5rem" />
         <p>
           <Button
             block
-            small
             wrap
             icon={isConfirmed ? "check" : undefined}
             color="primary"
@@ -115,7 +113,6 @@ const AcceptedRequest = (props) => {
         <p>
           <Button
             block
-            small
             wrap
             disabled={isLoading}
             loading={isLoading}
@@ -128,7 +125,6 @@ const AcceptedRequest = (props) => {
         <p>
           <Button
             block
-            small
             wrap
             disabled={isLoading}
             loading={isLoading}
@@ -201,19 +197,28 @@ const AcceptedRequests = (props) => {
   return (
     <StyledWrapper>
       <h2>Mes procurations de vote</h2>
+      <Spacer size="1.5rem" />
+      <WarningBlock>
+        Le jour du vote, l'électeur désigné ne peut posséder{" "}
+        <strong>qu'une seule procuration</strong> établie en France.
+      </WarningBlock>
+      <Spacer size="1.5rem" />
       {hasMatchedRequests && (
-        <StaticToast style={{ marginTop: "1rem" }}>
-          Cette demande de procuration a été déjà acceptée par quelqu'un d'autre
-          ou a été annulée.
-          <br />
-          Nous vous recontacterons dès qu'une nouvelle personne aura demandé une
-          procuration.
-        </StaticToast>
+        <>
+          <StaticToast style={{ marginTop: "1rem" }}>
+            Cette demande de procuration a été déjà acceptée par quelqu'un
+            d'autre ou a été annulée.
+            <br />
+            Nous vous recontacterons dès qu'une nouvelle personne aura demandé
+            une procuration.
+          </StaticToast>
+          <Spacer size="1rem" />
+        </>
       )}
-      <Spacer size="1rem" />
+      <p>Vous avez déjà accepté les procurations suivantes.</p>
+      <Spacer size="0.5rem" />
       <p>
-        Vous avez déjà accepté les procurations suivantes. Vérifiez vos SMS
-        et/ou emails pour y retrouver toutes les informations.
+        Vérifiez vos SMS et/ou e-mails pour retrouver toutes les informations.
       </p>
       <Spacer size="1rem" />
       {requests.map((request) => (
@@ -224,42 +229,6 @@ const AcceptedRequests = (props) => {
           isLoading={isLoading}
         />
       ))}
-      <ModalConfirmation
-        shouldShow={!!selectedRequest && !!selectedAction}
-        onClose={dismissConfirm}
-        onConfirm={actOnRequest}
-        title="Confirmer l'établissement de la procuration par le mandant"
-        confirmationLabel="Je confirme"
-        dismissLabel="Annuler"
-        isConfirming={isLoading}
-        shouldDismissOnClick={false}
-      >
-        <p>
-          Le mandant doit établir une procuration de vote à votre nom pour cette
-          date dans un commissariat de police, une brigade de gendarmerie ou un
-          consulat.
-        </p>
-        <p>
-          Confirmez-vous que tout est prêt pour que vous puissiez voter à sa
-          place le jour du scrutin&nbsp;?
-        </p>
-        {errors && (
-          <p
-            css={`
-              padding: 0;
-              margin: 0;
-              font-size: 1rem;
-              font-weight: 500;
-              color: ${({ theme }) => theme.redNSP};
-              text-align: center;
-            `}
-          >
-            {errors?.votingProxyRequests ||
-              errors?.global ||
-              "Une erreur est survenue"}
-          </p>
-        )}
-      </ModalConfirmation>
       <ModalConfirmation
         shouldShow={!!selectedRequest && selectedAction === "confirm"}
         onClose={dismissConfirm}

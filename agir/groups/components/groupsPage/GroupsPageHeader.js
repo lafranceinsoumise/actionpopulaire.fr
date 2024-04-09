@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import { getRoutes } from "@agir/front/globalContext/reducers";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";

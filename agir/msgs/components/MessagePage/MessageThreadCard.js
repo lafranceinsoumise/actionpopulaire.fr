@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import React, { useCallback } from "react";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import { getMessageSubject } from "@agir/msgs/common/utils";
 import { timeAgo } from "@agir/lib/utils/time";

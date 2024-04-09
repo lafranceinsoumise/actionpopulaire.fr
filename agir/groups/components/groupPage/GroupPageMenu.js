@@ -4,7 +4,7 @@ import { NavLink } from "react-router-dom";
 
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 const StyledMenu = styled.nav`
   position: sticky;

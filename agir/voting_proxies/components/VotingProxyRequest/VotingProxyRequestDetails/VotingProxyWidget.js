@@ -11,11 +11,18 @@ import {
   confirmVotingProxyRequests,
   cancelVotingProxyRequests,
 } from "@agir/voting_proxies/Common/api";
+import { useToast } from "@agir/front/globalContext/hooks";
 
 const StyledWidget = styled.div`
-  background-color: ${({ theme }) => theme.primary50};
+  padding: 1rem 1.5rem;
+  background-color: ${({ theme }) => theme.white};
   border-radius: ${({ theme }) => theme.borderRadius};
-  padding: 1.5rem;
+  border: 1px solid ${({ theme }) => theme.black100};
+
+  & > p > strong {
+    font-size: 0.875rem;
+    line-height: 1.7;
+  }
 
   ${Button} {
     text-align: left;
@@ -43,6 +50,8 @@ const VotingProxyWidget = (props) => {
   );
   const [shouldConfirm, setShouldConfirm] = useState(false);
 
+  const sendToast = useToast();
+
   const dismissConfirm = useCallback(() => {
     setShouldConfirm(false);
   }, []);
@@ -54,8 +63,16 @@ const VotingProxyWidget = (props) => {
     setIsLoading(false);
     if (result.error) {
       setError(result.error);
+      return;
     }
-  }, [request]);
+    sendToast(
+      <>
+        Les informations de procuration vous ont été envoyées{" "}
+        <strong>par SMS et par e-mail</strong>
+      </>,
+      "SUCCESS",
+    );
+  }, [request, sendToast]);
 
   const confirm = useCallback(async () => {
     if (!shouldConfirm) {
@@ -69,10 +86,11 @@ const VotingProxyWidget = (props) => {
     setShouldConfirm(false);
     if (result.error) {
       setError(result.error);
-    } else {
-      setIsConfirmed(true);
+      return;
     }
-  }, [shouldConfirm, request]);
+    setIsConfirmed(true);
+    sendToast("Votre procuration a bien été validée !", "SUCCESS");
+  }, [shouldConfirm, request, sendToast]);
 
   const cancel = useCallback(async () => {
     if (!shouldConfirm) {
@@ -86,10 +104,11 @@ const VotingProxyWidget = (props) => {
     setShouldConfirm(false);
     if (result.error) {
       setError(result.error);
-    } else {
-      setIsCancelled(true);
+      return;
     }
-  }, [shouldConfirm, request]);
+    setIsCancelled(true);
+    sendToast("Votre demande de procuration a bien été annulée !", "SUCCESS");
+  }, [shouldConfirm, request, sendToast]);
 
   return (
     <StyledWidget>
@@ -100,6 +119,7 @@ const VotingProxyWidget = (props) => {
           {request.votingProxy.firstName}
         </p>
       )}
+      <Spacer size="1rem" />
       <p>
         <strong>Scrutin&nbsp;:</strong>
         <br />
@@ -110,11 +130,11 @@ const VotingProxyWidget = (props) => {
         {!isCancelled && (
           <>
             <Button
-              disabled={!!isLoading}
-              loading={isLoading === "info"}
               small
               wrap
-              color="primary"
+              block
+              disabled={!!isLoading}
+              loading={isLoading === "info"}
               onClick={sendInformation}
               icon="message-square"
             >
@@ -126,10 +146,29 @@ const VotingProxyWidget = (props) => {
         {!isCancelled && (
           <>
             <Button
+              small
+              wrap
+              block
+              link
+              disabled={!!isLoading || isConfirmed}
+              href="https://www.maprocuration.gouv.fr/"
+              target="_blank"
+              rel="noopener noreferrer"
+              icon="external-link"
+            >
+              Établir la procuration (sur le site du service public)
+            </Button>
+            <Spacer size=".5rem" />
+          </>
+        )}
+        {!isCancelled && (
+          <>
+            <Button
               disabled={!!isLoading || isConfirmed}
               small
               wrap
-              color="primary"
+              block
+              color="success"
               onClick={confirm}
               icon="check-square"
             >
@@ -144,9 +183,9 @@ const VotingProxyWidget = (props) => {
           disabled={!!isLoading || isCancelled}
           small
           wrap
+          block
           color="danger"
           onClick={cancel}
-          icon="cross"
         >
           {isCancelled
             ? "Procuration annulée"

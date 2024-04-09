@@ -1,7 +1,7 @@
 import React, { useCallback, useRef, useState } from "react";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import nonReactRoutes from "@agir/front/globalContext/nonReactRoutes.config";
 

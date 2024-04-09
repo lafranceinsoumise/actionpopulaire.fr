@@ -4,7 +4,7 @@ import { useTransition, animated } from "@react-spring/web";
 import { useEffectOnce } from "react-use";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getUser, getRoutes } from "@agir/front/globalContext/reducers";

@@ -1,8 +1,8 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
 
@@ -35,7 +35,16 @@ const StyledFieldset = styled.fieldset`
 `;
 
 const VotingDateFields = (props) => {
-  const { name, value, onChange, options, error, label, helpText } = props;
+  const {
+    name,
+    value,
+    onChange,
+    options,
+    error,
+    label,
+    labelSingle,
+    helpText,
+  } = props;
 
   const handleChange = useCallback(
     ({ target }) => {
@@ -57,13 +66,28 @@ const VotingDateFields = (props) => {
     [options],
   );
 
+  const displayLabel = useMemo(() => {
+    if (labelSingle && activeOptions.length === 1) {
+      return labelSingle;
+    }
+
+    return label;
+  }, [label, labelSingle, activeOptions]);
+
+  useEffect(() => {
+    activeOptions.length === 1 &&
+      !value.includes(activeOptions[0].value) &&
+      onChange([activeOptions[0].value]);
+  }, [value, activeOptions, onChange]);
+
   return (
     <StyledFieldset>
-      {label && <StyledLabel>{label}</StyledLabel>}
+      {label && <StyledLabel>{displayLabel}</StyledLabel>}
       {helpText && <StyledHelpText>{helpText}</StyledHelpText>}
       <StyledField>
         {activeOptions.map((option) => (
           <CheckboxField
+            toggle={activeOptions.length === 1}
             key={option.value}
             name={name}
             label={option.label}
@@ -93,6 +117,7 @@ VotingDateFields.propTypes = {
   disabled: PropTypes.bool,
   error: PropTypes.string,
   label: PropTypes.node,
+  labelSingle: PropTypes.arrayOf(PropTypes.node),
   helpText: PropTypes.node,
 };
 

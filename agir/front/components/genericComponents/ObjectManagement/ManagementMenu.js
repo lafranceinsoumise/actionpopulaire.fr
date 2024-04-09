@@ -3,7 +3,7 @@ import React, { useMemo } from "react";
 import { NavLink } from "react-router-dom";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import { Hide } from "@agir/front/genericComponents/grid";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";

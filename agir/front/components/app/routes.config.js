@@ -1,6 +1,6 @@
 import pathToRegexp from "path-to-regexp-es";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 import logger from "@agir/lib/utils/logger";
 
 import { AUTHENTICATION } from "@agir/front/authentication/common";
@@ -552,6 +552,18 @@ export const routeConfig = {
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Donner ma procuration de vote",
     Component: RouteComponents.NewVotingProxyRequest,
+    hasLayout: false,
+    hideFeedbackButton: true,
+    hideFooter: true,
+    appOnlyTopBar: true,
+  }),
+  votingProxyLandingPage: new RouteConfig({
+    id: "votingProxyLandingPage",
+    path: "/procuration/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Espace procurations de vote",
+    Component: RouteComponents.VotingProxyLandingPage,
     hasLayout: false,
     hideFeedbackButton: true,
     hideFooter: true,

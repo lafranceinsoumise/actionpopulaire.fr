@@ -3,7 +3,7 @@ import React, { Suspense, useEffect, useMemo } from "react";
 import { useHistory, useLocation, useParams } from "react-router-dom";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 import {
   setAdminLink,
   setBackLink,

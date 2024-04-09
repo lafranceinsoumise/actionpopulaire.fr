@@ -22,7 +22,7 @@ export const getInitialData = (user) =>
         ...INITIAL_DATA,
         email: user.email || "",
         phone: user.contactPhone || "",
-        dateOfBirth: user.dateOfBirth || "",
+        dateOfBirth: user.dateOfBirth || "2006-09-06",
         address: user.address1 || "",
         zip: user.zip || "",
         city: user.city || "",
@@ -53,7 +53,9 @@ export const VOTING_PROXY_CONSTRAINTS = {
       message: "Ce champ est obligatoire",
     },
     length: {
+      minimum: 8,
       maximum: 255,
+      tooShort: "La valeur de ce champ doit avoir %{count} caractères minimum",
       tooLong:
         "La valeur de ce champ ne peut pas dépasser les %{count} caractères",
     },
@@ -92,7 +94,9 @@ export const VOTING_PROXY_CONSTRAINTS = {
       message: "Ce champ ne peut être vide.",
     },
     date: {
-      message: "Indiquez une date valide",
+      latest: "2006-06-09",
+      notValid: "Indiquez une date valide",
+      tooLate: "Vous devez avoir 18 ans le jour du vote pour pouvoir voter",
     },
   },
   phone: {

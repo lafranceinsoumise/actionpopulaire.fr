@@ -10,15 +10,17 @@ import PhoneField from "@agir/front/formComponents/PhoneField";
 import TextField from "@agir/front/formComponents/TextField";
 
 import PollingStationField from "@agir/elections/Common/PollingStationField";
-import VotingLocationField from "@agir/elections/Common/VotingLocationField";
+import { ElectoralInfoLink } from "@agir/elections/Common/StyledComponents";
 import VotingDateFields from "@agir/elections/Common/VotingDateFields";
+import VotingLocationField from "@agir/elections/Common/VotingLocationField";
+import FormFooter from "@agir/voting_proxies/Common/FormFooter";
 
 import NewVotingProxyHowTo from "./NewVotingProxyHowTo";
 import NewVotingProxySuccess from "./NewVotingProxySuccess";
 
 import {
-  createVotingProxyOptions,
   createVotingProxy,
+  createVotingProxyOptions,
 } from "@agir/voting_proxies/Common/api";
 import { getInitialData, validateVotingProxy } from "./form.config";
 
@@ -167,229 +169,233 @@ const VotingProxyForm = (props) => {
   }, []);
 
   if (newVotingProxy) {
-    return <NewVotingProxySuccess votingProxy={newVotingProxy} />;
+    return (
+      <>
+        <NewVotingProxySuccess votingProxy={newVotingProxy} />
+        <Spacer size="4rem" />
+        <FormFooter />
+      </>
+    );
   }
 
   const globalError = errors?.detail || errors?.global;
 
   return (
-    <Steps
-      as="form"
-      onSubmit={handleSubmit}
-      isLoading={isLoading}
-      disabled={!hasDataAgreement || isLoading}
-      title="voter au nom d'un·e citoyen·ne"
-      step={formStep}
-      goToPrevious={goToPreviousFormStep}
-      goToNext={goToNextFormStep}
-    >
-      <NewVotingProxyHowTo />
-      <fieldset>
-        <VotingLocationField
-          required
-          disabled={isLoading}
-          id="votingLocation"
-          name="votingLocation"
-          value={data.votingLocation}
-          onChange={handleSelectVotingLocation}
-          error={errors?.votingLocation || errors?.commune || errors?.consulate}
-          label="Commune ou ambassade d'inscription aux listes électorales"
-        />
-        <Spacer size="1rem" />
-        <PollingStationField
-          isAbroad={isAbroad}
-          countries={data?.votingLocation?.countries}
-          disabled={isLoading}
-          id="pollingStationNumber"
-          name="pollingStationNumber"
-          onChange={handleChangePollingStation}
-          value={data.pollingStationNumber}
-          error={errors?.pollingStationNumber}
-          label="Bureau de vote"
-        />
-        <Spacer size="1rem" />
-        <TextField
-          disabled={isLoading}
-          id="voterId"
-          name="voterId"
-          onChange={handleChange}
-          value={data.voterId}
-          error={errors?.voterId}
-          label="Numéro national d'électeur"
-          helpText={
-            <span>
-              Vous pouvez retrouver votre numéro national d'électeur sur votre
-              carte éléctorale ou sur{" "}
-              <a
-                href="https://www.service-public.fr/particuliers/vosdroits/services-en-ligne-et-formulaires/ISE"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                le site du service public
-              </a>
-            </span>
-          }
-        />
-        <Spacer size="1rem" />
-        <VotingDateFields
-          required
-          disabled={isLoading}
-          id="votingDates"
-          name="votingDates"
-          value={data.votingDates}
-          onChange={handleChangeVotingDates}
-          error={errors?.votingDates}
-          label="Dates de disponibilité"
-          options={votingDateOptions}
-        />
-      </fieldset>
-      {!isAbroad && (
+    <>
+      <Steps
+        as="form"
+        onSubmit={handleSubmit}
+        isLoading={isLoading}
+        disabled={!hasDataAgreement || isLoading}
+        title="voter à la place de quelqu'un"
+        step={formStep}
+        goToPrevious={goToPreviousFormStep}
+        goToNext={goToNextFormStep}
+      >
+        <NewVotingProxyHowTo />
+        <fieldset>
+          <VotingLocationField
+            required
+            disabled={isLoading}
+            id="votingLocation"
+            name="votingLocation"
+            value={data.votingLocation}
+            onChange={handleSelectVotingLocation}
+            error={
+              errors?.votingLocation || errors?.commune || errors?.consulate
+            }
+            label="Commune ou ambassade d'inscription aux listes électorales (obligatoire)"
+          />
+          <Spacer size="1rem" />
+          <ElectoralInfoLink />
+          <Spacer size="1rem" />
+          <PollingStationField
+            isAbroad={isAbroad}
+            countries={data?.votingLocation?.countries}
+            disabled={isLoading}
+            id="pollingStationNumber"
+            name="pollingStationNumber"
+            onChange={handleChangePollingStation}
+            value={data.pollingStationNumber}
+            error={errors?.pollingStationNumber}
+            label="Bureau de vote (obligatoire)"
+          />
+          <Spacer size="1rem" />
+          <TextField
+            disabled={isLoading}
+            id="voterId"
+            name="voterId"
+            onChange={handleChange}
+            value={data.voterId}
+            error={errors?.voterId}
+            label="Numéro national d'électeur (8 à 9 chiffres, obligatoire)"
+            placeholder="Exemple : 776922959"
+          />
+          <Spacer size="1rem" />
+          <VotingDateFields
+            required
+            disabled={isLoading}
+            id="votingDates"
+            name="votingDates"
+            value={data.votingDates}
+            onChange={handleChangeVotingDates}
+            error={errors?.votingDates}
+            label="Dates de disponibilité (obligatoire)"
+            labelSingle="Date du scrutin :"
+            options={votingDateOptions}
+          />
+        </fieldset>
+        {!isAbroad && (
+          <fieldset>
+            <TextField
+              autoFocus
+              required
+              disabled={isLoading}
+              id="address"
+              name="address"
+              value={data.address}
+              onChange={handleChange}
+              error={errors?.address}
+              label="Votre adresse (obligatoire)"
+              autoComplete="address-line1"
+            />
+            <Spacer size="1rem" />
+            <TextField
+              required
+              disabled={isLoading}
+              id="zip"
+              name="zip"
+              value={data.zip}
+              onChange={handleChange}
+              error={errors?.zip}
+              label="Votre code postal (obligatoire)"
+              autoComplete="postal-code"
+            />
+            <Spacer size="1rem" />
+            <TextField
+              required
+              disabled={isLoading}
+              id="city"
+              name="city"
+              value={data.city}
+              onChange={handleChange}
+              error={errors?.city}
+              label="Votre commune (obligatoire)"
+              helpText="Celle où vous vous trouverez le jour du vote, qui peut être différente de celle où vous êtes inscrit·e"
+              autoComplete="locality"
+            />
+          </fieldset>
+        )}
         <fieldset>
           <TextField
             autoFocus
             required
             disabled={isLoading}
-            id="address"
-            name="address"
-            value={data.address}
+            id="firstName"
+            name="firstName"
+            value={data.firstName}
             onChange={handleChange}
-            error={errors?.address}
-            label="Adresse"
-            autoComplete="address-line1"
+            error={errors?.firstName}
+            label="Vos prénoms (obligatoire)"
+            helpText="Tous vos prénoms tels qu'ils apparaissent sur votre pièce d'identité"
+            autoComplete="given-name"
           />
           <Spacer size="1rem" />
           <TextField
             required
             disabled={isLoading}
-            id="zip"
-            name="zip"
-            value={data.zip}
+            id="lastName"
+            name="lastName"
+            value={data.lastName}
             onChange={handleChange}
-            error={errors?.zip}
-            label="Code postal"
-            autoComplete="postal-code"
+            error={errors?.lastName}
+            label="Votre nom de famille (obligatoire)"
+            helpText="Tel qu'il apparaît sur votre pièce d'identité"
+            autoComplete="family-name"
           />
           <Spacer size="1rem" />
-          <TextField
+          <DateTimeField
             required
+            type="date"
             disabled={isLoading}
-            id="city"
-            name="city"
-            value={data.city}
-            onChange={handleChange}
-            error={errors?.city}
-            label="Commune"
-            autoComplete="locality"
+            id="dateOfBirth"
+            name="dateOfBirth"
+            value={data.dateOfBirth}
+            onChange={handleChangeDateOfBirth}
+            error={errors?.dateOfBirth}
+            label="Votre date de naissance (obligatoire)"
+            autoComplete="birthday"
           />
         </fieldset>
-      )}
-      <fieldset>
-        <TextField
-          autoFocus
-          required
-          disabled={isLoading}
-          id="firstName"
-          name="firstName"
-          value={data.firstName}
-          onChange={handleChange}
-          error={errors?.firstName}
-          label="Prénoms"
-          helpText="Tous vos prénoms, tels qu'ils apparaissent sur la carte électorale"
-          autoComplete="given-name"
-        />
-        <Spacer size="1rem" />
-        <TextField
-          required
-          disabled={isLoading}
-          id="lastName"
-          name="lastName"
-          value={data.lastName}
-          onChange={handleChange}
-          error={errors?.lastName}
-          label="Nom de famille"
-          helpText="Votre nom de famille, tel qu'il apparaît sur la carte électorale"
-          autoComplete="family-name"
-        />
-        <Spacer size="1rem" />
-        <DateTimeField
-          required
-          type="date"
-          disabled={isLoading}
-          id="dateOfBirth"
-          name="dateOfBirth"
-          value={data.dateOfBirth}
-          onChange={handleChangeDateOfBirth}
-          error={errors?.dateOfBirth}
-          label="Date de naissance"
-          autoComplete="birthday"
-        />
-      </fieldset>
-      <fieldset>
-        <PhoneField
-          autoFocus
-          required
-          disabled={isLoading}
-          id="phone"
-          name="phone"
-          type="phone"
-          value={data.phone}
-          onChange={handleChange}
-          error={errors?.phone}
-          label="Téléphone mobile"
-          helpText="📱Vous recevrez un SMS pour être mis·e en relation avec votre mandant·e"
-          autoComplete="tel"
-        />
-        <Spacer size="1rem" />
-        <TextField
-          required
-          disabled={isLoading}
-          id="email"
-          name="email"
-          type="email"
-          value={data.email}
-          onChange={handleChange}
-          error={errors?.email}
-          label="Adresse e-mail"
-          helpText="Important : si vous vous êtes déjà inscrit·e sur lafranceinsoumise.fr ou melenchon2022.fr, utilisez la même adresse e-mail."
-          autoComplete="email"
-        />
-        <Spacer size="1rem" />
-        <TextField
-          textArea
-          hasCounter={!!data.remarks}
-          maxLength={255}
-          disabled={isLoading}
-          id="remarks"
-          name="remarks"
-          value={data.remarks}
-          onChange={handleChange}
-          error={errors?.remarks}
-          label="Moment de disponibilité (facultatif)"
-          helpText="Quand êtes-vous disponible pour être contacté·e, en semaine et le week-end ?"
-        />
-        <Spacer size="1rem" />
-        <CheckboxField
-          disabled={isLoading}
-          id="dataAgreement"
-          name="dataAgreement"
-          value={hasDataAgreement}
-          onChange={handleChangeDataAgreement}
-          label="J'autorise Action Populaire à partager mes coordonnées pour être mis·e en contact dans le cadre d'une procuration"
-        />
-        {globalError && (
-          <p
-            css={`
-              padding: 1rem 0 0;
-              margin: 0;
-              font-size: 1rem;
-              color: ${({ theme }) => theme.redNSP};
-            `}
-          >
-            {globalError}
-          </p>
-        )}
-      </fieldset>
-    </Steps>
+        <fieldset>
+          <PhoneField
+            autoFocus
+            required
+            disabled={isLoading}
+            id="phone"
+            name="phone"
+            type="phone"
+            value={data.phone}
+            onChange={handleChange}
+            error={errors?.phone}
+            label="Votre numéro de téléphone mobile (obligatoire)"
+            helpText="Vous recevrez un SMS pour la mise en relation avec la personne qui vous donnera procuration"
+            autoComplete="tel"
+          />
+          <Spacer size="1rem" />
+          <TextField
+            required
+            disabled={isLoading}
+            id="email"
+            name="email"
+            type="email"
+            value={data.email}
+            onChange={handleChange}
+            error={errors?.email}
+            label="Votre adresse e-mail (obligatoire)"
+            helpText="Important : si vous vous êtes déjà inscrit·e sur lafranceinsoumise.fr ou actionpopulaire.fr, utilisez la même adresse e-mail."
+            autoComplete="email"
+          />
+          <Spacer size="1rem" />
+          <TextField
+            textArea
+            hasCounter={!!data.remarks}
+            maxLength={255}
+            disabled={isLoading}
+            id="remarks"
+            name="remarks"
+            value={data.remarks}
+            onChange={handleChange}
+            error={errors?.remarks}
+            label="Vos disponibilités (facultatif)"
+            helpText="Quand êtes-vous disponible pour être contacté·e, en semaine et le week-end ?"
+          />
+          <Spacer size="1rem" />
+          <CheckboxField
+            disabled={isLoading}
+            id="dataAgreement"
+            name="dataAgreement"
+            value={hasDataAgreement}
+            onChange={handleChangeDataAgreement}
+            label="J'autorise la France insoumise à partager mes coordonnées pour être mis·e en contact dans le cadre d'une procuration"
+          />
+          {globalError && (
+            <p
+              css={`
+                padding: 1rem 0 0;
+                margin: 0;
+                font-size: 1rem;
+                color: ${({ theme }) => theme.redNSP};
+              `}
+            >
+              {globalError}
+            </p>
+          )}
+        </fieldset>
+      </Steps>
+      <Spacer size="0.5rem" />
+      <FormFooter votingProxyRequestLink={formStep === 0} />
+    </>
   );
 };
 

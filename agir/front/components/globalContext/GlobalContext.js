@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useMemo, Suspense } from "react";
 import { StateInspector, useReducer } from "reinspect";
 import useSWR from "swr";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import QueryStringParamsActions from "./QueryStringParamsActions";
 import ThemeProvider from "@agir/front/theme/ThemeProvider";

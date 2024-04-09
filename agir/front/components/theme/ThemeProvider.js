@@ -5,7 +5,7 @@ import {
   ThemeProvider as SCThemeProvider,
 } from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 const STYLESHEETMANAGER_DEFAULT_PROPS = {
   enableVendorPrefixes: process.env.ENABLE_VENDOR_PREFIXES,

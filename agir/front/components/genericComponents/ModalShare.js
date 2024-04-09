@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
 import Modal from "@agir/front/genericComponents/Modal";
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 import ShareContentUrl from "@agir/front/genericComponents/ShareContentUrl";
 
 const ModalContainer = styled.div`

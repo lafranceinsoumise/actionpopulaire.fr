@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
 
 import { icons } from "feather-icons";

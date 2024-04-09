@@ -12,7 +12,7 @@ import {
 import { getBackLink } from "@agir/front/globalContext/reducers";
 import { routeConfig } from "@agir/front/app/routes.config";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 import { useLocation } from "react-router-dom";
 import { setBackLink } from "@agir/front/globalContext/actions";
 

@@ -4,7 +4,6 @@ from collections import OrderedDict
 from email.mime.text import MIMEText
 
 from data_france.models import Commune
-from django.core.mail import get_connection, EmailMultiAlternatives
 from django.core.management import BaseCommand
 from django.utils import timezone
 
@@ -30,7 +29,7 @@ CSV_FIELDS = OrderedDict(
 
 EMAIL_TEMPLATE = """
 =======================================================================
-DEMANDE DE PROCURATIONS ÉLECTIONS LÉGISLATIVES DU 12 ET 19 JUIN 2022
+DEMANDE DE PROCURATIONS ÉLECTIONS EUROPÉENNES DU 9 JUIN 2024
 =======================================================================
 
 Bonjour {},
@@ -39,11 +38,11 @@ Bonjour {},
 Veuillez trouver-ci jointe la liste des demandes de procuration de votre circonscription (ou à proximité) que nous avons 
 reçu et qui sont toujours en attente d'un ou d'une volontaire.
 
-Vous recevez ce message car vous avez été indiqué·e comme directeur·rice de campagne pour les législatives 2022 par les 
+Vous recevez ce message car vous avez été indiqué·e comme directeur·rice de campagne pour les européennes 2024 par les 
 candidats de la circonscription {}.
 
 Pour toute question, vous pouvez contacter l'équipe d'organisation des campagnes législatives à l'adresse 
-legislatives@melenchon2022.fr.
+procurations@actionpopulaire.fr.
 
 
 Cordialement.
@@ -102,7 +101,7 @@ class Command(BaseCommand):
         self, pending_requests, campaign_manager
     ):
         today = timezone.now().strftime("%Y-%m-%d")
-        subject = f"[Législatives 2022] Demandes de procuration en attente - {today}"
+        subject = f"[Européennes 2024] Demandes de procuration en attente - {today}"
         body = EMAIL_TEMPLATE.format(
             campaign_manager["prenom"], campaign_manager["circo"]
         )
@@ -118,7 +117,7 @@ class Command(BaseCommand):
 
         send_message(
             from_email="robot@actionpopulaire.fr",
-            reply_to=("legislatives@melenchon2022.fr",),
+            reply_to=("procurations@actionpopulaire.fr",),
             subject=subject,
             recipient=campaign_manager["email"],
             text=body,

@@ -4,7 +4,7 @@ import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
 import { routeConfig } from "@agir/front/app/routes.config";
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
 import Card from "@agir/front/genericComponents/Card";

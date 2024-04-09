@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 import Avatar from "@agir/front/genericComponents/Avatar";
 
 export const StyledCard = styled.button`

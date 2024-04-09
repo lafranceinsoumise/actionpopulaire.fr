@@ -5,7 +5,7 @@ import DatePanel from "react-multi-date-picker/plugins/date_panel";
 import TimePicker from "react-multi-date-picker/plugins/time_picker";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
 import { getIconDataUrl } from "@agir/front/genericComponents/Button/utils";
 

@@ -3,7 +3,7 @@ import Button from "@agir/front/genericComponents/Button";
 import arrowRight from "@agir/front/genericComponents/images/arrow-right.svg";
 import chevronDown from "@agir/front/genericComponents/images/chevron-down.svg";
 import StaticToast from "@agir/front/genericComponents/StaticToast";
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
 import LoginMailEmpty from "./LoginMailEmpty";
 import LoginFacebook from "./LoginFacebook";

@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import { routeConfig } from "@agir/front/app/routes.config";
 import { useTabs } from "./routes.config";

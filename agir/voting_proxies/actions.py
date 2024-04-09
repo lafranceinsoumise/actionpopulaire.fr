@@ -28,8 +28,7 @@ from agir.voting_proxies.tasks import (
     send_cancelled_request_acceptation_to_request_owner,
 )
 
-# TODO: Choose a proxy-to-request distance limit (in meters)
-PROXY_TO_REQUEST_DISTANCE_LIMIT = 30000  # 30 KM
+PROXY_TO_REQUEST_DISTANCE_LIMIT = 20000  # 20 KM
 PER_VOTING_PROXY_REQUEST_INVITATION_LIMIT = 10
 
 

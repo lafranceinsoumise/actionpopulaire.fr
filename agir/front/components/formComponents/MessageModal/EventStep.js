@@ -10,7 +10,7 @@ import {
   FaCalendar,
 } from "@agir/front/genericComponents/FaIcon";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 import { displayHumanDateString } from "@agir/lib/utils/time";
 
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";

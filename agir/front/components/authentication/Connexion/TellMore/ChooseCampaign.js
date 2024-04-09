@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
 import { Hide } from "@agir/front/genericComponents/grid";

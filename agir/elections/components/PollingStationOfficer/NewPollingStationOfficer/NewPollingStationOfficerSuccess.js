@@ -1,19 +1,17 @@
-import PropTypes from "prop-types";
 import React from "react";
-import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
 import FormSuccess from "@agir/elections/Common/FormSuccess";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
-const NewPollingStationOfficerSuccess = ({ PollingStationOfficer }) => (
+const NewPollingStationOfficerSuccess = () => (
   <FormSuccess>
     <h2>Votre demande a été envoyée​</h2>
     <Spacer size="0.875rem" />
     <p>
-      Les équipes de campagne de votre circonscription législative recevront
-      bientôt votre demande et pourront vous recontacter.
+      Les équipes militantes locales recevront bientôt votre demande et pourront
+      vous recontacter.
     </p>
     <Spacer size="0.875rem" />
     <p>
@@ -91,11 +89,5 @@ const NewPollingStationOfficerSuccess = ({ PollingStationOfficer }) => (
     </p>
   </FormSuccess>
 );
-
-NewPollingStationOfficerSuccess.propTypes = {
-  PollingStationOfficer: PropTypes.shape({
-    id: PropTypes.string,
-  }),
-};
 
 export default NewPollingStationOfficerSuccess;

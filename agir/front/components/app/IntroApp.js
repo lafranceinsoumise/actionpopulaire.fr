@@ -10,7 +10,7 @@ import { useSprings, animated } from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
 import Link from "@agir/front/app/Link";

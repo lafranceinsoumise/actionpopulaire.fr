@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import GroupMemberList from "@agir/groups/groupPage/GroupSettings/GroupMemberList";
 import Spacer from "@agir/front/genericComponents/Spacer.js";

@@ -5,7 +5,7 @@ import styled from "styled-components";
 import Button from "@agir/front/genericComponents/Button";
 import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import onboardingEventImage from "./images/onboarding__event.jpg";
 import onboardingActionImage from "./images/onboarding__action.jpg";

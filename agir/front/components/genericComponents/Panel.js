@@ -4,7 +4,7 @@ import { createPortal } from "react-dom";
 import { useTransition, animated } from "@react-spring/web";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 import { useDisableBodyScroll } from "@agir/lib/utils/hooks";
 import { useDownloadBanner } from "@agir/front/app/hooks.js";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
