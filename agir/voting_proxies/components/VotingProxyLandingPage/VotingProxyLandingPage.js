@@ -8,8 +8,8 @@ import { useIsDesktop } from "@agir/front/genericComponents/grid";
 
 import StyledPageContainer from "@agir/elections/Common/StyledPageContainer";
 
-import votingProxyRequestIcon from "@agir/voting_proxies/Common/images/vpr_icon.svg";
-import votingProxyIcon from "@agir/voting_proxies/Common/images/vp_icon.svg";
+import votingProxyRequestIcon from "@agir/voting_proxies/Common/images/vpr_icon.png";
+import votingProxyIcon from "@agir/voting_proxies/Common/images/vp_icon.png";
 
 const StyledLink = styled(Card).attrs({ bordered: true })`
   display: flex;

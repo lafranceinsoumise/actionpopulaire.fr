@@ -166,7 +166,17 @@ export const MailTo = () => (
       Besoin d'aide&nbsp;? Une question&nbsp;?
       <br />
       Écrivez-nous à l'adresse{" "}
-      <Link href="mailto:procurations@actionpopulaire.fr">
+      <Link
+        css={`
+          color: ${({ theme }) => theme.primary500};
+
+          &:hover,
+          &:focus {
+            color: ${({ theme }) => theme.primary600};
+          }
+        `}
+        href="mailto:procurations@actionpopulaire.fr"
+      >
         procurations@actionpopulaire.fr
       </Link>
     </p>

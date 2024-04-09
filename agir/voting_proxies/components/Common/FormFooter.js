@@ -5,8 +5,8 @@ import styled from "styled-components";
 import Button from "@agir/front/genericComponents/Button";
 import { MailTo } from "@agir/elections/Common/StyledComponents";
 
-import votingProxyRequestIcon from "@agir/voting_proxies/Common/images/vpr_icon.svg";
-import votingProxyIcon from "@agir/voting_proxies/Common/images/vp_icon.svg";
+import votingProxyRequestIcon from "@agir/voting_proxies/Common/images/vpr_icon.png";
+import votingProxyIcon from "@agir/voting_proxies/Common/images/vp_icon.png";
 
 const StyledFooterLink = styled.div`
   display: flex;
