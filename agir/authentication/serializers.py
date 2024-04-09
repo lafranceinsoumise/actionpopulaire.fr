@@ -16,11 +16,11 @@ from agir.donations.actions import (
     get_contribution_end_date,
     is_renewable_contribution,
 )
-from agir.donations.serializers import ContributionSerializer
 from agir.donations.views.donations_views import DONATION_SESSION_NAMESPACE
 from agir.groups.models import SupportGroup, Membership
 from agir.lib.utils import front_url
 from agir.people.serializers import PersonNewsletterListField
+from agir.voting_proxies.models import VotingProxyRequest
 
 
 class UserContextSerializer(serializers.Serializer):
@@ -52,6 +52,7 @@ class UserContextSerializer(serializers.Serializer):
     membreReseauElus = serializers.SerializerMethodField(
         method_name="is_membre_reseau_elus", read_only=True
     )
+    votingProxyId = serializers.SerializerMethodField(method_name="get_voting_proxy_id")
 
     def get_full_name(self, obj):
         return obj.get_full_name()
@@ -100,6 +101,16 @@ class UserContextSerializer(serializers.Serializer):
 
     def is_membre_reseau_elus(self, obj):
         return obj.membre_reseau_elus == obj.MEMBRE_RESEAU_OUI
+
+    def get_voting_proxy_id(self, obj):
+        accepted_voting_proxy_request = (
+            VotingProxyRequest.objects.filter(proxy__person_id=obj.id)
+            .upcoming()
+            .only("proxy_id")
+            .first()
+        )
+        if accepted_voting_proxy_request:
+            return accepted_voting_proxy_request.proxy_id
 
 
 class SessionSerializer(serializers.Serializer):
