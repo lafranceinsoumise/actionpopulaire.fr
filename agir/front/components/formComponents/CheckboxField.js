@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import { RawFeatherIcon as FeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const StyledLabel = styled.span``;
@@ -35,20 +33,20 @@ const StyledField = styled.label`
     margin-right: 0.5em;
     width: ${(props) => (props.$small ? "0.875rem" : "1rem")};
     height: ${(props) => (props.$small ? "0.875rem" : "1rem")};
-    border-radius: ${style.softBorderRadius};
+    border-radius: ${(props) => props.theme.softBorderRadius};
     border-style: solid;
     border-width: ${({ $checked }) => ($checked ? 0 : 1)}px;
-    border-color: ${({ $disabled }) =>
-      $disabled ? style.black200 : style.black1000};
-    background-color: ${({ $checked, $disabled }) => {
+    border-color: ${({ $disabled, theme }) =>
+      $disabled ? theme.black200 : theme.black1000};
+    background-color: ${({ $checked, $disabled, theme }) => {
       if ($checked && $disabled) {
-        return style.primary150;
+        return theme.primary150;
       }
       if ($checked) {
-        return style.primary500;
+        return theme.primary500;
       }
       if ($disabled) {
-        return style.black100;
+        return theme.black100;
       }
       return "transparent";
     }};
@@ -60,8 +58,8 @@ const StyledField = styled.label`
   }
 
   input:focus + ${StyledBox} {
-    box-shadow: ${({ $disabled }) =>
-      !$disabled ? `0 0 0 4px ${style.primary100}` : "none"};
+    box-shadow: ${({ $disabled, theme }) =>
+      !$disabled ? `0 0 0 4px ${theme.primary100}` : "none"};
   }
 
   ${StyledToggle} {
@@ -88,11 +86,11 @@ const StyledField = styled.label`
       height: 0.75rem;
       border-radius: 2.5rem;
       background: ${(props) => props.theme.primary100};
-      background-color: ${({ $checked }) =>
-        $checked ? style.primary100 : "transparent"};
+      background-color: ${({ $checked, theme }) =>
+        $checked ? theme.primary100 : "transparent"};
       border: 1px solid;
-      border-color: ${({ $checked }) =>
-        $checked ? style.primary100 : style.black100};
+      border-color: ${({ $checked, theme }) =>
+        $checked ? theme.primary100 : theme.black100};
       opacity: ${({ $disabled }) => ($disabled ? 0.5 : 1)};
     }
 
@@ -102,34 +100,35 @@ const StyledField = styled.label`
       height: 1rem;
       border-radius: 100%;
       background: ${(props) => props.theme.primary500};
-      background-color: ${({ $checked, $disabled }) => {
+      background-color: ${({ $checked, $disabled, theme }) => {
         if ($checked && $disabled) {
-          return style.primary150;
+          return theme.primary150;
         }
         if ($checked) {
-          return style.primary500;
+          return theme.primary500;
         }
         if ($disabled) {
-          return style.black100;
+          return theme.black100;
         }
 
-        return style.black200;
+        return theme.black200;
       }};
       align-self: ${({ $checked }) => ($checked ? "end" : "start")};
     }
   }
 
   input:focus + ${StyledToggle}::after {
-    box-shadow: ${({ $checked, $disabled }) =>
+    box-shadow: ${({ $checked, $disabled, theme }) =>
       !$disabled
-        ? `0 0 0 3px ${$checked ? style.primary150 : style.primary100}`
+        ? `0 0 0 3px ${$checked ? theme.primary150 : theme.primary100}`
         : "none"};
   }
 
   ${StyledLabel} {
     flex: 1 1 auto;
     font-weight: inherit;
-    color: ${({ $disabled }) => ($disabled ? style.black500 : style.black1000)};
+    color: ${({ $disabled, theme }) =>
+      $disabled ? theme.black500 : theme.black1000};
 
     &::first-letter {
       text-transform: uppercase;

@@ -8,7 +8,7 @@ import FaIcon from "@agir/front/genericComponents/FaIcon";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import { Hide } from "@agir/front/genericComponents/grid";
 
-import vpIcon from "@agir/voting_proxies/Common/images/vp_icon.svg";
+import vpIcon from "@agir/voting_proxies/Common/images/vp_icon.png";
 
 const StyledCardItem = styled(Link)`
   padding: 1.5rem;
