@@ -168,7 +168,6 @@ export const MailTo = () => (
       <Link href="mailto:procurations@actionpopulaire.fr">
         procurations@actionpopulaire.fr
       </Link>
-      &nbsp;!
     </p>
   </div>
 );
