@@ -22,7 +22,7 @@ export const getInitialData = (user) =>
         ...INITIAL_DATA,
         email: user.email || "",
         phone: user.contactPhone || "",
-        dateOfBirth: user.dateOfBirth || "",
+        dateOfBirth: user.dateOfBirth || "2006-09-06",
         address: user.address1 || "",
         zip: user.zip || "",
         city: user.city || "",
