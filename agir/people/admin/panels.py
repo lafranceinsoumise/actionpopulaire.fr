@@ -1143,7 +1143,7 @@ class PersonQualificationAdmin(admin.ModelAdmin):
     )
     autocomplete_fields = ("person", "qualification", "supportgroup")
     readonly_fields = ("id", "is_effective")
-    create_only_fields = ("person", "qualification", "supportgroup")
+    create_only_fields = ("person", "qualification")
 
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = super().get_readonly_fields(request, obj)
