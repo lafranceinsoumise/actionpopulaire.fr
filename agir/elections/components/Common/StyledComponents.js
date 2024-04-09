@@ -73,6 +73,15 @@ export const StyledMain = styled.main`
       padding: 0;
     }
   }
+
+  a  {
+    color: ${(props) => props.theme.primary500};
+
+    &:hover,
+    &:focus {
+      color: ${(props) => props.theme.primary600};
+    }
+  }
 `;
 
 export const StyledLogo = styled(Link)`
