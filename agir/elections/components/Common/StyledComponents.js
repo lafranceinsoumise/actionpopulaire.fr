@@ -112,6 +112,7 @@ export const StyledPage = styled.div`
 
   ${StyledIllustration} {
     flex: 0 0 623px;
+    flex: 0 0 66.69921875vh;
     height: 100%;
     background-repeat: no-repeat;
     background-size: cover;
