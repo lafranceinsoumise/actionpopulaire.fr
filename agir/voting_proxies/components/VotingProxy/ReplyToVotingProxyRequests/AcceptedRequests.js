@@ -199,7 +199,7 @@ const AcceptedRequests = (props) => {
       <h2>Mes procurations de vote</h2>
       <Spacer size="1.5rem" />
       <WarningBlock>
-        Le jour du vote, l'électeur désigné ne peut posséder{" "}
+        Le jour du vote, l'électeur·ice désigné·e ne peut posséder{" "}
         <strong>qu'une seule procuration</strong> établie en France.
       </WarningBlock>
       <Spacer size="1.5rem" />

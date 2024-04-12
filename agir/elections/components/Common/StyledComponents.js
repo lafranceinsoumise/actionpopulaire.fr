@@ -74,7 +74,7 @@ export const StyledMain = styled.main`
     }
   }
 
-  a  {
+  a::not([type="button"]) {
     color: ${(props) => props.theme.primary500};
 
     &:hover,
@@ -171,21 +171,27 @@ export const MailTo = () => (
     `}
   >
     <FeatherIcon name="info" />
-    <p>
-      Besoin d'aide&nbsp;? Une question&nbsp;?
-      <br />
-      Écrivez-nous à l'adresse{" "}
-      <Link
-        css={`
+    <p
+      css={`
+        font-size: 0.875rem;
+
+        a {
           color: ${({ theme }) => theme.primary500};
 
           &:hover,
           &:focus {
             color: ${({ theme }) => theme.primary600};
           }
-        `}
-        href="mailto:procurations@actionpopulaire.fr"
-      >
+        }
+      `}
+    >
+      Besoin d'aide pour remplir le formulaire&nbsp;?{" "}
+      <Link route="votingProxyHelp" target="_blank" rel="noopener noreferrer">
+        Lisez notre tutoriel !
+      </Link>
+      <br />
+      Une question&nbsp;? Écrivez-nous à l'adresse :{" "}
+      <Link href="mailto:procurations@actionpopulaire.fr">
         procurations@actionpopulaire.fr
       </Link>
     </p>
