@@ -74,7 +74,7 @@ export const StyledMain = styled.main`
     }
   }
 
-  a  {
+  a::not([type="button"]) {
     color: ${(props) => props.theme.primary500};
 
     &:hover,
