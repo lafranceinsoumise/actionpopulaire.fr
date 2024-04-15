@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.db.models import Q
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
@@ -22,6 +23,20 @@ class CirconscriptionLegislativeListFilter(AutocompleteRelatedModelFilter):
     title = "circonscription législative"
 
 
+class DepartementListFilter(AutocompleteRelatedModelFilter):
+    field_name = "voting_commune__departement"
+    title = "département"
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(
+                Q(voting_commune__departement=self.value())
+                | Q(voting_commune__commune_parent__departement=self.value())
+            )
+
+        return queryset
+
+
 class IsAvailableForVotingDateListFilter(admin.SimpleListFilter):
     title = "date de disponibilité"
     parameter_name = "available_voting_dates"
@@ -41,19 +56,20 @@ class PollingStationOfficerModelAdmin(admin.ModelAdmin):
         "__str__",
         "role",
         "commune_consulate",
-        "circonscription_legislative",
+        "voting_departement",
         "created__date",
         "available_voting_dates",
         "person_link",
     )
     list_filter = (
         "role",
+        DepartementListFilter,
         CirconscriptionLegislativeListFilter,
         CommuneListFilter,
         ConsulateListFilter,
         IsAvailableForVotingDateListFilter,
     )
-    readonly_fields = ("created", "departement")
+    readonly_fields = ("created", "voting_departement", "departement")
     autocomplete_fields = (
         "voting_circonscription_legislative",
         "voting_commune",
@@ -89,8 +105,8 @@ class PollingStationOfficerModelAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     "voting_commune",
+                    "voting_departement",
                     "voting_consulate",
-                    "voting_circonscription_legislative",
                     "polling_station",
                     "voter_id",
                 )
@@ -123,7 +139,12 @@ class PollingStationOfficerModelAdmin(admin.ModelAdmin):
         return (
             super()
             .get_queryset(request)
-            .select_related("voting_commune", "voting_consulate", "person")
+            .select_related(
+                "voting_commune",
+                "voting_commune__commune_parent",
+                "voting_consulate",
+                "person",
+            )
         )
 
     def created__date(self, instance):
@@ -138,6 +159,17 @@ class PollingStationOfficerModelAdmin(admin.ModelAdmin):
         return instance.voting_consulate
 
     commune_consulate.short_description = "commune / consulat"
+
+    def voting_departement(self, instance):
+        if instance.voting_commune is None:
+            return "-"
+
+        if instance.voting_commune.commune_parent is not None:
+            return instance.voting_commune.commune_parent.departement
+
+        return instance.voting_commune.departement
+
+    voting_departement.short_description = "département"
 
     def circonscription_legislative(self, instance):
         if instance.voting_circonscription_legislative is not None:
