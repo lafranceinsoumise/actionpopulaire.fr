@@ -141,7 +141,7 @@
     "jest-environment-jsdom": "^29.7.0",
     "mini-css-extract-plugin": "^2.8.1",
     "msw": "^2.2.13",
-    "msw-storybook-addon": "^2.0.0--canary.122.b3ed3b1.0",
+    "msw-storybook-addon": "^2.0.0--canary.122.133be34.0",
     "prettier": "^3.2.5",
     "react-is": "^17.0.2",
     "react-refresh": "^0.14.0",
