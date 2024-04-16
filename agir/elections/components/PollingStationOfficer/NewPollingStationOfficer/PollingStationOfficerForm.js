@@ -44,7 +44,7 @@ const FORM_STEPS = [
     ["votingLocation", "votingCommune", "votingConsulate"],
     "pollingStation",
     "voterId",
-    "votingCirconscriptionLegislative",
+    // "votingCirconscriptionLegislative",
   ],
   ["role", "hasMobility", "availableVotingDates"],
   ["phone", "email", "remarks"],
@@ -137,34 +137,34 @@ const PollingStationOfficerForm = (props) => {
     setErrors((state) => ({
       ...state,
       votingLocation: undefined,
-      votingCirconscriptionLegislative: undefined,
+      // votingCirconscriptionLegislative: undefined,
     }));
     setData((state) => ({
       ...state,
       votingLocation,
-      votingCirconscriptionLegislative:
-        votingLocation &&
-        state.votingLocation &&
-        state.votingCirconscriptionLegislative &&
-        votingLocation.departement !== state.votingLocation.departement
-          ? null
-          : state.votingCirconscriptionLegislative,
+      // votingCirconscriptionLegislative:
+      //   votingLocation &&
+      //   state.votingLocation &&
+      //   state.votingCirconscriptionLegislative &&
+      //   votingLocation.departement !== state.votingLocation.departement
+      //     ? null
+      //     : state.votingCirconscriptionLegislative,
     }));
   }, []);
 
-  const handleSelectVotingCirconscriptionLegislative = useCallback(
-    (votingCirconscriptionLegislative) => {
-      setErrors((state) => ({
-        ...state,
-        votingCirconscriptionLegislative: undefined,
-      }));
-      setData((state) => ({
-        ...state,
-        votingCirconscriptionLegislative,
-      }));
-    },
-    [],
-  );
+  // const handleSelectVotingCirconscriptionLegislative = useCallback(
+  //   (votingCirconscriptionLegislative) => {
+  //     setErrors((state) => ({
+  //       ...state,
+  //       votingCirconscriptionLegislative: undefined,
+  //     }));
+  //     setData((state) => ({
+  //       ...state,
+  //       votingCirconscriptionLegislative,
+  //     }));
+  //   },
+  //   [],
+  // );
 
   const handleChangeRole = useCallback((role) => {
     setErrors((state) => ({
@@ -245,19 +245,19 @@ const PollingStationOfficerForm = (props) => {
         });
         return;
       }
-      const votingCirconscriptionLegislative =
-        await getCirconscriptionsLegislatives();
-      if (
-        votingCirconscriptionLegislative.error ||
-        !votingCirconscriptionLegislative.data
-      ) {
-        setErrors({
-          detail:
-            votingCirconscriptionLegislative.error ||
-            "Une erreur est survenue.",
-        });
-        return;
-      }
+      // const votingCirconscriptionLegislative =
+      //   await getCirconscriptionsLegislatives();
+      // if (
+      //   votingCirconscriptionLegislative.error ||
+      //   !votingCirconscriptionLegislative.data
+      // ) {
+      //   setErrors({
+      //     detail:
+      //       votingCirconscriptionLegislative.error ||
+      //       "Une erreur est survenue.",
+      //   });
+      //   return;
+      // }
       const options = {
         gender: createOptions.data.gender.choices.map((choice) => ({
           value: choice.value,
@@ -272,7 +272,7 @@ const PollingStationOfficerForm = (props) => {
             value: choice.value,
             label: choice.display_name,
           })),
-        votingCirconscriptionLegislative: votingCirconscriptionLegislative.data,
+        // votingCirconscriptionLegislative: votingCirconscriptionLegislative.data,
       };
       setOptions(options);
     };
@@ -509,6 +509,7 @@ const PollingStationOfficerForm = (props) => {
             </span>
           }
         />
+        {/*
         <Spacer size="1rem" />
         <CirconscriptionLegislativeField
           disabled={isLoading}
@@ -521,6 +522,7 @@ const PollingStationOfficerForm = (props) => {
           options={options?.votingCirconscriptionLegislative}
           votingLocation={data?.votingLocation}
         />
+        */}
       </fieldset>
       <fieldset>
         <RadioField

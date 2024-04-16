@@ -125,7 +125,7 @@ def new_message_notifications(message):
         send_post_save_signal=True,
     )
 
-    send_message_notification_email.delay(message.pk)
+    transaction.on_commit(partial(send_message_notification_email.delay, message.pk))
 
 
 # Group comment with required membership type

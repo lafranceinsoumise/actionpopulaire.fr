@@ -204,8 +204,7 @@ export const ActionTools = () => {
         </span>
         <RawFeatherIcon aria-hidden="true" name="chevron-right" />
       </StyledCardItem>
-      {/*
-        <StyledCardItem route="newPollingStationOfficer">
+      <StyledCardItem route="newPollingStationOfficer">
         <i
           aria-hidden="true"
           css={`
@@ -253,7 +252,6 @@ export const ActionTools = () => {
         </span>
         <RawFeatherIcon aria-hidden="true" name="chevron-right" />
       </StyledCardItem>
-      */}
       <StyledCardItem as="span">
         <i
           aria-hidden="true"

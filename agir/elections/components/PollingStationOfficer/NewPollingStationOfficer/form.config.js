@@ -8,7 +8,7 @@ const INITIAL_DATA = {
   birthDate: "",
   birthCity: "",
   birthCountry: "FR",
-  votingCirconscriptionLegislative: null,
+  /* votingCirconscriptionLegislative: null, */
   votingLocation: null,
   pollingStation: "",
   voterId: "",
@@ -185,12 +185,14 @@ export const POLLING_STATION_OFFICER_CONSTRAINTS = {
         "La valeur de ce champ ne peut pas dépasser les %{count} caractères",
     },
   },
+  /*
   votingCirconscriptionLegislative: {
     presence: {
       allowEmpty: false,
       message: "Ce champ est obligatoire",
     },
   },
+  */
   role: {
     presence: {
       allowEmpty: false,

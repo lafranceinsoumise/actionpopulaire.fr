@@ -80,7 +80,7 @@ class VotingProxyRequestCreateAPITestCase(APITestCase):
         self.assertIn("phone", res.data)
         self.assertIn("votingDates", res.data)
 
-    def test_cannot_create_with_empty_required_fields(self):
+    def test_cannot_create_with_empty_required_fields(self) -> object:
         data = {
             "firstName": "",
             "lastName": "",

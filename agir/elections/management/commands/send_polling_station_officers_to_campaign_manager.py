@@ -1,32 +1,67 @@
-import argparse
-import uuid
-from time import sleep
+import re
 
-from django.core.management import BaseCommand
-from django.utils.datetime_safe import datetime
-from tqdm import tqdm
+from django.db.models import Q, Value
+from django.utils import timezone
+from glom import T, glom, Coalesce
+from unidecode import unidecode
 
-from agir.elections.data import campaign_managers_by_circo
 from agir.elections.models import PollingStationOfficer
-from agir.elections.tasks import send_new_polling_station_officer_to_campaign_manager
+from agir.lib.commands import BaseCommand
+from agir.lib.data import departements_choices
+from agir.lib.google_sheet import (
+    GoogleSheetId,
+    open_sheet,
+    parse_sheet_link,
+    copy_records_to_sheet,
+    clear_sheet,
+)
+
+INDEX_FILE_ID = "1Ugnzr77oiYtwMYZsIrGa6klq0S-G7HtLCaP1I0_qpp0"
+LOG_FILE_ID = GoogleSheetId(INDEX_FILE_ID, 1004117196)
+TEST_SHEET_ID = GoogleSheetId(INDEX_FILE_ID, 521378227)
+PRODUCTION_SHEET_ID = GoogleSheetId(INDEX_FILE_ID, 0)
+
+DEPARTEMENT_CODE_RE = re.compile(
+    r"^(?:99|[01345678][0-9]|2[1-9AB]|9(?:[0-5]|7[1-8]|8[678]))$"
+)
+
+SPEC_PSO = {
+    "Commune ou consulat d'inscription": (
+        Coalesce("voting_commune.nom_complet", "voting_consulate.nom"),
+        lambda location: location.upper(),
+    ),
+    "Nom de famille": ("last_name", lambda name: name.upper()),
+    "Prénom": ("first_name", lambda name: name.title()),
+    "Nom de naissance": ("birth_name", lambda name: name.upper()),
+    "Genre à l'état civil": T.get_gender_display(),
+    "E-mail": ("contact_email", lambda name: name.lower()),
+    "Téléphone": "contact_phone",
+    "Bureau de vote": "polling_station",
+    "Numéro national d'électeur": "voter_id",
+    "Rôle": T.get_role_display(),
+    "Peut se déplacer dans un autre bureau de vote": (
+        "has_mobility",
+        lambda choice: "Oui" if choice else "Non",
+    ),
+    "Remarques": "remarks",
+    "Date de naissance": T.birth_date.strftime("%d/%m/%Y"),
+    "Ville de naissance": "birth_city",
+    "Pays de naissance": "birth_country.name",
+    "Adresse": "location_address1",
+    "Complément d'adresse": "location_address2",
+    "Ville": "location_city",
+    "Code postal": "location_zip",
+    "Pays": "location_country.name",
+    "Département d'inscription": "voting_departement",
+    "Création": T.created.strftime("%d/%m/%Y"),
+    "Id": "id.hex",
+}
 
 
-def valid_uuid(string):
-    try:
-        return uuid.UUID(string)
-    except ValueError:
-        msg = f"not a valid uuid: {string}"
-        raise argparse.ArgumentTypeError(msg)
-
-
-def valid_date(string):
-    if not string:
-        return string
-    try:
-        return datetime.strptime(string, "%Y-%m-%d")
-    except ValueError:
-        msg = f"not a valid date: {string}"
-        raise argparse.ArgumentTypeError(msg)
+DEPARTEMENT = {
+    **dict(departements_choices),
+    "99": "99 - Français établis hors de France",
+}
 
 
 class Command(BaseCommand):
@@ -35,124 +70,143 @@ class Command(BaseCommand):
     """
 
     help = "Send polling station officer information to campaign managers"
-
-    def __init__(self, stdout=None, stderr=None, no_color=False, force_color=False):
-        super().__init__(stdout, stderr, no_color, force_color)
-        self.tqdm = None
-        self.dry_run = None
+    language = "fr"
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--before",
-            dest="created_before",
-            type=valid_date,
-            default="",
-            help="YYYY-MM-DD. Send only polling station officers created before this date (not included)",
+            "-d",
+            "--departements",
+            dest="departements",
+            default=None,
+            help=f"Limiter à certains départements (code du département ou 99 pour les FE). "
+            f"Ex. -d 01,02,03,99",
         )
         parser.add_argument(
-            "--id",
-            dest="only_ids",
-            action="extend",
-            nargs="*",
-            type=valid_uuid,
-            default=[],
-            help="Send only officers with these ids",
-        )
-        parser.add_argument(
-            "--email",
-            dest="only_emails",
-            action="extend",
-            nargs="*",
-            type=str,
-            default=[],
-            help="Send only officers with these email addresses",
-        )
-        parser.add_argument(
-            "--circo",
-            dest="only_circonscriptions_legislatives",
-            action="extend",
-            nargs="*",
-            type=str,
-            default=[],
-            help="Send only officers with these circonscription legislative codes",
-        )
-        parser.add_argument(
-            "--dry-run",
-            dest="dry_run",
+            "-t",
+            "--test",
+            dest="test_mode",
             action="store_true",
             default=False,
-            help="Execute without actually sending any notification or updating data",
+            help=f"Lancer la commande en mode test",
         )
-        parser.add_argument(
-            "-s",
-            "--silent",
-            dest="silent",
-            action="store_true",
-            default=False,
-            help="Display a progress bar during the script execution",
+        super().add_arguments(parser)
+
+    def get_target_files(self, departements=None, test_mode=False):
+        sheet_id = TEST_SHEET_ID if test_mode else PRODUCTION_SHEET_ID
+        index_sheet = open_sheet(sheet_id)
+        index = index_sheet.get_all_records()
+        files = {
+            i["Département"].split(" - ")[0]: parse_sheet_link(i["pso_url"])
+            for i in index
+            if not departements or i["Département"].split(" - ")[0] in departements
+        }
+
+        return files
+
+    def get_data(self, departement):
+        polling_station_officers = PollingStationOfficer.objects.all()
+
+        if departement == "99":
+            polling_station_officers = polling_station_officers.select_related(
+                "voting_consulate",
+            ).filter(voting_consulate__isnull=False)
+        else:
+            polling_station_officers = polling_station_officers.select_related(
+                "voting_commune",
+                "voting_commune__departement",
+                "voting_commune__commune_parent",
+                "voting_commune__commune_parent__departement",
+            ).filter(
+                Q(voting_commune__departement__code=departement)
+                | Q(voting_commune__commune_parent__departement__code=departement)
+            )
+
+        polling_station_officers = polling_station_officers.annotate(
+            voting_departement=Value(DEPARTEMENT[departement])
         )
 
-    def log(self, message):
-        self.tqdm.write(message)
+        data = glom(polling_station_officers, [SPEC_PSO])
 
-    def send_reminder(self, polling_station_officer_id):
-        if not self.dry_run:
-            send_new_polling_station_officer_to_campaign_manager.delay(
-                polling_station_officer_id
-            )
-
-    def get_queryset(
-        self,
-        *args,
-        created_before=None,
-        only_ids=None,
-        only_emails=None,
-        only_circonscriptions_legislatives=None,
-        **kwargs,
-    ):
-        polling_station_officers = PollingStationOfficer.objects.filter(
-            voting_circonscription_legislative__code__in=campaign_managers_by_circo.keys()
+        data = sorted(
+            data,
+            key=lambda i: tuple(unidecode(i[k]) for k in tuple(SPEC_PSO.keys())[:3]),
         )
-        if created_before:
-            polling_station_officers = polling_station_officers.filter(
-                created__date__lt=created_before
-            )
-        if only_ids:
-            polling_station_officers = polling_station_officers.filter(id__in=only_ids)
-        if only_emails:
-            polling_station_officers = polling_station_officers.filter(
-                contact_email__in=only_emails
-            )
-        if only_circonscriptions_legislatives:
-            polling_station_officers = polling_station_officers.filter(
-                voting_circonscription_legislative__code__in=only_circonscriptions_legislatives
-            )
 
-        return polling_station_officers.values_list("id", flat=True)
+        return data
+
+    def update_sheet(self, target_file, data):
+        if self.dry_run:
+            return
+
+        if data:
+            copy_records_to_sheet(target_file, data)
+        else:
+            clear_sheet(target_file)
+
+    def log_result(self, result, test_mode):
+        if not result:
+            return
+
+        log_data = [
+            {
+                "Département": DEPARTEMENT[departement],
+                "Nombre": count,
+                "Date": timezone.now().strftime("%d/%m/%Y %H:%M"),
+                "Test": test_mode,
+                "Dry-run": self.dry_run,
+                "URL": target_file.url,
+            }
+            for (departement, target_file, count) in result
+        ]
+
+        copy_records_to_sheet(LOG_FILE_ID, log_data)
 
     def handle(
         self,
         *args,
-        dry_run=False,
-        silent=False,
+        departements=None,
+        test_mode=False,
         **kwargs,
     ):
-        self.dry_run = dry_run
-        polling_station_officer_ids = self.get_queryset(**kwargs)
-        count = len(polling_station_officer_ids)
-        self.tqdm = tqdm(
-            total=count,
-            bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}]",
-            disable=silent,
-            leave=False,
+        if departements:
+            departements = sorted(departements.split(","))
+            incorrects = [c for c in departements if not DEPARTEMENT_CODE_RE.match(c)]
+
+            if incorrects:
+                self.error(
+                    f"Les code suivants sont incorrects : {','.join(incorrects)}"
+                )
+                return
+
+        self.info(
+            f"\nExport des données pour les départements sélectionnés : {','.join(departements)}\n"
+            if departements
+            else "\nExport des données pour tous les départements\n"
         )
-        if count == 0:
-            self.log("\n\nNo polling station officer sent to campaign managers")
-            self.log("Bye!\n\n")
-            return
-        self.log(f"\n\nSending {count} polling station officers to campaign managers")
-        for polling_station_officer_id in polling_station_officer_ids:
-            self.send_reminder(polling_station_officer_id)
+
+        target_files = self.get_target_files(
+            departements=departements, test_mode=test_mode
+        )
+
+        self.init_tqdm(len(target_files))
+
+        result = []
+        errors = []
+
+        for departement, target_file in target_files.items():
             self.tqdm.update(1)
-        self.log("Bye!\n\n")
+            self.log_current_item(DEPARTEMENT[departement])
+            try:
+                data = self.get_data(departement)
+                self.update_sheet(target_file, data)
+                result.append((departement, target_file, len(data)))
+            except Exception as e:
+                result.append((departement, target_file, -1))
+                errors.append((departement, e))
+
         self.tqdm.close()
+
+        self.log_result(result, test_mode=test_mode)
+
+        for departement, e in errors:
+            self.exception(f"{departement}: {e}")
