@@ -118,7 +118,6 @@ class PollingStationOfficerCreateAPITestCase(APITestCase):
         self.assertIn("country", res.data)
         self.assertIn("email", res.data)
         self.assertIn("phone", res.data)
-        self.assertIn("votingCirconscriptionLegislative", res.data)
 
     def test_cannot_create_with_empty_required_fields(self):
         data = {
@@ -138,7 +137,6 @@ class PollingStationOfficerCreateAPITestCase(APITestCase):
             "country": "",
             "email": "",
             "phone": "",
-            "votingCirconscriptionLegislative": "",
         }
         res = self.client.post(self.create_endpoint, data=data)
         self.assertEqual(res.status_code, 422)
@@ -158,7 +156,6 @@ class PollingStationOfficerCreateAPITestCase(APITestCase):
         self.assertIn("country", res.data)
         self.assertIn("email", res.data)
         self.assertIn("phone", res.data)
-        self.assertIn("votingCirconscriptionLegislative", res.data)
 
     def test_cannot_create_without_commune_and_consulate(self):
         data = {

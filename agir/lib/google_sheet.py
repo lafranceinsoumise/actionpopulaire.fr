@@ -4,6 +4,7 @@ from functools import wraps
 from typing import Any, Optional
 
 import gspread
+import pandas as pd
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from gspread.utils import ValueInputOption, rowcol_to_a1, ValueRenderOption
@@ -11,6 +12,7 @@ from gspread.utils import ValueInputOption, rowcol_to_a1, ValueRenderOption
 from agir.lib.celery import retriable_task
 
 GOOGLE_SHEET_REGEX = r"^https://docs.google.com/spreadsheets/d/(?P<sid>[A-Za-z0-9_-]{40,})/.*[?#&]gid=(?P<gid>[0-9]+)"
+GOOGLE_SHEET_TEMPLATE = "https://docs.google.com/spreadsheets/d/{sid}/edit#gid={gid}"
 MAX_CHUNK_SIZE = 100_000
 
 
@@ -48,6 +50,13 @@ class GoogleSheetId:
     sid: str
     gid: int
 
+    @property
+    def url(self):
+        return GOOGLE_SHEET_TEMPLATE.format(gid=self.gid, sid=self.sid)
+
+    def open(self):
+        return open_sheet(self)
+
 
 def grouper(array: list, n: int):
     for i in range(0, len(array), n):
@@ -72,6 +81,11 @@ def open_sheet(sheet: GoogleSheetId):
     sheet = spreadsheet.get_worksheet_by_id(sheet.gid)
 
     return sheet
+
+
+def clear_sheet(sheet_id: GoogleSheetId):
+    sheet = open_sheet(sheet_id)
+    return sheet.clear()
 
 
 def check_sheet_permissions(sheet: GoogleSheetId):
@@ -120,14 +134,25 @@ def copy_array_to_sheet(sheet_id: GoogleSheetId, values):
 
     chunk_height = MAX_CHUNK_SIZE // num_cols
 
+    results = []
+
     for i, rows in enumerate(grouper(values, chunk_height)):
         first_cell = rowcol_to_a1(i * chunk_height + 1, 1)
         last_cell = rowcol_to_a1((i + 1) * chunk_height, num_cols)
-        sheet.update(
+        result = sheet.update(
             f"{first_cell}:{last_cell}",
             rows,
             value_input_option=ValueInputOption.raw,
         )
+        results.append(result)
+
+    return results
+
+
+def copy_records_to_sheet(sheet_id: GoogleSheetId, records):
+    df = pd.DataFrame(records)
+    datalist = [df.columns.values.tolist()] + df.values.tolist()
+    return copy_array_to_sheet(sheet_id, datalist)
 
 
 def add_row_to_sheet(sheet_id: GoogleSheetId, values: dict[str, Any], id_column=None):

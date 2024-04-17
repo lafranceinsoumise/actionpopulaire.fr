@@ -83,8 +83,8 @@ class CreateUpdatePollingStationOfficerSerializer(serializers.ModelSerializer):
     country = CountryField(required=True, source="location_country", label="Pays")
 
     votingCirconscriptionLegislative = serializers.SlugRelatedField(
-        required=True,
-        allow_null=False,
+        required=False,
+        allow_null=True,
         source="voting_circonscription_legislative",
         label="Circonscription législative",
         queryset=CirconscriptionLegislative.objects.all(),
@@ -190,6 +190,9 @@ class CreateUpdatePollingStationOfficerSerializer(serializers.ModelSerializer):
 
     def validate_circonscription_legislative(self, attrs):
         circo = attrs.get("voting_circonscription_legislative", None)
+
+        if not circo:
+            return
 
         consulate = attrs.get("voting_consulate", None)
         if consulate is not None and circo.departement_id is not None:

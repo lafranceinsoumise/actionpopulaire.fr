@@ -90,8 +90,8 @@ export const createPollingStationOfficer = async (data) => {
     votingCommune: null,
     votingConsulate: null,
     votingLocation: undefined,
-    votingCirconscriptionLegislative:
-      data?.votingCirconscriptionLegislative?.code || undefined,
+    // votingCirconscriptionLegislative:
+    //   data?.votingCirconscriptionLegislative?.code || undefined,
   };
   if (data.votingLocation?.type === "commune") {
     body.votingCommune = data.votingLocation.value;

@@ -92,11 +92,11 @@ const NewPollingStationOfficerHowTo = () => (
       <span
         css={`
           display: inline-flex;
+          flex-wrap: wrap;
           gap: 0.5rem;
 
-          @media (max-width: ${({ theme }) => theme.collapse}px) {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+          ${Button} {
+            text-align: left;
           }
         `}
       >
@@ -121,6 +121,18 @@ const NewPollingStationOfficerHowTo = () => (
           rel="noopener noreferrer"
         >
           Le guide PDF
+        </Button>
+        <Button
+          link
+          small
+          wrap
+          href="https://lafranceinsoumise.fr/2024/04/16/liste-mandataires-europeennes-2024/"
+          target="_blank"
+          rel="noopener noreferrer"
+          icon="external-link"
+          color="primary"
+        >
+          Liste des mandataires départementaux
         </Button>
       </span>
     </div>

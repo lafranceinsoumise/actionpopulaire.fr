@@ -48,7 +48,18 @@ class BaseCommand(management.BaseCommand):
             self.tqdm.clear()
         if not isinstance(message, str):
             message = str(message)
+
         self.stdout.write(message, *args, **kwargs)
+
+    def exception(self, message, *args, **kwargs):
+        if self.tqdm:
+            self.tqdm.clear()
+        if not isinstance(message, str):
+            message = str(message)
+        if self.dry_run:
+            message = "[DRY-RUN] " + message
+
+        self.stderr.write(self.style.ERROR(f"✖ {message}"), *args, **kwargs)
 
     def info(self, message):
         self.log(self.style.MIGRATE_HEADING(f"{message}"))
