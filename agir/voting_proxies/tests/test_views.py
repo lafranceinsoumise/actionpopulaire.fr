@@ -1,3 +1,4 @@
+import uuid
 from unittest.mock import patch
 
 from data_france.models import Commune, CirconscriptionConsulaire, Departement, Region
@@ -702,29 +703,29 @@ class ReplyToVotingProxyRequestsAPITestCase(APITestCase):
             kwargs={"pk": self.unavailable_voting_proxy.pk},
         )
         data = {
-            "isAvailable": True,
+            "action": "accept",
             "votingProxyRequests": [str(self.matching_request.pk)],
         }
         res = self.client.patch(endpoint, data)
         self.assertEqual(res.status_code, 404)
 
-    def test_cannot_update_without_isAvailable_param(self):
+    def test_cannot_update_without_action_param(self):
         data = {"votingProxyRequests": [str(self.matching_request.pk)]}
         res = self.client.patch(self.endpoint, data=data)
         self.assertEqual(res.status_code, 422)
-        self.assertIn("isAvailable", res.data)
+        self.assertIn("action", res.data)
 
-    def test_cannot_update_with_invalid_isAvailable_param(self):
+    def test_cannot_update_with_invalid_action_param(self):
         data = {
             "votingProxyRequests": [str(self.matching_request.pk)],
-            "isAvailable": "not a boolean",
+            "action": "not an action",
         }
         res = self.client.patch(self.endpoint, data=data)
         self.assertEqual(res.status_code, 422)
-        self.assertIn("isAvailable", res.data)
+        self.assertIn("action", res.data)
 
     def test_cannot_update_without_votingProxyRequests_param(self):
-        data = {"isAvailable": True}
+        data = {"action": "accept"}
         res = self.client.patch(self.endpoint, data=data)
         self.assertEqual(res.status_code, 422)
         self.assertIn("votingProxyRequests", res.data)
@@ -732,7 +733,7 @@ class ReplyToVotingProxyRequestsAPITestCase(APITestCase):
     def test_cannot_update_with_empty_votingProxyRequests_param(self):
         data = {
             "votingProxyRequests": [],
-            "isAvailable": True,
+            "action": "accept",
         }
         res = self.client.patch(self.endpoint, data=data)
         self.assertEqual(res.status_code, 422)
@@ -741,7 +742,7 @@ class ReplyToVotingProxyRequestsAPITestCase(APITestCase):
     def test_cannot_update_with_invalid_votingProxyRequests_param(self):
         data = {
             "votingProxyRequests": ["not a uuid"],
-            "isAvailable": True,
+            "action": "accept",
         }
         res = self.client.patch(self.endpoint, data=data)
         self.assertEqual(res.status_code, 422)
@@ -750,7 +751,7 @@ class ReplyToVotingProxyRequestsAPITestCase(APITestCase):
     def test_cannot_update_with_unmatching_voting_proxy_request(self):
         data = {
             "votingProxyRequests": [str(self.unmatching_request.pk)],
-            "isAvailable": True,
+            "action": "accept",
         }
         res = self.client.patch(self.endpoint, data=data)
         self.assertEqual(res.status_code, 422)
@@ -759,7 +760,7 @@ class ReplyToVotingProxyRequestsAPITestCase(APITestCase):
     def test_cannot_update_with_unavailable_voting_proxy_request(self):
         data = {
             "votingProxyRequests": [str(self.accepted_request.pk)],
-            "isAvailable": True,
+            "action": "accept",
         }
         res = self.client.patch(self.endpoint, data=data)
         self.assertEqual(res.status_code, 422)
@@ -771,7 +772,7 @@ class ReplyToVotingProxyRequestsAPITestCase(APITestCase):
         self.voting_proxy.status = VotingProxy.STATUS_CREATED
         data = {
             "votingProxyRequests": [str(self.matching_request.pk)],
-            "isAvailable": False,
+            "action": "decline",
         }
         res = self.client.patch(self.endpoint, data=data)
         self.assertEqual(res.status_code, 200)
@@ -789,7 +790,7 @@ class ReplyToVotingProxyRequestsAPITestCase(APITestCase):
         self.voting_proxy.status = VotingProxy.STATUS_CREATED
         data = {
             "votingProxyRequests": [str(self.matching_request.pk)],
-            "isAvailable": True,
+            "action": "accept",
         }
         res = self.client.patch(self.endpoint, data=data)
         self.assertEqual(res.status_code, 200)
@@ -797,6 +798,240 @@ class ReplyToVotingProxyRequestsAPITestCase(APITestCase):
         self.assertEqual(self.matching_request.proxy, self.voting_proxy)
         self.assertEqual(
             self.matching_request.status, VotingProxyRequest.STATUS_ACCEPTED
+        )
+        self.voting_proxy.refresh_from_db(fields=["status"])
+        self.assertEqual(self.voting_proxy.status, VotingProxy.STATUS_AVAILABLE)
+
+
+class ReplyToSingleVotingProxyRequestAPITestCase(APITestCase):
+    patchers = [
+        patch(
+            "agir.voting_proxies.models.VotingProxyRequestQuerySet.upcoming",
+            return_value=VotingProxyRequest.objects.all(),
+        ),
+        patch(
+            "agir.voting_proxies.models.VotingProxyRequest.is_upcoming",
+            return_value=True,
+        ),
+    ]
+
+    def tearDown(self):
+        for patcher in self.patchers:
+            patcher.start()
+
+    def setUp(self):
+        for patcher in self.patchers:
+            patcher.start()
+
+        reg = Region.objects.create(
+            code="01",
+            nom="Région",
+            type_nom=TypeNom.ARTICLE_LA,
+            chef_lieu_id=1,
+        )
+        dep = Departement.objects.create(
+            code="01",
+            nom="Département",
+            type_nom=TypeNom.ARTICLE_LE,
+            chef_lieu_id=1,
+            region=reg,
+        )
+        self.commune = Commune.objects.create(
+            id=1,
+            code="00001",
+            type=Commune.TYPE_COMMUNE,
+            nom="Commune ABC",
+            type_nom=TypeNom.ARTICLE_LA,
+            departement=dep,
+        )
+        self.consulate = CirconscriptionConsulaire.objects.create(
+            nom="Circonscription Consulaire ABC",
+            consulats=["Consulat"],
+            nombre_conseillers=1,
+        )
+        self.voting_proxy = VotingProxy.objects.create(
+            **{
+                "first_name": "Voting",
+                "last_name": "Proxy",
+                "email": "voting@proxy.com",
+                "contact_phone": "+33600000000",
+                "commune": self.commune,
+                "consulate": None,
+                "polling_station_number": "123",
+                "voting_dates": [VotingProxy.VOTING_DATE_CHOICES[0][0]],
+                "remarks": "R.A.S.",
+                "person": Person.objects.create_person(
+                    "voting@proxy.com", create_role=True, display_name="Person"
+                ),
+                "status": VotingProxy.STATUS_CREATED,
+                "date_of_birth": "1970-01-01",
+            }
+        )
+        self.another_voting_proxy = VotingProxy.objects.create(
+            **{
+                "first_name": "Another Voting",
+                "last_name": "Proxy",
+                "email": "another_voting@proxy.com",
+                "contact_phone": "+33600000000",
+                "commune": self.commune,
+                "consulate": None,
+                "polling_station_number": "123",
+                "voting_dates": [VotingProxy.VOTING_DATE_CHOICES[0][0]],
+                "remarks": "R.A.S.",
+                "person": Person.objects.create_person(
+                    "another_voting@proxy.com", create_role=True, display_name="Person"
+                ),
+                "status": VotingProxy.STATUS_CREATED,
+                "date_of_birth": "1970-01-01",
+            }
+        )
+        self.unavailable_voting_proxy = VotingProxy.objects.create(
+            **{
+                "first_name": "Unavailable Voting",
+                "last_name": "Proxy",
+                "email": "unavailable_voting@proxy.com",
+                "contact_phone": "+33600000000",
+                "commune": self.commune,
+                "consulate": None,
+                "polling_station_number": "123",
+                "voting_dates": [VotingProxy.VOTING_DATE_CHOICES[0][0]],
+                "remarks": "R.A.S.",
+                "person": Person.objects.create_person(
+                    "unavailable_voting@proxy.com",
+                    create_role=True,
+                    display_name="Person",
+                ),
+                "status": VotingProxy.STATUS_UNAVAILABLE,
+                "date_of_birth": "1970-01-01",
+            }
+        )
+        self.pending_request = VotingProxyRequest.objects.create(
+            **{
+                "first_name": "A",
+                "last_name": "Voter",
+                "email": "a_voter@agir.local",
+                "contact_phone": "+33600000000",
+                "commune": self.commune,
+                "consulate": None,
+                "polling_station_number": "123",
+                "voting_date": VotingProxy.VOTING_DATE_CHOICES[0][0],
+            }
+        )
+        self.accepted_request = VotingProxyRequest.objects.create(
+            **{
+                "first_name": "A third",
+                "last_name": "Voter",
+                "email": "a_third_voter@agir.local",
+                "contact_phone": "+33600000000",
+                "commune": self.commune,
+                "consulate": None,
+                "polling_station_number": "123",
+                "voting_date": VotingProxy.VOTING_DATE_CHOICES[0][0],
+                "status": VotingProxyRequest.STATUS_ACCEPTED,
+                "proxy": self.another_voting_proxy,
+            }
+        )
+        self.endpoint = reverse(
+            "api_retrieve_update_voting_proxy_request",
+            kwargs={"pk": self.pending_request.pk},
+        )
+        self.valid_accept_data = {"action": "accept"}
+        self.valid_decline_data = {"action": "decline"}
+        self.client.force_login(self.voting_proxy.person.role)
+
+    def test_cannot_retrieve_request_for_anonymous_person(self):
+        self.client.logout()
+        res = self.client.get(self.endpoint)
+        self.assertEqual(res.status_code, 401)
+
+    def test_cannot_retrieve_request_for_unavailable_proxy(self):
+        self.client.force_login(self.unavailable_voting_proxy.person.role)
+        res = self.client.get(self.endpoint)
+        self.assertEqual(res.status_code, 403)
+
+    def test_cannot_retrieve_request_for_non_pending_request(self):
+        endpoint = reverse(
+            "api_retrieve_update_voting_proxy_request",
+            kwargs={"pk": self.accepted_request.pk},
+        )
+        res = self.client.get(endpoint)
+        self.assertEqual(res.status_code, 403)
+
+    def test_cannot_retrieve_request_for_unexisting_request(self):
+        endpoint = reverse(
+            "api_retrieve_update_voting_proxy_request",
+            kwargs={"pk": uuid.uuid4()},
+        )
+        res = self.client.get(endpoint)
+        self.assertEqual(res.status_code, 404)
+
+    def test_available_proxy_can_retrieve_pending_request(self):
+        res = self.client.get(self.endpoint)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.data["id"], str(self.pending_request.pk))
+        self.assertEqual(res.data["firstName"], self.pending_request.first_name)
+
+    def test_cannot_update_request_for_anonymous_person(self):
+        self.client.logout()
+        res = self.client.patch(self.endpoint, self.valid_accept_data)
+        self.assertEqual(res.status_code, 401)
+
+    def test_cannot_update_request_for_unavailable_proxy(self):
+        self.client.force_login(self.unavailable_voting_proxy.person.role)
+        res = self.client.patch(self.endpoint, self.valid_accept_data)
+        self.assertEqual(res.status_code, 403)
+
+    def test_cannot_update_request_for_non_pending_request(self):
+        endpoint = reverse(
+            "api_retrieve_update_voting_proxy_request",
+            kwargs={"pk": self.accepted_request.pk},
+        )
+        res = self.client.patch(endpoint, self.valid_accept_data)
+        self.assertEqual(res.status_code, 403)
+
+    def test_cannot_update_request_for_unexisting_request(self):
+        endpoint = reverse(
+            "api_retrieve_update_voting_proxy_request",
+            kwargs={"pk": uuid.uuid4()},
+        )
+        res = self.client.patch(endpoint, self.valid_accept_data)
+        self.assertEqual(res.status_code, 404)
+
+    def test_cannot_update_request_without_action_param(self):
+        res = self.client.patch(self.endpoint, {})
+        self.assertEqual(res.status_code, 422)
+        self.assertIn("action", res.data)
+
+    def test_cannot_update_with_invalid_action_param(self):
+        data = {
+            "action": "not an action",
+        }
+        res = self.client.patch(self.endpoint, data)
+        self.assertEqual(res.status_code, 422)
+        self.assertIn("action", res.data)
+
+    def test_can_decline_a_request(self):
+        self.pending_request.proxy = None
+        self.pending_request.status = VotingProxyRequest.STATUS_CREATED
+        self.voting_proxy.status = VotingProxy.STATUS_CREATED
+        res = self.client.patch(self.endpoint, self.valid_decline_data)
+        self.assertEqual(res.status_code, 200)
+        self.pending_request.refresh_from_db()
+        self.voting_proxy.refresh_from_db()
+        self.assertEqual(self.voting_proxy.status, VotingProxy.STATUS_UNAVAILABLE)
+        self.assertEqual(self.pending_request.proxy, None)
+        self.assertEqual(self.pending_request.status, VotingProxyRequest.STATUS_CREATED)
+
+    def test_can_accept_a_request(self):
+        self.pending_request.proxy = None
+        self.pending_request.status = VotingProxyRequest.STATUS_CREATED
+        self.voting_proxy.status = VotingProxy.STATUS_CREATED
+        res = self.client.patch(self.endpoint, self.valid_accept_data)
+        self.assertEqual(res.status_code, 200)
+        self.pending_request.refresh_from_db()
+        self.assertEqual(self.pending_request.proxy, self.voting_proxy)
+        self.assertEqual(
+            self.pending_request.status, VotingProxyRequest.STATUS_ACCEPTED
         )
         self.voting_proxy.refresh_from_db(fields=["status"])
         self.assertEqual(self.voting_proxy.status, VotingProxy.STATUS_AVAILABLE)

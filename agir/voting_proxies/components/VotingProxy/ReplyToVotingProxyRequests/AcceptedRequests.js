@@ -3,40 +3,40 @@ import React, { useState } from "react";
 import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
-import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
+import FaIcon from "@agir/front/genericComponents/FaIcon";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import StaticToast from "@agir/front/genericComponents/StaticToast";
 
 import {
-  confirmVotingProxyRequests,
-  cancelVotingProxyRequests,
   cancelVotingProxyRequestAcceptation,
+  cancelVotingProxyRequests,
+  confirmVotingProxyRequests,
 } from "@agir/voting_proxies/Common/api";
 
 import { WarningBlock } from "@agir/elections/Common/StyledComponents";
 
+const StyledFaIcon = styled(FaIcon)``;
+const StyledFeatherIcon = styled(RawFeatherIcon)``;
 const StyledRecap = styled.div`
   padding: 1rem 1.5rem;
   background-color: ${({ theme }) => theme.white};
   border-radius: ${({ theme }) => theme.borderRadius};
   border: 1px solid ${({ theme }) => theme.black100};
 
-  h5,
   p {
     margin: 0;
     padding: 0;
     display: flex;
-    align-items: center;
-  }
-
-  p {
-    display: flex;
     align-items: start;
     line-height: 1.5;
     gap: 1rem;
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
 
-    ${RawFeatherIcon} {
+    ${StyledFaIcon},
+    ${StyledFeatherIcon} {
       color: ${(props) => props.theme.black500};
 
       @media (max-width: 350px) {
@@ -44,13 +44,20 @@ const StyledRecap = styled.div`
       }
     }
 
+    ${StyledFaIcon}  {
+      padding-left: 0.125rem;
+    }
+
     & > strong {
       text-transform: capitalize;
     }
   }
 
-  p + p {
-    margin-top: 0.5rem;
+  p:first-child {
+    display: block;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    font-size: 1.25rem;
   }
 `;
 
@@ -82,16 +89,32 @@ const AcceptedRequest = (props) => {
     <>
       <Spacer size="1rem" />
       <StyledRecap>
-        <p style={{ display: "block" }}>
-          Voter pour&nbsp;:&nbsp;<strong>{request.firstName}</strong>
-        </p>
         <p>
-          <RawFeatherIcon name="calendar" />
+          Voter pour <strong>{request.firstName}</strong>
+        </p>
+        {request.commune && (
+          <p>
+            <StyledFeatherIcon name="map-pin" />
+            <strong>{request.commune}</strong>
+          </p>
+        )}
+        {request.consulate && (
+          <p>
+            <StyledFeatherIcon name="map-pin" />
+            <strong>{request.consulate}</strong>
+          </p>
+        )}
+        {request.pollingStationNumber && (
+          <p>
+            <StyledFaIcon icon="booth-curtain:regular" size="1.25rem" />
+            <strong>
+              Bureau de vote&nbsp;: {request.pollingStationNumber}
+            </strong>
+          </p>
+        )}
+        <p>
+          <StyledFeatherIcon name="calendar" />
           <strong>{request.votingDate}</strong>
-        </p>
-        <p>
-          <RawFeatherIcon name="map-pin" />
-          <strong>{request.commune || request.consulate}</strong>
         </p>
         <Spacer size="1.5rem" />
         <p>
@@ -154,6 +177,7 @@ AcceptedRequest.propTypes = {
 
 const AcceptedRequests = (props) => {
   const { requests, refreshRequests, hasMatchedRequests } = props;
+
   const [selectedAction, setSelectedAction] = useState(null);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -196,7 +220,11 @@ const AcceptedRequests = (props) => {
 
   return (
     <StyledWrapper>
-      <h2>Mes procurations de vote</h2>
+      {requests.length === 1 ? (
+        <h2>Ma procuration de vote</h2>
+      ) : (
+        <h2>Mes procurations de vote</h2>
+      )}
       <Spacer size="1.5rem" />
       <WarningBlock>
         Le jour du vote, l'électeur·ice désigné·e ne peut posséder{" "}
@@ -210,12 +238,16 @@ const AcceptedRequests = (props) => {
             d'autre ou a été annulée.
             <br />
             Nous vous recontacterons dès qu'une nouvelle personne aura demandé
-            une procuration.
+            une procuration près de chez vous.
           </StaticToast>
           <Spacer size="1rem" />
         </>
       )}
-      <p>Vous avez déjà accepté les procurations suivantes.</p>
+      {requests.length === 1 ? (
+        <p>Vous avez déjà accepté la procuration de vote ci-dessous.</p>
+      ) : (
+        <p>Vous avez déjà accepté les procurations de vote suivantes.</p>
+      )}
       <Spacer size="0.5rem" />
       <p>
         Vérifiez vos SMS et/ou e-mails pour retrouver toutes les informations.

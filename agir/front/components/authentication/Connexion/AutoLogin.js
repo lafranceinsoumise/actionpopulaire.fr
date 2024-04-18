@@ -11,7 +11,9 @@ const AutoLogin = ({ email }) => {
   const next = useMemo(() => {
     if (location.state?.next) {
       return location.state.next;
-    } else if (location.search) {
+    }
+
+    if (location.search) {
       return new URLSearchParams(location.search).get("next");
     }
   }, [location.state, location.search]);

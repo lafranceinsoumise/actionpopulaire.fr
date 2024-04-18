@@ -198,29 +198,27 @@ export const MailTo = () => (
   </div>
 );
 
-export const WarningBlock = ({ children }) => (
-  <div
-    css={`
-      padding: 1rem;
-      background-color: ${({ theme }) => theme.primary50};
-      display: flex;
-      align-items: start;
-      gap: 1rem;
-
-      & > :first-child {
-        flex: 0 0 auto;
-        color: ${({ theme }) => theme.primary500};
-      }
-
-      & > p {
-        margin: 0;
-      }
-    `}
-  >
-    <FeatherIcon name="info" />
+export const WarningBlock = styled(({ icon = "info", children, ...attrs }) => (
+  <div {...attrs}>
+    <FeatherIcon name={icon} />
     <p>{children}</p>
   </div>
-);
+))`
+  padding: 1rem;
+  background-color: ${({ theme }) => theme.primary50};
+  display: flex;
+  align-items: start;
+  gap: 1rem;
+
+  & > :first-child {
+    flex: 0 0 auto;
+    color: ${({ theme }) => theme.primary500};
+  }
+
+  & > p {
+    margin: 0;
+  }
+`;
 
 export const ElectoralInfoLink = () => (
   <WarningBlock>

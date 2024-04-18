@@ -1,5 +1,5 @@
-import React from "react";
-import useSWR from "swr";
+import React, { useCallback } from "react";
+import useSWRImmutable from "swr/immutable";
 
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
@@ -11,7 +11,19 @@ import VotingProxyForm from "./VotingProxyForm";
 import { votingProxyTheme } from "@agir/voting_proxies/Common/themes";
 
 const NewVotingProxy = () => {
-  const { data: session } = useSWR("/api/session/");
+  const { data: session, mutate } = useSWRImmutable("/api/session/");
+
+  const handleSuccess = useCallback(
+    (votingProxy) => {
+      mutate({
+        optimisticData: (session) => ({
+          ...session,
+          votingProxyPk: votingProxy.id,
+        }),
+      });
+    },
+    [mutate],
+  );
 
   return (
     <StyledPageContainer theme={votingProxyTheme}>
@@ -24,7 +36,7 @@ const NewVotingProxy = () => {
           </>
         }
       >
-        <VotingProxyForm user={session?.user} />
+        <VotingProxyForm user={session?.user} onSuccess={handleSuccess} />
       </PageFadeIn>
     </StyledPageContainer>
   );

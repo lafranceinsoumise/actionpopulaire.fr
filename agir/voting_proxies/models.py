@@ -15,6 +15,7 @@ from agir.lib.models import BaseAPIResource
 __all__ = ["VotingProxy", "VotingProxyRequest"]
 
 from agir.lib.sms.common import to_7bit_string
+from agir.lib.utils import front_url
 
 
 class AbstractVoter(BaseAPIResource):
@@ -205,6 +206,24 @@ class VotingProxy(AbstractVoter):
         ]
         return [date for date in self.voting_dates if date not in accepted_dates]
 
+    def is_active(self):
+        return (
+            self.person is not None
+            and self.person.role is not None
+            and self.person.role.is_active
+        )
+
+    def is_available(self):
+        return (
+            self.is_active()
+            and self.status
+            in (
+                self.STATUS_CREATED,
+                self.STATUS_AVAILABLE,
+            )
+            and len(self.available_voting_dates) > 0
+        )
+
 
 class VotingProxyRequestQuerySet(models.QuerySet):
     def upcoming(self):
@@ -283,6 +302,20 @@ class VotingProxyRequest(AbstractVoter):
     def __str__(self):
         return (
             f"{self.first_name} {self.last_name} <{self.email}> --> {self.voting_date}"
+        )
+
+    @property
+    def reply_to_url(self):
+        return front_url("reply_to_single_voting_proxy_request", args=(self.pk,))
+
+    def is_upcoming(self):
+        return self.voting_date >= (timezone.now() + timedelta(days=2)).date()
+
+    def is_pending(self):
+        return (
+            self.is_upcoming()
+            and self.status == self.STATUS_CREATED
+            and self.proxy is None
         )
 
     def _get_voting_proxy_information_as_html(self):
