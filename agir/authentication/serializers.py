@@ -52,7 +52,10 @@ class UserContextSerializer(serializers.Serializer):
     membreReseauElus = serializers.SerializerMethodField(
         method_name="is_membre_reseau_elus", read_only=True
     )
-    votingProxyId = serializers.SerializerMethodField(method_name="get_voting_proxy_id")
+    votingProxyId = serializers.UUIDField(read_only=True, source="voting_proxy.pk")
+    hasVotingProxyRequests = serializers.SerializerMethodField(
+        read_only=True, method_name="has_voting_proxy_requests"
+    )
 
     def get_full_name(self, obj):
         return obj.get_full_name()
@@ -102,15 +105,12 @@ class UserContextSerializer(serializers.Serializer):
     def is_membre_reseau_elus(self, obj):
         return obj.membre_reseau_elus == obj.MEMBRE_RESEAU_OUI
 
-    def get_voting_proxy_id(self, obj):
-        accepted_voting_proxy_request = (
+    def has_voting_proxy_requests(self, obj):
+        return (
             VotingProxyRequest.objects.filter(proxy__person_id=obj.id)
             .upcoming()
-            .only("proxy_id")
-            .first()
+            .exists()
         )
-        if accepted_voting_proxy_request:
-            return accepted_voting_proxy_request.proxy_id
 
 
 class SessionSerializer(serializers.Serializer):

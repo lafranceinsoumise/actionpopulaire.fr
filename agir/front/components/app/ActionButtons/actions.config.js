@@ -132,7 +132,7 @@ const ACTIONS = {
     color: style.primary500,
   },
   votingProxy: (user) =>
-    user?.votingProxyId
+    user?.votingProxyId && user?.hasVotingProxyRequests
       ? {
           key: "votingProxy",
           route: "acceptedVotingProxyRequests",

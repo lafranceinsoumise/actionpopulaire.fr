@@ -1,180 +1,193 @@
-import csv
-import io
-from collections import OrderedDict
-from email.mime.text import MIMEText
+import re
 
-from data_france.models import Commune
-from django.core.management import BaseCommand
+from django.db.models import Q, Value
 from django.utils import timezone
+from glom import T, glom, Coalesce
+from unidecode import unidecode
 
-from agir.elections.data import (
-    get_circonscription_legislative_for_commune,
-    get_campaign_manager_for_circonscription_legislative,
+from agir.lib.commands import BaseCommand
+from agir.lib.data import departements_choices
+from agir.lib.google_sheet import (
+    GoogleSheetId,
+    open_sheet,
+    parse_sheet_link,
+    copy_records_to_sheet,
+    clear_sheet,
 )
-from agir.lib.mailing import send_message
 from agir.voting_proxies.models import VotingProxyRequest
 
-CSV_FIELDS = OrderedDict(
-    {
-        "first_name": "prenom",
-        "last_name": "nom",
-        "email": "email",
-        "contact_phone": "telephone",
-        "commune": "commune",
-        "polling_station_number": "bureau_de_vote",
-        "voter_id": "numero_national_electeur",
-        "voting_date": "date_de_scrutin",
-    }
+INDEX_FILE_ID = "1Ugnzr77oiYtwMYZsIrGa6klq0S-G7HtLCaP1I0_qpp0"
+LOG_FILE_ID = GoogleSheetId(INDEX_FILE_ID, 395114866)
+TEST_SHEET_ID = GoogleSheetId(INDEX_FILE_ID, 521378227)
+PRODUCTION_SHEET_ID = GoogleSheetId(INDEX_FILE_ID, 0)
+
+DEPARTEMENT_CODE_RE = re.compile(
+    r"^(?:99|[01345678][0-9]|2[1-9AB]|9(?:[0-5]|7[1-8]|8[678]))$"
 )
 
-EMAIL_TEMPLATE = """
-=======================================================================
-DEMANDE DE PROCURATIONS ÉLECTIONS EUROPÉENNES DU 9 JUIN 2024
-=======================================================================
+SPEC_VPR = {
+    "Commune ou consulat d'inscription": (
+        Coalesce("commune.nom_complet", "consulate.nom"),
+        lambda location: location.upper(),
+    ),
+    "Nom de famille": ("last_name", lambda name: name.upper()),
+    "Prénoms": ("first_name", lambda name: name.title()),
+    "E-mail": ("email", lambda name: name.lower()),
+    "Téléphone": "contact_phone",
+    "Bureau de vote": "polling_station_number",
+    "Numéro national d'électeur": "voter_id",
+    "Département d'inscription": "voting_departement",
+    "Création": T.created.strftime("%d/%m/%Y"),
+    "Id": "id.hex",
+    "Lien d'acceptation": "reply_to_url",
+}
 
-Bonjour {},
 
-
-Veuillez trouver-ci jointe la liste des demandes de procuration de votre circonscription (ou à proximité) que nous avons 
-reçu et qui sont toujours en attente d'un ou d'une volontaire.
-
-Vous recevez ce message car vous avez été indiqué·e comme directeur·rice de campagne pour les européennes 2024 par les 
-candidats de la circonscription {}.
-
-Pour toute question, vous pouvez contacter l'équipe d'organisation des campagnes législatives à l'adresse 
-procurations@actionpopulaire.fr.
-
-
-Cordialement.
-
-L'équipe d'Action populaire.
-"""
+DEPARTEMENT = {
+    **dict(departements_choices),
+    "99": "99 - Français établis hors de France",
+}
 
 
 class Command(BaseCommand):
-    """
-    Send reminder for non-confirmed accepted voting proxy requests
-    """
-
     help = "Send pending voting proxy requests to campaign managers"
-
-    def __init__(self, stdout=None, stderr=None, no_color=False, force_color=False):
-        super().__init__(stdout, stderr, no_color, force_color)
-        self.tqdm = None
-        self.dry_run = False
-        self.silent = False
+    language = "fr"
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--dry-run",
-            dest="dry_run",
-            action="store_true",
-            default=False,
-            help="Execute without actually sending any notification or updating data",
+            "-d",
+            "--departements",
+            dest="departements",
+            default=None,
+            help=f"Limiter à certains départements (code du département ou 99 pour les FE). "
+            f"Ex. -d 01,02,03,99",
         )
         parser.add_argument(
-            "-s",
-            "--silent",
-            dest="silent",
+            "-t",
+            "--test",
+            dest="test_mode",
             action="store_true",
             default=False,
-            help="Display a progress bar during the script execution",
+            help=f"Lancer la commande en mode test",
         )
+        super().add_arguments(parser)
 
-    def log(self, message):
-        if not self.silent:
-            print(message)
+    def get_target_files(self, departements=None, test_mode=False):
+        sheet_id = TEST_SHEET_ID if test_mode else PRODUCTION_SHEET_ID
+        index_sheet = open_sheet(sheet_id)
+        index = index_sheet.get_all_records()
+        files = {
+            i["Département"].split(" - ")[0]: parse_sheet_link(i["vp_url"])
+            for i in index
+            if not departements or i["Département"].split(" - ")[0] in departements
+        }
 
-    def get_pending_requests_csv_string(self, pending_requests):
-        output = io.StringIO()
-        writer = csv.writer(output, delimiter=",", lineterminator="\n")
-        writer.writerow([label for key, label in CSV_FIELDS.items()])
+        return files
 
-        for request in pending_requests:
-            writer.writerow(
-                [getattr(request, key) for (key, label) in CSV_FIELDS.items()]
+    def get_data(self, departement):
+        voting_proxy_requests = VotingProxyRequest.objects.pending()
+
+        if departement == "99":
+            voting_proxy_requests = voting_proxy_requests.select_related(
+                "consulate",
+            ).filter(consulate__isnull=False)
+        else:
+            voting_proxy_requests = voting_proxy_requests.select_related(
+                "commune",
+                "commune__departement",
+                "commune__commune_parent",
+                "commune__commune_parent__departement",
+            ).filter(
+                Q(commune__departement__code=departement)
+                | Q(commune__commune_parent__departement__code=departement)
             )
 
-        return output.getvalue()
-
-    def send_voting_proxy_requests_to_campaign_manager(
-        self, pending_requests, campaign_manager
-    ):
-        today = timezone.now().strftime("%Y-%m-%d")
-        subject = f"[Européennes 2024] Demandes de procuration en attente - {today}"
-        body = EMAIL_TEMPLATE.format(
-            campaign_manager["prenom"], campaign_manager["circo"]
+        voting_proxy_requests = voting_proxy_requests.annotate(
+            voting_departement=Value(DEPARTEMENT[departement])
         )
 
-        csv_string = self.get_pending_requests_csv_string(pending_requests)
-        attachment = MIMEText(csv_string)
-        attachment.add_header("Content-Type", "text/csv")
-        attachment.add_header(
-            "Content-Disposition",
-            "attachment",
-            filename=f"demandes_de_procuration-{today}.csv",
+        data = glom(voting_proxy_requests, [SPEC_VPR])
+
+        data = sorted(
+            data,
+            key=lambda i: tuple(unidecode(i[k]) for k in tuple(SPEC_VPR.keys())[:3]),
         )
 
-        send_message(
-            from_email="robot@actionpopulaire.fr",
-            reply_to=("procurations@actionpopulaire.fr",),
-            subject=subject,
-            recipient=campaign_manager["email"],
-            text=body,
-            attachments=(attachment,),
-        )
+        return data
 
-    def send_requests_to_campaign_manager(self, pending_requests, campaign_manager):
-        self.log(
-            f"Sending {pending_requests.count()} voting proxy request(s) "
-            f"to circonscription {campaign_manager['circo']}'s campaign manager"
-        )
+    def update_sheet(self, target_file, data):
         if self.dry_run:
-            self.log(self.get_pending_requests_csv_string(pending_requests))
             return
-        # Send email to campaign managers
-        self.send_voting_proxy_requests_to_campaign_manager(
-            pending_requests, campaign_manager
-        )
-        # Update pending request status to remove from auto matching
-        pending_requests.update(status=VotingProxyRequest.STATUS_FORWARDED)
+
+        if data:
+            copy_records_to_sheet(target_file, data)
+        else:
+            clear_sheet(target_file)
+
+    def log_result(self, result, test_mode):
+        if not result:
+            return
+
+        log_data = [
+            {
+                "Département": DEPARTEMENT[departement],
+                "Nombre": count,
+                "Date": timezone.now().strftime("%d/%m/%Y %H:%M"),
+                "Test": test_mode,
+                "Dry-run": self.dry_run,
+                "URL": target_file.url,
+            }
+            for (departement, target_file, count) in result
+        ]
+
+        copy_records_to_sheet(LOG_FILE_ID, log_data)
 
     def handle(
         self,
         *args,
-        dry_run=False,
-        silent=False,
+        departements=None,
+        test_mode=False,
         **kwargs,
     ):
-        self.dry_run = dry_run
-        self.silent = silent
+        if departements:
+            departements = sorted(departements.split(","))
+            incorrects = [c for c in departements if not DEPARTEMENT_CODE_RE.match(c)]
 
-        commune_ids = (
-            VotingProxyRequest.objects.pending()
-            .exclude(commune_id__isnull=True)
-            .order_by()
-            .values_list("commune_id")
-            .distinct()
+            if incorrects:
+                self.error(
+                    f"Les code suivants sont incorrects : {','.join(incorrects)}"
+                )
+                return
+
+        self.info(
+            f"\nExport des données pour les départements sélectionnés : {','.join(departements)}\n"
+            if departements
+            else "\nExport des données pour tous les départements\n"
         )
-        by_circo = {}
 
-        for commune in Commune.objects.filter(id__in=commune_ids):
-            circo = get_circonscription_legislative_for_commune(commune)
-            if circo and not by_circo.get(circo):
-                by_circo[circo] = [commune.id]
-            elif circo:
-                by_circo[circo].append(commune.id)
+        target_files = self.get_target_files(
+            departements=departements, test_mode=test_mode
+        )
 
-        for circo, circo_commune_ids in by_circo.items():
-            campaign_manager = get_campaign_manager_for_circonscription_legislative(
-                circo
-            )
-            if campaign_manager:
-                pending_requests = VotingProxyRequest.objects.pending().filter(
-                    commune_id__in=circo_commune_ids
-                )
-                self.send_requests_to_campaign_manager(
-                    pending_requests, campaign_manager
-                )
+        self.init_tqdm(len(target_files))
 
-        self.log("Bye!\n\n")
+        result = []
+        errors = []
+
+        for departement, target_file in target_files.items():
+            self.tqdm.update(1)
+            self.log_current_item(DEPARTEMENT[departement])
+            try:
+                data = self.get_data(departement)
+                self.update_sheet(target_file, data)
+                result.append((departement, target_file, len(data)))
+            except Exception as e:
+                result.append((departement, target_file, -1))
+                errors.append((departement, e))
+
+        self.tqdm.close()
+
+        self.log_result(result, test_mode=test_mode)
+
+        for departement, e in errors:
+            self.exception(f"{departement}: {e}")

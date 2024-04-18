@@ -1,18 +1,19 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 
 import Spacer from "@agir/front/genericComponents/Spacer";
 import Steps, { useSteps } from "@agir/front/genericComponents/Steps";
-
-import CheckboxField from "@agir/front/formComponents/CheckboxField";
-import DateTimeField from "@agir/front/formComponents/DateTimeField";
-import PhoneField from "@agir/front/formComponents/PhoneField";
-import TextField from "@agir/front/formComponents/TextField";
 
 import PollingStationField from "@agir/elections/Common/PollingStationField";
 import { ElectoralInfoLink } from "@agir/elections/Common/StyledComponents";
 import VotingDateFields from "@agir/elections/Common/VotingDateFields";
 import VotingLocationField from "@agir/elections/Common/VotingLocationField";
+import AppRedirect from "@agir/front/app/Redirect";
+import CheckboxField from "@agir/front/formComponents/CheckboxField";
+import DateTimeField from "@agir/front/formComponents/DateTimeField";
+import PhoneField from "@agir/front/formComponents/PhoneField";
+import TextField from "@agir/front/formComponents/TextField";
 import FormFooter from "@agir/voting_proxies/Common/FormFooter";
 
 import NewVotingProxyHowTo from "./NewVotingProxyHowTo";
@@ -41,15 +42,19 @@ export const getFieldStepFromErrors = (errors, isAbroad) =>
   );
 
 const VotingProxyForm = (props) => {
-  const { user } = props;
+  const { user, onSuccess } = props;
+
+  const location = useLocation();
+
   const [formStep, goToPreviousFormStep, goToNextFormStep, setFormStep] =
     useSteps(0);
-  const [newVotingProxy, setNewVotingProxy] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [votingDateOptions, setVotingDateOptions] = useState([]);
   const [data, setData] = useState(getInitialData(user));
   const [hasDataAgreement, setHasDataAgreement] = useState(false);
   const [errors, setErrors] = useState(null);
+  const [votingProxy, setVotingProxy] = useState();
+
   const isAbroad = data.votingLocation?.type === "consulate";
 
   const handleChange = useCallback((e) => {
@@ -146,7 +151,8 @@ const VotingProxyForm = (props) => {
     if (response.error) {
       return handleErrors(response.error);
     }
-    setNewVotingProxy(response.data);
+    onSuccess(response.data);
+    setVotingProxy(response.data);
   };
 
   useEffect(() => {
@@ -168,10 +174,18 @@ const VotingProxyForm = (props) => {
     init();
   }, []);
 
-  if (newVotingProxy) {
+  if (
+    location.state.next &&
+    user?.votingProxyId &&
+    user.votingProxyId === votingProxy?.id
+  ) {
+    return <AppRedirect to={location.state.next} />;
+  }
+
+  if (votingProxy) {
     return (
       <>
-        <NewVotingProxySuccess votingProxy={newVotingProxy} />
+        <NewVotingProxySuccess votingProxyPk={votingProxy.id} />
         <Spacer size="4rem" />
         <FormFooter />
       </>
@@ -401,6 +415,7 @@ const VotingProxyForm = (props) => {
 
 VotingProxyForm.propTypes = {
   user: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
+  onSuccess: PropTypes.func.isRequired,
 };
 
 export default VotingProxyForm;

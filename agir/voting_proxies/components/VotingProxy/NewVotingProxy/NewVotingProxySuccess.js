@@ -5,7 +5,7 @@ import Button from "@agir/front/genericComponents/Button";
 import FormSuccess from "@agir/elections/Common/FormSuccess";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
-const NewVotingProxySuccess = ({ votingProxy }) => (
+const NewVotingProxySuccess = ({ votingProxyPk }) => (
   <FormSuccess>
     <h2>
       Votre proposition d'être volontaire pour prendre une procuration a bien
@@ -26,9 +26,7 @@ const NewVotingProxySuccess = ({ votingProxy }) => (
       icon="arrow-right"
       color="primary"
       route="replyToVotingProxyRequests"
-      routeParams={{
-        votingProxyPk: votingProxy?.id,
-      }}
+      routeParams={{ votingProxyPk }}
     >
       Voir si une demande est en attente près de chez moi
     </Button>
@@ -36,9 +34,7 @@ const NewVotingProxySuccess = ({ votingProxy }) => (
 );
 
 NewVotingProxySuccess.propTypes = {
-  votingProxy: PropTypes.shape({
-    id: PropTypes.string,
-  }),
+  votingProxyPk: PropTypes.string,
 };
 
 export default NewVotingProxySuccess;

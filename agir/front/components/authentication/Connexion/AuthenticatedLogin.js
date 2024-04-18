@@ -37,7 +37,9 @@ const AuthenticatedLogin = ({ user }) => {
   const next = useMemo(() => {
     if (state?.next) {
       return state.next;
-    } else if (search) {
+    }
+
+    if (search) {
       return new URLSearchParams(search).get("next");
     }
   }, [state, search]);

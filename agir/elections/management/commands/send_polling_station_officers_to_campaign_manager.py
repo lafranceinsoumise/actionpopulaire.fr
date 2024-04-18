@@ -65,10 +65,6 @@ DEPARTEMENT = {
 
 
 class Command(BaseCommand):
-    """
-    Send reminder for non-confirmed accepted voting proxy requests
-    """
-
     help = "Send polling station officer information to campaign managers"
     language = "fr"
 

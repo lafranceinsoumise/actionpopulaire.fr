@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
@@ -14,32 +14,46 @@ import { MailTo } from "@agir/elections/Common/StyledComponents";
 import ReplySuccess from "./ReplySuccess";
 import AcceptedRequests from "./AcceptedRequests";
 
-import { replyToVotingProxyRequests } from "@agir/voting_proxies/Common/api";
+import {
+  REPLY_ACTION,
+  replyToSingleVotingProxyRequest,
+  replyToVotingProxyRequests,
+} from "@agir/voting_proxies/Common/api";
 
 import voteIcon from "@agir/voting_proxies/Common/images/vote.svg";
+import { WarningBlock } from "@agir/elections/Common/StyledComponents";
 
+const StyledFaIcon = styled(FaIcon)``;
+const StyledFeatherIcon = styled(RawFeatherIcon)``;
 const StyledRecap = styled.div`
   padding: 1rem 1.5rem;
   background-color: ${({ theme }) => theme.white};
   border-radius: ${({ theme }) => theme.borderRadius};
   border: 1px solid ${({ theme }) => theme.black100};
 
-  h5,
-  p {
+  & > ${WarningBlock} {
+    font-size: 0.875rem;
+    margin: 0.5rem -1.5rem;
+    padding: 1rem 1.5rem;
+  }
+
+  & > h5,
+  & > p {
     margin: 0;
     padding: 0;
     display: flex;
     align-items: center;
   }
 
-  p {
+  & > p {
     display: flex;
     align-items: start;
     line-height: 1.5;
     gap: 1rem;
+    font-size: 0.875rem;
 
-    ${FaIcon},
-    ${RawFeatherIcon} {
+    ${StyledFaIcon},
+    ${StyledFeatherIcon} {
       color: ${(props) => props.theme.black500};
 
       @media (max-width: 350px) {
@@ -47,12 +61,16 @@ const StyledRecap = styled.div`
       }
     }
 
+    ${StyledFaIcon}  {
+      padding-left: 0.125rem;
+    }
+
     & > strong {
       text-transform: capitalize;
     }
   }
 
-  p + p {
+  & > p + p {
     margin-top: 0.5rem;
   }
 `;
@@ -93,61 +111,79 @@ const ReplyingForm = (props) => {
   const {
     votingProxyPk,
     firstName,
-    requests,
     readOnly,
     refreshRequests,
     hasMatchedRequests,
   } = props;
-  const [isAccepting, setIsAccepting] = useState(false);
+
+  const [action, setAction] = useState(null);
+  const [isAvailable, setIsAvailable] = useState(null);
   const [shouldConfirm, setShouldConfirm] = useState(false);
-  const [isDeclining, setIsDeclining] = useState(false);
   const [errors, setErrors] = useState(null);
   const [hasDataSharingConsent, setHasDataSharingConsent] = useState(false);
-  const [isAvailable, setIsAvailable] = useState(undefined);
 
-  const isLoading = isAccepting || isDeclining;
-  const voter = requests[0];
-  const votingProxyRequests = requests.map((r) => r.id);
-  const votingDates = requests.map((r) => r.votingDate);
+  const [requests, isSingle] = useMemo(
+    () =>
+      Array.isArray(props.requests)
+        ? [props.requests, false]
+        : props.singleRequest
+          ? [[props.singleRequest], true]
+          : [[], false],
+    [props.requests, props.singleRequest],
+  );
 
-  const handleChangeDataSharingConsent = (e) =>
-    setHasDataSharingConsent(e.target.checked);
+  const handleChangeDataSharingConsent = useCallback(
+    (e) => setHasDataSharingConsent(e.target.checked),
+    [],
+  );
 
-  const handleSubmit = async (isAvailable) => {
-    if (!isAvailable && !shouldConfirm) {
-      setShouldConfirm(true);
-      return;
-    }
-    setErrors(null);
-    setIsAccepting(isAvailable);
-    setIsDeclining(!isAvailable);
-    const result = await replyToVotingProxyRequests(votingProxyPk, {
-      votingProxyRequests,
-      isAvailable,
-    });
-    setIsAccepting(false);
-    setIsDeclining(false);
+  const handleSubmit = useCallback(
+    async (action) => {
+      setErrors(null);
+      setAction(action);
+
+      const result = isSingle
+        ? await replyToSingleVotingProxyRequest(action, requests[0])
+        : await replyToVotingProxyRequests(action, votingProxyPk, requests);
+
+      setAction(null);
+      setShouldConfirm(false);
+
+      if (result.error?.status === 403) {
+        window.location.reload();
+      }
+
+      if (result.error) {
+        setErrors(result.error);
+        return;
+      }
+
+      setIsAvailable(action === REPLY_ACTION.ACCEPT);
+    },
+    [requests, isAvailable, isSingle],
+  );
+
+  const acceptRequests = useCallback(
+    (e) => {
+      e.preventDefault();
+      handleSubmit(REPLY_ACTION.ACCEPT);
+    },
+    [handleSubmit],
+  );
+
+  const declineRequests = useCallback(
+    (e) => {
+      e.preventDefault();
+      shouldConfirm
+        ? handleSubmit(REPLY_ACTION.DECLINE)
+        : setShouldConfirm(true);
+    },
+    [shouldConfirm, handleSubmit],
+  );
+
+  const dismissConfirm = useCallback(() => {
     setShouldConfirm(false);
-    if (result.error) {
-      setErrors(result.error);
-      return;
-    }
-    setIsAvailable(isAvailable);
-  };
-
-  const acceptRequests = (e) => {
-    e.preventDefault();
-    handleSubmit(true);
-  };
-
-  const declineRequests = (e) => {
-    e.preventDefault();
-    handleSubmit(false);
-  };
-
-  const dismissConfirm = () => {
-    setShouldConfirm(false);
-  };
+  }, []);
 
   if (typeof isAvailable === "boolean") {
     return <ReplySuccess isAvailable={isAvailable} />;
@@ -172,48 +208,55 @@ const ReplyingForm = (props) => {
       <header>
         <img src={voteIcon} width="60" height="60" />
         <h2>
-          {firstName}, prenez la procuration de {voter.firstName}
+          {firstName}, prenez la procuration de {requests[0].firstName}
         </h2>
         <p>
-          {voter.firstName} n'est pas disponible pour aller voter le 9 juin
-          prochain pour les élections européennes. Vous êtes présent·e ? Prenez
-          sa procuration.
+          {requests[0].firstName} n'est pas disponible pour aller voter le 9
+          juin prochain pour les élections européennes. Vous êtes présent·e ?
+          Prenez sa procuration.
         </p>
       </header>
       <Spacer size="1.5rem" />
       <StyledRecap>
         <h5>Lieu</h5>
+        {isSingle && (
+          <WarningBlock icon="alert-circle">
+            <strong>Attention :</strong> vous devrez vous rendre dans le bureau
+            de vote de la personne pour voter à sa place le jour du scrutin !
+          </WarningBlock>
+        )}
         <Spacer size=".5rem" />
-        {voter.commune && (
+        {requests[0].commune && (
           <p>
-            <RawFeatherIcon name="map-pin" />
-            <strong>{voter.commune}</strong>
+            <StyledFeatherIcon name="map-pin" />
+            <strong>{requests[0].commune}</strong>
           </p>
         )}
-        {voter.consulate && (
+        {requests[0].consulate && (
           <p>
-            <RawFeatherIcon name="map-pin" />
-            <strong>{voter.consulate}</strong>
+            <StyledFeatherIcon name="map-pin" />
+            <strong>{requests[0].consulate}</strong>
           </p>
         )}
-        {voter.pollingStationNumber && (
+        {requests[0].pollingStationNumber && (
           <p>
-            <FaIcon icon="booth-curtain:regular" size="1.5rem" />
-            <strong>Bureau de vote&nbsp;: {voter.pollingStationNumber}</strong>
+            <StyledFaIcon icon="booth-curtain:regular" size="1.25rem" />
+            <strong>
+              Bureau de vote&nbsp;: {requests[0].pollingStationNumber}
+            </strong>
           </p>
         )}
         <Spacer size="1rem" />
         <h5>Date{requests.length > 1 ? "s" : ""}</h5>
         <Spacer size=".5rem" />
-        {votingDates.map((date) => (
-          <p key={date}>
-            <RawFeatherIcon name="calendar" />
-            <strong>{date}</strong>
+        {requests.map((request) => (
+          <p key={request.votingDate}>
+            <StyledFeatherIcon name="calendar" />
+            <strong>{request.votingDate}</strong>
           </p>
         ))}
       </StyledRecap>
-      <Spacer size="0.5rem" />
-      <Spacer size="1.5rem" />
+      <Spacer size="2rem" />
       <div
         css={`
           display: flex;
@@ -243,10 +286,10 @@ const ReplyingForm = (props) => {
           required
           toggle
           small
-          disabled={isLoading}
+          disabled={!!action}
           value={hasDataSharingConsent}
           onChange={handleChangeDataSharingConsent}
-          label={`En validant ce formulaire, vous acceptez que ${voter.firstName} ait accès à vos informations personnelles necessaires à l'établissement de la procuration de vote (prénom, nom, date de naissance, numéro de téléphone)`}
+          label={`En validant ce formulaire, vous acceptez que ${requests[0].firstName} ait accès à vos informations personnelles necessaires à l'établissement de la procuration de vote (prénom, nom, date de naissance, numéro de téléphone)`}
         />
         {errors && (
           <p
@@ -258,30 +301,31 @@ const ReplyingForm = (props) => {
               color: ${({ theme }) => theme.redNSP};
             `}
           >
-            ⚠&ensp;{errors?.global || "Une erreur est survenue."}
+            ⚠&ensp;
+            {errors.global || "Une erreur est survenue."}
           </p>
         )}
         <Spacer size="1rem" />
         <Button
           wrap
           block
-          disabled={isLoading || !!errors?.global}
-          loading={isAccepting}
+          disabled={!!action}
+          loading={action === REPLY_ACTION.ACCEPT}
           type="submit"
           color="success"
         >
-          J'accepte de voter pour {voter.firstName}
+          J'accepte de voter pour {requests[0].firstName}
         </Button>
         <Spacer size="1rem" />
         <Button
           wrap
           block
-          disabled={isLoading}
-          loading={isDeclining}
+          disabled={!!action}
+          loading={action === REPLY_ACTION.DECLINE}
           type="button"
           onClick={declineRequests}
         >
-          Je ne suis plus disponible (me retirer de la liste des volontaires)
+          Me retirer de la liste des volontaires
         </Button>
       </form>
       <Spacer size="2rem" />
@@ -293,7 +337,7 @@ const ReplyingForm = (props) => {
         title="Ne plus recevoir de proposition de prise de procuration"
         confirmationLabel="Confirmer"
         dismissLabel="Annuler"
-        isConfirming={isDeclining}
+        isConfirming={action === REPLY_ACTION.DECLINE}
         shouldDismissOnClick={false}
       >
         <p>
@@ -317,7 +361,15 @@ ReplyingForm.propTypes = {
       commune: PropTypes.string,
       consulate: PropTypes.string,
     }),
-  ).isRequired,
+  ),
+  singleRequest: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    firstName: PropTypes.string.isRequired,
+    votingDate: PropTypes.string.isRequired,
+    pollingStationNumber: PropTypes.string.isRequired,
+    commune: PropTypes.string,
+    consulate: PropTypes.string,
+  }),
   readOnly: PropTypes.bool,
   refreshRequests: PropTypes.func,
   hasMatchedRequests: PropTypes.bool,
