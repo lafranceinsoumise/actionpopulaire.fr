@@ -15,7 +15,6 @@ from rest_framework.response import Response
 from agir.lib.rest_framework_permissions import (
     IsActionPopulaireClientPermission,
     GlobalOrObjectPermissions,
-    IsPersonPermission,
 )
 from agir.lib.token_bucket import TokenBucket
 from agir.lib.utils import get_client_ip
@@ -32,8 +31,8 @@ from agir.voting_proxies.models import VotingProxyRequest, VotingProxy
 from agir.voting_proxies.serializers import (
     VotingProxyRequestSerializer,
     VotingProxySerializer,
-    CreateVotingProxySerializer,
     AcceptedVotingProxyRequestSerializer,
+    CreateVotingProxySerializer,
 )
 from agir.voting_proxies.tasks import send_voting_proxy_information_for_request
 
@@ -81,11 +80,30 @@ class VotingProxyRequestRetrieveUpdatePermission(GlobalOrObjectPermissions):
 
 class VotingProxyRequestRetrieveUpdateAPIView(RetrieveUpdateAPIView):
     permission_classes = (
-        IsPersonPermission,
+        IsActionPopulaireClientPermission,
         VotingProxyRequestRetrieveUpdatePermission,
     )
     queryset = VotingProxyRequest.objects.all()
     serializer_class = AcceptedVotingProxyRequestSerializer
+
+    def get_voting_proxy_for_request(self, obj):
+        voting_proxy = VotingProxy.objects.filter(
+            id=self.request.GET.get("vp", None)
+        ).first()
+
+        if (
+            voting_proxy is not None
+            and voting_proxy.is_available()
+            and obj.email != voting_proxy.email
+            and obj.voting_date.strftime("%Y-%m-%d")
+            in voting_proxy.available_voting_dates
+        ):
+            return voting_proxy
+
+        self.permission_denied(
+            self.request,
+            message="Vous n'avez pas l'autorisation d'accéder à cette ressource",
+        )
 
     def clean(self):
         data = self.request.data
@@ -100,9 +118,16 @@ class VotingProxyRequestRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
         return {"action": action}
 
+    def retrieve(self, request, *args, **kwargs):
+        voting_proxy_request = self.get_object()
+        _voting_proxy = self.get_voting_proxy_for_request(voting_proxy_request)
+        serializer = self.get_serializer(voting_proxy_request)
+
+        return Response(serializer.data)
+
     def update(self, request, *args, **kwargs):
         voting_proxy_request = self.get_object()
-        voting_proxy = request.user.person.voting_proxy
+        voting_proxy = self.get_voting_proxy_for_request(voting_proxy_request)
         validated_data = self.clean()
         action = validated_data.get("action", None)
         action(voting_proxy=voting_proxy, voting_proxy_request=voting_proxy_request)
@@ -125,6 +150,29 @@ class VotingProxyRetrieveUpdateAPIView(RetrieveUpdateAPIView):
     permission_classes = (IsActionPopulaireClientPermission,)
     queryset = VotingProxy.objects.all()
     serializer_class = VotingProxySerializer
+    NON_PERSONAL_FIELDS = (
+        "firstName",
+        "status",
+        "isAvailable",
+    )
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        data = serializer.data
+        is_own_voting_proxy = (
+            self.request.user.is_authenticated
+            and self.request.user.person is not None
+            and self.request.user.person.voting_proxy == instance
+        )
+
+        return Response(
+            {
+                key: value
+                for key, value in data.items()
+                if is_own_voting_proxy or key in self.NON_PERSONAL_FIELDS
+            }
+        )
 
 
 class ReplyToVotingProxyRequestsAPIView(RetrieveUpdateAPIView):

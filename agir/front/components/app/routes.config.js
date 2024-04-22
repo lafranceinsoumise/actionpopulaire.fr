@@ -586,7 +586,7 @@ export const routeConfig = {
     path: "/procuration/prendre-une-procuration/demande/:votingProxyRequestPk/",
     params: { votingProxyRequestPk: null },
     exact: true,
-    neededAuthentication: AUTHENTICATION.SOFT,
+    neededAuthentication: AUTHENTICATION.NONE,
     label: "Prendre une procuration de vote",
     Component: RouteComponents.ReplyToSingleVotingProxyRequest,
     hasLayout: false,

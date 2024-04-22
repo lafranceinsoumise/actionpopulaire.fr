@@ -155,11 +155,14 @@ SoftLoginModalContent.propTypes = SoftLoginModal.propTypes = {
   data: PropTypes.shape({
     tags: PropTypes.string.isRequired,
   }),
-  user: PropTypes.shape({
-    displayName: PropTypes.string.isRequired,
-    firstName: PropTypes.string,
-    email: PropTypes.string.isRequired,
-  }).isRequired,
+  user: PropTypes.oneOfType([
+    PropTypes.shape({
+      displayName: PropTypes.string.isRequired,
+      firstName: PropTypes.string,
+      email: PropTypes.string.isRequired,
+    }).isRequired,
+    PropTypes.bool,
+  ]),
   shouldShow: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
 };

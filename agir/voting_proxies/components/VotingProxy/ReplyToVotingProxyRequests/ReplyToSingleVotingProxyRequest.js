@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import useSWRImmutable from "swr/immutable";
 
@@ -22,9 +22,11 @@ const getVotingProxyRequestsIdsFromURLSearchParams = (search) => {
   }
   const searchParams = new URLSearchParams(search);
   const ids = searchParams.get("vpr");
+
   if (!ids) {
     return null;
   }
+
   return ids;
 };
 
@@ -38,7 +40,17 @@ const ReplyToSingleVotingProxyRequest = (props) => {
     { revalidateOnMount: true },
   );
 
-  const votingProxyPk = session?.user.votingProxyId;
+  const votingProxyPk = useMemo(() => {
+    if (location.state?.votingProxyId) {
+      return location.state.votingProxyId;
+    }
+
+    if (location.search) {
+      return new URLSearchParams(location.search).get("vp");
+    }
+
+    return session?.user.votingProxyId || null;
+  }, [location.state, location.search, session]);
 
   const { data: votingProxy, isLoading: votingProxyIsLoading } =
     useSWRImmutable(
@@ -52,9 +64,11 @@ const ReplyToSingleVotingProxyRequest = (props) => {
     isLoading: votingProxyRequestIsLoading,
   } = useSWRImmutable(
     votingProxy?.isAvailable &&
-      getVotingProxyEndpoint("retrieveUpdateVotingProxyRequest", {
-        votingProxyRequestPk,
-      }),
+      getVotingProxyEndpoint(
+        "retrieveUpdateVotingProxyRequest",
+        { votingProxyRequestPk },
+        { votingProxyPk },
+      ),
   );
 
   const isLoading =
@@ -81,7 +95,7 @@ const ReplyToSingleVotingProxyRequest = (props) => {
         route="acceptedVotingProxyRequests"
         routeParams={{ votingProxyPk }}
         toast={[
-          "Vous ne pouvez plus accepter d'autres demande de procurations",
+          "Vous ne pouvez plus accepter d'autres demandes de procurations",
           "WARNING",
         ]}
       />
@@ -105,7 +119,7 @@ const ReplyToSingleVotingProxyRequest = (props) => {
         ) : (
           <ReplyingForm
             votingProxyPk={votingProxyPk}
-            firstName={session?.user.displayName}
+            firstName={votingProxy?.firstName}
             singleRequest={votingProxyRequest}
             hasMatchedRequests
           />

@@ -375,7 +375,7 @@ const AcceptedRequests = (props) => {
   );
 };
 AcceptedRequests.propTypes = {
-  votingProxyPk: PropTypes.string.isRequired,
+  votingProxyPk: PropTypes.string,
   requests: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string.isRequired,

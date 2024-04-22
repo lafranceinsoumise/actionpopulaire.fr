@@ -509,7 +509,7 @@ class VotingProxyView(BaseAppCachedView):
     meta_image = urljoin(settings.FRONT_DOMAIN, static("front/assets/og_image_vp.jpg"))
 
 
-class ReplyToSingleVotingProxyRequestView(BaseAppSoftAuthView):
+class ReplyToSingleVotingProxyRequestView(BaseAppCachedView):
     meta_title = "Se porter volontaire pour voter par procuration - Action Populaire"
     meta_description = (
         "Prenez une procuration près de chez vous, pour voter pour les candidats-es de l'Union Populaire "

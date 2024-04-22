@@ -7,6 +7,7 @@ from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 
 from agir.lib.http import add_query_params_to_url
+from agir.lib.utils import front_url
 from agir.people.models import Person
 from agir.voting_proxies.models import VotingProxyRequest, VotingProxy
 
@@ -931,74 +932,61 @@ class ReplyToSingleVotingProxyRequestAPITestCase(APITestCase):
                 "proxy": self.another_voting_proxy,
             }
         )
-        self.endpoint = reverse(
-            "api_retrieve_update_voting_proxy_request",
-            kwargs={"pk": self.pending_request.pk},
-        )
         self.valid_accept_data = {"action": "accept"}
         self.valid_decline_data = {"action": "decline"}
         self.client.force_login(self.voting_proxy.person.role)
 
-    def test_cannot_retrieve_request_for_anonymous_person(self):
-        self.client.logout()
-        res = self.client.get(self.endpoint)
-        self.assertEqual(res.status_code, 401)
+    def get_endpoint(self, request=None, proxy=None):
+        request = request or self.pending_request
+        proxy = proxy or self.voting_proxy
+        return front_url(
+            "api_retrieve_update_voting_proxy_request",
+            kwargs={"pk": request.pk},
+            query={"vp": proxy.pk},
+        )
 
     def test_cannot_retrieve_request_for_unavailable_proxy(self):
-        self.client.force_login(self.unavailable_voting_proxy.person.role)
-        res = self.client.get(self.endpoint)
+        res = self.client.get(self.get_endpoint(proxy=self.unavailable_voting_proxy))
         self.assertEqual(res.status_code, 403)
 
     def test_cannot_retrieve_request_for_non_pending_request(self):
-        endpoint = reverse(
-            "api_retrieve_update_voting_proxy_request",
-            kwargs={"pk": self.accepted_request.pk},
-        )
-        res = self.client.get(endpoint)
+        res = self.client.get(self.get_endpoint(request=self.accepted_request))
         self.assertEqual(res.status_code, 403)
 
     def test_cannot_retrieve_request_for_unexisting_request(self):
-        endpoint = reverse(
-            "api_retrieve_update_voting_proxy_request",
-            kwargs={"pk": uuid.uuid4()},
+        res = self.client.get(
+            self.get_endpoint(request=VotingProxyRequest(pk=uuid.uuid4()))
         )
-        res = self.client.get(endpoint)
         self.assertEqual(res.status_code, 404)
 
     def test_available_proxy_can_retrieve_pending_request(self):
-        res = self.client.get(self.endpoint)
+        res = self.client.get(self.get_endpoint())
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.data["id"], str(self.pending_request.pk))
         self.assertEqual(res.data["firstName"], self.pending_request.first_name)
 
-    def test_cannot_update_request_for_anonymous_person(self):
-        self.client.logout()
-        res = self.client.patch(self.endpoint, self.valid_accept_data)
-        self.assertEqual(res.status_code, 401)
-
     def test_cannot_update_request_for_unavailable_proxy(self):
-        self.client.force_login(self.unavailable_voting_proxy.person.role)
-        res = self.client.patch(self.endpoint, self.valid_accept_data)
+        res = self.client.patch(
+            self.get_endpoint(proxy=self.unavailable_voting_proxy),
+            self.valid_accept_data,
+        )
         self.assertEqual(res.status_code, 403)
 
     def test_cannot_update_request_for_non_pending_request(self):
-        endpoint = reverse(
-            "api_retrieve_update_voting_proxy_request",
-            kwargs={"pk": self.accepted_request.pk},
+        res = self.client.patch(
+            self.get_endpoint(request=self.accepted_request), self.valid_accept_data
         )
-        res = self.client.patch(endpoint, self.valid_accept_data)
         self.assertEqual(res.status_code, 403)
 
     def test_cannot_update_request_for_unexisting_request(self):
-        endpoint = reverse(
-            "api_retrieve_update_voting_proxy_request",
-            kwargs={"pk": uuid.uuid4()},
+        res = self.client.patch(
+            self.get_endpoint(request=VotingProxyRequest(pk=uuid.uuid4())),
+            self.valid_accept_data,
         )
-        res = self.client.patch(endpoint, self.valid_accept_data)
         self.assertEqual(res.status_code, 404)
 
     def test_cannot_update_request_without_action_param(self):
-        res = self.client.patch(self.endpoint, {})
+        res = self.client.patch(self.get_endpoint(), {})
         self.assertEqual(res.status_code, 422)
         self.assertIn("action", res.data)
 
@@ -1006,7 +994,7 @@ class ReplyToSingleVotingProxyRequestAPITestCase(APITestCase):
         data = {
             "action": "not an action",
         }
-        res = self.client.patch(self.endpoint, data)
+        res = self.client.patch(self.get_endpoint(), data)
         self.assertEqual(res.status_code, 422)
         self.assertIn("action", res.data)
 
@@ -1014,7 +1002,7 @@ class ReplyToSingleVotingProxyRequestAPITestCase(APITestCase):
         self.pending_request.proxy = None
         self.pending_request.status = VotingProxyRequest.STATUS_CREATED
         self.voting_proxy.status = VotingProxy.STATUS_CREATED
-        res = self.client.patch(self.endpoint, self.valid_decline_data)
+        res = self.client.patch(self.get_endpoint(), self.valid_decline_data)
         self.assertEqual(res.status_code, 200)
         self.pending_request.refresh_from_db()
         self.voting_proxy.refresh_from_db()
@@ -1026,7 +1014,7 @@ class ReplyToSingleVotingProxyRequestAPITestCase(APITestCase):
         self.pending_request.proxy = None
         self.pending_request.status = VotingProxyRequest.STATUS_CREATED
         self.voting_proxy.status = VotingProxy.STATUS_CREATED
-        res = self.client.patch(self.endpoint, self.valid_accept_data)
+        res = self.client.patch(self.get_endpoint(), self.valid_accept_data)
         self.assertEqual(res.status_code, 200)
         self.pending_request.refresh_from_db()
         self.assertEqual(self.pending_request.proxy, self.voting_proxy)
