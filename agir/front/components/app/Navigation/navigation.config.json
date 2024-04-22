@@ -6,7 +6,14 @@
       "title": "Événements",
       "route": "events",
       "desktop": true,
-      "mobile": true
+      "mobile": true,
+      "secondaryLinks": [
+        {
+          "id": "nationalCalendar",
+          "route": "nationalCalendar",
+          "label": "L'agenda nationale"
+        }
+      ]
     },
     {
       "id": "actionTools",

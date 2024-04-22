@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import CONFIG from "@agir/front/app/Navigation/navigation.config";
@@ -50,42 +50,57 @@ const MenuLink = styled(Link)`
 
 const LINKS = CONFIG.menuLinks.filter(({ desktop }) => !!desktop);
 
-const Navigation = ({
+const NavigationLink = ({
+  link,
   active,
+  routes,
   unreadMessageCount = 0,
   unreadActivityCount = 0,
-  routes,
-}) => (
-  <ul style={{ listStyle: "none", padding: 0 }}>
-    {LINKS.map((link) => (
-      <li key={link.id} style={{ marginBottom: "1.5rem" }}>
-        <MenuLink route={link.route} $active={active === link.id}>
-          {link.unreadMessageBadge && (
-            <CounterBadge value={unreadMessageCount} />
-          )}
-          {link.unreadActivityBadge && (
-            <CounterBadge value={unreadActivityCount} />
-          )}
-          <RawFeatherIcon name={link.icon} />
-          <span>{link.title}</span>
-          {link.external && (
-            <RawFeatherIcon
-              name="external-link"
-              inline
-              strokeWidth={1.33}
-              width="1rem"
-              height="1rem"
-            />
-          )}
-        </MenuLink>
-        <SecondaryMenu
-          style={{ marginTop: ".5rem" }}
-          links={routes && link.secondaryLinks && routes[link.secondaryLinks]}
-        />
-      </li>
-    ))}
-  </ul>
-);
+}) => {
+  const secondaryLinks = useMemo(() => {
+    if (!routes) {
+      return null;
+    }
+    if (Array.isArray(link.secondaryLinks)) {
+      return link.secondaryLinks;
+    }
+
+    return routes[link.secondaryLinks];
+  }, [routes, link.secondaryLinks]);
+
+  return (
+    <li style={{ marginBottom: "1.5rem" }}>
+      <MenuLink route={link.route} $active={active === link.id}>
+        {link.unreadMessageBadge && <CounterBadge value={unreadMessageCount} />}
+        {link.unreadActivityBadge && (
+          <CounterBadge value={unreadActivityCount} />
+        )}
+        <RawFeatherIcon name={link.icon} />
+        <span>{link.title}</span>
+        {link.external && (
+          <RawFeatherIcon
+            name="external-link"
+            inline
+            strokeWidth={1.33}
+            width="1rem"
+            height="1rem"
+          />
+        )}
+      </MenuLink>
+      <SecondaryMenu style={{ marginTop: ".5rem" }} links={secondaryLinks} />
+    </li>
+  );
+};
+
+const Navigation = (props) => {
+  return (
+    <ul style={{ listStyle: "none", padding: 0 }}>
+      {LINKS.map((link) => (
+        <NavigationLink key={link.id} {...props} link={link} />
+      ))}
+    </ul>
+  );
+};
 
 Navigation.propTypes = {
   active: PropTypes.string,
