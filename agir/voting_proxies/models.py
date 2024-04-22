@@ -207,11 +207,13 @@ class VotingProxy(AbstractVoter):
         return [date for date in self.voting_dates if date not in accepted_dates]
 
     def is_active(self):
-        return (
-            self.person is not None
-            and self.person.role is not None
-            and self.person.role.is_active
-        )
+        if self.person is None:
+            return False
+
+        if self.person.role and not self.person.role.is_active:
+            return False
+
+        return True
 
     def is_available(self):
         return (

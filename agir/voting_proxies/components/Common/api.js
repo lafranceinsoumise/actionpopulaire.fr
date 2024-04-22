@@ -148,7 +148,11 @@ export const createVotingProxy = async (data) => {
   return result;
 };
 
-export const replyToSingleVotingProxyRequest = async (action, request) => {
+export const replyToSingleVotingProxyRequest = async (
+  action,
+  votingProxy,
+  request,
+) => {
   const result = {
     data: null,
     error: null,
@@ -158,7 +162,7 @@ export const replyToSingleVotingProxyRequest = async (action, request) => {
     votingProxyRequestPk: request.id,
   });
 
-  const body = { action };
+  const body = { action, votingProxy };
 
   try {
     const response = await axios.patch(url, body);

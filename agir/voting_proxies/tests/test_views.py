@@ -932,8 +932,14 @@ class ReplyToSingleVotingProxyRequestAPITestCase(APITestCase):
                 "proxy": self.another_voting_proxy,
             }
         )
-        self.valid_accept_data = {"action": "accept"}
-        self.valid_decline_data = {"action": "decline"}
+        self.valid_accept_data = {
+            "action": "accept",
+            "votingProxy": self.voting_proxy.pk,
+        }
+        self.valid_decline_data = {
+            "action": "decline",
+            "votingProxy": self.voting_proxy.pk,
+        }
         self.client.force_login(self.voting_proxy.person.role)
 
     def get_endpoint(self, request=None, proxy=None):
@@ -967,10 +973,11 @@ class ReplyToSingleVotingProxyRequestAPITestCase(APITestCase):
 
     def test_cannot_update_request_for_unavailable_proxy(self):
         res = self.client.patch(
-            self.get_endpoint(proxy=self.unavailable_voting_proxy),
-            self.valid_accept_data,
+            self.get_endpoint(),
+            {**self.valid_accept_data, "votingProxy": self.unavailable_voting_proxy.pk},
         )
-        self.assertEqual(res.status_code, 403)
+        self.assertEqual(res.status_code, 422)
+        self.assertIn("votingProxy", res.data)
 
     def test_cannot_update_request_for_non_pending_request(self):
         res = self.client.patch(
@@ -1001,7 +1008,9 @@ class ReplyToSingleVotingProxyRequestAPITestCase(APITestCase):
     def test_can_decline_a_request(self):
         self.pending_request.proxy = None
         self.pending_request.status = VotingProxyRequest.STATUS_CREATED
+        self.pending_request.save()
         self.voting_proxy.status = VotingProxy.STATUS_CREATED
+        self.voting_proxy.save()
         res = self.client.patch(self.get_endpoint(), self.valid_decline_data)
         self.assertEqual(res.status_code, 200)
         self.pending_request.refresh_from_db()
@@ -1013,7 +1022,9 @@ class ReplyToSingleVotingProxyRequestAPITestCase(APITestCase):
     def test_can_accept_a_request(self):
         self.pending_request.proxy = None
         self.pending_request.status = VotingProxyRequest.STATUS_CREATED
+        self.pending_request.save()
         self.voting_proxy.status = VotingProxy.STATUS_CREATED
+        self.voting_proxy.save()
         res = self.client.patch(self.get_endpoint(), self.valid_accept_data)
         self.assertEqual(res.status_code, 200)
         self.pending_request.refresh_from_db()

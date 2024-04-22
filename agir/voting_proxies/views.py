@@ -86,23 +86,23 @@ class VotingProxyRequestRetrieveUpdateAPIView(RetrieveUpdateAPIView):
     queryset = VotingProxyRequest.objects.all()
     serializer_class = AcceptedVotingProxyRequestSerializer
 
-    def get_voting_proxy_for_request(self, obj):
-        voting_proxy = VotingProxy.objects.filter(
-            id=self.request.GET.get("vp", None)
-        ).first()
+    def clean_voting_proxy(self, voting_proxy_id):
+        voting_proxy_request = self.get_object()
+        voting_proxy = VotingProxy.objects.filter(id=voting_proxy_id).first()
 
         if (
             voting_proxy is not None
             and voting_proxy.is_available()
-            and obj.email != voting_proxy.email
-            and obj.voting_date.strftime("%Y-%m-%d")
+            and voting_proxy_request.email != voting_proxy.email
+            and voting_proxy_request.voting_date.strftime("%Y-%m-%d")
             in voting_proxy.available_voting_dates
         ):
             return voting_proxy
 
-        self.permission_denied(
-            self.request,
-            message="Vous n'avez pas l'autorisation d'accéder à cette ressource",
+        raise ValidationError(
+            detail={
+                "votingProxy": "Le volontaire indiqué n'a pas été trouvé ou ne peut pas prendre de procurations de vote."
+            }
         )
 
     def clean(self):
@@ -119,17 +119,23 @@ class VotingProxyRequestRetrieveUpdateAPIView(RetrieveUpdateAPIView):
         return {"action": action}
 
     def retrieve(self, request, *args, **kwargs):
+        try:
+            self.clean_voting_proxy(request.GET.get("vp", None))
+        except ValidationError as e:
+            self.permission_denied(request, message=str(e))
+
         voting_proxy_request = self.get_object()
-        _voting_proxy = self.get_voting_proxy_for_request(voting_proxy_request)
         serializer = self.get_serializer(voting_proxy_request)
 
         return Response(serializer.data)
 
     def update(self, request, *args, **kwargs):
         voting_proxy_request = self.get_object()
-        voting_proxy = self.get_voting_proxy_for_request(voting_proxy_request)
         validated_data = self.clean()
         action = validated_data.get("action", None)
+        voting_proxy = self.clean_voting_proxy(
+            voting_proxy_id=request.data.get("votingProxy", None)
+        )
         action(voting_proxy=voting_proxy, voting_proxy_request=voting_proxy_request)
 
         return Response(

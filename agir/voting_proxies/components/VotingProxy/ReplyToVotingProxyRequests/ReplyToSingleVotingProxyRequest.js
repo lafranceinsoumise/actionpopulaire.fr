@@ -67,7 +67,7 @@ const ReplyToSingleVotingProxyRequest = (props) => {
       getVotingProxyEndpoint(
         "retrieveUpdateVotingProxyRequest",
         { votingProxyRequestPk },
-        { votingProxyPk },
+        { vp: votingProxyPk },
       ),
   );
 

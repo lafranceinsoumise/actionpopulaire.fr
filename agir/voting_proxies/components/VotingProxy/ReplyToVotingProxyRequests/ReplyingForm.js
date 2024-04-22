@@ -143,7 +143,11 @@ const ReplyingForm = (props) => {
       setAction(action);
 
       const result = isSingle
-        ? await replyToSingleVotingProxyRequest(action, requests[0])
+        ? await replyToSingleVotingProxyRequest(
+            action,
+            votingProxyPk,
+            requests[0],
+          )
         : await replyToVotingProxyRequests(action, votingProxyPk, requests);
 
       setAction(null);
