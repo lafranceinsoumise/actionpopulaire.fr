@@ -52,11 +52,11 @@ const ReplyToSingleVotingProxyRequest = (props) => {
       return searchParam;
     }
 
-    if (session.isLoading) {
+    if (typeof session === "undefined") {
       return undefined;
     }
 
-    return session?.user.votingProxyId || null;
+    return session?.user?.votingProxyId || null;
   }, [location.state, location.search, session]);
 
   const { data: votingProxy, isLoading: votingProxyIsLoading } =
