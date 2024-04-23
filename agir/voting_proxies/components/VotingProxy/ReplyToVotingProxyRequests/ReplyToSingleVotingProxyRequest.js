@@ -45,8 +45,15 @@ const ReplyToSingleVotingProxyRequest = (props) => {
       return location.state.votingProxyId;
     }
 
-    if (location.search) {
-      return new URLSearchParams(location.search).get("vp");
+    const searchParam =
+      location.search && new URLSearchParams(location.search).get("vp");
+
+    if (searchParam) {
+      return searchParam;
+    }
+
+    if (session.isLoading) {
+      return undefined;
     }
 
     return session?.user.votingProxyId || null;
@@ -74,7 +81,7 @@ const ReplyToSingleVotingProxyRequest = (props) => {
   const isLoading =
     sessionIsLoading || votingProxyIsLoading || votingProxyRequestIsLoading;
 
-  if (!votingProxyPk || votingProxy?.status === "unavailable") {
+  if (votingProxyPk === null || votingProxy?.status === "unavailable") {
     return (
       <AppRedirect
         route="newVotingProxy"
