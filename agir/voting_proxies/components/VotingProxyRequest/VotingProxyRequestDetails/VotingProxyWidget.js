@@ -220,7 +220,7 @@ const VotingProxyWidget = (props) => {
       >
         <p>
           Après validation, la personne sera prévenue et sera disponible pour
-          répondre à d'autres demande de procuration.
+          répondre à d'autres demandes de procuration.
         </p>
       </ModalConfirmation>
     </StyledWidget>

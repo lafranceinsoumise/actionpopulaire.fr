@@ -4,11 +4,13 @@ import React from "react";
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
-const NoRequestFound = ({ hasMatchedRequests }) => (
+const NoRequestFound = ({
+  hasMatchedRequests,
+  hasMatchingLink,
+  votingProxyPk,
+}) => (
   <div style={{ textAlign: "center" }}>
-    <h2 style={{ textAlign: "left" }}>
-      Se porter volontaire pour prendre une procuration
-    </h2>
+    <h2>Se porter volontaire pour prendre une procuration</h2>
     <Spacer size="2rem" />
     {hasMatchedRequests ? (
       <p>
@@ -19,11 +21,32 @@ const NoRequestFound = ({ hasMatchedRequests }) => (
       <p>Aucune demande de procuration n'a été trouvée près de chez vous.</p>
     )}
     <Spacer size="1rem" />
-    <p>
-      Nous vous recontacterons dès qu'une nouvelle personne aura demandé une
-      procuration.
-    </p>
-    <Spacer size="3rem" />
+    {hasMatchingLink && votingProxyPk ? (
+      <p>
+        Vous pouvez vérifier tout de suite si une autre demande de procuration
+        est en attente près de chez vous ou nous vous contacterons dès qu'une
+        personne cherchera à donner une procuration.
+      </p>
+    ) : (
+      <p>
+        Nous vous recontacterons dès qu'une nouvelle personne aura demandé une
+        procuration près de chez vous.
+      </p>
+    )}
+    <Spacer size="2rem" />
+    {hasMatchingLink && votingProxyPk && (
+      <Button
+        link
+        wrap
+        icon="arrow-right"
+        color="primary"
+        route="replyToVotingProxyRequests"
+        routeParams={{ votingProxyPk }}
+      >
+        Voir si une autre demande est en attente près de chez moi
+      </Button>
+    )}
+    <Spacer size="1rem" />
     <footer>
       <Button color="dismiss" icon="arrow-right" link route="eu2024">
         Retourner sur le site
@@ -33,6 +56,8 @@ const NoRequestFound = ({ hasMatchedRequests }) => (
 );
 NoRequestFound.propTypes = {
   hasMatchedRequests: PropTypes.bool,
+  hasMatchingLink: PropTypes.bool,
+  votingProxyPk: PropTypes.string,
 };
 
 export default NoRequestFound;

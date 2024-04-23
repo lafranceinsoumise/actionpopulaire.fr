@@ -1,11 +1,10 @@
-import { rest } from "msw";
 import { initialize, mswDecorator } from "msw-storybook-addon";
 import React, { useCallback, useEffect, useRef } from "react";
 import { MemoryRouter } from "react-router-dom";
-import { SWRConfig, useSWRConfig } from "swr";
+import { SWRConfig } from "swr";
 import { ThemeProvider } from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables.scss";
 import routes from "@agir/front/globalContext/nonReactRoutes.config";
 import user from "@agir/front/mockData/user";
 

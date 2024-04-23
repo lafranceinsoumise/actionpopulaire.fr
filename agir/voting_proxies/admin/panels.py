@@ -340,13 +340,17 @@ class VotingProxyRequestAdmin(VoterModelAdmin):
     def matching_buttons(self, voting_proxy_request):
         if voting_proxy_request.status == VotingProxyRequest.STATUS_CANCELLED:
             return "-"
-        elif voting_proxy_request.status == VotingProxyRequest.STATUS_CREATED:
+
+        if voting_proxy_request.status == VotingProxyRequest.STATUS_CREATED:
             return format_html(
                 '<p><a href="{match_voting_proxy_request}" class="button">'
                 "  Chercher uniquement pour cette demande"
                 "</a></p>"
                 '<p style="margin-top: 4px;"><a href="{match_person_voting_proxy_requests}" class="button">'
                 "  Chercher pour toutes les demandes de cette personne"
+                "</a></p>"
+                '<p style="margin-top: 4px;"><a href="{reply_to_url}" class="button">'
+                "  Lien d'acceptation de la demande"
                 "</a></p>",
                 match_voting_proxy_request=reverse(
                     "admin:votingproxies_votingproxyrequest_match_voting_proxy_request",
@@ -356,27 +360,28 @@ class VotingProxyRequestAdmin(VoterModelAdmin):
                     "admin:votingproxies_votingproxyrequest_match_person_voting_proxy_requests",
                     args=(voting_proxy_request.pk,),
                 ),
+                reply_to_url=voting_proxy_request.reply_to_url,
             )
-        else:
-            related_requests = (
-                VotingProxyRequest.objects.filter(email=voting_proxy_request.email)
-                .exclude(
-                    status__in=(
-                        VotingProxyRequest.STATUS_CREATED,
-                        VotingProxyRequest.STATUS_CANCELLED,
-                    )
-                )
-                .values_list("pk", flat=True)
-            )
-            link = front_url(
-                "voting_proxy_request_details",
-                query={"vpr": ",".join([str(pk) for pk in related_requests])},
-            )
-            link = shorten_url(link, secret=True)
 
-            return format_html(
-                f'<a class="button" href="{link}" target="_blank">➡ Lien vers la page de confirmation</a>'
+        related_requests = (
+            VotingProxyRequest.objects.filter(email=voting_proxy_request.email)
+            .exclude(
+                status__in=(
+                    VotingProxyRequest.STATUS_CREATED,
+                    VotingProxyRequest.STATUS_CANCELLED,
+                )
             )
+            .values_list("pk", flat=True)
+        )
+        link = front_url(
+            "voting_proxy_request_details",
+            query={"vpr": ",".join([str(pk) for pk in related_requests])},
+        )
+        link = shorten_url(link, secret=True)
+
+        return format_html(
+            f'<a class="button" href="{link}" target="_blank">➡ Lien vers la page de confirmation</a>'
+        )
 
     matching_buttons.short_description = "Recherche de volontaires"
 

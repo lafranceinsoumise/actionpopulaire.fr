@@ -117,7 +117,7 @@ VotingDateFields.propTypes = {
   disabled: PropTypes.bool,
   error: PropTypes.string,
   label: PropTypes.node,
-  labelSingle: PropTypes.arrayOf(PropTypes.node),
+  labelSingle: PropTypes.node,
   helpText: PropTypes.node,
 };
 

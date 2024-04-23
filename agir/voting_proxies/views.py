@@ -12,23 +12,27 @@ from rest_framework.generics import (
 )
 from rest_framework.response import Response
 
-from agir.lib.rest_framework_permissions import IsActionPopulaireClientPermission
+from agir.lib.rest_framework_permissions import (
+    IsActionPopulaireClientPermission,
+    GlobalOrObjectPermissions,
+)
 from agir.lib.token_bucket import TokenBucket
 from agir.lib.utils import get_client_ip
 from agir.voting_proxies.actions import (
     get_voting_proxy_requests_for_proxy,
     accept_voting_proxy_requests,
-    decline_voting_proxy_requests,
+    mark_voting_proxy_as_unavailable,
     confirm_voting_proxy_requests,
     cancel_voting_proxy_requests,
     cancel_voting_proxy_request_acceptation,
+    accept_single_voting_proxy_request,
 )
 from agir.voting_proxies.models import VotingProxyRequest, VotingProxy
 from agir.voting_proxies.serializers import (
     VotingProxyRequestSerializer,
     VotingProxySerializer,
-    CreateVotingProxySerializer,
     AcceptedVotingProxyRequestSerializer,
+    CreateVotingProxySerializer,
 )
 from agir.voting_proxies.tasks import send_voting_proxy_information_for_request
 
@@ -65,6 +69,83 @@ class VotingProxyRequestCreateAPIView(CreateVoterAPIView):
     serializer_class = VotingProxyRequestSerializer
 
 
+class VotingProxyRequestRetrieveUpdatePermission(GlobalOrObjectPermissions):
+    perms_map = {"GET": [], "PUT": [], "PATCH": []}
+    object_perms_map = {
+        "GET": ["voting_proxies.view_voting_proxy_request"],
+        "PUT": ["voting_proxies.view_voting_proxy_request"],
+        "PATCH": ["voting_proxies.view_voting_proxy_request"],
+    }
+
+
+class VotingProxyRequestRetrieveUpdateAPIView(RetrieveUpdateAPIView):
+    permission_classes = (
+        IsActionPopulaireClientPermission,
+        VotingProxyRequestRetrieveUpdatePermission,
+    )
+    queryset = VotingProxyRequest.objects.all()
+    serializer_class = AcceptedVotingProxyRequestSerializer
+
+    def clean_voting_proxy(self, voting_proxy_id):
+        voting_proxy_request = self.get_object()
+        voting_proxy = VotingProxy.objects.filter(id=voting_proxy_id).first()
+
+        if (
+            voting_proxy is not None
+            and voting_proxy.is_available()
+            and voting_proxy_request.email != voting_proxy.email
+            and voting_proxy_request.voting_date.strftime("%Y-%m-%d")
+            in voting_proxy.available_voting_dates
+        ):
+            return voting_proxy
+
+        raise ValidationError(
+            detail={
+                "votingProxy": "Le volontaire indiqué n'a pas été trouvé ou ne peut pas prendre de procurations de vote."
+            }
+        )
+
+    def clean(self):
+        data = self.request.data
+        if data.get("action", None) == "accept":
+            action = accept_single_voting_proxy_request
+        elif data.get("action", None) == "decline":
+            action = mark_voting_proxy_as_unavailable
+        else:
+            raise ValidationError(
+                detail={"action": "La valeur de ce champ n'est pas valide"}
+            )
+
+        return {"action": action}
+
+    def retrieve(self, request, *args, **kwargs):
+        try:
+            self.clean_voting_proxy(request.GET.get("vp", None))
+        except ValidationError as e:
+            self.permission_denied(request, message=str(e))
+
+        voting_proxy_request = self.get_object()
+        serializer = self.get_serializer(voting_proxy_request)
+
+        return Response(serializer.data)
+
+    def update(self, request, *args, **kwargs):
+        voting_proxy_request = self.get_object()
+        validated_data = self.clean()
+        action = validated_data.get("action", None)
+        voting_proxy = self.clean_voting_proxy(
+            voting_proxy_id=request.data.get("votingProxy", None)
+        )
+        action(voting_proxy=voting_proxy, voting_proxy_request=voting_proxy_request)
+
+        return Response(
+            {
+                "firstName": voting_proxy.first_name,
+                "status": voting_proxy.status,
+            }
+        )
+
+
 class VotingProxyCreateAPIView(CreateVoterAPIView):
     permission_classes = (IsActionPopulaireClientPermission,)
     queryset = VotingProxy.objects.all()
@@ -75,6 +156,29 @@ class VotingProxyRetrieveUpdateAPIView(RetrieveUpdateAPIView):
     permission_classes = (IsActionPopulaireClientPermission,)
     queryset = VotingProxy.objects.all()
     serializer_class = VotingProxySerializer
+    NON_PERSONAL_FIELDS = (
+        "firstName",
+        "status",
+        "isAvailable",
+    )
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        data = serializer.data
+        is_own_voting_proxy = (
+            self.request.user.is_authenticated
+            and self.request.user.person is not None
+            and self.request.user.person.voting_proxy == instance
+        )
+
+        return Response(
+            {
+                key: value
+                for key, value in data.items()
+                if is_own_voting_proxy or key in self.NON_PERSONAL_FIELDS
+            }
+        )
 
 
 class ReplyToVotingProxyRequestsAPIView(RetrieveUpdateAPIView):
@@ -127,50 +231,48 @@ class ReplyToVotingProxyRequestsAPIView(RetrieveUpdateAPIView):
             }
         )
 
-    def clean(self, data):
+    def clean(self):
+        data = self.request.data
         voting_proxy = self.get_object()
-        is_available = data.get("isAvailable", None)
-        voting_proxy_request_pks = data.get("votingProxyRequests", None)
-        voting_proxy_requests = []
-        errors = {}
 
-        if not isinstance(is_available, bool):
-            errors[
-                "isAvailable"
-            ] = "La valeur de ce champ est obligatoire et devrait être un booléan"
-
-        if not voting_proxy_request_pks:
-            errors[
-                "votingProxyRequests"
-            ] = "La valeur de ce champ est obligatoire et devrait être une liste de uuids"
+        if data.get("action", None) == "accept":
+            action = accept_voting_proxy_requests
+        elif data.get("action", None) == "decline":
+            action = mark_voting_proxy_as_unavailable
         else:
-            try:
-                voting_proxy_requests = get_voting_proxy_requests_for_proxy(
-                    voting_proxy, voting_proxy_request_pks
-                )
-            except (VotingProxyRequest.DoesNotExist, exceptions.ValidationError):
-                errors["global"] = (
-                    "Cette procuration a été acceptée par un·e autre volontaire. Nous vous enverrons un SMS "
-                    "lorsqu'une nouvelle demande apparaîtra près de chez vous."
-                )
+            raise ValidationError(
+                detail={"action": "La valeur de ce champ n'est pas valide"}
+            )
 
-        if errors.keys():
-            raise ValidationError(errors)
+        if not data.get("votingProxyRequests", None):
+            raise ValidationError(
+                detail={
+                    "votingProxyRequests": "La valeur de ce champ est obligatoire et devrait être une liste de uuids"
+                }
+            )
+
+        try:
+            voting_proxy_requests = get_voting_proxy_requests_for_proxy(
+                voting_proxy, data.get("votingProxyRequests")
+            )
+        except (VotingProxyRequest.DoesNotExist, exceptions.ValidationError):
+            raise ValidationError(
+                detail={
+                    "global": "Cette procuration a été acceptée par un·e autre volontaire. Nous vous enverrons un SMS "
+                    "lorsqu'une nouvelle demande apparaîtra près de chez vous."
+                }
+            )
 
         return {
-            "is_available": is_available,
+            "action": action,
             "voting_proxy": voting_proxy,
             "voting_proxy_requests": voting_proxy_requests,
         }
 
     def update(self, request, *args, **kwargs):
-        validated_data = self.clean(request.data)
-        is_available = validated_data.pop("is_available")
-
-        if is_available:
-            accept_voting_proxy_requests(**validated_data)
-        else:
-            decline_voting_proxy_requests(**validated_data)
+        validated_data = self.clean()
+        action = validated_data.pop("action")
+        action(**validated_data)
 
         return Response(
             {

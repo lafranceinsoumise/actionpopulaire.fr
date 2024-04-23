@@ -207,24 +207,41 @@ def get_voting_proxy_requests_for_proxy(voting_proxy, voting_proxy_request_pks):
     ).order_by("voting_date")
 
 
-def accept_voting_proxy_requests(voting_proxy, voting_proxy_requests):
-    voting_proxy_request_pks = list(voting_proxy_requests.values_list("pk", flat=True))
+def accept_single_voting_proxy_request(voting_proxy, voting_proxy_request):
     with transaction.atomic():
+        voting_proxy_request.status = VotingProxyRequest.STATUS_ACCEPTED
+        voting_proxy_request.proxy = voting_proxy
+        voting_proxy_request.save()
+
         voting_proxy.status = VotingProxy.STATUS_AVAILABLE
         voting_proxy.save()
-        voting_proxy_requests.update(
-            status=VotingProxyRequest.STATUS_ACCEPTED, proxy=voting_proxy
-        )
 
     transaction.on_commit(
         partial(
             send_voting_proxy_request_accepted_text_messages.delay,
-            voting_proxy_request_pks,
+            [voting_proxy_request.pk],
         )
     )
 
 
-def decline_voting_proxy_requests(voting_proxy, voting_proxy_requests):
+def accept_voting_proxy_requests(voting_proxy, voting_proxy_requests):
+    with transaction.atomic():
+        voting_proxy_requests.update(
+            status=VotingProxyRequest.STATUS_ACCEPTED, proxy=voting_proxy
+        )
+
+        voting_proxy.status = VotingProxy.STATUS_AVAILABLE
+        voting_proxy.save()
+
+    transaction.on_commit(
+        partial(
+            send_voting_proxy_request_accepted_text_messages.delay,
+            list(voting_proxy_requests.values_list("pk", flat=True)),
+        )
+    )
+
+
+def mark_voting_proxy_as_unavailable(voting_proxy, *args, **kwargs):
     voting_proxy.status = VotingProxy.STATUS_UNAVAILABLE
     voting_proxy.save()
 

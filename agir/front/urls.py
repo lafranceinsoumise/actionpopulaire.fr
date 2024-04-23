@@ -262,6 +262,11 @@ voting_proxy_patterns = [
         name="reply_to_voting_proxy_requests",
     ),
     path(
+        "prendre-une-procuration/demande/<uuid:pk>/",
+        views.ReplyToSingleVotingProxyRequestView.as_view(),
+        name="reply_to_single_voting_proxy_request",
+    ),
+    path(
         "prendre-une-procuration/<uuid:pk>/demandes/",
         views.VotingProxyView.as_view(),
         name="accepted_voting_proxy_requests",

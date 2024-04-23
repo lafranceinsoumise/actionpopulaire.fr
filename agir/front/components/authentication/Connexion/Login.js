@@ -65,6 +65,7 @@ const Login = () => {
     if (location.state?.next) {
       return location.state.next;
     }
+
     if (location.search) {
       return new URLSearchParams(location.search).get("next");
     }

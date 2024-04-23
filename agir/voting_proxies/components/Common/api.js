@@ -4,6 +4,8 @@ import { addQueryStringParams } from "@agir/lib/utils/url";
 export const ENDPOINT = {
   searchVotingLocation: "/api/elections/communes-consulats/",
   createVotingProxyRequest: "/api/procurations/demande/",
+  retrieveUpdateVotingProxyRequest:
+    "/api/procurations/demande/:votingProxyRequestPk/",
   createVotingProxy: "/api/procurations/volontaire/",
   retrieveUpdateVotingProxy: "/api/procurations/volontaire/:votingProxyPk/",
   replyToVotingProxyRequests:
@@ -14,6 +16,11 @@ export const ENDPOINT = {
   confirmVotingProxyRequests: "/api/procurations/demande/confirmer/",
   cancelVotingProxyRequests: "/api/procurations/demande/annuler/",
   cancelVotingProxyRequestAcceptation: "/api/procurations/demande/se-desister/",
+};
+
+export const REPLY_ACTION = {
+  ACCEPT: "accept",
+  DECLINE: "decline",
 };
 
 export const getVotingProxyEndpoint = (key, params, searchParams) => {
@@ -141,7 +148,41 @@ export const createVotingProxy = async (data) => {
   return result;
 };
 
-export const replyToVotingProxyRequests = async (votingProxyPk, body) => {
+export const replyToSingleVotingProxyRequest = async (
+  action,
+  votingProxy,
+  request,
+) => {
+  const result = {
+    data: null,
+    error: null,
+  };
+
+  const url = getVotingProxyEndpoint("retrieveUpdateVotingProxyRequest", {
+    votingProxyRequestPk: request.id,
+  });
+
+  const body = { action, votingProxy };
+
+  try {
+    const response = await axios.patch(url, body);
+    result.data = response.data;
+  } catch (e) {
+    if (e.response?.data && typeof e.response.data === "object") {
+      result.error = { ...e.response.data, status: e.response.status };
+    } else {
+      result.error = { global: e.message || "Une erreur est survenue" };
+    }
+  }
+
+  return result;
+};
+
+export const replyToVotingProxyRequests = async (
+  action,
+  votingProxyPk,
+  requests,
+) => {
   const result = {
     data: null,
     error: null,
@@ -149,12 +190,16 @@ export const replyToVotingProxyRequests = async (votingProxyPk, body) => {
   const url = getVotingProxyEndpoint("replyToVotingProxyRequests", {
     votingProxyPk,
   });
+  const body = {
+    action,
+    votingProxyRequests: requests.map((request) => request.id),
+  };
   try {
     const response = await axios.patch(url, body);
     result.data = response.data;
   } catch (e) {
     if (e.response?.data && typeof e.response.data === "object") {
-      result.error = e.response.data;
+      result.error = { ...e.response.data, status: e.response.status };
     } else {
       result.error = { global: e.message || "Une erreur est survenue" };
     }
