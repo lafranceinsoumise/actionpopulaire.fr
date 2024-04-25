@@ -1,12 +1,10 @@
-import re
-
 from django.db.models import Q, Value
 from django.utils import timezone
 from glom import T, glom, Coalesce
 from unidecode import unidecode
 
 from agir.lib.commands import BaseCommand
-from agir.lib.data import departements_choices
+from agir.lib.data import departements_or_circo_fe_choices
 from agir.lib.google_sheet import (
     GoogleSheetId,
     open_sheet,
@@ -20,10 +18,6 @@ INDEX_FILE_ID = "1Ugnzr77oiYtwMYZsIrGa6klq0S-G7HtLCaP1I0_qpp0"
 LOG_FILE_ID = GoogleSheetId(INDEX_FILE_ID, 395114866)
 TEST_SHEET_ID = GoogleSheetId(INDEX_FILE_ID, 521378227)
 PRODUCTION_SHEET_ID = GoogleSheetId(INDEX_FILE_ID, 0)
-
-DEPARTEMENT_CODE_RE = re.compile(
-    r"^(?:99|[01345678][0-9]|2[1-9AB]|9(?:[0-5]|7[1-8]|8[678]))$"
-)
 
 SPEC_VPR = {
     "Commune ou consulat d'inscription": (
@@ -43,10 +37,7 @@ SPEC_VPR = {
 }
 
 
-DEPARTEMENT = {
-    **dict(departements_choices),
-    "99": "99 - Français établis hors de France",
-}
+DEPARTEMENT = dict(departements_or_circo_fe_choices)
 
 
 class Command(BaseCommand):
@@ -87,10 +78,10 @@ class Command(BaseCommand):
     def get_data(self, departement):
         voting_proxy_requests = VotingProxyRequest.objects.pending()
 
-        if departement == "99":
+        if departement.startswith("99-"):
             voting_proxy_requests = voting_proxy_requests.select_related(
                 "consulate",
-            ).filter(consulate__isnull=False)
+            ).filter(consulate__circonscription_legislative__code=departement)
         else:
             voting_proxy_requests = voting_proxy_requests.select_related(
                 "commune",
@@ -151,7 +142,7 @@ class Command(BaseCommand):
     ):
         if departements:
             departements = sorted(departements.split(","))
-            incorrects = [c for c in departements if not DEPARTEMENT_CODE_RE.match(c)]
+            incorrects = [c for c in departements if c not in DEPARTEMENT]
 
             if incorrects:
                 self.error(
