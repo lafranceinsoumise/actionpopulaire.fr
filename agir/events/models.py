@@ -17,7 +17,14 @@ from django.contrib.postgres.search import SearchVector, SearchRank
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models, transaction
-from django.db.models import JSONField, Prefetch, BooleanField, Case, When, Value
+from django.db.models import (
+    JSONField,
+    Prefetch,
+    BooleanField,
+    Case,
+    When,
+    Value,
+)
 from django.db.models import Sum, Count, Q, OuterRef, Subquery
 from django.db.models.functions import Coalesce
 from django.template.defaultfilters import floatformat
@@ -119,9 +126,8 @@ class EventQuerySet(models.QuerySet):
 
     def organized_by_person(self, person):
         person_group_ids = (
-            Membership.objects.active()
-            .referents()
-            .filter(person=person)
+            person.memberships.active()
+            .referents(manager_fallback=True)
             .values_list("supportgroup_id", flat=True)
         )
 
@@ -792,9 +798,13 @@ class Event(
 
     def get_organizer_people(self):
         organizer_people = sum(
-            [group.referents for group in self.organizers_groups.distinct()],
+            [
+                group.referents or group.managers
+                for group in self.organizers_groups.distinct()
+            ],
             list(self.organizers.all()),
         )
+
         return list(set(organizer_people))
 
     @property
