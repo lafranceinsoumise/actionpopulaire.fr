@@ -28,7 +28,7 @@ from agir.voting_proxies.tasks import (
     send_cancelled_request_acceptation_to_request_owner,
 )
 
-PROXY_TO_REQUEST_DISTANCE_LIMIT = 20000  # 20 KM
+PROXY_TO_REQUEST_DISTANCE_LIMIT = 20  # 20 KM
 PER_VOTING_PROXY_REQUEST_INVITATION_LIMIT = 10
 
 
@@ -163,7 +163,12 @@ def get_voting_proxy_requests_for_proxy(voting_proxy, voting_proxy_request_pks):
                 .filter(
                     commune__mairie_localisation__dwithin=(
                         voting_proxy.person.coordinates,
-                        D(m=PROXY_TO_REQUEST_DISTANCE_LIMIT),
+                        D(
+                            km=min(
+                                voting_proxy.person.action_radius,
+                                PROXY_TO_REQUEST_DISTANCE_LIMIT,
+                            )
+                        ),
                     )
                 )
                 .annotate(
@@ -398,7 +403,7 @@ def find_voting_proxy_candidates_for_requests(
             candidates = candidates.exclude(coordinates__isnull=True).filter(
                 coordinates__dwithin=(
                     commune.mairie_localisation,
-                    D(m=PROXY_TO_REQUEST_DISTANCE_LIMIT),
+                    D(km=PROXY_TO_REQUEST_DISTANCE_LIMIT),
                 )
             )
         # Try to match by city code / zip code for non-geolocalised communes
