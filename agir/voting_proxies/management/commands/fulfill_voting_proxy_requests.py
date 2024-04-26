@@ -1,7 +1,6 @@
-from django.core.management import BaseCommand
 from django.utils import timezone
-from tqdm import tqdm
 
+from agir.lib.commands import BaseCommand
 from agir.voting_proxies.actions import (
     send_matching_requests_to_proxy,
     match_available_proxies_with_requests,
@@ -25,8 +24,6 @@ class Command(BaseCommand):
 
     def __init__(self, stdout=None, stderr=None, no_color=False, force_color=False):
         super().__init__(stdout, stderr, no_color, force_color)
-        self.tqdm = None
-        self.dry_run = None
         self.report = {
             "datetime": timezone.now().isoformat(),
             "dry-run": False,
@@ -36,23 +33,6 @@ class Command(BaseCommand):
             "matched_proxies": [],
             "invitations": [],
         }
-
-    def add_arguments(self, parser):
-        parser.add_argument(
-            "--dry-run",
-            dest="dry_run",
-            action="store_true",
-            default=False,
-            help="Execute without actually sending any notification or updating data",
-        )
-        parser.add_argument(
-            "-s",
-            "--silent",
-            dest="silent",
-            action="store_true",
-            default=False,
-            help="Display a progress bar during the script execution",
-        )
 
     def report_pending_requests(self, pending_requests):
         self.report["pending_requests"] = {
@@ -124,9 +104,6 @@ class Command(BaseCommand):
 
         return invite_voting_proxy_candidates(candidates, request)
 
-    def log(self, message):
-        self.tqdm.write(message)
-
     def send_report(self):
         self.report["dry_run"] = self.dry_run
         send_matching_report_email.delay(self.report)
@@ -134,36 +111,29 @@ class Command(BaseCommand):
     def handle(
         self,
         *args,
-        dry_run=False,
-        silent=False,
         **kwargs,
     ):
-        self.dry_run = dry_run
         pending_requests = VotingProxyRequest.objects.pending()
         initial_request_count = len(pending_requests)
-        self.tqdm = tqdm(
-            total=initial_request_count,
-            bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}]",
-            disable=silent,
-        )
+        self.init_tqdm(initial_request_count)
         self.report["pending_request_count"] = initial_request_count
         self.report_pending_requests(pending_requests)
-        self.log(f"\n\nTrying to fulfill {initial_request_count} pending requests...")
+        self.info(f"\n\nTrying to fulfill {initial_request_count} pending requests...")
         fulfilled_request_ids = match_available_proxies_with_requests(
             pending_requests, notify_proxy=self.send_matching_requests_to_proxy
         )
         self.report["matched_request_count"] = len(fulfilled_request_ids)
         if len(fulfilled_request_ids) > 0:
             pending_requests = pending_requests.exclude(id__in=fulfilled_request_ids)
-            self.log(
-                f" ☑ Available voting proxies found for {len(fulfilled_request_ids)} pending requests."
+            self.success(
+                f"Available voting proxies found for {len(fulfilled_request_ids)} pending requests."
             )
         else:
-            self.log(f" ☒ No available voting proxy found :-(")
+            self.error(f"No available voting proxy found :-(")
 
         unfulfilled_request_count = len(pending_requests)
         if unfulfilled_request_count > 0:
-            self.log(
+            self.info(
                 f"\nLooking for voting proxy candidates for {unfulfilled_request_count} requests..."
             )
             (
@@ -176,20 +146,17 @@ class Command(BaseCommand):
             if len(possibly_fulfilled_request_ids) > 0:
                 pending_requests.exclude(id__in=possibly_fulfilled_request_ids)
                 unfulfilled_request_count -= len(possibly_fulfilled_request_ids)
-                self.log(
+                self.success(
                     f" ☑ {len(candidate_ids)} voting proxy invitation(s) sent "
                     f"for {len(possibly_fulfilled_request_ids)} pending requests"
                 )
             else:
-                self.log(f" ☒ No voting proxy candidate found :-(")
+                self.error(f"No voting proxy candidate found :-(")
 
         if unfulfilled_request_count > 0:
-            self.log(f"\n{unfulfilled_request_count} unfulfilled requests remaining")
+            self.info(f"\n{unfulfilled_request_count} unfulfilled requests remaining")
         else:
-            self.log(f"\nNo unfulfilled requests remaining for today!")
+            self.info(f"\nNo unfulfilled requests remaining for today!")
 
-        self.log("\nSending script report")
+        self.success("\nSending script report")
         self.send_report()
-
-        self.log("\nBye!\n\n")
-        self.tqdm.close()
