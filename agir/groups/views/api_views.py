@@ -104,6 +104,7 @@ from agir.lib.rest_framework_permissions import (
     GlobalOrObjectPermissions,
     IsPersonPermission,
     IsActionPopulaireClientPermission,
+    IsPersonOrTokenHasScopePermission,
 )
 from agir.msgs.models import (
     SupportGroupMessage,
@@ -187,7 +188,8 @@ class GroupSubtypesView(ListAPIView):
 
 class UserGroupsView(ListAPIView):
     serializer_class = SupportGroupSerializer
-    permission_classes = (IsPersonPermission,)
+    permission_classes = (IsPersonOrTokenHasScopePermission,)
+    required_scopes = ("view_membership",)
     queryset = SupportGroup.objects.active()
 
     def get_queryset(self):

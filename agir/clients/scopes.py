@@ -16,8 +16,11 @@ edit_profile = Scope("edit_profile", "Changer votre profil", ["people.change_per
 edit_event = Scope("edit_event", "Éditer vos événements", ["events.change_event"])
 edit_rsvp = Scope("edit_rsvp", "Voir et éditer vos participations aux événements", [])
 edit_supportgroup = Scope("edit_supportgroup", "Éditer vos groupes d'action", [])
+view_membership = Scope(
+    "view_membership", "Voir vos participations aux groupes d'action", permissions=[]
+)
 edit_membership = Scope(
-    "edit_membership", "Voir et éditer vos participations aux groupes d'action", []
+    "edit_membership", "Éditer vos participations aux groupes d'action", []
 )
 edit_authorization = Scope("edit_authorization", "Éditer vos autorisations d'accès", [])
 toktok = Scope(
