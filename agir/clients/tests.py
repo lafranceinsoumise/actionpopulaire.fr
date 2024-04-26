@@ -176,6 +176,7 @@ class ScopeViewSetTestCase(APITestCase):
                 "edit_event",
                 "edit_rsvp",
                 "edit_supportgroup",
+                "view_membership",
                 "edit_membership",
                 "edit_authorization",
                 "toktok",
