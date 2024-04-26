@@ -215,8 +215,25 @@ class MembershipQuerySet(models.QuerySet):
             person__role__isnull=False, person__role__is_active=False
         )
 
-    def referents(self):
-        return self.filter(membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT)
+    def referents(self, manager_fallback=False):
+        if not manager_fallback:
+            return self.filter(membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT)
+
+        # Include group managers if the group has no referents
+        return self.annotate(
+            has_referents=Exists(
+                self.model.objects.filter(
+                    supportgroup_id=OuterRef("supportgroup_id"),
+                    membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
+                )
+            )
+        ).filter(
+            Q(membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT)
+            | Q(
+                has_referents=False,
+                membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+            )
+        )
 
     def managers(self):
         return self.filter(membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER)
