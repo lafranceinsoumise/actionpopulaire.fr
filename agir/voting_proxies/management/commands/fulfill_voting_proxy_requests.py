@@ -118,7 +118,7 @@ class Command(BaseCommand):
         self.init_tqdm(initial_request_count)
         self.report["pending_request_count"] = initial_request_count
         self.report_pending_requests(pending_requests)
-        self.info(f"\n\nTrying to fulfill {initial_request_count} pending requests...")
+        self.info(f"\nTrying to fulfill {initial_request_count} pending requests...")
         fulfilled_request_ids = match_available_proxies_with_requests(
             pending_requests, notify_proxy=self.send_matching_requests_to_proxy
         )
@@ -158,5 +158,6 @@ class Command(BaseCommand):
         else:
             self.info(f"\nNo unfulfilled requests remaining for today!")
 
-        self.success("\nSending script report")
+        self.tqdm.close()
+        self.success("Sending script report")
         self.send_report()
