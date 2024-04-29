@@ -1070,9 +1070,9 @@ class Event(
             schema["eventStatus"] = "https://schema.org/EventCancelled"
 
         if self.online_url:
-            schema[
-                "eventAttendanceMode"
-            ] = "https://schema.org/MixedEventAttendanceMode"
+            schema["eventAttendanceMode"] = (
+                "https://schema.org/MixedEventAttendanceMode"
+            )
             schema["location"] = [
                 schema["location"],
                 {"@type": "VirtualLocation", "url": self.online_url},

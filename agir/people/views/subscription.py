@@ -49,9 +49,11 @@ class UnsubscribeView(SimpleOpengraphMixin, FormView):
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
-            email=self.request.user.person.email
-            if self.request.user.is_authenticated
-            else None,
+            email=(
+                self.request.user.person.email
+                if self.request.user.is_authenticated
+                else None
+            ),
             **kwargs,
         )
 

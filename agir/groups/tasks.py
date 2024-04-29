@@ -377,9 +377,9 @@ def send_new_group_event_email(group_pk, event_pk):
         "LOCATION_NAME": event.location_name,
         "LOCATION_ZIP": event.location_zip,
         "EVENT_LINK": event.get_absolute_url(),
-        "EVENT_DESCRIPTION": sanitize_html(event.description)
-        if event.description
-        else None,
+        "EVENT_DESCRIPTION": (
+            sanitize_html(event.description) if event.description else None
+        ),
         "EVENT_IMAGE": event_image,
     }
     formatted_start_date = simple_date

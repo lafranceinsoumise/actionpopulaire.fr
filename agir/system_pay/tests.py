@@ -59,9 +59,9 @@ def webhookcall_data(
         or (expiry_date.year if identifier or generate_alias else None),
         "vads_expiry_month": expiry_month
         or (expiry_date.month if identifier or generate_alias else None),
-        "vads_subscription": random_subscription_id()
-        if generate_subscription
-        else subscription,
+        "vads_subscription": (
+            random_subscription_id() if generate_subscription else subscription
+        ),
     }
 
     systempay_data = {k: v for k, v in systempay_data.items() if v is not None}

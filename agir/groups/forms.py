@@ -324,9 +324,9 @@ class TransferGroupMembersForm(forms.Form):
             supportgroup=former_group
         ).exclude(person=manager)
 
-        self.fields["members"].queryset = self.fields[
-            "members"
-        ].queryset = supportgroup_members
+        self.fields["members"].queryset = self.fields["members"].queryset = (
+            supportgroup_members
+        )
 
         base_query = {"exclude": former_group.pk}
 

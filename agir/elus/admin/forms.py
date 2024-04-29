@@ -218,21 +218,19 @@ def legender_elu_depuis_fiche_rne(form, reference):
     if "mandat" in form.fields:
         form.fields["mandat"].help_text = f"Dans la fiche RNE : {reference.fonction}"
     if "communautaire" in form.fields:
-        form.fields[
-            "communautaire"
-        ].help_text = f"Dans la fiche RNE : {reference.fonction_epci}"
+        form.fields["communautaire"].help_text = (
+            f"Dans la fiche RNE : {reference.fonction_epci}"
+        )
 
     form.fields["last_name"].help_text = f"Dans la fiche RNE : {reference.nom}"
     form.fields["first_name"].help_text = f"Dans la fiche RNE : {reference.prenom}"
-    form.fields[
-        "date_of_birth"
-    ].help_text = f"Dans la fiche RNE : {reference.date_naissance.strftime('%d/%m/%Y')}"
-    form.fields[
-        "gender"
-    ].help_text = f"Sexe à l'état civil dans la fiche RNE : {reference.sexe}"
-    form.fields[
-        "dates"
-    ].help_text = (
+    form.fields["date_of_birth"].help_text = (
+        f"Dans la fiche RNE : {reference.date_naissance.strftime('%d/%m/%Y')}"
+    )
+    form.fields["gender"].help_text = (
+        f"Sexe à l'état civil dans la fiche RNE : {reference.sexe}"
+    )
+    form.fields["dates"].help_text = (
         f"Dates de début du mandat dans la fiche RNE : {reference.date_debut_mandat}"
     )
 

@@ -222,9 +222,9 @@ class ReplyToVotingProxyRequestsAPIView(RetrieveUpdateAPIView):
                             request.voting_date
                         ],
                         "commune": request.commune.nom if request.commune else None,
-                        "consulate": request.consulate.nom
-                        if request.consulate
-                        else None,
+                        "consulate": (
+                            request.consulate.nom if request.consulate else None
+                        ),
                     }
                     for request in voting_proxy_requests.order_by("voting_date")
                 ],

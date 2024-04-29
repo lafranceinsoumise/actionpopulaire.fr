@@ -540,9 +540,11 @@ class SpendingRequestVersionSerializer(serializers.Serializer):
             "id": person.id,
             "displayName": person.display_name,
             "gender": person.gender,
-            "image": person.image.thumbnail.url
-            if (person.image and person.image.thumbnail)
-            else None,
+            "image": (
+                person.image.thumbnail.url
+                if (person.image and person.image.thumbnail)
+                else None
+            ),
         }
 
 

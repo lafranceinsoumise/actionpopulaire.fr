@@ -44,24 +44,24 @@ def send_new_polling_station_officer_to_campaign_manager(polling_station_officer
         "CONTACT_PHONE": f"Téléphone : {polling_station_officer.contact_phone}",
     }
     if polling_station_officer.birth_name:
-        bindings[
-            "BIRTH_NAME"
-        ] = f"Nom de naissance : {polling_station_officer.birth_name}"
+        bindings["BIRTH_NAME"] = (
+            f"Nom de naissance : {polling_station_officer.birth_name}"
+        )
 
     if polling_station_officer.location_address2:
-        bindings[
-            "LOCATION_ADDRESS2"
-        ] = f"Complément d'adresse : {polling_station_officer.location_address2}"
+        bindings["LOCATION_ADDRESS2"] = (
+            f"Complément d'adresse : {polling_station_officer.location_address2}"
+        )
 
     if polling_station_officer.voting_commune:
-        bindings[
-            "VOTING_LOCATION"
-        ] = f"Commune d'inscription : {polling_station_officer.voting_commune.nom_complet}"
+        bindings["VOTING_LOCATION"] = (
+            f"Commune d'inscription : {polling_station_officer.voting_commune.nom_complet}"
+        )
 
     if polling_station_officer.voting_consulate:
-        bindings[
-            "VOTING_LOCATION"
-        ] = f"Consulat d'inscription : {polling_station_officer.voting_consulate.nom}"
+        bindings["VOTING_LOCATION"] = (
+            f"Consulat d'inscription : {polling_station_officer.voting_consulate.nom}"
+        )
 
     if polling_station_officer.remarks:
         bindings["REMARKS"] = f"Remarques : {polling_station_officer.remarks}"

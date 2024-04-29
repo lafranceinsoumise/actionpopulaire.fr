@@ -226,18 +226,20 @@ class PersonFormDisplay:
 
             person_field_template = '<a href="{link}">{person}</a>'
             person_fields = [
-                format_html(
-                    person_field_template,
-                    link=settings.API_DOMAIN
-                    + reverse(
-                        "admin:people_person_change",
-                        args=(submission.person_id,),
-                        urlconf="agir.api.admin_urls",
-                    ),
-                    person=submission.person,
+                (
+                    format_html(
+                        person_field_template,
+                        link=settings.API_DOMAIN
+                        + reverse(
+                            "admin:people_person_change",
+                            args=(submission.person_id,),
+                            urlconf="agir.api.admin_urls",
+                        ),
+                        person=submission.person,
+                    )
+                    if submission.person
+                    else "Anonyme"
                 )
-                if submission.person
-                else "Anonyme"
                 for submission in submissions
             ]
 
@@ -354,11 +356,11 @@ class PersonFormDisplay:
             simple_counter = collections.Counter(simple_labels.values())
             fieldset_counter = collections.Counter(fieldset_labels.values())
             labels = {
-                key: f"{fieldset_labels[key]} [{key}]"
-                if fieldset_counter[fieldset_labels[key]] > 1
-                else fieldset_labels[key]
-                if simple_counter[label] > 1
-                else label
+                key: (
+                    f"{fieldset_labels[key]} [{key}]"
+                    if fieldset_counter[fieldset_labels[key]] > 1
+                    else fieldset_labels[key] if simple_counter[label] > 1 else label
+                )
                 for key, label in simple_labels.items()
             }
         else:
@@ -368,9 +370,11 @@ class PersonFormDisplay:
         if resolve_values:
             full_values = [
                 {
-                    id: self._get_formatted_value(fields_dict[id], value, html)
-                    if id in fields_dict
-                    else value
+                    id: (
+                        self._get_formatted_value(fields_dict[id], value, html)
+                        if id in fields_dict
+                        else value
+                    )
                     for id, value in d.items()
                 }
                 for d in full_data
@@ -391,11 +395,11 @@ class PersonFormDisplay:
             [
                 v.get(
                     i,
-                    self.NA_HTML_PLACEHOLDER
-                    if html and resolve_values
-                    else self.NA_TEXT_PLACEHOLDER
-                    if resolve_values
-                    else "",
+                    (
+                        self.NA_HTML_PLACEHOLDER
+                        if html and resolve_values
+                        else self.NA_TEXT_PLACEHOLDER if resolve_values else ""
+                    ),
                 )
                 for i in chain(fields_dict, additional_fields)
             ]

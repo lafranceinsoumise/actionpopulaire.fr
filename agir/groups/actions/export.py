@@ -139,9 +139,11 @@ def group_attendance_list_data(group):
             "display_name": membership.person.display_name,
             "last_name": "",
             "first_name": "",
-            "description": membership.get_membership_type_display()
-            if membership.is_referent
-            else "Membre du groupe",
+            "description": (
+                membership.get_membership_type_display()
+                if membership.is_referent
+                else "Membre du groupe"
+            ),
         }
         if membership.personal_information_sharing_consent:
             m.update(

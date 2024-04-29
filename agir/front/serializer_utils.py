@@ -15,9 +15,11 @@ class RoutesField(serializers.SerializerMethodField):
     def to_representation(self, value):
         method = getattr(self.parent, self.method_name, None)
         routes = {
-            key: view_name
-            if view_name.startswith("http")
-            else front_url(view_name, args=(value.pk,))
+            key: (
+                view_name
+                if view_name.startswith("http")
+                else front_url(view_name, args=(value.pk,))
+            )
             for key, view_name in self.routes.items()
         }
 

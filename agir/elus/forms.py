@@ -117,9 +117,9 @@ class MandatMunicipalForm(AvecDelegationMixin, BaseMandatForm):
 
         if self.instance.conseil_id is not None:
             if self.instance.conseil.epci:
-                self.fields[
-                    "communautaire"
-                ].label = f"Élu⋅e à la {self.instance.conseil.epci.nom}"
+                self.fields["communautaire"].label = (
+                    f"Élu⋅e à la {self.instance.conseil.epci.nom}"
+                )
             else:
                 del self.fields["communautaire"]
 

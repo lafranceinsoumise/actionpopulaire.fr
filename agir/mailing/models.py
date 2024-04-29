@@ -427,17 +427,17 @@ class Segment(BaseSegment, models.Model):
                     "memberships__supportgroup__certification_date__isnull"
                 ] = False
             if self.supportgroup_types:
-                filter_kwargs[
-                    "memberships__supportgroup__type__in"
-                ] = self.supportgroup_types
+                filter_kwargs["memberships__supportgroup__type__in"] = (
+                    self.supportgroup_types
+                )
             if self.supportgroup_status == self.GA_STATUS_REFERENT:
-                filter_kwargs[
-                    "memberships__membership_type__gte"
-                ] = Membership.MEMBERSHIP_TYPE_REFERENT
+                filter_kwargs["memberships__membership_type__gte"] = (
+                    Membership.MEMBERSHIP_TYPE_REFERENT
+                )
             if self.supportgroup_status == self.GA_STATUS_MANAGER:
-                filter_kwargs[
-                    "memberships__membership_type__gte"
-                ] = Membership.MEMBERSHIP_TYPE_MANAGER
+                filter_kwargs["memberships__membership_type__gte"] = (
+                    Membership.MEMBERSHIP_TYPE_MANAGER
+                )
 
             if self.supportgroup_status == self.GA_STATUS_NOT_MEMBER:
                 return query & ~Q(**filter_kwargs)

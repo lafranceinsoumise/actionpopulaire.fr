@@ -453,9 +453,11 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
             {
                 "id": event_speaker.id,
                 "name": event_speaker.person.get_full_name(),
-                "image": event_speaker.person.image.thumbnail.url
-                if event_speaker.person.image
-                else None,
+                "image": (
+                    event_speaker.person.image.thumbnail.url
+                    if event_speaker.person.image
+                    else None
+                ),
                 "description": event_speaker.description,
             }
             for event_speaker in event_speakers

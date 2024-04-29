@@ -52,9 +52,11 @@ def default_contract_context_generator(
         "du": SUBSTITUTIONS["determinant"][gender],
         "il": SUBSTITUTIONS["pronom"][gender],
         "mode_paiement": SUBSTITUTIONS["payment"][payment_mode.category],
-        "signature": f"Accepté en ligne le {contract_information['acceptance_datetime']}"
-        if signed
-        else "",
+        "signature": (
+            f"Accepté en ligne le {contract_information['acceptance_datetime']}"
+            if signed
+            else ""
+        ),
         "signe": signed,
     }
 

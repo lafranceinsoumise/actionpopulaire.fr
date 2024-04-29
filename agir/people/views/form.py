@@ -298,9 +298,9 @@ class PeopleFormSubmissionsPrivateView(DetailView):
         )
 
         response = HttpResponse(content_type="text/csv")
-        response[
-            "Content-Disposition"
-        ] = f'attachment; filename="{self.object.slug}.csv"'
+        response["Content-Disposition"] = (
+            f'attachment; filename="{self.object.slug}.csv"'
+        )
 
         writer = csv.writer(response)
         writer.writerow(headers)

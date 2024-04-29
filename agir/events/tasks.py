@@ -610,9 +610,9 @@ def send_event_suggestion_email(event_pk, recipient_pk):
         "LOCATION_NAME": event.location_name,
         "LOCATION_ZIP": event.location_zip,
         "EVENT_LINK": event.get_absolute_url(),
-        "EVENT_DESCRIPTION": sanitize_html(event.description)
-        if event.description
-        else None,
+        "EVENT_DESCRIPTION": (
+            sanitize_html(event.description) if event.description else None
+        ),
         "EVENT_IMAGE": event_image,
     }
 

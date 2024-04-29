@@ -356,9 +356,9 @@ class NewParticipantForm(BasePersonForm):
                 pass
 
         if self.instance._state.adding:
-            self.instance.is_political_support = (
-                self.instance.subscribed
-            ) = self.cleaned_data["is_political_support"]
+            self.instance.is_political_support = self.instance.subscribed = (
+                self.cleaned_data["is_political_support"]
+            )
 
         if self.cleaned_data["newsletter"] and not self.instance.subscribed:
             self.instance.subscribed = True
