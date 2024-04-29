@@ -150,15 +150,13 @@ class DepenseForm(forms.ModelForm):
 
             if total_factures:
                 if montant > total_factures:
-                    self.fields[
-                        "montant"
-                    ].help_text = (
+                    self.fields["montant"].help_text = (
                         "Supérieur à la somme des dépenses à refacturer ({montant} €)x"
                     )
                 else:
-                    self.fields[
-                        "montant"
-                    ].help_text = f"Sur un total de {montant} € ({montant / total_factures:0.1%} %)."
+                    self.fields["montant"].help_text = (
+                        f"Sur un total de {montant} € ({montant / total_factures:0.1%} %)."
+                    )
 
         if "depenses_refacturees" in self.fields:
             depenses = self.get_initial_for_field(
@@ -457,9 +455,11 @@ class ReglementForm(forms.ModelForm):
 
             if not self.fournisseur.iban and "iban_fournisseur" not in self.errors:
                 self.add_error(
-                    "iban_fournisseur"
-                    if self.fournisseur._state.adding
-                    else "fournisseur",
+                    (
+                        "iban_fournisseur"
+                        if self.fournisseur._state.adding
+                        else "fournisseur"
+                    ),
                     ValidationError(
                         "Un IBAN doit être indiqué pour le fournisseur pour réaliser un virement.",
                         code="iban_requis",
@@ -479,9 +479,11 @@ class ReglementForm(forms.ModelForm):
                     self.fournisseur.iban.bic
                 except AttributeError:
                     self.add_error(
-                        "bic_fournisseur"
-                        if self.fournisseur._state.adding
-                        else "fournisseur",
+                        (
+                            "bic_fournisseur"
+                            if self.fournisseur._state.adding
+                            else "fournisseur"
+                        ),
                         ValidationError(
                             "Le BIC doit être indiqué pour ce fournisseur (impossible de le déduire de l'IBAN).",
                             code="bic_requis",
@@ -621,10 +623,8 @@ class InlineReglementForm(forms.ModelForm):
 
         if "facture" in self.fields:
             try:
-                self.fields[
-                    "facture"
-                ].queryset = self.instance.depense.documents.filter(
-                    type=TypeDocument.FACTURE
+                self.fields["facture"].queryset = (
+                    self.instance.depense.documents.filter(type=TypeDocument.FACTURE)
                 )
             except Depense.DoesNotExist:
                 self.fields["facture"].queryset = Document.objects.none()

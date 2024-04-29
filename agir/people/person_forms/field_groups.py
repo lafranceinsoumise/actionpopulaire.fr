@@ -53,9 +53,9 @@ class FieldSet(FieldGroup):
                     "required", True
                 )
                 if is_edition:
-                    form.fields[
-                        field_descriptor["id"]
-                    ].disabled = not field_descriptor.get("editable", False)
+                    form.fields[field_descriptor["id"]].disabled = (
+                        not field_descriptor.get("editable", False)
+                    )
 
                 if field_descriptor["id"] == "date_of_birth":
                     form.fields[field_descriptor["id"]].help_text = _(
@@ -63,9 +63,9 @@ class FieldSet(FieldGroup):
                     )
 
                 if field_descriptor["id"] == "newsletters":
-                    form.fields[
-                        field_descriptor["id"]
-                    ].initial = form.instance.newsletters
+                    form.fields[field_descriptor["id"]].initial = (
+                        form.instance.newsletters
+                    )
 
             else:
                 form.fields[field_descriptor["id"]] = get_form_field(
@@ -154,9 +154,11 @@ class CrossTable(FieldGroup):
                 "\n",
                 '<td><label style="display:block;margin:0;">{}</label></td>',
                 (
-                    (mark_safe((form[self.get_id(row, col)])),)
-                    if self.subset is None or (row, col) in self.subset
-                    else ("",)
+                    (
+                        (mark_safe((form[self.get_id(row, col)])),)
+                        if self.subset is None or (row, col) in self.subset
+                        else ("",)
+                    )
                     for col in self.columns
                 ),
             ),

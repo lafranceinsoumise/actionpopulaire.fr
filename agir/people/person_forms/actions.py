@@ -64,9 +64,11 @@ def validate_custom_fields(custom_fields):
                             {
                                 "id": location_field,
                                 "person_field": True,
-                                "required": False
-                                if location_field == "location_address2"
-                                else initial_field.get("required", True),
+                                "required": (
+                                    False
+                                    if location_field == "location_address2"
+                                    else initial_field.get("required", True)
+                                ),
                             },
                         )
                     continue

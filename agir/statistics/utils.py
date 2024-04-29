@@ -151,13 +151,15 @@ def get_commune_count_by_population_range(
     return {
         "total": commune_qs.count(),
         **{
-            population_range: commune_qs.filter(
-                **{f"{population_fieldname}__range": population_range}
-            ).count()
-            if len(population_range) == 2
-            else commune_qs.filter(
-                **{f"{population_fieldname}__gte": population_range[0]}
-            ).count()
+            population_range: (
+                commune_qs.filter(
+                    **{f"{population_fieldname}__range": population_range}
+                ).count()
+                if len(population_range) == 2
+                else commune_qs.filter(
+                    **{f"{population_fieldname}__gte": population_range[0]}
+                ).count()
+            )
             for population_range in POPULATION_RANGES
         },
     }

@@ -30,16 +30,20 @@ def jitsi_reservation_view(request):
             {
                 "id": meeting.pk,
                 "name": meeting.room_name,
-                "start_time": meeting.event.start_time.isoformat(
-                    timespec="milliseconds"
-                )
-                if meeting.event is not None
-                else timezone.now(),
-                "duration": int(
-                    (meeting.event.end_time - meeting.event.start_time).total_seconds()
-                )
-                if meeting.event is not None
-                else 3600,
+                "start_time": (
+                    meeting.event.start_time.isoformat(timespec="milliseconds")
+                    if meeting.event is not None
+                    else timezone.now()
+                ),
+                "duration": (
+                    int(
+                        (
+                            meeting.event.end_time - meeting.event.start_time
+                        ).total_seconds()
+                    )
+                    if meeting.event is not None
+                    else 3600
+                ),
             }
         )
 

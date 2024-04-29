@@ -43,9 +43,9 @@ class PersonAdminForm(CoordinatesFormMixin, forms.ModelForm):
 
         if "disabled_account" in self.fields:
             if self.instance.role:
-                self.fields[
-                    "disabled_account"
-                ].initial = not self.instance.role.is_active
+                self.fields["disabled_account"].initial = (
+                    not self.instance.role.is_active
+                )
             else:
                 self.fields["disabled_account"].disabled = True
 

@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/1.11/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
+
 import json
 import locale
 import os
@@ -627,9 +628,11 @@ if not DEBUG:
         "handlers": {
             "journald": {
                 "level": "DEBUG",
-                "class": "cysystemd.journal.JournaldLogHandler"
-                if not LOG_DISABLE_JOURNALD
-                else "logging.StreamHandler",
+                "class": (
+                    "cysystemd.journal.JournaldLogHandler"
+                    if not LOG_DISABLE_JOURNALD
+                    else "logging.StreamHandler"
+                ),
             },
             "admins_mail": {
                 "level": "ERROR",
@@ -710,9 +713,11 @@ if not DEBUG:
 # CACHING
 CACHES = {
     "default": {
-        "BACKEND": "django_redis.cache.RedisCache"
-        if not DEBUG
-        else "django.core.cache.backends.dummy.DummyCache",
+        "BACKEND": (
+            "django_redis.cache.RedisCache"
+            if not DEBUG
+            else "django.core.cache.backends.dummy.DummyCache"
+        ),
         "LOCATION": os.environ.get("REDIS_CACHING_URL", "redis://localhost?db=0"),
         "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"},
         "KEY_PREFIX": "caching_",

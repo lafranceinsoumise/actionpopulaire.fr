@@ -46,9 +46,11 @@ def display_list_of_links(links, button=False):
     links = (
         (
             classname,
-            get_admin_link(link_or_instance)
-            if isinstance(link_or_instance, Model)
-            else link_or_instance,
+            (
+                get_admin_link(link_or_instance)
+                if isinstance(link_or_instance, Model)
+                else link_or_instance
+            ),
             text,
         )
         for link_or_instance, text in links

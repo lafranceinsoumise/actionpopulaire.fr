@@ -97,9 +97,9 @@ class Command(LoggingCommand):
 
             if values.pop("publish_contact_information", False):
                 if "contact_name" not in values:
-                    values[
-                        "contact_name"
-                    ] = f"{values.pop('first_name')} {values.pop('last_name')}"
+                    values["contact_name"] = (
+                        f"{values.pop('first_name')} {values.pop('last_name')}"
+                    )
 
                 if "email" in values:
                     values["contact_email"] = values.pop("email")

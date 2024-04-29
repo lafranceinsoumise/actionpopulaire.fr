@@ -238,10 +238,9 @@ class CodePostalListAPIView(ListAPIView):
             code = code_postal.as_dict()
             country = french_zipcode_to_country_code(code_postal.code)
             code["country"] = countries.name(country)
-            code[
-                "departement"
-            ] = code_postal.departement or code_postal_vers_code_departement(
-                code_postal.code
+            code["departement"] = (
+                code_postal.departement
+                or code_postal_vers_code_departement(code_postal.code)
             )
             result.append(code)
 

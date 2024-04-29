@@ -51,7 +51,6 @@ class ProjetManager(NumeroManager):
 
 @reversion.register(follow=["participations"])
 class Projet(ModeleGestionMixin, TimeStampedModel):
-
     """Le projet regroupe ensemble des dépenses liées entre elles
 
     Un projet peut correspondre à un événement, ou à un type de de dépense précis.

@@ -28,9 +28,9 @@ class SupportGroupAdminForm(CoordinatesFormMixin, forms.ModelForm):
         self.fields["subtypes"].label_from_instance = subtype_label_from_instance
 
         if self.is_creation:
-            self.fields[
-                "subtypes"
-            ].queryset = SupportGroupSubtype.objects.active().order_by("-type")
+            self.fields["subtypes"].queryset = (
+                SupportGroupSubtype.objects.active().order_by("-type")
+            )
         else:
             self.fields["subtypes"].queryset = (
                 SupportGroupSubtype.objects.active()

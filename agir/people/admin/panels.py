@@ -575,9 +575,9 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         if extra_context is None:
             extra_context = {}
 
-        extra_context[
-            "statistics_link"
-        ] = f'{reverse("admin:people_person_statistics")}?{request.GET.urlencode()}'
+        extra_context["statistics_link"] = (
+            f'{reverse("admin:people_person_statistics")}?{request.GET.urlencode()}'
+        )
 
         if (
             hasattr(request, "POST")

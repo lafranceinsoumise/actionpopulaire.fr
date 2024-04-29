@@ -59,9 +59,9 @@ class RSVPEventView(SoftLoginRequiredMixin, DetailView):
         form_class = get_people_form_class(self.event.subscription_form, BaseRSVPForm)
 
         kwargs = {
-            "instance": None
-            if self.user_is_already_rsvped
-            else self.request.user.person,
+            "instance": (
+                None if self.user_is_already_rsvped else self.request.user.person
+            ),
             "is_guest": self.user_is_already_rsvped,
         }
 
@@ -107,31 +107,39 @@ class RSVPEventView(SoftLoginRequiredMixin, DetailView):
             "person_form_instance": self.event.subscription_form,
             "event": self.event,
             "is_participant": self.user_is_already_rsvped,
-            "submission_data": default_person_form_display.get_formatted_submission(
-                kwargs["rsvp"].form_submission
-            )
-            if "rsvp" in kwargs and kwargs["rsvp"].form_submission
-            else None,
-            "submission": kwargs["rsvp"].form_submission
-            if "rsvp" in kwargs and kwargs["rsvp"].form_submission
-            else None,
-            "guests": [
-                {
-                    "pk": guest.pk,
-                    "status": guest.get_status_display(),
-                    "submission": default_person_form_display.get_formatted_submission(
-                        guest.submission
-                    )
-                    if guest.submission
-                    else [],
-                    "payment": guest.payment,
-                }
-                for guest in kwargs["rsvp"].identified_guests.select_related(
-                    "submission"
+            "submission_data": (
+                default_person_form_display.get_formatted_submission(
+                    kwargs["rsvp"].form_submission
                 )
-            ]
-            if "rsvp" in kwargs
-            else None,
+                if "rsvp" in kwargs and kwargs["rsvp"].form_submission
+                else None
+            ),
+            "submission": (
+                kwargs["rsvp"].form_submission
+                if "rsvp" in kwargs and kwargs["rsvp"].form_submission
+                else None
+            ),
+            "guests": (
+                [
+                    {
+                        "pk": guest.pk,
+                        "status": guest.get_status_display(),
+                        "submission": (
+                            default_person_form_display.get_formatted_submission(
+                                guest.submission
+                            )
+                            if guest.submission
+                            else []
+                        ),
+                        "payment": guest.payment,
+                    }
+                    for guest in kwargs["rsvp"].identified_guests.select_related(
+                        "submission"
+                    )
+                ]
+                if "rsvp" in kwargs
+                else None
+            ),
             **kwargs,
         }
 
@@ -365,11 +373,13 @@ class PayEventView(SoftLoginRequiredMixin, UpdateView):
                 "submission": self.submission,
                 "price": self.event.get_price(self.submission and self.submission.data)
                 / 100,
-                "submission_data": default_person_form_display.get_formatted_submission(
-                    self.submission
-                )
-                if self.submission
-                else None,
+                "submission_data": (
+                    default_person_form_display.get_formatted_submission(
+                        self.submission
+                    )
+                    if self.submission
+                    else None
+                ),
             }
         )
         return super().get_context_data(**kwargs)
