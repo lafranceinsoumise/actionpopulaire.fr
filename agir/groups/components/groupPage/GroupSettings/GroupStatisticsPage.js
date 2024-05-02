@@ -251,8 +251,9 @@ const GroupStatisticsPage = (props) => {
                   <StyledSubtypeCard
                     key={subtype}
                     $color={subtype.color}
-                    $ratio={Math.round(
-                      (subtype.events / data.events.count) * 100,
+                    $ratio={Math.min(
+                      Math.round((subtype.events / data.events.count) * 100),
+                      100,
                     )}
                   >
                     <p>

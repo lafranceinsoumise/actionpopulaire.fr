@@ -1050,23 +1050,23 @@ class GroupStatisticsAPIView(RetrieveAPIView):
         if period == "ever":
             return queryset
 
+        today = datetime.date.today()
+
         if period == "month":
-            date = datetime.date.today().replace(day=1)
-            return queryset.filter(**{f"{field}__gte": date})
+            return queryset.filter(
+                **{f"{field}__month": today.month, f"{field}__year": today.year}
+            )
 
         if period == "year":
-            date = datetime.date.today().replace(day=1, month=1)
-            return queryset.filter(**{f"{field}__gte": date})
+            return queryset.filter(**{f"{field}__year": today.year})
 
         if period == "last_month":
-            end = datetime.date.today().replace(day=1)
+            end = today.replace(day=1)
             start = end - relativedelta(months=1)
             return queryset.filter(**{f"{field}__range": (start, end)})
 
         if period == "last_year":
-            end = datetime.date.today().replace(day=1, month=1)
-            start = end - relativedelta(years=1)
-            return queryset.filter(**{f"{field}__range": (start, end)})
+            return queryset.filter(**{f"{field}__year": today.year - 1})
 
         return queryset
 
