@@ -72,6 +72,11 @@ supportgroup_settings_patterns = [
         views.SupportGroupSettingsView.as_view(),
         name="view_group_settings_upcoming_events",
     ),
+    path(
+        "gestion/statistiques/",
+        views.SupportGroupSettingsView.as_view(),
+        name="view_group_settings_stats",
+    ),
 ]
 
 supportgroup_patterns = [

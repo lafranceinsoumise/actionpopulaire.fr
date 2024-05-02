@@ -48,6 +48,8 @@ export const ENDPOINT = {
 
   searchGroups: "/api/groupes/recherche/",
   geoSearchGroups: "/api/groupes/recherche/geo/",
+
+  getStatistics: "/api/groupes/:groupPk/stats/",
 };
 
 export const getGroupEndpoint = (key, params, querystringParams) => {

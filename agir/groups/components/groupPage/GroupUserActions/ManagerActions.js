@@ -151,6 +151,12 @@ const ManagerActions = (props) => {
               <Link to={groupSettingsLinks.links}>Liens externes</Link>
             </li>
           )}
+          {groupSettingsLinks?.stats && (
+            <li>
+              <RawFeatherIcon color={style.primary500} name="trello" />
+              <Link to={groupSettingsLinks.stats}>Statistiques</Link>
+            </li>
+          )}
         </ul>
       </StyledPanel>
       <Button link route="createEvent" color="primary" icon="plus" small>
