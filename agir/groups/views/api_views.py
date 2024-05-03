@@ -39,6 +39,7 @@ from rest_framework.generics import (
     get_object_or_404,
 )
 from rest_framework.response import Response
+from unidecode import unidecode
 
 from agir.donations.allocations import get_supportgroup_balance
 from agir.donations.models import SpendingRequest
@@ -1136,12 +1137,19 @@ class GroupStatisticsAPIView(RetrieveAPIView):
         return event_subtypes
 
     def get_event_locations(self, events):
-        return (
+        locations = (
             events.values("address")
             .order_by("address")
             .annotate(events=Count("id", distinct=True))
-            .order_by("-events")[:3]
+            .order_by("-events")[:10]
         )
+        normalized_locations = {}
+        for location in locations:
+            address = unidecode(location["address"]).lower().replace("-", " ")
+            location["events"] += normalized_locations.get(address, {}).get("events", 0)
+            normalized_locations[address] = location
+
+        return sorted(normalized_locations.values(), key=lambda l: -l["events"])[:3]
 
     def get_event_average_by_month(self, events, period=None):
         events = events.order_by("start_time")
