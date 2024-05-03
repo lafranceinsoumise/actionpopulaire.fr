@@ -143,10 +143,12 @@ class EventListAPIView(ListAPIView):
             **kwargs,
         )
 
+
 class CalendarEventListAPIView(ListAPIView):
     permission_classes = ()
     serializer_class = EventListSerializer
     queryset = Event.objects.public()
+
     def get_queryset(self):
         return (
             super()
@@ -161,6 +163,7 @@ class CalendarEventListAPIView(ListAPIView):
             fields=EventListSerializer.EVENT_CARD_FIELDS,
             **kwargs,
         )
+
 
 class EventRsvpedAPIView(EventListAPIView):
     def get(self, request, *args, **kwargs):
