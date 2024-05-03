@@ -297,9 +297,9 @@ class AccesApplicationParrainages(models.Model):
     )
 
     class Meta:
-        verbose_name = (
-            verbose_name_plural
-        ) = "Accès à l'application de recherches de parrainages"
+        verbose_name = verbose_name_plural = (
+            "Accès à l'application de recherches de parrainages"
+        )
         ordering = ("etat", "person")
 
     def __str__(self):

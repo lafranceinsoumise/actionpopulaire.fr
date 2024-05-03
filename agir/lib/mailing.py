@@ -132,12 +132,12 @@ def get_context_from_bindings(code, recipient, bindings):
         add_connection_params_to_autologin_url(recipient, bindings)
 
         bindings["email"] = bindings["EMAIL"] = recipient.email
-        bindings["greetings"] = bindings["formule_adresse"] = bindings[
-            "GREETINGS"
-        ] = recipient.formule_adresse
-        bindings["greetings_insoumise"] = bindings[
-            "formule_adresse_insoumise"
-        ] = recipient.formule_adresse_insoumise
+        bindings["greetings"] = bindings["formule_adresse"] = bindings["GREETINGS"] = (
+            recipient.formule_adresse
+        )
+        bindings["greetings_insoumise"] = bindings["formule_adresse_insoumise"] = (
+            recipient.formule_adresse_insoumise
+        )
     else:
         bindings["email"] = bindings["EMAIL"] = recipient
         bindings["greetings"] = bindings["formule_adresse"] = bindings[

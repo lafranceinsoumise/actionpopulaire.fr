@@ -75,9 +75,11 @@ class Command(BaseCommand):
                     rsvp.form_submission.data.get(category_field, ""),
                     display_price(rsvp.payment.price if rsvp.payment else 0),
                     "completed" if rsvp.status == RSVP.Status.CONFIRMED else "on-hold",
-                    rsvp.created.isoformat()
-                    if rsvp.form_submission.data.get("admin", False)
-                    else None,
+                    (
+                        rsvp.created.isoformat()
+                        if rsvp.form_submission.data.get("admin", False)
+                        else None
+                    ),
                 ]
             )
         for guest in guests:

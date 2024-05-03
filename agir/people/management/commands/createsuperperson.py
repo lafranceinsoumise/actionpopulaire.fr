@@ -89,13 +89,15 @@ class Command(BaseCommand):
                         "%s%s: "
                         % (
                             input_msg,
-                            " (%s.%s)"
-                            % (
-                                username_rel.model._meta.object_name,
-                                username_rel.field_name,
-                            )
-                            if username_rel
-                            else "",
+                            (
+                                " (%s.%s)"
+                                % (
+                                    username_rel.model._meta.object_name,
+                                    username_rel.field_name,
+                                )
+                                if username_rel
+                                else ""
+                            ),
                         )
                     )
                     email = self.get_input_data(self.email_field, input_msg)

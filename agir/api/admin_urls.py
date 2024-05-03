@@ -9,7 +9,6 @@ ce fichier intermédiaire, même s'il ne contient pour le moment QUE les URLs
 de notre site d'admin.
 """
 
-
 from django.contrib import admin
 from django.urls import path
 

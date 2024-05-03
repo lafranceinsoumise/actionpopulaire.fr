@@ -85,7 +85,9 @@ class GroupInvitationActivityNotificationSerializer(ActivityNotificationSerializ
 
 
 class NewFollowerActivityNotificationSerializer(ActivityNotificationSerializer):
-    title = serializers.ReadOnlyField(default="Nouveau·lle abonné·e à votre groupe ! 😀")
+    title = serializers.ReadOnlyField(
+        default="Nouveau·lle abonné·e à votre groupe ! 😀"
+    )
 
     def get_body(self, activity):
         return f"{activity.individual.display_name} suit désormais {activity.supportgroup.name}"

@@ -78,24 +78,10 @@ EVENT_ROUTES = {
 }
 
 
-class EventSubtypeSerializer(serializers.ModelSerializer):
+class DisplayEventSubtypeSerializer(serializers.ModelSerializer):
     iconName = serializers.SerializerMethodField(read_only=True)
     icon = serializers.SerializerMethodField(read_only=True)
     color = serializers.SerializerMethodField(read_only=True)
-    needsDocuments = serializers.SerializerMethodField(read_only=True)
-    isVisible = serializers.SerializerMethodField(read_only=True)
-    isPrivate = serializers.BooleanField(
-        source="for_organizer_group_members_only", read_only=True
-    )
-    forGroupType = serializers.CharField(
-        read_only=True, source="get_for_supportgroup_type_display"
-    )
-    forGroups = serializers.SerializerMethodField(
-        read_only=True, method_name="get_for_supportgroups"
-    )
-
-    def get_needsDocuments(self, obj):
-        return bool(obj.related_project_type)
 
     def get_iconName(self, obj):
         return obj.icon_name or obj.TYPES_PARAMETERS[obj.type]["icon_name"]
@@ -110,6 +96,36 @@ class EventSubtypeSerializer(serializers.ModelSerializer):
                 "iconAnchor": [obj.icon_anchor_x or 0, obj.icon_anchor_y or 0],
                 "popupAnchor": obj.popup_anchor_y,
             }
+
+    class Meta:
+        model = models.EventSubtype
+        fields = (
+            "id",
+            "label",
+            "description",
+            "color",
+            "emoji",
+            "icon",
+            "iconName",
+            "type",
+        )
+
+
+class EventSubtypeSerializer(DisplayEventSubtypeSerializer):
+    needsDocuments = serializers.SerializerMethodField(read_only=True)
+    isVisible = serializers.SerializerMethodField(read_only=True)
+    isPrivate = serializers.BooleanField(
+        source="for_organizer_group_members_only", read_only=True
+    )
+    forGroupType = serializers.CharField(
+        read_only=True, source="get_for_supportgroup_type_display"
+    )
+    forGroups = serializers.SerializerMethodField(
+        read_only=True, method_name="get_for_supportgroups"
+    )
+
+    def get_needsDocuments(self, obj):
+        return bool(obj.related_project_type)
 
     def get_isVisible(self, obj):
         return obj.visibility == EventSubtype.VISIBILITY_ALL
@@ -453,9 +469,11 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
             {
                 "id": event_speaker.id,
                 "name": event_speaker.person.get_full_name(),
-                "image": event_speaker.person.image.thumbnail.url
-                if event_speaker.person.image
-                else None,
+                "image": (
+                    event_speaker.person.image.thumbnail.url
+                    if event_speaker.person.image
+                    else None
+                ),
                 "description": event_speaker.description,
             }
             for event_speaker in event_speakers

@@ -199,11 +199,11 @@ def format_memberships_for_export(group):
         ),
         "page du groupe d'origine": (
             "meta",
-            lambda meta: front_url(
-                "view_group", kwargs={"pk": meta["group_id"]}, absolute=True
-            )
-            if "group_id" in meta
-            else "",
+            lambda meta: (
+                front_url("view_group", kwargs={"pk": meta["group_id"]}, absolute=True)
+                if "group_id" in meta
+                else ""
+            ),
         ),
         "email": "person.email",
         "téléphone": "person.contact_phone",

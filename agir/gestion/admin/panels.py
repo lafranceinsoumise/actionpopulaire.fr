@@ -694,9 +694,9 @@ class ProjetAdmin(BaseProjetAdmin):
             qp["depenses_refacturees"] = ",".join(
                 str(d.id) for d in context["original"].depenses.all()
             )
-            context[
-                "refacturation_url"
-            ] = f'{reverse("admin:gestion_depense_add")}?{qp.urlencode()}'
+            context["refacturation_url"] = (
+                f'{reverse("admin:gestion_depense_add")}?{qp.urlencode()}'
+            )
 
         return super().render_change_form(request, context, add, change, form_url, obj)
 

@@ -162,9 +162,11 @@ class SystemPayRestAPI:
             data={
                 "paymentMethodToken": alias.identifier.hex,
                 "subscriptionId": system_pay_subscription.identifier,
-                "terminationDate": termination_date.isoformat("T", "seconds")
-                if termination_date
-                else None,
+                "terminationDate": (
+                    termination_date.isoformat("T", "seconds")
+                    if termination_date
+                    else None
+                ),
             },
         )
         if not answer["responseCode"] == 0:

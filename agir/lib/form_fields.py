@@ -226,9 +226,9 @@ class IBANField(forms.Field):
                 self.allowed_countries
             )
             # noinspection PyUnresolvedReferences
-            self.widget.attrs[
-                "data-allowed-countries-error"
-            ] = self.allowed_countries_error_message()
+            self.widget.attrs["data-allowed-countries-error"] = (
+                self.allowed_countries_error_message()
+            )
 
     def to_python(self, value):
         if value in self.empty_values:

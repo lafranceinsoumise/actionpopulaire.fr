@@ -114,8 +114,8 @@ class ExporterAccesApplication(AdminViewMixin):
             content.getvalue(),
             content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         )
-        res[
-            "Content-Disposition"
-        ] = f'attachment; filename="{today}-acces-parrainages.xlsx"'
+        res["Content-Disposition"] = (
+            f'attachment; filename="{today}-acces-parrainages.xlsx"'
+        )
 
         return res

@@ -11,7 +11,7 @@ import illustrationGeneral from "@agir/front/genericComponents/images/group_gene
 import illustrationContact from "@agir/front/genericComponents/images/group_contact.svg";
 import illustrationLinks from "@agir/front/genericComponents/images/group_links.svg";
 import illustrationHelp from "@agir/front/genericComponents/images/group_help.svg";
-import { groupUpcomingEventLinkForGroup } from "@agir/events/groupUpcomingEventPage/common";
+import illustrationStats from "@agir/front/genericComponents/images/group_stats.svg";
 
 const GroupSettingsReadOnlyMembers = lazy(
   () =>
@@ -97,6 +97,12 @@ const GroupSettingsHelp = lazy(
       /* webpackChunkName: "r-groupsettingshelp" */ "@agir/groups/groupPage/GroupSettings/GroupHelpPage"
     ),
 );
+const GroupSettingsStats = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "r-groupsettingsstats" */ "@agir/groups/groupPage/GroupSettings/GroupStatisticsPage"
+    ),
+);
 
 export const menuRoute = {
   id: "menu",
@@ -116,6 +122,17 @@ export const routeConfig = {
       group.isEditable
         ? GroupSettingsActiveMembers
         : GroupSettingsReadOnlyMembers,
+    isActive: true,
+    menuGroup: 1,
+  },
+  stats: {
+    id: "stats",
+    path: "statistiques/",
+    exact: true,
+    label: "Statistiques",
+    icon: "trello",
+    Component: GroupSettingsStats,
+    illustration: illustrationStats,
     isActive: true,
     menuGroup: 1,
   },

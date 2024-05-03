@@ -143,9 +143,9 @@ def get_supportgroup_routes(supportgroup, membership=None, user=None):
             "email": membership.person.email,
             "animateur": membership.person.get_full_name(),
         }
-        routes[
-            "certificationRequest"
-        ] = f"{certification_request_url}?{urlencode(certification_request_params)}"
+        routes["certificationRequest"] = (
+            f"{certification_request_url}?{urlencode(certification_request_params)}"
+        )
 
     if not supportgroup.is_certified:
         routes["donations"] = None

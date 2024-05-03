@@ -63,9 +63,11 @@ class VotingCirconscriptionConsulaireAPIView(ListAPIView):
                 {
                     "code": circo.code,
                     "label": str(circo),
-                    "departement": circo.departement.code
-                    if circo.departement_id is not None
-                    else None,
+                    "departement": (
+                        circo.departement.code
+                        if circo.departement_id is not None
+                        else None
+                    ),
                 }
                 for circo in self.get_queryset()
             ]

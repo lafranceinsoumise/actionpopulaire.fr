@@ -5,11 +5,13 @@ import styled from "styled-components";
 import BottomBar from "@agir/front/app/Navigation/BottomBar";
 import Button from "@agir/front/genericComponents/Button";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
+import Spacer from "@agir/front/genericComponents/Spacer";
 import RenderIfVisible from "@agir/front/genericComponents/RenderIfVisible";
 
 import JoinAGroupCard from "./JoinAGroupCard";
 import ActionTools from "./ActionTools";
 import DonateCard from "./DonateCard";
+import CanvassCard from "@agir/events/Canvass/CanvassCard";
 import TokTokCard from "@agir/events/TokTok/TokTokCard";
 
 const StyledButtons = styled.div`
@@ -62,11 +64,9 @@ const MobileActionToolsPage = (props) => {
         </PageFadeIn>
         <h2>Méthodes d'action</h2>
         <ActionTools />
-        <h2>
-          <small>Nouveau</small>
-          <br />
-          Carte du porte-à-porte
-        </h2>
+        <h2>Outils de porte-à-porte</h2>
+        <CanvassCard />
+        <Spacer size="1rem" />
         <TokTokCard />
         <PageFadeIn ready={typeof donationAmount !== "undefined"}>
           {donationAmount && (

@@ -70,9 +70,9 @@ class StatisticsModelAdmin(admin.ModelAdmin):
 
         start, end = aggregates.pop("period")
         if start and end:
-            response.context_data[
-                "period"
-            ] = f"du {date_format(start)} au {date_format(end)}"
+            response.context_data["period"] = (
+                f"du {date_format(start)} au {date_format(end)}"
+            )
         else:
             response.context_data["period"] = "Inconnue"
 
@@ -158,9 +158,11 @@ class CommuneStatisticsAdmin(StatisticsModelAdmin):
 
             total = aggregates[key]["total"]
             formatted_aggregates[label] = {
-                f"Entre {subkey[0]} et {subkey[1] + 1} hab"
-                if len(subkey) == 2
-                else f"{subkey[0]} hab et plus": f"{value : >+n}"
+                (
+                    f"Entre {subkey[0]} et {subkey[1] + 1} hab"
+                    if len(subkey) == 2
+                    else f"{subkey[0]} hab et plus"
+                ): f"{value : >+n}"
                 for subkey, value in aggregates[key].items()
                 if subkey != "total"
             }

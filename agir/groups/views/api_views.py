@@ -1,3 +1,4 @@
+import datetime
 import re
 
 import reversion
@@ -5,8 +6,20 @@ from dateutil.relativedelta import relativedelta
 from django.contrib.gis.db.models.functions import Distance
 from django.core.validators import validate_email
 from django.db import transaction
-from django.db.models import Max, DateTimeField, Q, F
-from django.db.models.functions import Greatest
+from django.db.models import (
+    Max,
+    DateTimeField,
+    Q,
+    F,
+    Sum,
+    Count,
+    Value,
+    CharField,
+    Avg,
+    ExpressionWrapper,
+    DurationField,
+)
+from django.db.models.functions import Greatest, Concat
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
@@ -29,8 +42,8 @@ from rest_framework.response import Response
 
 from agir.donations.allocations import get_supportgroup_balance
 from agir.donations.models import SpendingRequest
-from agir.events.models import Event
-from agir.events.serializers import EventListSerializer
+from agir.events.models import Event, RSVP, EventSubtype
+from agir.events.serializers import EventListSerializer, DisplayEventSubtypeSerializer
 from agir.groups.actions.notifications import (
     new_message_notifications,
     new_comment_notifications,
@@ -98,6 +111,7 @@ __all__ = [
     "CreateSupportGroupExternalLinkAPIView",
     "RetrieveUpdateDestroySupportGroupExternalLinkAPIView",
     "GroupUpdateOwnMembershipAPIView",
+    "GroupStatisticsAPIView",
 ]
 
 from agir.lib.rest_framework_permissions import (
@@ -1019,3 +1033,168 @@ class GroupUpdateOwnMembershipAPIView(UpdateAPIView):
         if self.request.user.is_authenticated and self.request.user.person is not None:
             return self.queryset.filter(person=self.request.user.person)
         return self.queryset.none()
+
+
+class GroupStatisticsAPIViewPermissions(GlobalOrObjectPermissions):
+    perms_map = {"GET": []}
+    object_perms_map = {
+        "GET": ["groups.change_supportgroup"],
+    }
+
+
+class GroupStatisticsAPIView(RetrieveAPIView):
+    queryset = SupportGroup.objects.active()
+    permission_classes = (IsPersonPermission, GroupStatisticsAPIViewPermissions)
+
+    def filter_by_period(self, queryset, period=None, field="created"):
+        if period == "ever":
+            return queryset
+
+        today = datetime.date.today()
+
+        if period == "month":
+            return queryset.filter(
+                **{f"{field}__month": today.month, f"{field}__year": today.year}
+            )
+
+        if period == "year":
+            return queryset.filter(**{f"{field}__year": today.year})
+
+        if period == "last_month":
+            end = today.replace(day=1)
+            start = end - relativedelta(months=1)
+            return queryset.filter(**{f"{field}__range": (start, end)})
+
+        if period == "last_year":
+            return queryset.filter(**{f"{field}__year": today.year - 1})
+
+        return queryset
+
+    def get_events(self, instance, period=None):
+        return self.filter_by_period(
+            instance.organized_events.public().past(), period=period, field="start_time"
+        ).annotate(
+            rsvp_count=Count("rsvps", filter=Q(rsvps__status=RSVP.Status.CONFIRMED)),
+            duration=ExpressionWrapper(
+                F("end_time") - F("start_time"),
+                output_field=DurationField(),
+            ),
+            address=Concat(
+                "location_name",
+                Value("\n"),
+                "location_address1",
+                Value(", "),
+                "location_zip",
+                Value(" "),
+                "location_city",
+                output_field=CharField(),
+            ),
+        )
+
+    def get_members(self, instance, period=None):
+        return self.filter_by_period(
+            instance.memberships.active(),
+            period=period,
+        )
+
+    def get_messages(self, instance, period=None):
+        return self.filter_by_period(
+            instance.messages.active(),
+            period=period,
+        )
+
+    def get_comments(self, instance, period=None):
+        return self.filter_by_period(
+            SupportGroupMessageComment.objects.active().filter(
+                message__supportgroup_id=instance.id
+            ),
+            period=period,
+        )
+
+    def get_event_subtypes(self, events):
+        most_used_event_subtypes = {
+            subtype["subtype_id"]: subtype["count"]
+            for subtype in events.values("subtype_id")
+            .order_by("subtype_id")
+            .annotate(count=Count("id", distinct=True))
+            .order_by("-count")[:3]
+        }
+        event_subtypes = EventSubtype.objects.filter(
+            id__in=list(most_used_event_subtypes.keys())
+        )
+        event_subtypes = sorted(
+            [
+                {
+                    **DisplayEventSubtypeSerializer(subtype).data,
+                    "events": most_used_event_subtypes[subtype.id],
+                }
+                for subtype in event_subtypes
+            ],
+            key=lambda s: -s["events"],
+        )
+
+        return event_subtypes
+
+    def get_event_locations(self, events):
+        return (
+            events.values("address")
+            .order_by("address")
+            .annotate(events=Count("id", distinct=True))
+            .order_by("-events")[:3]
+        )
+
+    def get_event_average_by_month(self, events):
+        events = events.order_by("start_time")
+        event_count = len(events)
+
+        if event_count == 0:
+            return 0, 0
+
+        start = events[0].start_time
+        end = datetime.datetime.now()
+        month_count = (end.year - start.year) * 12 + (end.month - start.month)
+
+        return event_count, event_count / month_count
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        period = request.GET.get("period", None)
+
+        events = self.get_events(instance, period)
+        members = self.get_members(instance, period)
+        messages = self.get_messages(instance, period)
+        comments = self.get_comments(instance, period)
+
+        event_count, event_average_count_by_month = self.get_event_average_by_month(
+            events
+        )
+
+        data = {
+            "events": {
+                "count": event_count,
+                "averageByMonth": event_average_count_by_month,
+                "averageParticipants": 0,
+                "totalDuration": 0,
+                "averageDuration": 0,
+                "topSubtypes": [],
+                "topLocations": [],
+            },
+            "members": {
+                "active": len([m for m in members if m.is_active_member]),
+                "followers": len([m for m in members if not m.is_active_member]),
+            },
+            "messages": {"count": messages.count() + comments.count()},
+        }
+        if event_count > 0:
+            aggregates = events.aggregate(
+                average_rsvps=Avg("rsvp_count"),
+                total_duration=Sum("duration"),
+                average_duration=Avg("duration"),
+            )
+            data["events"]["averageParticipants"] = aggregates.get("average_rsvps")
+            data["events"]["totalDuration"] = aggregates.get("total_duration")
+            data["events"]["averageDuration"] = aggregates.get("average_duration")
+            data["events"]["topSubtypes"] = self.get_event_subtypes(events)
+            data["events"]["topLocations"] = self.get_event_locations(events)
+
+        return Response(data)

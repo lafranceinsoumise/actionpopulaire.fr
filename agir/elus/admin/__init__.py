@@ -161,9 +161,11 @@ class BaseMandatAdmin(admin.ModelAdmin):
             ]
             current_model = self.model
             querysets = [
-                model.objects.exclude(id=obj.id)
-                if model == current_model
-                else model.objects.all()
+                (
+                    model.objects.exclude(id=obj.id)
+                    if model == current_model
+                    else model.objects.all()
+                )
                 for model in models
             ]
             autres_mandats = [qs.filter(person=person).exists() for qs in querysets]

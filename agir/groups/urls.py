@@ -191,6 +191,11 @@ api_urlpatterns = [
         views.GroupUpdateOwnMembershipAPIView.as_view(),
         name="api_group_update_own_membership",
     ),
+    path(
+        "<uuid:pk>/stats/",
+        views.GroupStatisticsAPIView.as_view(),
+        name="api_group_statistics",
+    ),
 ]
 
 urlpatterns = [

@@ -272,7 +272,7 @@ class ObtenirFichierOrdreVirementView(View):
                 fd.read(),
                 content_type="application/xml",
             )
-        res[
-            "Content-Disposition"
-        ] = f'attachment; filename="ordre_virement_{obj.id}.xml"'
+        res["Content-Disposition"] = (
+            f'attachment; filename="ordre_virement_{obj.id}.xml"'
+        )
         return res
