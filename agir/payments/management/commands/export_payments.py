@@ -37,12 +37,30 @@ PAYMENT_SPEC = {
     "type": "type",
     "mode": "mode",
     "abonnement associé": "subscription_id",
-    "adresse1": Coalesce(T.subscription.meta["location_address1"], T.meta["location_address1"], default=None),
-    "adresse2": Coalesce(T.subscription.meta["location_address2"], T.meta["location_address2"], default=None),
-    "code postal": Coalesce(T.subscription.meta["location_zip"], T.meta["location_zip"], default=None),
-    "ville": Coalesce(T.subscription.meta["location_city"],T.meta["location_city"], default=None),
-    "pays": Coalesce(T.subscription.meta["location_country"], T.meta["location_country"], default=None),
-    "nationality": Coalesce(T.subscription.meta["nationality"], T.meta["nationality"], default=None),
+    "adresse1": Coalesce(
+        T.subscription.meta["location_address1"],
+        T.meta["location_address1"],
+        default=None,
+    ),
+    "adresse2": Coalesce(
+        T.subscription.meta["location_address2"],
+        T.meta["location_address2"],
+        default=None,
+    ),
+    "code postal": Coalesce(
+        T.subscription.meta["location_zip"], T.meta["location_zip"], default=None
+    ),
+    "ville": Coalesce(
+        T.subscription.meta["location_city"], T.meta["location_city"], default=None
+    ),
+    "pays": Coalesce(
+        T.subscription.meta["location_country"],
+        T.meta["location_country"],
+        default=None,
+    ),
+    "nationality": Coalesce(
+        T.subscription.meta["nationality"], T.meta["nationality"], default=None
+    ),
 }
 
 
