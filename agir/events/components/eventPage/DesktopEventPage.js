@@ -8,6 +8,7 @@ import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getUser } from "@agir/front/globalContext/reducers";
 
 import EventInfoCard from "@agir/events/eventPage/EventInfoCard";
+import CanvassCard from "@agir/events/Canvass/CanvassCard";
 import TokTokCard from "@agir/events/TokTok/TokTokCard";
 import BackLink from "@agir/front/app/Navigation/BackLink";
 import Card from "@agir/front/genericComponents/Card";
@@ -115,6 +116,8 @@ const DesktopEventPage = (props) => {
               {isManager && <ReportFormCard eventPk={id} />}
               {logged && subtype.label === DOOR2DOOR_EVENT_SUBTYPE_LABEL && (
                 <>
+                  <Spacer size="1rem" />
+                  <CanvassCard flex />
                   <Spacer size="1rem" />
                   <TokTokCard flex />
                 </>

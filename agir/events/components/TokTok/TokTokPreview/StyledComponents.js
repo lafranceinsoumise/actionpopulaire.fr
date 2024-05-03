@@ -5,43 +5,28 @@ import styled from "styled-components";
 import { getIconDataUrl } from "@agir/front/genericComponents/Button/utils";
 import Button from "@agir/front/genericComponents/Button";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
 import { useImageLoad } from "@agir/lib/utils/hooks";
 
-import logoSmall from "@agir/events/TokTok/images/TokTok.svg";
-import bannerBGSmall from "@agir/events/TokTok/images/TokTokBannerBGSmall.jpg";
-import logoLarge from "@agir/events/TokTok/images/TokTokLogoLarge.jpg";
-import bannerBGLarge from "@agir/events/TokTok/images/TokTokBannerBGLarge.jpg";
+import logoSmall from "@agir/events/TokTok/images/TokTok.png";
 
 const StyledBanner = styled.header`
   width: 100%;
-  height: 166px;
-  background-image: url(${logoSmall}), url(${bannerBGSmall});
+  height: 176px;
+  background-color: #433483;
+  background-image: url(${logoSmall});
   background-size:
-    auto 76px,
+    auto 176px,
     cover;
   background-position: center center;
   background-repeat: no-repeat;
   opacity: ${({ $isReady }) => ($isReady ? 1 : 0)};
   transition: opacity 300ms ease-in;
-
-  @media (min-width: ${(props) => props.theme.collapse}px) {
-    height: 191px;
-    background-image: url(${logoLarge}), url(${bannerBGLarge});
-    background-size:
-      680px 158px,
-      cover;
-    background-position: bottom center;
-  }
 `;
 
 export const Banner = (props) => {
-  const bg = useResponsiveMemo(logoSmall, logoLarge);
-  const bgSea = useResponsiveMemo(bannerBGSmall, bannerBGLarge);
-  const bgReady = useImageLoad(bg);
-  const bgSeaReady = useImageLoad(bgSea);
+  const ready = useImageLoad(logoSmall);
 
-  return <StyledBanner {...props} $isReady={!!bgReady && !!bgSeaReady} />;
+  return <StyledBanner {...props} $isReady={!!ready} />;
 };
 
 export const BackButton = styled(Button).attrs((props) => ({

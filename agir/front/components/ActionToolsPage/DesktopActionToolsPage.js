@@ -9,6 +9,7 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 import JoinAGroupCard from "./JoinAGroupCard";
 import ActionTools from "./ActionTools";
 import DonateCard from "./DonateCard";
+import CanvassCard from "@agir/events/Canvass/CanvassCard";
 import TokTokCard from "@agir/events/TokTok/TokTokCard";
 
 const StyledButtons = styled.div`
@@ -69,11 +70,9 @@ const DesktopActionToolsPage = (props) => {
             Nous contacter
           </Button>
         </StyledButtons>
-        <h2>
-          <small>Nouveau</small>
-          <br />
-          Carte du porte-à-porte
-        </h2>
+        <h2>Outils de porte-à-porte</h2>
+        <CanvassCard />
+        <Spacer size="1rem" />
         <TokTokCard />
         <PageFadeIn ready={typeof hasGroups !== "undefined"}>
           {!hasGroups && (

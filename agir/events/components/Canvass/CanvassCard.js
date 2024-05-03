@@ -2,28 +2,30 @@ import React from "react";
 import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
-import logo from "./images/TokTok.png";
+import logo from "./images/Canvass.png";
 
 const StyledLogo = styled.div`
   width: 100%;
-  height: 175px;
+  height: 185px;
   background-repeat: no-repeat;
-  background-color: #433483;
+  background-color: #040408;
   background-image: url(${logo});
   background-position: center center;
-  background-size: auto 175px;
+  background-size: contain;
 
-  ${(props) =>
-    props.$flex &&
-    `
-    @media(min-width: ${props.theme.collapse}px) {
+  @media (min-width: ${(props) => props.theme.collapse}px) {
+    background-size: cover;
+
+    ${(props) =>
+      props.$flex &&
+      `
       flex: 0 0 240px;
       width: 240px;
       height: 148px;
-      background-size: cover;
-    }
   `}
+  }
 `;
+
 const StyledCard = styled.div`
   padding: 0;
   box-shadow: ${(props) => props.theme.cardShadow};
@@ -49,13 +51,16 @@ const StyledCard = styled.div`
   }
 `;
 
-const TokTokCard = ({ flex = false, ...rest }) => (
+const CanvassCard = ({ flex = false, ...rest }) => (
   <StyledCard $flex={flex} {...rest}>
     <StyledLogo $flex={flex} aria-hidden="true" />
     <article>
-      <p>Pour préparer vos porte-à-porte, utilisez la carte collaborative</p>
+      <p>
+        Canvass vous propose un itinéraire de porte-à-porte à partir de son
+        propre algorithme
+      </p>
       <footer>
-        <Button small link route="toktok" icon="external-link" iconRight>
+        <Button small link route="canvass" icon="external-link" iconRight>
           Ouvrir la carte
         </Button>
       </footer>
@@ -63,4 +68,4 @@ const TokTokCard = ({ flex = false, ...rest }) => (
   </StyledCard>
 );
 
-export default TokTokCard;
+export default CanvassCard;

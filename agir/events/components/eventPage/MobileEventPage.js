@@ -7,31 +7,33 @@ import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import defaultEventImage from "@agir/front/genericComponents/images/banner-map-background.svg";
 
-import Card from "@agir/front/genericComponents/Card";
 import ClickableMap from "@agir/carte/common/Map/ClickableMap";
-import ContactCard from "@agir/front/genericComponents/ContactCard";
-import EventDescriptionCard from "./EventDescriptionCard";
-import EventFacebookLinkCard from "./EventFacebookLinkCard";
-import ReportFormCard from "./ReportFormCard";
-import EventHeader from "./EventHeader";
+import CanvassCard from "@agir/events/Canvass/CanvassCard";
+import TokTokCard from "@agir/events/TokTok/TokTokCard";
 import EventInfoCard from "@agir/events/eventPage/EventInfoCard";
-import EventLocationCard from "./EventLocationCard";
-import EventPhotosCard from "./EventPhotosCard";
-import EventReportCard from "./EventReportCard";
-import {
-  GroupsOrganizingCard,
-  GroupsJoiningCard,
-} from "@agir/groups/groupComponents/GroupsCard";
-import OnlineUrlCard from "./OnlineUrlCard";
+import Card from "@agir/front/genericComponents/Card";
+import ContactCard from "@agir/front/genericComponents/ContactCard";
 import RenderIfVisible from "@agir/front/genericComponents/RenderIfVisible";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
+import Spacer from "@agir/front/genericComponents/Spacer";
+import {
+  GroupsJoiningCard,
+  GroupsOrganizingCard,
+} from "@agir/groups/groupComponents/GroupsCard";
+import EventDescriptionCard from "./EventDescriptionCard";
+import EventFacebookLinkCard from "./EventFacebookLinkCard";
+import EventHeader from "./EventHeader";
+import EventLocationCard from "./EventLocationCard";
 import EventMessages from "./EventMessages";
-import TokTokCard from "@agir/events/TokTok/TokTokCard";
-import { useSelector } from "@agir/front/globalContext/GlobalContext";
-import { getUser } from "@agir/front/globalContext/reducers";
+import EventPhotosCard from "./EventPhotosCard";
+import EventReportCard from "./EventReportCard";
+import EventSpeakers from "./EventSpeakers";
+import OnlineUrlCard from "./OnlineUrlCard";
+import ReportFormCard from "./ReportFormCard";
 
 import { DOOR2DOOR_EVENT_SUBTYPE_LABEL } from "@agir/events/common/utils";
-import EventSpeakers from "./EventSpeakers";
+import { useSelector } from "@agir/front/globalContext/GlobalContext";
+import { getUser } from "@agir/front/globalContext/reducers";
 
 const CardLikeSection = styled.section``;
 const StyledMain = styled(RenderIfVisible)`
@@ -183,7 +185,10 @@ const MobileEventPage = (props) => {
           <EventHeader {...props} />
           {isManager && <ReportFormCard eventPk={id} />}
           {logged && subtype.label === DOOR2DOOR_EVENT_SUBTYPE_LABEL && (
-            <TokTokCard />
+            <>
+              <CanvassCard />
+              <TokTokCard />
+            </>
           )}
         </Card>
       </StyledMain>

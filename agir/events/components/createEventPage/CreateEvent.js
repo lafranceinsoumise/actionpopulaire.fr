@@ -7,6 +7,7 @@ import { useMissingRequiredEventDocuments } from "@agir/events/common/hooks";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getIsSessionLoaded } from "@agir/front/globalContext/reducers";
 
+import CanvassCard from "@agir/events/Canvass/CanvassCard";
 import TokTokCard from "@agir/events/TokTok/TokTokCard";
 import Link from "@agir/front/app/Link";
 import Redirect from "@agir/front/app/Redirect";
@@ -117,6 +118,8 @@ const InfoBlock = (props) => (
     </div>
     <Hide $under>
       <Spacer size="1.5rem" />
+      <CanvassCard />
+      <Spacer size="1rem" />
       <TokTokCard />
     </Hide>
   </StyledInfoBlock>
