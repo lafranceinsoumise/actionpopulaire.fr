@@ -235,4 +235,9 @@ urlpatterns = [
         views.EventAssetListAPIView.as_view(),
         name="api_event_assets",
     ),
+    path(
+        "api/evenements/agenda/<slug:slug>/",
+        views.CalendarEventListAPIView.as_view(),
+        name="api_event_calendar",
+    ),
 ]

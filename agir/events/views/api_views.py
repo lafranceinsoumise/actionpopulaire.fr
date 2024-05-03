@@ -73,6 +73,7 @@ __all__ = [
     "EventReportPersonFormAPIView",
     "EventMessagesAPIView",
     "EventAssetListAPIView",
+    "CalendarEventListAPIView",
 ]
 
 from agir.gestion.models import Projet
@@ -134,6 +135,27 @@ class EventListAPIView(ListAPIView):
             return super().filter_queryset(queryset)[: self.max_length]
 
         return super().filter_queryset(queryset)
+
+    def get_serializer(self, *args, **kwargs):
+        return super().get_serializer(
+            *args,
+            fields=EventListSerializer.EVENT_CARD_FIELDS,
+            **kwargs,
+        )
+
+
+class CalendarEventListAPIView(ListAPIView):
+    permission_classes = ()
+    serializer_class = EventListSerializer
+    queryset = Event.objects.public()
+
+    def get_queryset(self):
+        return (
+            super()
+            .get_queryset()
+            .filter(calendars__slug=self.kwargs["slug"], calendars__archived=False)
+            .upcoming()
+        )
 
     def get_serializer(self, *args, **kwargs):
         return super().get_serializer(
