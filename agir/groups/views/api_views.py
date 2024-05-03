@@ -1117,7 +1117,7 @@ class GroupStatisticsAPIView(RetrieveAPIView):
             for subtype in events.values("subtype_id")
             .order_by("subtype_id")
             .annotate(count=Count("id", distinct=True))
-            .order_by("-count")
+            .order_by("-count")[:3]
         }
         event_subtypes = EventSubtype.objects.filter(
             id__in=list(most_used_event_subtypes.keys())
@@ -1140,7 +1140,7 @@ class GroupStatisticsAPIView(RetrieveAPIView):
             events.values("address")
             .order_by("address")
             .annotate(events=Count("id", distinct=True))
-            .order_by("-events")
+            .order_by("-events")[:3]
         )
 
     def get_event_average_by_month(self, events):

@@ -96,7 +96,7 @@ const StyledSubtypeCard = styled.div`
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    min-height: 2rem;
+    padding-bottom: 0.25rem;
 
     @media (max-width: ${(props) => props.theme.collapse}px) {
       flex: 0 0 100%;
@@ -104,6 +104,10 @@ const StyledSubtypeCard = styled.div`
 
     & > * {
       flex: 0 0 auto;
+    }
+
+    & > span {
+      flex: 1 1 100%;
     }
   }
 
@@ -263,7 +267,7 @@ const GroupStatisticsPage = (props) => {
                         icon={subtype.iconName}
                       />
                       <span>
-                        {subtype.description} ({subtype.events})
+                        {subtype.description} ({subtype.events})
                       </span>
                     </p>
                     <div aria-hidden={true} />
@@ -281,7 +285,7 @@ const GroupStatisticsPage = (props) => {
                     <RawFeatherIcon name="map-pin" />
                     <p>
                       <strong>
-                        {location.address.split("\n")[0]} ({location.events})
+                        {location.address.split("\n")[0]} ({location.events})
                       </strong>
                       <span>{location.address.split("\n")[1]}</span>
                     </p>
