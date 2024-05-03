@@ -1143,7 +1143,7 @@ class GroupStatisticsAPIView(RetrieveAPIView):
             .order_by("-events")[:3]
         )
 
-    def get_event_average_by_month(self, events):
+    def get_event_average_by_month(self, events, period=None):
         events = events.order_by("start_time")
         event_count = len(events)
 
@@ -1152,7 +1152,19 @@ class GroupStatisticsAPIView(RetrieveAPIView):
 
         start = events[0].start_time
         end = datetime.datetime.now()
-        month_count = (end.year - start.year) * 12 + (end.month - start.month)
+
+        if period == "month" or period == "last_month":
+            return event_count, event_count
+
+        if period == "last_year":
+            return event_count, event_count / 12
+
+        month_count = max(
+            (end.year - start.year) * 12 + (end.month - start.month) + 1, 1
+        )
+
+        if period == "year":
+            month_count = min(month_count, 12)
 
         return event_count, event_count / month_count
 
@@ -1166,7 +1178,7 @@ class GroupStatisticsAPIView(RetrieveAPIView):
         comments = self.get_comments(instance, period)
 
         event_count, event_average_count_by_month = self.get_event_average_by_month(
-            events
+            events, period
         )
 
         data = {
