@@ -6,7 +6,6 @@ import useSWRImmutable from "swr/immutable";
 import { getGroupEndpoint } from "@agir/groups/utils/api";
 
 import SelectField from "@agir/front/formComponents/SelectField";
-import Card from "@agir/front/genericComponents/Card";
 import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
 import {
   h3,
@@ -47,12 +46,11 @@ const StyledCard = styled.div`
 
   & > strong {
     flex: 1 1 auto;
-    font-weight: 600;
+    font-weight: 400;
     font-size: 1rem;
 
     @media (max-width: ${(props) => props.theme.collapse}px) {
       font-size: 0.875rem;
-      font-weight: normal;
     }
   }
 
