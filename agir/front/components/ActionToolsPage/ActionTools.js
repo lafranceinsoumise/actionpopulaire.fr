@@ -97,20 +97,6 @@ export const ActionTools = () => {
             Disponible le 9 juin ? Prenez la procuration d'une personne absente
             pour voter !
           </span>
-          <Hide
-            $over
-            as="span"
-            css={`
-              display: inline-flex;
-              flex-wrap: wrap;
-              gap: 0.5rem;
-              margin-top: 0.25rem;
-            `}
-          >
-            <Button small link route="donationLanding" color="primary">
-              Faire un don
-            </Button>
-          </Hide>
         </span>
         <RawFeatherIcon aria-hidden="true" name="chevron-right" />
       </StyledCardItem>
