@@ -88,7 +88,7 @@ def notification_listener(payment):
             # adresse email. On récupère la personne associée à cette adresse email, ou on la crée, et on l'associe à
             # ce paiement.
             find_or_create_person_from_payment(payment)
-            envoyer_email_remerciement.delay(payment.pk)
+            transaction.on_commit(partial(envoyer_email_remerciement.delay, payment.pk))
             transaction.on_commit(partial(incrementer_compteur, payment))
 
     if payment.status == Payment.STATUS_REFUND:

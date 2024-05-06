@@ -1,19 +1,11 @@
-from functools import partial
 import logging
 import os
 
-from celery import Celery, Task
-from django.db import transaction
+from celery import Celery
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "agir.api.settings")
 
-
-class TransactionSafeTask(Task):
-    def apply_async(self, *args, **kwargs):
-        transaction.on_commit(partial(super().apply_async, *args, **kwargs))
-
-
-app = Celery("agir.api", task_cls=TransactionSafeTask)
+app = Celery("agir.api")
 
 # - namespace='CELERY' means all celery-related configuration keys
 #   should have a `CELERY_` prefix.

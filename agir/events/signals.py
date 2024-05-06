@@ -28,7 +28,7 @@ def copier_participant_feuille_externe(instance, sheet):
     if not task:
         return
 
-    task.delay(instance.pk)
+    transaction.on_commit(partial(task, instance.pk))
 
 
 @receiver(post_save, sender=RSVP, dispatch_uid="copier_rsvp_feuille_externe")

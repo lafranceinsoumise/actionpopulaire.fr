@@ -4,9 +4,10 @@ from functools import wraps
 
 import requests
 from celery import shared_task
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from push_notifications.gcm import GCMError
+
+from django.conf import settings
 
 TASK_PRIORITY_LOW = settings.CELERY_TASK_PRIORITY_LOW
 TASK_PRIORITY_NORMAL = settings.CELERY_TASK_PRIORITY_NORMAL
@@ -73,7 +74,7 @@ def retriable_task(
     taskifier = shared_task(bind=True, **kwargs)
 
     def decorate(f):
-        f = taskifier(strategy(f))
+        return taskifier(strategy(f))
 
     if len(args) == 1:
         return decorate(args[0])

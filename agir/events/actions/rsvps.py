@@ -139,7 +139,7 @@ def rsvp_to_free_event(event, person, form_submission=None):
         with transaction.atomic():
             rsvp = _get_rsvp_for_event(event, person, form_submission, False)
             rsvp.save()
-            send_rsvp_notification.delay(rsvp.pk)
+            transaction.on_commit(partial(send_rsvp_notification.delay, rsvp.pk))
     except IntegrityError:
         pass
 
@@ -251,7 +251,7 @@ def validate_payment_for_rsvp(payment):
 
     # on programme l'envoi de la notification à la fin de la transaction, pour s'assurer que
     # la tâche Celery s'exécute bien après la fin de la transaction (et voit donc le RSVP mis à jour)
-    send_rsvp_notification.delay(rsvp.pk)
+    transaction.on_commit(partial(send_rsvp_notification.delay, rsvp.pk))
     return rsvp
 
 
@@ -401,7 +401,7 @@ def validate_payment_for_guest(payment):
     guest.save()
 
     # à faire au commit uniquement
-    send_guest_confirmation.delay(guest.rsvp_id)
+    transaction.on_commit(partial(send_guest_confirmation.delay, guest.rsvp_id))
 
     return guest
 
