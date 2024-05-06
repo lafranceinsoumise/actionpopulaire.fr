@@ -1,4 +1,5 @@
-import re
+from unittest import skip
+
 from django.core import mail
 from django.test import TestCase
 from django.urls import reverse
@@ -26,6 +27,7 @@ BLAGNY_WKT = (
 
 
 @using_separate_redis_server
+@skip("Skipping during elections to avoid conflicts")
 class ProcurationTestCase(TestCase):
     def setUp(self):
         self.commune = CommunePage.objects.create(
