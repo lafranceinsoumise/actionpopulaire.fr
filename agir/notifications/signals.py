@@ -44,12 +44,9 @@ def push_new_activity(sender, instance, created=False, **kwargs):
     ]
 
     for apns_device_pk in apns_device_pks:
-        transaction.on_commit(
-            partial(
-                send_apns_activity.delay,
-                instance.pk,
-                apns_device_pk,
-            )
+        send_apns_activity.delay(
+            instance.pk,
+            apns_device_pk,
         )
 
     # SEND FCM NOTIFICATIONS
@@ -61,12 +58,9 @@ def push_new_activity(sender, instance, created=False, **kwargs):
     ]
 
     for fcm_device_pk in fcm_device_pks:
-        transaction.on_commit(
-            partial(
-                send_fcm_activity.delay,
-                instance.pk,
-                fcm_device_pk,
-            )
+        send_fcm_activity.delay(
+            instance.pk,
+            fcm_device_pk,
         )
 
 

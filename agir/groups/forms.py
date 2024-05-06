@@ -363,11 +363,8 @@ class TransferGroupMembersForm(forms.Form):
             Membership.objects.bulk_create(new_memberships, ignore_conflicts=True)
             memberships.delete()
 
-            transaction.on_commit(
-                partial(
-                    schedule_membership_transfer_tasks,
-                    transfer_operation,
-                )
+            schedule_membership_transfer_tasks(
+                transfer_operation,
             )
 
         return {

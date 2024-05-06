@@ -193,14 +193,11 @@ def save_spending_request_admin_review(
         spending_request.bank_transfer_label = bank_transfer_label
         spending_request.save()
 
-        transaction.on_commit(
-            partial(
-                spending_request_notify_group_managers.delay,
-                spending_request.pk,
-                to_status=to_status,
-                from_status=from_status,
-                comment=comment,
-            )
+        spending_request_notify_group_managers.delay(
+            spending_request.pk,
+            to_status=to_status,
+            from_status=from_status,
+            comment=comment,
         )
 
 

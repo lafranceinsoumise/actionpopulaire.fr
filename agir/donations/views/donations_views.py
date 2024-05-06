@@ -319,11 +319,7 @@ class ReturnView(TemplateView):
 
 def subscription_notification_listener(subscription):
     if subscription.status == Subscription.STATUS_ACTIVE:
-        transaction.on_commit(
-            partial(
-                send_donation_email.delay, subscription.person.pk, subscription.type
-            )
-        )
+        send_donation_email.delay(subscription.person.pk, subscription.type)
 
 
 def notification_listener(payment):
@@ -336,9 +332,7 @@ def notification_listener(payment):
             apply_payment_allocations(payment)
 
             if payment.subscription is None:
-                transaction.on_commit(
-                    partial(send_donation_email.delay, payment.person.pk, payment.type)
-                )
+                send_donation_email.delay(payment.person.pk, payment.type)
 
     if payment.status == Payment.STATUS_REFUND:
         cancel_payment_allocations(payment)

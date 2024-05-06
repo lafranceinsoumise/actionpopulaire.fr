@@ -202,4 +202,4 @@ def generate_and_send_contract(payment_id):
 def loan_notification_listener(payment):
     if payment.status == Payment.STATUS_COMPLETED:
         find_or_create_person_from_payment(payment)
-        transaction.on_commit(partial(generate_and_send_contract, payment.id))
+        generate_and_send_contract(payment.id)

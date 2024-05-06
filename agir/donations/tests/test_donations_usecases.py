@@ -1,7 +1,6 @@
 import json
 import re
 import uuid
-from functools import partial
 from unittest import mock
 from urllib.parse import urlencode
 
@@ -15,7 +14,6 @@ from agir.donations.apps import DonsConfig
 from agir.donations.models import MonthlyAllocation, AccountOperation
 from agir.donations.tasks import (
     send_monthly_donation_confirmation_email,
-    send_donation_email,
 )
 from agir.groups.models import SupportGroup, Membership
 from agir.lib.utils import front_url
@@ -317,8 +315,8 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
 
         return s
 
-    @mock.patch("django.db.transaction.on_commit")
-    def test_can_make_monthly_donation_while_logged_in(self, on_commit):
+    @mock.patch("agir.donations.views.donations_views.send_donation_email")
+    def test_can_make_monthly_donation_while_logged_in(self, send_donation_email):
         self.client.force_login(self.p1.role)
 
         res = self.client.get(self.amount_url)
@@ -373,9 +371,7 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
         complete_subscription(subscription)
         monthly_donation_subscription_listener(subscription)
         # fake systempay webhook
-        on_commit.assert_called_once()
-        self.assertIsInstance(on_commit.call_args[0][0], partial)
-        self.assertEqual(on_commit.call_args[0][0].func, send_donation_email.delay)
+        send_donation_email.delay.assert_called_once()
 
         auto_payment = create_payment(
             person=self.p1,

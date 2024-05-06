@@ -172,7 +172,7 @@ class PersonalInformationsForm(ImageFormMixin, forms.ModelForm):
         if not self.instance.should_relocate_when_address_changed():
             return
         if any(field in self.changed_data for field in self.instance.GEOCODING_FIELDS):
-            transaction.on_commit(partial(geocode_person.delay, self.instance.pk))
+            geocode_person.delay(self.instance.pk)
 
     class Meta:
         model = Person

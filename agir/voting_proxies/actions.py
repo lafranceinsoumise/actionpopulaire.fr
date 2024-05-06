@@ -221,11 +221,8 @@ def accept_single_voting_proxy_request(voting_proxy, voting_proxy_request):
         voting_proxy.status = VotingProxy.STATUS_AVAILABLE
         voting_proxy.save()
 
-    transaction.on_commit(
-        partial(
-            send_voting_proxy_request_accepted_text_messages.delay,
-            [voting_proxy_request.pk],
-        )
+    send_voting_proxy_request_accepted_text_messages.delay(
+        [voting_proxy_request.pk],
     )
 
 
@@ -238,11 +235,8 @@ def accept_voting_proxy_requests(voting_proxy, voting_proxy_requests):
         voting_proxy.status = VotingProxy.STATUS_AVAILABLE
         voting_proxy.save()
 
-    transaction.on_commit(
-        partial(
-            send_voting_proxy_request_accepted_text_messages.delay,
-            list(voting_proxy_requests.values_list("pk", flat=True)),
-        )
+    send_voting_proxy_request_accepted_text_messages.delay(
+        list(voting_proxy_requests.values_list("pk", flat=True)),
     )
 
 
