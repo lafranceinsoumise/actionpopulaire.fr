@@ -1,4 +1,5 @@
-from django.urls import path
+from django.urls import path, reverse_lazy
+from django.views.generic import RedirectView
 
 from agir.municipales.views import (
     CommuneView,
@@ -7,7 +8,7 @@ from agir.municipales.views import (
     CommuneLoanView,
     CommuneLoanPersonalInformationView,
     CommuneLoanAcceptContractView,
-    CommuneProcurationView,
+    # CommuneProcurationView,
     CommuneCostCertificateFormView,
     CommuneCostCertificateDownloadView,
 )
@@ -26,7 +27,10 @@ urlpatterns = (
     ),
     path(
         "communes/<str:code_departement>/<str:slug>/procuration/",
-        CommuneProcurationView.as_view(),
+        # CommuneProcurationView.as_view(),
+        RedirectView.as_view(
+            url=reverse_lazy("voting_proxy_landing_page"), permanent=False
+        ),
         name="procuration_commune",
     ),
     path(
