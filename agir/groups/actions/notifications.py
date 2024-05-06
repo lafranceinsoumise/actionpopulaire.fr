@@ -95,7 +95,7 @@ def someone_joined_notification(membership, membership_count=1):
             )
         )
 
-    transaction.on_commit(partial(send_joined_notification_email.delay, membership.pk))
+    send_joined_notification_email.delay(membership.pk)
 
 
 @transaction.atomic()
@@ -125,7 +125,7 @@ def new_message_notifications(message):
         send_post_save_signal=True,
     )
 
-    transaction.on_commit(partial(send_message_notification_email.delay, message.pk))
+    send_message_notification_email.delay(message.pk)
 
 
 # Group comment with required membership type

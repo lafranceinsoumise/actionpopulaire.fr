@@ -57,7 +57,7 @@ def create_or_update_polling_station_officer(data):
             person_id=person.pk, defaults={**data, "contact_email": email}
         )
 
-        transaction.on_commit(partial(geocode_person.delay, person.pk))
+        geocode_person.delay(person.pk)
 
         if is_new_person and "welcome" in SUBSCRIPTIONS_EMAILS[SUBSCRIPTION_TYPE_AP]:
             from agir.people.tasks import send_welcome_mail
