@@ -92,8 +92,8 @@ class LoansTestCase(TransactionTestCase):
         return req
 
     @using_separate_redis_server
-    @patch("django.db.transaction.on_commit")
-    def test_can_make_a_loan_when_logged_in(self, on_commit):
+    @patch("agir.loans.views.generate_and_send_contract")
+    def test_can_make_a_loan_when_logged_in(self, generate_and_send_contract):
         self.factory.user = self.p1.role
         self.factory.session = {}
 
@@ -145,8 +145,5 @@ class LoansTestCase(TransactionTestCase):
 
         loan_notification_listener(payment)
 
-        on_commit.assert_called_once()
-        partial = on_commit.call_args[0][0]
-
-        self.assertEqual(partial.func, generate_and_send_contract)
-        self.assertEqual(partial.args, (payment.id,))
+        generate_and_send_contract.assert_called_once()
+        self.assertEqual(generate_and_send_contract.call_args[0], (payment.id,))

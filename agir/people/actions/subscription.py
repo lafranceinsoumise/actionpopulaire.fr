@@ -171,13 +171,10 @@ def save_subscription_information(person, type, data, new=False):
                 # l'import se fait ici pour éviter les imports circulaires
                 from ..tasks import notify_referrer
 
-                transaction.on_commit(
-                    partial(
-                        notify_referrer.delay,
-                        referrer_id=str(referrer.id),
-                        referred_id=str(person.id),
-                        referral_type=type,
-                    )
+                notify_referrer.delay(
+                    referrer_id=str(referrer.id),
+                    referred_id=str(person.id),
+                    referral_type=type,
                 )
 
     # on fusionne les éventuelles metadata
@@ -279,9 +276,7 @@ def save_contact_information(data):
 
         from agir.people.tasks import notify_contact
 
-        transaction.on_commit(
-            partial(notify_contact.delay, str(person.id), is_new=is_new)
-        )
+        notify_contact.delay(str(person.id), is_new=is_new)
 
     if tags and is_new:
         person.tags.add(*tags)

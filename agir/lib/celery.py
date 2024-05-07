@@ -4,10 +4,9 @@ from functools import wraps
 
 import requests
 from celery import shared_task
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from push_notifications.gcm import GCMError
-
-from django.conf import settings
 
 TASK_PRIORITY_LOW = settings.CELERY_TASK_PRIORITY_LOW
 TASK_PRIORITY_NORMAL = settings.CELERY_TASK_PRIORITY_NORMAL

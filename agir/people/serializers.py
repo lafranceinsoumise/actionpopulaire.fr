@@ -369,7 +369,7 @@ class PersonSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
     def update(self, instance, validated_data):
         instance = super().update(instance, validated_data)
         if any(field in validated_data for field in instance.GEOCODING_FIELDS):
-            transaction.on_commit(partial(geocode_person.delay, instance.pk))
+            geocode_person.delay(instance.pk)
         return instance
 
     class Meta:

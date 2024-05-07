@@ -1135,14 +1135,11 @@ class UpdateEventSerializer(serializers.ModelSerializer):
                 ):
                     Projet.objects.from_event(event, event.organizers.first().role)
 
-            transaction.on_commit(
-                partial(
-                    self.schedule_tasks,
-                    event,
-                    changed_data_fields,
-                    changed_supportgroup,
-                    has_new_report,
-                )
+            self.schedule_tasks(
+                event,
+                changed_data_fields,
+                changed_supportgroup,
+                has_new_report,
             )
             return event
 

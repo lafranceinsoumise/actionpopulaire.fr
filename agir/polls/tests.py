@@ -1,5 +1,4 @@
 from datetime import timedelta
-from functools import partial
 from unittest import mock
 
 from django.test import TestCase
@@ -347,10 +346,10 @@ class PollTestCase(TestCase):
         )
         self.assertEqual(res.status_code, 403)
 
-    @mock.patch("django.db.transaction.on_commit")
+    @mock.patch("agir.polls.views.send_vote_confirmation_email")
     def test_send_email_by_default(
         self,
-        on_commit,
+        send_vote_confirmation_email,
     ):
         poll = Poll.objects.create(
             start=timezone.now(),
@@ -366,15 +365,12 @@ class PollTestCase(TestCase):
             data={PollOption.DEFAULT_OPTION_GROUP_ID: options[0].id},
         )
         self.assertRedirects(res, reverse("participate_poll", args=[poll.id]))
-        on_commit.assert_called_once()
-        cb = on_commit.call_args[0][0]
-        self.assertIsInstance(cb, partial)
-        self.assertEqual(cb.func, send_vote_confirmation_email.delay)
+        send_vote_confirmation_email.delay.assert_called_once()
 
-    @mock.patch("django.db.transaction.on_commit")
+    @mock.patch("agir.polls.views.send_vote_confirmation_email")
     def test_send_email_when_enabled(
         self,
-        on_commit,
+        send_vote_confirmation_email,
     ):
         poll = Poll.objects.create(
             start=timezone.now(),
@@ -390,15 +386,12 @@ class PollTestCase(TestCase):
             data={PollOption.DEFAULT_OPTION_GROUP_ID: options[0].id},
         )
         self.assertRedirects(res, reverse("participate_poll", args=[poll.id]))
-        on_commit.assert_called_once()
-        cb = on_commit.call_args[0][0]
-        self.assertIsInstance(cb, partial)
-        self.assertEqual(cb.func, send_vote_confirmation_email.delay)
+        send_vote_confirmation_email.delay.assert_called_once()
 
-    @mock.patch("django.db.transaction.on_commit")
+    @mock.patch("agir.polls.views.send_vote_confirmation_email")
     def test_do_not_send_email_when_disabled(
         self,
-        on_commit,
+        send_vote_confirmation_email,
     ):
         poll = Poll.objects.create(
             start=timezone.now(),
@@ -414,7 +407,7 @@ class PollTestCase(TestCase):
             data={PollOption.DEFAULT_OPTION_GROUP_ID: options[0].id},
         )
         self.assertRedirects(res, reverse("participate_poll", args=[poll.id]))
-        on_commit.assert_not_called()
+        send_vote_confirmation_email.delay.assert_not_called()
 
     def test_redirect_to_configured_url(self):
         poll = Poll.objects.create(

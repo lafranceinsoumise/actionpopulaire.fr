@@ -270,7 +270,7 @@ def accept_event_request(event_request):
         event_request.save()
 
         # Schedule post-creation tasks
-        transaction.on_commit(partial(schedule_new_event_tasks, event_request))
+        schedule_new_event_tasks(event_request)
 
 
 def accept_event_speaker_request(event_speaker_request):

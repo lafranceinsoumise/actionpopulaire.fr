@@ -279,14 +279,11 @@ def validate_action(spending_request, user):
                 destination=SPENDING_ACCOUNT,
             )
 
-        transaction.on_commit(
-            partial(
-                schedule_validation_notifications,
-                spending_request,
-                to_status=next_status,
-                from_status=current_status,
-                user=user,
-            )
+        schedule_validation_notifications(
+            spending_request,
+            to_status=next_status,
+            from_status=current_status,
+            user=user,
         )
 
         return True
