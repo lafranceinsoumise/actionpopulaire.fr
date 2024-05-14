@@ -1,3 +1,4 @@
+from functools import partial
 from wsgiref.util import FileWrapper
 
 from django.conf import settings
@@ -7,10 +8,9 @@ from django.db import transaction
 from django.db.models import Sum
 from django.db.models.functions import Coalesce
 from django.http import HttpResponseRedirect, Http404, HttpResponse
-from django.shortcuts import resolve_url, redirect
+from django.shortcuts import redirect
 from django.utils import timezone
 from django.views.generic import FormView, TemplateView, DetailView
-from functools import partial
 
 from agir.authentication.view_mixins import SoftLoginRequiredMixin
 from agir.donations.base_views import BaseAskAmountView, BasePersonalInformationView
@@ -19,6 +19,7 @@ from agir.loans import tasks
 from agir.loans.actions import generate_html_contract
 from agir.loans.display import SUBSTITUTIONS
 from agir.loans.forms import LoanForm, LenderForm, ContractForm
+from agir.loans.loan_config import LoanConfiguration
 from agir.payments.actions.payments import (
     create_payment,
     redirect_to_payment,
@@ -27,19 +28,23 @@ from agir.payments.actions.payments import (
 from agir.payments.models import Payment
 from agir.payments.types import PAYMENT_TYPES
 
-LOANS_INFORMATION_SESSION_NAMESPACE = "_loans"
-LOANS_CONTRACT_SESSION_NAMESPACE = "_loans_contract"
+LOANS_INFORMATION_SESSION_NAMESPACE = "loans"
+LOANS_CONTRACT_SESSION_NAMESPACE = "loans_contract"
 
 
 class MaxTotalLoanMixin:
     def dispatch(self, *args, **kwargs):
-        if (
+        loan_config = PAYMENT_TYPES[self.payment_type]
+
+        if loan_config.global_ceiling and (
             Payment.objects.filter(
                 type=self.payment_type, status=Payment.STATUS_COMPLETED
             ).aggregate(amount=Coalesce(Sum("price"), 0))["amount"]
-            > settings.LOAN_MAXIMUM_TOTAL
+            > loan_config.global_ceiling
         ):
-            return HttpResponseRedirect(settings.LOAN_MAXIMUM_THANK_YOU_PAGE)
+            return HttpResponseRedirect(
+                "https://lafranceinsoumise.fr/europeennes-2024/merci"
+            )
 
         return super().dispatch(*args, **kwargs)
 
@@ -53,7 +58,11 @@ class BaseLoanAskAmountView(MaxTotalLoanMixin, SimpleOpengraphMixin, BaseAskAmou
     success_url = None
     form_class = LoanForm
     session_namespace = LOANS_INFORMATION_SESSION_NAMESPACE
-    payment_type = None
+    payment_type: LoanConfiguration = None
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["loan_configuration"] = self.payment_type
 
 
 class BaseLoanPersonalInformationView(MaxTotalLoanMixin, BasePersonalInformationView):
@@ -71,6 +80,7 @@ class BaseLoanPersonalInformationView(MaxTotalLoanMixin, BasePersonalInformation
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs["payment_modes"] = self.get_payment_modes()
+        kwargs["loan_configuration"] = PAYMENT_TYPES[self.payment_type]
         return kwargs
 
     def prepare_data_for_serialization(self, data):
@@ -86,8 +96,8 @@ class BaseLoanPersonalInformationView(MaxTotalLoanMixin, BasePersonalInformation
         if form.connected:
             form.save()
 
-        # attention à changer d'objet pour que la session se rende compte
-        # que quelque chose a changé
+        # il faut assigner un nouveau dictionnaire plutôt que d'updater le précédent
+        #
         self.request.session[self.session_namespace] = {
             **self.request.session.get(self.session_namespace, {}),
             "__contract": self.prepare_data_for_serialization(form.cleaned_data),
@@ -122,7 +132,8 @@ class BaseLoanAcceptContractView(MaxTotalLoanMixin, FormView):
     def get_context_data(self, **kwargs):
         return super().get_context_data(
             contract=generate_html_contract(
-                PAYMENT_TYPES[self.payment_type], self.contract_information, baselevel=3
+                PAYMENT_TYPES[self.payment_type],
+                self.contract_information,
             ),
             **self.contract_information,
             **kwargs
@@ -132,10 +143,8 @@ class BaseLoanAcceptContractView(MaxTotalLoanMixin, FormView):
         del self.request.session[self.session_namespace]
 
     def form_valid(self, form):
-        self.contract_information["acceptance_datetime"] = (
-            timezone.now()
-            .astimezone(timezone.get_default_timezone())
-            .strftime("%d/%m/%Y à %H:%M")
+        self.contract_information["signature_datetime"] = (
+            timezone.now().astimezone(timezone.get_default_timezone()).isoformat()
         )
 
         person = None

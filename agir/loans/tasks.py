@@ -2,25 +2,30 @@ import subprocess
 from pathlib import Path
 
 from django.conf import settings
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
+from django.db import transaction
 from django.utils import timezone
 from slugify import slugify
 
 from agir.lib.celery import retriable_task, emailing_task
 from agir.lib.mailing import send_mosaico_email
-from agir.loans.actions import save_pdf_contract
+from agir.loans.actions import generate_pdf_contract
 from agir.loans.display import SUBSTITUTIONS
+from agir.loans.loan_config import LoanConfiguration
 from agir.payments.models import Payment
 from agir.payments.types import PAYMENT_TYPES
+from agir.people.models import Document
 
 
 @retriable_task(start=1, retry_on=(subprocess.TimeoutExpired, Payment.DoesNotExist))
 def generate_contract(payment_id, force=False):
     payment = Payment.objects.get(id=payment_id)
-    payment_type = PAYMENT_TYPES.get(payment.type)
-    if payment_type is None:
+    loan_configuration: LoanConfiguration = PAYMENT_TYPES.get(payment.type)
+    if loan_configuration is None:
         return None
 
-    contract_path = payment_type.contract_path(payment)
+    contract_path = loan_configuration.contract_path(payment)
 
     if not force and payment.status != Payment.STATUS_COMPLETED:
         raise ValueError(f"Paiement n°{payment_id} n'a pas été terminé.")
@@ -28,23 +33,30 @@ def generate_contract(payment_id, force=False):
     if not force and ("contract_path" in payment.meta):
         return payment.meta.get("contract_path")
 
-    contract_information = payment.meta
-    contract_information["signature_datetime"] = (
-        timezone.now()
-        .astimezone(timezone.get_default_timezone())
-        .strftime("%d/%m/%Y à %H:%M")
+    contract_information = payment.meta.copy()
+    contract_information["payment_mode"] = payment.mode
+    contract_generation_datetime = timezone.now()
+    contract_information["contract_generation_datetime"] = (
+        contract_generation_datetime.isoformat()
     )
 
-    contract_full_path = Path(settings.MEDIA_ROOT) / contract_path
-
-    save_pdf_contract(
-        payment_type=payment_type,
+    pdf_content = generate_pdf_contract(
+        payment_type=loan_configuration,
         contract_information=contract_information,
-        dest_path=contract_full_path,
     )
 
-    payment.meta["contract_path"] = contract_path
-    payment.save()
+    actual_path = default_storage.save(contract_path, ContentFile(pdf_content))
+
+    with transaction.atomic():
+        payment.meta["contract_path"] = actual_path
+        payment.save()
+        Document.objects.create(
+            titre=f"{loan_configuration.label} (contrat)",
+            person=payment.person,
+            date=contract_generation_datetime,
+            type=Document.Type.CONTRAT_PRET,
+            fichier=actual_path,
+        )
 
     return contract_path
 
@@ -69,7 +81,9 @@ def send_contract_confirmation_email(payment_id):
             subject="Votre contrat de prêt",
             from_email=settings.EMAIL_FROM,
             bindings={
-                "CHER_PRETEUR": SUBSTITUTIONS["cher_preteur"][payment.meta["gender"]]
+                "CHER_PRETEUR": SUBSTITUTIONS["cher_preteur"][
+                    payment.meta.get("civilite", "O")
+                ]
             },
             recipients=[person],
             attachments=[

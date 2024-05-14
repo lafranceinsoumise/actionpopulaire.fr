@@ -1,11 +1,11 @@
 from pathlib import Path
-from typing import Callable, Union, Mapping, Dict
+from typing import Callable, Union, Mapping, Dict, Optional
 
+from dateutil.parser import isoparse
 from num2words import num2words
 
 from agir.lib.display import display_price
 from agir.lib.iban import to_iban
-from agir.loans import views
 from agir.loans.display import (
     display_place_of_birth,
     display_full_address,
@@ -31,9 +31,15 @@ def default_description_context_generator(payment: Payment):
 def default_contract_context_generator(
     contract_information: Mapping[str, object]
 ) -> Dict[str, str]:
-    gender = contract_information["gender"]
+    civilite = contract_information.get("civilite", "O")
     signed = "signature_datetime" in contract_information
     payment_mode = PAYMENT_MODES[contract_information["payment_mode"]]
+
+    signature_date = contract_information.get("signature_datetime")
+    if signature_date:
+        signature_date = isoparse(signature_date).strftime("%d/%m/%Y")
+    else:
+        signature_date = "XX/XX/XXXX"
 
     # noinspection PyTypeChecker
     return {
@@ -44,19 +50,14 @@ def default_contract_context_generator(
         "amount_letters": num2words(contract_information["amount"] / 100, lang="fr")
         + " euros",
         "amount_figure": display_price(contract_information["amount"]),
-        "signature_date": contract_information.get("signature_datetime", "XX/XX/XXXX"),
-        "e": SUBSTITUTIONS["final_e"][gender],
-        "preteur": SUBSTITUTIONS["preteur"][gender],
-        "le": SUBSTITUTIONS["article"][gender],
-        "Le": SUBSTITUTIONS["article"][gender].capitalize(),
-        "du": SUBSTITUTIONS["determinant"][gender],
-        "il": SUBSTITUTIONS["pronom"][gender],
+        "signature_date": signature_date,
+        "e": SUBSTITUTIONS["final_e"][civilite],
+        "preteur": SUBSTITUTIONS["preteur"][civilite],
+        "le": SUBSTITUTIONS["article"][civilite],
+        "Le": SUBSTITUTIONS["article"][civilite].capitalize(),
+        "du": SUBSTITUTIONS["determinant"][civilite],
+        "il": SUBSTITUTIONS["pronom"][civilite],
         "mode_paiement": SUBSTITUTIONS["payment"][payment_mode.category],
-        "signature": (
-            f"Accepté en ligne le {contract_information['acceptance_datetime']}"
-            if signed
-            else ""
-        ),
         "signe": signed,
     }
 
@@ -64,15 +65,16 @@ def default_contract_context_generator(
 class LoanConfiguration(PaymentType):
     def __init__(
         self,
-        *args,
         loan_recipient: str,
         contract_path: Callable[[Payment], Union[str, Path]],
         contract_template_name: str,
         pdf_layout_template_name: str,
-        thank_you_template_name: str = "loans/return.html",
         contract_context_generator: Callable[
             [Mapping[str, object]], Mapping[str, str]
         ] = default_contract_context_generator,
+        min_amount: Optional[int] = None,
+        max_amount: Optional[int] = None,
+        global_ceiling: Optional[int] = None,
         **kwargs,
     ):
         self.loan_recipient = loan_recipient
@@ -80,15 +82,16 @@ class LoanConfiguration(PaymentType):
         self.contract_template_name = contract_template_name
         self.pdf_layout_template_name = pdf_layout_template_name
         self.contract_context_generator = contract_context_generator
+        self.min_amount = min_amount
+        self.max_amount = max_amount
+        self.global_ceiling = global_ceiling
 
-        kwargs.setdefault(
-            "success_view",
-            views.LoanReturnView.as_view(template_name=thank_you_template_name),
-        )
+        from agir.loans import views
+
         kwargs.setdefault("status_listener", views.loan_notification_listener)
         kwargs.setdefault("description_template", "loans/description.html")
         kwargs.setdefault(
             "description_context_generator", default_description_context_generator
         )
 
-        super().__init__(*args, **kwargs)
+        super().__init__(**kwargs)

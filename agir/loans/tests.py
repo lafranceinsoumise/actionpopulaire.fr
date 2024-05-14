@@ -23,7 +23,6 @@ loan_payment_type = LoanConfiguration(
     loan_recipient="la France insoumise",
     contract_path=contract_path,
     contract_template_name="loans/sample/contract.md",
-    pdf_layout_template_name="loans/sample/contract_layout.html",
 )
 
 
