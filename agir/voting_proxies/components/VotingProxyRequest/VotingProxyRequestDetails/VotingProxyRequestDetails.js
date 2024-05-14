@@ -113,8 +113,16 @@ const VotingProxyRequestDetails = () => {
               <li>
                 <FeatherIcon name="arrow-right" />
                 <span>
-                  Déplacez-vous au commissariat ou à la gendarmerie pour
-                  vérifier votre identité et valider la procuration
+                  Déplacez-vous au commissariat, à la gendarmerie ou au consulat
+                  pour vérifier votre identité et valider la procuration{" "}
+                  <strong
+                    style={{
+                      fontWeight: 600,
+                      boxShadow: "inset 0 -3px 0 0 currentcolor",
+                    }}
+                  >
+                    avant le jeudi 6 juin 2024
+                  </strong>
                 </span>
               </li>
               <li>

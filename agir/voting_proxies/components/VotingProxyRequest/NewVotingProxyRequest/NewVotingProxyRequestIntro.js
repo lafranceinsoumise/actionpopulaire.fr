@@ -10,15 +10,19 @@ const NewVotingProxyRequestIntro = () => (
       Vous souhaitez voter pour la liste de l'Union populaire menée par Manon
       Aubry aux élections européennes mais vous serez absent ou dans
       l'impossibilité de vous rendre au bureau de vote le dimanche 9 juin
-      prochain  ? <strong>Faites une procuration !</strong>
+      prochain ?  <strong>Faites une procuration !</strong>
     </p>
     <Spacer size="1rem" />
     <p>Le plus simple est de demander à un proche ou bien à un·e voisin·e.</p>
     <Spacer size="1rem" />
     <p>
       Si personne de votre entourage ne peut prendre votre procuration,
-      remplissez ce formulaire et nous vous mettrons en relation avec une
-      personne disponible pour aller voter à votre place avec votre procuration.
+      remplissez ce formulaire{" "}
+      <strong style={{ boxShadow: "inset 0 -3px 0 0 currentcolor" }}>
+        avant le jeudi 6 juin 2024
+      </strong>{" "}
+      et nous vous mettrons en relation avec une personne disponible pour aller
+      voter à votre place avec votre procuration.
     </p>
     <Spacer size="1rem" />
     <p

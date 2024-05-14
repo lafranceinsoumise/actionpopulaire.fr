@@ -342,14 +342,21 @@ def send_voting_proxy_request_confirmation_reminder(voting_proxy_request_pks):
     )
     link = shorten_url(link, secret=True)
 
+    ending = format_html(
+        "Pour éviter des problèmes le jour du scrutin, nous conseillons aux personnes donnant procuration de vote de se "
+        "déplacer au commissariat, à la gendarmerie ou au consulat pour vérifier leur identité et valider la "
+        "procuration le plus tôt possible et <strong>avant le jeudi 6 juin 2024</strong>."
+    )
+
     # Send confirmation reminder EMAIL to request owner
     send_voting_proxy_request_email.delay(
         [voting_proxy_request.email],
         subject="Confirmation de votre procuration de vote",
         intro=f"Envoyez une confirmation à {voting_proxy_request.proxy.first_name} que votre procuration de vote "
-        f"a été établie à son nom et que tout est prêt pour le jour du scrutin.",
+        f"a été établie à son nom, validée par les autorités et que tout est prêt pour le jour du scrutin.",
         link_label="Je confirme",
         link_href=link,
+        ending=ending,
     )
 
     # Send confirmation reminder SMS to request owner
@@ -379,18 +386,19 @@ def send_voting_proxy_request_confirmation_reminder(voting_proxy_request_pks):
         ),
         link_label="Voir mes procurations acceptées",
         link_href=link,
+        ending=ending,
     )
 
     # Send confirmation reminder SMS to voting proxy
-    proxy_message = (
-        f"{to_7bit_string(voting_proxy_request.first_name)} n'a pas encore confirmé l'établissement de la "
-        f"procuration de vote. Assurez-vous que vous pourrez voter en son nom ! "
-        f"Son numéro : {voting_proxy_request.contact_phone} - {link}"
-    )
-    send_sms_message(
-        proxy_message,
-        voting_proxy_request.proxy.contact_phone,
-    )
+    # proxy_message = (
+    #     f"{to_7bit_string(voting_proxy_request.first_name)} n'a pas encore confirmé l'établissement de la "
+    #     f"procuration de vote. Assurez-vous que vous pourrez voter en son nom ! "
+    #     f"Son numéro : {voting_proxy_request.contact_phone} - {link}"
+    # )
+    # send_sms_message(
+    #     proxy_message,
+    #     voting_proxy_request.proxy.contact_phone,
+    # )
 
 
 @emailing_task()
