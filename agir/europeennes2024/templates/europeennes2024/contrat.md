@@ -38,9 +38,9 @@ de La France insoumise, caution du présent prêt.
 
 ### Modalités de remboursement
 Il est d'ores et déjà convenu entre les soussigné{{ e }}s que le remboursement sera effectué sur le compte personnel
-_{{ du }} {{ preteur }} par virement bancaire au plus tard le 30/04/2025.
+{{ du }} {{ preteur }} par virement bancaire au plus tard le 30/04/2025.
 
-L'emprunteuse aura toutefois la faculté de se libér**er par anticipation de tout ou partie du prêt à sa pure convenance.
+L'emprunteuse aura toutefois la faculté de se libérer par anticipation de tout ou partie du prêt à sa pure convenance.
 
 ### Domicile
 Pour l'exécution des présentes et de leurs suites, les parties font élection de domicile en leurs demeures respectives.
