@@ -1,0 +1,32 @@
+{% extends "front/layout.html" %}
+{% load static %}
+
+{% block title %}
+  Merci de votre soutien !
+{% endblock %}
+
+{% block main %}
+  <div class="col-responsive">
+    <h1>Merci !</h1>
+
+    <div>
+      <p>{{ cher_preteur }}</p>
+      <p><strong>Vous venez d’apporter votre appui financier</strong> à la campagne européenne de la France
+        Insoumise.</p>
+
+      <p>Je vous remercie très chaleureusement. Cet appui est crucial pour nous. En effet, nous ne pouvons pas
+        compter comme nos adversaires sur le soutien des oligarques ni de la finance. Notre force, c’est notre
+        nombre. Ils ont les millions, mais nous sommes des millions !</p>
+
+      <p>Je mesure combien prêter quelques centaines d'euros est souvent un effort financier important tant les
+        temps sont durs pour beaucoup de Français. Votre argent ne sera pas gaspillé. Il sera utilisé avec rigueur
+        et un souci constant de le rendre utile à notre action commune. Je m’y engage.</p>
+
+      <p>Courage, les jours heureux viendront.</p>
+
+      <div style="float: right; text-align: right;">Fidèlement,<br>Manon Aubry
+        <img class="img-responsive" src="{% static "europeennes2024/signature_manon_aubry.png" %}">
+      </div>
+    </div>
+  </div>
+{% endblock %}
