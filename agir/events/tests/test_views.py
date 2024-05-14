@@ -1,6 +1,5 @@
 import datetime
 from datetime import timedelta
-from functools import partial
 from unittest import mock
 from unittest.mock import patch
 
@@ -506,9 +505,8 @@ class RSVPTestCase(TestCase):
         msgs = list(messages.get_messages(response.wsgi_request))
         self.assertEqual(msgs[0].level, messages.ERROR)
 
-    @mock.patch("agir.events.actions.rsvps.partial")
     @mock.patch("agir.events.actions.rsvps.send_rsvp_notification")
-    def test_can_rsvp_to_form_event(self, rsvp_notification, mock_partial):
+    def test_can_rsvp_to_form_event(self, rsvp_notification):
         self.client.force_login(self.person.role)
 
         rsvp_url = reverse("rsvp_event", kwargs={"pk": self.form_event.pk})
@@ -528,11 +526,10 @@ class RSVPTestCase(TestCase):
         self.assertEqual(self.person.meta["custom-field"], "another custom value")
         self.assertEqual(2, self.form_event.participants)
 
-        mock_partial.assert_called_once()
-        self.assertIs(mock_partial.call_args[0][0], rsvp_notification.delay)
+        rsvp_notification.delay.assert_called_once()
 
         rsvp = RSVP.objects.get(person=self.person, event=self.form_event)
-        self.assertEqual(mock_partial.call_args[0][1], rsvp.pk)
+        self.assertEqual(rsvp_notification.delay.call_args[0][0], rsvp.pk)
 
     def test_can_edit_rsvp_form(self):
         self.client.force_login(self.person.role)
@@ -595,8 +592,8 @@ class RSVPTestCase(TestCase):
 
         self.assertEqual(1, self.form_event.participants)
 
-    @mock.patch("django.db.transaction.on_commit")
-    def test_can_rsvp_to_simple_paying_event(self, on_commit):
+    @mock.patch("agir.events.actions.rsvps.send_rsvp_notification")
+    def test_can_rsvp_to_simple_paying_event(self, send_rsvp_notification):
         self.client.force_login(self.person.role)
 
         response = self.client.post(
@@ -631,15 +628,12 @@ class RSVPTestCase(TestCase):
 
         self.assertIn(self.person, self.simple_paying_event.confirmed_attendees)
 
-        on_commit.assert_called_once()
-        cb = on_commit.call_args[0][0]
-        self.assertIsInstance(cb, partial)
-        self.assertEqual(cb.func, send_rsvp_notification.delay)
+        send_rsvp_notification.delay.assert_called_once()
         rsvp = RSVP.objects.get(person=self.person, event=self.simple_paying_event)
-        self.assertEqual(cb.args[0], rsvp.pk)
+        self.assertEqual(send_rsvp_notification.delay.call_args[0], (rsvp.pk,))
 
-    @mock.patch("django.db.transaction.on_commit")
-    def test_can_add_guest_to_simple_paying_event(self, on_commit):
+    @mock.patch("agir.events.actions.rsvps.send_guest_confirmation")
+    def test_can_add_guest_to_simple_paying_event(self, send_guest_confirmation):
         self.simple_paying_event.allow_guests = True
         self.simple_paying_event.save()
         self.client.force_login(self.already_rsvped.role)
@@ -677,18 +671,15 @@ class RSVPTestCase(TestCase):
         complete_payment(payment)
         event_notification_listener(payment)
 
-        on_commit.assert_called_once()
-        cb = on_commit.call_args[0][0]
-        self.assertIsInstance(cb, partial)
-        self.assertEqual(cb.func, send_guest_confirmation.delay)
+        send_guest_confirmation.delay.assert_called_once()
 
         rsvp = RSVP.objects.get(
             person=self.already_rsvped, event=self.simple_paying_event
         )
-        self.assertEqual(cb.args[0], rsvp.pk)
+        self.assertEqual(send_guest_confirmation.delay.call_args[0], (rsvp.pk,))
 
-    @mock.patch("django.db.transaction.on_commit")
-    def test_can_rsvp_to_form_paying_event(self, on_commit):
+    @mock.patch("agir.events.actions.rsvps.send_rsvp_notification")
+    def test_can_rsvp_to_form_paying_event(self, send_rsvp_notification):
         self.client.force_login(self.person.role)
 
         response = self.client.get(
@@ -732,12 +723,9 @@ class RSVPTestCase(TestCase):
         event_notification_listener(payment)
         self.assertIn(self.person, self.form_paying_event.confirmed_attendees)
 
-        on_commit.assert_called_once()
-        cb = on_commit.call_args[0][0]
-        self.assertIsInstance(cb, partial)
-        self.assertEqual(cb.func, send_rsvp_notification.delay)
+        send_rsvp_notification.delay.assert_called_once()
         rsvp = RSVP.objects.get(person=self.person, event=self.form_paying_event)
-        self.assertEqual(cb.args[0], rsvp.pk)
+        self.assertEqual(send_rsvp_notification.delay.call_args[0], (rsvp.pk,))
 
         response = self.client.get(
             reverse("rsvp_event", args=[self.form_paying_event.pk])
@@ -745,8 +733,8 @@ class RSVPTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(response, "my own custom value")
 
-    @mock.patch("django.db.transaction.on_commit")
-    def test_can_add_guest_to_form_paying_event(self, on_commit):
+    @mock.patch("agir.events.actions.rsvps.send_guest_confirmation")
+    def test_can_add_guest_to_form_paying_event(self, send_guest_confirmation):
         self.form_paying_event.allow_guests = True
         self.form_paying_event.save()
         self.client.force_login(self.already_rsvped.role)
@@ -796,15 +784,12 @@ class RSVPTestCase(TestCase):
 
         self.assertEqual(2, self.form_paying_event.participants)
 
-        on_commit.assert_called_once()
-        cb = on_commit.call_args[0][0]
-        self.assertIsInstance(cb, partial)
-        self.assertEqual(cb.func, send_guest_confirmation.delay)
+        send_guest_confirmation.delay.assert_called_once()
 
         rsvp = RSVP.objects.get(
             person=self.already_rsvped, event=self.form_paying_event
         )
-        self.assertEqual(cb.args[0], rsvp.pk)
+        self.assertEqual(send_guest_confirmation.delay.call_args[0], (rsvp.pk,))
 
         response = self.client.get(
             reverse("rsvp_event", args=[self.form_paying_event.pk])
@@ -852,9 +837,8 @@ class RSVPTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertNotIn("form", response.context_data)
 
-    @mock.patch("agir.events.actions.rsvps.partial")
     @mock.patch("agir.events.actions.rsvps.send_rsvp_notification")
-    def test_can_rsvp_if_authorized_for_form(self, rsvp_notification, mock_partial):
+    def test_can_rsvp_if_authorized_for_form(self, rsvp_notification):
         tag = PersonTag.objects.create(label="tag")
         self.person.tags.add(tag)
         self.subscription_form.required_tags.add(tag)
@@ -882,11 +866,10 @@ class RSVPTestCase(TestCase):
         self.assertEqual(self.person.meta["custom-field"], "another custom value")
         self.assertEqual(2, self.form_event.participants)
 
-        mock_partial.assert_called_once()
-        self.assertIs(mock_partial.call_args[0][0], rsvp_notification.delay)
+        rsvp_notification.delay.assert_called_once()
 
         rsvp = RSVP.objects.get(person=self.person, event=self.form_event)
-        self.assertEqual(mock_partial.call_args[0][1], rsvp.pk)
+        self.assertEqual(rsvp_notification.delay.call_args[0], (rsvp.pk,))
 
     def test_cannot_rsvp_if_form_is_closed(self):
         self.client.force_login(self.person.role)
@@ -920,9 +903,8 @@ class RSVPTestCase(TestCase):
         )
         self.assertContains(res, "est pas encore ouvert.")
 
-    @mock.patch("agir.events.actions.rsvps.partial")
     @mock.patch("agir.events.actions.rsvps.send_rsvp_notification")
-    def test_not_billed_if_free_pricing_to_zero(self, rsvp_notification, mock_partial):
+    def test_not_billed_if_free_pricing_to_zero(self, rsvp_notification):
         self.client.force_login(self.person.role)
 
         self.form_event.payment_parameters = {"free_pricing": "price"}
@@ -946,11 +928,10 @@ class RSVPTestCase(TestCase):
         self.assertEqual(self.person.meta["custom-field"], "another custom value")
         self.assertEqual(2, self.form_event.participants)
 
-        mock_partial.assert_called_once()
-        self.assertIs(mock_partial.call_args[0][0], rsvp_notification.delay)
+        rsvp_notification.delay.assert_called_once()
 
         rsvp = RSVP.objects.get(person=self.person, event=self.form_event)
-        self.assertEqual(mock_partial.call_args[0][1], rsvp.pk)
+        self.assertEqual(rsvp_notification.delay.call_args[0], (rsvp.pk,))
 
 
 class PricingTestCase(TestCase):

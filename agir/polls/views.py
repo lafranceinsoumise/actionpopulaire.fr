@@ -137,9 +137,7 @@ class PollParticipationView(
             return HttpResponseRedirect(self.get_success_url())
 
         if self.object.rules.get("confirmation_email", True):
-            transaction.on_commit(
-                partial(send_vote_confirmation_email.delay, choice.id)
-            )
+            send_vote_confirmation_email.delay(choice.id)
 
         messages.add_message(
             self.request,

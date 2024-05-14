@@ -5,6 +5,7 @@ import styled from "styled-components";
 import Button from "@agir/front/genericComponents/Button";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import FaIcon from "@agir/front/genericComponents/FaIcon";
+import Link from "@agir/front/app/Link";
 import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
@@ -72,6 +73,54 @@ const StyledRecap = styled.div`
 
   & > p + p {
     margin-top: 0.5rem;
+  }
+`;
+
+const StyledActionRadiusWarning = styled.div`
+  padding: 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+  border-radius: ${(props) => props.theme.borderRadius};
+  border: 1px solid ${(props) => props.theme.redNSP};
+
+  h6,
+  p {
+    margin: 0;
+  }
+
+  h6 {
+    color: ${(props) => props.theme.redNSP};
+    font-size: 1.25rem;
+    line-height: 1.5;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem 1rem;
+
+    @media (max-width: ${(props) => props.theme.collapse}px) {
+      font-size: 1rem;
+    }
+
+    & > :first-child {
+      flex: 0 0 auto;
+
+      @media (max-width: ${(props) => props.theme.collapse}px) {
+        display: none;
+      }
+    }
+  }
+
+  p {
+    font-size: 0.875rem;
+
+    strong {
+      font-size: 1rem;
+      font-weight: 700;
+
+      @media (max-width: ${(props) => props.theme.collapse}px) {
+        font-size: inherit;
+      }
+    }
   }
 `;
 
@@ -261,29 +310,32 @@ const ReplyingForm = (props) => {
         ))}
       </StyledRecap>
       <Spacer size="2rem" />
-      <div
-        css={`
-          display: flex;
-          align-items: start;
-          gap: 1rem;
-
-          & > :first-child {
-            flex: 0 0 auto;
-            color: ${(props) => props.theme.primary500};
-          }
-        `}
-      >
-        <RawFeatherIcon name="arrow-right" />
+      <StyledActionRadiusWarning>
+        <h6>
+          <FaIcon size="2em" icon="face-unamused:regular" />
+          Cette proposition de prise de procuration ne vous convient pas&nbsp;?
+        </h6>
         <p>
           <strong>
-            Cette proposition de prise de procuration ne vous convient
-            pas&nbsp;?
+            Vous n'avez rien à faire&nbsp;! Cette demande sera proposée à
+            d'autres volontaires et vous recevrez une nouvelle proposition
+            lorsqu'une nouvelle demande sera créée près de chez vous.
           </strong>
-          <br />
-          Vous n'avez rien à faire&nbsp;! Vous recevrez une nouvelle proposition
-          lorsqu'une nouvelle demande sera créée près de chez vous.
         </p>
-      </div>
+        {requests[0].commune && (
+          <p>
+            Pour augmenter les chances de répondre à toutes les demandes reçues,
+            nous cherchons pour chacune la personne disponible la plus proche{" "}
+            <strong>dans un rayon de 20km</strong>. Si ce rayon est trop grand
+            pour vous, vous pouvez l'ajuster en modifiant la valeur du champ{" "}
+            <strong>zone d'action</strong> sur{" "}
+            <Link target="_blank" route="personalInformation">
+              la page de votre profil
+            </Link>
+            .
+          </p>
+        )}
+      </StyledActionRadiusWarning>
       <Spacer size="1.5rem" />
       <form onSubmit={acceptRequests}>
         <CheckboxField
