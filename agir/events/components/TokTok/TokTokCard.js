@@ -47,6 +47,12 @@ const StyledCard = styled.div`
     font-weight: 700;
     margin: 0;
   }
+
+  footer {
+    display: flex;
+    flex-direction: row wrap;
+    gap: 0.5rem;
+  }
 `;
 
 const TokTokCard = ({ flex = false, ...rest }) => (
@@ -57,6 +63,9 @@ const TokTokCard = ({ flex = false, ...rest }) => (
       <footer>
         <Button small link route="toktok" icon="external-link" iconRight>
           Ouvrir la carte
+        </Button>
+        <Button small link route="toktokPreview">
+          En savoir plus
         </Button>
       </footer>
     </article>
