@@ -49,6 +49,12 @@ const StyledCard = styled.div`
     font-weight: 700;
     margin: 0;
   }
+
+  footer {
+    display: flex;
+    flex-direction: row wrap;
+    gap: 0.5rem;
+  }
 `;
 
 const CanvassCard = ({ flex = false, ...rest }) => (
@@ -62,6 +68,9 @@ const CanvassCard = ({ flex = false, ...rest }) => (
       <footer>
         <Button small link route="canvass" icon="external-link" iconRight>
           Ouvrir la carte
+        </Button>
+        <Button small link route="canvassHelp" icon="external-link" iconRight>
+          En savoir plus
         </Button>
       </footer>
     </article>

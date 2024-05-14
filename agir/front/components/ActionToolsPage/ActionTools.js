@@ -300,6 +300,9 @@ export const ActionTools = () => {
             <Button small link route="canvass" icon="external-link">
               Ouvrir la carte
             </Button>
+            <Button small link route="canvassHelp">
+              En savoir plus
+            </Button>
           </span>
         </span>
       </StyledCardItem>
@@ -353,11 +356,11 @@ export const ActionTools = () => {
               margin-top: 0.25rem;
             `}
           >
-            <Button small link route="toktokPreview">
-              En savoir plus
-            </Button>
             <Button small link route="toktok" icon="external-link">
               Ouvrir la carte
+            </Button>
+            <Button small link route="toktokPreview">
+              En savoir plus
             </Button>
           </span>
         </span>
