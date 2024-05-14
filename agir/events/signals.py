@@ -1,6 +1,3 @@
-from functools import partial
-
-from django.db import transaction
 from django.db.models import Exists, OuterRef
 from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
@@ -20,10 +17,10 @@ def copier_participant_feuille_externe(instance, sheet):
     task = None
 
     if isinstance(instance, RSVP):
-        task = copier_rsvp_vers_feuille_externe.delay
+        task = copier_rsvp_vers_feuille_externe
 
     if isinstance(instance, IdentifiedGuest):
-        task = copier_identified_guest_vers_feuille_externe.delay
+        task = copier_identified_guest_vers_feuille_externe
 
     if not task:
         return
