@@ -312,7 +312,7 @@ const ReplyingForm = (props) => {
       <Spacer size="2rem" />
       <StyledActionRadiusWarning>
         <h6>
-          <FaIcon size="2em" icon="face-raised-eyebrow:regular" />
+          <FaIcon size="2em" icon="face-unamused:regular" />
           Cette proposition de prise de procuration ne vous convient pas&nbsp;?
         </h6>
         <p>
