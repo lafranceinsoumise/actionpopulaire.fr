@@ -23,9 +23,9 @@ class ILBAppConfig(AppConfig):
         )
 
         ilb_donation_type = PaymentType(
-            self.DONATION_TYPE,
-            "Don à l'Institut La Boétie",
-            RedirectView.as_view(url=settings.ILB_DONS_REMERCIEMENTS_URL),
+            id=self.DONATION_TYPE,
+            label="Don à l'Institut La Boétie",
+            success_view=RedirectView.as_view(url=settings.ILB_DONS_REMERCIEMENTS_URL),
             status_listener=notification_listener,
             description_template="ilb/dons/description.html",
             email_template_code="ilb/dons/remerciements_email.html",

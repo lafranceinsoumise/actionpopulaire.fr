@@ -9,15 +9,12 @@ class Presidentielle2022Config(AppConfig):
     DONATION_SUBSCRIPTION_TYPE = "don_mensuel_2022"
 
     def ready(self):
-        from agir.payments.payment_modes import PAYMENT_MODES
         from agir.payments.types import (
             register_payment_type,
             PaymentType,
             register_subscription_type,
             SubscriptionType,
-            SUBSCRIPTION_TYPES,
         )
-        from agir.system_pay import AbstractSystemPayPaymentMode
         from django.views.generic import RedirectView
         from agir.donations.views import (
             notification_listener,
@@ -26,8 +23,8 @@ class Presidentielle2022Config(AppConfig):
 
         register_payment_type(
             PaymentType(
-                self.DONATION_PAYMENT_TYPE,
-                "Don pour la campagne présidentielle",
+                id=self.DONATION_PAYMENT_TYPE,
+                label="Don pour la campagne présidentielle",
                 success_view=RedirectView.as_view(
                     url="https://melenchon2022.fr/don/merci/"
                 ),
@@ -40,9 +37,11 @@ class Presidentielle2022Config(AppConfig):
 
         register_payment_type(
             PaymentType(
-                self.DONATION_SUBSCRIPTION_TYPE,
-                "Don automatique",
-                RedirectView.as_view(url="https://melenchon2022.fr/don/merci/"),
+                id=self.DONATION_SUBSCRIPTION_TYPE,
+                label="Don automatique",
+                success_view=RedirectView.as_view(
+                    url="https://melenchon2022.fr/don/merci/"
+                ),
                 status_listener=notification_listener,
                 description_template="presidentielle2022/donations/description.html",
                 matomo_goal=settings.MONTHLY_DONATION_MATOMO_GOAL,

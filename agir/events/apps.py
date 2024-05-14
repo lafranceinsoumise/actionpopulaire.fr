@@ -37,9 +37,9 @@ class EventsConfig(AppConfig):
         from . import signals
 
         payment_type = PaymentType(
-            self.PAYMENT_TYPE,
-            "Événement payant",
-            EventPaidView.as_view(),
+            id=self.PAYMENT_TYPE,
+            label="Événement payant",
+            success_view=EventPaidView.as_view(),
             status_listener=notification_listener,
             description_template="events/payment_description.html",
             description_context_generator=payment_description_context_generator,
