@@ -68,7 +68,7 @@ events:
 tooling:
   manage:
     service: django
-    cmd: poetry run ./manage.py
+    cmd: poetry run dotenv run ./manage.py
   npm:
     service: webpack
     cmd: npm
