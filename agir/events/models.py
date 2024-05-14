@@ -703,7 +703,7 @@ class Event(
     def to_ics(self, text_only_description=False):
         url = front_url("view_event", args=[self.pk], auto_login=False)
         ics_event = ics.Event(
-            uid=url,
+            uid=str(self.id),
             name=self.name,
             begin=self.start_time,
             end=self.end_time,
