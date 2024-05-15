@@ -63,6 +63,7 @@ class BaseLoanAskAmountView(MaxTotalLoanMixin, SimpleOpengraphMixin, BaseAskAmou
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs["loan_configuration"] = self.payment_type
+        return kwargs
 
 
 class BaseLoanPersonalInformationView(MaxTotalLoanMixin, BasePersonalInformationView):
