@@ -1,7 +1,7 @@
 from copy import deepcopy
 from datetime import timedelta
-from functools import partial
 
+import numpy as np
 from data_france.models import Commune
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
@@ -10,7 +10,10 @@ from django.db import transaction
 from django.db.models import Count, Q, Case, When, Value
 from django.db.models.functions import Coalesce
 from django.utils import timezone
+from scipy.optimize import linear_sum_assignment
+from scipy.spatial.distance import cdist
 
+from agir.lib.geo import haversine
 from agir.lib.tasks import geocode_person
 from agir.people.actions.subscription import (
     save_subscription_information,
@@ -277,20 +280,86 @@ def send_matching_requests_to_proxy(proxy, matching_request_ids):
     )
 
 
+def one_to_one_voting_proxy_to_request_distance_match(
+    pending_requests, available_proxies
+):
+    available_proxies = available_proxies.exclude(commune_id__isnull=True).exclude(
+        person__coordinates__isnull=True
+    )
+    pending_requests = pending_requests.filter(
+        commune__mairie_localisation__isnull=False
+    )
+    pending_request_points = list(
+        pending_requests.values_list("commune__mairie_localisation", flat=True)
+    )
+    available_proxy_points = list(
+        available_proxies.values_list("person__coordinates", flat=True)
+    )
+
+    if not pending_request_points or not available_proxy_points:
+        return {}
+
+    pending_request_points = np.array(pending_request_points)
+    available_proxy_points = np.array(available_proxy_points)
+
+    request_to_proxy_distances = cdist(
+        pending_request_points,
+        available_proxy_points,
+        lambda u, v: haversine(u, v),
+    )
+    _, match_index = linear_sum_assignment(request_to_proxy_distances)
+
+    matches = {
+        pending_requests[i]: available_proxies[int(match_index[i])]
+        for i in range(pending_request_points.shape[0])
+        # Exclude matches whose distance is too big
+        if request_to_proxy_distances[i, int(match_index[i])]
+        < min(
+            available_proxies[int(match_index[i])].person.action_radius,
+            PROXY_TO_REQUEST_DISTANCE_LIMIT,
+        )
+    }
+
+    return matches
+
+
 def match_available_proxies_with_requests(
-    pending_requests, notify_proxy=send_matching_requests_to_proxy
+    pending_requests,
+    notify_proxy=send_matching_requests_to_proxy,
+    one_round_election=False,
 ):
     fulfilled_request_ids = []
     pending_request_ids = list(pending_requests.values_list("id", flat=True))
 
     # Retrieve all available proxy that has not been matched in the last two days
+    yesterday = (timezone.now().date() - timedelta(days=1)).strftime("%Y-%m-%d")
     available_proxies = (
         VotingProxy.objects.available()
         .select_related("person")
-        .order_by(
-            "-voting_dates__len",
-            Coalesce("last_matched", Value("2022-01-01 00:00:00")).asc(),
+        .exclude(last_matched__date__gte=yesterday)
+    )
+
+    if one_round_election is True:
+        # If we are in a single request per proxy scenario, we can use a better distance
+        # matching function for commune requests
+        matches = one_to_one_voting_proxy_to_request_distance_match(
+            pending_requests, available_proxies
         )
+        for voting_proxy_request, voting_proxy in matches.items():
+            notify_proxy(voting_proxy, [voting_proxy_request.id])
+        available_proxies = available_proxies.exclude(
+            id__in=[vp.id for vp in matches.values()]
+        )
+        fulfilled_request_ids = [vpr.id for vpr in matches.keys()]
+        pending_request_ids = [
+            pending_request_id
+            for pending_request_id in pending_request_ids
+            if pending_request_id not in fulfilled_request_ids
+        ]
+
+    available_proxies = available_proxies.order_by(
+        "-voting_dates__len",
+        Coalesce("last_matched", Value("2022-01-01 00:00:00")).asc(),
     )
 
     # Try to match available voting proxies with pending requests

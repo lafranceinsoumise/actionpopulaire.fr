@@ -34,6 +34,17 @@ class Command(BaseCommand):
             "invitations": [],
         }
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "-o",
+            "--one-round",
+            dest="one_round_election",
+            action="store_true",
+            default=False,
+            help="Improve distance matching algorithm for one round elections",
+        )
+        super().add_arguments(parser)
+
     def report_pending_requests(self, pending_requests):
         self.report["pending_requests"] = {
             str(request.id): {
@@ -111,6 +122,7 @@ class Command(BaseCommand):
     def handle(
         self,
         *args,
+        one_round_election=False,
         **kwargs,
     ):
         pending_requests = VotingProxyRequest.objects.pending()
@@ -120,7 +132,9 @@ class Command(BaseCommand):
         self.report_pending_requests(pending_requests)
         self.info(f"\nTrying to fulfill {initial_request_count} pending requests...")
         fulfilled_request_ids = match_available_proxies_with_requests(
-            pending_requests, notify_proxy=self.send_matching_requests_to_proxy
+            pending_requests,
+            notify_proxy=self.send_matching_requests_to_proxy,
+            one_round_election=one_round_election,
         )
         self.report["matched_request_count"] = len(fulfilled_request_ids)
         if len(fulfilled_request_ids) > 0:
