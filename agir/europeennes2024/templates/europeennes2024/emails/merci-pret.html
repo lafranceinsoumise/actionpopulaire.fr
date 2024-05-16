@@ -1,0 +1,44 @@
+{% extends email_template %}
+
+{% block header %}{% endblock %}
+
+{% block subject %}
+  Merci pour votre prêt !
+{% endblock %}
+
+{% block html_content %}
+<p>{{ cher_preteur }},</p>
+<p>
+  <strong>
+    Vous avez décidé de participer à l’Emprunt populaire pour soutenir notre campagne pour les élections européennes.
+    Merci !
+  </strong>
+    L’argent que vous nous avez prêté va nous être très utile.
+</p>
+<p>
+  Vous pouvez retrouver toutes les infos sur le fonctionnement du prêt et les délais de remboursement dans votre contrat
+  de prêt joint à cet email, ou sur
+  <a href="https://lafranceinsoumise.fr/europeennes-2024/emprunt-populaire/">la page consacrée à l'emprunt populaire</a>.
+</p>
+<p>
+  Pour rappel, vous pouvez également
+  <a href="https://lafranceinsoumise.fr/europeennes-2024/emprunt-populaire/">nous adresser un don</a>.
+  N’oubliez pas : chaque aide compte ! Les riches et les racistes financent Macron et Bardella…
+  une fois encore, vous pouvez financer l’Union populaire.
+</p>
+
+  <p style="text-align: center;margin-top: 2rem;">
+    <a href="https://lafranceinsoumise.fr/europeennes-2024/emprunt-populaire/"
+       style="box-sizing: border-box; display: inline-block; width: 100%; max-width: 400px; text-decoration: none; color: #502582; font-weight: bold; padding: 1rem 1.5rem; background-color: #FFEC00; font-size: 1rem;">
+      Je fais un don à l’Union populaire
+    </a>
+  </p>
+
+
+{% endblock %}
+
+{% block html_footer %}
+{% block text_footer %}
+Vous recevez cet email suite à votre don à la campagne de Manon Aubry. Merci infiniment !
+{% endblock %}
+{% endblock %}

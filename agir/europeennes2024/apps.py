@@ -24,6 +24,7 @@ class Europeennes2024Config(AppConfig):
             id=self.DONATION_TYPE,
             label="Don à la campagne de Manon Aubry pour les européennes 2024",
             success_view=views.don_success_view,
+            status_listener=views.don_status_listener,
         )
         register_payment_type(self.donation_type)
 
@@ -35,5 +36,6 @@ class Europeennes2024Config(AppConfig):
             contract_path=contract_path,
             contract_template_name="europeennes2024/contrat.md",
             pdf_layout_template_name="europeennes2024/layout_contrat.html",
+            status_listener=views.pret_status_listener,
         )
         register_payment_type(self.loan_type)
