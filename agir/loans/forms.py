@@ -3,6 +3,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout
 from django import forms
 from django.conf import settings
+from django.core import validators
 from django.core.validators import RegexValidator
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
@@ -114,8 +115,14 @@ class LenderForm(SimpleDonorForm):
 
         if self.loan_configuration.min_amount:
             self.fields["amount"].min_value = self.loan_configuration.min_amount
+            self.fields["amount"].validators.append(
+                validators.MinValueValidator(self.loan_configuration.min_amount)
+            )
         if self.loan_configuration.max_amount:
             self.fields["amount"].max_value = self.loan_configuration.max_amount
+            self.fields["amount"].validators.append(
+                validators.MaxValueValidator(self.loan_configuration.max_amount)
+            )
 
         self.fields["civilite"].required = True
         self.fields["date_of_birth"].required = True
