@@ -925,6 +925,7 @@ PAYMENT_MODES = [
     "agir.ilb.ILBCheckPaymentMode",
     "agir.europeennes2024.payment_mode.Europeennes2024PretsPaymentMode",
     "agir.europeennes2024.payment_mode.Europeennes2024DonsPaymentMode",
+    "agir.europeennes2024.payment_mode.Europeennes2024CheckPaymentMode",
 ]
 
 # SMS settings
