@@ -113,9 +113,9 @@ class LenderForm(SimpleDonorForm):
         self.loan_configuration = loan_configuration
 
         if self.loan_configuration.min_amount:
-            self.fields["amount"].min = self.loan_configuration.min_amount
+            self.fields["amount"].min_value = self.loan_configuration.min_amount
         if self.loan_configuration.max_amount:
-            self.fields["amount"].max = self.loan_configuration.max_amount
+            self.fields["amount"].max_value = self.loan_configuration.max_amount
 
         self.fields["civilite"].required = True
         self.fields["date_of_birth"].required = True
