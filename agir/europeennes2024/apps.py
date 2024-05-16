@@ -37,5 +37,8 @@ class Europeennes2024Config(AppConfig):
             contract_template_name="europeennes2024/contrat.md",
             pdf_layout_template_name="europeennes2024/layout_contrat.html",
             status_listener=views.pret_status_listener,
+            min_amount=300_00,
+            max_amount=10_000_00,
+            global_ceiling=2_000_000_00,
         )
         register_payment_type(self.loan_type)
