@@ -19,22 +19,21 @@ def envoyer_email_pret(payment_id):
             "Contrat non généré pour le paiement {}".format(repr(payment))
         )
 
-    full_name = f'{payment.meta["first_name"]} {payment.meta["last_name"]}'
+    nom_complet = f'{payment.meta["first_name"]} {payment.meta["last_name"]}'
+    prenom = payment.first_name.capitalize()
+    cher = SUBSTITUTIONS["cher"][payment.meta.get("civilite", "O")]
+    adresse = f"{cher} {prenom}"
 
     with default_storage.open(payment.meta["contract_path"], mode="rb") as contract:
 
         send_template_email(
             template_name="europeennes2024/emails/merci-pret.html",
             from_email=settings.EMAIL_FROM,
-            bindings={
-                "cher_preteur": SUBSTITUTIONS["cher_preteur"][
-                    payment.meta.get("civilite", "O")
-                ]
-            },
+            bindings={"cher_preteur": adresse},
             recipients=[person],
             attachments=[
                 {
-                    "filename": f"contrat_pret_{slugify(full_name, only_ascii=True)}.pdf",
+                    "filename": f"contrat_pret_{slugify(nom_complet, only_ascii=True)}.pdf",
                     "content": contract.read(),
                     "mimetype": "application/pdf",
                 }
@@ -45,15 +44,14 @@ def envoyer_email_pret(payment_id):
 @emailing_task()
 def envoyer_email_don(payment_id):
     payment = Payment.objects.select_related("person").get(id=payment_id)
-    person = payment.person
+
+    prenom = payment.first_name.capitalize()
+    cher = SUBSTITUTIONS["cher"][payment.meta.get("civilite", "O")]
+    adresse = f"{cher} {prenom}"
 
     send_template_email(
         template_name="europeennes2024/emails/merci-don.html",
         from_email=settings.EMAIL_FROM,
-        bindings={
-            "cher_preteur": SUBSTITUTIONS["cher_preteur"][
-                payment.meta.get("civilite", "O")
-            ]
-        },
-        recipients=[person],
+        bindings={"cher_donneur": adresse},
+        recipients=[payment.person],
     )
