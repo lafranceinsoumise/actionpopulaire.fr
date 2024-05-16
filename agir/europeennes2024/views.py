@@ -61,9 +61,13 @@ class DonsPersonalInformationView(
 
 
 def pret_status_listener(payment):
+    if payment.status == Payment.STATUS_COMPLETED or (
+        payment.status == Payment.STATUS_WAITING and payment.is_check()
+    ):
+        incrementer_compteur("prets", payment.price)
+
     if payment.status == Payment.STATUS_COMPLETED:
         find_or_create_person_from_payment(payment)
-        incrementer_compteur("prets", payment.price)
 
         return (
             generate_contract.si(payment.id) | envoyer_email_pret.si(payment.id)
@@ -71,6 +75,11 @@ def pret_status_listener(payment):
 
 
 def don_status_listener(payment):
+    if payment.status == Payment.STATUS_COMPLETED or (
+        payment.status == Payment.STATUS_WAITING and payment.is_check()
+    ):
+        incrementer_compteur("dons", payment.price)
+
     if payment.status == Payment.STATUS_COMPLETED:
         find_or_create_person_from_payment(payment)
         incrementer_compteur("dons", payment.price)
