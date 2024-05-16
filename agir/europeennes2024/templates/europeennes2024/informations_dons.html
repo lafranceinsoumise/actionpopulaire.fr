@@ -1,0 +1,19 @@
+{% extends "donations/personal_information.html" %}
+
+{% load display_lib %}
+
+{% block donation_headline %}
+	Mon don à la campagne de Manon Aubry
+{% endblock %}
+
+{% block donation_reminder %}
+  Je souhaite donner <strong>{{ amount | display_price_in_cent }}</strong> à la campagne de Manon Aubry pour leds
+  élections européennes de 2024.
+
+  {{ form.errors }}
+{% endblock %}
+
+{% block legal %}
+  {% include "europeennes2024/legal_dons.html" %}
+{% endblock %}
+

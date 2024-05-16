@@ -6,36 +6,33 @@ from uuid import uuid4
 from django.template.loader import get_template
 from django.utils.safestring import mark_safe
 from markdown import markdown
-from markdown.extensions.toc import TocExtension
 from sepaxml import SepaTransfer
+from weasyprint import HTML
 
-from agir.lib.documents import html_to_pdf
 from agir.lib.iban import to_iban
 from agir.payments.models import Payment
 
 
-def generate_html_contract(payment_type, contract_information, baselevel=1):
-    contract_markdown = get_template(payment_type.contract_template_name).render(
+def generate_html_contract(payment_type, contract_information):
+    template = get_template(payment_type.contract_template_name)
+
+    markdown_text = template.render(
         context=payment_type.contract_context_generator(contract_information)
     )
 
-    return mark_safe(
-        markdown(
-            contract_markdown, extensions=["extra", TocExtension(baselevel=baselevel)]
-        )
-    )
+    return mark_safe(markdown(markdown_text))
 
 
-def save_pdf_contract(payment_type, contract_information, dest_path):
-    dest_dir = Path(dest_path).parent
-    dest_dir.mkdir(parents=True, exist_ok=True)
-
+def generate_pdf_contract(payment_type, contract_information):
     html_contract = generate_html_contract(payment_type, contract_information)
     contract_with_layout = get_template(payment_type.pdf_layout_template_name).render(
         context={"contract_body": mark_safe(html_contract)}
     )
+    template_parent = str(
+        Path(get_template(payment_type.contract_template_name).origin.name).parent
+    )
 
-    html_to_pdf(contract_with_layout, dest_path)
+    return HTML(string=contract_with_layout, base_url=template_parent).write_pdf()
 
 
 def generate_reimbursement_file(config: Mapping[str, str], payments: Iterable[Payment]):

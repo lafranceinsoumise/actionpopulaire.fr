@@ -29,7 +29,7 @@ class CagnotteTestCase(TestCase):
             "contact_phone": "+33645789845",
             "amount": "20000",
             "payment_mode": payment_modes.DEFAULT_MODE,
-            "gender": "F",
+            "civilite": "F",
             "declaration": "Y",
         }
 

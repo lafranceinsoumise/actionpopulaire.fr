@@ -52,14 +52,22 @@ class SimpleDonationForm(forms.Form):
         self.helper.layout = Layout("amount")
 
 
-class BaseDonorForm(MetaFieldsMixin, LegacySubscribedMixin, forms.ModelForm):
-    meta_fields = ["nationality"]
+class SimpleDonorForm(MetaFieldsMixin, LegacySubscribedMixin, forms.ModelForm):
+    meta_fields = ["nationality", "civilite"]
     button_label = "Je donne {amount}"
     show_subscribed = True
 
     email = forms.EmailField(
         label=_("Votre adresse email"),
         required=True,
+    )
+
+    civilite = forms.ChoiceField(
+        label="Civilité",
+        required=True,
+        choices=[("F", "Madame"), ("M", "Monsieur")],
+        widget=forms.RadioSelect(),
+        help_text="La civilité utilisée par la CNCCFP pour émettre le reçu fiscal.",
     )
 
     amount = forms.IntegerField(
@@ -105,15 +113,12 @@ class BaseDonorForm(MetaFieldsMixin, LegacySubscribedMixin, forms.ModelForm):
     def __init__(self, payment_modes=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        if payment_modes is None:
+        self.payment_modes = payment_modes
+
+        if payment_modes is None or len(payment_modes) <= 1:
             del self.fields["payment_mode"]
         else:
             self.fields["payment_mode"].payment_modes = payment_modes
-            if len(payment_modes) == 1:
-                self.fields["payment_mode"].widget = self.fields[
-                    "payment_mode"
-                ].hidden_widget()
-                self.fields["payment_mode"].initial = payment_modes[0]
 
         self.connected = not self.instance._state.adding
 
@@ -147,7 +152,7 @@ class BaseDonorForm(MetaFieldsMixin, LegacySubscribedMixin, forms.ModelForm):
             fields.append("email")
 
         fields.extend(["nationality", "fiscal_resident"])
-        fields.extend(["first_name", "last_name"])
+        fields.extend(["first_name", "last_name", "civilite"])
         fields.extend(
             [
                 layout.Field("location_address1", placeholder="Ligne 1"),
@@ -195,6 +200,9 @@ class BaseDonorForm(MetaFieldsMixin, LegacySubscribedMixin, forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
+
+        if self.payment_modes and len(self.payment_modes) == 1:
+            cleaned_data["payment_mode"] = self.payment_modes[0]
 
         nationality, fiscal_resident, location_country = (
             cleaned_data.get("nationality"),

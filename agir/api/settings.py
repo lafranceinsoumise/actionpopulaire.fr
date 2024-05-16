@@ -159,6 +159,7 @@ INSTALLED_APPS = [
     "agir.voting_proxies",
     "agir.elections",
     "agir.legislatives2022.apps.Legislatives2022Config",
+    "agir.europeennes2024.apps.Europeennes2024Config",
     "agir.cagnottes.apps.CagnottesConfig",
     "agir.ilb.apps.ILBAppConfig",
     "agir.statistics",
@@ -860,6 +861,23 @@ SYSTEMPAY_AFCP2022_CERTIFICATE = os.environ.get(
     "SYSTEMPAY_AFCP2022_CERTIFICATE", "arbitrarystring"
 )
 
+# Systempay européennes 2024
+SYSTEMPAY_AFCP2024_DONS_SITE_ID = os.environ.get("SYSTEMPAY_AFCP2024_DONS_SITE_ID")
+SYSTEMPAY_AFCP2024_DONS_CERTIFICATE = os.environ.get(
+    "SYSTEMPAY_AFCP2024_DONS_CERTIFICATE"
+)
+SYSTEMPAY_AFCP2024_DONS_PRODUCTION = (
+    os.environ.get("SYSTEMPAY_AFCP2024_DONS_PRODUCTION", "false").lower() == "true"
+)
+
+SYSTEMPAY_AFCP2024_PRETS_SITE_ID = os.environ.get("SYSTEMPAY_AFCP2024_PRETS_SITE_ID")
+SYSTEMPAY_AFCP2024_PRETS_CERTIFICATE = os.environ.get(
+    "SYSTEMPAY_AFCP2024_PRETS_CERTIFICATE"
+)
+SYSTEMPAY_AFCP2024_PRETS_PRODUCTION = (
+    os.environ.get("SYSTEMPAY_AFCP2024_PRETS_PRODUCTION", "false").lower() == "true"
+)
+
 
 DONATION_MINIMUM = 1 * 100  # 1 €
 DONATION_MAXIMUM = 4600 * 100  # 4600 €
@@ -874,8 +892,6 @@ CONTRIBUTION_DONATION_DAY = 2
 CONTRIBUTION_MONTHS_BEFORE_END_RENEWAL_START = 3
 CONTRIBUTION_MATOMO_GOAL = os.environ.get("CONTRIBUTION_MATOMO_GOAL")
 
-LOAN_MINIMUM = 400 * 100  # 400 €
-LOAN_MAXIMUM = 100_000 * 100  # 100 000 €
 LOAN_MAXIMUM_TOTAL = 207_119_700
 LOAN_MAXIMUM_THANK_YOU_PAGE = (
     "https://lafranceinsoumise.fr/2019/04/07/succes-de-lemprunt-populaire/"
@@ -907,6 +923,9 @@ PAYMENT_MODES = [
     "agir.events.PayLaterPaymentMode",
     "agir.ilb.ILBSystemPayPaymentMode",
     "agir.ilb.ILBCheckPaymentMode",
+    "agir.europeennes2024.payment_mode.Europeennes2024PretsPaymentMode",
+    "agir.europeennes2024.payment_mode.Europeennes2024DonsPaymentMode",
+    "agir.europeennes2024.payment_mode.Europeennes2024CheckPaymentMode",
 ]
 
 # SMS settings

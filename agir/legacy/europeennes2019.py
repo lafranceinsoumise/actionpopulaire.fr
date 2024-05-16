@@ -1,19 +1,13 @@
 from uuid import uuid4
-from django.http import Http404
 
+from agir.legacy.utils import LegacyPaymentType, not_found
 from agir.loans.loan_config import LoanConfiguration
 from agir.payments.types import register_payment_type, PaymentType
 
-
-def not_found(request, payment):
-    raise Http404()
-
-
 register_payment_type(
-    PaymentType(
-        "don_europeennes",
-        "Don à la campagne européenne 2019",
-        not_found,
+    LegacyPaymentType(
+        id="don_europeennes",
+        label="Don à la campagne européenne 2019",
         description_template="legacy/europeennes/donation_description.html",
     )
 )
@@ -31,5 +25,6 @@ register_payment_type(
         contract_path=contract_path,
         contract_template_name="legacy/europeennes/contract.md",
         pdf_layout_template_name="legacy/europeennes/contract_layout.html",
+        success_view=not_found,
     )
 )

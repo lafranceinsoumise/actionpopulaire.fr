@@ -2,7 +2,7 @@ from django import forms
 from django.db.models import TextChoices
 from django.utils import timezone
 
-from agir.donations.base_forms import BaseDonorForm
+from agir.donations.base_forms import SimpleDonorForm
 from agir.payments.payment_modes import PAYMENT_MODES
 
 
@@ -25,7 +25,7 @@ def date_prelevement(regularite):
     return {"day_of_month": prelevement.day, "month_of_year": prelevement.month}
 
 
-class PersonalInformationForm(BaseDonorForm):
+class PersonalInformationForm(SimpleDonorForm):
     show_subscribed = False
 
     regularite = forms.ChoiceField(

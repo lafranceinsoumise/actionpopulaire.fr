@@ -67,9 +67,9 @@ class DonsConfig(AppConfig):
 
         ## SINGLE TIME DONATIONS
         single_time_donation_payment_type = PaymentType(
-            self.SINGLE_TIME_DONATION_TYPE,
-            "Don",
-            RedirectView.as_view(url=reverse_lazy("donation_success")),
+            id=self.SINGLE_TIME_DONATION_TYPE,
+            label="Don",
+            success_view=RedirectView.as_view(url=reverse_lazy("donation_success")),
             status_listener=notification_listener,
             description_template="donations/description.html",
             description_context_generator=payment_description_context_generator,
@@ -80,9 +80,9 @@ class DonsConfig(AppConfig):
 
         ## MONTHLY DONATIONS
         monthly_donation_payment_type = PaymentType(
-            self.MONTHLY_DONATION_TYPE,
-            "Don mensuel",
-            RedirectView.as_view(url=reverse_lazy("donation_success")),
+            id=self.MONTHLY_DONATION_TYPE,
+            label="Don mensuel",
+            success_view=RedirectView.as_view(url=reverse_lazy("donation_success")),
             status_listener=notification_listener,
             description_template="donations/description.html",
             description_context_generator=payment_description_context_generator,
@@ -104,9 +104,9 @@ class DonsConfig(AppConfig):
 
         ## CONTRIBUTIONS
         contribution_payment_type = PaymentType(
-            self.CONTRIBUTION_TYPE,
-            "Contribution financière volontaire",
-            RedirectView.as_view(url=reverse_lazy("contribution_success")),
+            id=self.CONTRIBUTION_TYPE,
+            label="Contribution financière volontaire",
+            success_view=RedirectView.as_view(url=reverse_lazy("contribution_success")),
             status_listener=notification_listener,
             description_template="donations/description.html",
             description_context_generator=payment_description_context_generator,

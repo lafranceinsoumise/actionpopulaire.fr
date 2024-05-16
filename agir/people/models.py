@@ -1287,6 +1287,7 @@ class PersonValidationSMS(
 class Document(models.Model):
     class Type(models.TextChoices):
         RECU_FISCAL = "RF", "Reçu fiscal"
+        CONTRAT_PRET = "CP", "Contrat de prêt"
 
     person = models.ForeignKey(
         Person,

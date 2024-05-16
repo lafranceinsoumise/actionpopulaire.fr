@@ -4,7 +4,7 @@ from agir.loans.views import LoanContractView
 
 urlpatterns = [
     path(
-        "prets/<int:pk>/contrat/",
+        "contrat/<int:pk>/",
         LoanContractView.as_view(),
         name="loans_view_contract",
     )

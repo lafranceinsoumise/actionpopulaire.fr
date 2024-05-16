@@ -1,5 +1,5 @@
-from agir.donations.base_forms import BaseDonorForm
+from agir.donations.base_forms import SimpleDonorForm
 
 
-class PersonalInformationForm(BaseDonorForm):
+class PersonalInformationForm(SimpleDonorForm):
     show_subscribed = False

@@ -1,6 +1,7 @@
 from django_countries import countries
 
 SUBSTITUTIONS = {
+    "cher": {"M": "Cher", "F": "Chère", "O": "Cher·e"},
     "cher_preteur": {
         "M": "Cher prêteur",
         "F": "Chère prêteuse",

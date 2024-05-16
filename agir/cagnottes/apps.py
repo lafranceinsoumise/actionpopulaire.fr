@@ -33,9 +33,9 @@ class CagnottesConfig(AppConfig):
 
         register_payment_type(
             payment_type=PaymentType(
-                self.PAYMENT_TYPE,
-                "Don à une cagnotte",
-                RemerciementView.as_view(),
+                id=self.PAYMENT_TYPE,
+                label="Don à une cagnotte",
+                success_view=RemerciementView.as_view(),
                 status_listener=notification_listener,
                 description_template="cagnottes/description.html",
                 description_context_generator=recuperer_cagnotte,

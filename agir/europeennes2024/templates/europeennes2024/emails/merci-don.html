@@ -1,0 +1,38 @@
+{% extends email_template %}
+
+{% block header %}{% endblock %}
+
+{% block subject %}
+  Merci pour votre don !
+{% endblock %}
+
+{% block html_content %}
+  <p>{{ cher_donneur }}</p>
+  <p>
+    <strong>
+      Vous avez décidé de faire un don pour soutenir notre campagne pour les élections européennes. Merci !
+    </strong>
+    L’argent que vous nous avez donné nous sera très utile.
+  </p>
+  <p>
+    Pour rappel, vous pouvez aussi <strong>faire un prêt pour soutenir l'Union populaire</strong>. Cette somme vous sera
+    intégralement reversée au plus tard le 15 mai 2025.
+  </p>
+  <p style="text-align: center;margin-top: 2rem;">
+    <a href="https://lafranceinsoumise.fr/europeennes-2024/emprunt-populaire/"
+       style="box-sizing: border-box; display: inline-block; width: 100%; max-width: 400px; text-decoration: none; color: #502582; font-weight: bold; padding: 1rem 1.5rem; background-color: #FFEC00; font-size: 1rem;">
+      Je participe à l’Emprunt populaire
+    </a>
+  </p>
+  <p>
+    Merci pour votre soutien !<br>
+    La France insoumise
+  </p>
+
+{% endblock %}
+
+{% block html_footer %}
+  {% block text_footer %}
+    Vous recevez cet email suite à votre don à la campagne de Manon Aubry. Merci infiniment !
+  {% endblock %}
+{% endblock %}

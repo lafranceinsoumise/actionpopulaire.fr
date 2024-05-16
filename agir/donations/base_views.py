@@ -1,13 +1,11 @@
 from django.core.exceptions import ValidationError
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
-from django.views import View
-from django.views.generic import FormView, UpdateView
+from django.views.generic import FormView
 
-import agir.donations.base_forms
+from agir.donations.base_forms import SimpleDonationForm, SimpleDonorForm
 from agir.donations.allocations import get_allocation_list
 from agir.payments.actions.payments import create_payment
-from agir.people.models import Person
 
 
 def serialize_form(form):
@@ -25,12 +23,12 @@ class FormToSessionMixin:
 
 
 class BaseAskAmountView(FormToSessionMixin, FormView):
-    form_class = agir.donations.base_forms.SimpleDonationForm
+    form_class = SimpleDonationForm
     session_namespace = "_donation_"
 
 
 class BasePersonalInformationView(FormView):
-    form_class = None
+    form_class = SimpleDonorForm
     template_name = "donations/personal_information.html"
     payment_type = None
     payment_modes = None

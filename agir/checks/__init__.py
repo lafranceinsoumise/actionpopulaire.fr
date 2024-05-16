@@ -8,7 +8,7 @@ class DonationCheckPaymentMode(AbstractCheckPaymentMode):
     order = "AFLFI"
     address = ["AFLFI - Dons", "BP 45", "91305 MASSY CEDEX"]
     additional_information = (
-        "Votre versement ne sera confirmée qu'à réception du chèque. Vous recevrez un message de confirmation"
+        "Votre versement ne sera confirmé qu'à réception du chèque. Vous recevrez un message de confirmation"
         " quand ce sera fait (à moins que vous n'ayez désactivé les notifications)."
     )
 
@@ -24,6 +24,6 @@ class EventCheckPaymentMode(AbstractCheckPaymentMode):
         "75010 Paris",
     ]
     additional_information = (
-        "Votre versement ne sera confirmée qu'à réception du chèque. Vous recevrez un message de confirmation"
+        "Votre versement ne sera confirmé qu'à réception du chèque. Vous recevrez un message de confirmation"
         " quand ce sera fait (à moins que vous n'ayez désactivé les notifications)."
     )
