@@ -1,5 +1,5 @@
 from django.urls import reverse_lazy
-from django.views.generic import RedirectView
+from django.views.generic import RedirectView, TemplateView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -63,7 +63,7 @@ class DonsPersonalInformationView(
 def pret_status_listener(payment):
     if payment.status == Payment.STATUS_COMPLETED:
         find_or_create_person_from_payment(payment)
-        incrementer_compteur("prets", payment)
+        incrementer_compteur("prets", payment.price)
 
         return (
             generate_contract.si(payment.id) | envoyer_email_pret.si(payment.id)
@@ -73,12 +73,12 @@ def pret_status_listener(payment):
 def don_status_listener(payment):
     if payment.status == Payment.STATUS_COMPLETED:
         find_or_create_person_from_payment(payment)
-        incrementer_compteur("dons", payment)
+        incrementer_compteur("dons", payment.price)
 
         return envoyer_email_don.delay(payment.id)
 
 
-class CompteurView(APIView):
+class MontantView(APIView):
     authentication_classes = ()
     permission_classes = (AllowAny,)
 
@@ -86,3 +86,7 @@ class CompteurView(APIView):
         return Response(
             {"dons": montant_compteur("dons"), "prets": montant_compteur("prets")}
         )
+
+
+class CompteurView(TemplateView):
+    template_name = "europeennes2024/compteur.html"
