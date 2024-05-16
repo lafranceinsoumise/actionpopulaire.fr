@@ -90,3 +90,9 @@ class MontantView(APIView):
 
 class CompteurView(TemplateView):
     template_name = "europeennes2024/compteur.html"
+
+    def get_context_data(self, **kwargs):
+        if self.request.GET.get("background"):
+            kwargs["background"] = self.request.GET["background"]
+
+        return kwargs

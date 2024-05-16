@@ -10,6 +10,12 @@
       font-family: obviously-narrow, Arial, Helvetica, sans-serif;
     }
 
+    {% if background %}
+      body {
+        background: #{{ background }};
+      }
+    {% endif %}
+
     .progress h2 {
       color: #EB622B;
       font-weight: 600;
