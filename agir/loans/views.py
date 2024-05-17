@@ -161,7 +161,7 @@ class BaseLoanAcceptContractView(MaxTotalLoanMixin, FormView):
             kwargs["email"] = self.contract_information["email"]
 
         with transaction.atomic():
-            payment = create_payment(
+            self.payment = create_payment(
                 person=person,
                 mode=self.contract_information["payment_mode"],
                 type=self.payment_type,
@@ -172,7 +172,7 @@ class BaseLoanAcceptContractView(MaxTotalLoanMixin, FormView):
 
         self.clear_session()
 
-        return redirect_to_payment(payment)
+        return redirect_to_payment(self.payment)
 
 
 class LoanReturnView(TemplateView):

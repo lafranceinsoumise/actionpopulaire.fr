@@ -53,17 +53,34 @@ class PretsReviewContractView(
 ):
     template_name = "loans/sample/validate_contract.html"
 
+    def form_valid(self, form):
+        res = super().form_valid(form)
+
+        if self.payment.mode == Europeennes2024CheckPaymentMode.id:
+            incrementer_compteur("prets", self.payment.price)
+
+        return res
+
 
 class DonsPersonalInformationView(
     ConfigurationDonsEuropeennes, BasePersonalInformationView
 ):
     template_name = "europeennes2024/informations_dons.html"
 
+    def form_valid(self, form):
+        res = super().form_valid(form)
+
+        if self.payment.mode == Europeennes2024CheckPaymentMode.id:
+            incrementer_compteur("dons", self.payment.price)
+
+        return res
+
 
 def pret_status_listener(payment):
     if payment.status == Payment.STATUS_COMPLETED:
         find_or_create_person_from_payment(payment)
-        incrementer_compteur("prets", payment.price)
+        if payment.mode != Europeennes2024CheckPaymentMode.id:
+            incrementer_compteur("prets", payment.price)
 
         return (
             generate_contract.si(payment.id) | envoyer_email_pret.si(payment.id)
@@ -73,7 +90,8 @@ def pret_status_listener(payment):
 def don_status_listener(payment):
     if payment.status == Payment.STATUS_COMPLETED:
         find_or_create_person_from_payment(payment)
-        incrementer_compteur("dons", payment.price)
+        if payment.mode != Europeennes2024CheckPaymentMode.id:
+            incrementer_compteur("dons", payment.price)
 
         return envoyer_email_don.delay(payment.id)
 
