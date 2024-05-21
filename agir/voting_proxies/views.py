@@ -169,7 +169,7 @@ class VotingProxyRetrieveUpdateAPIView(RetrieveUpdateAPIView):
         is_own_voting_proxy = (
             self.request.user.is_authenticated
             and self.request.user.person is not None
-            and self.request.user.person.voting_proxy == instance
+            and instance.person == self.request.user.person
         )
 
         return Response(

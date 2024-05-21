@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import useSWRImmutable from "swr/immutable";
+import useSWR from "swr";
 
 import AppRedirect from "@agir/front/app/Redirect";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
@@ -59,11 +60,10 @@ const ReplyToSingleVotingProxyRequest = (props) => {
     return session?.user?.votingProxyId || null;
   }, [location.state, location.search, session]);
 
-  const { data: votingProxy, isLoading: votingProxyIsLoading } =
-    useSWRImmutable(
-      votingProxyPk &&
-        getVotingProxyEndpoint("retrieveUpdateVotingProxy", { votingProxyPk }),
-    );
+  const { data: votingProxy, isLoading: votingProxyIsLoading } = useSWR(
+    votingProxyPk &&
+      getVotingProxyEndpoint("retrieveUpdateVotingProxy", { votingProxyPk }),
+  );
 
   const {
     data: votingProxyRequest,
@@ -85,9 +85,7 @@ const ReplyToSingleVotingProxyRequest = (props) => {
     return (
       <AppRedirect
         route="newVotingProxy"
-        state={{
-          next: location.pathname,
-        }}
+        state={{ next: location.pathname }}
         toast={[
           "Vous devez vous inscrire en tant que volontaire avant de pouvoir accepter de procurations de vote",
           "WARNING",

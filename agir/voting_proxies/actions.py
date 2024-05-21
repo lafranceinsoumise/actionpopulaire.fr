@@ -1,6 +1,5 @@
 from copy import deepcopy
 from datetime import timedelta
-from functools import partial
 
 from data_france.models import Commune
 from django.contrib.gis.db.models.functions import Distance
@@ -105,6 +104,7 @@ def create_or_update_voting_proxy(data):
         ]:
             voting_proxy.status = VotingProxy.STATUS_CREATED
             voting_proxy.save()
+
     if is_new_person and "welcome" in SUBSCRIPTIONS_EMAILS[SUBSCRIPTION_TYPE_AP]:
         from agir.people.tasks import send_welcome_mail
 
