@@ -37,7 +37,7 @@ SYSTEMPAY_PAGE_ACTION_CHOICES = [
 # https://paiement.systempay.fr/doc/fr-FR/form-payment/standard-payment/vads-trans-status.html
 SYSTEMPAY_STATUS_CHOICE = {
     "ABANDONED": SystemPayTransaction.STATUS_ABANDONED,  # paiement abandonné par l'utilisateur
-    "CANCELED": SystemPayTransaction.STATUS_CANCELED,  # transaction annulée par le marchand
+    "CANCELLED": SystemPayTransaction.STATUS_CANCELED,  # transaction annulée par le marchand
     "REFUSED": SystemPayTransaction.STATUS_REFUSED,  # transaction refusée (banque ou carte)
     "AUTHORISED": SystemPayTransaction.STATUS_COMPLETED,  # transaction acceptée (DEBIT et CREDIT)
     "AUTHORISED_TO_VALIDATE": SystemPayTransaction.STATUS_COMPLETED,  # transaction à valider manuellement

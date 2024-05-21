@@ -48,7 +48,7 @@ class LoansTestCase(TransactionTestCase):
             "amount": "40000",
             "first_name": "Nathalie",
             "last_name": "Kaplan",
-            "gender": "F",
+            "civilite": "F",
             "nationality": "FR",
             "date_of_birth": "01/07/1974",
             "country_of_birth": "FR",
@@ -61,6 +61,7 @@ class LoansTestCase(TransactionTestCase):
             "location_country": "FR",
             "contact_phone": "06 45 78 98 45",
             "iban": "FR31 3006 6119 2936 7522 3821 795",
+            "bic": "BNPAFRPPXXX",
             "declaration": "Y",
             "payment_mode": "system_pay",
         }

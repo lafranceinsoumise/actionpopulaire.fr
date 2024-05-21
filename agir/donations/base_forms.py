@@ -72,7 +72,7 @@ class SimpleDonorForm(MetaFieldsMixin, LegacySubscribedMixin, forms.ModelForm):
 
     amount = forms.IntegerField(
         max_value=settings.DONATION_MAXIMUM,
-        min_value=settings.DONATION_MAXIMUM,
+        min_value=settings.DONATION_MINIMUM,
         required=True,
         widget=forms.HiddenInput,
     )

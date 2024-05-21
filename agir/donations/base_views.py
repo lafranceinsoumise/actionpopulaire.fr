@@ -117,7 +117,7 @@ class BasePersonalInformationView(FormView):
         amount = form.cleaned_data["amount"]
         meta = self.get_metas(form)
 
-        payment = create_payment(
+        self.payment = create_payment(
             person=person,
             email=email,
             type=self.payment_type,
@@ -126,4 +126,4 @@ class BasePersonalInformationView(FormView):
             meta=meta,
         )
 
-        return HttpResponseRedirect(payment.get_payment_url())
+        return HttpResponseRedirect(self.payment.get_payment_url())
