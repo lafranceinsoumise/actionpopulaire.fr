@@ -54,12 +54,13 @@ class AddMemberForm(forms.Form):
     person = forms.ModelChoiceField(
         Person.objects.all(), required=True, label=_("Personne à ajouter")
     )
-    membership_type = forms.ChoiceField(
+    membership_type = forms.TypedChoiceField(
         choices=(
             choice
             for choice in Membership.MEMBERSHIP_TYPE_CHOICES
             if choice[0] <= Membership.MEMBERSHIP_TYPE_MEMBER
         ),
+        coerce=int,
         initial=Membership.MEMBERSHIP_TYPE_MEMBER,
         widget=forms.RadioSelect,
         required=True,
