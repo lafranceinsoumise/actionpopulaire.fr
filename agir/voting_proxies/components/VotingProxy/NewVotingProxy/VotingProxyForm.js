@@ -176,7 +176,10 @@ const VotingProxyForm = (props) => {
 
   if (votingProxy?.id && location.state?.next) {
     return (
-      <AppRedirect to={location.state?.next} params={{ vp: votingProxy.id }} />
+      <AppRedirect
+        href={location.state?.next}
+        params={{ vp: votingProxy.id }}
+      />
     );
   }
 
