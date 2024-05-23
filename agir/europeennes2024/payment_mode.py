@@ -35,8 +35,8 @@ class Europeennes2024CheckPaymentMode(AbstractCheckPaymentMode):
     order = "AFCE LFI 2024"
     address = [
         "La France insoumise - AFCE",
-        "25 passage Dubail",
-        "75010 Paris",
+        "BP45",
+        "91305 MASSY CEDEX",
     ]
     additional_information = (
         "Votre versement ne sera confirmé qu'à réception du chèque. Vous recevrez un message de confirmation"
