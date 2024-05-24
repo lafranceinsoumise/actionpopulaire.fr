@@ -1108,6 +1108,44 @@ class Event(
             "end_time": self.end_time,
         }
 
+    def person_status(self, person=None):
+        status = {"rsvp": None, "organizer_config": None, "has_event_report": False}
+
+        if person is None:
+            return status
+
+        if not hasattr(self, "_pf_person_organizer_configs"):
+            status["organizer_config"] = self.organizer_configs.filter(
+                person=person
+            ).first()
+        else:
+            status["organizer_config"] = (
+                self._pf_person_organizer_configs[0]
+                if len(self._pf_person_organizer_configs)
+                else None
+            )
+
+        if not hasattr(self, "_pf_person_rsvps"):
+            status["rsvp"] = (
+                self.rsvps.filter(person=person).order_by("-created").first()
+            )
+        else:
+            status["rsvp"] = (
+                self._pf_person_rsvps[0] if len(self._pf_person_rsvps) else None
+            )
+
+        # Show event report only to organizers, participants or active members of organizer groups
+        status["has_event_report"] = (
+            status["organizer_config"]
+            or (status["rsvp"] and status["rsvp"].status == RSVP.Status.CONFIRMED)
+            or self.organizers_groups.filter(
+                memberships__person=person,
+                memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MEMBER,
+            ).exists()
+        )
+
+        return status
+
 
 class EventSubtype(BaseSubtype):
     TYPE_GROUP_MEETING = "G"

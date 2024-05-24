@@ -5,8 +5,7 @@
     "name": "Front supérieur étouffer écrire.",
     "hasSubscriptionForm": false,
     "description": "",
-    "compteRendu": "",
-    "compteRenduPhotos": [],
+    "report": {},
     "illustration": null,
     "timezone": "Europe/Paris",
     "startTime": "2021-01-09T10:04:19.429049+01:00",
@@ -32,7 +31,10 @@
       "shortLocation": "61, boulevard de Chevalier (Sainte Édouarddan)",
       "coordinates": {
         "type": "Point",
-        "coordinates": [5.03586, 43.83125]
+        "coordinates": [
+          5.03586,
+          43.83125
+        ]
       }
     },
     "isOrganizer": false,
@@ -48,7 +50,6 @@
       "cancel": "http://agir.local:8000/evenements/fb32fc5d-add3-472c-a119-bf2511d4008d/quitter/",
       "manage": "http://agir.local:8000/evenements/fb32fc5d-add3-472c-a119-bf2511d4008d/manage/",
       "calendarExport": "http://agir.local:8000/evenements/fb32fc5d-add3-472c-a119-bf2511d4008d/icalendar/",
-      "compteRendu": "http://agir.local:8000/evenements/fb32fc5d-add3-472c-a119-bf2511d4008d/compte-rendu/",
       "addPhoto": "http://agir.local:8000/evenements/fb32fc5d-add3-472c-a119-bf2511d4008d/importer-image/",
       "edit": "http://agir.local:8000/evenements/fb32fc5d-add3-472c-a119-bf2511d4008d/modifier/",
       "googleExport": "https://calendar.google.com/calendar/r/eventedit?text=Front+sup%C3%A9rieur+%C3%A9touffer+%C3%A9crire.&dates=20210109T09%25i00%2F20210109T12%25i00&location=61%2C+boulevard+de+Chevalier%2C+App.+562%2C+62497%2C+Sainte+%C3%89douarddan&details="
@@ -87,8 +88,7 @@
     "name": "Signe âge songer pont quart être as.",
     "hasSubscriptionForm": false,
     "description": "",
-    "compteRendu": "",
-    "compteRenduPhotos": [],
+    "report": {},
     "illustration": null,
     "timezone": "Europe/Lisbon",
     "startTime": "2021-01-09T10:04:19.393624+01:00",
@@ -105,7 +105,10 @@
       "shortLocation": "rue Lefort (Fouquet-les-Bains)",
       "coordinates": {
         "type": "Point",
-        "coordinates": [2.45012, 48.90982]
+        "coordinates": [
+          2.45012,
+          48.90982
+        ]
       }
     },
     "subtype": {
@@ -130,7 +133,6 @@
       "cancel": "http://agir.local:8000/evenements/819cbe27-910e-4074-b50a-4ae644e8751d/quitter/",
       "manage": "http://agir.local:8000/evenements/819cbe27-910e-4074-b50a-4ae644e8751d/manage/",
       "calendarExport": "http://agir.local:8000/evenements/819cbe27-910e-4074-b50a-4ae644e8751d/icalendar/",
-      "compteRendu": "http://agir.local:8000/evenements/819cbe27-910e-4074-b50a-4ae644e8751d/compte-rendu/",
       "addPhoto": "http://agir.local:8000/evenements/819cbe27-910e-4074-b50a-4ae644e8751d/importer-image/",
       "edit": "http://agir.local:8000/evenements/819cbe27-910e-4074-b50a-4ae644e8751d/modifier/",
       "googleExport": "https://calendar.google.com/calendar/r/eventedit?text=Signe+%C3%A2ge+songer+pont+quart+%C3%AAtre+as.&dates=20210109T09%25i00%2F20210109T12%25i00&location=rue+Lefort%2C+App.+3%2C+65374%2C+Fouquet-les-Bains&details="
@@ -167,7 +169,7 @@
     "id": "bc4ad094-fd3d-46ed-9b93-74d0a236c0ef",
     "name": "Café",
     "hasSubscriptionForm": false,
-    "compteRendu": "",
+    "report": {},
     "illustration": null,
     "startTime": "2020-11-21T00:00:00+01:00",
     "endTime": "2020-11-22T00:00:00+01:00",
@@ -182,7 +184,13 @@
       "address": "10 rue du café\n75019 Paris",
       "shortAddress": "10 rue du café, 75019, Paris",
       "shortLocation": "Café (Paris)",
-      "coordinates": { "type": "Point", "coordinates": [2.370147, 48.886174] },
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          2.370147,
+          48.886174
+        ]
+      },
       "staticMapUrl": "https://s3.fr-par.scw.cloud/agir-preprod/carte/staticmapimage/3GFDTYOMT5FJ5GFUTLHO46W72E.png"
     },
     "isOrganizer": true,
@@ -194,7 +202,6 @@
       "cancel": "http://agir.local:8000/evenements/bc4ad094-fd3d-46ed-9b93-74d0a236c0ef/quitter/",
       "manage": "http://agir.local:8000/evenements/bc4ad094-fd3d-46ed-9b93-74d0a236c0ef/manage/",
       "calendarExport": "http://agir.local:8000/evenements/bc4ad094-fd3d-46ed-9b93-74d0a236c0ef/icalendar/",
-      "compteRendu": "http://agir.local:8000/evenements/bc4ad094-fd3d-46ed-9b93-74d0a236c0ef/compte-rendu/",
       "addPhoto": "http://agir.local:8000/evenements/bc4ad094-fd3d-46ed-9b93-74d0a236c0ef/importer-image/",
       "edit": "http://agir.local:8000/evenements/bc4ad094-fd3d-46ed-9b93-74d0a236c0ef/modifier/",
       "admin": "https://api-preprod.franceinsoumise.org/admin/events/event/bc4ad094-fd3d-46ed-9b93-74d0a236c0ef/change/",
@@ -216,7 +223,7 @@
     "id": "7c460d99-0495-4121-84d4-500dbdf4d09a",
     "name": "Savoir pierre politique grain.",
     "hasSubscriptionForm": false,
-    "compteRendu": "",
+    "report": {},
     "illustration": null,
     "startTime": "2020-12-22T10:55:58.253163+01:00",
     "endTime": "2020-12-22T13:55:58.253163+01:00",
@@ -231,7 +238,13 @@
       "address": "545, rue de Marechal\nApp. 1\n92151 Saint Simoneboeuf",
       "shortAddress": "545, rue de Marechal, App. 1, 92151, Saint Simoneboeuf",
       "shortLocation": "545, rue de Marechal (Saint Simoneboeuf)",
-      "coordinates": { "type": "Point", "coordinates": [2.44892, 48.98693] },
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          2.44892,
+          48.98693
+        ]
+      },
       "staticMapUrl": "https://s3.fr-par.scw.cloud/agir-preprod/carte/staticmapimage/FNN77J2SXFGAZP2LY5WCQVL3FM.png"
     },
     "isOrganizer": true,
@@ -243,7 +256,6 @@
       "cancel": "http://agir.local:8000/evenements/7c460d99-0495-4121-84d4-500dbdf4d09a/quitter/",
       "manage": "http://agir.local:8000/evenements/7c460d99-0495-4121-84d4-500dbdf4d09a/manage/",
       "calendarExport": "http://agir.local:8000/evenements/7c460d99-0495-4121-84d4-500dbdf4d09a/icalendar/",
-      "compteRendu": "http://agir.local:8000/evenements/7c460d99-0495-4121-84d4-500dbdf4d09a/compte-rendu/",
       "addPhoto": "http://agir.local:8000/evenements/7c460d99-0495-4121-84d4-500dbdf4d09a/importer-image/",
       "edit": "http://agir.local:8000/evenements/7c460d99-0495-4121-84d4-500dbdf4d09a/modifier/",
       "admin": "https://api-preprod.franceinsoumise.org/admin/events/event/7c460d99-0495-4121-84d4-500dbdf4d09a/change/",
@@ -271,7 +283,7 @@
     "id": "f01ace28-6bcc-40ee-82cc-2665e757abdf",
     "name": "Event !",
     "hasSubscriptionForm": false,
-    "compteRendu": "",
+    "report": {},
     "illustration": null,
     "startTime": "2021-01-01T00:00:00+01:00",
     "endTime": "2021-01-02T00:00:00+01:00",
@@ -286,7 +298,13 @@
       "address": "1 rue manin\n75019 Paris",
       "shortAddress": "1 rue manin, 75019, Paris",
       "shortLocation": "Café (Paris)",
-      "coordinates": { "type": "Point", "coordinates": [2.379105, 48.876574] },
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          2.379105,
+          48.876574
+        ]
+      },
       "staticMapUrl": "https://s3.fr-par.scw.cloud/agir-preprod/carte/staticmapimage/TBYZ7JPF7BAM5DVXH6DZMPSYBQ.png"
     },
     "isOrganizer": true,
@@ -298,7 +316,6 @@
       "cancel": "http://agir.local:8000/evenements/f01ace28-6bcc-40ee-82cc-2665e757abdf/quitter/",
       "manage": "http://agir.local:8000/evenements/f01ace28-6bcc-40ee-82cc-2665e757abdf/manage/",
       "calendarExport": "http://agir.local:8000/evenements/f01ace28-6bcc-40ee-82cc-2665e757abdf/icalendar/",
-      "compteRendu": "http://agir.local:8000/evenements/f01ace28-6bcc-40ee-82cc-2665e757abdf/compte-rendu/",
       "addPhoto": "http://agir.local:8000/evenements/f01ace28-6bcc-40ee-82cc-2665e757abdf/importer-image/",
       "edit": "http://agir.local:8000/evenements/f01ace28-6bcc-40ee-82cc-2665e757abdf/modifier/",
       "admin": "https://api-preprod.franceinsoumise.org/admin/events/event/f01ace28-6bcc-40ee-82cc-2665e757abdf/change/",
@@ -326,7 +343,7 @@
     "id": "76bb0eea-1889-4dde-b591-5f4f7541a0b9",
     "name": "V",
     "hasSubscriptionForm": false,
-    "compteRendu": "",
+    "report": {},
     "illustration": {
       "thumbnail": "https://s3.fr-par.scw.cloud/agir-preprod/events/event/76bb0eea-1889-4dde-b591-5f4f7541a0b9/banner.thumbnail.jpeg",
       "banner": "https://s3.fr-par.scw.cloud/agir-preprod/events/event/76bb0eea-1889-4dde-b591-5f4f7541a0b9/banner.banner.jpeg"
@@ -344,7 +361,13 @@
       "address": "1 rue manin\n75019 Paris",
       "shortAddress": "1 rue manin, 75019, Paris",
       "shortLocation": "Café (Paris)",
-      "coordinates": { "type": "Point", "coordinates": [2.379105, 48.876574] },
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          2.379105,
+          48.876574
+        ]
+      },
       "staticMapUrl": "https://s3.fr-par.scw.cloud/agir-preprod/carte/staticmapimage/TBYZ7JPF7BAM5DVXH6DZMPSYBQ.png"
     },
     "isOrganizer": true,
@@ -356,7 +379,6 @@
       "cancel": "http://agir.local:8000/evenements/76bb0eea-1889-4dde-b591-5f4f7541a0b9/quitter/",
       "manage": "http://agir.local:8000/evenements/76bb0eea-1889-4dde-b591-5f4f7541a0b9/manage/",
       "calendarExport": "http://agir.local:8000/evenements/76bb0eea-1889-4dde-b591-5f4f7541a0b9/icalendar/",
-      "compteRendu": "http://agir.local:8000/evenements/76bb0eea-1889-4dde-b591-5f4f7541a0b9/compte-rendu/",
       "addPhoto": "http://agir.local:8000/evenements/76bb0eea-1889-4dde-b591-5f4f7541a0b9/importer-image/",
       "edit": "http://agir.local:8000/evenements/76bb0eea-1889-4dde-b591-5f4f7541a0b9/modifier/",
       "admin": "https://api-preprod.franceinsoumise.org/admin/events/event/76bb0eea-1889-4dde-b591-5f4f7541a0b9/change/",
@@ -384,7 +406,7 @@
     "id": "9c817957-e412-4b78-b469-6b3bc928976b",
     "name": "Eve",
     "hasSubscriptionForm": false,
-    "compteRendu": "",
+    "report": {},
     "illustration": {
       "thumbnail": "https://s3.fr-par.scw.cloud/agir-preprod/events/eventsubtype/None/banner.thumbnail.png",
       "banner": "https://s3.fr-par.scw.cloud/agir-preprod/events/eventsubtype/None/banner.banner.png"
@@ -414,7 +436,6 @@
       "cancel": "http://agir.local:8000/evenements/9c817957-e412-4b78-b469-6b3bc928976b/quitter/",
       "manage": "http://agir.local:8000/evenements/9c817957-e412-4b78-b469-6b3bc928976b/manage/",
       "calendarExport": "http://agir.local:8000/evenements/9c817957-e412-4b78-b469-6b3bc928976b/icalendar/",
-      "compteRendu": "http://agir.local:8000/evenements/9c817957-e412-4b78-b469-6b3bc928976b/compte-rendu/",
       "addPhoto": "http://agir.local:8000/evenements/9c817957-e412-4b78-b469-6b3bc928976b/importer-image/",
       "edit": "http://agir.local:8000/evenements/9c817957-e412-4b78-b469-6b3bc928976b/modifier/",
       "admin": "https://api-preprod.franceinsoumise.org/admin/events/event/9c817957-e412-4b78-b469-6b3bc928976b/change/",
@@ -436,7 +457,7 @@
     "id": "aa7d4a57-4e84-4dd1-a1aa-c796ea0a8d7c",
     "name": "L'événement des gens super cools ! (sauf toi)",
     "hasSubscriptionForm": false,
-    "compteRendu": "",
+    "report": {},
     "illustration": {
       "thumbnail": "https://s3.fr-par.scw.cloud/agir-preprod/events/eventsubtype/None/banner.thumbnail.png",
       "banner": "https://s3.fr-par.scw.cloud/agir-preprod/events/eventsubtype/None/banner.banner.png"
@@ -454,7 +475,13 @@
       "address": "12 Avenue de Wagram\n75008 Paris 8e",
       "shortAddress": "12 Avenue de Wagram, 75008, Paris 8e",
       "shortLocation": "Lily Folden (Paris 8e)",
-      "coordinates": { "type": "Point", "coordinates": [2.296797, 48.875805] },
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          2.296797,
+          48.875805
+        ]
+      },
       "staticMapUrl": "https://s3.fr-par.scw.cloud/agir-preprod/carte/staticmapimage/E56TOM6BGRHFBJCN4S6YKD3NLQ.png"
     },
     "isOrganizer": false,
@@ -466,7 +493,6 @@
       "cancel": "http://agir.local:8000/evenements/aa7d4a57-4e84-4dd1-a1aa-c796ea0a8d7c/quitter/",
       "manage": "http://agir.local:8000/evenements/aa7d4a57-4e84-4dd1-a1aa-c796ea0a8d7c/manage/",
       "calendarExport": "http://agir.local:8000/evenements/aa7d4a57-4e84-4dd1-a1aa-c796ea0a8d7c/icalendar/",
-      "compteRendu": "http://agir.local:8000/evenements/aa7d4a57-4e84-4dd1-a1aa-c796ea0a8d7c/compte-rendu/",
       "addPhoto": "http://agir.local:8000/evenements/aa7d4a57-4e84-4dd1-a1aa-c796ea0a8d7c/importer-image/",
       "edit": "http://agir.local:8000/evenements/aa7d4a57-4e84-4dd1-a1aa-c796ea0a8d7c/modifier/",
       "admin": "https://api-preprod.franceinsoumise.org/admin/events/event/aa7d4a57-4e84-4dd1-a1aa-c796ea0a8d7c/change/",
@@ -494,7 +520,7 @@
     "id": "b27ef3ff-beb4-438a-b3bd-204869377b19",
     "name": "Un événement",
     "hasSubscriptionForm": false,
-    "compteRendu": "",
+    "report": {},
     "illustration": {
       "thumbnail": "https://s3.fr-par.scw.cloud/agir-preprod/events/eventsubtype/None/banner.thumbnail.png",
       "banner": "https://s3.fr-par.scw.cloud/agir-preprod/events/eventsubtype/None/banner.banner.png"
@@ -512,7 +538,13 @@
       "address": "12 Avenue de Wagram\n75008 Paris 8e",
       "shortAddress": "12 Avenue de Wagram, 75008, Paris 8e",
       "shortLocation": "Lily Folden (Paris 8e)",
-      "coordinates": { "type": "Point", "coordinates": [2.296797, 48.875805] },
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          2.296797,
+          48.875805
+        ]
+      },
       "staticMapUrl": "https://s3.fr-par.scw.cloud/agir-preprod/carte/staticmapimage/E56TOM6BGRHFBJCN4S6YKD3NLQ.png"
     },
     "isOrganizer": true,
@@ -524,7 +556,6 @@
       "cancel": "http://agir.local:8000/evenements/b27ef3ff-beb4-438a-b3bd-204869377b19/quitter/",
       "manage": "http://agir.local:8000/evenements/b27ef3ff-beb4-438a-b3bd-204869377b19/manage/",
       "calendarExport": "http://agir.local:8000/evenements/b27ef3ff-beb4-438a-b3bd-204869377b19/icalendar/",
-      "compteRendu": "http://agir.local:8000/evenements/b27ef3ff-beb4-438a-b3bd-204869377b19/compte-rendu/",
       "addPhoto": "http://agir.local:8000/evenements/b27ef3ff-beb4-438a-b3bd-204869377b19/importer-image/",
       "edit": "http://agir.local:8000/evenements/b27ef3ff-beb4-438a-b3bd-204869377b19/modifier/",
       "admin": "https://api-preprod.franceinsoumise.org/admin/events/event/b27ef3ff-beb4-438a-b3bd-204869377b19/change/",
@@ -552,7 +583,7 @@
     "id": "62c6bce3-ab34-4513-8cbf-8434721a7641",
     "name": "Super événement avec image sur s3",
     "hasSubscriptionForm": false,
-    "compteRendu": "",
+    "report": {},
     "illustration": {
       "thumbnail": "https://s3.fr-par.scw.cloud/agir-preprod/events/event/62c6bce3-ab34-4513-8cbf-8434721a7641/banner.thumbnail.png",
       "banner": "https://s3.fr-par.scw.cloud/agir-preprod/events/event/62c6bce3-ab34-4513-8cbf-8434721a7641/banner.banner.png"
@@ -570,7 +601,13 @@
       "address": "Le Prévoyant\n3e étage vraiment à gauche\n93230 Romainville",
       "shortAddress": "Le Prévoyant, 3e étage vraiment à gauche, 93230, Romainville",
       "shortLocation": "Là où on boit du jus de fruit (Romainville)",
-      "coordinates": { "type": "Point", "coordinates": [2.438802, 48.885037] },
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          2.438802,
+          48.885037
+        ]
+      },
       "staticMapUrl": "https://s3.fr-par.scw.cloud/agir-preprod/carte/staticmapimage/KHMQQAEURJBKNEQYUKNOHJ45ZY.png"
     },
     "isOrganizer": false,
@@ -582,7 +619,6 @@
       "cancel": "http://agir.local:8000/evenements/62c6bce3-ab34-4513-8cbf-8434721a7641/quitter/",
       "manage": "http://agir.local:8000/evenements/62c6bce3-ab34-4513-8cbf-8434721a7641/manage/",
       "calendarExport": "http://agir.local:8000/evenements/62c6bce3-ab34-4513-8cbf-8434721a7641/icalendar/",
-      "compteRendu": "http://agir.local:8000/evenements/62c6bce3-ab34-4513-8cbf-8434721a7641/compte-rendu/",
       "addPhoto": "http://agir.local:8000/evenements/62c6bce3-ab34-4513-8cbf-8434721a7641/importer-image/",
       "edit": "http://agir.local:8000/evenements/62c6bce3-ab34-4513-8cbf-8434721a7641/modifier/",
       "admin": "https://api-preprod.franceinsoumise.org/admin/events/event/62c6bce3-ab34-4513-8cbf-8434721a7641/change/",
@@ -610,7 +646,7 @@
     "id": "ea6180aa-47eb-4382-b4b5-2a0362aa6560",
     "name": "Super événement martiniquais",
     "hasSubscriptionForm": false,
-    "compteRendu": "",
+    "report": {},
     "illustration": {
       "thumbnail": "https://s3.fr-par.scw.cloud/agir-preprod/events/eventsubtype/None/banner.thumbnail.png",
       "banner": "https://s3.fr-par.scw.cloud/agir-preprod/events/eventsubtype/None/banner.banner.png"
@@ -630,7 +666,10 @@
       "shortLocation": "Avenue de Verdun (Point-a-pitre, Martinique)",
       "coordinates": {
         "type": "Point",
-        "coordinates": [-61.532776, 16.235201]
+        "coordinates": [
+          -61.532776,
+          16.235201
+        ]
       },
       "staticMapUrl": "https://s3.fr-par.scw.cloud/agir-preprod/carte/staticmapimage/SMXU26RVXBBMXE224TCIIDKNYM.png"
     },
@@ -643,7 +682,6 @@
       "cancel": "http://agir.local:8000/evenements/ea6180aa-47eb-4382-b4b5-2a0362aa6560/quitter/",
       "manage": "http://agir.local:8000/evenements/ea6180aa-47eb-4382-b4b5-2a0362aa6560/manage/",
       "calendarExport": "http://agir.local:8000/evenements/ea6180aa-47eb-4382-b4b5-2a0362aa6560/icalendar/",
-      "compteRendu": "http://agir.local:8000/evenements/ea6180aa-47eb-4382-b4b5-2a0362aa6560/compte-rendu/",
       "addPhoto": "http://agir.local:8000/evenements/ea6180aa-47eb-4382-b4b5-2a0362aa6560/importer-image/",
       "edit": "http://agir.local:8000/evenements/ea6180aa-47eb-4382-b4b5-2a0362aa6560/modifier/",
       "admin": "https://api-preprod.franceinsoumise.org/admin/events/event/ea6180aa-47eb-4382-b4b5-2a0362aa6560/change/",
@@ -671,7 +709,7 @@
     "id": "41c30944-fa65-49b5-9e49-d2d15464db6a",
     "name": "Meeting sur la face cachée de la Lune",
     "hasSubscriptionForm": false,
-    "compteRendu": "",
+    "report": {},
     "illustration": {
       "thumbnail": "https://s3.fr-par.scw.cloud/agir-preprod/events/eventsubtype/None/banner.thumbnail.png",
       "banner": "https://s3.fr-par.scw.cloud/agir-preprod/events/eventsubtype/None/banner.banner.png"
@@ -689,7 +727,13 @@
       "address": "8hcohcog\n3e étage gauche gauche\n93230 Romainville",
       "shortAddress": "8hcohcog, 3e étage gauche gauche, 93230, Romainville",
       "shortLocation": "Agathe Marie Lily (Romainville)",
-      "coordinates": { "type": "Point", "coordinates": [2.44058, 48.873974] },
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          2.44058,
+          48.873974
+        ]
+      },
       "staticMapUrl": "https://s3.fr-par.scw.cloud/agir-preprod/carte/staticmapimage/LXTQ7AAZMJFCNGXQFJG6BRBUVY.png"
     },
     "isOrganizer": false,
@@ -701,7 +745,6 @@
       "cancel": "http://agir.local:8000/evenements/41c30944-fa65-49b5-9e49-d2d15464db6a/quitter/",
       "manage": "http://agir.local:8000/evenements/41c30944-fa65-49b5-9e49-d2d15464db6a/manage/",
       "calendarExport": "http://agir.local:8000/evenements/41c30944-fa65-49b5-9e49-d2d15464db6a/icalendar/",
-      "compteRendu": "http://agir.local:8000/evenements/41c30944-fa65-49b5-9e49-d2d15464db6a/compte-rendu/",
       "addPhoto": "http://agir.local:8000/evenements/41c30944-fa65-49b5-9e49-d2d15464db6a/importer-image/",
       "edit": "http://agir.local:8000/evenements/41c30944-fa65-49b5-9e49-d2d15464db6a/modifier/",
       "admin": "https://api-preprod.franceinsoumise.org/admin/events/event/41c30944-fa65-49b5-9e49-d2d15464db6a/change/",
@@ -729,7 +772,7 @@
     "id": "1cf3b2d1-3819-4f2e-b72c-d64cdbdee316",
     "name": "Un nouvelévénement",
     "hasSubscriptionForm": false,
-    "compteRendu": "",
+    "report": {},
     "illustration": {
       "thumbnail": "https://s3.fr-par.scw.cloud/agir-preprod/events/eventsubtype/None/banner.thumbnail.png",
       "banner": "https://s3.fr-par.scw.cloud/agir-preprod/events/eventsubtype/None/banner.banner.png"
@@ -747,7 +790,13 @@
       "address": "146 Rue Montmartre\n75002 Paris",
       "shortAddress": "146 Rue Montmartre, 75002, Paris",
       "shortLocation": "Café du Croissant (Paris)",
-      "coordinates": { "type": "Point", "coordinates": [2.343242, 48.869259] },
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          2.343242,
+          48.869259
+        ]
+      },
       "staticMapUrl": "https://s3.fr-par.scw.cloud/agir-preprod/carte/staticmapimage/E7QKBEYUK5CEXCGV77HM5FOZXY.png"
     },
     "isOrganizer": true,
@@ -759,7 +808,6 @@
       "cancel": "http://agir.local:8000/evenements/1cf3b2d1-3819-4f2e-b72c-d64cdbdee316/quitter/",
       "manage": "http://agir.local:8000/evenements/1cf3b2d1-3819-4f2e-b72c-d64cdbdee316/manage/",
       "calendarExport": "http://agir.local:8000/evenements/1cf3b2d1-3819-4f2e-b72c-d64cdbdee316/icalendar/",
-      "compteRendu": "http://agir.local:8000/evenements/1cf3b2d1-3819-4f2e-b72c-d64cdbdee316/compte-rendu/",
       "addPhoto": "http://agir.local:8000/evenements/1cf3b2d1-3819-4f2e-b72c-d64cdbdee316/importer-image/",
       "edit": "http://agir.local:8000/evenements/1cf3b2d1-3819-4f2e-b72c-d64cdbdee316/modifier/",
       "admin": "https://api-preprod.franceinsoumise.org/admin/events/event/1cf3b2d1-3819-4f2e-b72c-d64cdbdee316/change/",
@@ -787,7 +835,7 @@
     "id": "6d6803a4-2de4-4882-940d-9c5f547e99cc",
     "name": "Événement sanguin",
     "hasSubscriptionForm": false,
-    "compteRendu": "",
+    "report": {},
     "illustration": {
       "thumbnail": "https://s3.fr-par.scw.cloud/agir-preprod/events/eventsubtype/None/banner.thumbnail.png",
       "banner": "https://s3.fr-par.scw.cloud/agir-preprod/events/eventsubtype/None/banner.banner.png"
@@ -805,7 +853,13 @@
       "address": "146 Rue Montmartre\n75002 Paris",
       "shortAddress": "146 Rue Montmartre, 75002, Paris",
       "shortLocation": "Café du croissant (Paris)",
-      "coordinates": { "type": "Point", "coordinates": [2.343242, 48.869259] },
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          2.343242,
+          48.869259
+        ]
+      },
       "staticMapUrl": "https://s3.fr-par.scw.cloud/agir-preprod/carte/staticmapimage/E7QKBEYUK5CEXCGV77HM5FOZXY.png"
     },
     "isOrganizer": false,
@@ -817,7 +871,6 @@
       "cancel": "http://agir.local:8000/evenements/6d6803a4-2de4-4882-940d-9c5f547e99cc/quitter/",
       "manage": "http://agir.local:8000/evenements/6d6803a4-2de4-4882-940d-9c5f547e99cc/manage/",
       "calendarExport": "http://agir.local:8000/evenements/6d6803a4-2de4-4882-940d-9c5f547e99cc/icalendar/",
-      "compteRendu": "http://agir.local:8000/evenements/6d6803a4-2de4-4882-940d-9c5f547e99cc/compte-rendu/",
       "addPhoto": "http://agir.local:8000/evenements/6d6803a4-2de4-4882-940d-9c5f547e99cc/importer-image/",
       "edit": "http://agir.local:8000/evenements/6d6803a4-2de4-4882-940d-9c5f547e99cc/modifier/",
       "admin": "https://api-preprod.franceinsoumise.org/admin/events/event/6d6803a4-2de4-4882-940d-9c5f547e99cc/change/",
@@ -845,7 +898,7 @@
     "id": "acd77b7a-c552-4bb2-814e-d7fd6e3fc20f",
     "name": "VVV",
     "hasSubscriptionForm": false,
-    "compteRendu": "",
+    "report": {},
     "illustration": {
       "thumbnail": "https://s3.fr-par.scw.cloud/agir-preprod/events/eventsubtype/None/banner.thumbnail.png",
       "banner": "https://s3.fr-par.scw.cloud/agir-preprod/events/eventsubtype/None/banner.banner.png"
@@ -863,7 +916,13 @@
       "address": "146 Rue Montmartre\n75002 Paris",
       "shortAddress": "146 Rue Montmartre, 75002, Paris",
       "shortLocation": "Café du Croissant (Paris)",
-      "coordinates": { "type": "Point", "coordinates": [2.343242, 48.869259] },
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          2.343242,
+          48.869259
+        ]
+      },
       "staticMapUrl": "https://s3.fr-par.scw.cloud/agir-preprod/carte/staticmapimage/E7QKBEYUK5CEXCGV77HM5FOZXY.png"
     },
     "isOrganizer": true,
@@ -875,7 +934,6 @@
       "cancel": "http://agir.local:8000/evenements/acd77b7a-c552-4bb2-814e-d7fd6e3fc20f/quitter/",
       "manage": "http://agir.local:8000/evenements/acd77b7a-c552-4bb2-814e-d7fd6e3fc20f/manage/",
       "calendarExport": "http://agir.local:8000/evenements/acd77b7a-c552-4bb2-814e-d7fd6e3fc20f/icalendar/",
-      "compteRendu": "http://agir.local:8000/evenements/acd77b7a-c552-4bb2-814e-d7fd6e3fc20f/compte-rendu/",
       "addPhoto": "http://agir.local:8000/evenements/acd77b7a-c552-4bb2-814e-d7fd6e3fc20f/importer-image/",
       "edit": "http://agir.local:8000/evenements/acd77b7a-c552-4bb2-814e-d7fd6e3fc20f/modifier/",
       "admin": "https://api-preprod.franceinsoumise.org/admin/events/event/acd77b7a-c552-4bb2-814e-d7fd6e3fc20f/change/",
@@ -903,7 +961,7 @@
     "id": "52b2e819-e431-473c-aa6d-25c1cd71a9c6",
     "name": "VvV",
     "hasSubscriptionForm": false,
-    "compteRendu": "",
+    "report": {},
     "illustration": {
       "thumbnail": "https://s3.fr-par.scw.cloud/agir-preprod/events/eventsubtype/None/banner.thumbnail.png",
       "banner": "https://s3.fr-par.scw.cloud/agir-preprod/events/eventsubtype/None/banner.banner.png"
@@ -921,7 +979,13 @@
       "address": "146 Rue Montmartre\n75002 Paris",
       "shortAddress": "146 Rue Montmartre, 75002, Paris",
       "shortLocation": "Café du Croissant (Paris)",
-      "coordinates": { "type": "Point", "coordinates": [2.343242, 48.869259] },
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          2.343242,
+          48.869259
+        ]
+      },
       "staticMapUrl": "https://s3.fr-par.scw.cloud/agir-preprod/carte/staticmapimage/E7QKBEYUK5CEXCGV77HM5FOZXY.png"
     },
     "isOrganizer": true,
@@ -933,7 +997,6 @@
       "cancel": "http://agir.local:8000/evenements/52b2e819-e431-473c-aa6d-25c1cd71a9c6/quitter/",
       "manage": "http://agir.local:8000/evenements/52b2e819-e431-473c-aa6d-25c1cd71a9c6/manage/",
       "calendarExport": "http://agir.local:8000/evenements/52b2e819-e431-473c-aa6d-25c1cd71a9c6/icalendar/",
-      "compteRendu": "http://agir.local:8000/evenements/52b2e819-e431-473c-aa6d-25c1cd71a9c6/compte-rendu/",
       "addPhoto": "http://agir.local:8000/evenements/52b2e819-e431-473c-aa6d-25c1cd71a9c6/importer-image/",
       "edit": "http://agir.local:8000/evenements/52b2e819-e431-473c-aa6d-25c1cd71a9c6/modifier/",
       "admin": "https://api-preprod.franceinsoumise.org/admin/events/event/52b2e819-e431-473c-aa6d-25c1cd71a9c6/change/",
@@ -961,7 +1024,7 @@
     "id": "70354875-c7b5-42b7-a4b1-a8d97acc9c38",
     "name": "Mail Occitanie populaire 15/06/2021",
     "hasSubscriptionForm": false,
-    "compteRendu": "",
+    "report": {},
     "illustration": null,
     "startTime": "2021-07-03T12:42:09+02:00",
     "endTime": "2021-07-03T13:42:09+02:00",
@@ -976,7 +1039,13 @@
       "address": "146 Rue Montmartre\n75002 Paris",
       "shortAddress": "146 Rue Montmartre, 75002, Paris",
       "shortLocation": "Café du croissant (Paris)",
-      "coordinates": { "type": "Point", "coordinates": [2.343242, 48.869259] },
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          2.343242,
+          48.869259
+        ]
+      },
       "staticMapUrl": "https://s3.fr-par.scw.cloud/agir-preprod/carte/staticmapimage/E7QKBEYUK5CEXCGV77HM5FOZXY.png"
     },
     "isOrganizer": true,
@@ -988,7 +1057,6 @@
       "cancel": "http://agir.local:8000/evenements/70354875-c7b5-42b7-a4b1-a8d97acc9c38/quitter/",
       "manage": "http://agir.local:8000/evenements/70354875-c7b5-42b7-a4b1-a8d97acc9c38/manage/",
       "calendarExport": "http://agir.local:8000/evenements/70354875-c7b5-42b7-a4b1-a8d97acc9c38/icalendar/",
-      "compteRendu": "http://agir.local:8000/evenements/70354875-c7b5-42b7-a4b1-a8d97acc9c38/compte-rendu/",
       "addPhoto": "http://agir.local:8000/evenements/70354875-c7b5-42b7-a4b1-a8d97acc9c38/importer-image/",
       "edit": "http://agir.local:8000/evenements/70354875-c7b5-42b7-a4b1-a8d97acc9c38/modifier/",
       "admin": "https://api-preprod.franceinsoumise.org/admin/events/event/70354875-c7b5-42b7-a4b1-a8d97acc9c38/change/",
@@ -1016,7 +1084,7 @@
     "id": "1ae1b53d-5910-4f83-864a-33e55c8af219",
     "name": "Le picnic de fin d'année de Kerguelen insoumise !",
     "hasSubscriptionForm": false,
-    "compteRendu": "",
+    "report": {},
     "illustration": {
       "thumbnail": "https://s3.fr-par.scw.cloud/agir-preprod/events/event/1ae1b53d-5910-4f83-864a-33e55c8af219/banner.thumbnail.jpg",
       "banner": "https://s3.fr-par.scw.cloud/agir-preprod/events/event/1ae1b53d-5910-4f83-864a-33e55c8af219/banner.banner.jpg"
@@ -1036,7 +1104,10 @@
       "shortLocation": "Café du Croissant (Kerguelen)",
       "coordinates": {
         "type": "Point",
-        "coordinates": [70.21631598472594, -49.349770644287396]
+        "coordinates": [
+          70.21631598472594,
+          -49.349770644287396
+        ]
       },
       "staticMapUrl": "https://s3.fr-par.scw.cloud/agir-preprod/carte/staticmapimage/AGUJVHVWOJGCRP2XHKXBWC4RLE.png"
     },
@@ -1049,7 +1120,6 @@
       "cancel": "http://agir.local:8000/evenements/1ae1b53d-5910-4f83-864a-33e55c8af219/quitter/",
       "manage": "http://agir.local:8000/evenements/1ae1b53d-5910-4f83-864a-33e55c8af219/manage/",
       "calendarExport": "http://agir.local:8000/evenements/1ae1b53d-5910-4f83-864a-33e55c8af219/icalendar/",
-      "compteRendu": "http://agir.local:8000/evenements/1ae1b53d-5910-4f83-864a-33e55c8af219/compte-rendu/",
       "addPhoto": "http://agir.local:8000/evenements/1ae1b53d-5910-4f83-864a-33e55c8af219/importer-image/",
       "edit": "http://agir.local:8000/evenements/1ae1b53d-5910-4f83-864a-33e55c8af219/modifier/",
       "admin": "https://api-preprod.franceinsoumise.org/admin/events/event/1ae1b53d-5910-4f83-864a-33e55c8af219/change/",

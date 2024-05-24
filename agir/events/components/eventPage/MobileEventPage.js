@@ -260,8 +260,7 @@ MobileEventPage.propTypes = {
   hasSubscriptionForm: PropTypes.bool,
   isOrganizer: PropTypes.bool,
   isManager: PropTypes.bool,
-  compteRendu: PropTypes.string,
-  compteRenduPhotos: PropTypes.arrayOf(PropTypes.object),
+  report: PropTypes.object,
   illustration: PropTypes.shape({
     thumbnail: PropTypes.string,
   }),

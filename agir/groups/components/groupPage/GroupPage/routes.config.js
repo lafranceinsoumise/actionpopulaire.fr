@@ -47,7 +47,8 @@ const routeConfig = {
     exact: false,
     label: "Comptes rendus",
     hasTab: true,
-    hasRoute: (group) => group.isManager || group.hasPastEventReports,
+    hasRoute: (group) =>
+      group.isManager || (group.isActiveMember && group.hasPastEventReports),
   },
 };
 

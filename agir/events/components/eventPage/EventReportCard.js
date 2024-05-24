@@ -12,14 +12,10 @@ import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import { routeConfig } from "@agir/front/app/routes.config";
 
-const EventReportCard = ({
-  id,
-  compteRendu,
-  isOrganizer,
-  isEditable,
-  endTime,
-}) => {
-  if (!compteRendu && !isOrganizer) {
+const EventReportCard = ({ id, report, isOrganizer, isEditable, endTime }) => {
+  const hasReport = !!report?.content;
+
+  if (!hasReport && !isOrganizer) {
     return null;
   }
 
@@ -27,9 +23,9 @@ const EventReportCard = ({
     <StyledCard>
       <h5>Compte rendu</h5>
       <Spacer size="0.5rem" />
-      {compteRendu ? (
+      {hasReport ? (
         <Collapsible
-          dangerouslySetInnerHTML={{ __html: compteRendu }}
+          dangerouslySetInnerHTML={{ __html: report.content }}
           style={{ margin: "1em 0 3em" }}
           fadingOverflow
         />
@@ -45,7 +41,7 @@ const EventReportCard = ({
             activePanel: "compte-rendu",
           })}
         >
-          {compteRendu ? "Modifier le" : "Ajouter un"} compte rendu
+          {hasReport ? "Modifier le" : "Ajouter un"} compte rendu
         </Button>
       )}
     </StyledCard>
@@ -54,7 +50,7 @@ const EventReportCard = ({
 
 EventReportCard.propTypes = {
   id: PropTypes.string,
-  compteRendu: PropTypes.string,
+  report: PropTypes.shape({ content: PropTypes.string }),
   isEditable: PropTypes.bool,
   isOrganizer: PropTypes.bool,
   endTime: PropTypes.object,

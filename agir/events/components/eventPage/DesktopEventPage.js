@@ -169,8 +169,7 @@ DesktopEventPage.propTypes = {
   hasSubscriptionForm: PropTypes.bool,
   isOrganizer: PropTypes.bool,
   isManager: PropTypes.bool,
-  compteRendu: PropTypes.string,
-  compteRenduPhotos: PropTypes.arrayOf(PropTypes.object),
+  report: PropTypes.object,
   illustration: PropTypes.shape({
     thumbnail: PropTypes.string,
   }),
@@ -198,7 +197,6 @@ DesktopEventPage.propTypes = {
     googleExport: PropTypes.string,
     facebook: PropTypes.string,
     addPhoto: PropTypes.string,
-    compteRendu: PropTypes.string,
   }),
   appRoutes: PropTypes.object,
   logged: PropTypes.bool,

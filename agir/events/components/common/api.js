@@ -142,14 +142,8 @@ export const updateEvent = async (eventPk, data) => {
     body.subtype = body.subtype?.id;
   }
 
-  if (body.image || body.compteRenduPhoto) {
-    const formData = new FormData();
-    Object.keys(body).forEach((e) => {
-      if (typeof body[e] !== "undefined") {
-        formData.append(e, body[e] || "");
-      }
-    });
-    body = formData;
+  if (body.image || body.report?.picture) {
+    body = objectToFormData(body);
   }
 
   try {

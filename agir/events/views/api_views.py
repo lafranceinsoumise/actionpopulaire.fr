@@ -8,6 +8,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django_filters.rest_framework import DjangoFilterBackend
+from nested_multipart_parser.drf import DrfNestedParser
 from rest_framework import exceptions, status
 from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.generics import (
@@ -19,6 +20,7 @@ from rest_framework.generics import (
     RetrieveUpdateAPIView,
     ListCreateAPIView,
 )
+from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -417,6 +419,7 @@ class EventDetailAdvancedAPIView(RetrieveAPIView):
 
 
 class UpdateEventAPIView(UpdateAPIView):
+    parser_classes = (JSONParser, DrfNestedParser)
     permission_classes = (
         IsPersonPermission,
         EventManagementPermissions,
