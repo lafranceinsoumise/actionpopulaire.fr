@@ -127,7 +127,6 @@ class LinkedEventField(serializers.RelatedField):
                 "location",
                 "rsvp",
                 "routes",
-                "compteRendu",
                 "subtype",
             ],
             context=self.context,

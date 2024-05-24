@@ -1,9 +1,9 @@
 import datetime
 from datetime import timedelta
-from functools import partial
 from pathlib import PurePath
 
 from dateutil.relativedelta import relativedelta
+from django.core import validators
 from django.db import transaction
 from django.db.models import Value, Func, Q
 from django.db.models.functions import Concat, Replace, Lower, MD5
@@ -72,7 +72,7 @@ EVENT_ROUTES = {
     "cancel": "quit_event",
     "manage": "view_event_settings",
     "calendarExport": "ics_event",
-    "compteRendu": "edit_event_report",
+    "report": "edit_event_report",
     "addPhoto": "upload_event_image",
     "edit": "edit_event",
 }
@@ -159,6 +159,35 @@ class EventOptionsSerializer(serializers.Serializer):
         return obj.get_price_display()
 
 
+class EventReportSerializer(FlexibleFieldsMixin, serializers.Serializer):
+    requires_context = True
+
+    content = serializers.CharField(source="report_content", allow_blank=True)
+    picture = serializers.ImageField(
+        source="report_image",
+        allow_empty_file=True,
+        allow_null=True,
+        validators=[validators.FileExtensionValidator(["png", "jpeg", "jpg"])],
+    )
+    photos = serializers.SerializerMethodField(read_only=True)
+
+    def get_photos(self, event):
+        return [
+            {
+                "image": instance.image.url,
+                "thumbnail": instance.image.thumbnail.url,
+                "legend": instance.legend,
+            }
+            for instance in event.images.all()
+        ]
+
+    def validate_content(self, content):
+        if not textify(content):
+            return ""
+
+        return content
+
+
 class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     EVENT_CARD_FIELDS = [
         "id",
@@ -180,9 +209,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     hasSubscriptionForm = serializers.SerializerMethodField()
     description = serializers.CharField(source="html_description")
     textDescription = serializers.SerializerMethodField()
-    compteRendu = serializers.CharField(source="report_content")
-    compteRenduMainPhoto = serializers.SerializerMethodField(source="report_image")
-    compteRenduPhotos = serializers.SerializerMethodField()
+    report = EventReportSerializer(source="*", read_only=True)
     illustration = serializers.SerializerMethodField()
     metaImage = serializers.SerializerMethodField()
     startTime = serializers.SerializerMethodField()
@@ -233,7 +260,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def __init__(self, instance=None, data=empty, fields=None, **kwargs):
         self.is_event_card = fields == self.EVENT_CARD_FIELDS
-        self.person = None
+        self.person = self.organizer_config = self.rsvp = None
         super().__init__(instance=instance, data=data, fields=fields, **kwargs)
 
     def to_representation(self, instance):
@@ -241,6 +268,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
             return super().to_representation(instance)
 
         user = self.context["request"].user
+
         if (
             not user.is_anonymous
             and hasattr(user, "person")
@@ -248,32 +276,16 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         ):
             self.person = user.person
 
-        if not self.is_event_card and self.person:
-            # this allow prefetching by queryset annotation for performances
-            if not hasattr(instance, "_pf_person_organizer_configs"):
-                self.organizer_config = OrganizerConfig.objects.filter(
-                    event=instance, person=self.person
-                ).first()
-            else:
-                self.organizer_config = (
-                    instance._pf_person_organizer_configs[0]
-                    if len(instance._pf_person_organizer_configs)
-                    else None
-                )
-            if not hasattr(instance, "_pf_person_rsvps"):
-                self.rsvp = (
-                    RSVP.objects.filter(event=instance, person=self.person)
-                    .order_by("-created")
-                    .first()
-                )
-            else:
-                self.rsvp = (
-                    instance._pf_person_rsvps[0]
-                    if len(instance._pf_person_rsvps)
-                    else None
-                )
-        else:
-            self.organizer_config = self.rsvp = None
+        if self.is_event_card:
+            return super().to_representation(instance)
+
+        person_status = instance.person_status(self.person)
+
+        self.rsvp = person_status.get("rsvp", None)
+        self.organizer_config = person_status.get("organizer_config", None)
+
+        if "report" in self.fields and not person_status.get("has_event_report", False):
+            del self.fields["report"]
 
         return super().to_representation(instance)
 
@@ -330,24 +342,6 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def can_rsvp_as_group(self, obj):
         return obj.can_rsvp_as_group(self.person)
-
-    def get_compteRenduMainPhoto(self, obj):
-        if obj.report_image:
-            return {
-                "image": obj.report_image.url,
-                "thumbnail": obj.report_image.thumbnail.url,
-                "banner": obj.report_image.banner.url,
-            }
-
-    def get_compteRenduPhotos(self, obj):
-        return [
-            {
-                "image": instance.image.url,
-                "thumbnail": instance.image.thumbnail.url,
-                "legend": instance.legend,
-            }
-            for instance in obj.images.all()
-        ]
 
     def get_routes(self, obj):
         routes = {}
@@ -926,10 +920,7 @@ class UpdateEventSerializer(serializers.ModelSerializer):
     contact = NestedContactSerializer(source="*")
     image = serializers.ImageField(allow_empty_file=True, allow_null=True)
     location = LocationSerializer(source="*")
-    compteRendu = serializers.CharField(source="report_content", allow_blank=True)
-    compteRenduPhoto = serializers.ImageField(
-        source="report_image", allow_empty_file=True, allow_null=True
-    )
+    report = EventReportSerializer(source="*")
     organizerGroup = EventOrganizerGroupField(
         write_only=True, required=False, allow_null=True
     )
@@ -1158,8 +1149,7 @@ class UpdateEventSerializer(serializers.ModelSerializer):
             "onlineUrl",
             "contact",
             "location",
-            "compteRendu",
-            "compteRenduPhoto",
+            "report",
             "organizerGroup",
         ]
 

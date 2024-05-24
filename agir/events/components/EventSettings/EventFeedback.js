@@ -22,10 +22,9 @@ const EventFeedback = (props) => {
   const { data: event, mutate } = useSWR(
     api.getEventEndpoint("getEvent", { eventPk }),
   );
-
   const [formData, setFormData] = useState({
-    compteRendu: "",
-    compteRenduPhoto: "",
+    content: "",
+    picture: "",
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -43,7 +42,7 @@ const EventFeedback = (props) => {
       setErrors((errors) => ({ ...errors, image: null }));
       setImageHasChanged(value !== originalImage);
       value && value !== originalImage && setHasCheckedImageLicence(false);
-      setFormData((formData) => ({ ...formData, compteRenduPhoto: value }));
+      setFormData((formData) => ({ ...formData, picture: value }));
     },
     [originalImage],
   );
@@ -59,11 +58,7 @@ const EventFeedback = (props) => {
     setErrors({});
     setIsLoading(true);
 
-    if (
-      formData.compteRenduPhoto &&
-      imageHasChanged &&
-      !hasCheckedImageLicence
-    ) {
+    if (formData.picture && imageHasChanged && !hasCheckedImageLicence) {
       setErrors((errors) => ({
         ...errors,
         image:
@@ -74,8 +69,10 @@ const EventFeedback = (props) => {
     }
 
     const res = await api.updateEvent(eventPk, {
-      compteRendu: formData.compteRendu,
-      compteRenduPhoto: imageHasChanged ? formData.compteRenduPhoto : undefined,
+      report: {
+        content: formData.content,
+        picture: imageHasChanged ? formData.picture : undefined,
+      },
     });
     setIsLoading(false);
     if (res.error) {
@@ -90,10 +87,7 @@ const EventFeedback = (props) => {
 
   useEffect(() => {
     setImageHasChanged(false);
-    setFormData({
-      compteRendu: event.compteRendu,
-      compteRenduPhoto: event.compteRenduMainPhoto?.image,
-    });
+    setFormData((state) => event?.report || state);
   }, [event]);
 
   const isDisabled = !event || !event.isEditable || isLoading;
@@ -102,41 +96,38 @@ const EventFeedback = (props) => {
     <form onSubmit={handleSubmit}>
       <HeaderPanel onBack={onBack} illustration={illustration} />
       <StyledTitle>Compte rendu</StyledTitle>
+      <p style={{ color: style.black700 }}>
+        Le compte rendu et les photos de l'événement seront visibles uniquement
+        pour les organisateur·ices, les participant·es ainsi que pour les
+        membres actifs des groupes organisateurs.
+      </p>
 
       <Spacer size="1rem" />
       <RichTextField
         id="feedback"
-        name="compteRendu"
+        name="content"
         label="Écrire un compte rendu*"
         placeholder=""
-        onChange={(e) => handleChange("compteRendu", e)}
-        value={formData.compteRendu}
-        error={errors?.compteRendu}
+        onChange={(e) => handleChange("content", e)}
+        value={formData.content}
+        error={errors?.report?.content}
         disabled={isDisabled}
       />
 
       <Spacer size="1rem" />
 
-      <h4>
-        {!formData.compteRenduPhoto || imageHasChanged
-          ? "Ajouter une photo"
-          : "Photo"}
-      </h4>
-      <span style={{ color: style.black700 }}>
-        Cette image apparaîtra en tête de votre compte rendu, et dans les
-        partages que vous ferez du compte rendu sur les réseaux sociaux.
-      </span>
+      <h4>Photo de l'événement</h4>
       <Spacer size="0.5rem" />
       <ImageField
-        name="compteRenduPhoto"
-        value={formData.compteRenduPhoto}
+        name="picture"
+        value={formData.picture}
         onChange={handleChangeImage}
-        error={errors?.image}
-        accept=".jpg,.jpeg,.gif,.png"
+        error={errors?.image || errors?.report?.picture}
+        accept=".jpg,.jpeg,.png"
         disabled={isDisabled}
       />
 
-      {formData.compteRenduPhoto && imageHasChanged && (
+      {formData.picture && imageHasChanged && (
         <>
           <Spacer size="0.5rem" />
           <CheckboxField
@@ -157,7 +148,7 @@ const EventFeedback = (props) => {
         </>
       )}
 
-      {formData.compteRenduPhoto && !imageHasChanged && (
+      {formData.picture && !imageHasChanged && (
         <>
           <Spacer size="0.5rem" />
           <Button link small href={event?.routes.addPhoto}>

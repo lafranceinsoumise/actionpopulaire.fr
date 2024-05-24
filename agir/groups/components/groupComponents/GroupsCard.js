@@ -39,6 +39,11 @@ const StyledCard = styled(GroupPageCard)`
     flex-direction: column;
     box-shadow: none;
     padding: 1.5rem;
+    margin: 2rem 0;
+
+    @media (max-width: ${(props) => props.theme.collapse}px) {
+      margin: 0;
+    }
 
     h4 {
       font-size: 1.125rem;

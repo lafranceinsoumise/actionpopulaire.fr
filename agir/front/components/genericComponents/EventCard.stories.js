@@ -66,7 +66,6 @@ Default.args = {
   routes: {
     join: "#join",
     cancel: "#cancel",
-    compteRendu: "#compteRendu",
     details: "#details",
   },
   groups: [
