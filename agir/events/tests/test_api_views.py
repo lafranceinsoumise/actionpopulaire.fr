@@ -1818,8 +1818,12 @@ class EventDetailViewTestCase(APITestCase):
             person=self.organizer_group_follower,
             membership_type=Membership.MEMBERSHIP_TYPE_FOLLOWER,
         )
-        self.rsvp = Person.objects.create_person(
-            email="rsvp@agir.test",
+        self.confirmed_rsvp = Person.objects.create_person(
+            email="confirmed_rsvp@agir.test",
+            create_role=True,
+        )
+        self.cancelled_rsvp = Person.objects.create_person(
+            email="cancelled_rsvp@agir.test",
             create_role=True,
         )
         self.start_time = timezone.now() + timezone.timedelta(hours=2)
@@ -1832,7 +1836,12 @@ class EventDetailViewTestCase(APITestCase):
             organizer_group=self.organizer_group,
             report_content="<p>This is a report</p>",
         )
-        self.event.rsvps.create(person=self.rsvp)
+        self.event.rsvps.create(
+            person=self.confirmed_rsvp, status=RSVP.Status.CONFIRMED
+        )
+        self.event.rsvps.create(
+            person=self.cancelled_rsvp, status=RSVP.Status.CANCELLED
+        )
 
     def test_only_organizers_rsvps_and_organizing_group_members_can_view_report(self):
         self.client.logout()
@@ -1853,10 +1862,16 @@ class EventDetailViewTestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotIn("report", response.data)
 
+        self.client.force_login(self.cancelled_rsvp.role)
+        response = self.client.get(f"/api/evenements/{self.event.pk}/details/")
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("report", response.data)
+
         for user in [
             "organizer",
             "organizer_group_manager",
             "organizer_group_active_member",
+            "confirmed_rsvp",
         ]:
             person = getattr(self, user)
             self.client.force_login(person.role)

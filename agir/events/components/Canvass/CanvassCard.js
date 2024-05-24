@@ -69,7 +69,7 @@ const CanvassCard = ({ flex = false, ...rest }) => (
         <Button small link route="canvass" icon="external-link" iconRight>
           Ouvrir la carte
         </Button>
-        <Button small link route="canvassHelp" icon="external-link" iconRight>
+        <Button small link route="canvassHelp" iconRight>
           En savoir plus
         </Button>
       </footer>

@@ -1136,8 +1136,8 @@ class Event(
 
         # Show event report only to organizers, participants or active members of organizer groups
         status["has_event_report"] = (
-            status["rsvp"]
-            or status["organizer_config"]
+            status["organizer_config"]
+            or (status["rsvp"] and status["rsvp"].status == RSVP.Status.CONFIRMED)
             or self.organizers_groups.filter(
                 memberships__person=person,
                 memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MEMBER,
