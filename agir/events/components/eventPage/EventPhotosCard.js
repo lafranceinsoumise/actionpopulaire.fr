@@ -39,22 +39,16 @@ const Thumbnails = styled.div`
 `;
 
 const EventPhotosCard = (props) => {
-  const {
-    compteRenduMainPhoto,
-    compteRenduPhotos,
-    endTime,
-    rsvped,
-    routes,
-    isOrganizer,
-  } = props;
+  const { report, endTime, rsvped, routes, isOrganizer } = props;
 
   const isPast = endTime < DateTime.local();
-  const canAddPhotos = isPast && (rsvped || isOrganizer);
-  const mainPhoto = compteRenduMainPhoto ? [compteRenduMainPhoto] : [];
-  const morePhotos = compteRenduPhotos?.length ? compteRenduPhotos : [];
-  const photos = mainPhoto.concat(morePhotos);
+  const canAddPictures = isPast && (rsvped || isOrganizer);
 
-  if (photos.length === 0 && !canAddPhotos) {
+  const photos = Array.isArray(report?.photos) ? report.photos : [];
+  const picture = report?.picture || null;
+  const hasPictures = !!picture || photos.length > 0;
+
+  if (!hasPictures && !canAddPictures) {
     return null;
   }
 
@@ -63,33 +57,51 @@ const EventPhotosCard = (props) => {
       <h5>Photos</h5>
       <Spacer size="0.5rem" />
 
-      {photos.length > 0 ? (
+      {hasPictures ? (
         <Thumbnails>
-          {photos.map((url) => {
-            const legend =
-              url?.legend || "Photo de l'événement postée par l'utilisateur";
-            return (
-              <a
-                key={url.image}
-                href={url.image}
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                <img
-                  src={url.thumbnail}
-                  width="400"
-                  height="250"
-                  alt={legend}
-                  title={legend}
-                />
-              </a>
-            );
-          })}
+          {picture && (
+            <a
+              key={picture}
+              href={picture}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <img
+                src={picture}
+                width="400"
+                height="250"
+                alt="Photo de l'événement postée par l'utilisateur"
+                title="Photo de l'événement postée par l'utilisateur"
+              />
+            </a>
+          )}
+          {photos.map((photo) => (
+            <a
+              key={photo.image}
+              href={photo.image}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <img
+                src={photo.thumbnail}
+                width="400"
+                height="250"
+                alt={
+                  photo?.legend ||
+                  "Photo de l'événement postée par l'utilisateur"
+                }
+                title={
+                  photo?.legend ||
+                  "Photo de l'événement postée par l'utilisateur"
+                }
+              />
+            </a>
+          ))}
         </Thumbnails>
       ) : (
         <p>Il n'y a pas encore de photo de cet événement.</p>
       )}
-      {canAddPhotos && (
+      {canAddPictures && (
         <div style={{ paddingTop: "1rem" }}>
           <Button link href={routes.addPhoto}>
             Ajouter une photo
@@ -100,8 +112,10 @@ const EventPhotosCard = (props) => {
   );
 };
 EventPhotosCard.propTypes = {
-  compteRenduMainPhoto: PropTypes.object,
-  compteRenduPhotos: PropTypes.arrayOf(PropTypes.object),
+  report: PropTypes.shape({
+    picture: PropTypes.object,
+    photos: PropTypes.arrayOf(PropTypes.object),
+  }),
   endTime: PropTypes.object,
   rsvped: PropTypes.bool,
   routes: PropTypes.object,

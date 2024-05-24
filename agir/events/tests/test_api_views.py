@@ -1785,3 +1785,84 @@ class EventListAPITestCase(APITestCase):
             res = self.make_request(endpoint, person)
             self.assertEqual(res.status_code, 200)
             self.assertEqual(len(res.data), expected_length, person)
+
+
+class EventDetailViewTestCase(APITestCase):
+    def setUp(self):
+        self.organizer = Person.objects.create_person(
+            email="organizer@agir.test",
+            create_role=True,
+        )
+        self.organizer_group = SupportGroup.objects.create(name="Organizer Group")
+        self.organizer_group_manager = Person.objects.create_person(
+            email="organizer_group_manager@agir.test",
+            create_role=True,
+        )
+        self.organizer_group.memberships.create(
+            person=self.organizer_group_manager,
+            membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
+        )
+        self.organizer_group_active_member = Person.objects.create_person(
+            email="organizer_group_active_member@agir.test",
+            create_role=True,
+        )
+        self.organizer_group.memberships.create(
+            person=self.organizer_group_active_member,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+        )
+        self.organizer_group_follower = Person.objects.create_person(
+            email="organizer_group_follower@agir.test",
+            create_role=True,
+        )
+        self.organizer_group.memberships.create(
+            person=self.organizer_group_follower,
+            membership_type=Membership.MEMBERSHIP_TYPE_FOLLOWER,
+        )
+        self.rsvp = Person.objects.create_person(
+            email="rsvp@agir.test",
+            create_role=True,
+        )
+        self.start_time = timezone.now() + timezone.timedelta(hours=2)
+        self.end_time = self.start_time + timezone.timedelta(hours=2)
+        self.event = Event.objects.create_event(
+            name="Event",
+            start_time=self.start_time,
+            end_time=self.end_time,
+            organizer_person=self.organizer,
+            organizer_group=self.organizer_group,
+            report_content="<p>This is a report</p>",
+        )
+        self.event.rsvps.create(person=self.rsvp)
+
+    def test_only_organizers_rsvps_and_organizing_group_members_can_view_report(self):
+        self.client.logout()
+        response = self.client.get(f"/api/evenements/{self.event.pk}/details/")
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("report", response.data)
+
+        unauthorized_person = Person.objects.create_person(
+            "unauthorized_person@agir.test", create_role=True
+        )
+        self.client.force_login(unauthorized_person.role)
+        response = self.client.get(f"/api/evenements/{self.event.pk}/details/")
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("report", response.data)
+
+        self.client.force_login(self.organizer_group_follower.role)
+        response = self.client.get(f"/api/evenements/{self.event.pk}/details/")
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("report", response.data)
+
+        for user in [
+            "organizer",
+            "organizer_group_manager",
+            "organizer_group_active_member",
+        ]:
+            person = getattr(self, user)
+            self.client.force_login(person.role)
+            response = self.client.get(f"/api/evenements/{self.event.pk}/details/")
+            self.assertEqual(response.status_code, 200)
+            self.assertIn("report", response.data)
+            self.assertEqual(
+                response.data["report"]["content"], self.event.report_content
+            )
