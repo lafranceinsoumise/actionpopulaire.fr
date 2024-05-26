@@ -2,7 +2,7 @@
 
 ## LES SOUSSIGNES :
 
-**AUBRY Manon**, candidate tête de liste aux élections européennes du 26 mai 2019, domiciliée chez
+**AUBRY Manon**, candidate tête de liste aux élections européennes du 9 juin 2024, domiciliée chez
 La France Insoumise – 25 passage Dubail – 75010 PARIS,  
 **Ci-après dénommée l’emprunteuse**,  
 Ayant désigné pour mandataire financier, conformément à la loi 90-55 du 15 janvier 1990 modifiée notamment par la loi du
