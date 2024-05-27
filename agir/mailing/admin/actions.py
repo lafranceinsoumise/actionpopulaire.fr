@@ -57,6 +57,6 @@ def download_segment_as_csv_for_sms(segment):
         f"SMS{segment.id}_{slugify(segment.name)}_{timezone.now().strftime('%Y-%m-%d')}"
     )
     response["Content-Disposition"] = f"attachment; filename={filename}"
-    people.to_csv(path_or_buf=response, index=False)
+    people.to_csv(path_or_buf=response, index=False, sep=";", encoding="latin1")
 
     return response
