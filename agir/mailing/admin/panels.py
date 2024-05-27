@@ -1,8 +1,12 @@
+from copy import deepcopy
+
 from django.contrib import admin
 from django.contrib.gis.admin import OSMGeoAdmin
+from django.core.exceptions import PermissionDenied
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
-from django.urls import reverse
+from django.urls import path, reverse
 from django.utils.html import format_html
 from nuntius.admin import (
     CampaignAdmin,
@@ -18,7 +22,8 @@ from nuntius.models import (
 )
 
 from agir.lib.admin.panels import CenterOnFranceMixin
-from agir.mailing.admin import list_filters
+from agir.lib.admin.utils import admin_url
+from agir.mailing.admin import list_filters, actions
 from agir.mailing.admin.forms import SegmentAdminForm
 from agir.mailing.models import Segment
 
@@ -144,6 +149,13 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                 )
             },
         ),
+        (
+            "Export",
+            {
+                "permission": "segment.export_segment",
+                "fields": ("download_for_sms_link",),
+            },
+        ),
     )
     map_template = "custom_fields/french_area_widget.html"
     autocomplete_fields = (
@@ -161,10 +173,7 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         "forms",
         "polls",
     )
-    readonly_fields = (
-        "people_count",
-        "subscribers_count",
-    )
+    readonly_fields = ("people_count", "subscribers_count", "download_for_sms_link")
     ordering = ("name",)
     search_fields = ("name",)
     list_filter = (
@@ -183,6 +192,15 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         "subscriber_list_link",
         "has_elu",
     )
+
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = deepcopy(super().get_fieldsets(request, obj))
+        authorized_fieldsets = []
+        for key, props in fieldsets:
+            permission = props.pop("permission", False)
+            if not permission or request.user.has_perm(permission):
+                authorized_fieldsets.append((key, props))
+        return tuple(authorized_fieldsets)
 
     @admin.display(description="Types de groupe")
     def supportgroup_subtypes_list(self, instance):
@@ -249,6 +267,35 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     @admin.display(description="Elu·es", boolean=True)
     def has_elu(self, instance):
         return bool(instance.elu)
+
+    @admin.display(description="SMS")
+    def download_for_sms_link(self, instance):
+        if not instance:
+            return "-"
+
+        return format_html(
+            '<a href="{}" class="button">💾&ensp;Télécharger pour l\'envoi de SMS</a>',
+            admin_url(
+                "admin:mailing_segment_download_for_sms", kwargs={"pk": instance.pk}
+            ),
+        )
+
+    def download_for_sms(self, request, pk):
+        if not request.user.is_superuser:
+            raise PermissionDenied()
+
+        segment = get_object_or_404(Segment, id=pk)
+
+        return actions.download_segment_as_csv_for_sms(segment)
+
+    def get_urls(self):
+        return [
+            path(
+                "<int:pk>/export/sms/",
+                self.admin_site.admin_view(self.download_for_sms),
+                name="mailing_segment_download_for_sms",
+            ),
+        ] + super().get_urls()
 
     class Media:
         pass
