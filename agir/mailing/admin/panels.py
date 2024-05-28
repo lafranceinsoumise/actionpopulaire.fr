@@ -270,7 +270,7 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
     @admin.display(description="SMS")
     def download_for_sms_link(self, instance):
-        if not instance:
+        if not instance or not instance.pk:
             return "-"
 
         return format_html(

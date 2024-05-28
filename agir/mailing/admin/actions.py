@@ -52,11 +52,11 @@ def download_segment_as_csv_for_sms(segment):
         .fillna("")
     )
 
-    response = HttpResponse(content_type="text/csv")
+    csv = people.to_csv(index=False, sep=";").encode("latin1")
+    response = HttpResponse(csv, content_type="text/csv")
     filename = (
         f"SMS{segment.id}_{slugify(segment.name)}_{timezone.now().strftime('%Y-%m-%d')}"
     )
     response["Content-Disposition"] = f"attachment; filename={filename}"
-    people.to_csv(path_or_buf=response, index=False, sep=";", encoding="latin1")
 
     return response
