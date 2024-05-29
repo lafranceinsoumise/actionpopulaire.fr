@@ -205,14 +205,14 @@ export const WarningBlock = styled(({ icon = "info", children, ...attrs }) => (
   </div>
 ))`
   padding: 1rem;
-  background-color: ${({ theme }) => theme.primary50};
+  background-color: ${({ theme, background }) => background || theme.primary50};
   display: flex;
   align-items: start;
   gap: 1rem;
 
   & > :first-child {
     flex: 0 0 auto;
-    color: ${({ theme }) => theme.primary500};
+    color: ${({ theme, iconColor }) => iconColor || theme.primary500};
   }
 
   & > p {
