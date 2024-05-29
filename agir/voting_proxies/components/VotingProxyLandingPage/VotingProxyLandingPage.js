@@ -7,6 +7,7 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 import { useIsDesktop } from "@agir/front/genericComponents/grid";
 
 import StyledPageContainer from "@agir/elections/Common/StyledPageContainer";
+import ElectionDayWarningBlock from "@agir/voting_proxies/Common/ElectionDayWarningBlock";
 
 import votingProxyRequestIcon from "@agir/voting_proxies/Common/images/vpr_icon.png";
 import votingProxyIcon from "@agir/voting_proxies/Common/images/vp_icon.png";
@@ -67,6 +68,8 @@ const VotingProxyLandingPage = () => {
         Espace Procurations
       </h2>
       <Spacer size={isDesktop ? "2.5rem" : "1rem"} />
+      <ElectionDayWarningBlock />
+      <Spacer size="1rem" />
       <StyledLink>
         <img src={votingProxyRequestIcon} width="143" height="132" />
         <p>
