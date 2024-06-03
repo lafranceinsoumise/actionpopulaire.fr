@@ -114,6 +114,7 @@ const NewPollingStationOfficerHowTo = () => (
         <Button
           link
           small
+          wrap
           color="primary"
           icon="file-text"
           route="pollingStationOfficerGuide"
@@ -121,6 +122,17 @@ const NewPollingStationOfficerHowTo = () => (
           rel="noopener noreferrer"
         >
           Le guide PDF
+        </Button>
+          <Button
+          link
+          small
+          color="primary"
+          icon="file-text"
+          href="https://infos.actionpopulaire.fr/wp-content/uploads/2024/06/Vademecum-delegue.pdf"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Le vademecum du délégué
         </Button>
         <Button
           link
