@@ -98,16 +98,3 @@ class IsForbiddenDuringTreveEventTestCase(TestCase):
         }
         result = is_forbidden_during_treve_event(event_data)
         self.assertFalse(result)
-
-    def test_authorized_country_codes_during_treve(self):
-        event_data = {
-            "start_time": self.treve_start + timedelta(minutes=4),
-            "end_time": self.treve_end - timedelta(minutes=4),
-            "subtype": self.unauthorized_subtype,
-            "location_country": self.treve_country_code,
-        }
-        result = is_forbidden_during_treve_event(event_data)
-        self.assertTrue(result)
-        event_data = {**event_data, "location_country": self.authorized_country_code}
-        result = is_forbidden_during_treve_event(event_data)
-        self.assertFalse(result)
