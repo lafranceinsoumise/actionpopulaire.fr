@@ -47,6 +47,9 @@ TREVE_ELECTORALE = [
                 "soiree-electorale",
                 "depart-commun",
                 "soutien",
+                "formations",
+                "reunion-groupe",
+                "reunion-boucle-departementale",
             ),  # Authorized event subtypes
         ),
         (
@@ -57,6 +60,9 @@ TREVE_ELECTORALE = [
                 "soiree-electorale",
                 "depart-commun",
                 "soutien",
+                "formations",
+                "reunion-groupe",
+                "reunion-boucle-departementale",
             ),  # Authorized event subtypes
         ),
     ]
