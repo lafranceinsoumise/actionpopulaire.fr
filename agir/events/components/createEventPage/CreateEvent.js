@@ -16,6 +16,7 @@ import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import { Container, Hide } from "@agir/front/genericComponents/grid";
+import TreveEventWarning from "@agir/elections/Common/TreveEventWarning";
 
 import EventForm from "./EventForm";
 
@@ -148,6 +149,7 @@ const CreateEvent = () => {
           </BackLink>
           <Spacer size="1.5rem" />
           <h2>Nouvel événement</h2>
+          <TreveEventWarning />
           <Hide as={InfoBlock} $over />
           <Spacer size="1.5rem" />
           <EventForm />

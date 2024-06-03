@@ -1,23 +1,63 @@
 from iso8601 import iso8601
 
 from agir.events.models import Event
-from agir.lib.geo import FRENCH_COUNTRY_CODES
 
 TREVE_ELECTORALE = [
     (iso8601.parse_date(start), iso8601.parse_date(end), *rest)
     for (start, end, *rest) in [
-        # Législatives 2022
+        # Européennes 2024
         (
-            "2022-06-11 00:00:00+0200",  # Start date
-            "2022-06-12 20:00:00+0200",  # End date
-            (FRENCH_COUNTRY_CODES[0],),  # Limited to country codes
-            ("soiree-electorale",),  # Authorized event subtypes
+            "2024-06-08 00:00:00+0200",  # Start date
+            "2024-06-09 20:00:00+0200",  # End date
+            (
+                "GF",
+                "GP",
+                "MQ",
+                "PF",
+                "BL",
+                "MF",
+                "PM",
+                "AR",
+                "BO",
+                "BR",
+                "CA",
+                "CL",
+                "CO",
+                "CR",
+                "HN",
+                "NI",
+                "DO",
+                "EC",
+                "GT",
+                "SV",
+                "HT",
+                "MX",
+                "PA",
+                "CU",
+                "JM",
+                "PE",
+                "PY",
+                "US",
+                "UY",
+                "VE",
+                "LC",
+                "TT",
+            ),  # Limited to country codes
+            (
+                "soiree-electorale",
+                "depart-commun",
+                "soutien",
+            ),  # Authorized event subtypes
         ),
         (
-            "2022-06-18 00:00:00+0200",
-            "2022-06-19 20:00:00+0200",
-            None,
-            ("soiree-electorale",),
+            "2024-06-08 00:00:00+0200",  # Start date
+            "2024-06-09 20:00:00+0200",  # End date
+            None,  # Limited to country codes
+            (
+                "soiree-electorale",
+                "depart-commun",
+                "soutien",
+            ),  # Authorized event subtypes
         ),
     ]
 ]
