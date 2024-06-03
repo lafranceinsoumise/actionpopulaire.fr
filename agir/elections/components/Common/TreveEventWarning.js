@@ -49,9 +49,10 @@ const TreveEventWarning = () => {
         pouvez pas organiser d'action en but de récolter des suffrages
         (porte-à-porte, tractage, réunion publique...). Pendant le weekend,
         seuls les événements des types suivants sont donc autorisés :{" "}
+        <em>soirée électorale</em>,{" "}
         <em>départ commun pour une manifestation/un rassemblement</em>,{" "}
-        <em>soutien à une manifestation, un rassemblement</em> et{" "}
-        <em>soirée électorale</em>.
+        <em>soutien à une manifestation, un rassemblement</em>,{" "}
+        <em>formation</em> et <em>réunion régulière du groupe</em>.
       </p>
       <Button
         color="primary"
