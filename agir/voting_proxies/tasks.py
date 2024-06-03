@@ -390,15 +390,15 @@ def send_voting_proxy_request_confirmation_reminder(voting_proxy_request_pks):
     )
 
     # Send confirmation reminder SMS to voting proxy
-    # proxy_message = (
-    #     f"{to_7bit_string(voting_proxy_request.first_name)} n'a pas encore confirmé l'établissement de la "
-    #     f"procuration de vote. Assurez-vous que vous pourrez voter en son nom ! "
-    #     f"Son numéro : {voting_proxy_request.contact_phone} - {link}"
-    # )
-    # send_sms_message(
-    #     proxy_message,
-    #     voting_proxy_request.proxy.contact_phone,
-    # )
+    proxy_message = (
+        f"{to_7bit_string(voting_proxy_request.first_name)} n'a pas encore confirmé l'établissement de la "
+        f"procuration de vote. Assurez-vous que vous pourrez voter en son nom ! "
+        f"Son numéro : {voting_proxy_request.contact_phone} - {link}"
+    )
+    send_sms_message(
+        proxy_message,
+        voting_proxy_request.proxy.contact_phone,
+    )
 
 
 @emailing_task()
