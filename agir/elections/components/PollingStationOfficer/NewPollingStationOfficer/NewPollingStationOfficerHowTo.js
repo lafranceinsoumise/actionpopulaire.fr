@@ -123,7 +123,7 @@ const NewPollingStationOfficerHowTo = () => (
         >
           Le guide PDF
         </Button>
-          <Button
+        <Button
           link
           small
           color="primary"
