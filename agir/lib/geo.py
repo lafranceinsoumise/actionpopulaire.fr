@@ -35,6 +35,29 @@ FRENCH_COUNTRY_CODES = [
     "TF",  # Terres australes françaises
     "WF",  # Wallis-et-Futuna
 ]
+# source https://en.wikipedia.org/wiki/Eurozone
+EUROZONE_COUNTRY_CODES = [
+    "AT",
+    "BE",
+    "HR",
+    "CY",
+    "EE",
+    "FI",
+    "FR",
+    "DE",
+    "GR",
+    "IE",
+    "IT",
+    "LV",
+    "LT",
+    "LU",
+    "MT",
+    "NL",
+    "PT",
+    "SK",
+    "SI",
+    "ES",
+]
 
 
 def normaliser_nom_ville(s):
