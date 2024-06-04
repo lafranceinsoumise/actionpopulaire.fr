@@ -2,21 +2,19 @@ from crispy_forms import layout
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout
 from django import forms
-from django.conf import settings
 from django.core import validators
 from django.core.validators import RegexValidator
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 from django_countries import countries
-from django_countries.fields import LazyTypedChoiceField
 
 from agir.donations.base_forms import SimpleDonationForm, SimpleDonorForm
 from agir.donations.form_fields import AskAmountField
 from agir.lib.data import departements_choices
-from agir.lib.display import display_price
 from agir.lib.form_fields import IBANField
+from agir.lib.geo import EUROZONE_COUNTRY_CODES
 from agir.loans.loan_config import LoanConfiguration
-from agir.payments.payment_modes import PaymentModeField, PAYMENT_MODES
+from agir.payments.payment_modes import PaymentModeField
 from agir.people.models import Person
 
 
@@ -97,7 +95,7 @@ class LenderForm(SimpleDonorForm):
     iban = IBANField(
         label="Votre IBAN",
         required=True,
-        allowed_countries=["FR"],
+        allowed_countries=EUROZONE_COUNTRY_CODES,
         help_text="Le numéro IBAN du compte sur lequel le remboursement du prêt sera effectué, tel que figurant sur"
         " votre relevé d'identité bancaire.",
     )
