@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.admin import TabularInline
+from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.urls import reverse, path
 from django.utils.html import format_html
@@ -21,6 +22,14 @@ class CommuneListFilter(AutocompleteRelatedModelFilter):
     field_name = "commune"
     title = "commune"
 
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(
+                Q(commune=self.value()) | Q(commune__commune_parent=self.value())
+            )
+
+        return queryset
+
 
 class ConsulateListFilter(AutocompleteRelatedModelFilter):
     field_name = "consulate"
@@ -30,6 +39,15 @@ class ConsulateListFilter(AutocompleteRelatedModelFilter):
 class DepartementListFilter(AutocompleteRelatedModelFilter):
     field_name = "commune__departement"
     title = "département"
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(
+                Q(commune__departement=self.value())
+                | Q(commune__commune_parent__departement=self.value())
+            )
+
+        return queryset
 
 
 class HasVotingProxyRequestsListFilter(admin.SimpleListFilter):
