@@ -4,10 +4,8 @@ import { WarningBlock } from "@agir/elections/Common/StyledComponents";
 
 const ElectionDayWarningBlock = () => (
   <WarningBlock icon="alert-triangle" background="#ffe8d7" iconColor="#ff8c37">
-    Pour que la procuration de vote puisse être validée et transmise au bureau
-    de vote dans les temps,{" "}
-    <strong>faites votre demande avant le jeudi 6 juin</strong>
-     !
+    Il n'est désormais plus possible de faire une demande de procuration pour
+    les 8 et 9 juin !
   </WarningBlock>
 );
 
