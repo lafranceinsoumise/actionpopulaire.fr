@@ -1,12 +1,9 @@
 import React from "react";
 
 import Spacer from "@agir/front/genericComponents/Spacer";
-import ElectionDayWarningBlock from "@agir/voting_proxies/Common/ElectionDayWarningBlock";
 
 const NewVotingProxyRequestIntro = () => (
   <div>
-    <ElectionDayWarningBlock />
-    <Spacer size="1rem" />
     <h2>Permettre à une personne de voter à ma place</h2>
     <Spacer size="1rem" />
     <p>

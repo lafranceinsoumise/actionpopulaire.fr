@@ -80,6 +80,8 @@ const VotingProxyLandingPage = () => {
             color="default"
             icon={isDesktop ? "arrow-right" : undefined}
             route="newVotingProxyRequest"
+            disabled
+            title="Il n'est plus possible de faire une demande de procuration pour le 9 juin"
           >
             Faire une procuration pour que quelqu'un vote à ma place
           </Button>
