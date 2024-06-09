@@ -363,7 +363,7 @@ class VotingProxyRequestAcceptationCancelAPIView(VotingProxyRequestConfirmAPIVie
 
 class AcceptedVotingProxyRequestListAPIView(ListAPIView):
     permission_classes = (permissions.AllowAny,)
-    queryset = VotingProxyRequest.objects.upcoming().filter(
+    queryset = VotingProxyRequest.objects.filter(
         status__in=(
             VotingProxyRequest.STATUS_ACCEPTED,
             VotingProxyRequest.STATUS_CONFIRMED,
