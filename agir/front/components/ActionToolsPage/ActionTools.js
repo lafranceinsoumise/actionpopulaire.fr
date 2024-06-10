@@ -92,10 +92,10 @@ export const ActionTools = () => {
         <span>
           <strong>Espace procurations</strong>
           <span>
-            Absent·e le 9 juin ? Faites une procuration !
+            Absent·e le 30 juin et/ou le 7 juillet ? Faites une procuration !
             <br />
-            Disponible le 9 juin ? Prenez la procuration d'une personne absente
-            pour voter !
+            Disponible le 30 juin et/ou le 7 juillet ? Prenez la procuration
+            d'une personne absente pour voter !
           </span>
         </span>
         <RawFeatherIcon aria-hidden="true" name="chevron-right" />

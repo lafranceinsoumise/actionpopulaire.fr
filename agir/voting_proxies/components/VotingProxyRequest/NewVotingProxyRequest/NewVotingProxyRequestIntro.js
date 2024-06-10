@@ -10,10 +10,10 @@ const NewVotingProxyRequestIntro = () => (
     <h2>Permettre à une personne de voter à ma place</h2>
     <Spacer size="1rem" />
     <p>
-      Vous souhaitez voter pour la liste de l'Union populaire menée par Manon
-      Aubry aux élections européennes mais vous serez absent ou dans
-      l'impossibilité de vous rendre au bureau de vote le dimanche 9 juin
-      prochain ?  <strong>Faites une procuration !</strong>
+      Vous souhaitez voter pour un·e candidate de la France insoumise aux
+      élections législatives mais vous serez absent ou dans l'impossibilité de
+      vous rendre au bureau de vote les dimanches 30 juin et/ou 7 juillet ?  
+      <strong>Faites une procuration !</strong>
     </p>
     <Spacer size="1rem" />
     <p>Le plus simple est de demander à un proche ou bien à un·e voisin·e.</p>
@@ -22,7 +22,7 @@ const NewVotingProxyRequestIntro = () => (
       Si personne de votre entourage ne peut prendre votre procuration,
       remplissez ce formulaire{" "}
       <strong style={{ boxShadow: "inset 0 -3px 0 0 currentcolor" }}>
-        avant le jeudi 6 juin 2024
+        avant les jeudis 27 juin et 4 juillet 2024
       </strong>{" "}
       et nous vous mettrons en relation avec une personne disponible pour aller
       voter à votre place avec votre procuration.

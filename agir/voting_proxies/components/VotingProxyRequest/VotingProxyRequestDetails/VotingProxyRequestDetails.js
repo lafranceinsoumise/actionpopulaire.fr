@@ -121,7 +121,7 @@ const VotingProxyRequestDetails = () => {
                       boxShadow: "inset 0 -3px 0 0 currentcolor",
                     }}
                   >
-                    avant le jeudi 6 juin 2024
+                    avant les jeudis 27 juin et 4 juillet 2024
                   </strong>
                 </span>
               </li>

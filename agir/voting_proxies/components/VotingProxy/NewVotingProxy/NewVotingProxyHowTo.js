@@ -28,9 +28,9 @@ const NewVotingProxyHowTo = () => (
     <h2>Se porter volontaire pour prendre une procuration</h2>
     <Spacer size="1rem" />
     <p>
-      Vous êtes disponible le dimanche 9 juin, jour du vote pour les élections
-      européennes, et vous souhaitez prendre la procuration d'une personne
-      absente pour voter. Merci pour votre aide !
+      Vous êtes disponible les dimanches 30 juin et/ou 7 juillets, jours de vote
+      pour les élections léglislatives, et vous souhaitez prendre la procuration
+      d'une personne absente pour voter. Merci pour votre aide !
     </p>
     <Spacer size="1rem" />
     <StyledList>

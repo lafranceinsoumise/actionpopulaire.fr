@@ -48,6 +48,14 @@ class PollingStationOfficer(BaseAPIResource, SimpleLocationMixin):
             "la Guyane, la Polynésie française et les Français·es de l'étranger résidant sur le continent américain) — "
             "Élections européennes 2024",
         ),
+        (
+            datetime(2024, 6, 30, 0, 0, 0, tzinfo=pytz.timezone("Europe/Paris")).date(),
+            "Dimanche 30 juin 2024 — 1er tour des législatives",
+        ),
+        (
+            datetime(2024, 7, 7, 0, 0, 0, tzinfo=pytz.timezone("Europe/Paris")).date(),
+            "Dimanche 7 juillet 2024 — 2nd tour des législatives",
+        ),
     )
 
     objects = PollingStationOfficerQuerySet.as_manager()
