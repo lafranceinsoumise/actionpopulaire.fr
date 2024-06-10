@@ -121,7 +121,8 @@ const VotingProxyRequestDetails = () => {
                       boxShadow: "inset 0 -3px 0 0 currentcolor",
                     }}
                   >
-                    avant les jeudis 27 juin et 4 juillet 2024
+                    avant le 27 juin pour le premier tour et le 4 juillet pour
+                    le second
                   </strong>
                 </span>
               </li>

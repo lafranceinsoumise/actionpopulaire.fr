@@ -218,6 +218,7 @@ class ReplyToVotingProxyRequestsAPIView(RetrieveUpdateAPIView):
                         "status": request.status,
                         "firstName": request.first_name,
                         "pollingStationNumber": request.polling_station_number,
+                        "pollingStationLabel": request.polling_station_label,
                         "votingDate": dict(VotingProxyRequest.VOTING_DATE_CHOICES)[
                             request.voting_date
                         ],

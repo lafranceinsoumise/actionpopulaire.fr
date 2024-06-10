@@ -14,14 +14,18 @@ from rest_framework.generics import (
     CreateAPIView,
     ListAPIView,
     RetrieveAPIView,
+    GenericAPIView,
 )
 from rest_framework.response import Response
 
+from agir.elections.data import load_polling_station_dataframe
 from agir.elections.models import PollingStationOfficer
 from agir.elections.serializers import (
     VotingCommuneOrConsulateSerializer,
     CreateUpdatePollingStationOfficerSerializer,
 )
+from agir.elections.utils import get_polling_station_label
+from agir.lib.export import dict_to_camelcase
 from agir.lib.rest_framework_permissions import IsActionPopulaireClientPermission
 from agir.lib.token_bucket import TokenBucket
 from agir.lib.utils import get_client_ip
@@ -34,12 +38,15 @@ class VotingCommuneOrConsulateSearchAPIView(ListAPIView):
 
     def list(self, request, *args, **kwargs):
         search_term = request.GET.get(self.search_term_param)
-        consulates = CirconscriptionConsulaire.objects.search(search_term)[:20]
+        consulates = CirconscriptionConsulaire.objects.select_related(
+            "circonscription_legislative"
+        ).search(search_term)[:20]
         communes = self.filter_queryset(
             Commune.objects.filter(
                 type__in=(Commune.TYPE_COMMUNE, Commune.TYPE_ARRONDISSEMENT_PLM),
             )
             .exclude(code__in=("75056", "69123", "13055"))
+            .select_related("departement")
             .search(search_term)[:20]
         )
         queryset = sorted(
@@ -47,6 +54,24 @@ class VotingCommuneOrConsulateSearchAPIView(ListAPIView):
         )
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+
+class PollingStationSearchAPIView(GenericAPIView):
+    permission_classes = (permissions.AllowAny,)
+    data = load_polling_station_dataframe()
+
+    def get(self, request, commune, *args, **kwargs):
+        polling_stations = self.data.loc[self.data.code_commune == commune]
+        polling_stations = polling_stations.sort_values(
+            by=["code"], key=lambda ps: ps.str.zfill(10)
+        ).to_dict("records")
+        polling_stations = [
+            dict_to_camelcase(
+                {**ps, "label": get_polling_station_label(ps), "value": ps["id"]}
+            )
+            for ps in polling_stations
+        ]
+        return Response(polling_stations)
 
 
 @method_decorator(

@@ -28,7 +28,7 @@ SPEC_VPR = {
     "Prénoms": ("first_name", lambda name: name.title()),
     "E-mail": ("email", lambda name: name.lower()),
     "Téléphone": "contact_phone",
-    "Bureau de vote": "polling_station_number",
+    "Bureau de vote": "polling_station_label",
     "Numéro national d'électeur": "voter_id",
     "Département d'inscription": "voting_departement",
     "Création": T.created.strftime("%d/%m/%Y"),

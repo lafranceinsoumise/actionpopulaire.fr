@@ -35,7 +35,7 @@ def send_new_polling_station_officer_to_campaign_manager(polling_station_officer
         "LOCATION_ZIP": f"Code postal : {polling_station_officer.location_zip}",
         "LOCATION_COUNTRY": f"Pays : {polling_station_officer.location_country.name}",
         "VOTING_CIRCONSCRIPTION_LEGISLATIVE": f"Circonscription législative : {polling_station_officer.voting_circonscription_legislative}",
-        "POLLING_STATION": f"Bureau de vote : {polling_station_officer.polling_station}",
+        "POLLING_STATION": f"Bureau de vote : {polling_station_officer.polling_station_label}",
         "VOTER_ID": f"Numéro national d'électeur : {polling_station_officer.voter_id}",
         "ROLE": f"Rôle : {dict(PollingStationOfficer.ROLE_CHOICES)[polling_station_officer.role]}",
         "HAS_MOBILITY": f"Peut se déplacer dans un autre bureau de vote : {'Oui' if polling_station_officer.has_mobility else 'Non'}",

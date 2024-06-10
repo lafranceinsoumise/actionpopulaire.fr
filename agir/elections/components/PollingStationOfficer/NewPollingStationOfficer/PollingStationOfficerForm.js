@@ -44,7 +44,7 @@ const FORM_STEPS = [
     ["votingLocation", "votingCommune", "votingConsulate"],
     "pollingStation",
     "voterId",
-    // "votingCirconscriptionLegislative",
+    "votingCirconscriptionLegislative",
   ],
   ["role", "hasMobility", "availableVotingDates"],
   ["phone", "email", "remarks"],
@@ -74,8 +74,6 @@ const PollingStationOfficerForm = (props) => {
   const [data, setData] = useState(defaults);
   const [hasDataAgreement, setHasDataAgreement] = useState(false);
   const [errors, setErrors] = useState(null);
-
-  const isAbroad = data.votingLocation?.type === "consulate";
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
@@ -137,34 +135,34 @@ const PollingStationOfficerForm = (props) => {
     setErrors((state) => ({
       ...state,
       votingLocation: undefined,
-      // votingCirconscriptionLegislative: undefined,
+      votingCirconscriptionLegislative: undefined,
     }));
     setData((state) => ({
       ...state,
       votingLocation,
-      // votingCirconscriptionLegislative:
-      //   votingLocation &&
-      //   state.votingLocation &&
-      //   state.votingCirconscriptionLegislative &&
-      //   votingLocation.departement !== state.votingLocation.departement
-      //     ? null
-      //     : state.votingCirconscriptionLegislative,
+      votingCirconscriptionLegislative:
+        votingLocation &&
+        state.votingLocation &&
+        state.votingCirconscriptionLegislative &&
+        votingLocation.departement !== state.votingLocation.departement
+          ? null
+          : state.votingCirconscriptionLegislative,
     }));
   }, []);
 
-  // const handleSelectVotingCirconscriptionLegislative = useCallback(
-  //   (votingCirconscriptionLegislative) => {
-  //     setErrors((state) => ({
-  //       ...state,
-  //       votingCirconscriptionLegislative: undefined,
-  //     }));
-  //     setData((state) => ({
-  //       ...state,
-  //       votingCirconscriptionLegislative,
-  //     }));
-  //   },
-  //   [],
-  // );
+  const handleSelectVotingCirconscriptionLegislative = useCallback(
+    (votingCirconscriptionLegislative) => {
+      setErrors((state) => ({
+        ...state,
+        votingCirconscriptionLegislative: undefined,
+      }));
+      setData((state) => ({
+        ...state,
+        votingCirconscriptionLegislative,
+      }));
+    },
+    [],
+  );
 
   const handleChangeRole = useCallback((role) => {
     setErrors((state) => ({
@@ -208,7 +206,10 @@ const PollingStationOfficerForm = (props) => {
 
   const handleErrors = (errors) => {
     setErrors(errors);
-    const fieldStep = getFieldStepFromErrors(errors, isAbroad);
+    const fieldStep = getFieldStepFromErrors(
+      errors,
+      data.votingLocation?.type === "consulate",
+    );
     if (
       typeof fieldStep === "number" &&
       fieldStep >= 0 &&
@@ -245,19 +246,19 @@ const PollingStationOfficerForm = (props) => {
         });
         return;
       }
-      // const votingCirconscriptionLegislative =
-      //   await getCirconscriptionsLegislatives();
-      // if (
-      //   votingCirconscriptionLegislative.error ||
-      //   !votingCirconscriptionLegislative.data
-      // ) {
-      //   setErrors({
-      //     detail:
-      //       votingCirconscriptionLegislative.error ||
-      //       "Une erreur est survenue.",
-      //   });
-      //   return;
-      // }
+      const votingCirconscriptionLegislative =
+        await getCirconscriptionsLegislatives();
+      if (
+        votingCirconscriptionLegislative.error ||
+        !votingCirconscriptionLegislative.data
+      ) {
+        setErrors({
+          detail:
+            votingCirconscriptionLegislative.error ||
+            "Une erreur est survenue.",
+        });
+        return;
+      }
       const options = {
         gender: createOptions.data.gender.choices.map((choice) => ({
           value: choice.value,
@@ -272,7 +273,7 @@ const PollingStationOfficerForm = (props) => {
             value: choice.value,
             label: choice.display_name,
           })),
-        // votingCirconscriptionLegislative: votingCirconscriptionLegislative.data,
+        votingCirconscriptionLegislative: votingCirconscriptionLegislative.data,
       };
       setOptions(options);
     };
@@ -462,8 +463,7 @@ const PollingStationOfficerForm = (props) => {
         />
         <Spacer size="1rem" />
         <PollingStationField
-          isAbroad={isAbroad}
-          countries={data?.votingLocation?.countries}
+          votingLocation={data?.votingLocation}
           disabled={isLoading}
           id="pollingStation"
           name="pollingStation"
@@ -509,7 +509,6 @@ const PollingStationOfficerForm = (props) => {
             </span>
           }
         />
-        {/*
         <Spacer size="1rem" />
         <CirconscriptionLegislativeField
           disabled={isLoading}
@@ -522,7 +521,6 @@ const PollingStationOfficerForm = (props) => {
           options={options?.votingCirconscriptionLegislative}
           votingLocation={data?.votingLocation}
         />
-        */}
       </fieldset>
       <fieldset>
         <RadioField

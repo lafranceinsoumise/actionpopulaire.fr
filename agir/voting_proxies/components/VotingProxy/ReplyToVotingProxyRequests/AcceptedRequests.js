@@ -104,11 +104,13 @@ const AcceptedRequest = (props) => {
             <strong>{request.consulate}</strong>
           </p>
         )}
-        {request.pollingStationNumber && (
+        {request.pollingStationLabel && (
           <p>
             <StyledFaIcon icon="booth-curtain:regular" size="1.25rem" />
             <strong>
-              Bureau de vote&nbsp;: {request.pollingStationNumber}
+              Bureau de vote&nbsp;:
+              <br />
+              {request.pollingStationLabel}
             </strong>
           </p>
         )}
@@ -166,7 +168,7 @@ AcceptedRequest.propTypes = {
     id: PropTypes.string.isRequired,
     firstName: PropTypes.string.isRequired,
     votingDate: PropTypes.string.isRequired,
-    pollingStationNumber: PropTypes.string.isRequired,
+    pollingStationLabel: PropTypes.string.isRequired,
     commune: PropTypes.string,
     consulate: PropTypes.string,
     status: PropTypes.string,
@@ -381,7 +383,7 @@ AcceptedRequests.propTypes = {
       id: PropTypes.string.isRequired,
       firstName: PropTypes.string.isRequired,
       votingDate: PropTypes.string.isRequired,
-      pollingStationNumber: PropTypes.string.isRequired,
+      pollingStationLabel: PropTypes.string.isRequired,
       commune: PropTypes.string,
       consulate: PropTypes.string,
     }),

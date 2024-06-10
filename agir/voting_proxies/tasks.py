@@ -297,7 +297,7 @@ def send_voting_proxy_request_confirmed_text_messages(voting_proxy_request_pks):
         f"Téléphone&nbsp;: <strong>{escape(voting_proxy_request.contact_phone)}</strong><br>"
     )
     if voting_proxy_request.polling_station_number:
-        message += f"Bureau de vote&nbsp;: <strong>{escape(voting_proxy_request.polling_station_number)}</strong>"
+        message += f"Bureau de vote&nbsp;: <strong>{escape(voting_proxy_request.polling_station_label)}</strong>"
 
     message = format_html(message)
 
@@ -316,7 +316,7 @@ def send_voting_proxy_request_confirmed_text_messages(voting_proxy_request_pks):
         f" - tél. {voting_proxy_request.contact_phone}"
     )
     if voting_proxy_request.polling_station_number:
-        message += f" - bureau de vote {to_7bit_string(voting_proxy_request.polling_station_number)}"
+        message += f" - bureau de vote {to_7bit_string(voting_proxy_request.polling_station_label)}"
 
     # Send confirmation SMS
     send_sms_message(

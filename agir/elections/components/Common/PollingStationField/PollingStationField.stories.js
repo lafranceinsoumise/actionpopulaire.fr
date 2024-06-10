@@ -1,6 +1,6 @@
 import React from "react";
 
-import PollingStationField from "./PollingStationField";
+import PollingStationField from ".";
 
 export default {
   component: PollingStationField,
@@ -17,11 +17,17 @@ const Template = (args) => {
 export const French = Template.bind({});
 French.args = {
   name: "polling-station",
-  isAbroad: false,
+  votingLocation: {
+    id: "75119",
+    type: "commune",
+  },
 };
 
 export const Abroad = Template.bind({});
 Abroad.args = {
   name: "polling-station",
-  isAbroad: true,
+  votingLocation: {
+    id: "12345",
+    type: "consulate",
+  },
 };

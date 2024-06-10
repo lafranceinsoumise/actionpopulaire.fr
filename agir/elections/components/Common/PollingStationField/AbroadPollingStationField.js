@@ -1,9 +1,7 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { usePrevious } from "react-use";
 
 import SelectField from "@agir/front/formComponents/SelectField";
-import TextField from "@agir/front/formComponents/TextField";
 
 import ABROAD_POLLING_STATIONS from "./abroadPollingStations";
 
@@ -75,28 +73,4 @@ AbroadPollingStationField.propTypes = {
   countries: PropTypes.arrayOf(PropTypes.string),
 };
 
-const PollingStationField = ({ isAbroad, ...rest }) => {
-  const { name, onChange } = rest;
-  const wasAbroad = usePrevious(isAbroad);
-  useEffect(() => {
-    if (typeof wasAbroad === "undefined" || wasAbroad === isAbroad) {
-      return;
-    }
-    onChange({
-      target: { name, value: "" },
-    });
-  }, [name, onChange, wasAbroad, isAbroad]);
-
-  return isAbroad ? (
-    <AbroadPollingStationField label="Bureau de vote" {...rest} />
-  ) : (
-    <TextField label="Bureau de vote" placeholder="Exemple : 0032" {...rest} />
-  );
-};
-
-PollingStationField.propTypes = {
-  isAbroad: PropTypes.bool.isRequired,
-  name: PropTypes.string.isRequired,
-  onChange: PropTypes.func,
-};
-export default PollingStationField;
+export default AbroadPollingStationField;

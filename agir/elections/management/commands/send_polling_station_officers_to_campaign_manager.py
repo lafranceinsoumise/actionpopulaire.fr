@@ -30,7 +30,7 @@ SPEC_PSO = {
     "Genre à l'état civil": T.get_gender_display(),
     "E-mail": ("contact_email", lambda name: name.lower()),
     "Téléphone": "contact_phone",
-    "Bureau de vote": "polling_station",
+    "Bureau de vote": "polling_station_label",
     "Numéro national d'électeur": "voter_id",
     "Rôle": T.get_role_display(),
     "Peut se déplacer dans un autre bureau de vote": (

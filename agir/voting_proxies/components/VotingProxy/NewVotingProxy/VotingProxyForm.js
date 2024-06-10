@@ -55,8 +55,6 @@ const VotingProxyForm = (props) => {
   const [errors, setErrors] = useState(null);
   const [votingProxy, setVotingProxy] = useState();
 
-  const isAbroad = data.votingLocation?.type === "consulate";
-
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     setErrors((state) => ({
@@ -128,7 +126,10 @@ const VotingProxyForm = (props) => {
 
   const handleErrors = (errors) => {
     setErrors(errors);
-    const fieldStep = getFieldStepFromErrors(errors, isAbroad);
+    const fieldStep = getFieldStepFromErrors(
+      errors,
+      data.votingLocation?.type === "consulate",
+    );
     if (
       typeof fieldStep === "number" &&
       fieldStep >= 0 &&
@@ -140,7 +141,10 @@ const VotingProxyForm = (props) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const validationErrors = validateVotingProxy(data, isAbroad);
+    const validationErrors = validateVotingProxy(
+      data,
+      data.votingLocation?.type === "consulate",
+    );
     if (validationErrors) {
       return handleErrors(validationErrors);
     }
@@ -225,8 +229,7 @@ const VotingProxyForm = (props) => {
           <ElectoralInfoLink />
           <Spacer size="1rem" />
           <PollingStationField
-            isAbroad={isAbroad}
-            countries={data?.votingLocation?.countries}
+            votingLocation={data?.votingLocation}
             disabled={isLoading}
             id="pollingStationNumber"
             name="pollingStationNumber"
@@ -260,7 +263,7 @@ const VotingProxyForm = (props) => {
             options={votingDateOptions}
           />
         </fieldset>
-        {!isAbroad && (
+        {data.votingLocation?.type === "commune" && (
           <fieldset>
             <TextField
               autoFocus

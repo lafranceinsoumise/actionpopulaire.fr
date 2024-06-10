@@ -123,7 +123,7 @@ class VoterModelAdmin(admin.ModelAdmin):
         ConsulateListFilter,
     )
     autocomplete_fields = ("commune", "consulate")
-    readonly_fields = ("created",)
+    readonly_fields = ("created", "polling_station_label")
 
     search_fields = ["email", "commune__search", "consulate__nom", "consulate__search"]
 
@@ -139,6 +139,11 @@ class VoterModelAdmin(admin.ModelAdmin):
         return instance.consulate
 
     commune_consulate.short_description = "commune / consulat"
+
+    def polling_station_label(self, instance):
+        return instance.polling_station_label
+
+    polling_station_label.short_description = "Libellé du bureau de vote"
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related("commune", "consulate")
@@ -284,7 +289,11 @@ class VotingProxyRequestAdmin(VoterModelAdmin):
         "voting_date",
         ("proxy", admin.EmptyFieldListFilter),
     )
-    readonly_fields = ("matching_buttons", "cancel_button")
+    readonly_fields = (
+        *VoterModelAdmin.readonly_fields,
+        "matching_buttons",
+        "cancel_button",
+    )
     autocomplete_fields = (
         *VoterModelAdmin.autocomplete_fields,
         "proxy",

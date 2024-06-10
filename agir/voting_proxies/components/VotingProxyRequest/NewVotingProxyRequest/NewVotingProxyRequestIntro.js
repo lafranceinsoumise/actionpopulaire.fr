@@ -22,7 +22,7 @@ const NewVotingProxyRequestIntro = () => (
       Si personne de votre entourage ne peut prendre votre procuration,
       remplissez ce formulaire{" "}
       <strong style={{ boxShadow: "inset 0 -3px 0 0 currentcolor" }}>
-        avant les jeudis 27 juin et 4 juillet 2024
+        avant le 27 juin pour le premier tour et le 4 juillet pour le second
       </strong>{" "}
       et nous vous mettrons en relation avec une personne disponible pour aller
       voter à votre place avec votre procuration.

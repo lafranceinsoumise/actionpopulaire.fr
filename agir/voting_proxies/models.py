@@ -9,6 +9,7 @@ from django.utils.functional import cached_property
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
+from agir.elections.utils import get_polling_station_label
 from agir.lib.model_fields import ChoiceArrayField
 from agir.lib.models import BaseAPIResource
 
@@ -100,6 +101,16 @@ class AbstractVoter(BaseAPIResource):
     voter_id = models.CharField(
         "numéro national d'électeur", max_length=255, blank=True, null=False, default=""
     )
+
+    @property
+    def polling_station_label(self):
+        if not self.polling_station_number:
+            return ""
+
+        return get_polling_station_label(
+            self.polling_station_number,
+            fallback=self.polling_station_number,
+        )
 
     def clean(self):
         super().clean()
@@ -238,7 +249,7 @@ class VotingProxy(AbstractVoter):
 class VotingProxyRequestQuerySet(models.QuerySet):
     def upcoming(self):
         return self.filter(
-            voting_date__gte=(timezone.now() + timedelta(days=2)).date(),
+            voting_date__gte=timezone.now().date(),
         )
 
     def pending(self):
@@ -350,7 +361,7 @@ class VotingProxyRequest(AbstractVoter):
             text += f"<br>Consulat&nbsp;: <strong>{self.proxy.consulate.nom}</strong>"
 
         if self.proxy.polling_station_number:
-            text += f"<br>Bureau de vote&nbsp;: <strong>{escape(self.proxy.polling_station_number)}</strong>"
+            text += f"<br>Bureau de vote&nbsp;: <strong>{escape(self.proxy.polling_station_label)}</strong>"
 
         if self.proxy.voter_id:
             text += f"<br>Numéro national d'électeur&nbsp;: <strong>{escape(self.proxy.voter_id)}</strong>"
@@ -380,7 +391,7 @@ class VotingProxyRequest(AbstractVoter):
             text += f" - consulat: {to_7bit_string(self.proxy.consulate.nom)}"
 
         if self.proxy.polling_station_number:
-            text += f" - bureau: {to_7bit_string(self.proxy.polling_station_number)}"
+            text += f" - bureau: {to_7bit_string(self.proxy.polling_station_label)}"
 
         if self.proxy.voter_id:
             text += f" - NNE: {to_7bit_string(self.proxy.voter_id)}"

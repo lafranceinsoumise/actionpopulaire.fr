@@ -3,6 +3,7 @@ from phonenumber_field.serializerfields import PhoneNumberField
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from agir.elections.utils import get_polling_station_label
 from agir.people.serializers import PersonNewsletterListField
 from agir.voting_proxies.actions import (
     create_or_update_voting_proxy,
@@ -42,6 +43,9 @@ class VoterSerializerMixin(serializers.ModelSerializer):
         default="",
         source="polling_station_number",
         label="bureau de vote",
+    )
+    pollingStationLabel = serializers.CharField(
+        source="polling_station_label", read_only=True
     )
     voterId = serializers.CharField(
         required=False,
@@ -127,6 +131,7 @@ class VotingProxyRequestSerializer(VoterSerializerMixin):
             "commune",
             "consulate",
             "pollingStationNumber",
+            "pollingStationLabel",
             "votingDates",
             "votingDate",
             "updated",
@@ -162,6 +167,7 @@ class AcceptedVotingProxyRequestSerializer(VoterSerializerMixin):
             "commune",
             "consulate",
             "pollingStationNumber",
+            "pollingStationLabel",
             "votingDate",
             "votingProxy",
             "status",
@@ -201,6 +207,7 @@ class VotingProxySerializer(VoterSerializerMixin):
             "commune",
             "consulate",
             "pollingStationNumber",
+            "pollingStationLabel",
             "votingDates",
             "status",
             "dateOfBirth",
@@ -256,6 +263,7 @@ class CreateVotingProxySerializer(VotingProxySerializer):
             "commune",
             "consulate",
             "pollingStationNumber",
+            "pollingStationLabel",
             "votingDates",
             "remarks",
             "person",
