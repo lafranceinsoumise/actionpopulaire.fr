@@ -1,6 +1,6 @@
 from iso8601 import iso8601
 
-from agir.elections.data import load_polling_station_dataframe
+from agir.elections.data import polling_station_dataframe
 from agir.events.models import Event
 
 TREVE_ELECTORALE = [
@@ -124,7 +124,7 @@ def get_polling_station(polling_station_id=""):
     if not polling_station_id:
         return None
 
-    data = load_polling_station_dataframe()
+    data = polling_station_dataframe
     polling_station = data.loc[data.id_brut_insee == polling_station_id].to_dict(
         "records"
     )

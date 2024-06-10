@@ -18,7 +18,7 @@ from rest_framework.generics import (
 )
 from rest_framework.response import Response
 
-from agir.elections.data import load_polling_station_dataframe
+from agir.elections.data import polling_station_dataframe
 from agir.elections.models import PollingStationOfficer
 from agir.elections.serializers import (
     VotingCommuneOrConsulateSerializer,
@@ -58,7 +58,7 @@ class VotingCommuneOrConsulateSearchAPIView(ListAPIView):
 
 class PollingStationSearchAPIView(GenericAPIView):
     permission_classes = (permissions.AllowAny,)
-    data = load_polling_station_dataframe()
+    data = polling_station_dataframe
 
     def get(self, request, commune, *args, **kwargs):
         polling_stations = self.data.loc[self.data.code_commune == commune]
