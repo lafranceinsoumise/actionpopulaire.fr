@@ -51,11 +51,14 @@ class PollingStationOfficer(BaseAPIResource, SimpleLocationMixin):
         ),
         (
             datetime(2024, 6, 30, 0, 0, 0, tzinfo=pytz.timezone("Europe/Paris")).date(),
-            "Dimanche 30 juin 2024 — 1er tour des législatives",
+            "Dimanche 30 juin 2024 (samedi 29 juin pour la Guadeloupe, la Martinique, la Guyane, la Polynésie française "
+            "et les Français·es de l'étranger résidant sur le continent américain) — 1er tour des législatives",
         ),
         (
             datetime(2024, 7, 7, 0, 0, 0, tzinfo=pytz.timezone("Europe/Paris")).date(),
-            "Dimanche 7 juillet 2024 — 2nd tour des législatives",
+            "Dimanche 7 juillet 2024 (samedi 6 juillet pour la Guadeloupe, la Martinique, la Guyane, la Polynésie "
+            "française et les Français·es de l'étranger résidant sur le continent américain) — 2nd tour des "
+            "législatives",
         ),
     )
 
