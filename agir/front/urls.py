@@ -248,8 +248,7 @@ voting_proxy_patterns = [
     ),
     path(
         "donner-ma-procuration/",
-        # views.VotingProxyRequestView.as_view(),
-        RedirectView.as_view(pattern_name="voting_proxy_landing_page", permanent=False),
+        views.VotingProxyRequestView.as_view(),
         name="new_voting_proxy_request",
     ),
     path(

@@ -551,10 +551,11 @@ export const routeConfig = {
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Donner ma procuration de vote",
-    redirectTo: (_, routeParams) => ({
-      route: "votingProxyLandingPage",
-      push: false,
-    }),
+    Component: RouteComponents.NewVotingProxyRequest,
+    hasLayout: false,
+    hideFeedbackButton: true,
+    hideFooter: true,
+    appOnlyTopBar: true,
   }),
   votingProxyLandingPage: new RouteConfig({
     id: "votingProxyLandingPage",
