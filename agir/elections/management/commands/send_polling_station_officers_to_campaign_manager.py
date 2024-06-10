@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db.models import Q, Value
 from django.utils import timezone
 from glom import T, glom, Coalesce
@@ -14,7 +16,7 @@ from agir.lib.google_sheet import (
     clear_sheet,
 )
 
-INDEX_FILE_ID = "1Ugnzr77oiYtwMYZsIrGa6klq0S-G7HtLCaP1I0_qpp0"
+INDEX_FILE_ID = "1RB_PH54nyOhfd8_sLEOz7NWip8fiJaHqgovs2pE6b4o"
 LOG_FILE_ID = GoogleSheetId(INDEX_FILE_ID, 1004117196)
 TEST_SHEET_ID = GoogleSheetId(INDEX_FILE_ID, 521378227)
 PRODUCTION_SHEET_ID = GoogleSheetId(INDEX_FILE_ID, 0)
@@ -24,6 +26,7 @@ SPEC_PSO = {
         Coalesce("voting_commune.nom_complet", "voting_consulate.nom"),
         lambda location: location.upper(),
     ),
+    "Circonscription": Coalesce("voting_circonscription_legislative.code", default=""),
     "Nom de famille": ("last_name", lambda name: name.upper()),
     "Prénom": ("first_name", lambda name: name.title()),
     "Nom de naissance": ("birth_name", lambda name: name.upper()),
@@ -33,6 +36,12 @@ SPEC_PSO = {
     "Bureau de vote": "polling_station_label",
     "Numéro national d'électeur": "voter_id",
     "Rôle": T.get_role_display(),
+    "Dates de disponibilité": (
+        "available_voting_dates",
+        lambda dates: ", ".join(
+            [datetime.strptime(dt, "%Y-%m-%d").strftime("%d/%m/%Y") for dt in dates]
+        ),
+    ),
     "Peut se déplacer dans un autre bureau de vote": (
         "has_mobility",
         lambda choice: "Oui" if choice else "Non",

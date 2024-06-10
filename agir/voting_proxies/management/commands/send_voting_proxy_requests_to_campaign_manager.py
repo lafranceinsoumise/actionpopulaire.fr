@@ -14,7 +14,7 @@ from agir.lib.google_sheet import (
 )
 from agir.voting_proxies.models import VotingProxyRequest
 
-INDEX_FILE_ID = "1Ugnzr77oiYtwMYZsIrGa6klq0S-G7HtLCaP1I0_qpp0"
+INDEX_FILE_ID = "1RB_PH54nyOhfd8_sLEOz7NWip8fiJaHqgovs2pE6b4o"
 LOG_FILE_ID = GoogleSheetId(INDEX_FILE_ID, 395114866)
 TEST_SHEET_ID = GoogleSheetId(INDEX_FILE_ID, 521378227)
 PRODUCTION_SHEET_ID = GoogleSheetId(INDEX_FILE_ID, 0)
@@ -24,10 +24,12 @@ SPEC_VPR = {
         Coalesce("commune.nom_complet", "consulate.nom"),
         lambda location: location.upper(),
     ),
+    "Circonscription": "circonscription_legislative",
     "Nom de famille": ("last_name", lambda name: name.upper()),
     "Prénoms": ("first_name", lambda name: name.title()),
     "E-mail": ("email", lambda name: name.lower()),
     "Téléphone": "contact_phone",
+    "Dates de disponibilité": T.voting_date.strftime("%d/%m/%Y"),
     "Bureau de vote": "polling_station_label",
     "Numéro national d'électeur": "voter_id",
     "Département d'inscription": "voting_departement",

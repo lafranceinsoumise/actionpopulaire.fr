@@ -154,3 +154,13 @@ def get_polling_station_label(polling_station=None, fallback=""):
         return f"{label} - {address}"
 
     return label
+
+
+def get_polling_station_circonscription(polling_station=None, fallback=""):
+    if isinstance(polling_station, str):
+        polling_station = get_polling_station(polling_station)
+
+    if polling_station is None:
+        return fallback
+
+    return polling_station.get("circonscription", fallback)

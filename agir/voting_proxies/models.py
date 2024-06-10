@@ -9,7 +9,10 @@ from django.utils.functional import cached_property
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
-from agir.elections.utils import get_polling_station_label
+from agir.elections.utils import (
+    get_polling_station_label,
+    get_polling_station_circonscription,
+)
 from agir.lib.model_fields import ChoiceArrayField
 from agir.lib.models import BaseAPIResource
 
@@ -110,6 +113,19 @@ class AbstractVoter(BaseAPIResource):
         return get_polling_station_label(
             self.polling_station_number,
             fallback=self.polling_station_number,
+        )
+
+    @property
+    def circonscription_legislative(self):
+        if self.consulate:
+            return self.consulate.circonscription_legislative.code
+
+        if not self.polling_station_number:
+            return ""
+
+        return get_polling_station_circonscription(
+            self.polling_station_number,
+            fallback="",
         )
 
     def clean(self):
