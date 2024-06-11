@@ -264,9 +264,8 @@ const ReplyingForm = (props) => {
           {firstName}, prenez la procuration de {requests[0].firstName}
         </h2>
         <p>
-          {requests[0].firstName} n'est pas disponible pour aller voter le 9
-          juin prochain pour les élections législatives. Vous êtes présent·e ?
-          Prenez sa procuration.
+          {requests[0].firstName} n'est pas disponible pour aller voter pour les
+          élections législatives. Vous êtes présent·e ? Prenez sa procuration.
         </p>
       </header>
       <Spacer size="1.5rem" />
