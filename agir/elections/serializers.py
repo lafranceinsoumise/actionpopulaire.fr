@@ -17,6 +17,7 @@ class VotingCommuneOrConsulateSerializer(serializers.Serializer):
     type = serializers.SerializerMethodField()
     value = serializers.IntegerField(read_only=True, source="id")
     label = serializers.SerializerMethodField(read_only=True)
+    code = serializers.SerializerMethodField(read_only=True)
     departement = serializers.SerializerMethodField(read_only=True)
     countries = serializers.SerializerMethodField(read_only=True)
 
@@ -37,6 +38,15 @@ class VotingCommuneOrConsulateSerializer(serializers.Serializer):
             return None
 
         return instance.code_departement
+
+    def get_code(self, instance):
+        if isinstance(instance, Commune):
+            return instance.code
+        if (
+            isinstance(instance, CirconscriptionConsulaire)
+            and instance.circonscription_legislative
+        ):
+            return instance.circonscription_legislative.code
 
     def get_countries(self, instance):
         if isinstance(instance, Commune):

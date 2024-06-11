@@ -2,6 +2,7 @@ from django.urls import path
 
 from agir.elections.views import (
     VotingCommuneOrConsulateSearchAPIView,
+    PollingStationSearchAPIView,
     RetrieveCreatePollingStationOfficerAPIView,
     VotingCirconscriptionConsulaireAPIView,
 )
@@ -11,6 +12,11 @@ urlpatterns = [
         "api/elections/communes-consulats/",
         VotingCommuneOrConsulateSearchAPIView.as_view(),
         name="api_voting_commune_or_consulate_search",
+    ),
+    path(
+        "api/elections/bureaux-de-vote/<str:commune>/",
+        PollingStationSearchAPIView.as_view(),
+        name="api_voting_polling_station_search",
     ),
     path(
         "api/elections/circonscriptions-legislatives/",

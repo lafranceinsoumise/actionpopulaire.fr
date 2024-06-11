@@ -147,7 +147,7 @@ const SpendingRequestDetails = (props) => {
               readOnly
               id="campaign"
               name="campaign"
-              label="Il s’agit d’une dépense effectuée dans le cadre de la campagne pour les élections européennes"
+              label="Il s’agit d’une dépense effectuée dans le cadre de la campagne pour les élections législatives"
               value={spendingRequest.campaign}
             />
           )}

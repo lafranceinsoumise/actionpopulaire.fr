@@ -106,7 +106,11 @@ class UserContextSerializer(serializers.Serializer):
         return obj.membre_reseau_elus == obj.MEMBRE_RESEAU_OUI
 
     def has_voting_proxy_requests(self, obj):
-        return VotingProxyRequest.objects.filter(proxy__person_id=obj.id).exists()
+        return (
+            VotingProxyRequest.objects.filter(proxy__person_id=obj.id)
+            .upcoming()
+            .exists()
+        )
 
 
 class SessionSerializer(serializers.Serializer):

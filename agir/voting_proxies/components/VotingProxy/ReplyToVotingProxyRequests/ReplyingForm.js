@@ -265,7 +265,7 @@ const ReplyingForm = (props) => {
         </h2>
         <p>
           {requests[0].firstName} n'est pas disponible pour aller voter le 9
-          juin prochain pour les élections européennes. Vous êtes présent·e ?
+          juin prochain pour les élections législatives. Vous êtes présent·e ?
           Prenez sa procuration.
         </p>
       </header>
@@ -291,11 +291,13 @@ const ReplyingForm = (props) => {
             <strong>{requests[0].consulate}</strong>
           </p>
         )}
-        {requests[0].pollingStationNumber && (
+        {requests[0].pollingStationLabel && (
           <p>
             <StyledFaIcon icon="booth-curtain:regular" size="1.25rem" />
             <strong>
-              Bureau de vote&nbsp;: {requests[0].pollingStationNumber}
+              Bureau de vote&nbsp;:
+              <br />
+              {requests[0].pollingStationLabel}
             </strong>
           </p>
         )}
@@ -413,7 +415,7 @@ ReplyingForm.propTypes = {
       id: PropTypes.string.isRequired,
       firstName: PropTypes.string.isRequired,
       votingDate: PropTypes.string.isRequired,
-      pollingStationNumber: PropTypes.string.isRequired,
+      pollingStationLabel: PropTypes.string.isRequired,
       commune: PropTypes.string,
       consulate: PropTypes.string,
     }),
@@ -422,7 +424,7 @@ ReplyingForm.propTypes = {
     id: PropTypes.string.isRequired,
     firstName: PropTypes.string.isRequired,
     votingDate: PropTypes.string.isRequired,
-    pollingStationNumber: PropTypes.string.isRequired,
+    pollingStationLabel: PropTypes.string.isRequired,
     commune: PropTypes.string,
     consulate: PropTypes.string,
   }),

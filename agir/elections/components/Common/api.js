@@ -3,6 +3,7 @@ import { addQueryStringParams } from "@agir/lib/utils/url";
 
 export const ENDPOINT = {
   searchVotingLocation: "/api/elections/communes-consulats/",
+  searchPollingStations: "/api/elections/bureaux-de-vote/:commune/",
   getCirconscriptionsLegislatives:
     "/api/elections/circonscriptions-legislatives/",
   pollingStationOfficer: "/api/elections/assesseure-deleguee/",
@@ -31,6 +32,22 @@ export const searchVotingLocation = async (searchTerm) => {
     const response = await axios.get(url, {
       params: { q: searchTerm },
     });
+    result.data = response.data;
+  } catch (e) {
+    result.error = e.response?.data || { detail: e.message };
+  }
+
+  return result;
+};
+
+export const searchPollingStations = async (commune) => {
+  const result = {
+    data: null,
+    error: null,
+  };
+  const url = getElectionEndpoint("searchPollingStations", { commune });
+  try {
+    const response = await axios.get(url);
     result.data = response.data;
   } catch (e) {
     result.error = e.response?.data || { detail: e.message };
@@ -90,8 +107,8 @@ export const createPollingStationOfficer = async (data) => {
     votingCommune: null,
     votingConsulate: null,
     votingLocation: undefined,
-    // votingCirconscriptionLegislative:
-    //   data?.votingCirconscriptionLegislative?.code || undefined,
+    votingCirconscriptionLegislative:
+      data?.votingCirconscriptionLegislative?.code || undefined,
   };
   if (data.votingLocation?.type === "commune") {
     body.votingCommune = data.votingLocation.value;

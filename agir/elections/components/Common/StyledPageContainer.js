@@ -11,7 +11,7 @@ import {
   StyledLogo,
 } from "./StyledComponents";
 
-import defaultTheme from "@agir/front/genericComponents/themes/eu24";
+import defaultTheme from "@agir/front/genericComponents/themes/legislatives2024";
 
 const StyledPageContainer = ({ theme = defaultTheme, children }) => (
   <ThemeProvider theme={theme}>

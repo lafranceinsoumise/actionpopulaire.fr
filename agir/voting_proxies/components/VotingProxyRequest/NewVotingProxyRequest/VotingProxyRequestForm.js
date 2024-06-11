@@ -202,8 +202,7 @@ const VotingProxyRequestForm = (props) => {
           />
           <Spacer size="1rem" />
           <PollingStationField
-            isAbroad={data.votingLocation?.type === "consulate"}
-            countries={data?.votingLocation?.countries}
+            votingLocation={data?.votingLocation}
             disabled={isLoading}
             id="pollingStationNumber"
             name="pollingStationNumber"

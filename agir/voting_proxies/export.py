@@ -15,7 +15,7 @@ VOTER_FIELD = OrderedDict(
         "contact_phone": "telephone",
         "commune": "commune",
         "consulate": "consulat",
-        "polling_station_number": "bureau_de_vote",
+        "polling_station_label": "bureau_de_vote",
         "voter_id": "numero_national_electeur",
         "status": "statut",
         "created": "date_de_creation",

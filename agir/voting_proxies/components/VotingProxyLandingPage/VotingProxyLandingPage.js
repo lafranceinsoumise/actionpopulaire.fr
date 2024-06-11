@@ -73,15 +73,13 @@ const VotingProxyLandingPage = () => {
       <StyledLink>
         <img src={votingProxyRequestIcon} width="143" height="132" />
         <p>
-          <strong>Je serai absent·e le 9 juin</strong>
+          <strong>Je serai absent·e le 30 juin et/ou le 7 juillet</strong>
           <Button
             link
             wrap
             color="default"
             icon={isDesktop ? "arrow-right" : undefined}
             route="newVotingProxyRequest"
-            disabled
-            title="Il n'est plus possible de faire une demande de procuration pour le 9 juin"
           >
             Faire une procuration pour que quelqu'un vote à ma place
           </Button>

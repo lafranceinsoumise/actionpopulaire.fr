@@ -150,7 +150,7 @@ const SpendingRequestDetails = (props) => {
           <p style={{ marginTop: "-.25rem" }}>
             <em>
               Demande effectuée dans le cadre de la campagne pour les élections
-              européennes
+              législatives
             </em>
           </p>
         )}

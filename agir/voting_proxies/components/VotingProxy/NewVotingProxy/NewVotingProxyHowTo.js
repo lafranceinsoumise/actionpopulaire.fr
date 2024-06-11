@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import Spacer from "@agir/front/genericComponents/Spacer";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
+import ElectionDayWarningBlock from "@agir/voting_proxies/Common/ElectionDayWarningBlock";
 
 const StyledList = styled.ul`
   list-style-type: none;
@@ -22,12 +23,14 @@ const StyledList = styled.ul`
 
 const NewVotingProxyHowTo = () => (
   <div>
+    <ElectionDayWarningBlock />
+    <Spacer size="1rem" />
     <h2>Se porter volontaire pour prendre une procuration</h2>
     <Spacer size="1rem" />
     <p>
-      Vous êtes disponible le dimanche 9 juin, jour du vote pour les élections
-      européennes, et vous souhaitez prendre la procuration d'une personne
-      absente pour voter. Merci pour votre aide !
+      Vous êtes disponible les dimanches 30 juin et/ou 7 juillets, jours de vote
+      pour les élections léglislatives, et vous souhaitez prendre la procuration
+      d'une personne absente pour voter. Merci pour votre aide !
     </p>
     <Spacer size="1rem" />
     <StyledList>

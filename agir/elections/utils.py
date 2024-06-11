@@ -1,5 +1,6 @@
 from iso8601 import iso8601
 
+from agir.elections.data import polling_station_dataframe
 from agir.events.models import Event
 
 TREVE_ELECTORALE = [
@@ -117,3 +118,49 @@ def is_forbidden_during_treve_event(event_data):
             return True
 
     return False
+
+
+def get_polling_station(polling_station_id=""):
+    if not polling_station_id:
+        return None
+
+    data = polling_station_dataframe
+    polling_station = data.loc[data.id_brut_insee == polling_station_id].to_dict(
+        "records"
+    )
+
+    return polling_station[0] if polling_station else None
+
+
+def get_polling_station_label(polling_station=None, fallback=""):
+    if isinstance(polling_station, str):
+        polling_station = get_polling_station(polling_station)
+
+    if polling_station is None:
+        return fallback
+
+    libelle = str(polling_station.get("libelle_reu", "")).upper()
+    label = f"{str(polling_station['code']).upper()} - {libelle}"
+
+    address = " ".join(
+        [
+            str(polling_station.get("num_voie_reu", "")).upper(),
+            str(polling_station.get("voie_reu", "")).upper(),
+        ]
+    )
+    address = " ".join(address.split())
+
+    if address:
+        return f"{label} - {address}"
+
+    return label
+
+
+def get_polling_station_circonscription(polling_station=None, fallback=""):
+    if isinstance(polling_station, str):
+        polling_station = get_polling_station(polling_station)
+
+    if polling_station is None:
+        return fallback
+
+    return polling_station.get("circonscription", fallback)

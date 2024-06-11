@@ -204,7 +204,7 @@ class ReplyToVotingProxyRequestsAPIView(RetrieveUpdateAPIView):
 
         # Check if request exist that are already been accepted by the user
         if is_read_only:
-            voting_proxy_requests = VotingProxyRequest.objects.filter(
+            voting_proxy_requests = VotingProxyRequest.objects.upcoming().filter(
                 proxy=voting_proxy
             )
 
@@ -218,6 +218,7 @@ class ReplyToVotingProxyRequestsAPIView(RetrieveUpdateAPIView):
                         "status": request.status,
                         "firstName": request.first_name,
                         "pollingStationNumber": request.polling_station_number,
+                        "pollingStationLabel": request.polling_station_label,
                         "votingDate": dict(VotingProxyRequest.VOTING_DATE_CHOICES)[
                             request.voting_date
                         ],
@@ -363,7 +364,7 @@ class VotingProxyRequestAcceptationCancelAPIView(VotingProxyRequestConfirmAPIVie
 
 class AcceptedVotingProxyRequestListAPIView(ListAPIView):
     permission_classes = (permissions.AllowAny,)
-    queryset = VotingProxyRequest.objects.filter(
+    queryset = VotingProxyRequest.objects.upcoming().filter(
         status__in=(
             VotingProxyRequest.STATUS_ACCEPTED,
             VotingProxyRequest.STATUS_CONFIRMED,

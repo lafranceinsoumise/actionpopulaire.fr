@@ -56,6 +56,7 @@ class PollingStationOfficerModelAdmin(admin.ModelAdmin):
         "__str__",
         "role",
         "commune_consulate",
+        "circonscription_legislative",
         "voting_departement",
         "created__date",
         "available_voting_dates",
@@ -69,7 +70,13 @@ class PollingStationOfficerModelAdmin(admin.ModelAdmin):
         ConsulateListFilter,
         IsAvailableForVotingDateListFilter,
     )
-    readonly_fields = ("created", "voting_departement", "departement")
+    readonly_fields = (
+        "created",
+        "circonscription_legislative",
+        "voting_departement",
+        "departement",
+        "polling_station_label",
+    )
     autocomplete_fields = (
         "voting_circonscription_legislative",
         "voting_commune",
@@ -105,9 +112,11 @@ class PollingStationOfficerModelAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     "voting_commune",
+                    "voting_circonscription_legislative",
                     "voting_departement",
                     "voting_consulate",
                     "polling_station",
+                    "polling_station_label",
                     "voter_id",
                 )
             },
@@ -160,6 +169,11 @@ class PollingStationOfficerModelAdmin(admin.ModelAdmin):
 
     commune_consulate.short_description = "commune / consulat"
 
+    def polling_station_label(self, instance):
+        return instance.polling_station_label
+
+    polling_station_label.short_description = "Libellé du bureau de vote"
+
     def voting_departement(self, instance):
         if instance.voting_commune is None:
             return "-"
@@ -174,6 +188,7 @@ class PollingStationOfficerModelAdmin(admin.ModelAdmin):
     def circonscription_legislative(self, instance):
         if instance.voting_circonscription_legislative is not None:
             return instance.voting_circonscription_legislative.code
+
         return "-"
 
     circonscription_legislative.short_description = "circonscription législative"

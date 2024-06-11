@@ -1,6 +1,7 @@
 import csv
 from importlib.resources import open_text
 
+import pandas as pd
 from data_france.models import CirconscriptionLegislative, Commune
 from django.contrib.gis.db.models import MultiPolygonField
 from django.db.models.functions import Cast
@@ -57,3 +58,8 @@ def get_campaign_manager_for_commune(commune):
     return get_campaign_manager_for_circonscription_legislative(
         circonscription_legislative
     )
+
+
+with open_text("agir.elections.data", "polling_stations.csv") as file:
+    polling_station_dataframe = pd.read_csv(file, dtype=str).fillna("")
+    polling_station_dataframe["id"] = polling_station_dataframe["id_brut_insee"]
