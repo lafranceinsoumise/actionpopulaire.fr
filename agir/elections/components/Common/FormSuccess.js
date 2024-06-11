@@ -50,7 +50,7 @@ const FormSuccess = ({ children }) => {
       {children}
       <Spacer size="1.5rem" />
       <footer>
-        <Button color="dismiss" icon="arrow-right" link route="eu2024">
+        <Button color="dismiss" icon="arrow-right" link route="legislative2024">
           Retourner sur le site
         </Button>
       </footer>

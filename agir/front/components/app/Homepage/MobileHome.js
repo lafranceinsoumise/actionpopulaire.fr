@@ -3,6 +3,7 @@ import React from "react";
 import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
+import DonationAnnouncement from "@agir/activity/announcements/DonationAnnouncement";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 import HomeActions from "./HomeActions";
@@ -43,7 +44,8 @@ const StyledHome = styled.main`
 const Home = () => {
   return (
     <StyledHome>
-      <Spacer size="126px" />
+      <DonationAnnouncement />
+      <Spacer size="80px" />
       <header>
         <h2>Passez à l'action&nbsp;!</h2>
         <h5>

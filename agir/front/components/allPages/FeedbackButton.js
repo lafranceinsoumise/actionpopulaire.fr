@@ -13,7 +13,7 @@ import { useLocalStorage } from "@agir/lib/utils/hooks";
 
 import Tooltip from "@agir/front/genericComponents/Tooltip";
 
-import background from "./feedback-form-button.svg";
+import background from "./life-ring.svg";
 
 const slideInTransition = {
   from: { opacity: 0, marginBottom: "-3rem" },
@@ -35,14 +35,16 @@ const Button = styled.a`
 
 const Wrapper = styled(animated.div)`
   position: fixed;
-  bottom: 1rem;
-  right: 1rem;
-  width: 53px;
-  height: 53px;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  width: 4rem;
+  height: 4rem;
   z-index: ${style.zindexFeedbackButton};
 
   @media (max-width: ${style.collapse}px) {
-    bottom: 75px;
+    width: 3rem;
+    height: 3rem;
+    bottom: 5rem;
   }
 `;
 
