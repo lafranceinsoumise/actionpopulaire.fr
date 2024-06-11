@@ -62,4 +62,7 @@ def get_campaign_manager_for_commune(commune):
 
 with open_text("agir.elections.data", "polling_stations.csv") as file:
     polling_station_dataframe = pd.read_csv(file, dtype=str).fillna("")
+    polling_station_dataframe["code_commune"] = polling_station_dataframe[
+        "code_commune"
+    ].str.zfill(5)
     polling_station_dataframe["id"] = polling_station_dataframe["id_brut_insee"]
