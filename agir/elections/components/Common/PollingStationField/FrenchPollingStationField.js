@@ -10,7 +10,7 @@ import TextField from "@agir/front/formComponents/TextField";
 
 const UNKNOWN_POLLING_STATION_OPTION = {
   id: "unknown",
-  label: "Mon bureau d'apparaît pas dans la liste",
+  label: "Mon bureau n'est pas dans la liste",
   value: "",
 };
 
