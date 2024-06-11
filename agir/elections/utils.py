@@ -140,7 +140,7 @@ def get_polling_station_label(polling_station=None, fallback=""):
         return fallback
 
     libelle = str(polling_station.get("libelle_reu", "")).upper()
-    label = f"{polling_station['code']} - {libelle}"
+    label = f"{str(polling_station['code']).upper()} - {libelle}"
 
     address = " ".join(
         [
