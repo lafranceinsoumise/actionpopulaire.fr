@@ -64,7 +64,7 @@ class PollingStationOfficer(BaseAPIResource, SimpleLocationMixin):
 
     objects = PollingStationOfficerQuerySet.as_manager()
 
-    person = models.OneToOneField(
+    person = models.ForeignKey(
         "people.Person",
         verbose_name="personne",
         related_name="polling_station_officer",
@@ -232,8 +232,8 @@ class PollingStationOfficer(BaseAPIResource, SimpleLocationMixin):
         )
         constraints = (
             models.UniqueConstraint(
-                fields=["contact_email"],
-                name="polling_station_officer_unique_for_email",
+                fields=["contact_email", "available_voting_dates"],
+                name="polling_station_officer_unique_for_email_and_dates",
             ),
         )
 
