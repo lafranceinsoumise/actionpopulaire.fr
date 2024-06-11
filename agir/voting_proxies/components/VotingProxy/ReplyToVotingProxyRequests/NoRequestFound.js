@@ -48,7 +48,7 @@ const NoRequestFound = ({
     )}
     <Spacer size="1rem" />
     <footer>
-      <Button color="dismiss" icon="arrow-right" link route="eu2024">
+      <Button color="dismiss" icon="arrow-right" link route="legislative2024">
         Retourner sur le site
       </Button>
     </footer>

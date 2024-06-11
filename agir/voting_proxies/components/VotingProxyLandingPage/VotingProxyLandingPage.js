@@ -103,7 +103,7 @@ const VotingProxyLandingPage = () => {
       </StyledLink>
       <Spacer size={isDesktop ? "8rem" : "2rem"} />
       <footer style={{ textAlign: "center" }}>
-        <Button color="dismiss" icon="arrow-right" link route="eu2024">
+        <Button color="dismiss" icon="arrow-right" link route="legislative2024">
           Retourner sur le site
         </Button>
       </footer>

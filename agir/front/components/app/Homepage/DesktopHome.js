@@ -7,6 +7,7 @@ import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getRoutes } from "@agir/front/globalContext/reducers";
 
 import Button from "@agir/front/genericComponents/Button";
+import DonationAnnouncement from "@agir/activity/announcements/DonationAnnouncement";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 import HomeActions from "./HomeActions";
@@ -23,6 +24,16 @@ const StyledMap = styled.iframe`
   border: none;
   overflow: hidden;
   background-color: #aad3df;
+`;
+
+const StyledAnnouncement = styled.div`
+  background-color: hsla(267.7, 55.7%, 27.7%, 1);
+
+  & > * {
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 1.5rem 2rem;
+  }
 `;
 
 const StyledHome = styled.main`
@@ -57,7 +68,9 @@ const StyledHome = styled.main`
     }
 
     div {
-      display: flex;
+      display: inline-flex;
+      width: auto;
+      margin: 0 auto;
       justify-content: center;
 
       & > * {
@@ -80,6 +93,9 @@ const Home = () => {
 
   return (
     <StyledHome>
+      <StyledAnnouncement>
+        <DonationAnnouncement />
+      </StyledAnnouncement>
       <header>
         <h2>Passez à l'action&nbsp;!</h2>
         <h5>
