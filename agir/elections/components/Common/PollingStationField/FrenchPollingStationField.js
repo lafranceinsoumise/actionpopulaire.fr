@@ -73,7 +73,7 @@ const FrenchPollingStationField = (props) => {
   }, [handleChange, commune, selected]);
 
   useEffect(() => {
-    if (value === selected?.value) {
+    if (isLoading || value === selected?.value) {
       return;
     }
 
@@ -92,7 +92,7 @@ const FrenchPollingStationField = (props) => {
     }
 
     handleChange(selected?.value);
-  }, [name, value, pollingStations, selected, onChange]);
+  }, [name, value, pollingStations, selected, onChange, isLoading]);
 
   useEffect(() => {
     onChangeCirconscriptionLegislative &&

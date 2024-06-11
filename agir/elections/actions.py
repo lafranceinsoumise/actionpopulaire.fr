@@ -1,5 +1,3 @@
-from functools import partial
-
 from django.db import transaction
 
 from agir.elections.models import PollingStationOfficer
@@ -50,12 +48,21 @@ def create_or_update_polling_station_officer(data):
             is_new_person = True
             person = Person.objects.create_person(email=email, **person_data)
 
-        (
-            polling_station_officer,
-            created,
-        ) = PollingStationOfficer.objects.update_or_create(
-            person_id=person.pk, defaults={**data, "contact_email": email}
+        polling_station_officer = PollingStationOfficer.objects.filter(
+            person_id=person.pk,
+            available_voting_dates__overlap=data["available_voting_dates"],
         )
+
+        if polling_station_officer.exists():
+            created = False
+            polling_station_officer.update(**data)
+            polling_station_officer = polling_station_officer.first()
+            polling_station_officer.refresh_from_db()
+        else:
+            created = True
+            polling_station_officer = PollingStationOfficer.objects.create(
+                person_id=person.pk, contact_email=email, **data
+            )
 
         geocode_person.delay(person.pk)
 
