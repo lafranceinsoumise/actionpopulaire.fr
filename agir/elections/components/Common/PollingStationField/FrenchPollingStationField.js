@@ -4,20 +4,15 @@ import useSWRImmutable from "swr/immutable";
 
 import { getElectionEndpoint } from "@agir/elections/Common/api";
 
+import Spacer from "@agir/front/genericComponents/Spacer";
 import SelectField from "@agir/front/formComponents/SelectField";
+import TextField from "@agir/front/formComponents/TextField";
 
-import ABROAD_POLLING_STATIONS from "./abroadPollingStations";
-
-const ABROAD_POLLING_STATION_OPTIONS = ABROAD_POLLING_STATIONS.map(
-  ({ country, list, pollingStation, countryCodes }) => {
-    const value = `${pollingStation} / ${list} (${country})`;
-    return {
-      label: value,
-      value: value,
-      countryCodes,
-    };
-  },
-);
+const UNKNOWN_POLLING_STATION_OPTION = {
+  id: "unknown",
+  label: "Mon bureau n'est pas dans la liste",
+  value: "",
+};
 
 const FrenchPollingStationField = (props) => {
   const { value, name, onChange, commune, disabled } = props;
@@ -28,51 +23,94 @@ const FrenchPollingStationField = (props) => {
     commune && getElectionEndpoint("searchPollingStations", { commune }),
   );
 
-  const handleChange = useCallback((pollingStation) => {
-    setSelected(pollingStation);
-  }, []);
+  const options = useMemo(
+    () =>
+      Array.isArray(pollingStations)
+        ? [...pollingStations, { ...UNKNOWN_POLLING_STATION_OPTION, commune }]
+        : [{ ...UNKNOWN_POLLING_STATION_OPTION, commune }],
+    [pollingStations, commune],
+  );
 
-  useEffect(() => {
-    if (selected?.codeCommune !== commune) {
-      setSelected(null);
+  const handleChange = useCallback(
+    (value = "") => {
       onChange({
         target: {
           name,
-          value: "",
+          value: typeof value === "object" ? value.target.value : value,
         },
       });
+    },
+    [onChange, name],
+  );
+
+  const handleSelect = useCallback(
+    (pollingStation) => {
+      setSelected(pollingStation);
+
+      if (pollingStation.id === UNKNOWN_POLLING_STATION_OPTION.id) {
+        handleChange();
+      }
+    },
+    [handleChange],
+  );
+
+  useEffect(() => {
+    if (
+      selected &&
+      selected.id !== UNKNOWN_POLLING_STATION_OPTION.id &&
+      selected.codeCommune !== commune
+    ) {
+      setSelected(null);
+      handleChange();
     }
-  }, [name, commune, selected]);
+  }, [handleChange, commune, selected]);
 
   useEffect(() => {
     if (value === selected?.value) {
       return;
     }
-    if (value && !selected?.value) {
-      const s = Array.isArray(pollingStations)
-        ? pollingStations.find((option) => option.value === value)
-        : null;
-      setSelected(s);
+
+    if (selected?.id === UNKNOWN_POLLING_STATION_OPTION.id) {
       return;
     }
-    onChange({
-      target: {
-        name,
-        value: selected?.value || "",
-      },
-    });
+
+    if (value && !selected) {
+      const matchingValue =
+        (Array.isArray(pollingStations) &&
+          pollingStations.find((option) => option.value === value)) ||
+        UNKNOWN_POLLING_STATION_OPTION;
+
+      setSelected(matchingValue);
+      return;
+    }
+
+    handleChange(selected?.value);
   }, [name, value, pollingStations, selected, onChange]);
 
   return (
-    <SelectField
-      placeholder="Sélectionner un bureau de vote"
-      {...props}
-      value={selected}
-      options={pollingStations}
-      onChange={handleChange}
-      isSearchable
-      disabled={disabled || isLoading || !commune}
-    />
+    <>
+      <SelectField
+        placeholder="Sélectionner un bureau de vote"
+        {...props}
+        value={selected}
+        options={options}
+        onChange={handleSelect}
+        isSearchable
+        disabled={disabled || isLoading || !commune}
+      />
+      {selected?.id === UNKNOWN_POLLING_STATION_OPTION.id && (
+        <>
+          <Spacer size="1rem" />
+          <TextField
+            small
+            label="Bureau de vote"
+            placeholder={`Exemple : ${options[0]?.label || ""}`}
+            value={value}
+            onChange={handleChange}
+          />
+        </>
+      )}
+    </>
   );
 };
 
