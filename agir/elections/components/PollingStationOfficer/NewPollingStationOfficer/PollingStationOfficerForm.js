@@ -137,6 +137,16 @@ const PollingStationOfficerForm = (props) => {
       votingLocation: undefined,
       votingCirconscriptionLegislative: undefined,
     }));
+
+    if (votingLocation?.type === "consulate") {
+      setData((state) => ({
+        ...state,
+        votingLocation,
+        votingCirconscriptionLegislative: votingLocation.code,
+      }));
+      return;
+    }
+
     setData((state) => ({
       ...state,
       votingLocation,
@@ -468,6 +478,9 @@ const PollingStationOfficerForm = (props) => {
           id="pollingStation"
           name="pollingStation"
           onChange={handleChange}
+          onChangeCirconscriptionLegislative={
+            handleSelectVotingCirconscriptionLegislative
+          }
           value={data.pollingStation}
           error={errors?.pollingStation}
           label="Bureau de vote (obligatoire)"
