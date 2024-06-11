@@ -15,7 +15,14 @@ const UNKNOWN_POLLING_STATION_OPTION = {
 };
 
 const FrenchPollingStationField = (props) => {
-  const { value, name, onChange, commune, disabled } = props;
+  const {
+    value,
+    name,
+    onChange,
+    onChangeCirconscriptionLegislative,
+    commune,
+    disabled,
+  } = props;
 
   const [selected, setSelected] = useState(null);
 
@@ -87,6 +94,12 @@ const FrenchPollingStationField = (props) => {
     handleChange(selected?.value);
   }, [name, value, pollingStations, selected, onChange]);
 
+  useEffect(() => {
+    onChangeCirconscriptionLegislative &&
+      selected?.circonscription &&
+      onChangeCirconscriptionLegislative(selected.circonscription);
+  }, [onChangeCirconscriptionLegislative, selected?.circonscription]);
+
   return (
     <>
       <SelectField
@@ -118,6 +131,7 @@ FrenchPollingStationField.propTypes = {
   name: PropTypes.string.isRequired,
   value: PropTypes.string,
   onChange: PropTypes.func,
+  onChangeCirconscriptionLegislative: PropTypes.func,
   countries: PropTypes.arrayOf(PropTypes.string),
   disabled: PropTypes.bool,
 };
