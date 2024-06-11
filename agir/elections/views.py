@@ -134,10 +134,11 @@ class RetrieveCreatePollingStationOfficerAPIView(RetrieveAPIView, CreateAPIView)
 
     def retrieve(self, request, *args, **kwargs):
         data = None
+
         if request.user.is_authenticated and request.user.person is not None:
-            try:
-                data = request.user.person.polling_station_officer
-                data = self.get_serializer(data).data
-            except PollingStationOfficer.DoesNotExist:
-                pass
+            data = request.user.person.polling_station_officer.order_by(
+                "-modified"
+            ).first()
+            data = self.get_serializer(data).data if data else None
+
         return Response(data)
