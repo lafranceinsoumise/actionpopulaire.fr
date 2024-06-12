@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from datetime import timedelta
-from functools import partial
 from typing import Optional
 
 from django.conf import settings
@@ -309,6 +308,7 @@ def schedule_onboarding_emails(dry_run=False):
             scheduled.setdefault(subscription_type, {})
             recipients = list(
                 Person.objects.exclude(role__is_active=False)
+                .exclude(newsletters__len=0)
                 .filter(payments__isnull=True, subscriptions__isnull=True)
                 .filter(created__date=today - timedelta(days=7))
                 .filter(
@@ -330,6 +330,7 @@ def schedule_onboarding_emails(dry_run=False):
             scheduled.setdefault(subscription_type, {})
             recipients = list(
                 Person.objects.exclude(role__is_active=False)
+                .exclude(newsletters__len=0)
                 .exclude(
                     memberships__supportgroup__published=True,
                     memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MEMBER,
