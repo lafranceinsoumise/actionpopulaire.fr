@@ -406,7 +406,7 @@ const VotingProxyForm = (props) => {
             name="subscribed"
             value={data.subscribed}
             onChange={handleChangeSubscribed}
-            label="Je souhaite rejoindre la France insoumise et être informé·e des campagnes du mouvement ?"
+            label="Je souhaite rejoindre la France insoumise et être informé·e des campagnes du mouvement"
           />
           <CheckboxField
             disabled={isLoading}
