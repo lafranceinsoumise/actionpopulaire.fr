@@ -418,7 +418,7 @@ class VotingProxyRequestAdmin(VoterModelAdmin):
 
         return format_html(
             '<a href="{cancel_voting_proxy_request}" class="button">'
-            "  Annuller cette demande"
+            "  Annuler cette demande"
             "</a>"
             "<div style='margin: 0; padding-left: 0;' class='help'>"
             "  Le·la volontaire sera prévenu·e par e-mail de l'annulation"
