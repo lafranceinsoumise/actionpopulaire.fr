@@ -125,7 +125,8 @@ class EventSubtypeSerializer(DisplayEventSubtypeSerializer):
     )
 
     def get_needsDocuments(self, obj):
-        return bool(obj.related_project_type)
+        return False
+        # return bool(obj.related_project_type)
 
     def get_isVisible(self, obj):
         return obj.visibility == EventSubtype.VISIBILITY_ALL
@@ -883,8 +884,8 @@ class CreateEventSerializer(serializers.Serializer):
         event = Event.objects.create(**validated_data)
 
         # Create a gestion project if needed for the event's subtype
-        if event.subtype.related_project_type:
-            Projet.objects.from_event(event, event.organizers.first().role)
+        # if event.subtype.related_project_type:
+        #     Projet.objects.from_event(event, event.organizers.first().role)
 
         self.schedule_tasks(event, validated_data)
         return event
