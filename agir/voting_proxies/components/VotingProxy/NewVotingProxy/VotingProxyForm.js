@@ -31,7 +31,7 @@ const FORM_STEPS = (isAbroad) =>
     ["votingLocation", "pollingStationNumber", "votingDates", "voterId"],
     !isAbroad && ["address", "zip", "city"],
     ["firstName", "lastName", "dateOfBirth"],
-    ["phone", "email", "remarks"],
+    ["phone", "email", "remarks", "subscribed"],
   ].filter(Boolean);
 
 export const getFieldStepFromErrors = (errors, isAbroad) =>
@@ -117,6 +117,17 @@ const VotingProxyForm = (props) => {
     setData((state) => ({
       ...state,
       votingDates,
+    }));
+  }, []);
+
+  const handleChangeSubscribed = useCallback((e) => {
+    setErrors((state) => ({
+      ...state,
+      subscribed: undefined,
+    }));
+    setData((state) => ({
+      ...state,
+      subscribed: e.target.checked,
     }));
   }, []);
 
@@ -389,6 +400,14 @@ const VotingProxyForm = (props) => {
             helpText="Quand êtes-vous disponible pour être contacté·e, en semaine et le week-end ?"
           />
           <Spacer size="1rem" />
+          <CheckboxField
+            disabled={isLoading}
+            id="subscribed"
+            name="subscribed"
+            value={data.subscribed}
+            onChange={handleChangeSubscribed}
+            label="Je souhaite rejoindre la France insoumise et être informé·e des campagnes du mouvement ?"
+          />
           <CheckboxField
             disabled={isLoading}
             id="dataAgreement"

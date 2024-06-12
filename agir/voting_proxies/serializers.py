@@ -3,7 +3,6 @@ from phonenumber_field.serializerfields import PhoneNumberField
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from agir.elections.utils import get_polling_station_label
 from agir.people.serializers import PersonNewsletterListField
 from agir.voting_proxies.actions import (
     create_or_update_voting_proxy,
@@ -223,6 +222,7 @@ class CreateVotingProxySerializer(VotingProxySerializer):
     newsletters = PersonNewsletterListField(
         required=False, allow_empty=True, write_only=True
     )
+    subscribed = serializers.BooleanField(write_only=True, required=False)
     address = serializers.CharField(write_only=True, required=False, allow_blank=True)
     zip = serializers.CharField(write_only=True, required=False, allow_blank=True)
     city = serializers.CharField(write_only=True, required=False, allow_blank=True)
@@ -268,6 +268,7 @@ class CreateVotingProxySerializer(VotingProxySerializer):
             "remarks",
             "person",
             "newsletters",
+            "subscribed",
             "updated",
             "dateOfBirth",
             "address",
