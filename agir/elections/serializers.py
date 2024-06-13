@@ -10,6 +10,7 @@ from rest_framework.exceptions import ValidationError
 
 from agir.elections.actions import create_or_update_polling_station_officer
 from agir.elections.models import PollingStationOfficer
+from agir.lib.display import display_liststring
 
 
 class VotingCommuneOrConsulateSerializer(serializers.Serializer):
@@ -25,7 +26,11 @@ class VotingCommuneOrConsulateSerializer(serializers.Serializer):
         if isinstance(instance, Commune):
             return f"{instance.code_departement} - {instance.nom_complet}"
         if isinstance(instance, CirconscriptionConsulaire):
-            return str(instance)
+            label = instance.nom
+            if instance.pays:
+                consulats = [consulat for consulat in instance.consulats]
+                label += f" — {display_liststring(consulats)}"
+            return label
 
     def get_type(self, instance):
         if isinstance(instance, Commune):
