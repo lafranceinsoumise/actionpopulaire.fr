@@ -72,9 +72,12 @@ const NewVotingProxyHowTo = () => (
         électorales d'une autre commune.
       </strong>{" "}
       Ainsi, si vous votez dans la commune A, vous pourrez voter pour un·e
-      électeur·rice qui est inscrit·e dans la commune B. Cependant, vous devrez
-      vous rendre dans son bureau de vote pour voter à sa place le jour du
-      scrutin.
+      électeur·rice qui est inscrit·e dans la commune B. Cependant,{" "}
+      <strong>vous devrez vous rendre dans son bureau de vote</strong> pour
+      voter à sa place le jour du scrutin.
+      <br />
+      <br />
+      Si vous êtes en déplacement, vous pourrez prendre une procuration là où vous vous trouvez, et cela même si quelqu'un vote pour vous par procuration dans votre commune.
     </p>
   </div>
 );
