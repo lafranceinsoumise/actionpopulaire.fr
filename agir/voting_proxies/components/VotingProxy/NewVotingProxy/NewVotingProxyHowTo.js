@@ -77,7 +77,9 @@ const NewVotingProxyHowTo = () => (
       voter à sa place le jour du scrutin.
       <br />
       <br />
-      Si vous êtes en déplacement, vous pourrez prendre une procuration là où vous vous trouvez, et cela même si quelqu'un vote pour vous par procuration dans votre commune.
+      Si vous êtes en déplacement, vous pourrez prendre une procuration là où
+      vous vous trouvez, et cela même si quelqu'un vote pour vous par
+      procuration dans votre commune.
     </p>
   </div>
 );

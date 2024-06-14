@@ -6,7 +6,10 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 import Steps, { useSteps } from "@agir/front/genericComponents/Steps";
 
 import PollingStationField from "@agir/elections/Common/PollingStationField";
-import { ElectoralInfoLink, WarningBlock } from "@agir/elections/Common/StyledComponents";
+import {
+  ElectoralInfoLink,
+  WarningBlock,
+} from "@agir/elections/Common/StyledComponents";
 import VotingDateFields from "@agir/elections/Common/VotingDateFields";
 import VotingLocationField from "@agir/elections/Common/VotingLocationField";
 import AppRedirect from "@agir/front/app/Redirect";
@@ -277,9 +280,12 @@ const VotingProxyForm = (props) => {
         {data.votingLocation?.type === "commune" && (
           <fieldset>
             <WarningBlock>
-              Indiquez ci-dessous l'adresse <strong>où vous vous trouverez le jour de vote</strong>. Celle-ci sera utilisée pour vous proposer les demandes de procuration de vote à proximité.
+              Indiquez ci-dessous l'adresse{" "}
+              <strong>où vous vous trouverez le jour de vote</strong>. Celle-ci
+              sera utilisée pour vous proposer les demandes de procuration de
+              vote à proximité.
             </WarningBlock>
-            <Spacer size="1.5rem"/>
+            <Spacer size="1.5rem" />
             <TextField
               autoFocus
               required
