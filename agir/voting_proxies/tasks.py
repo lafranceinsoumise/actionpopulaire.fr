@@ -253,6 +253,19 @@ def send_voting_proxy_information_for_request(voting_proxy_request_pk):
             </li>
             <li>Une fois la procuration validée, prévenez le ou la volontaire</li>
         </ul>
+        <br />
+        <em>
+            Notre espace procurations étant ouvert à tout le monde, nous faisons tout le possible pour limiter au 
+            maximum les abus. La plupart des nos volontaires sont des militant·es du mouvement et nous privilégions, 
+            lors de la mise en relation, les personnes avec le plus d'ancienneté dans le mouvement.
+            <br /><br />
+            Pour réduire encore plus les risques d'utilisation malveillante, nous vous conseillons, si vous le pouvez, 
+            d'échanger brièvement avec la personne volontaire ou de rechercher son nom et prénom sur internet pour vous 
+            faire vous-même une idée.
+            <br /><br />
+            N'hésitez pas à nous signaler tout abus en nous écrivant à l'adresse : 
+            <a href="mailto:procurations@actionpopulaire.fr">procurations@actionpopulaire.fr</a>.
+        </em>
         """
     )
     send_voting_proxy_request_email.delay(
