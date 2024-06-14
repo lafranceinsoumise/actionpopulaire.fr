@@ -183,7 +183,7 @@ class VotingProxyRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
 class ReplyToVotingProxyRequestsAPIView(RetrieveUpdateAPIView):
     permission_classes = (IsActionPopulaireClientPermission,)
-    queryset = VotingProxy.objects.available()
+    queryset = VotingProxy.objects.respectable()
     serializer_class = None
 
     def retrieve(self, request, *args, **kwargs):

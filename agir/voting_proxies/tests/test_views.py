@@ -132,6 +132,10 @@ class VotingProxyRequestCreateAPITestCase(APITestCase):
             contact_phone="+33600000000",
             voting_dates=[VotingProxyRequest.VOTING_DATE_CHOICES[0][0]],
             commune=self.commune,
+            person=Person.objects.create_insoumise(
+                email="voting@proxy.com",
+                created="2024-06-08 00:00:00Z",
+            ),
         )
         request = VotingProxyRequest.objects.create(
             first_name="Bar",
@@ -228,7 +232,10 @@ class VotingProxyCreateAPITestCase(APITestCase):
 
         self.create_endpoint = reverse("api_create_voting_proxy")
         self.existing_person = Person.objects.create_person(
-            "existing_person@email.com", create_role=True, display_name="Person"
+            "existing_person@email.com",
+            create_role=True,
+            display_name="Person",
+            created="2024-06-08 00:00:00Z",
         )
         self.person = Person.objects.create_person(
             "person@email.com", create_role=True, display_name="Person"
@@ -384,6 +391,7 @@ class VotingProxyCreateAPITestCase(APITestCase):
                 "voting_dates": self.valid_data["votingDates"],
                 "person": self.existing_person,
                 "date_of_birth": "1970-01-01",
+                "created": "2024-06-08 00:00:00Z",
             }
         )
         data = {**self.valid_data, "email": self.existing_person.email}
@@ -411,7 +419,10 @@ class VotingProxyRetrieveUpdateAPITestCase(APITestCase):
         )
         self.patcher.start()
         self.person = Person.objects.create_person(
-            "person@email.com", create_role=True, display_name="Person"
+            "person@email.com",
+            create_role=True,
+            display_name="Person",
+            created="2024-06-08 00:00:00Z",
         )
         reg = Region.objects.create(
             code="01",
@@ -536,7 +547,10 @@ class ReplyToVotingProxyRequestsAPITestCase(APITestCase):
         )
         self.patcher.start()
         self.person = Person.objects.create_person(
-            "person@email.com", create_role=True, display_name="Person"
+            "person@email.com",
+            create_role=True,
+            display_name="Person",
+            created="2024-06-08 00:00:00Z",
         )
         reg = Region.objects.create(
             code="01",
@@ -593,6 +607,10 @@ class ReplyToVotingProxyRequestsAPITestCase(APITestCase):
                 "remarks": "R.A.S.",
                 "status": VotingProxy.STATUS_CREATED,
                 "date_of_birth": "1970-01-01",
+                "person": Person.objects.create_insoumise(
+                    email="voting@proxy.com",
+                    created="2024-06-08 00:00:00Z",
+                ),
             }
         )
         self.unavailable_voting_proxy = VotingProxy.objects.create(
@@ -608,6 +626,10 @@ class ReplyToVotingProxyRequestsAPITestCase(APITestCase):
                 "remarks": "R.A.S.",
                 "status": VotingProxy.STATUS_UNAVAILABLE,
                 "date_of_birth": "1970-01-01",
+                "person": Person.objects.create_insoumise(
+                    email="unavailable_voting@proxy.com",
+                    created="2024-06-08 00:00:00Z",
+                ),
             }
         )
         self.endpoint = reverse(
@@ -862,10 +884,14 @@ class ReplyToSingleVotingProxyRequestAPITestCase(APITestCase):
                 "voting_dates": [VotingProxy.VOTING_DATE_CHOICES[0][0]],
                 "remarks": "R.A.S.",
                 "person": Person.objects.create_person(
-                    "voting@proxy.com", create_role=True, display_name="Person"
+                    "voting@proxy.com",
+                    create_role=True,
+                    display_name="Person",
+                    created="2024-06-08 00:00:00Z",
                 ),
                 "status": VotingProxy.STATUS_CREATED,
                 "date_of_birth": "1970-01-01",
+                "created": "2024-06-08 00:00:00Z",
             }
         )
         self.another_voting_proxy = VotingProxy.objects.create(
@@ -880,7 +906,10 @@ class ReplyToSingleVotingProxyRequestAPITestCase(APITestCase):
                 "voting_dates": [VotingProxy.VOTING_DATE_CHOICES[0][0]],
                 "remarks": "R.A.S.",
                 "person": Person.objects.create_person(
-                    "another_voting@proxy.com", create_role=True, display_name="Person"
+                    "another_voting@proxy.com",
+                    create_role=True,
+                    display_name="Person",
+                    created="2024-06-08 00:00:00Z",
                 ),
                 "status": VotingProxy.STATUS_CREATED,
                 "date_of_birth": "1970-01-01",
@@ -901,6 +930,7 @@ class ReplyToSingleVotingProxyRequestAPITestCase(APITestCase):
                     "unavailable_voting@proxy.com",
                     create_role=True,
                     display_name="Person",
+                    created="2024-06-08 00:00:00Z",
                 ),
                 "status": VotingProxy.STATUS_UNAVAILABLE,
                 "date_of_birth": "1970-01-01",
@@ -1047,7 +1077,10 @@ class VotingProxyForRequestRetrieveAPITestCase(APITestCase):
         )
         self.patcher.start()
         self.person = Person.objects.create_person(
-            "person@email.com", create_role=True, display_name="Person"
+            "person@email.com",
+            create_role=True,
+            display_name="Person",
+            created="2024-06-08 00:00:00Z",
         )
         self.consulate = CirconscriptionConsulaire.objects.create(
             nom="Circonscription Consulaire ABC",
@@ -1133,7 +1166,10 @@ class VotingProxyRequestConfirmAPITestCase(APITestCase):
         )
         self.patcher.start()
         self.person = Person.objects.create_person(
-            "person@email.com", create_role=True, display_name="Person"
+            "person@email.com",
+            create_role=True,
+            display_name="Person",
+            created="2024-06-08 00:00:00Z",
         )
         self.consulate = CirconscriptionConsulaire.objects.create(
             nom="Circonscription Consulaire ABC",

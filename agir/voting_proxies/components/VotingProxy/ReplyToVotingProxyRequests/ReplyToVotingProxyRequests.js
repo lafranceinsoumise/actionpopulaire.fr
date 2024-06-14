@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import React from "react";
 import { useLocation } from "react-router-dom";
-import useSWR from "swr";
+import useSWRImmutable from "swr/immutable";
 
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
@@ -35,7 +35,7 @@ const ReplyToVotingProxyRequests = (props) => {
   const isReadOnly = routeConfig.acceptedVotingProxyRequests.match(pathname);
   const votingProxyRequestsIds =
     getVotingProxyRequestsIdsFromURLSearchParams(search);
-  const { data, error, mutate } = useSWR(
+  const { data, error, mutate, isLoading } = useSWRImmutable(
     getVotingProxyEndpoint(
       "replyToVotingProxyRequests",
       { votingProxyPk },
@@ -48,25 +48,22 @@ const ReplyToVotingProxyRequests = (props) => {
     },
   );
 
-  if (error?.response?.status === 404) {
-    // The voting proxy does not exist or is no longer available
-    return <NotFoundPage hasTopBar={false} reloadOnReconnection={false} />;
-  }
-
   return (
     <StyledPageContainer theme={votingProxyTheme}>
-      <PageFadeIn ready={typeof data !== "undefined"} wait={<Skeleton />}>
-        {data && data.requests.length > 0 ? (
-          <ReplyingForm
-            votingProxyPk={votingProxyPk}
-            firstName={data.firstName}
-            requests={data.requests}
-            refreshRequests={mutate}
-            readOnly={data.readOnly}
-            hasMatchedRequests={!!votingProxyRequestsIds}
-          />
-        ) : (
+      <PageFadeIn ready={!isLoading} wait={<Skeleton />}>
+        {error?.response?.status === 404 || data?.requests?.length === 0 ? (
           <NoRequestFound hasMatchedRequests={!!votingProxyRequestsIds} />
+        ) : (
+          data && (
+            <ReplyingForm
+              votingProxyPk={votingProxyPk}
+              firstName={data.firstName}
+              requests={data.requests}
+              refreshRequests={mutate}
+              readOnly={data.readOnly}
+              hasMatchedRequests={!!votingProxyRequestsIds}
+            />
+          )
         )}
       </PageFadeIn>
     </StyledPageContainer>

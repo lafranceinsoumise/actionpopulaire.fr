@@ -168,6 +168,10 @@ class VotingProxyQuerySet(models.QuerySet):
             status__in=(VotingProxy.STATUS_CREATED, VotingProxy.STATUS_AVAILABLE),
         )
 
+    def respectable(self):
+        # Allows only people that existed before the campaign start
+        return self.available().filter(person__created__date__lte="2024-06-09")
+
 
 class VotingProxy(AbstractVoter):
     STATUS_CREATED = "created"
