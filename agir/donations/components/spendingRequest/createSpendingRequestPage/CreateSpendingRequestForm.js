@@ -320,7 +320,7 @@ const CreateSpendingRequestForm = (props) => {
           name="campaign"
           value={data.campaign}
           onChange={handleChangeCampaign}
-          label="Il s’agit d’une dépense effectuée dans le cadre de la campagne pour les élections européennes"
+          label="Il s’agit d’une dépense effectuée dans le cadre de la campagne pour les élections européennes 2024"
         />
         <hr />
         <RadioField

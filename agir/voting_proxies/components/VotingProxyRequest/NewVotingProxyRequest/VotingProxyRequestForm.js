@@ -4,12 +4,13 @@ import React, { useCallback, useEffect, useState } from "react";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import Steps, { useSteps } from "@agir/front/genericComponents/Steps";
 
-import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import Link from "@agir/front/app/Link";
+import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import PhoneField from "@agir/front/formComponents/PhoneField";
 import TextField from "@agir/front/formComponents/TextField";
 
 import PollingStationField from "@agir/elections/Common/PollingStationField";
+import { WarningBlock } from "@agir/elections/Common/StyledComponents";
 import VotingDateFields from "@agir/elections/Common/VotingDateFields";
 import VotingLocationField from "@agir/elections/Common/VotingLocationField";
 import FormFooter from "@agir/voting_proxies/Common/FormFooter";
@@ -200,10 +201,29 @@ const VotingProxyRequestForm = (props) => {
             }
             label="Commune ou ambassade d'inscription aux listes électorales (obligatoire)"
           />
+          {data.votingLocation?.type === "consulate" ? (
+            <>
+              <Spacer size="1rem" />
+              <WarningBlock style={{ fontSize: "0.875rem" }}>
+                <strong>Bon à savoir :</strong> les Français·es de l'étranger
+                peuvent voter pour les élections législatives{" "}
+                <strong>par voie électronique sur internet</strong> !
+                <br />
+                Plus d'informations{" "}
+                <Link
+                  href="https://www.diplomatie.gouv.fr/fr/services-aux-francais/voter-a-l-etranger/modalites-de-vote/vote-par-internet/"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  sur le site du ministère
+                </Link>
+                .
+              </WarningBlock>
+            </>
+          ) : null}
           <Spacer size="1rem" />
           <PollingStationField
-            isAbroad={data.votingLocation?.type === "consulate"}
-            countries={data?.votingLocation?.countries}
+            votingLocation={data?.votingLocation}
             disabled={isLoading}
             id="pollingStationNumber"
             name="pollingStationNumber"

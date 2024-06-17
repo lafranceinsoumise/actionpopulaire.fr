@@ -7,7 +7,8 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 import { useIsDesktop } from "@agir/front/genericComponents/grid";
 
 import StyledPageContainer from "@agir/elections/Common/StyledPageContainer";
-import ElectionDayWarningBlock from "@agir/voting_proxies/Common/ElectionDayWarningBlock";
+// import ElectionDayWarningBlock from "@agir/voting_proxies/Common/ElectionDayWarningBlock";
+import SecurityWarning from "@agir/voting_proxies/Common/SecurityWarning";
 
 import votingProxyRequestIcon from "@agir/voting_proxies/Common/images/vpr_icon.png";
 import votingProxyIcon from "@agir/voting_proxies/Common/images/vp_icon.png";
@@ -68,20 +69,19 @@ const VotingProxyLandingPage = () => {
         Espace Procurations
       </h2>
       <Spacer size={isDesktop ? "2.5rem" : "1rem"} />
-      <ElectionDayWarningBlock />
+      <SecurityWarning />
+      {/* <ElectionDayWarningBlock /> */}
       <Spacer size="1rem" />
       <StyledLink>
         <img src={votingProxyRequestIcon} width="143" height="132" />
         <p>
-          <strong>Je serai absent·e le 9 juin</strong>
+          <strong>Je serai absent·e le 30 juin et/ou le 7 juillet</strong>
           <Button
             link
             wrap
             color="default"
             icon={isDesktop ? "arrow-right" : undefined}
             route="newVotingProxyRequest"
-            disabled
-            title="Il n'est plus possible de faire une demande de procuration pour le 9 juin"
           >
             Faire une procuration pour que quelqu'un vote à ma place
           </Button>
@@ -105,7 +105,7 @@ const VotingProxyLandingPage = () => {
       </StyledLink>
       <Spacer size={isDesktop ? "8rem" : "2rem"} />
       <footer style={{ textAlign: "center" }}>
-        <Button color="dismiss" icon="arrow-right" link route="eu2024">
+        <Button color="dismiss" icon="arrow-right" link route="legislative2024">
           Retourner sur le site
         </Button>
       </footer>

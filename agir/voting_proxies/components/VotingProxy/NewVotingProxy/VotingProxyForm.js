@@ -6,7 +6,10 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 import Steps, { useSteps } from "@agir/front/genericComponents/Steps";
 
 import PollingStationField from "@agir/elections/Common/PollingStationField";
-import { ElectoralInfoLink } from "@agir/elections/Common/StyledComponents";
+import {
+  ElectoralInfoLink,
+  WarningBlock,
+} from "@agir/elections/Common/StyledComponents";
 import VotingDateFields from "@agir/elections/Common/VotingDateFields";
 import VotingLocationField from "@agir/elections/Common/VotingLocationField";
 import AppRedirect from "@agir/front/app/Redirect";
@@ -31,7 +34,7 @@ const FORM_STEPS = (isAbroad) =>
     ["votingLocation", "pollingStationNumber", "votingDates", "voterId"],
     !isAbroad && ["address", "zip", "city"],
     ["firstName", "lastName", "dateOfBirth"],
-    ["phone", "email", "remarks"],
+    ["phone", "email", "remarks", "subscribed"],
   ].filter(Boolean);
 
 export const getFieldStepFromErrors = (errors, isAbroad) =>
@@ -54,8 +57,6 @@ const VotingProxyForm = (props) => {
   const [hasDataAgreement, setHasDataAgreement] = useState(false);
   const [errors, setErrors] = useState(null);
   const [votingProxy, setVotingProxy] = useState();
-
-  const isAbroad = data.votingLocation?.type === "consulate";
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
@@ -122,13 +123,27 @@ const VotingProxyForm = (props) => {
     }));
   }, []);
 
+  const handleChangeSubscribed = useCallback((e) => {
+    setErrors((state) => ({
+      ...state,
+      subscribed: undefined,
+    }));
+    setData((state) => ({
+      ...state,
+      subscribed: e.target.checked,
+    }));
+  }, []);
+
   const handleChangeDataAgreement = (e) => {
     setHasDataAgreement(e.target.checked);
   };
 
   const handleErrors = (errors) => {
     setErrors(errors);
-    const fieldStep = getFieldStepFromErrors(errors, isAbroad);
+    const fieldStep = getFieldStepFromErrors(
+      errors,
+      data.votingLocation?.type === "consulate",
+    );
     if (
       typeof fieldStep === "number" &&
       fieldStep >= 0 &&
@@ -140,7 +155,10 @@ const VotingProxyForm = (props) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const validationErrors = validateVotingProxy(data, isAbroad);
+    const validationErrors = validateVotingProxy(
+      data,
+      data.votingLocation?.type === "consulate",
+    );
     if (validationErrors) {
       return handleErrors(validationErrors);
     }
@@ -225,8 +243,7 @@ const VotingProxyForm = (props) => {
           <ElectoralInfoLink />
           <Spacer size="1rem" />
           <PollingStationField
-            isAbroad={isAbroad}
-            countries={data?.votingLocation?.countries}
+            votingLocation={data?.votingLocation}
             disabled={isLoading}
             id="pollingStationNumber"
             name="pollingStationNumber"
@@ -260,8 +277,15 @@ const VotingProxyForm = (props) => {
             options={votingDateOptions}
           />
         </fieldset>
-        {!isAbroad && (
+        {data.votingLocation?.type === "commune" && (
           <fieldset>
+            <WarningBlock>
+              Indiquez ci-dessous l'adresse{" "}
+              <strong>où vous vous trouverez le jour de vote</strong>. Celle-ci
+              sera utilisée pour vous proposer les demandes de procuration de
+              vote à proximité.
+            </WarningBlock>
+            <Spacer size="1.5rem" />
             <TextField
               autoFocus
               required
@@ -386,6 +410,14 @@ const VotingProxyForm = (props) => {
             helpText="Quand êtes-vous disponible pour être contacté·e, en semaine et le week-end ?"
           />
           <Spacer size="1rem" />
+          <CheckboxField
+            disabled={isLoading}
+            id="subscribed"
+            name="subscribed"
+            value={data.subscribed}
+            onChange={handleChangeSubscribed}
+            label="Je souhaite rejoindre la France insoumise et être informé·e des campagnes du mouvement"
+          />
           <CheckboxField
             disabled={isLoading}
             id="dataAgreement"

@@ -44,15 +44,15 @@ export const TreveCreationPage = () => {
           Trève électorale
         </h1>
         <span>
-          Le week-end des élections européennes, la loi nous oblige à ne pas
+          Le week-end des élections législatives, la loi nous oblige à ne pas
           mettre à jour les sites de la campagne.
           <Spacer size="1rem" />
           Jusqu’à dimanche à 20h, vous ne pouvez pas créer d’événement
           ou&nbsp;de&nbsp;groupe.
           <Spacer size="1rem" />
-          Ce dimanche 9 juin, soyons nombreux et nombreuses à voter pour{" "}
+          Le 30 juin et 7 juillet, soyons nombreux et nombreuses à voter pour{" "}
           <InlineBlock>
-            Manon Aubry et la liste de l'union populaire !
+            les candidates et candidats de l'union populaire !
           </InlineBlock>
         </span>
         <Button

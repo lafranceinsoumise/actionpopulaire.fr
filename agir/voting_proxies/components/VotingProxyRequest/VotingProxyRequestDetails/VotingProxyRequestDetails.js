@@ -12,6 +12,8 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 import StyledPageContainer from "@agir/elections/Common/StyledPageContainer";
 import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage";
 import VotingProxyWidget from "./VotingProxyWidget";
+import { WarningBlock } from "@agir/elections/Common/StyledComponents";
+import SecurityWarning from "@agir/voting_proxies/Common/SecurityWarning";
 
 import { getVotingProxyEndpoint } from "@agir/voting_proxies/Common/api";
 
@@ -80,6 +82,29 @@ const VotingProxyRequestDetails = () => {
                 : "Vos demandes de procuration"}
             </h2>
             <Spacer size="1rem" />
+            <WarningBlock background="#ffe8d7" iconColor="#ff8c37">
+              Une fois qu'une personne a accepté de voter à votre place,{" "}
+              <strong
+                style={{
+                  fontWeight: 600,
+                  boxShadow: "inset 0 -3px 0 0 currentcolor",
+                }}
+              >
+                vous devez faire une demande de procuration et la faire valider
+                auprès des autorités
+              </strong>{" "}
+              (dans commissariat de police, une gendarmerie ou un consulat
+              français) . Retrouvez tous les détails sur la procédure officielle
+              sur{" "}
+              <Link
+                href="https://maprocuration.gouv.fr"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                le site du service public
+              </Link>
+            </WarningBlock>
+            <Spacer size="1rem" />
             <p>
               {data.length === 1
                 ? "Votre demande de procuration de vote a été acceptée."
@@ -92,7 +117,8 @@ const VotingProxyRequestDetails = () => {
                 <FeatherIcon name="arrow-right" />
                 <span>
                   Recevez les informations personnelles de la personne qui a
-                  accepté de voter pour vous par SMS et par e-mail.
+                  accepté de voter pour vous par SMS et par e-mail en cliquant
+                  sur le bouton ci-dessous
                 </span>
               </li>
               <li>
@@ -121,7 +147,8 @@ const VotingProxyRequestDetails = () => {
                       boxShadow: "inset 0 -3px 0 0 currentcolor",
                     }}
                   >
-                    avant le jeudi 6 juin 2024
+                    avant le 27 juin pour le premier tour et le 4 juillet pour
+                    le second
                   </strong>
                 </span>
               </li>
@@ -129,10 +156,13 @@ const VotingProxyRequestDetails = () => {
                 <FeatherIcon name="arrow-right" />
                 <span>
                   Une fois la procuration validée, prévenez le ou la volontaire
+                  à l'aide du bouton ci-dessous
                 </span>
               </li>
             </StyledList>
-            <Spacer size="1.5rem" />
+            <Spacer size="1rem" />
+            <SecurityWarning />
+            <Spacer size="1rem" />
             <div
               css={`
                 display: flex;

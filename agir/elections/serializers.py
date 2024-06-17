@@ -10,6 +10,7 @@ from rest_framework.exceptions import ValidationError
 
 from agir.elections.actions import create_or_update_polling_station_officer
 from agir.elections.models import PollingStationOfficer
+from agir.lib.display import display_liststring
 
 
 class VotingCommuneOrConsulateSerializer(serializers.Serializer):
@@ -17,6 +18,7 @@ class VotingCommuneOrConsulateSerializer(serializers.Serializer):
     type = serializers.SerializerMethodField()
     value = serializers.IntegerField(read_only=True, source="id")
     label = serializers.SerializerMethodField(read_only=True)
+    code = serializers.SerializerMethodField(read_only=True)
     departement = serializers.SerializerMethodField(read_only=True)
     countries = serializers.SerializerMethodField(read_only=True)
 
@@ -24,7 +26,11 @@ class VotingCommuneOrConsulateSerializer(serializers.Serializer):
         if isinstance(instance, Commune):
             return f"{instance.code_departement} - {instance.nom_complet}"
         if isinstance(instance, CirconscriptionConsulaire):
-            return str(instance)
+            label = instance.nom
+            if instance.pays:
+                consulats = [consulat for consulat in instance.consulats]
+                label += f" — {display_liststring(consulats)}"
+            return label
 
     def get_type(self, instance):
         if isinstance(instance, Commune):
@@ -37,6 +43,15 @@ class VotingCommuneOrConsulateSerializer(serializers.Serializer):
             return None
 
         return instance.code_departement
+
+    def get_code(self, instance):
+        if isinstance(instance, Commune):
+            return instance.code
+        if (
+            isinstance(instance, CirconscriptionConsulaire)
+            and instance.circonscription_legislative
+        ):
+            return instance.circonscription_legislative.code
 
     def get_countries(self, instance):
         if isinstance(instance, Commune):

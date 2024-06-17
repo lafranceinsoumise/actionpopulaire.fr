@@ -108,6 +108,7 @@ class UserContextSerializer(serializers.Serializer):
     def has_voting_proxy_requests(self, obj):
         return (
             VotingProxyRequest.objects.filter(proxy__person_id=obj.id)
+            .upcoming()
             .exists()
         )
 

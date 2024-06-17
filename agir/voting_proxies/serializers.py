@@ -43,6 +43,9 @@ class VoterSerializerMixin(serializers.ModelSerializer):
         source="polling_station_number",
         label="bureau de vote",
     )
+    pollingStationLabel = serializers.CharField(
+        source="polling_station_label", read_only=True
+    )
     voterId = serializers.CharField(
         required=False,
         allow_blank=True,
@@ -127,6 +130,7 @@ class VotingProxyRequestSerializer(VoterSerializerMixin):
             "commune",
             "consulate",
             "pollingStationNumber",
+            "pollingStationLabel",
             "votingDates",
             "votingDate",
             "updated",
@@ -162,6 +166,7 @@ class AcceptedVotingProxyRequestSerializer(VoterSerializerMixin):
             "commune",
             "consulate",
             "pollingStationNumber",
+            "pollingStationLabel",
             "votingDate",
             "votingProxy",
             "status",
@@ -201,6 +206,7 @@ class VotingProxySerializer(VoterSerializerMixin):
             "commune",
             "consulate",
             "pollingStationNumber",
+            "pollingStationLabel",
             "votingDates",
             "status",
             "dateOfBirth",
@@ -216,6 +222,7 @@ class CreateVotingProxySerializer(VotingProxySerializer):
     newsletters = PersonNewsletterListField(
         required=False, allow_empty=True, write_only=True
     )
+    subscribed = serializers.BooleanField(write_only=True, required=False)
     address = serializers.CharField(write_only=True, required=False, allow_blank=True)
     zip = serializers.CharField(write_only=True, required=False, allow_blank=True)
     city = serializers.CharField(write_only=True, required=False, allow_blank=True)
@@ -256,10 +263,12 @@ class CreateVotingProxySerializer(VotingProxySerializer):
             "commune",
             "consulate",
             "pollingStationNumber",
+            "pollingStationLabel",
             "votingDates",
             "remarks",
             "person",
             "newsletters",
+            "subscribed",
             "updated",
             "dateOfBirth",
             "address",

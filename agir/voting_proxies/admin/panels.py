@@ -123,7 +123,7 @@ class VoterModelAdmin(admin.ModelAdmin):
         ConsulateListFilter,
     )
     autocomplete_fields = ("commune", "consulate")
-    readonly_fields = ("created",)
+    readonly_fields = ("created", "polling_station_label")
 
     search_fields = ["email", "commune__search", "consulate__nom", "consulate__search"]
 
@@ -139,6 +139,11 @@ class VoterModelAdmin(admin.ModelAdmin):
         return instance.consulate
 
     commune_consulate.short_description = "commune / consulat"
+
+    def polling_station_label(self, instance):
+        return instance.polling_station_label
+
+    polling_station_label.short_description = "Libellé du bureau de vote"
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related("commune", "consulate")
@@ -284,7 +289,11 @@ class VotingProxyRequestAdmin(VoterModelAdmin):
         "voting_date",
         ("proxy", admin.EmptyFieldListFilter),
     )
-    readonly_fields = ("matching_buttons", "cancel_button")
+    readonly_fields = (
+        *VoterModelAdmin.readonly_fields,
+        "matching_buttons",
+        "cancel_button",
+    )
     autocomplete_fields = (
         *VoterModelAdmin.autocomplete_fields,
         "proxy",
@@ -409,7 +418,7 @@ class VotingProxyRequestAdmin(VoterModelAdmin):
 
         return format_html(
             '<a href="{cancel_voting_proxy_request}" class="button">'
-            "  Annuller cette demande"
+            "  Annuler cette demande"
             "</a>"
             "<div style='margin: 0; padding-left: 0;' class='help'>"
             "  Le·la volontaire sera prévenu·e par e-mail de l'annulation"

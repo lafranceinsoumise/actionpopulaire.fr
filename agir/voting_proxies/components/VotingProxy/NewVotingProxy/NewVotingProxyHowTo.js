@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import Spacer from "@agir/front/genericComponents/Spacer";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
+import ElectionDayWarningBlock from "@agir/voting_proxies/Common/ElectionDayWarningBlock";
 
 const StyledList = styled.ul`
   list-style-type: none;
@@ -22,12 +23,14 @@ const StyledList = styled.ul`
 
 const NewVotingProxyHowTo = () => (
   <div>
+    <ElectionDayWarningBlock />
+    <Spacer size="1rem" />
     <h2>Se porter volontaire pour prendre une procuration</h2>
     <Spacer size="1rem" />
     <p>
-      Vous êtes disponible le dimanche 9 juin, jour du vote pour les élections
-      européennes, et vous souhaitez prendre la procuration d'une personne
-      absente pour voter. Merci pour votre aide !
+      Vous êtes disponible les dimanches 30 juin et/ou 7 juillets, jours de vote
+      pour les élections léglislatives, et vous souhaitez prendre la procuration
+      d'une personne absente pour voter. Merci pour votre aide !
     </p>
     <Spacer size="1rem" />
     <StyledList>
@@ -69,9 +72,14 @@ const NewVotingProxyHowTo = () => (
         électorales d'une autre commune.
       </strong>{" "}
       Ainsi, si vous votez dans la commune A, vous pourrez voter pour un·e
-      électeur·rice qui est inscrit·e dans la commune B. Cependant, vous devrez
-      vous rendre dans son bureau de vote pour voter à sa place le jour du
-      scrutin.
+      électeur·rice qui est inscrit·e dans la commune B. Cependant,{" "}
+      <strong>vous devrez vous rendre dans son bureau de vote</strong> pour
+      voter à sa place le jour du scrutin.
+      <br />
+      <br />
+      Si vous êtes en déplacement, vous pourrez prendre une procuration là où
+      vous vous trouvez, et cela même si quelqu'un vote pour vous par
+      procuration dans votre commune.
     </p>
   </div>
 );

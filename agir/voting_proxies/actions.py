@@ -57,6 +57,7 @@ def create_or_update_voting_proxy_request(data):
 def create_or_update_voting_proxy(data):
     data["voting_dates"] = list(data.get("voting_dates"))
     email = data.pop("email").lower()
+    subscribed = data.pop("subscribed", False)
 
     person_data = {
         "first_name": data.get("first_name", ""),
@@ -64,7 +65,6 @@ def create_or_update_voting_proxy(data):
         "date_of_birth": data.get("date_of_birth", ""),
         "email": email,
         "contact_phone": data.get("contact_phone", ""),
-        "is_political_support": True,
     }
 
     with transaction.atomic():
@@ -80,6 +80,12 @@ def create_or_update_voting_proxy(data):
         save_subscription_information(
             person, SUBSCRIPTION_TYPE_AP, person_data, new=is_new_person
         )
+
+        if subscribed and not person.subscribed:
+            person.subscribed = True
+
+        if subscribed and not person.is_political_support:
+            person.is_political_support = True
 
         # Update person address if needed
         address = data.pop("address", None)
@@ -105,7 +111,11 @@ def create_or_update_voting_proxy(data):
             voting_proxy.status = VotingProxy.STATUS_CREATED
             voting_proxy.save()
 
-    if is_new_person and "welcome" in SUBSCRIPTIONS_EMAILS[SUBSCRIPTION_TYPE_AP]:
+    if (
+        is_new_person
+        and subscribed
+        and "welcome" in SUBSCRIPTIONS_EMAILS[SUBSCRIPTION_TYPE_AP]
+    ):
         from agir.people.tasks import send_welcome_mail
 
         send_welcome_mail.delay(person.pk, SUBSCRIPTION_TYPE_AP)
@@ -285,7 +295,7 @@ def match_available_proxies_with_requests(
 
     # Retrieve all available proxy that has not been matched in the last two days
     available_proxies = (
-        VotingProxy.objects.available()
+        VotingProxy.objects.respectable()
         .select_related("person")
         .order_by(
             "-voting_dates__len",

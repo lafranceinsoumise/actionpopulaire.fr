@@ -1,5 +1,6 @@
 import tempfile
 import uuid
+from unittest import skip
 from unittest.mock import patch
 
 from PIL import Image
@@ -335,6 +336,7 @@ class CreateEventAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 422)
         self.assertIn("onlineUrl", res.data)
 
+    @skip("This code is commented out except during national elections")
     @patch("agir.lib.geo.geocode_france")
     def test_gestion_projet_is_created_for_related_new_event_subtype(
         self, geocode_france

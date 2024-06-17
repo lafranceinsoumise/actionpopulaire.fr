@@ -253,6 +253,19 @@ def send_voting_proxy_information_for_request(voting_proxy_request_pk):
             </li>
             <li>Une fois la procuration validée, prévenez le ou la volontaire</li>
         </ul>
+        <br />
+        <em>
+            Notre espace procurations étant ouvert à tout le monde, nous faisons tout le possible pour limiter au 
+            maximum les abus. La plupart des nos volontaires sont des militant·es du mouvement et nous privilégions, 
+            lors de la mise en relation, les personnes avec le plus d'ancienneté dans le mouvement.
+            <br /><br />
+            Pour réduire encore plus les risques d'utilisation malveillante, nous vous conseillons, si vous le pouvez, 
+            d'échanger brièvement avec la personne volontaire ou de rechercher son nom et prénom sur internet pour vous 
+            faire vous-même une idée.
+            <br /><br />
+            N'hésitez pas à nous signaler tout abus en nous écrivant à l'adresse : 
+            <a href="mailto:procurations@actionpopulaire.fr">procurations@actionpopulaire.fr</a>.
+        </em>
         """
     )
     send_voting_proxy_request_email.delay(
@@ -297,9 +310,26 @@ def send_voting_proxy_request_confirmed_text_messages(voting_proxy_request_pks):
         f"Téléphone&nbsp;: <strong>{escape(voting_proxy_request.contact_phone)}</strong><br>"
     )
     if voting_proxy_request.polling_station_number:
-        message += f"Bureau de vote&nbsp;: <strong>{escape(voting_proxy_request.polling_station_number)}</strong>"
+        message += f"Bureau de vote&nbsp;: <strong>{escape(voting_proxy_request.polling_station_label)}</strong>"
 
     message = format_html(message)
+
+    ending = format_html(
+        f"""
+        Une fois la procuration validée, vous n'aurez plus qu'à vous rendre dans le bureau de la personne le jour du 
+        vote avec votre pièce d'identité.
+        <br />
+        <br />
+        Vous pouvez vérifier la bonne validation de la procuration à votre nom en vous connectant sur 
+        <a href='https://www.service-public.fr/particuliers/vosdroits/demarches-et-outils/ISE'>le site du service 
+        public</a> (la procuration peut prendre un peu de temps à apparaître).
+        <br />
+        <br />
+        Si vous le pouvez, nous vous conseillons de demander à votre mandant de vous envoyer une photo/copie du 
+        récépissé de validation de sa demande par les autorités, qui peut être utile en cas de mauvaise transmission 
+        de celle-ci au bureau de vote.
+        """
+    )
 
     # Send confirmation EMAIL
     send_voting_proxy_request_email.delay(
@@ -307,6 +337,7 @@ def send_voting_proxy_request_confirmed_text_messages(voting_proxy_request_pks):
         subject="Procuration de vote confirmée",
         intro=f"{voting_proxy_request.first_name} a confirmé l'établissement de sa procuration de vote :",
         body=message,
+        ending=ending,
     )
 
     message = (
@@ -316,7 +347,7 @@ def send_voting_proxy_request_confirmed_text_messages(voting_proxy_request_pks):
         f" - tél. {voting_proxy_request.contact_phone}"
     )
     if voting_proxy_request.polling_station_number:
-        message += f" - bureau de vote {to_7bit_string(voting_proxy_request.polling_station_number)}"
+        message += f" - bureau de vote {to_7bit_string(voting_proxy_request.polling_station_label)}"
 
     # Send confirmation SMS
     send_sms_message(
@@ -345,7 +376,7 @@ def send_voting_proxy_request_confirmation_reminder(voting_proxy_request_pks):
     ending = format_html(
         "Pour éviter des problèmes le jour du scrutin, nous conseillons aux personnes donnant procuration de vote de se "
         "déplacer au commissariat, à la gendarmerie ou au consulat pour vérifier leur identité et valider la "
-        "procuration le plus tôt possible."
+        "procuration le plus tôt possible et <strong>avant le jeudi 6 juin 2024</strong>."
     )
 
     # Send confirmation reminder EMAIL to request owner

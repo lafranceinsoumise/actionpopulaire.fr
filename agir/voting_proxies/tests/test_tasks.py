@@ -4,6 +4,7 @@ from unittest.mock import patch
 from data_france.models import CirconscriptionConsulaire
 from django.test import TestCase
 
+from agir.people.models import Person
 from agir.voting_proxies.models import VotingProxyRequest, VotingProxy
 from agir.voting_proxies.tasks import (
     send_voting_proxy_request_confirmation,
@@ -96,6 +97,10 @@ class SendVotingProxyRequestAcceptedTextMessagesTestCase(TestCase):
                 "voting_dates": [VotingProxy.VOTING_DATE_CHOICES[0][0]],
                 "remarks": "R.A.S.",
                 "date_of_birth": "1970-01-01",
+                "person": Person.objects.create_insoumise(
+                    email="voting@proxy.com",
+                    created="2024-06-08 00:00:00Z",
+                ),
             }
         )
 
@@ -172,6 +177,10 @@ class SendVotingProxyInformationForRequestTestCase(TestCase):
                 "voting_dates": [VotingProxy.VOTING_DATE_CHOICES[0][0]],
                 "remarks": "R.A.S.",
                 "date_of_birth": "1970-01-01",
+                "person": Person.objects.create_insoumise(
+                    email="voting@proxy.com",
+                    created="2024-06-08 00:00:00Z",
+                ),
             }
         )
 
@@ -242,6 +251,10 @@ class SendVotingProxyRequestConfirmedTextMessagesTestCase(TestCase):
                 "voting_dates": [VotingProxy.VOTING_DATE_CHOICES[0][0]],
                 "remarks": "R.A.S.",
                 "date_of_birth": "1970-01-01",
+                "person": Person.objects.create_insoumise(
+                    email="voting@proxy.com",
+                    created="2024-06-08 00:00:00Z",
+                ),
             }
         )
 

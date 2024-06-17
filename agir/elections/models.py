@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django_countries.fields import CountryField
 
+from agir.elections.utils import get_polling_station_label
 from agir.lib.model_fields import ChoiceArrayField
 from agir.lib.models import BaseAPIResource, SimpleLocationMixin
 
@@ -48,11 +49,22 @@ class PollingStationOfficer(BaseAPIResource, SimpleLocationMixin):
             "la Guyane, la Polynésie française et les Français·es de l'étranger résidant sur le continent américain) — "
             "Élections européennes 2024",
         ),
+        (
+            datetime(2024, 6, 30, 0, 0, 0, tzinfo=pytz.timezone("Europe/Paris")).date(),
+            "Dimanche 30 juin 2024 (samedi 29 juin pour la Guadeloupe, la Martinique, la Guyane, la Polynésie française "
+            "et les Français·es de l'étranger résidant sur le continent américain) — 1er tour des législatives",
+        ),
+        (
+            datetime(2024, 7, 7, 0, 0, 0, tzinfo=pytz.timezone("Europe/Paris")).date(),
+            "Dimanche 7 juillet 2024 (samedi 6 juillet pour la Guadeloupe, la Martinique, la Guyane, la Polynésie "
+            "française et les Français·es de l'étranger résidant sur le continent américain) — 2nd tour des "
+            "législatives",
+        ),
     )
 
     objects = PollingStationOfficerQuerySet.as_manager()
 
-    person = models.OneToOneField(
+    person = models.ForeignKey(
         "people.Person",
         verbose_name="personne",
         related_name="polling_station_officer",
@@ -194,6 +206,16 @@ class PollingStationOfficer(BaseAPIResource, SimpleLocationMixin):
 
     remarks = models.TextField("remarques", blank=True, null=False, default="")
 
+    @property
+    def polling_station_label(self):
+        if not self.polling_station:
+            return ""
+
+        return get_polling_station_label(
+            self.polling_station,
+            fallback=self.polling_station,
+        )
+
     class Meta:
         verbose_name = "assesseur·e / délégué·e de bureau de vote"
         verbose_name_plural = "assesseur·es / délégué·es de bureau de vote"
@@ -210,8 +232,8 @@ class PollingStationOfficer(BaseAPIResource, SimpleLocationMixin):
         )
         constraints = (
             models.UniqueConstraint(
-                fields=["contact_email"],
-                name="polling_station_officer_unique_for_email",
+                fields=["contact_email", "available_voting_dates"],
+                name="polling_station_officer_unique_for_email_and_dates",
             ),
         )
 

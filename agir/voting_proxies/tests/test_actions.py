@@ -87,6 +87,10 @@ class GetVotingProxyRequestsForProxyTestCase(TestCase):
                 ],
                 "remarks": "R.A.S.",
                 "date_of_birth": "1970-01-01",
+                "person": Person.objects.create_insoumise(
+                    email="voting@proxy.com",
+                    created="2024-06-08 00:00:00Z",
+                ),
             }
         )
 
@@ -261,6 +265,7 @@ class MatchAvailableProxiesWithRequestsTestCase(TestCase):
                 email=kwargs.get("email", email),
                 create_role=True,
                 is_active=True,
+                created="2024-06-08 00:00:00Z",
             )
         return VotingProxy.objects.create(
             **{
@@ -444,7 +449,11 @@ class FindVotingProxyCandidatesForRequestsTestCase(TestCase):
                 "voting_dates": [self.available_date],
                 "remarks": "R.A.S.",
                 "date_of_birth": "1970-01-01",
-                **kwargs,
+                "person": Person.objects.create_insoumise(
+                    email="voting@proxy.com",
+                    created="2024-06-08 00:00:00Z",
+                )
+                ** kwargs,
             }
         )
 

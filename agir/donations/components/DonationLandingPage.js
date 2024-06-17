@@ -55,6 +55,7 @@ const StyledCard = styled(Card)`
   ${Button} {
     margin-top: auto;
     align-self: center;
+    color: white;
   }
 `;
 
