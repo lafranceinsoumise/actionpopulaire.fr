@@ -3,6 +3,7 @@ import React from "react";
 import Link from "@agir/front/app/Link";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import ElectionDayWarningBlock from "@agir/voting_proxies/Common/ElectionDayWarningBlock";
+import SecurityWarning from "@agir/voting_proxies/Common/SecurityWarning";
 
 const NewVotingProxyRequestIntro = () => (
   <div>
@@ -18,7 +19,9 @@ const NewVotingProxyRequestIntro = () => (
     </p>
     <Spacer size="1rem" />
     <p>Le plus simple est de demander à un proche ou bien à un·e voisin·e.</p>
-    <Spacer size="0.5rem" />
+    <Spacer size="1rem" />
+    <SecurityWarning />
+    <Spacer size="1rem" />
     <p>
       <strong>
         Si vous connaissez déjà quelqu'un qui peut voter à votre place
