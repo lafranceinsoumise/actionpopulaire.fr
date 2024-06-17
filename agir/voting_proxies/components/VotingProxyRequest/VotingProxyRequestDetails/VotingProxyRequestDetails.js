@@ -13,6 +13,7 @@ import StyledPageContainer from "@agir/elections/Common/StyledPageContainer";
 import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage";
 import VotingProxyWidget from "./VotingProxyWidget";
 import { WarningBlock } from "@agir/elections/Common/StyledComponents";
+import SecurityWarning from "@agir/voting_proxies/Common/SecurityWarning";
 
 import { getVotingProxyEndpoint } from "@agir/voting_proxies/Common/api";
 
@@ -81,7 +82,7 @@ const VotingProxyRequestDetails = () => {
                 : "Vos demandes de procuration"}
             </h2>
             <Spacer size="1rem" />
-            <WarningBlock>
+            <WarningBlock background="#ffe8d7" iconColor="#ff8c37">
               Une fois qu'une personne a accepté de voter à votre place,{" "}
               <strong
                 style={{
@@ -159,7 +160,9 @@ const VotingProxyRequestDetails = () => {
                 </span>
               </li>
             </StyledList>
-            <Spacer size="1.5rem" />
+            <Spacer size="1rem" />
+            <SecurityWarning />
+            <Spacer size="1rem" />
             <div
               css={`
                 display: flex;
