@@ -609,7 +609,7 @@ export const routeConfig = {
   }),
   acceptedVotingProxyRequests: new RouteConfig({
     id: "acceptedVotingProxyRequests",
-    path: "/procuration/prendre-une-procuration/:votingProxyPk/demandes/",
+    path: "/procuration/prendre-une-procuration/:votingProxyPk/acceptees/",
     params: { votingProxyPk: null },
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,

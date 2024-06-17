@@ -143,20 +143,22 @@ def update_voting_proxy(instance, data):
     return instance
 
 
-def get_voting_proxy_requests_for_proxy(voting_proxy, voting_proxy_request_pks):
+def get_acceptable_voting_proxy_requests_for_proxy(
+    voting_proxy, voting_proxy_request_pks=None
+):
     voting_proxy_requests = (
         VotingProxyRequest.objects.pending()
         .filter(voting_date__in=voting_proxy.available_voting_dates)
         .exclude(email=voting_proxy.email)
     )
 
-    if len(voting_proxy_request_pks) > 0:
+    if voting_proxy_request_pks:
         voting_proxy_requests = voting_proxy_requests.filter(
             id__in=voting_proxy_request_pks
         )
 
     if not voting_proxy_requests.exists():
-        raise VotingProxyRequest.DoesNotExist
+        return
 
     # Use consulate match for non-null consulate proxies
     if voting_proxy.consulate_id is not None:
@@ -194,9 +196,6 @@ def get_voting_proxy_requests_for_proxy(voting_proxy, voting_proxy_request_pks):
                 commune_id=voting_proxy.commune_id,
             ).annotate(distance=Value(0))
 
-    if not voting_proxy_requests.exists():
-        raise VotingProxyRequest.DoesNotExist
-
     voting_proxy_requests = voting_proxy_requests.annotate(
         polling_station_match=Case(
             When(
@@ -213,9 +212,21 @@ def get_voting_proxy_requests_for_proxy(voting_proxy, voting_proxy_request_pks):
     voting_proxy_requests = (
         voting_proxy_requests.values("email")
         .annotate(ids=ArrayAgg("id"))
+        .annotate(voting_dates=ArrayAgg("voting_date"))
         .annotate(matching_date_count=Count("voting_date"))
         .order_by("distance", "-polling_station_match", "-matching_date_count")
     )
+
+    return voting_proxy_requests
+
+
+def get_voting_proxy_requests_for_proxy(voting_proxy, voting_proxy_request_pks):
+    voting_proxy_requests = get_acceptable_voting_proxy_requests_for_proxy(
+        voting_proxy, voting_proxy_request_pks
+    )
+
+    if not voting_proxy_requests or not voting_proxy_requests.exists():
+        raise VotingProxyRequest.DoesNotExist
 
     return VotingProxyRequest.objects.filter(
         id__in=voting_proxy_requests.first()["ids"]
