@@ -253,6 +253,12 @@ const Routes = {
         /* webpackChunkName: "r-replytosinglevotingproxyrequest" */ "@agir/voting_proxies/VotingProxy/ReplyToVotingProxyRequests/ReplyToSingleVotingProxyRequest"
       ),
   ),
+  VotingProxyRequestForProxy: lazy(
+    () =>
+      import(
+        /* webpackChunkName: "r-votingproxyrequestsforproxy" */ "@agir/voting_proxies/VotingProxy/VotingProxyRequestForProxyPage"
+      ),
+  ),
   VotingProxyRequestDetails: lazy(
     () =>
       import(

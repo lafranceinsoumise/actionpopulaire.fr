@@ -320,7 +320,7 @@ class VotingProxyRequestsForProxyListAPIView(ListAPIView):
             first_request = requests.get(ids[0])
             request_data = {
                 "ids": ids,
-                "voting_dates": voting_dates,
+                "votingDates": voting_dates,
                 "firstName": first_request.first_name,
                 "pollingStationLabel": first_request.polling_station_label,
                 "commune": first_request.commune.nom if first_request.commune else None,
@@ -330,13 +330,13 @@ class VotingProxyRequestsForProxyListAPIView(ListAPIView):
             }
 
             if len(ids) > 1:
-                request_data["reply_url"] = front_url(
+                request_data["replyURL"] = front_url(
                     "reply_to_voting_proxy_requests",
                     kwargs={"pk": voting_proxy.pk},
                     query={"vpr": ",".join([str(pk) for pk in ids])},
                 )
             else:
-                request_data["reply_url"] = front_url(
+                request_data["replyURL"] = front_url(
                     "reply_to_single_voting_proxy_request",
                     args=(first_request.pk,),
                     query={"vp": voting_proxy.pk},
