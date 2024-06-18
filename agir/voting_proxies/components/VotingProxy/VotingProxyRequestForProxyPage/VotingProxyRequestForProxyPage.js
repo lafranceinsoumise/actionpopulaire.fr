@@ -1,7 +1,7 @@
 import React from "react";
-import styled from "styled-components";
 import useSWRImmutable from "swr/immutable";
 
+import AppRedirect from "@agir/front/app/Redirect";
 import Button from "@agir/front/genericComponents/Button";
 import { MailTo } from "@agir/elections/Common/StyledComponents";
 import Spacer from "@agir/front/genericComponents/Spacer";
@@ -26,6 +26,15 @@ const VotingProxyRequestForProxyPage = ({ votingProxyPk }) => {
         votingProxyPk,
       }),
   );
+
+  if (error?.response?.status === 404 || votingProxy?.requests.length === 0) {
+    return (
+      <AppRedirect
+        route="replyToVotingProxyRequests"
+        routeParams={{ votingProxyPk }}
+      />
+    );
+  }
 
   return (
     <StyledPageContainer>

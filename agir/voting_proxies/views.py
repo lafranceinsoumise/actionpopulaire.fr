@@ -334,12 +334,14 @@ class VotingProxyRequestsForProxyListAPIView(ListAPIView):
                     "reply_to_voting_proxy_requests",
                     kwargs={"pk": voting_proxy.pk},
                     query={"vpr": ",".join([str(pk) for pk in ids])},
+                    absolute=False,
                 )
             else:
                 request_data["replyURL"] = front_url(
                     "reply_to_single_voting_proxy_request",
                     args=(first_request.pk,),
                     query={"vp": voting_proxy.pk},
+                    absolute=False,
                 )
 
             data["requests"].append(request_data)
