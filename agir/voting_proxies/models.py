@@ -4,6 +4,7 @@ import pytz
 from data_france.models import Commune
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Exists, OuterRef
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.html import escape
@@ -20,6 +21,7 @@ __all__ = ["VotingProxy", "VotingProxyRequest"]
 
 from agir.lib.sms.common import to_7bit_string
 from agir.lib.utils import front_url
+from agir.payments.models import Payment
 
 
 class AbstractVoter(BaseAPIResource):
@@ -168,9 +170,19 @@ class VotingProxyQuerySet(models.QuerySet):
             status__in=(VotingProxy.STATUS_CREATED, VotingProxy.STATUS_AVAILABLE),
         )
 
-    def respectable(self):
-        # Allows only people that existed before the campaign start
-        return self.available().filter(person__created__date__lte="2024-06-09")
+    def reliable(self):
+        # Allows only people that existed before the campaign start or have donated
+        return (
+            self.available()
+            .annotate(
+                has_donation=Exists(
+                    Payment.objects.completed().filter(person=OuterRef("person"))
+                )
+            )
+            .exclude(
+                person__created__gte="2024-06-09T20:00:00+0200", has_donation=False
+            )
+        )
 
 
 class VotingProxy(AbstractVoter):

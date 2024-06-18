@@ -377,6 +377,18 @@ const ReplyingForm = (props) => {
         <Button
           wrap
           block
+          link
+          type="button"
+          color="primary"
+          route="votingProxyRequestsForProxy"
+          routeParams={{ votingProxyPk }}
+        >
+          Voir d'autres demandes à proximité
+        </Button>
+        <Spacer size="1rem" />
+        <Button
+          wrap
+          block
           disabled={!!action}
           loading={action === REPLY_ACTION.DECLINE}
           type="button"

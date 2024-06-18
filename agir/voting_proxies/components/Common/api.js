@@ -9,6 +9,8 @@ export const ENDPOINT = {
   createVotingProxy: "/api/procurations/volontaire/",
   retrieveUpdateVotingProxy: "/api/procurations/volontaire/:votingProxyPk/",
   replyToVotingProxyRequests:
+    "/api/procurations/volontaire/:votingProxyPk/proposition/",
+  votingProxyRequestsForProxy:
     "/api/procurations/volontaire/:votingProxyPk/demandes/",
   acceptedVotingProxyRequests: "/api/procurations/demande/reponse/",
   sendVotingProxyInformation:

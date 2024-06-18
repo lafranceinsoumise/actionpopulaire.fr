@@ -227,24 +227,21 @@ const AcceptedRequests = (props) => {
       ) : (
         <h2>Mes procurations de vote</h2>
       )}
-      <Spacer size="1.5rem" />
-      <WarningBlock>
-        Le jour du vote, l'électeur·ice désigné·e ne peut posséder{" "}
-        <strong>qu'une seule procuration</strong> établie en France.
-      </WarningBlock>
-      <Spacer size="1.5rem" />
+      <Spacer size="0.5rem" />
       {hasMatchedRequests && (
         <>
-          <StaticToast style={{ marginTop: "1rem" }}>
-            Cette demande de procuration a été déjà acceptée par quelqu'un
-            d'autre ou a été annulée.
-            <br />
-            Nous vous recontacterons dès qu'une nouvelle personne aura demandé
-            une procuration près de chez vous.
+          <StaticToast style={{ marginTop: 0 }}>
+            Cette demande de procuration a été déjà acceptée ou n'est plus
+            disponbile.
           </StaticToast>
           <Spacer size="1rem" />
         </>
       )}
+      <WarningBlock>
+        Le jour du vote, l'électeur·ice désigné·e ne peut posséder{" "}
+        <strong>qu'une seule procuration</strong> établie en France.
+      </WarningBlock>
+      <Spacer size="1rem" />
       {requests.length === 1 ? (
         <p>Vous avez déjà accepté la procuration de vote ci-dessous.</p>
       ) : (
