@@ -180,7 +180,9 @@ class VotingProxyQuerySet(models.QuerySet):
                 )
             )
             .exclude(
-                person__created__gte="2024-06-09T20:00:00+0200", has_donation=False
+                person__created__gte="2024-06-09T20:00:00+0200",
+                has_donation=False,
+                voting_proxy_requests__isnull=True,
             )
         )
 
