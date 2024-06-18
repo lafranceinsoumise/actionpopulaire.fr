@@ -9,6 +9,7 @@ import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import RequestCard from "./RequestCard";
+import { WarningBlock } from "@agir/elections/Common/StyledComponents";
 
 import { useIsDesktop } from "@agir/front/genericComponents/grid";
 import { getVotingProxyEndpoint } from "@agir/voting_proxies/Common/api";
@@ -49,6 +50,19 @@ const VotingProxyRequestForProxyPage = ({ votingProxyPk }) => {
                 Retrouvez ci-dessous les demandes en attente près de l'adresse
                 que vous avez indiquée lors de votre inscription :
               </p>
+              <Spacer size="1rem" />
+              <WarningBlock
+                icon="alert-triangle"
+                style={{ fontSize: "0.875rem" }}
+              >
+                <strong>Attention !</strong> Les liens ci-dessous sont
+                personnalisés pour vous et{" "}
+                <strong>
+                  ne peuvent pas être transférés à d'autres volontaires
+                </strong>
+                . Si vous connaissez d'autres personnes qui pourraient prendre
+                des procurations, n'hesitez pas à leur dire de s'inscrire !
+              </WarningBlock>
               <Spacer size="1.5rem" />
               <div
                 css={`
