@@ -232,7 +232,7 @@ const AcceptedRequests = (props) => {
         <>
           <StaticToast style={{ marginTop: 0 }}>
             Cette demande de procuration a été déjà acceptée ou n'est plus
-            disponbile.
+            disponible.
           </StaticToast>
           <Spacer size="1rem" />
         </>
