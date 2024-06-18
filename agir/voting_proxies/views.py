@@ -43,7 +43,7 @@ create_voter_email_bucket = TokenBucket("CreateVoterEMAIL", 2, 600)
 
 class CreateVoterAPIView(CreateAPIView):
     messages = {
-        "throttled": "Vous avez déjà fais plusieurs demandes. Veuillez laisser quelques minutes "
+        "throttled": "Vous avez déjà fait plusieurs demandes. Veuillez laisser quelques minutes "
         "avant d'en faire d'autres."
     }
 

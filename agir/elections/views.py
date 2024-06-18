@@ -112,7 +112,7 @@ class RetrieveCreatePollingStationOfficerAPIView(RetrieveAPIView, CreateAPIView)
     queryset = PollingStationOfficer.objects.all()
     serializer_class = CreateUpdatePollingStationOfficerSerializer
     messages = {
-        "throttled": "Vous avez déjà fais plusieurs demandes. Veuillez laisser quelques minutes "
+        "throttled": "Vous avez déjà fait plusieurs demandes. Veuillez laisser quelques minutes "
         "avant d'en faire d'autres."
     }
 
