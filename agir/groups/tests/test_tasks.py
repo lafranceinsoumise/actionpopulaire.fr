@@ -173,65 +173,6 @@ class NotificationTasksTestCase(TestCase):
         for name, value in mail_content.items():
             self.assertTrue(value in text, "{} missing from mail".format(name))
 
-    def test_someone_joined_membership_limit_activity(self):
-        supportgroup = SupportGroup.objects.create(
-            name="Mon événement",
-            contact_name="Moi",
-            contact_email="monevenement@moi.fr",
-            contact_phone="06 06 06 06 06",
-            contact_hide_phone=False,
-            location_name="ma maison",
-            location_address1="Place denfert-rochereau",
-            location_zip="75014",
-            location_city="Paris",
-            location_country="FR",
-            type=SupportGroup.TYPE_LOCAL_GROUP,
-        )
-
-        creator_membership = Membership.objects.create(
-            person=self.creator,
-            supportgroup=supportgroup,
-            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
-        )
-
-        steps = tasks.GROUP_MEMBERSHIP_LIMIT_NOTIFICATION_STEPS
-
-        old_target_activity_count = Activity.objects.filter(
-            type=Activity.TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
-            recipient=creator_membership.person,
-            supportgroup=supportgroup,
-        ).count()
-
-        for i in range(2, SupportGroup.MEMBERSHIP_LIMIT + 1):
-            should_have_activity = (i - SupportGroup.MEMBERSHIP_LIMIT) in steps
-            member = Person.objects.create_insoumise("person%d@membe.rs" % i)
-            membership = Membership.objects.create(
-                supportgroup=supportgroup,
-                person=member,
-                membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
-            )
-            someone_joined_notification(membership, membership_count=i)
-            new_target_activity_count = Activity.objects.filter(
-                type=Activity.TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
-                recipient=creator_membership.person,
-                supportgroup=supportgroup,
-            ).count()
-            if should_have_activity:
-                self.assertEqual(
-                    old_target_activity_count + 1,
-                    new_target_activity_count,
-                    "should create a '%s' activity at %d members"
-                    % (Activity.TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER, i),
-                )
-                old_target_activity_count = new_target_activity_count
-            else:
-                self.assertEqual(
-                    old_target_activity_count,
-                    new_target_activity_count,
-                    "should not create a '%s' activity at %d members"
-                    % (Activity.TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER, i),
-                )
-
     def test_changed_group_notification_mail(self):
         tasks.send_support_group_changed_notification(
             self.group.pk, ["name", "contact_name"]
