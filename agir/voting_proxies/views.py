@@ -184,7 +184,7 @@ class VotingProxyRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
 class ReplyToVotingProxyRequestsAPIView(RetrieveUpdateAPIView):
     permission_classes = (IsActionPopulaireClientPermission,)
-    queryset = VotingProxy.objects.respectable()
+    queryset = VotingProxy.objects.reliable()
     serializer_class = None
 
     def retrieve(self, request, *args, **kwargs):
@@ -286,7 +286,7 @@ class ReplyToVotingProxyRequestsAPIView(RetrieveUpdateAPIView):
 
 class VotingProxyRequestsForProxyListAPIView(ListAPIView):
     permission_classes = (IsActionPopulaireClientPermission,)
-    queryset = VotingProxy.objects.respectable()
+    queryset = VotingProxy.objects.reliable()
     serializer_class = None
 
     def serialize_data(self, voting_proxy, voting_proxy_requests):

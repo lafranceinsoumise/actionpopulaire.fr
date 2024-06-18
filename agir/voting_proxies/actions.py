@@ -306,7 +306,7 @@ def match_available_proxies_with_requests(
 
     # Retrieve all available proxy that has not been matched in the last two days
     available_proxies = (
-        VotingProxy.objects.respectable()
+        VotingProxy.objects.reliable()
         .select_related("person")
         .order_by(
             "-voting_dates__len",
