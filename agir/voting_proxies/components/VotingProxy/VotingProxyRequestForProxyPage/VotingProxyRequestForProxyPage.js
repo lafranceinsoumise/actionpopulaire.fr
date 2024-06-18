@@ -1,17 +1,18 @@
 import React from "react";
 import useSWRImmutable from "swr/immutable";
 
+import { MailTo } from "@agir/elections/Common/StyledComponents";
+import StyledPageContainer from "@agir/elections/Common/StyledPageContainer";
 import AppRedirect from "@agir/front/app/Redirect";
 import Button from "@agir/front/genericComponents/Button";
-import { MailTo } from "@agir/elections/Common/StyledComponents";
-import Spacer from "@agir/front/genericComponents/Spacer";
-import StyledPageContainer from "@agir/elections/Common/StyledPageContainer";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
+import Spacer from "@agir/front/genericComponents/Spacer";
+import RequestCard from "./RequestCard";
 
 import { useIsDesktop } from "@agir/front/genericComponents/grid";
 import { getVotingProxyEndpoint } from "@agir/voting_proxies/Common/api";
-import RequestCard from "./RequestCard";
+import { votingProxyTheme } from "@agir/voting_proxies/Common/themes";
 
 const VotingProxyRequestForProxyPage = ({ votingProxyPk }) => {
   const isDesktop = useIsDesktop();
@@ -37,7 +38,7 @@ const VotingProxyRequestForProxyPage = ({ votingProxyPk }) => {
   }
 
   return (
-    <StyledPageContainer>
+    <StyledPageContainer theme={votingProxyTheme}>
       <PageFadeIn ready={!isLoading} wait={<Skeleton />}>
         {!isLoading && (
           <>
