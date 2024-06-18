@@ -17,7 +17,7 @@ from agir.lib.rest_framework_permissions import (
     GlobalOrObjectPermissions,
 )
 from agir.lib.token_bucket import TokenBucket
-from agir.lib.utils import get_client_ip
+from agir.lib.utils import get_client_ip, front_url
 from agir.voting_proxies.actions import (
     get_voting_proxy_requests_for_proxy,
     accept_voting_proxy_requests,
@@ -26,6 +26,7 @@ from agir.voting_proxies.actions import (
     cancel_voting_proxy_requests,
     cancel_voting_proxy_request_acceptation,
     accept_single_voting_proxy_request,
+    get_acceptable_voting_proxy_requests_for_proxy,
 )
 from agir.voting_proxies.models import VotingProxyRequest, VotingProxy
 from agir.voting_proxies.serializers import (
@@ -42,7 +43,7 @@ create_voter_email_bucket = TokenBucket("CreateVoterEMAIL", 2, 600)
 
 class CreateVoterAPIView(CreateAPIView):
     messages = {
-        "throttled": "Vous avez déjà fais plusieurs demandes. Veuillez laisser quelques minutes "
+        "throttled": "Vous avez déjà fait plusieurs demandes. Veuillez laisser quelques minutes "
         "avant d'en faire d'autres."
     }
 
@@ -183,7 +184,7 @@ class VotingProxyRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
 class ReplyToVotingProxyRequestsAPIView(RetrieveUpdateAPIView):
     permission_classes = (IsActionPopulaireClientPermission,)
-    queryset = VotingProxy.objects.respectable()
+    queryset = VotingProxy.objects.reliable()
     serializer_class = None
 
     def retrieve(self, request, *args, **kwargs):
@@ -281,6 +282,80 @@ class ReplyToVotingProxyRequestsAPIView(RetrieveUpdateAPIView):
                 "status": validated_data["voting_proxy"].status,
             }
         )
+
+
+class VotingProxyRequestsForProxyListAPIView(ListAPIView):
+    permission_classes = (IsActionPopulaireClientPermission,)
+    queryset = VotingProxy.objects.reliable()
+    serializer_class = None
+
+    def serialize_data(self, voting_proxy, voting_proxy_requests):
+        data = {
+            "id": str(voting_proxy.id),
+            "firstName": voting_proxy.first_name,
+            "requests": [],
+        }
+
+        if not voting_proxy_requests:
+            return data
+
+        voting_proxy_requests = voting_proxy_requests[:20]
+        voting_proxy_request_pks = sum(
+            [request["ids"] for request in voting_proxy_requests], []
+        )
+
+        if not voting_proxy_request_pks:
+            return data
+
+        requests = {
+            request.pk: request
+            for request in VotingProxyRequest.objects.filter(
+                pk__in=voting_proxy_request_pks
+            )
+        }
+
+        for request in voting_proxy_requests:
+            ids = request.get("ids")
+            voting_dates = [d.strftime("%Y-%m-%d") for d in request.get("voting_dates")]
+            first_request = requests.get(ids[0])
+            request_data = {
+                "ids": ids,
+                "votingDates": voting_dates,
+                "firstName": first_request.first_name,
+                "pollingStationLabel": first_request.polling_station_label,
+                "commune": first_request.commune.nom if first_request.commune else None,
+                "consulate": (
+                    first_request.consulate.nom if first_request.consulate else None
+                ),
+            }
+
+            if len(ids) > 1:
+                request_data["replyURL"] = front_url(
+                    "reply_to_voting_proxy_requests",
+                    kwargs={"pk": voting_proxy.pk},
+                    query={"vpr": ",".join([str(pk) for pk in ids])},
+                    absolute=False,
+                )
+            else:
+                request_data["replyURL"] = front_url(
+                    "reply_to_single_voting_proxy_request",
+                    args=(first_request.pk,),
+                    query={"vp": voting_proxy.pk},
+                    absolute=False,
+                )
+
+            data["requests"].append(request_data)
+
+        return data
+
+    def list(self, request, *args, **kwargs):
+        voting_proxy = self.get_object()
+        voting_proxy_requests = get_acceptable_voting_proxy_requests_for_proxy(
+            voting_proxy
+        )
+        data = self.serialize_data(voting_proxy, voting_proxy_requests)
+
+        return Response(data)
 
 
 class VotingProxyForRequestRetrieveAPIView(RetrieveAPIView):

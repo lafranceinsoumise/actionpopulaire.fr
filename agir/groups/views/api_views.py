@@ -699,9 +699,7 @@ class JoinGroupAPIView(CreateAPIView, DestroyAPIView):
                     person=request.user.person,
                     membership_type=self.target_membership_type,
                 )
-                someone_joined_notification(
-                    membership, membership_count=supportgroup.active_members_count
-                )
+                someone_joined_notification(membership)
             return Response(status=status.HTTP_201_CREATED)
 
 

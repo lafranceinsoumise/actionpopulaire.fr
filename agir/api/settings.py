@@ -274,7 +274,7 @@ FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 
 # cf. https://docs.djangoproject.com/fr/4.0/ref/settings/#data-upload-max-number-fields
 DATA_UPLOAD_MAX_NUMBER_FIELDS = int(
-    os.environ.get("DATA_UPLOAD_MAX_NUMBER_FIELDS", 1789)
+    os.environ.get("DATA_UPLOAD_MAX_NUMBER_FIELDS", 3000)
 )
 
 MESSAGE_TAGS = {ERROR: "danger"}

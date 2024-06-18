@@ -152,9 +152,7 @@ class SupportGroupDetailMixin(GlobalOrObjectPermissionRequiredMixin):
                         person=request.user.person,
                         membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
                     )
-                    someone_joined_notification(
-                        membership, membership_count=self.object.active_members_count
-                    )
+                    someone_joined_notification(membership)
             except IntegrityError:
                 pass  # the person is already a member of the group
             return HttpResponseRedirect(
