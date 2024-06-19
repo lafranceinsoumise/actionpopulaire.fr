@@ -7,11 +7,12 @@ from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.db import transaction
-from django.db.models import Count, Q, Case, When, Value
+from django.db.models import Count, Q, Case, When, Value, Exists, OuterRef
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 
 from agir.lib.tasks import geocode_person
+from agir.payments.models import Payment
 from agir.people.actions.subscription import (
     save_subscription_information,
     SUBSCRIPTIONS_EMAILS,
@@ -374,6 +375,15 @@ def get_voting_proxy_candidates_queryset(request, blacklist_ids):
         .exclude(emails__address=None)
         .exclude(voting_proxy__isnull=False)
         .filter(is_political_support=True, newsletters__len__gt=0)
+        .annotate(
+            has_donation=Exists(
+                Payment.objects.completed().filter(person_id=OuterRef("pk"))
+            )
+        )
+        .exclude(
+            created__gte="2024-06-09T20:00:00+0200",
+            has_donation=False,
+        )
     )
 
     if request and request["email"]:
