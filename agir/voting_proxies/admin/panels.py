@@ -15,7 +15,6 @@ from agir.voting_proxies.admin.actions import (
     export_voting_proxy_requests,
 )
 from agir.voting_proxies.models import VotingProxy, VotingProxyRequest
-from agir.voting_proxies.utils import get_ise_link_for_voting_proxy
 
 
 class CommuneListFilter(AutocompleteRelatedModelFilter):
@@ -205,8 +204,8 @@ class VotingProxyAdmin(VoterModelAdmin):
     inlines = [InlineVotingProxyRequestAdmin]
     readonly_fields = (
         *VoterModelAdmin.readonly_fields,
+        "address",
         "last_matched",
-        "ise_page_link",
         "accepted_request_page_link",
     )
     autocomplete_fields = (
@@ -232,6 +231,20 @@ class VotingProxyAdmin(VoterModelAdmin):
 
     person_link.short_description = "personne"
 
+    def address(self, voting_proxy):
+        if voting_proxy.person is None:
+            return "-"
+
+        href = reverse("admin:people_person_change", args=(voting_proxy.person_id,))
+
+        return mark_safe(
+            format_html(
+                f'<a target="_blank" href="{href}#id_location_address1">{voting_proxy.person.short_address}</a>'
+            )
+        )
+
+    address.short_description = "Adresse"
+
     def confirmed_dates(self, voting_proxy):
         return [
             request.voting_date
@@ -241,16 +254,6 @@ class VotingProxyAdmin(VoterModelAdmin):
         ]
 
     confirmed_dates.short_description = "dates acceptées"
-
-    def ise_page_link(self, voting_proxy):
-        link = get_ise_link_for_voting_proxy(voting_proxy)
-        return format_html(
-            f'<a class="button" href="{link}" target="_blank">'
-            f"  ➡ Situation électorale (service-public.fr)"
-            f"</a>"
-        )
-
-    ise_page_link.short_description = "ISE"
 
     def accepted_request_page_link(self, voting_proxy):
         accepted_requests = voting_proxy.voting_proxy_requests.filter(

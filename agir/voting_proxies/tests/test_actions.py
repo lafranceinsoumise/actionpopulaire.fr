@@ -481,6 +481,7 @@ class FindVotingProxyCandidatesForRequestsTestCase(TestCase):
                 "contact_phone": "+33600000000",
                 "location_country": self.country,
                 "is_political_support": True,
+                "created": "2023-01-01 00:00:00Z",
                 **kwargs,
             }
         )
