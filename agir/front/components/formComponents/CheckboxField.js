@@ -63,10 +63,9 @@ const StyledField = styled.label`
   }
 
   ${StyledToggle} {
-    display: flex;
-    flex-flow: column nowrap;
-    align-items: stretch;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: 1rem 1rem;
+    align-items: center;
     font-size: inherit;
     line-height: inherit;
     position: relative;
@@ -76,14 +75,14 @@ const StyledField = styled.label`
     &::before,
     &::after {
       content: "";
-      flex: 0 0 auto;
       display: block;
+      width: 100%;
       transition: opacity background 200ms;
     }
 
     &::before {
-      width: 2rem;
-      height: 0.75rem;
+      grid-column: span 2;
+      height: 50%;
       border-radius: 2.5rem;
       background: ${(props) => props.theme.primary100};
       background-color: ${({ $checked, theme }) =>
@@ -96,8 +95,8 @@ const StyledField = styled.label`
 
     &::after {
       position: absolute;
-      width: 1rem;
-      height: 1rem;
+      width: 100%;
+      height: 75%;
       border-radius: 100%;
       background: ${(props) => props.theme.primary500};
       background-color: ${({ $checked, $disabled, theme }) => {
@@ -113,7 +112,7 @@ const StyledField = styled.label`
 
         return theme.black200;
       }};
-      align-self: ${({ $checked }) => ($checked ? "end" : "start")};
+      grid-column: ${({ $checked }) => ($checked ? "2/3" : "1/2")};
     }
   }
 
