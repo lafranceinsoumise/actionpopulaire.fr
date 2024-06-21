@@ -14,6 +14,7 @@ from agir.elections.utils import (
     get_polling_station_label,
     get_polling_station_circonscription,
 )
+from agir.groups.models import Membership
 from agir.lib.model_fields import ChoiceArrayField
 from agir.lib.models import BaseAPIResource
 
@@ -171,17 +172,23 @@ class VotingProxyQuerySet(models.QuerySet):
         )
 
     def reliable(self):
-        # Allows only people that existed before the campaign start or have donated
+        # Allows only people that existed before the campaign start or have donated or have joined a group
         return (
             self.available()
             .annotate(
                 has_donation=Exists(
                     Payment.objects.completed().filter(person=OuterRef("person"))
-                )
+                ),
+                has_group=Exists(
+                    Membership.objects.active()
+                    .active_members()
+                    .filter(person=OuterRef("person"))
+                ),
             )
             .exclude(
                 person__created__gte="2024-06-09T20:00:00+0200",
                 has_donation=False,
+                has_group=False,
                 voting_proxy_requests__isnull=True,
             )
         )
