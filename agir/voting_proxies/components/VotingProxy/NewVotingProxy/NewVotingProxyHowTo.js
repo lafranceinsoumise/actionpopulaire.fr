@@ -1,9 +1,11 @@
+import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
 import Spacer from "@agir/front/genericComponents/Spacer";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
-import ElectionDayWarningBlock from "@agir/voting_proxies/Common/ElectionDayWarningBlock";
+import { WarningBlock } from "@agir/elections/Common/StyledComponents";
+import Button from "@agir/front/genericComponents/Button";
 
 const StyledList = styled.ul`
   list-style-type: none;
@@ -20,11 +22,59 @@ const StyledList = styled.ul`
     }
   }
 `;
+const StyledWarningBlock = styled(WarningBlock)`
+  & > p {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: start;
+    gap: 1rem;
+    font-size: 0.875rem;
 
-const NewVotingProxyHowTo = () => (
+    ${Button} {
+      flex: 0 0 auto;
+      margin-left: auto;
+    }
+  }
+`;
+
+const NewVotingProxyHowTo = ({ user }) => (
   <div>
-    <ElectionDayWarningBlock />
-    <Spacer size="1rem" />
+    {!!user && user?.votingProxyId && (
+      <>
+        <StyledWarningBlock icon="alert-circle">
+          <span>
+            Une inscription liée à votre compte Action populaire{" "}
+            <strong>{user.email}</strong> existe déjà. Vous pouvez{" "}
+            {user.hasVotingProxyRequests
+              ? "consulter les procurations que vous avez acceptées"
+              : "voir si des demandes sont en attente près de chez vous"}{" "}
+            à l'aide du bouton ci-dessous.
+          </span>
+          {user.hasVotingProxyRequests ? (
+            <Button
+              link
+              small
+              color="primary"
+              route="acceptedVotingProxyRequests"
+              routeParams={{ votingProxyPk: user.votingProxyId }}
+            >
+              Voir mes procurations en cours
+            </Button>
+          ) : (
+            <Button
+              link
+              small
+              color="primary"
+              route="votingProxyRequestsForProxy"
+              routeParams={{ votingProxyPk: user.votingProxyId }}
+            >
+              Voir les demandes en attente
+            </Button>
+          )}
+        </StyledWarningBlock>
+        <Spacer size="1rem" />
+      </>
+    )}
     <h2>Se porter volontaire pour prendre une procuration</h2>
     <Spacer size="1rem" />
     <p>
@@ -83,5 +133,12 @@ const NewVotingProxyHowTo = () => (
     </p>
   </div>
 );
+
+NewVotingProxyHowTo.propTypes = {
+  user: PropTypes.shape({
+    votingProxyId: PropTypes.string,
+    hasVotingProxyRequests: PropTypes.bool,
+  }),
+};
 
 export default NewVotingProxyHowTo;

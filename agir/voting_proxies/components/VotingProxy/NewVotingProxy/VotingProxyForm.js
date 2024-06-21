@@ -4,7 +4,6 @@ import { useLocation } from "react-router-dom";
 
 import Spacer from "@agir/front/genericComponents/Spacer";
 import Steps, { useSteps } from "@agir/front/genericComponents/Steps";
-
 import PollingStationField from "@agir/elections/Common/PollingStationField";
 import {
   ElectoralInfoLink,
@@ -18,7 +17,6 @@ import DateTimeField from "@agir/front/formComponents/DateTimeField";
 import PhoneField from "@agir/front/formComponents/PhoneField";
 import TextField from "@agir/front/formComponents/TextField";
 import FormFooter from "@agir/voting_proxies/Common/FormFooter";
-
 import NewVotingProxyHowTo from "./NewVotingProxyHowTo";
 import NewVotingProxySuccess from "./NewVotingProxySuccess";
 
@@ -225,7 +223,7 @@ const VotingProxyForm = (props) => {
         goToPrevious={goToPreviousFormStep}
         goToNext={goToNextFormStep}
       >
-        <NewVotingProxyHowTo />
+        <NewVotingProxyHowTo user={user} />
         <fieldset>
           <VotingLocationField
             required

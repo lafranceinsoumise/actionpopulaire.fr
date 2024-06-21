@@ -7,7 +7,7 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 
 import StyledPageContainer from "@agir/elections/Common/StyledPageContainer";
 import VotingProxyForm from "./VotingProxyForm";
-
+import { WarningBlock } from "@agir/elections/Common/StyledComponents";
 import { votingProxyTheme } from "@agir/voting_proxies/Common/themes";
 
 const NewVotingProxy = () => {
