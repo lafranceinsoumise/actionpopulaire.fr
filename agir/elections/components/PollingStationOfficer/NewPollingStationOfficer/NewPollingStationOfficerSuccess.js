@@ -68,7 +68,7 @@ const NewPollingStationOfficerSuccess = () => (
           small
           color="primary"
           icon="youtube"
-          href="https://www.youtube.com/watch?v=b2ocgH48-1Q"
+          href="https://www.youtube.com/watch?v=eU6tYjFOrEQ"
           target="_blank"
           rel="noopener noreferrer"
         >
