@@ -376,7 +376,8 @@ def send_voting_proxy_request_confirmation_reminder(voting_proxy_request_pks):
     ending = format_html(
         "Pour éviter des problèmes le jour du scrutin, nous conseillons aux personnes donnant procuration de vote de se "
         "déplacer au commissariat, à la gendarmerie ou au consulat pour vérifier leur identité et valider la "
-        "procuration le plus tôt possible et <strong>avant le jeudi 6 juin 2024</strong>."
+        "procuration le plus tôt possible et <strong>avant le 27 juin pour le premier tour et le 4 juillet pour le "
+        "second</strong>."
     )
 
     # Send confirmation reminder EMAIL to request owner

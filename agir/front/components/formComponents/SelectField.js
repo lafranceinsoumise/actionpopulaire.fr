@@ -1,11 +1,14 @@
 import PropTypes from "prop-types";
 import React, { useCallback } from "react";
-import Select, { components } from "react-select";
+import Select, { components, createFilter } from "react-select";
 import styled, { keyframes } from "styled-components";
 
 import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
+
+const customFilterOptions = (candidate, input) =>
+  candidate.data.fixed || createFilter()(candidate, input);
 
 const slideIn = keyframes`
   from {
@@ -288,6 +291,7 @@ const SelectField = (props) => {
         components={{
           Menu: CustomMenu,
         }}
+        filterOption={customFilterOptions}
       />
       <StyledError>{error}</StyledError>
     </StyledField>
