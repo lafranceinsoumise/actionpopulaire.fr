@@ -12,6 +12,7 @@ const UNKNOWN_POLLING_STATION_OPTION = {
   id: "unknown",
   label: "Mon bureau n'est pas dans la liste",
   value: "",
+  fixed: true,
 };
 
 const FrenchPollingStationField = (props) => {
