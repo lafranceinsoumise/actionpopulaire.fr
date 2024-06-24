@@ -111,7 +111,7 @@ const AllocationWidget = (props) => {
   const previousTotalAmount = usePrevious(totalAmount);
   const previousGroupId = usePrevious(groupId);
 
-  const [isCustom, setIsCustom] = useState(false);
+  const [_isCustom, setIsCustom] = useState(false);
 
   const options = useMemo(
     () => getAllocationOptions(totalAmount, groupId, fixedRatio),
@@ -184,74 +184,51 @@ const AllocationWidget = (props) => {
 
   return (
     <StyledWidget>
-      <RadioField
-        small
-        label="Je choisi la répartition de mon financement"
-        options={[
-          {
-            value: "default",
-            label: options.map((option) => (
-              <span key={option.type} style={{ display: "block" }}>
-                <strong>
-                  {displayPrice(option.defaultValue, false, unit)}
-                </strong>
-                &nbsp;
-                {option.label}
-                {!!option.fixedRatio ? ` (${option.fixedRatio * 100}%)` : ""}
-              </span>
-            )),
-          },
-          { value: "custom", label: "Personnaliser" },
-        ]}
-        value={isCustom ? "custom" : "default"}
-        onChange={handleSelectOption}
-        disabled={disabled}
-        error={error}
-      />
-      {isCustom && (
-        <fieldset style={{ marginTop: "1rem" }}>
-          {options.map(({ type, label, fixedRatio }) => (
-            <StyledAllocationOption
-              key={type}
-              htmlFor={type}
-              $disabled={disabled || !!fixedRatio}
-              $error={!fixedRatio && remainder !== 0}
-            >
-              <span>
-                <input
-                  id={type}
-                  name={type}
-                  type="number"
-                  min="0"
-                  step="1.00"
-                  value={
-                    currentValue
-                      ? isNaN(parseInt(currentValue[type]))
-                        ? currentValue[type]
-                        : currentValue[type] / 100
-                      : 0
-                  }
-                  onChange={handleChange}
-                  disabled={disabled || !!fixedRatio}
-                />
-              </span>
-              <strong>
-                {label}
-                {!!fixedRatio ? ` (${fixedRatio * 100}%)` : ""}
-              </strong>
-            </StyledAllocationOption>
-          ))}
-          {remainder !== 0 && (
-            <StyledError>
-              ⚠&nbsp;La somme des montants indiqués est différente du total :{" "}
-              <strong>
-                {displayPrice(Math.abs(remainder, false, unit))}{" "}
-                {remainder < 0 ? "en trop" : "en moins"}
-              </strong>
-            </StyledError>
-          )}
-        </fieldset>
-      )}
+      <h5>Je choisis la répartition de mon financement</h5>
+      <fieldset style={{ marginTop: "1rem" }}>
+        {options.map(({ type, label, fixedRatio }) => (
+          <StyledAllocationOption
+            key={type}
+            htmlFor={type}
+            $disabled={disabled || !!fixedRatio}
+            $error={!fixedRatio && remainder !== 0}
+          >
+            <span>
+              <input
+                id={type}
+                name={type}
+                type="number"
+                min="0"
+                step="1.00"
+                value={
+                  currentValue
+                    ? isNaN(parseInt(currentValue[type]))
+                      ? currentValue[type]
+                      : currentValue[type] / 100
+                    : 0
+                }
+                onChange={handleChange}
+                disabled={disabled || !!fixedRatio}
+              />
+            </span>
+            <strong>
+              {label[0].toUpperCase()}
+              {label.slice(1)}
+              {!!fixedRatio ? ` (${fixedRatio * 100}%)` : ""}
+            </strong>
+          </StyledAllocationOption>
+        ))}
+        {remainder !== 0 && (
+          <StyledError>
+            ⚠&nbsp;La somme des montants indiqués est différente du total :{" "}
+            <strong>
+              {displayPrice(Math.abs(remainder, false, unit))}{" "}
+              {remainder < 0 ? "en trop" : "en moins"}
+            </strong>
+          </StyledError>
+        )}
+        {error && <StyledError>{error}</StyledError>}
+      </fieldset>
     </StyledWidget>
   );
 };
