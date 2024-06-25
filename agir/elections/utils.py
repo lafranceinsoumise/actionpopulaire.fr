@@ -2,115 +2,166 @@ from iso8601 import iso8601
 
 from agir.elections.data import polling_station_dataframe
 from agir.events.models import Event
+from agir.lib.utils import replace_datetime_timezone
 
-TREVE_ELECTORALE = [
-    (iso8601.parse_date(start), iso8601.parse_date(end), *rest)
-    for (start, end, *rest) in [
-        # Européennes 2024
+OVERSEAS_AND_AMERICAS = (
+    "AR",
+    "BL",
+    "BO",
+    "BR",
+    "CA",
+    "CL",
+    "CO",
+    "CR",
+    "CU",
+    "DO",
+    "EC",
+    "GF",
+    "GP",
+    "GT",
+    "HN",
+    "HT",
+    "JM",
+    "LC",
+    "MF",
+    "MQ",
+    "MX",
+    "NI",
+    "PA",
+    "PE",
+    "PF",
+    "PM",
+    "PY",
+    "SV",
+    "TT",
+    "US",
+    "UY",
+    "VE",
+)
+
+TREVE_ELECTORALE = {
+    "OVERSEAS_AND_AMERICAS": [
+        (iso8601.parse_date(start), iso8601.parse_date(end), *rest)
+        for (start, end, *rest) in [
+            # Législatives 2024
+            (
+                "2024-06-28 00:00:00Z",  # Start date
+                "2024-06-29 20:00:00Z",  # End date
+                (
+                    "soiree-electorale",
+                    "depart-commun",
+                    "soutien",
+                    "formations",
+                    "reunion-groupe",
+                    "reunion-boucle-departementale",
+                ),  # Authorized event subtypes
+            ),
+            (
+                "2024-07-05 00:00:00Z",  # Start date
+                "2024-07-06 20:00:00Z",  # End date
+                (
+                    "soiree-electorale",
+                    "depart-commun",
+                    "soutien",
+                    "formations",
+                    "reunion-groupe",
+                    "reunion-boucle-departementale",
+                ),  # Authorized event subtypes
+            ),
+        ]
+    ],
+    "DEFAULT": [
+        (iso8601.parse_date(start), iso8601.parse_date(end), *rest)
+        for (start, end, *rest) in [
+            (
+                "2024-06-29 00:00:00+0200",  # Start date
+                "2024-06-30 20:00:00+0200",  # End date
+                (
+                    "soiree-electorale",
+                    "depart-commun",
+                    "soutien",
+                    "formations",
+                    "reunion-groupe",
+                    "reunion-boucle-departementale",
+                ),  # Authorized event subtypes
+            ),
+            (
+                "2024-07-06 00:00:00+0200",  # Start date
+                "2024-07-07 20:00:00+0200",  # End date
+                (
+                    "soiree-electorale",
+                    "depart-commun",
+                    "soutien",
+                    "formations",
+                    "reunion-groupe",
+                    "reunion-boucle-departementale",
+                ),  # Authorized event subtypes
+            ),
+        ]
+    ],
+}
+
+
+def get_treve_event_rules(event):
+    is_overseas_and_americas = (
+        event.location_country and event.location_country.code in OVERSEAS_AND_AMERICAS
+    )
+
+    if not is_overseas_and_americas:
+        return TREVE_ELECTORALE["DEFAULT"]
+
+    return [
         (
-            "2024-06-08 00:00:00+0200",  # Start date
-            "2024-06-09 20:00:00+0200",  # End date
-            (
-                "GF",
-                "GP",
-                "MQ",
-                "PF",
-                "BL",
-                "MF",
-                "PM",
-                "AR",
-                "BO",
-                "BR",
-                "CA",
-                "CL",
-                "CO",
-                "CR",
-                "HN",
-                "NI",
-                "DO",
-                "EC",
-                "GT",
-                "SV",
-                "HT",
-                "MX",
-                "PA",
-                "CU",
-                "JM",
-                "PE",
-                "PY",
-                "US",
-                "UY",
-                "VE",
-                "LC",
-                "TT",
-            ),  # Limited to country codes
-            (
-                "soiree-electorale",
-                "depart-commun",
-                "soutien",
-                "formations",
-                "reunion-groupe",
-                "reunion-boucle-departementale",
-            ),  # Authorized event subtypes
-        ),
-        (
-            "2024-06-08 00:00:00+0200",  # Start date
-            "2024-06-09 20:00:00+0200",  # End date
-            None,  # Limited to country codes
-            (
-                "soiree-electorale",
-                "depart-commun",
-                "soutien",
-                "formations",
-                "reunion-groupe",
-                "reunion-boucle-departementale",
-            ),  # Authorized event subtypes
-        ),
+            replace_datetime_timezone(treve_start, event.timezone),
+            replace_datetime_timezone(treve_end, event.timezone),
+            authorized_subtype_labels,
+        )
+        for (
+            treve_start,
+            treve_end,
+            authorized_subtype_labels,
+        ) in TREVE_ELECTORALE["OVERSEAS_AND_AMERICAS"]
     ]
-]
 
 
 def is_forbidden_during_treve_event(event_data):
     event_pk = event_data.get("id", None)
+
     if event_pk:
         event = Event.objects.get(pk=event_pk)
         start_time = event_data.get("start_time", event.start_time)
         end_time = event_data.get("end_time", event.end_time)
         subtype = event_data.get("subtype", event.subtype)
         country = event_data.get("location_country", event.location_country)
+        timezone = event_data.get("timezone", event.timezone)
     else:
         start_time = event_data.get("start_time", None)
         end_time = event_data.get("end_time", None)
         subtype = event_data.get("subtype", None)
         country = event_data.get("location_country", None)
+        timezone = event_data.get("timezone", None)
 
     event = Event(
         start_time=start_time,
         end_time=end_time,
         subtype=subtype,
         location_country=country,
+        timezone=timezone,
     )
 
-    for (
-        treve_start,
-        treve_end,
-        country_codes,
-        authorized_subtype_labels,
-    ) in TREVE_ELECTORALE:
-        if (
-            country_codes
-            and event.location_country
-            and event.location_country.code not in country_codes
-        ):
-            continue
+    for treve_start, treve_end, authorized_subtype_labels in get_treve_event_rules(
+        event
+    ):
+        if event.start_time is None or event.end_time is None:
+            return True
+
         if (
             authorized_subtype_labels
             and event.subtype
             and event.subtype.label in authorized_subtype_labels
         ):
             continue
-        if event.start_time is None or event.end_time is None:
-            return True
+
         if (
             treve_start <= event.start_time < treve_end
             or treve_start <= event.end_time < treve_end

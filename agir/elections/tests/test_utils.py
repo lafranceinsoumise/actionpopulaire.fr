@@ -1,7 +1,11 @@
 from datetime import timedelta
 from unittest import TestCase
 
-from agir.elections.utils import TREVE_ELECTORALE, is_forbidden_during_treve_event
+from agir.elections.utils import (
+    TREVE_ELECTORALE,
+    is_forbidden_during_treve_event,
+    OVERSEAS_AND_AMERICAS,
+)
 from agir.events.models import Event, EventSubtype
 
 
@@ -13,9 +17,12 @@ class IsForbiddenDuringTreveEventTestCase(TestCase):
         (self.unauthorized_subtype, created) = EventSubtype.objects.get_or_create(
             label="porte-a-porte"
         )
-        self.treve_country_code = TREVE_ELECTORALE[0][2][0]
+        self.treve_country_code = OVERSEAS_AND_AMERICAS[0]
+        self.timezone = "America/Argentina/Buenos_Aires"
         self.authorized_country_code = "UK"
-        self.treve_start, self.treve_end, *rest = TREVE_ELECTORALE[0]
+        self.treve_start, self.treve_end, *rest = TREVE_ELECTORALE[
+            "OVERSEAS_AND_AMERICAS"
+        ][0]
 
     def test_before_treve_event(self):
         event_data = {
@@ -23,6 +30,7 @@ class IsForbiddenDuringTreveEventTestCase(TestCase):
             "end_time": self.treve_start - timedelta(days=4),
             "subtype": self.unauthorized_subtype,
             "location_country": self.treve_country_code,
+            "timezone": self.timezone,
         }
         result = is_forbidden_during_treve_event(event_data)
         self.assertFalse(result)
@@ -33,6 +41,7 @@ class IsForbiddenDuringTreveEventTestCase(TestCase):
             "end_time": self.treve_end + timedelta(days=5),
             "subtype": self.unauthorized_subtype,
             "location_country": self.treve_country_code,
+            "timezone": self.timezone,
         }
         result = is_forbidden_during_treve_event(event_data)
         self.assertFalse(result)
@@ -43,6 +52,7 @@ class IsForbiddenDuringTreveEventTestCase(TestCase):
             "end_time": self.treve_end - timedelta(minutes=4),
             "subtype": self.unauthorized_subtype,
             "location_country": self.treve_country_code,
+            "timezone": self.timezone,
         }
         result = is_forbidden_during_treve_event(event_data)
         self.assertTrue(result)
@@ -51,6 +61,7 @@ class IsForbiddenDuringTreveEventTestCase(TestCase):
             "end_time": self.treve_end + timedelta(minutes=4),
             "subtype": self.unauthorized_subtype,
             "location_country": self.treve_country_code,
+            "timezone": self.timezone,
         }
         result = is_forbidden_during_treve_event(event_data)
         self.assertTrue(result)
@@ -59,6 +70,7 @@ class IsForbiddenDuringTreveEventTestCase(TestCase):
             "end_time": self.treve_end - timedelta(minutes=4),
             "subtype": self.unauthorized_subtype,
             "location_country": self.treve_country_code,
+            "timezone": self.timezone,
         }
         result = is_forbidden_during_treve_event(event_data)
         self.assertTrue(result)
@@ -69,6 +81,7 @@ class IsForbiddenDuringTreveEventTestCase(TestCase):
             "end_time": self.treve_end - timedelta(minutes=4),
             "subtype_id": self.unauthorized_subtype.id,
             "location_country": self.treve_country_code,
+            "timezone": self.timezone,
         }
         event = Event.objects.create(**event_data)
         event_data = {"id": event.pk}
@@ -95,6 +108,7 @@ class IsForbiddenDuringTreveEventTestCase(TestCase):
             "end_time": self.treve_end - timedelta(minutes=4),
             "subtype": self.authorized_subtype,
             "location_country": self.treve_country_code,
+            "timezone": self.timezone,
         }
         result = is_forbidden_during_treve_event(event_data)
         self.assertFalse(result)

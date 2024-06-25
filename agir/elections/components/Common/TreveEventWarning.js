@@ -36,7 +36,7 @@ const StyledWarning = styled.div`
 `;
 
 const TreveEventWarning = () => {
-  if (Date.now() >= new Date("2024-06-09 20:00:00+0200").valueOf()) {
+  if (Date.now() >= new Date("2024-07-07 20:00:00+0200").valueOf()) {
     return null;
   }
 
