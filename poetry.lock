@@ -1035,23 +1035,24 @@ files = [
 
 [[package]]
 name = "django-anymail"
-version = "9.2"
-description = "Django email backends and webhooks for Amazon SES, MailerSend, Mailgun, Mailjet, Mandrill, Postal, Postmark, SendGrid, SendinBlue, and SparkPost"
+version = "11.0"
+description = "Django email backends and webhooks for Amazon SES, Brevo (Sendinblue),     MailerSend, Mailgun, Mailjet, Mandrill, Postal, Postmark, Resend,     SendGrid, SparkPost and Unisender Go"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 files = [
-    {file = "django-anymail-9.2.tar.gz", hash = "sha256:579515bcff2b78e89abae6541a5c29fc7a481b785f4c4378ed9528523886d1fb"},
-    {file = "django_anymail-9.2-py3-none-any.whl", hash = "sha256:e0a74439905a95d76894302665c013bf25480dab9d2c474208503a50a45aaa14"},
+    {file = "django_anymail-11.0-py3-none-any.whl", hash = "sha256:add43d8dc496b559146be112e8088a9986d5a1253fb8fe1fbd225924db64d947"},
+    {file = "django_anymail-11.0.tar.gz", hash = "sha256:f468b5662ca14f0699886ae18d952236cfc682e8e4c1d1c361a0e1099dbb795d"},
 ]
 
 [package.dependencies]
 django = ">=2.0"
 requests = ">=2.4.3"
+urllib3 = ">=1.25.0"
 
 [package.extras]
-amazon-ses = ["boto3"]
-dev = ["pre-commit", "sphinx", "sphinx-rtd-theme", "tox", "twine", "virtualenv (<20.22.0)", "wheel"]
+amazon-ses = ["boto3 (>=1.10.17)"]
 postal = ["cryptography"]
+resend = ["svix"]
 
 [[package]]
 name = "django-cors-headers"
@@ -3923,4 +3924,4 @@ test = ["pytest"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "cdfb7ca86ea17eb7aed2cecab7fa79cf02d8b3dd547cdfdb2c6f5550b82d3fbc"
+content-hash = "511be58d23053cd225e95d0be27fbc9bf59df6487004121a7e0a6fc114d30a51"
