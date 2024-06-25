@@ -202,7 +202,10 @@ def get_polling_station_label(polling_station=None, fallback=""):
     address = " ".join(address.split())
 
     if address:
-        return f"{label} - {address}"
+        label = f"{label} - {address}"
+
+    if polling_station.get("circonscription", ""):
+        label = f"{label} ({polling_station['circonscription']})"
 
     return label
 
