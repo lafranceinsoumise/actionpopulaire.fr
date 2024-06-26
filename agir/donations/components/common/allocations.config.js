@@ -5,11 +5,11 @@ export const TYPE_NATIONAL = "national";
 
 export const TYPE_LABEL = {
   [TYPE_CNS]: "à la caisse nationale de solidarité",
+  [TYPE_NATIONAL]:
+    "aux actions et campagnes nationales, ainsi qu'aux outils mis à la disposition des insoumis⋅es (comme Action populaire !)",
   [TYPE_GROUP]: "au groupe d'action",
   [TYPE_DEPARTMENT]:
     "aux activités de votre département (ou circonscription législative pour les français·es de l'étranger)",
-  [TYPE_NATIONAL]:
-    "aux actions et campagnes nationales, ainsi qu'aux outils mis à la disposition des insoumis⋅es (comme Action populaire !)",
 };
 
 export const formatAllocations = (data) =>
@@ -108,9 +108,9 @@ export const getDefaultAllocations = (totalAmount, options) => {
   }
 
   const remainingTargets = options.filter((option) => !option.fixedRatio);
-  const distribution = distributeInteger(totalAmount, remainingTargets.length);
+
   remainingTargets.forEach(
-    (option, i) => (result[option.type] = distribution[i] || 0),
+    (option, i) => (result[option.type] = i === 0 ? totalAmount : 0),
   );
 
   return result;
@@ -130,6 +130,16 @@ export const getAllocationOptions = (
           defaultValue: 0,
         }
       : undefined,
+    {
+      type: TYPE_NATIONAL,
+      label: TYPE_LABEL[TYPE_NATIONAL],
+      defaultValue: 0,
+    },
+    {
+      type: TYPE_DEPARTMENT,
+      label: TYPE_LABEL[TYPE_DEPARTMENT],
+      defaultValue: 0,
+    },
     groupId
       ? {
           type: TYPE_GROUP,
@@ -138,12 +148,6 @@ export const getAllocationOptions = (
           defaultValue: 0,
         }
       : undefined,
-    {
-      type: TYPE_DEPARTMENT,
-      label: TYPE_LABEL[TYPE_DEPARTMENT],
-      defaultValue: 0,
-    },
-    { type: TYPE_NATIONAL, label: TYPE_LABEL[TYPE_NATIONAL], defaultValue: 0 },
   ].filter(Boolean);
 
   if (!totalAmount) {
