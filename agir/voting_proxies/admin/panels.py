@@ -278,30 +278,22 @@ class VotingProxyAdmin(VoterModelAdmin):
             link = front_url(
                 "accepted_voting_proxy_requests", kwargs={"pk": voting_proxy.pk}
             )
-            links.append(
-                format_html(
-                    f'<a class="button" href="{link}" target="_blank">'
-                    f"  ➡ Lien vers la page des demandes acceptées"
-                    f"</a>"
-                )
-            )
+            links.append((link, "  ➡ Lien vers la page des demandes acceptées"))
 
         if len(accepted_requests) < len(voting_proxy.voting_dates):
             link = front_url(
                 "voting_proxy_requests_for_proxy", kwargs={"pk": voting_proxy.pk}
             )
-            links.append(
-                format_html(
-                    f'<a class="button" href="{link}" target="_blank">'
-                    f"  ➡ Lien vers la page des demandes en attente"
-                    f"</a>"
-                )
-            )
+            links.append((link, "  ➡ Lien vers la page des demandes en attente"))
 
         if not links:
             return "-"
 
-        return format_html_join(links)
+        return format_html_join(
+            "",
+            '<p style="margin-bottom:8px;"><a class="button" target="_blank" href="{}">{}</a></p>',
+            links,
+        )
 
     links.short_description = "Demandes acceptées"
 
