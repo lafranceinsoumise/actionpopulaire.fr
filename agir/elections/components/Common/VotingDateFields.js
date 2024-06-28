@@ -5,6 +5,7 @@ import styled from "styled-components";
 import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
+import { WarningBlock } from "@agir/elections/Common/StyledComponents";
 
 const StyledLabel = styled.p``;
 const StyledHelpText = styled.p``;
@@ -59,10 +60,13 @@ const VotingDateFields = (props) => {
 
   const activeOptions = useMemo(
     () =>
-      options.filter(
-        (option) =>
-          new Date(option.value).toISOString() > new Date().toISOString(),
-      ),
+      options.filter((option) => {
+        const oneDay = 1 * 24 * 60 * 60 * 1000; // Remove options the day before the date
+        return (
+          new Date(option.value).setHours(0, 0, 0, 0).valueOf() - oneDay >
+          new Date(new Date().setHours(0, 0, 0, 0).valueOf())
+        );
+      }),
     [options],
   );
 
@@ -79,6 +83,15 @@ const VotingDateFields = (props) => {
       !value.includes(activeOptions[0].value) &&
       onChange([activeOptions[0].value]);
   }, [value, activeOptions, onChange]);
+
+  if (activeOptions.length === 0) {
+    return (
+      <WarningBlock icon="x-circle" background="#ffe8d7" iconColor="#ff8c37">
+        Il n'est désormais plus possible de faire de demandes, car la date de
+        l'élection est trop proche ou est passée.
+      </WarningBlock>
+    );
+  }
 
   return (
     <StyledFieldset>
@@ -97,6 +110,7 @@ const VotingDateFields = (props) => {
           />
         ))}
       </StyledField>
+
       {error && <StyledError>{error}</StyledError>}
     </StyledFieldset>
   );
