@@ -3,7 +3,7 @@ from django.contrib.admin import TabularInline
 from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.urls import reverse, path
-from django.utils.html import format_html
+from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
 
 from agir.lib.admin.autocomplete_filter import AutocompleteRelatedModelFilter
@@ -204,9 +204,10 @@ class VotingProxyAdmin(VoterModelAdmin):
     inlines = [InlineVotingProxyRequestAdmin]
     readonly_fields = (
         *VoterModelAdmin.readonly_fields,
+        "person_created",
         "address",
         "last_matched",
-        "accepted_request_page_link",
+        "links",
     )
     autocomplete_fields = (
         *VoterModelAdmin.autocomplete_fields,
@@ -222,6 +223,14 @@ class VotingProxyAdmin(VoterModelAdmin):
             .select_related("person")
             .prefetch_related("voting_proxy_requests")
         )
+
+    def person_created(self, voting_proxy):
+        if voting_proxy.person is None:
+            return "-"
+
+        return voting_proxy.person.created.strftime("%d %B %Y")
+
+    person_created.short_description = "date de création du compte"
 
     def person_link(self, voting_proxy):
         if voting_proxy.person is None:
@@ -255,7 +264,9 @@ class VotingProxyAdmin(VoterModelAdmin):
 
     confirmed_dates.short_description = "dates acceptées"
 
-    def accepted_request_page_link(self, voting_proxy):
+    def links(self, voting_proxy):
+        links = []
+
         accepted_requests = voting_proxy.voting_proxy_requests.filter(
             status__in=(
                 VotingProxyRequest.STATUS_ACCEPTED,
@@ -263,21 +274,36 @@ class VotingProxyAdmin(VoterModelAdmin):
             )
         )
 
-        if len(accepted_requests) == 0:
+        if len(accepted_requests) > 0:
+            link = front_url(
+                "accepted_voting_proxy_requests", kwargs={"pk": voting_proxy.pk}
+            )
+            links.append(
+                format_html(
+                    f'<a class="button" href="{link}" target="_blank">'
+                    f"  ➡ Lien vers la page des demandes acceptées"
+                    f"</a>"
+                )
+            )
+
+        if len(accepted_requests) < len(voting_proxy.voting_dates):
+            link = front_url(
+                "voting_proxy_requests_for_proxy", kwargs={"pk": voting_proxy.pk}
+            )
+            links.append(
+                format_html(
+                    f'<a class="button" href="{link}" target="_blank">'
+                    f"  ➡ Lien vers la page des demandes en attente"
+                    f"</a>"
+                )
+            )
+
+        if not links:
             return "-"
 
-        link = front_url(
-            "accepted_voting_proxy_requests", kwargs={"pk": voting_proxy.pk}
-        )
-        link = shorten_url(link, secret=True)
+        return format_html_join(links)
 
-        return format_html(
-            f'<a class="button" href="{link}" target="_blank">'
-            f"  ➡ Lien vers la page des demandes acceptées"
-            f"</a>"
-        )
-
-    accepted_request_page_link.short_description = "Demandes acceptées"
+    links.short_description = "Demandes acceptées"
 
 
 @admin.register(VotingProxyRequest)
