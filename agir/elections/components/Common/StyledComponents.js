@@ -1,5 +1,5 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { useTheme } from "styled-components";
 
 import Link from "@agir/front/app/Link";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
@@ -84,30 +84,49 @@ export const StyledMain = styled.main`
   }
 `;
 
-export const StyledLogo = styled(Link)`
-  display: block;
+const Logo = (props) => {
+  const theme = useTheme();
+
+  return theme.Logo ? (
+    <Link {...props}>
+      <theme.Logo />
+    </Link>
+  ) : (
+    <Link {...props} />
+  );
+};
+
+export const StyledLogo = styled(Logo)`
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: ${(props) => props.theme.logoHeight};
+  justify-items: stretch;
   width: calc(100% + 3rem);
-  padding: 1rem 1.5rem 2rem;
+  padding: 1rem 1.5rem;
   margin: -1rem -1.5rem 0;
 
   @media (max-width: ${(props) => props.theme.collapse}px) {
     margin: 0 -1.5rem 1rem;
-    padding: 0.5rem 1.5rem;
-    border-bottom: 1px solid ${(props) => props.theme.black100};
+    padding: 1rem;
+    border-bottom: 0.0625rem solid ${(props) => props.theme.text100};
   }
 
-  &::after {
+  &::before,
+  svg {
+    grid-column: 1/2;
+    grid-row: 1/2;
+    height: 100%;
+    max-width: 100%;
+  }
+
+  &:empty::before {
     content: "";
     display: block;
-    height: ${(props) => props.theme.logoHeight};
+    width: 100%;
     background-image: url(${(props) => props.theme.logo});
     background-repeat: no-repeat;
     background-position: center center;
     background-size: contain;
-
-    @media (max-width: ${(props) => props.theme.collapse}px) {
-      background-position: center center;
-    }
   }
 `;
 
@@ -151,7 +170,7 @@ export const MailTo = () => (
   <div
     css={`
       padding: 0;
-      color: ${({ theme }) => theme.black500};
+      color: ${({ theme }) => theme.text500};
       display: flex;
       align-items: start;
       gap: 1rem;

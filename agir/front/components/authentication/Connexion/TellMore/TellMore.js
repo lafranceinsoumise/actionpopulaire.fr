@@ -2,7 +2,6 @@ import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
 import helloDesktop from "@agir/front/genericComponents/images/hello-desktop.svg";
 
 import Link from "@agir/front/app/Link";
@@ -28,7 +27,7 @@ const LeftBlock = styled.div`
   align-items: center;
   justify-content: flex-end;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     display: none;
   }
 `;
@@ -43,7 +42,7 @@ const MainBlock = styled.form`
   font-size: 13px;
   padding: 2rem;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     width: 100%;
     align-items: center;
   }
@@ -79,7 +78,7 @@ const InputGroup = styled.div`
     width: 346px;
   }
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     display: block;
 
     > div:nth-child(1) {

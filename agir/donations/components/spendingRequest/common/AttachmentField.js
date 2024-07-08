@@ -36,7 +36,7 @@ const StyledWrapper = styled.div`
     & > p {
       flex: 0 0 100%;
       margin: 0 0 -0.5rem;
-      color: ${(props) => props.theme.black700};
+      color: ${(props) => props.theme.text700};
     }
   }
 `;

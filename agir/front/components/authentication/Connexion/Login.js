@@ -1,27 +1,17 @@
 import React, { useCallback, useMemo, useState } from "react";
-import Button from "@agir/front/genericComponents/Button";
-import arrowRight from "@agir/front/genericComponents/images/arrow-right.svg";
-import chevronDown from "@agir/front/genericComponents/images/chevron-down.svg";
-import StaticToast from "@agir/front/genericComponents/StaticToast";
-import * as style from "@agir/front/genericComponents/_variables.scss";
-import styled from "styled-components";
-import LoginMailEmpty from "./LoginMailEmpty";
-import LoginFacebook from "./LoginFacebook";
-import Link from "@agir/front/app/Link";
-import { BlockSwitchLink } from "@agir/front/authentication/Connexion/styledComponents";
-import { login } from "@agir/front/authentication/api";
-import { routeConfig } from "@agir/front/app/routes.config";
 import { useHistory, useLocation } from "react-router-dom";
-import { useBookmarkedEmails } from "@agir/front/authentication/hooks";
-import { useMobileApp } from "@agir/front/app/hooks";
+import styled from "styled-components";
 
-const ShowMore = styled.div`
-  font-weight: 700;
-  color: ${style.primary500};
-  margin-top: 21px;
-  cursor: pointer;
-  text-align: center;
-`;
+import { useMobileApp } from "@agir/front/app/hooks";
+import Link from "@agir/front/app/Link";
+import { routeConfig } from "@agir/front/app/routes.config";
+import { login } from "@agir/front/authentication/api";
+import { BlockSwitchLink } from "@agir/front/authentication/Connexion/styledComponents";
+import { useBookmarkedEmails } from "@agir/front/authentication/hooks";
+import Button from "@agir/front/genericComponents/Button";
+import StaticToast from "@agir/front/genericComponents/StaticToast";
+import LoginFacebook from "./LoginFacebook";
+import LoginMailEmpty from "./LoginMailEmpty";
 
 const ContainerConnexion = styled.div`
   max-width: 100%;
@@ -36,10 +26,6 @@ const LoginMailButton = styled(Button)`
     text-overflow: ellipsis;
     overflow: hidden;
   }
-`;
-
-const InlineBlock = styled.span`
-  display: inline-block;
 `;
 
 const ToastNotConnected = () => {
@@ -122,18 +108,14 @@ const Login = () => {
             {bookmarkedEmails.map((email, id) => (
               <LoginMailButton
                 key={id}
+                icon="arrow-right"
+                rightIcon
                 color="primary"
                 onClick={() => handleSubmit(email)}
                 disabled={isLoading}
                 block
               >
-                <span>{email}</span>
-                <img
-                  src={arrowRight}
-                  width="24"
-                  height="24"
-                  style={{ color: "white" }}
-                />
+                {email}
               </LoginMailButton>
             ))}
           </div>
@@ -172,18 +154,16 @@ const Login = () => {
           )}
 
           {!showMore ? (
-            <ShowMore onClick={handleShowMore}>
-              Se connecter avec un autre{" "}
-              <InlineBlock>
-                e-mail{" "}
-                <img
-                  src={chevronDown}
-                  width="24"
-                  height="24"
-                  alt="Afficher plus"
-                />
-              </InlineBlock>
-            </ShowMore>
+            <Button
+              block
+              color="link"
+              icon="chevron-down"
+              rightIcon
+              onClick={handleShowMore}
+              style={{ fontWeight: 700 }}
+            >
+              Se connecter avec un autre e-mail
+            </Button>
           ) : (
             <LoginMailEmpty
               onSubmit={handleSubmit}

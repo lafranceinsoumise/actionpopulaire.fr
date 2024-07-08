@@ -161,23 +161,23 @@ export const useLocalStorage = (key, initialValue) => {
     }
   });
 
-  const update = (value) => {
+  const update = useCallback((value) => {
     try {
       setStoredValue(value);
       window.localStorage.setItem(key, JSON.stringify(value));
     } catch (error) {
       log.debug(error);
     }
-  };
+  }, []);
 
-  const remove = () => {
+  const remove = useCallback(() => {
     try {
       setStoredValue(undefined);
       window.localStorage.clearItem(key);
     } catch (error) {
       log.debug(error);
     }
-  };
+  }, []);
 
   return [storedValue, update, remove];
 };

@@ -3,8 +3,6 @@ import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 import useSWRImmutable from "swr/immutable";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import BottomSheet from "@agir/front/genericComponents/BottomSheet";
 import ListUsers from "@agir/msgs/MessagePage/ListUsers";
 import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
@@ -16,13 +14,13 @@ const Description = styled.span`
   font-size: 14px;
   cursor: pointer;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     font-size: 12px;
   }
 `;
 
 const PrimarySpan = styled.span`
-  color: ${style.primary500};
+  color: ${(props) => props.theme.primary500};
 `;
 
 const MessageDetails = ({ message }) => {

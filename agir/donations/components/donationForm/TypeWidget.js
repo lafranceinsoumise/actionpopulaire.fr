@@ -23,8 +23,9 @@ const TypeButtonContainer = styled.label`
 
   cursor: pointer;
 
-  color: ${({ checked }) => (checked ? "#fff" : "#333")};
-  background-color: ${({ checked }) => (checked ? "#c9462c" : "#fff")};
+  color: ${({ checked, theme }) => (checked ? theme.background0 : "#333")};
+  background-color: ${({ checked, theme }) =>
+    checked ? "#c9462c" : theme.background0};
   border-color: ${({ checked }) => (checked ? "#b43f27" : "#adadad")};
 
   :hover {

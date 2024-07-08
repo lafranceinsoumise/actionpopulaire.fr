@@ -32,6 +32,8 @@ Default.args = {
     email: true,
     pushNotification: false,
   },
+  email: true,
+  push: false,
   disabled: false,
 };
 
@@ -40,7 +42,7 @@ EmailOnly.args = {
   ...Default.args,
   notification: {
     ...Default.args.notification,
-    pushNotification: undefined,
+    hasPush: false,
   },
 };
 
@@ -49,6 +51,7 @@ PushOnly.args = {
   ...Default.args,
   notification: {
     ...Default.args.notification,
+    hasEmail: false,
     email: undefined,
   },
 };
@@ -57,4 +60,5 @@ export const Disabled = Template.bind({});
 Disabled.args = {
   ...Default.args,
   disabled: true,
+  email: true,
 };

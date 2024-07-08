@@ -10,8 +10,6 @@ import React, {
 import Datetime from "react-datetime";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 
 import "moment/locale/fr";
@@ -29,19 +27,19 @@ const StyledInput = styled(Datetime)`
     width: calc(100% + 2px);
     margin-top: 4px;
     margin-left: -1px;
-    background-color: ${style.white};
-    border: 1px solid ${style.black100};
-    border-radius: ${style.softBorderRadius};
+    background-color: ${(props) => props.theme.background0};
+    border: 1px solid ${(props) => props.theme.text100};
+    border-radius: ${(props) => props.theme.softBorderRadius};
     box-shadow: 0px 3px 2px rgba(0, 35, 44, 0.05);
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       width: 100%;
       max-width: 320px;
     }
   }
 
   & + & .rdtPicker {
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       right: 0;
     }
   }
@@ -80,10 +78,10 @@ const StyledField = styled.div`
   }
   ${StyledInput} {
     flex: 1 1 200px;
-    border-radius: ${style.softBorderRadius};
+    border-radius: ${(props) => props.theme.softBorderRadius};
     border: 1px solid;
-    border-color: ${({ $invalid }) =>
-      $invalid ? style.redNSP : style.black100};
+    border-color: ${({ $invalid, theme }) =>
+      $invalid ? theme.error500 : theme.text100};
     height: 40px;
     font-size: 1rem;
     padding: 0;
@@ -104,8 +102,8 @@ const StyledField = styled.div`
     }
 
     &:focus {
-      border-color: ${({ $invalid }) =>
-        $invalid ? style.redNSP : style.black500};
+      border-color: ${({ $invalid, theme }) =>
+        $invalid ? theme.error500 : theme.text500};
     }
   }
 
@@ -121,13 +119,13 @@ const StyledField = styled.div`
     align-items: flex-start;
     justify-content: flex-end;
     padding: 0.5rem;
-    color: ${style.redNSP};
+    color: ${(props) => props.theme.error500};
   }
   ${StyledError} {
     display: ${({ $invalid }) => ($invalid ? "flex" : "none")};
     grid-row: 4;
     grid-column: 1/3;
-    color: ${style.redNSP};
+    color: ${(props) => props.theme.error500};
   }
 `;
 

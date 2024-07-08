@@ -5,7 +5,7 @@ import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 
 import EmojiPicker from "@agir/front/formComponents/EmojiPicker";
-import ThemeProvider from "@agir/front/theme/ThemeProvider";
+import ThemeProvider, { getTheme } from "@agir/front/theme/ThemeProvider";
 
 const StyledField = styled.div`
   display: flex;
@@ -67,7 +67,7 @@ const renderField = (originalField) => {
   const renderingNode = document.createElement("div");
 
   renderReactComponent(
-    <ThemeProvider>
+    <ThemeProvider theme={getTheme("light")}>
       <EmojiField
         {...originalField.dataset}
         value={originalField.value}

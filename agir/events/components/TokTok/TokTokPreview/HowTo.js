@@ -10,6 +10,7 @@ import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const StyledHeader = styled.button`
   background-color: transparent;
+  color: ${(props) => props.theme.text1000};
   display: flex;
   justify-content: space-between;
   align-items: center;

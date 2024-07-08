@@ -38,7 +38,7 @@ const StyledIconButton = styled.button`
   text-align: center;
   -webkit-appearance: none;
   -moz-appearance: none;
-  color: ${(props) => props.theme.black1000};
+  color: ${(props) => props.theme.text1000};
 
   &:hover,
   &:focus {
@@ -53,7 +53,7 @@ const StyledThumbnail = styled.div`
   height: 3.5rem;
   position: relative;
   border-radius: ${(props) => props.theme.borderRadius};
-  background-color: white;
+  background-color: ${(props) => props.theme.background0};
   border: none;
   padding: 0;
   margin: 0;
@@ -63,12 +63,12 @@ const StyledThumbnail = styled.div`
   &,
   &:hover,
   &:focus {
-    color: ${(props) => props.theme.black1000};
+    color: ${(props) => props.theme.text1000};
     text-decoration: none;
   }
 
   &:focus  {
-    outline: 1px dotted ${(props) => props.theme.black700};
+    outline: 1px dotted ${(props) => props.theme.text700};
   }
 
   & > div {
@@ -124,12 +124,12 @@ const StyledThumbnail = styled.div`
     align-items: center;
     justify-content: center;
     transform: translate(50%, -50%);
-    background-color: white;
+    background-color: ${(props) => props.theme.background0};
     border: none;
     border-radius: 100%;
     box-shadow: inherit;
-    border: 1px solid ${(props) => props.theme.black200};
-    color: ${(props) => props.theme.black500};
+    border: 1px solid ${(props) => props.theme.text200};
+    color: ${(props) => props.theme.text500};
     cursor: pointer;
     padding: 0;
     width: 1.25rem;
@@ -137,7 +137,7 @@ const StyledThumbnail = styled.div`
 
     &:hover,
     &:focus {
-      color: ${(props) => props.theme.black700};
+      color: ${(props) => props.theme.text700};
     }
 
     & > ${RawFeatherIcon} {
@@ -201,12 +201,12 @@ const StyledWrapper = styled.div`
     width: ${(props) => (props.$small ? "2.5rem" : "3rem")};
     background-color: transparent;
     border: none;
-    color: ${(props) => props.theme.black500};
+    color: ${(props) => props.theme.text500};
     cursor: pointer;
 
     &:hover,
     &:focus {
-      color: ${(props) => props.theme.black700};
+      color: ${(props) => props.theme.text700};
     }
 
     & > ${RawFeatherIcon} {

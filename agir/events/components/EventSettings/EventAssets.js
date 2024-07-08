@@ -1,8 +1,7 @@
 import PropTypes from "prop-types";
 import React, { Fragment } from "react";
 import useSWRImmutable from "swr/immutable";
-
-import * as style from "@agir/front/genericComponents/_variables.scss";
+import styled from "styled-components";
 
 import FileCard from "@agir/front/genericComponents/FileCard";
 import HelpCenterCard from "@agir/front/genericComponents/HelpCenterCard";
@@ -26,7 +25,11 @@ const EventAssets = (props) => {
       <HeaderPanel onBack={onBack} illustration={illustration} />
       <StyledTitle>Ressources</StyledTitle>
       <Spacer size="1rem" />
-      <span style={{ color: style.black700 }}>
+      <span
+        css={`
+          color: ${(props) => props.theme.text700};
+        `}
+      >
         Retrouvez ici la liste des ressources qui pourront vous être utiles dans
         l'organisation de votre événement.
       </span>

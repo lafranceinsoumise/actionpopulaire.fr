@@ -3,8 +3,6 @@ import React, { useMemo } from "react";
 import styled from "styled-components";
 import { Redirect, useLocation } from "react-router-dom";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Button from "@agir/front/genericComponents/Button";
 import Link from "@agir/front/app/Link";
 import Spacer from "@agir/front/genericComponents/Spacer";
@@ -16,7 +14,7 @@ const StyledWrapper = styled.main`
   padding-top: 172px;
   padding-bottom: 2rem;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     padding-top: 100px;
   }
 

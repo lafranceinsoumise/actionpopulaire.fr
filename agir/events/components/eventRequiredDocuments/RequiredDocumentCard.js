@@ -63,7 +63,7 @@ const StyledCard = styled.div`
 
     p {
       line-height: 1.6;
-      color: ${(props) => props.theme.black700};
+      color: ${(props) => props.theme.text700};
       text-align: left;
     }
   }

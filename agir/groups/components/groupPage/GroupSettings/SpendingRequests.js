@@ -26,7 +26,7 @@ const StyledSpendingRequest = styled(Link)`
   border-radius: ${(props) => props.theme.borderRadius};
   font-size: 1rem;
 
-  @media (max-width: 360px) {
+  @media (max-width: ${(props) => props.theme.collapseSmallMobile}px) {
     gap: 0.5rem;
     font-size: 0.875rem;
   }
@@ -34,7 +34,7 @@ const StyledSpendingRequest = styled(Link)`
   &,
   &:hover,
   &:focus {
-    color: ${(props) => props.theme.black1000};
+    color: ${(props) => props.theme.text1000};
     text-decoration: none;
   }
 
@@ -53,7 +53,7 @@ const StyledSpendingRequest = styled(Link)`
     background-color: ${(props) =>
       props.theme[props.$status.color] ||
       props.$status.color ||
-      props.theme.white}11;
+      props.theme.background0}11;
     color: ${(props) =>
       props.theme[props.$status.color] ||
       props.$status.color ||
@@ -64,7 +64,7 @@ const StyledSpendingRequest = styled(Link)`
       flex: 0 0 auto;
     }
 
-    @media (max-width: 360px) {
+    @media (max-width: ${(props) => props.theme.collapseSmallMobile}px) {
       font-size: 1rem;
       width: 2rem;
       height: 2rem;
@@ -74,7 +74,7 @@ const StyledSpendingRequest = styled(Link)`
       width: 1.5rem;
       height: 1.5rem;
 
-      @media (max-width: 360px) {
+      @media (max-width: ${(props) => props.theme.collapseSmallMobile}px) {
         width: 1rem;
         height: 1rem;
       }
@@ -104,15 +104,15 @@ const StyledSpendingRequest = styled(Link)`
       line-height: 1.5;
       font-weight: 600;
       text-transform: uppercase;
-      color: ${(props) => props.theme.black500};
-      border: 1px solid ${(props) => props.theme.black50};
+      color: ${(props) => props.theme.text500};
+      border: 1px solid ${(props) => props.theme.text50};
       border-radius: 0.25rem;
       padding: 0.25em 0.5rem;
     }
   }
 
   ${Button} {
-    @media (max-width: 360px) {
+    @media (max-width: ${(props) => props.theme.collapseSmallMobile}px) {
       display: none;
     }
   }

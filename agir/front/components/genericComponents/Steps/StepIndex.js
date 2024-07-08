@@ -8,9 +8,9 @@ import { Hide, ResponsiveLayout } from "@agir/front/genericComponents/grid";
 
 const StepBadge = styled(CounterBadge).attrs((props) => ({
   ...props,
-  $background: props.$active ? props.theme.primary500 : props.theme.white,
-  $color: props.$active ? props.theme.white : props.theme.black500,
-  $border: props.$active ? "none" : props.theme.black50,
+  $background: props.$active ? props.theme.primary500 : props.theme.background0,
+  $color: props.$active ? props.theme.background0 : props.theme.text500,
+  $border: props.$active ? "none" : props.theme.text50,
 }))`
   width: 2rem;
   height: 2rem;
@@ -49,8 +49,8 @@ const StyledStep = styled.button.attrs((props) => ({
   &:first-child {
     background: linear-gradient(
       90deg,
-      white 0%,
-      white 50%,
+      ${(props) => props.theme.background0} 0%,
+      ${(props) => props.theme.background0} 50%,
       transparent 50%,
       transparent 100%
     );
@@ -59,8 +59,8 @@ const StyledStep = styled.button.attrs((props) => ({
   &:last-child {
     background: linear-gradient(
       -90deg,
-      white 0%,
-      white 50%,
+      ${(props) => props.theme.background0} 0%,
+      ${(props) => props.theme.background0} 50%,
       transparent 50%,
       transparent 100%
     );
@@ -80,7 +80,7 @@ const StyledStep = styled.button.attrs((props) => ({
   h5 {
     margin: 0;
     color: ${(props) =>
-      props.$active ? props.theme.primary500 : props.theme.black500};
+      props.$active ? props.theme.primary500 : props.theme.text500};
     font-weight: ${(props) => (props.$active ? 600 : 400)};
     overflow-wrap: normal;
 
@@ -109,8 +109,8 @@ const StyledSteps = styled.div`
       background: linear-gradient(
         transparent 0%,
         transparent calc(1rem),
-        ${(props) => props.theme.black100} calc(1rem),
-        ${(props) => props.theme.black100} calc(1rem + 1px),
+        ${(props) => props.theme.text100} calc(1rem),
+        ${(props) => props.theme.text100} calc(1rem + 1px),
         transparent calc(1rem + 1px),
         transparent 100%
       );

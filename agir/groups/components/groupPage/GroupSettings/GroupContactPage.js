@@ -4,8 +4,6 @@ import useSWR from "swr";
 
 import { useToast } from "@agir/front/globalContext/hooks.js";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Spacer from "@agir/front/genericComponents/Spacer";
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
@@ -73,11 +71,19 @@ const GroupContactPage = (props) => {
 
       <Spacer size="1rem" />
 
-      <span style={{ color: style.black700 }}>
+      <span
+        css={`
+          color: ${(props) => props.theme.text700};
+        `}
+      >
         Ces informations seront affichées en public.
       </span>
       <Spacer size="0.5rem" />
-      <span style={{ color: style.black700 }}>
+      <span
+        css={`
+          color: ${(props) => props.theme.text700};
+        `}
+      >
         Conseillé : créez une adresse e-mail pour votre groupe et n’utilisez pas
         une adresse personnelle.
       </span>

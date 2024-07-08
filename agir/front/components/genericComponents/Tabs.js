@@ -4,8 +4,6 @@ import { useSpring, animated } from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 const StyledMenu = styled.nav`
   position: sticky;
   top: ${({ $stickyOffset }) => ($stickyOffset || 0) - 1}px;
@@ -14,7 +12,7 @@ const StyledMenu = styled.nav`
   display: flex;
   flex-flow: row nowrap;
   padding: 0 1rem;
-  background-color: white;
+  background-color: ${(props) => props.theme.background0};
   border-top: 1px solid #dfdfdf;
   box-shadow:
     0px 0px 3px rgba(0, 35, 44, 0.1),
@@ -32,25 +30,25 @@ const StyledMenu = styled.nav`
 
   button {
     flex: 1 1 auto;
-    background-color: white;
+    background-color: ${(props) => props.theme.background0};
     border: none;
     height: 2.875rem;
     cursor: pointer;
     transition: all 200ms ease-in-out;
     box-shadow: none;
-    color: ${style.black1000};
+    color: ${(props) => props.theme.text1000};
     white-space: nowrap;
     min-width: max-content;
 
     &[data-active],
     &:hover,
     &:focus {
-      color: ${style.primary500};
+      color: ${(props) => props.theme.primary500};
     }
 
     &[data-active] {
       background-size: 100%;
-      box-shadow: 0 -3px 0 ${style.primary500} inset;
+      box-shadow: 0 -3px 0 ${(props) => props.theme.primary500} inset;
     }
   }
 `;

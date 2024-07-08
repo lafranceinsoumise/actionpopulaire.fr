@@ -15,9 +15,9 @@ import { useToast } from "@agir/front/globalContext/hooks";
 
 const StyledWidget = styled.div`
   padding: 1rem 1.5rem;
-  background-color: ${({ theme }) => theme.white};
+  background-color: ${({ theme }) => theme.background0};
   border-radius: ${({ theme }) => theme.borderRadius};
-  border: 1px solid ${({ theme }) => theme.black100};
+  border: 1px solid ${({ theme }) => theme.text100};
 
   & > p > strong {
     font-size: 0.875rem;
@@ -33,7 +33,7 @@ const StyledWidget = styled.div`
     padding: 1rem 0 0;
     margin: 0;
     font-size: 1rem;
-    color: ${({ theme }) => theme.redNSP};
+    color: ${({ theme }) => theme.error500};
   }
 `;
 

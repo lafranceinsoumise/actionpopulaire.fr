@@ -4,11 +4,10 @@ import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
 import Modal from "@agir/front/genericComponents/Modal";
-import * as style from "@agir/front/genericComponents/_variables.scss";
 import ShareContentUrl from "@agir/front/genericComponents/ShareContentUrl";
 
 const ModalContainer = styled.div`
-  background: white;
+  background: ${(props) => props.theme.background0};
   width: 40%;
   width: fit-content;
   margin: 5% auto;
@@ -16,9 +15,9 @@ const ModalContainer = styled.div`
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  border-radius: ${style.borderRadius};
+  border-radius: ${(props) => props.theme.borderRadius};
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     width: 90%;
   }
 `;
@@ -34,7 +33,6 @@ const ModalContent = styled.div`
 
   > ${Button} {
     margin-bottom: 1rem;
-    color: white;
   }
 `;
 

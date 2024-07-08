@@ -8,7 +8,6 @@ import React, {
 } from "react";
 
 import { formatEvent } from "@agir/events/common/utils";
-import * as style from "@agir/front/genericComponents/_variables.scss";
 import useCopyToClipboard from "@agir/front/genericComponents/useCopyToClipboard";
 import { timeAgo } from "@agir/lib/utils/time";
 import { useCommentsSWR } from "@agir/msgs/common/hooks";
@@ -228,17 +227,17 @@ const MessageCard = (props) => {
                   <StyledInlineMenuItems>
                     <span>Partager avec d’autres membres du groupe&nbsp;:</span>
                     <a href={`https://t.me/share/url?url=${encodedMessageURL}`}>
-                      <FaTelegram color={style.primary500} />
+                      <FaTelegram color="primary500" />
                       Telegram
                     </a>
                     <a href={`https://wa.me/?text=${encodedMessageURL}`}>
-                      <FaWhatsapp color={style.primary500} />
+                      <FaWhatsapp color="primary500" />
                       Whatsapp
                     </a>
                     <button onClick={copyURL}>
                       <RawFeatherIcon
                         name={isURLCopied ? "check" : "copy"}
-                        color={style.primary500}
+                        color="primary500"
                       />
                       {isURLCopied ? "Lien copié" : "Copier le lien"}
                     </button>
@@ -254,22 +253,19 @@ const MessageCard = (props) => {
                   <StyledInlineMenuItems>
                     {canEdit && (
                       <button onClick={handleEdit} disabled={isLoading}>
-                        <RawFeatherIcon
-                          name="edit-2"
-                          color={style.primary500}
-                        />
+                        <RawFeatherIcon name="edit-2" color="primary500" />
                         Modifier
                       </button>
                     )}
                     {canDelete && (
                       <button onClick={handleDelete} disabled={isLoading}>
-                        <RawFeatherIcon name="x" color={style.primary500} />
+                        <RawFeatherIcon name="x" color="primary500" />
                         Supprimer
                       </button>
                     )}
                     {canReport && (
                       <button onClick={handleReport} disabled={isLoading}>
-                        <RawFeatherIcon name="flag" color={style.primary500} />
+                        <RawFeatherIcon name="flag" color="primary500" />
                         Signaler
                       </button>
                     )}

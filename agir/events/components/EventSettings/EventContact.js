@@ -1,11 +1,10 @@
 import PropTypes from "prop-types";
 import React, { useState, useEffect, useCallback } from "react";
+import styled from "styled-components";
 import useSWR, { mutate } from "swr";
 
 import { useToast } from "@agir/front/globalContext/hooks.js";
 import * as api from "@agir/events/common/api";
-
-import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
@@ -80,7 +79,11 @@ const EventContact = (props) => {
       <HeaderPanel onBack={onBack} illustration={illustration} />
       <StyledTitle>Moyens de contact</StyledTitle>
 
-      <span style={{ color: style.black700 }}>
+      <span
+        css={`
+          color: ${(props) => props.theme.text700};
+        `}
+      >
         Ces informations seront affichées en public. Conseillé : créez une
         adresse e-mail pour votre groupe et n’utilisez pas une adresse
         personnelle.

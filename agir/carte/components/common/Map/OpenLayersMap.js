@@ -1,8 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import styled, { keyframes } from "styled-components";
-
-import * as style from "@agir/front/genericComponents/_variables.scss";
+import styled, { keyframes, useTheme } from "styled-components";
 
 import logger from "@agir/lib/utils/logger";
 
@@ -54,14 +52,14 @@ const StyledMapWrapper = styled.div`
     position: absolute;
     top: 0.25rem;
     left: 0.25rem;
-    border: 3px solid #d0e5ec;
-    background-color: white;
+    border: 3px solid ${(props) => props.theme.primary50};
+    background-color: ${(props) => props.theme.primary50};
     border-radius: 3px;
-    box-shadow: ${style.elaborateShadow};
+    box-shadow: ${(props) => props.theme.elaborateShadow};
 
     button {
-      background-color: #7390bb;
-      color: white;
+      background-color: ${(props) => props.theme.primary500};
+      color: ${(props) => props.theme.background0};
       font-weight: bold;
       font-family: monospace;
       width: 1.5rem;
@@ -76,12 +74,12 @@ const StyledMapWrapper = styled.div`
 
       &:hover,
       &:focus {
-        background-color: #7390bbdd;
+        background-color: ${(props) => props.theme.primary600};
       }
     }
 
     button + button {
-      margin-top: 1px;
+      margin-top: 3px;
     }
   }
 
@@ -133,6 +131,7 @@ const StyledMapWrapper = styled.div`
 const OpenLayersMap = (props) => {
   const { center, zoom = 14, iconConfiguration, isStatic, ...rest } = props;
 
+  const theme = useTheme();
   const [isLoaded, setIsLoaded] = useState(0);
   const mapObject = useRef(null);
 
@@ -141,6 +140,7 @@ const OpenLayersMap = (props) => {
       if (mapObject.current && mapElement) {
         mapObject.current.map.getView().setZoom(zoom);
         mapObject.current.updateMapCenter(center);
+        mapObject.current.updateMapFilter(theme.mapFilter);
         setIsLoaded(true);
       } else if (mapElement) {
         try {
@@ -151,6 +151,7 @@ const OpenLayersMap = (props) => {
             mapElement,
             iconConfiguration,
             isStatic,
+            theme.mapFilter,
           );
           mapObject.current.map.once("postrender", () => {
             setIsLoaded(true);
@@ -160,7 +161,7 @@ const OpenLayersMap = (props) => {
         }
       }
     },
-    [center, zoom, iconConfiguration, isStatic],
+    [center, zoom, iconConfiguration, isStatic, theme],
   );
 
   useEffect(() => {

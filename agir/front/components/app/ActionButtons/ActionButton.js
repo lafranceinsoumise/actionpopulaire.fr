@@ -16,7 +16,7 @@ const StyledButton = styled(Link)`
   line-height: 1.5;
   font-weight: 400;
   text-align: center;
-  color: ${(props) => props.theme.black700};
+  color: ${(props) => props.theme.text700};
 
   @media (min-width: ${(props) => props.theme.collapse}px) {
     width: 100%;
@@ -37,12 +37,18 @@ const StyledButton = styled(Link)`
   &[disabled]:focus {
     opacity: 0.5;
     cursor: default;
-    color: ${(props) => props.theme.green500};
+    color: ${(props) => props.theme.success500};
     text-decoration: line-through;
   }
 
-  & > ${RawFeatherIcon} {
-    background-color: ${(props) => props.$color};
+  & > ${RawFeatherIcon}, & > span:has(> svg) {
+    border: 1px solid;
+    border-color: ${(props) =>
+      props.$borderColor
+        ? props.theme[props.$borderColor] || props.$borderColor
+        : "transparent"};
+    background-color: ${(props) =>
+      props.$color ? props.theme[props.$color] || props.$color : "transparent"};
   }
 
   & > span {
@@ -53,7 +59,10 @@ const StyledButton = styled(Link)`
     align-items: center;
     justify-content: center;
     border-radius: 100%;
-    color: ${(props) => props.$textColor || "white"};
+    color: ${(props) =>
+      props.$textColor
+        ? props.theme[props.$textColor] || props.$textColor
+        : props.theme.background0};
 
     @media (min-width: ${(props) => props.theme.collapse}px) {
       transform-origin: left center;
@@ -79,6 +88,7 @@ const ActionButton = (props) => {
     icon,
     color,
     textColor,
+    borderColor,
     className,
     disabled = false,
   } = props;
@@ -92,6 +102,7 @@ const ActionButton = (props) => {
     <StyledButton
       $color={color}
       $textColor={textColor}
+      $borderColor={borderColor}
       disabled={disabled}
       onClick={disabled ? (e) => e.preventDefault() : undefined}
       onMouseDown={(e) => e.preventDefault()}
@@ -116,6 +127,7 @@ ActionButton.propTypes = {
   icon: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   color: PropTypes.string,
   textColor: PropTypes.string,
+  borderColor: PropTypes.string,
   className: PropTypes.string,
   disabled: PropTypes.bool,
 };

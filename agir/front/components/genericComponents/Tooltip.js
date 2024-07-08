@@ -3,8 +3,6 @@ import React from "react";
 import { useTransition, animated } from "@react-spring/web";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import closeButton from "./images/close-btn.svg";
 
 const fadeInTransition = {
@@ -33,8 +31,8 @@ const CloseButton = styled.button`
 const BaseTooltip = styled(animated.p)`
   position: absolute;
   width: 224px;
-  background-color: ${style.black1000};
-  color: white;
+  background-color: ${(props) => props.theme.text1000};
+  color: ${(props) => props.theme.background0};
   padding: 1rem;
   display: flex;
   flex-flow: column nowrap;
@@ -64,7 +62,8 @@ const Tooltips = {
       right: 50%;
       transform: translateX(3px);
       border-width: 8px 6px 0 6px;
-      border-color: black transparent transparent transparent;
+      border-color: ${(props) => props.theme.text1000} transparent transparent
+        transparent;
     }
   `,
   "top-left": styled(BaseTooltip)`
@@ -77,7 +76,8 @@ const Tooltips = {
       right: 0;
       margin-left: -4px;
       border-width: 4px;
-      border-color: black black transparent transparent;
+      border-color: ${(props) => props.theme.text1000}
+        ${(props) => props.theme.text1000} transparent transparent;
     }
   `,
   "top-right": styled(BaseTooltip)`
@@ -89,7 +89,8 @@ const Tooltips = {
       top: 100%;
       left: 0;
       border-width: 4px;
-      border-color: black transparent transparent black;
+      border-color: ${(props) => props.theme.text1000} transparent transparent
+        ${(props) => props.theme.text1000};
     }
   `,
 };

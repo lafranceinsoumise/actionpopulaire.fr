@@ -7,7 +7,7 @@ export const IconLink = styled(Link)``;
 const StyledBar = styled.div`
   width: 100%;
   height: 100%;
-  background-color: ${(props) => props.theme.white};
+  background-color: ${(props) => props.theme.background0};
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
@@ -49,7 +49,7 @@ const StyledBar = styled.div`
     height: 32px;
     width: 32px;
     align-items: center;
-    color: ${(props) => props.theme.black1000};
+    color: ${(props) => props.theme.text1000};
     line-height: 0;
   }
 `;

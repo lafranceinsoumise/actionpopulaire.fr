@@ -3,8 +3,6 @@ import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 import useSWR from "swr";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import FeedbackButton from "@agir/front/allPages/FeedbackButton";
 import ActionButtons from "@agir/front/app/ActionButtons/ActionButtons";
 import { LayoutTitle } from "@agir/front/app/Layout/StyledComponents";
@@ -38,7 +36,7 @@ const TopBar = styled.div`
   justify-content: space-between;
   margin: 0 0 25px;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     margin: 0 0 2rem;
   }
 
@@ -53,7 +51,7 @@ const TopBar = styled.div`
     flex-wrap: wrap;
     gap: 0.5rem;
 
-    @media only screen and (max-width: ${style.collapse}px) {
+    @media only screen and (max-width: ${(props) => props.theme.collapse}px) {
       flex-direction: row;
       margin-left: 1.5rem;
       margin-right: 1.5rem;
@@ -61,7 +59,7 @@ const TopBar = styled.div`
   }
 
   & ${Button} + ${Button} {
-    @media only screen and (min-width: ${style.collapse}px) {
+    @media only screen and (min-width: ${(props) => props.theme.collapse}px) {
       margin-right: 0.5rem;
     }
   }
@@ -69,7 +67,7 @@ const TopBar = styled.div`
 
 const StyledAgenda = styled.div`
   @media (max-width: ${(props) => props.theme.collapse}px) {
-    background-color: ${(props) => props.theme.black25};
+    background-color: ${(props) => props.theme.text25};
     box-sizing: border-box;
     padding: 1rem;
   }

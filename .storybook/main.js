@@ -6,7 +6,8 @@ module.exports = {
   addons: [
     "@storybook/addon-links",
     "@storybook/addon-essentials",
-    "@storybook/addon-webpack5-compiler-babel"
+    "@storybook/addon-webpack5-compiler-babel",
+    "storybook-dark-mode",
   ],
   staticDirs: ["../.storybook/public"],
   webpackFinal: (config) => {
@@ -35,6 +36,10 @@ module.exports = {
       },
     };
     config.devtool = "eval";
+    config.watchOptions = {
+      ...config.watchOptions,
+      ignored: ["/theme.scss$/", "**/node_modules"],
+    };
     return config;
   },
   framework: {

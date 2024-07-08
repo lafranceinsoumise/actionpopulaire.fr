@@ -18,10 +18,10 @@ const StyledCard = styled.div`
   margin-bottom: 0;
   padding: ${(props) => (props.$small ? 0 : "0.75rem 1rem;")};
   gap: ${(props) => (props.$small ? "0.5rem" : "1rem;")};
-  color: ${(props) => props.theme.black1000};
+  color: ${(props) => props.theme.text1000};
   font-size: 1rem;
   border: ${(props) =>
-    props.$small ? "none" : "1px solid " + props.theme.black100};
+    props.$small ? "none" : "1px solid " + props.theme.text100};
   border-radius: ${(props) => (props.$small ? 0 : props.theme.borderRadius)};
 
   @media (max-width: ${(props) => props.theme.collapse}px) {
@@ -50,7 +50,7 @@ const StyledCard = styled.div`
     small {
       font-size: inherit;
       line-height: inherit;
-      color: ${(props) => props.theme.black500};
+      color: ${(props) => props.theme.text500};
     }
   }
 `;

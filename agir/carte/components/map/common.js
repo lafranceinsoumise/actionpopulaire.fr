@@ -15,7 +15,7 @@ import Style from "ol/style/Style";
 import Text from "ol/style/Text";
 import View from "ol/View";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables-light.scss";
 import fontawesome from "@agir/lib/utils/fontawesome";
 
 import markerIcon from "./marker.svg";
@@ -147,7 +147,14 @@ export function makeStyle(config, options = {}) {
   return null;
 }
 
-export function createMap(center, zoom, target, iconConfiguration, isStatic) {
+export function createMap(
+  center,
+  zoom,
+  target,
+  iconConfiguration,
+  isStatic,
+  mapFilter,
+) {
   const styles = iconConfiguration
     ? makeStyle(iconConfiguration)
     : getMarkerIcons();
@@ -155,18 +162,32 @@ export function createMap(center, zoom, target, iconConfiguration, isStatic) {
     geometry: new Point(fromLonLat(center)),
   });
   feature.setStyle(styles);
+  const tile = new TileLayer({
+    source: new XYZ({
+      url: "https://tile.jawg.io/jawg-streets/{z}/{x}/{y}.png?access-token=mGYrqYC5XjG6lXEoz0e5ejl1wSS0GovRMqBw8LEuhFfz2PYILpp8YFzx6TnKxAHe",
+      attributions:
+        '&copy; Contributeurs <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>',
+    }),
+  });
+  tile.on("prerender", (evt) => {
+    if (evt.context) {
+      const context = evt.context;
+      context.filter = mapFilter;
+      context.globalCompositeOperation = "source-over";
+    }
+  });
+  tile.on("postrender", (evt) => {
+    if (evt.context) {
+      const context = evt.context;
+      context.filter = "none";
+    }
+  });
   const map = new Map({
     target,
     controls: isStatic ? [new Attribution()] : [new Attribution(), new Zoom()],
     interactions: isStatic ? [] : undefined,
     layers: [
-      new TileLayer({
-        source: new XYZ({
-          url: "https://tile.jawg.io/jawg-streets/{z}/{x}/{y}.png?access-token=mGYrqYC5XjG6lXEoz0e5ejl1wSS0GovRMqBw8LEuhFfz2PYILpp8YFzx6TnKxAHe",
-          attributions:
-            '&copy; Contributeurs <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>',
-        }),
-      }),
+      tile,
       new VectorLayer({
         source: new VectorSource({ features: [feature] }),
       }),
@@ -193,8 +214,23 @@ export function createMap(center, zoom, target, iconConfiguration, isStatic) {
     feature.setGeometry(new Point(fromLonLat(newCenter)));
   };
 
+  /**
+   * Function to handle update of the map filter
+   * @param {String} filter                The new filter
+   */
+  const updateMapFilter = (filter) => {
+    // Avoid updating the map if nothing has changed
+    if (mapFilter === filter) {
+      return;
+    }
+
+    mapFilter = filter;
+    tile.getSource().refresh();
+  };
+
   return {
     map,
     updateMapCenter,
+    updateMapFilter,
   };
 }

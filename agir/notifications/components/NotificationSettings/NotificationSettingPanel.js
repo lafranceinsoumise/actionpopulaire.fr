@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Accordion from "@agir/front/genericComponents/Accordion";
 import Button from "@agir/front/genericComponents/Button";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
@@ -62,8 +60,8 @@ const StyledPushNotificationControls = styled.div`
   padding: 1rem;
   display: flex;
   align-items: center;
-  border-radius: ${style.borderRadius};
-  background-color: ${style.black50};
+  border-radius: ${(props) => props.theme.borderRadius};
+  background-color: ${(props) => props.theme.text50};
   width: calc(100% - 3rem);
   margin: 0 auto 1.5rem;
   gap: 1rem;

@@ -5,8 +5,6 @@ import styled from "styled-components";
 import Button from "@agir/front/genericComponents/Button";
 import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import onboardingEventImage from "./images/onboarding__event.jpg";
 import onboardingActionImage from "./images/onboarding__action.jpg";
 
@@ -122,7 +120,7 @@ const Map = styled.iframe`
   border: none;
   overflow: hidden;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     display: none;
   }
 `;
@@ -134,7 +132,7 @@ const StyledBlock = styled.section`
   justify-content: space-between;
   padding: 0;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     padding: 0;
   }
 
@@ -147,9 +145,9 @@ const StyledBlock = styled.section`
       background-repeat: no-repeat;
       background-position: center center;
       background-size: cover;
-      border-radius: ${style.borderRadius};
+      border-radius: ${(props) => props.theme.borderRadius};
 
-      @media (max-width: ${style.collapse}px) {
+      @media (max-width: ${(props) => props.theme.collapse}px) {
         height: 138px;
         margin-bottom: 24px;
       }
@@ -171,7 +169,7 @@ const StyledBlock = styled.section`
     margin-bottom: 1rem;
     gap: 11px;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       flex-direction: column;
       align-items: stretch;
     }

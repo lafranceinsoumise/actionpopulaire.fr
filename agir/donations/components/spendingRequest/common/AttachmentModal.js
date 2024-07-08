@@ -25,7 +25,7 @@ const StyledWarning = styled.div`
   font-size: 0.875rem;
   line-height: 1.5;
   margin: 0 0 0.5rem;
-  background-color: ${(props) => props.theme.redNSP + "44"};
+  background-color: ${(props) => props.theme.error500 + "44"};
   border-radius: ${(props) => props.theme.borderRadius};
 
   ${RawFeatherIcon} {
@@ -39,7 +39,7 @@ const StyledModalContent = styled.div`
   padding: 2rem 2rem 1.5rem;
   max-width: 600px;
   margin: 40px auto;
-  background-color: white;
+  background-color: ${(props) => props.theme.background0};
   border-radius: ${(props) => props.theme.borderRadius};
   display: flex;
   flex-flow: column nowrap;
@@ -57,7 +57,7 @@ const StyledModalContent = styled.div`
 
   ${StyledError} {
     text-align: center;
-    color: ${(props) => props.theme.redNSP};
+    color: ${(props) => props.theme.error500};
 
     &:empty {
       display: none;

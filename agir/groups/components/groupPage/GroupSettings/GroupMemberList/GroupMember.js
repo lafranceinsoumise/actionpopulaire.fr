@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import { GENDER, getGenderedWord } from "@agir/lib/utils/display";
 import Avatar from "@agir/front/genericComponents/Avatar";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
@@ -14,10 +12,13 @@ import { MEMBERSHIP_TYPES } from "@agir/groups/utils/group";
 const StyledName = styled.p``;
 const StyledEmail = styled.p``;
 const StyledDescription = styled.p``;
-const StyledMembershipType = styled.p``;
+const StyledMembershipType = styled.p`
+  color: ${(props) => props.theme[props.$color] || props.theme.text1000};
+`;
 
 const StyledMember = styled.div`
-  background-color: ${style.white};
+  color: ${(props) => props.theme.text1000};
+  background-color: ${(props) => props.theme.background0};
   padding: 0.75rem 1rem;
   display: grid;
   grid-template-columns: auto 1fr max-content auto;
@@ -42,7 +43,7 @@ const StyledMember = styled.div`
     width: 2rem;
     height: 2rem;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       width: 1.5rem;
       height: 1.5rem;
     }
@@ -77,7 +78,7 @@ const StyledMember = styled.div`
   ${StyledEmail} {
     grid-column: 2/3;
     grid-row: 2/3;
-    color: ${style.black500};
+    color: ${(props) => props.theme.text500};
     font-weight: 400;
     font-size: 0.875rem;
   }
@@ -85,7 +86,7 @@ const StyledMember = styled.div`
   ${StyledDescription} {
     grid-column: 2/5;
     grid-row: 3/4;
-    color: ${style.black500};
+    color: ${(props) => props.theme.text500};
     font-weight: 400;
     font-size: 0.75rem;
 
@@ -102,13 +103,12 @@ const StyledMember = styled.div`
     grid-column: 3/4;
     grid-row: 1/3;
     text-align: right;
-    color: ${style.black1000};
     display: inline-flex;
     flex-flow: row nowrap;
     align-items: center;
     min-width: 1px;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       font-size: 0.813rem;
     }
 
@@ -120,7 +120,7 @@ const StyledMember = styled.div`
       width: 1rem;
       height: 1rem;
 
-      @media (max-width: ${style.collapse}px) {
+      @media (max-width: ${(props) => props.theme.collapse}px) {
         width: 0.813rem;
         height: 0.813rem;
       }
@@ -161,7 +161,7 @@ const MembershipType = ({ gender, membershipType, hasGroupNotifications }) => {
   switch (membershipType) {
     case MEMBERSHIP_TYPES.FOLLOWER:
       return hasGroupNotifications ? (
-        <StyledMembershipType style={{ color: style.black500 }}>
+        <StyledMembershipType $color="text500">
           <RawFeatherIcon name="rss" />
           &ensp;
           <span>{role}</span>
@@ -169,7 +169,7 @@ const MembershipType = ({ gender, membershipType, hasGroupNotifications }) => {
       ) : null;
     case MEMBERSHIP_TYPES.MANAGER:
       return (
-        <StyledMembershipType style={{ color: style.green500 }}>
+        <StyledMembershipType $color="success500">
           <RawFeatherIcon name="settings" />
           &ensp;
           <span>{role}</span>
@@ -177,14 +177,14 @@ const MembershipType = ({ gender, membershipType, hasGroupNotifications }) => {
       );
     case MEMBERSHIP_TYPES.REFERENT:
       return (
-        <StyledMembershipType style={{ color: style.primary500 }}>
+        <StyledMembershipType $color="primary500">
           <RawFeatherIcon name="lock" />
           &ensp;
           <span>{role}</span>
         </StyledMembershipType>
       );
     default:
-      return null;
+      return <StyledMembershipType />;
   }
 };
 

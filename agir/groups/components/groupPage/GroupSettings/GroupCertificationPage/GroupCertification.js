@@ -12,7 +12,7 @@ import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styl
 
 const StyledWarning = styled.div`
   font-size: 0.875rem;
-  color: ${(props) => props.theme.black700};
+  color: ${(props) => props.theme.text700};
   background-color: ${(props) => props.theme.secondary100};
   border-radius: 0.5rem;
   padding: 1rem;
@@ -28,7 +28,7 @@ const StyledWarning = styled.div`
 `;
 
 const StyledContent = styled.article`
-  color: ${(props) => props.theme.black700};
+  color: ${(props) => props.theme.text700};
 
   ul {
     list-style: none;
@@ -47,7 +47,7 @@ const StyledContent = styled.article`
 
       ${RawFeatherIcon} {
         flex: 0 0 2rem;
-        color: white;
+        color: ${(props) => props.theme.background0};
         border-radius: 100%;
         width: 2rem;
         height: 2rem;
@@ -56,9 +56,13 @@ const StyledContent = styled.article`
         justify-content: center;
       }
 
+      ${RawFeatherIcon} + span {
+        padding-top: 0.2rem;
+      }
+
       strong {
         font-weight: 600;
-        color: ${(props) => props.theme.black1000};
+        color: ${(props) => props.theme.text1000};
       }
     }
   }
@@ -105,7 +109,10 @@ const GroupCertification = (props) => {
   };
 
   const [criteria, checkedCriteria, isCertifiable] = useMemo(() => {
-    const criteria = Object.values(certificationCriteria);
+    const criteria = Object.entries(certificationCriteria).map(([id, val]) => ({
+      id,
+      ...val,
+    }));
     const checked = criteria.filter((criterion) => criterion.value);
     return [criteria, checked, checked.length === criteria.length];
   }, [certificationCriteria]);
@@ -126,17 +133,17 @@ const GroupCertification = (props) => {
         {isCertified && !isCertifiable && <MissingCriteriaWarning />}
         <Spacer size="1rem" />
         <ul>
-          {criteria.map(({ value, label, description }) => (
-            <li key={label}>
+          {criteria.map(({ id, value, label, description }) => (
+            <li key={id}>
               <RawFeatherIcon
                 name={value ? "check" : "chevron-right"}
                 css={`
                   background-color: ${({ name, theme }) =>
-                    name === "check" ? theme.green500 : theme.black500};
+                    name === "check" ? theme.success500 : theme.text500};
                 `}
               />
               <span>
-                <strong>{label || key}</strong>
+                <strong>{label || id}</strong>
                 <br />
                 {description}
               </span>
@@ -147,7 +154,7 @@ const GroupCertification = (props) => {
               <RawFeatherIcon
                 name="check"
                 css={`
-                  background-color: ${({ theme }) => theme.green500};
+                  background-color: ${({ theme }) => theme.success500};
                 `}
               />
               <span>
@@ -170,7 +177,7 @@ const GroupCertification = (props) => {
                     padding: 0 0.5rem;
 
                     && > span {
-                      color: ${({ theme }) => theme.black700};
+                      color: ${({ theme }) => theme.text700};
                     }
                   `}
                   label={

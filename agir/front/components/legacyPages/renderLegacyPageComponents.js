@@ -23,7 +23,7 @@ const renderLegacyPageComponents = () => {
 
   renderReactComponent(
     <SWRContext>
-      <GlobalContextProvider>
+      <GlobalContextProvider colorScheme="light">
         <MemoryRouter forceRefresh>
           <TopBar hideBannerDownload />
           <PushModal isActive />

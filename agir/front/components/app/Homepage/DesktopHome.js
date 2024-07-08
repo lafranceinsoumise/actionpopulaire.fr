@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getRoutes } from "@agir/front/globalContext/reducers";
 
@@ -30,7 +28,7 @@ const StyledHome = styled.main`
     text-align: center;
     padding: 0 1.5rem 0;
     height: 676px;
-    background-color: ${style.secondary500};
+    background-color: ${(props) => props.theme.secondary500};
     padding: 82px 0;
 
     h2,

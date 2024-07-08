@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React, { useEffect, useMemo } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Button from "@agir/front/genericComponents/Button";
 import Link from "@agir/front/app/Link";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
@@ -14,7 +12,7 @@ import { setTopBarRightLink } from "@agir/front/globalContext/actions";
 
 const StyledLink = styled(Button)`
   margin-left: auto;
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     display: none;
   }
 `;
@@ -51,7 +49,7 @@ const NotificationSettingLink = (props) => {
       <Link to={route} style={{ lineHeight: 0 }}>
         <RawFeatherIcon
           name="settings"
-          color={style.black1000}
+          color="text1000"
           width="1.5rem"
           height="1.5rem"
         />

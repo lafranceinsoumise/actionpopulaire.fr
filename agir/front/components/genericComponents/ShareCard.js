@@ -15,7 +15,7 @@ import { relativeToAbsoluteURL } from "@agir/lib/utils/url";
 const StyledCard = styled(Card)`
   margin-bottom: 1.5rem;
   overflow: hidden;
-  border-bottom: 1px solid ${(props) => props.theme.black50};
+  border-bottom: 1px solid ${(props) => props.theme.text50};
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 1rem;
@@ -62,7 +62,7 @@ const StyledCard = styled(Card)`
   input {
     width: 100%;
     height: 32px;
-    border: 1px solid ${(props) => props.theme.black100};
+    border: 1px solid ${(props) => props.theme.text100};
     border-radius: ${(props) => props.theme.borderRadius}px;
     padding: 8px;
   }

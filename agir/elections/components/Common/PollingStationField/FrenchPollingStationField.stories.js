@@ -3,7 +3,7 @@ import React, { useState } from "react";
 
 import FrenchPollingStationField from "./FrenchPollingStationField";
 import TEST_DATA from "@agir/front/mockData/pollingStations";
-import { getElectionEndpoint } from "./api";
+import { getElectionEndpoint } from "../api";
 
 export default {
   component: FrenchPollingStationField,

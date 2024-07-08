@@ -2,44 +2,42 @@ import PropTypes from "prop-types";
 import React, { forwardRef } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import { ICONS, getIconDataUrl } from "./utils";
 
 import BaseButton from "./BaseButton";
 
 const DefaultButton = styled(BaseButton)`
-  color: ${(props) => props.theme.black1000};
-  background-color: ${(props) => props.theme.black50};
-  border-color: ${(props) => props.theme.black50};
+  color: ${(props) => props.theme.text1000};
+  background-color: ${(props) => props.theme.text50};
+  border-color: ${(props) => props.theme.text50};
 
   &:hover,
   &:focus,
   &:active {
-    color: ${(props) => props.theme.black1000};
-    background-color: ${(props) => props.theme.black100};
-    border-color: ${(props) => props.theme.black100};
+    color: ${(props) => props.theme.text1000};
+    background-color: ${(props) => props.theme.text100};
+    border-color: ${(props) => props.theme.text100};
   }
 
   &[disabled],
   &[disabled]:hover,
   &[disabled]:focus,
   &[disabled]:active {
-    color: ${(props) => props.theme.black1000 + "4D"};
-    background-color: ${(props) => props.theme.black50 + "B7"};
-    border-color: ${(props) => props.theme.black50 + "B7"};
+    color: ${(props) => props.theme.text1000 + "4D"};
+    background-color: ${(props) => props.theme.text50 + "B7"};
+    border-color: ${(props) => props.theme.text50 + "B7"};
 
     &:before {
       background-image: ${(props) =>
         getIconDataUrl({
-          color: props.theme.black1000 + "4D",
+          color: props.theme.text1000 + "4D",
         })};
     }
   }
 
   &:before {
     background-image: ${(props) =>
-      getIconDataUrl({ color: props.theme.black1000 })};
+      getIconDataUrl({ color: props.theme.text1000 })};
   }
 `;
 
@@ -50,8 +48,8 @@ const WhiteButton = styled(BaseButton)`
   &[disabled]:focus,
   &[disabled]:active {
     color: ${(props) => props.theme.primary500};
-    background-color: ${(props) => props.theme.white};
-    border-color: ${(props) => props.theme.white};
+    background-color: ${(props) => props.theme.background0};
+    border-color: ${(props) => props.theme.background0};
   }
 
   &[disabled] {
@@ -62,8 +60,8 @@ const WhiteButton = styled(BaseButton)`
   &:focus,
   &:active {
     color: ${(props) => props.theme.primary500};
-    background-color: ${(props) => props.theme.black50};
-    border-color: ${(props) => props.theme.black50};
+    background-color: ${(props) => props.theme.text50};
+    border-color: ${(props) => props.theme.text50};
   }
 
   &:before {
@@ -78,9 +76,9 @@ const WhiteRedButton = styled(BaseButton)`
   &[disabled]:hover,
   &[disabled]:focus,
   &[disabled]:active {
-    color: ${(props) => props.theme.redNSP};
-    background-color: ${(props) => props.theme.white};
-    border-color: ${(props) => props.theme.white};
+    color: ${(props) => props.theme.error500};
+    background-color: ${(props) => props.theme.background0};
+    border-color: ${(props) => props.theme.background0};
   }
 
   &[disabled] {
@@ -89,7 +87,7 @@ const WhiteRedButton = styled(BaseButton)`
 
   &:before {
     background-image: ${(props) =>
-      getIconDataUrl({ color: props.theme.redNSP })};
+      getIconDataUrl({ color: props.theme.error500 })};
   }
 
   &:hover,
@@ -125,8 +123,8 @@ const TransparentButton = styled(BaseButton)`
   &:focus,
   &:active {
     color: ${(props) => props.theme.primary600};
-    background-color: ${(props) => props.theme.black50};
-    border-color: ${(props) => props.theme.black50};
+    background-color: ${(props) => props.theme.text50};
+    border-color: ${(props) => props.theme.text50};
   }
 
   &:before {
@@ -138,12 +136,12 @@ const TransparentButton = styled(BaseButton)`
 const PrimaryButton = styled(BaseButton)`
   background-color: ${(props) => props.theme.primary500};
   border-color: ${(props) => props.theme.primary500};
-  color: ${(props) => props.theme.white};
+  color: ${(props) => props.theme.background0};
 
   &:hover,
   &:focus,
   &:active {
-    color: ${(props) => props.theme.white};
+    color: ${(props) => props.theme.background0};
     background-color: ${(props) => props.theme.primary600};
     border-color: ${(props) => props.theme.primary600};
   }
@@ -152,26 +150,26 @@ const PrimaryButton = styled(BaseButton)`
   &[disabled]:hover,
   &[disabled]:focus,
   &[disabled]:active {
-    color: ${(props) => props.theme.white + "B7"};
+    color: ${(props) => props.theme.background0 + "B7"};
     background-color: ${(props) => props.theme.primary500 + "B7"};
     border-color: ${(props) => props.theme.primary500 + "B7"};
   }
 
   &:before {
     background-image: ${(props) =>
-      getIconDataUrl({ color: props.theme.white })};
+      getIconDataUrl({ color: props.theme.background0 })};
   }
 `;
 
 const SecondaryButton = styled(BaseButton)`
-  color: ${(props) => props.theme.black1000};
+  color: ${(props) => props.theme.text1000};
   background-color: ${(props) => props.theme.secondary500};
   border-color: ${(props) => props.theme.secondary500};
 
   &:hover,
   &:focus,
   &:active {
-    color: ${(props) => props.theme.black1000};
+    color: ${(props) => props.theme.text1000};
     background-color: ${(props) => props.theme.secondary600};
     border-color: ${(props) => props.theme.secondary600};
   }
@@ -186,7 +184,7 @@ const SecondaryButton = styled(BaseButton)`
 
   &:before {
     background-image: ${(props) =>
-      getIconDataUrl({ color: props.theme.black1000 })};
+      getIconDataUrl({ color: props.theme.text1000 })};
   }
 `;
 
@@ -196,7 +194,7 @@ const TertiaryButton = styled(BaseButton)`
   &[disabled]:hover,
   &[disabled]:focus,
   &[disabled]:active {
-    background-color: ${(props) => props.theme.white};
+    background-color: ${(props) => props.theme.background0};
     border-color: ${(props) => props.theme.primary500};
     color: ${(props) => props.theme.primary500};
   }
@@ -208,7 +206,7 @@ const TertiaryButton = styled(BaseButton)`
   &:hover,
   &:focus,
   &:active {
-    background-color: ${(props) => props.theme.black50};
+    background-color: ${(props) => props.theme.text50};
     border-color: ${(props) => props.theme.primary600};
     color: ${(props) => props.theme.primary600};
   }
@@ -253,118 +251,118 @@ const ConfirmedButton = styled(BaseButton)`
 `;
 
 const UnavailableButton = styled(BaseButton)`
-  color: ${(props) => props.theme.black500};
-  background-color: ${(props) => props.theme.white};
-  border-color: ${(props) => props.theme.black100};
+  color: ${(props) => props.theme.text500};
+  background-color: ${(props) => props.theme.background0};
+  border-color: ${(props) => props.theme.text100};
 
   &:hover,
   &:focus,
   &:active {
-    color: ${(props) => props.theme.black500};
+    color: ${(props) => props.theme.text500};
   }
 
   &[disabled] {
-    color: ${(props) => props.theme.black500 + "4D"};
-    border-color: ${(props) => props.theme.black100 + "B7"};
+    color: ${(props) => props.theme.text500 + "4D"};
+    border-color: ${(props) => props.theme.text100 + "B7"};
 
     &:before {
       background-image: ${(props) =>
-        getIconDataUrl({ color: props.theme.black500 + "4D" })};
+        getIconDataUrl({ color: props.theme.text500 + "4D" })};
     }
   }
 
   &:before {
     background-image: ${(props) =>
-      getIconDataUrl({ color: props.theme.black500 })};
+      getIconDataUrl({ color: props.theme.text500 })};
   }
 `;
 const DismissButton = styled(BaseButton)`
-  color: ${(props) => props.theme.black1000};
+  color: ${(props) => props.theme.text1000};
   background-color: transparent;
-  border-color: ${(props) => props.theme.black1000};
+  border-color: ${(props) => props.theme.text1000};
 
   &:hover,
   &:focus,
   &:active {
-    color: ${(props) => props.theme.black1000};
+    color: ${(props) => props.theme.text1000};
   }
 
   &[disabled] {
-    color: ${(props) => props.theme.black1000 + "4D"};
-    border-color: ${(props) => props.theme.black1000 + "4D"};
+    color: ${(props) => props.theme.text1000 + "4D"};
+    border-color: ${(props) => props.theme.text1000 + "4D"};
 
     &:before {
       background-image: ${(props) =>
-        getIconDataUrl({ color: props.theme.black1000 + "4D" })};
+        getIconDataUrl({ color: props.theme.text1000 + "4D" })};
     }
   }
 
   &:before {
     background-image: ${(props) =>
-      getIconDataUrl({ color: props.theme.black1000 })};
+      getIconDataUrl({ color: props.theme.text1000 })};
   }
 `;
 const ChooseButton = styled(BaseButton)`
-  color: ${(props) => props.theme.black1000};
+  color: ${(props) => props.theme.text1000};
   background-color: transparent;
-  border-color: ${(props) => props.theme.black200};
+  border-color: ${(props) => props.theme.text200};
 
   &:hover,
   &:focus,
   &:active {
-    color: ${(props) => props.theme.black1000};
-    background-color: ${(props) => props.theme.black50};
+    color: ${(props) => props.theme.text1000};
+    background-color: ${(props) => props.theme.text50};
   }
 
   &[disabled],
   &[disabled]:hover,
   &[disabled]:focus,
   &[disabled]:active {
-    color: ${(props) => props.theme.black1000 + "4D"};
-    background-color: ${(props) => props.theme.black50 + "B7"};
-    border-color: ${(props) => props.theme.black50 + "B7"};
+    color: ${(props) => props.theme.text1000 + "4D"};
+    background-color: ${(props) => props.theme.text50 + "B7"};
+    border-color: ${(props) => props.theme.text50 + "B7"};
 
     &:before {
       background-image: ${(props) =>
-        getIconDataUrl({ color: props.theme.black1000 + "4D" })};
+        getIconDataUrl({ color: props.theme.text1000 + "4D" })};
     }
   }
 
   &:before {
     background-image: ${(props) =>
-      getIconDataUrl({ color: props.theme.black1000 })};
+      getIconDataUrl({ color: props.theme.text1000 })};
   }
 `;
 const SuccessButton = styled(BaseButton)`
-  color: ${(props) => props.theme.white};
-  background-color: ${(props) => props.theme.green500};
-  border-color: ${(props) => props.theme.green500};
+  color: ${(props) => props.theme.background0};
+  background-color: ${(props) => props.theme.success500};
+  border-color: ${(props) => props.theme.success500};
 
   &:hover,
   &:focus,
   &:active {
-    color: ${(props) => props.theme.white};
+    color: ${(props) => props.theme.background0};
   }
 
   &[disabled] {
-    background-color: ${(props) => props.theme.green500 + "4D"};
-    border-color: ${(props) => props.theme.green500 + "4D"};
+    background-color: ${(props) => props.theme.success500 + "4D"};
+    border-color: ${(props) => props.theme.success500 + "4D"};
   }
 
   &:before {
     background-image: ${(props) =>
-      getIconDataUrl({ color: props.theme.white })};
+      getIconDataUrl({ color: props.theme.background0 })};
   }
 `;
 const DangerButton = styled(BaseButton)`
-  color: ${(props) => props.theme.white};
-  background-color: ${(props) => props.theme.redNSP};
-  border-color: ${(props) => props.theme.redNSP};
+  color: ${(props) => props.theme.background0};
+  background-color: ${(props) => props.theme.error500};
+  border-color: ${(props) => props.theme.error500};
 
   &:hover,
   &:focus,
   &:active {
-    color: ${(props) => props.theme.white};
+    color: ${(props) => props.theme.background0};
     background-color: #d81836;
     border-color: #d81836;
   }
@@ -373,13 +371,13 @@ const DangerButton = styled(BaseButton)`
   &[disabled]:hover,
   &[disabled]:focus,
   &[disabled]:active {
-    background-color: ${(props) => props.theme.redNSP + "B7"};
-    border-color: ${(props) => props.theme.redNSP + "B7"};
+    background-color: ${(props) => props.theme.error500 + "B7"};
+    border-color: ${(props) => props.theme.error500 + "B7"};
   }
 
   &:before {
     background-image: ${(props) =>
-      getIconDataUrl({ color: props.theme.white })};
+      getIconDataUrl({ color: props.theme.background0 })};
   }
 `;
 const FacebookButton = styled(BaseButton)`
@@ -390,7 +388,7 @@ const FacebookButton = styled(BaseButton)`
   &:hover,
   &:focus,
   &:active {
-    color: ${(props) => props.theme.white};
+    color: ${(props) => props.theme.background0};
   }
 
   &[disabled],
@@ -403,7 +401,7 @@ const FacebookButton = styled(BaseButton)`
 
   &:before {
     background-image: ${(props) =>
-      getIconDataUrl({ color: props.theme.white })};
+      getIconDataUrl({ color: props.theme.background0 })};
   }
 `;
 const LinkButton = styled(BaseButton)`

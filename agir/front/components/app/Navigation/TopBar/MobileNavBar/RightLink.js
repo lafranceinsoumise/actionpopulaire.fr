@@ -85,7 +85,7 @@ export const RightLink = (props) => {
       <BottomSheet
         isOpen={isUserMenuOpen}
         onDismiss={closeUserMenu}
-        shouldDismissOnClick
+        shouldDismissOnClick={false}
       >
         <UserMenu user={user} />
       </BottomSheet>

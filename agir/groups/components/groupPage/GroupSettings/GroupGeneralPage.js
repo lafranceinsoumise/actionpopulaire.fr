@@ -4,8 +4,6 @@ import useSWR from "swr";
 
 import { useToast } from "@agir/front/globalContext/hooks.js";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
 import RichTextField from "@agir/front/formComponents/RichText/RichTextField.js";
@@ -141,7 +139,11 @@ const GroupGeneralPage = (props) => {
       />
 
       <h4>Image de la bannière</h4>
-      <span style={{ color: style.black700 }}>
+      <span
+        css={`
+          color: ${(props) => props.theme.text700};
+        `}
+      >
         Elle apparaîtra sur la page sur les réseaux sociaux.
         <br />
         Utilisez une image à peu près deux fois plus large que haute. Elle doit
@@ -164,7 +166,11 @@ const GroupGeneralPage = (props) => {
           <CheckboxField
             value={hasCheckedImageLicence}
             label={
-              <span style={{ color: style.black700 }}>
+              <span
+                css={`
+                  color: ${(props) => props.theme.text700};
+                `}
+              >
                 En important une image, je certifie être le propriétaire des
                 droits et accepte de la partager sous licence libre{" "}
                 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/fr/">

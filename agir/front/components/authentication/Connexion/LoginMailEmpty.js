@@ -3,7 +3,6 @@ import React, { useState, useCallback } from "react";
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
 import Link from "@agir/front/app/Link";
-import * as style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
 
 const Form = styled.form`
@@ -13,7 +12,7 @@ const Form = styled.form`
   display: flex;
   text-align: left;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     flex-direction: column;
   }
 
@@ -27,7 +26,7 @@ const Form = styled.form`
     flex: 0 0 140px;
     height: 41px;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       width: 100%;
       margin-left: 0;
       margin-top: 0.875rem;

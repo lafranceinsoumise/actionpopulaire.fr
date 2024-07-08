@@ -8,7 +8,7 @@ const StyledEmbed = styled.div`
   position: relative;
   height: 0;
   border-radius: ${(props) => props.theme.borderRadius};
-  background-color: ${(props) => props.theme.black50};
+  background-color: ${(props) => props.theme.text50};
 
   @media (max-width: ${(props) => props.theme.collapse}px) {
     border-radius: 0;

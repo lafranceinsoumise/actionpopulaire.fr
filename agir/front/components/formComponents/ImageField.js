@@ -1,15 +1,14 @@
 import PropTypes from "prop-types";
 import React, { forwardRef, useCallback, useMemo, useRef } from "react";
+import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
-import * as style from "@agir/front/genericComponents/_variables.scss";
-import styled from "styled-components";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const StyledLabel = styled.span``;
 const StyledHelpText = styled.span``;
 const StyledError = styled.span`
-  color: ${style.redNSP};
+  color: ${(props) => props.theme.error500};
 `;
 
 const StyledField = styled.div`

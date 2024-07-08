@@ -10,7 +10,7 @@ import { validateSpendingRequest } from "@agir/donations/spendingRequest/common/
 import { useToast } from "@agir/front/globalContext/hooks";
 
 const StyledError = styled.p`
-  color: ${(props) => props.theme.redNSP};
+  color: ${(props) => props.theme.error500};
   text-align: center;
   font-weight: 500;
 

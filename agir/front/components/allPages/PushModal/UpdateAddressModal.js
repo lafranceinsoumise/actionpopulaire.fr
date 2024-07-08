@@ -18,7 +18,7 @@ const StyledModalContent = styled.div`
   margin: 60px auto 0;
   box-shadow: ${(props) => props.theme.elaborateShadow};
   border-radius: ${(props) => props.theme.borderRadius};
-  background-color: ${(props) => props.theme.white};
+  background-color: ${(props) => props.theme.background0};
   overflow-x: hidden;
   overflow-y: auto;
 
@@ -132,7 +132,7 @@ export const UpdateAddressModal = (props) => {
             <p
               css={`
                 margin: 0;
-                color: ${({ theme }) => theme.redNSP};
+                color: ${({ theme }) => theme.error500};
                 text-align: center;
               `}
             >

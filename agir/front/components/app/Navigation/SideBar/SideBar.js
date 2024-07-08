@@ -3,7 +3,6 @@ import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import CONFIG from "@agir/front/app/Navigation/navigation.config";
-import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import CounterBadge from "@agir/front/app/Navigation/CounterBadge";
 import Link from "@agir/front/app/Link";
@@ -20,11 +19,11 @@ const MenuLink = styled(Link)`
   font-size: 1rem;
   line-height: 1.5;
   font-weight: 600;
-  color: ${({ $active }) => ($active ? style.primary500 : "inherit")};
+  color: ${({ $active, theme }) => ($active ? theme.primary500 : "inherit")};
 
   &:hover,
   &:focus {
-    color: ${({ $active }) => ($active ? style.primary500 : "inherit")};
+    color: ${({ $active, theme }) => ($active ? theme.primary500 : "inherit")};
     text-decoration: none;
   }
 
@@ -37,7 +36,8 @@ const MenuLink = styled(Link)`
   ${RawFeatherIcon} {
     display: inline-block;
     line-height: 0;
-    color: ${({ $active }) => ($active ? style.primary500 : style.black500)};
+    color: ${({ $active, theme }) =>
+      $active ? theme.primary500 : theme.text500};
     margin-right: 1rem;
   }
 

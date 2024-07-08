@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React, { useCallback } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import { getMessageSubject } from "@agir/msgs/common/utils";
 import { timeAgo } from "@agir/lib/utils/time";
 
@@ -16,13 +14,14 @@ const StyledUnreadItemBadge = styled.span`
   justify-content: center;
   width: 1.5rem;
   height: 1.5rem;
-  background-color: ${style.redNSP};
+  background-color: ${(props) => props.theme.error500};
   text-align: center;
   border-radius: 100%;
   font-weight: 700;
   font-size: 0.813rem;
   line-height: 0;
-  color: ${({ $empty }) => ($empty ? style.redNSP : style.white)};
+  color: ${({ $empty, theme }) =>
+    $empty ? theme.error500 : theme.background0};
   opacity: ${({ $empty }) => ($empty ? "0" : "1")};
   transform: scale(${({ $empty }) => ($empty ? "0" : "1")});
   transition:

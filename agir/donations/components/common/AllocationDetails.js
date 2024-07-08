@@ -25,6 +25,7 @@ const StyledStaticToast = styled(StaticToast)`
 
 const StyledAllocationDetails = styled.div`
   padding: 1rem;
+  color: ${(props) => props.theme.textColor};
   background-color: ${(props) => props.theme.primary100};
   border-radius: 4px;
 

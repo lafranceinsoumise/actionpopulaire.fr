@@ -1,8 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import { getRoutes } from "@agir/front/globalContext/reducers";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 
@@ -18,7 +16,7 @@ const StyledHeader = styled.header`
   & > ${LayoutTitle} {
     margin: 0;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       flex: 0 0 100%;
       margin-bottom: 1rem;
     }
@@ -29,7 +27,7 @@ const StyledHeader = styled.header`
     flex-direction: row-reverse;
     align-items: center;
 
-    @media only screen and (max-width: ${style.collapse}px) {
+    @media only screen and (max-width: ${(props) => props.theme.collapse}px) {
       flex-direction: row;
       margin-left: 1.5rem;
       margin-right: 1.5rem;
@@ -37,10 +35,10 @@ const StyledHeader = styled.header`
   }
 
   & ${Button} + ${Button} {
-    @media only screen and (min-width: ${style.collapse}px) {
+    @media only screen and (min-width: ${(props) => props.theme.collapse}px) {
       margin-right: 0.5rem;
     }
-    @media only screen and (max-width: ${style.collapse}px) {
+    @media only screen and (max-width: ${(props) => props.theme.collapse}px) {
       margin-left: 0.5rem;
     }
   }

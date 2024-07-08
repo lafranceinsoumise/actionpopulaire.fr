@@ -11,7 +11,7 @@ const StyledItem = styled(Card)`
   flex-flow: row nowrap;
   align-items: center;
   gap: 0.75rem;
-  color: ${(props) => props.theme.black500};
+  color: ${(props) => props.theme.text500};
   cursor: ${(props) => (props.$disabled ? "not-allowed" : "pointer")};
   opacity: ${(props) => (props.$disabled ? 0.75 : 1)};
   padding: 0.5rem;
@@ -29,7 +29,7 @@ const StyledItem = styled(Card)`
 
     strong {
       font-size: 0.875rem;
-      color: ${(props) => props.theme.black1000};
+      color: ${(props) => props.theme.text1000};
       font-weight: 600;
     }
   }

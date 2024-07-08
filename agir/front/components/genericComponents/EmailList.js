@@ -2,7 +2,6 @@ import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
 import Button from "@agir/front/genericComponents/Button";
 import useCopyToClipboard from "@agir/front/genericComponents/useCopyToClipboard";
 
@@ -12,7 +11,7 @@ const StyledEmailList = styled.div`
   grid-template-columns: 1fr auto;
   grid-gap: 0.5rem;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     grid-template-columns: 1fr;
   }
 
@@ -24,7 +23,7 @@ const StyledEmailList = styled.div`
       height: 2rem;
       margin: 0;
       outline: none;
-      border-radius: ${style.softBorderRadius};
+      border-radius: ${(props) => props.theme.softBorderRadius};
       white-space: nowrap;
     }
   }
@@ -32,9 +31,9 @@ const StyledEmailList = styled.div`
   input {
     display: block;
     font-size: 0.813rem;
-    color: ${style.black700};
-    border: 1px solid ${style.black100};
-    background-color: ${style.white};
+    color: ${(props) => props.theme.text700};
+    border: 1px solid ${(props) => props.theme.text100};
+    background-color: ${(props) => props.theme.background0};
     padding: 0.25rem 0.5rem;
     cursor: text;
   }

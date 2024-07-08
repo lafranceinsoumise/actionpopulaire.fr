@@ -42,7 +42,7 @@ const StyledCard = styled(Card).attrs(() => ({
   font-weight: 400;
   padding: 1.375rem;
   box-shadow: none;
-  border-bottom: 1px solid ${(props) => props.theme.black100};
+  border-bottom: 1px solid ${(props) => props.theme.text100};
   margin-bottom: 0;
 
   header {

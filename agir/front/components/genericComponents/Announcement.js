@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React, { useCallback, useRef } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 const Image = styled.div`
   flex: 0 0 130px;
   width: 100%;
@@ -12,9 +10,9 @@ const Image = styled.div`
     0 0,
     cover;
   background-position: center center;
-  border-radius: ${style.borderRadius};
+  border-radius: ${(props) => props.theme.borderRadius};
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     flex: 0 0 80px;
     height: 80px;
     border-radius: 0;
@@ -52,7 +50,7 @@ const Container = styled.article`
     margin: 0;
     margin-bottom: 0.125rem;
     font-weight: 700;
-    color: ${style.primary500};
+    color: ${(props) => props.theme.primary500};
 
     a,
     span {
@@ -60,9 +58,9 @@ const Container = styled.article`
     }
   }
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     flex-flow: row nowrap;
-    border: 1px solid ${style.primary500};
+    border: 1px solid ${(props) => props.theme.primary500};
     padding: 1rem;
     border-radius: 4px;
     max-width: 100%;
@@ -85,7 +83,7 @@ const Container = styled.article`
 
     h3,
     a {
-      color: ${style.primary500};
+      color: ${(props) => props.theme.primary500};
     }
 
     p {

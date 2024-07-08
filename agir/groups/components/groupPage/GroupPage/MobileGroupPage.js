@@ -3,8 +3,6 @@ import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import { routeConfig } from "@agir/front/app/routes.config";
 import { useTabs } from "./routes.config";
 import { getGroupSettingLinks } from "@agir/groups/groupPage/GroupSettings/routes.config";
@@ -111,11 +109,11 @@ const MobileGroupPage = (props) => {
   return (
     <>
       <Container
-        style={{
-          margin: 0,
-          padding: "0 0 3.5rem",
-          backgroundColor: style.black25,
-        }}
+        css={`
+          margin: 0;
+          padding: 0 0 3.5rem;
+          background-color: ${(props) => props.theme.text25};
+        `}
       >
         <GroupBanner {...group} groupSettingsLinks={groupSettingsLinks} />
         <GroupUserActions {...group} groupSettingsLinks={groupSettingsLinks} />

@@ -28,7 +28,7 @@ const StyledActionButtons = styled.div`
     width: 100%;
     padding: 0 1rem;
     height: 54px;
-    background-color: ${(props) => props.theme.white};
+    background-color: ${(props) => props.theme.background0};
     box-shadow: ${(props) => props.theme.elaborateShadow};
   }
 `;
@@ -37,7 +37,7 @@ const TabLink = styled(Link)`
   display: flex;
   align-items: center;
   border-bottom: 2px solid transparent;
-  color: ${(props) => props.theme.black1000};
+  color: ${(props) => props.theme.text1000};
   font-weight: 500;
   font-size: 0.875rem;
   line-height: 1;
@@ -45,8 +45,8 @@ const TabLink = styled(Link)`
   &:hover,
   &:focus {
     text-decoration: none;
-    color: ${(props) => props.theme.black1000};
-    border-color: ${(props) => props.theme.black1000};
+    color: ${(props) => props.theme.text1000};
+    border-color: ${(props) => props.theme.text1000};
   }
 
   &[disabled] {
@@ -78,7 +78,7 @@ const Header = styled.header`
   position: relative;
   display: flex;
   flex-flow: column nowrap;
-  background-color: white;
+  background-color: ${(props) => props.theme.background0};
   flex-flow: row nowrap;
   align-items: center;
   justify-content: space-between;

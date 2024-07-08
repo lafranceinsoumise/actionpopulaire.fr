@@ -6,17 +6,17 @@ import { useIsOffline } from "@agir/front/offline/hooks";
 import { useDownloadBanner } from "@agir/front/app/hooks.js";
 import logger from "@agir/lib/utils/logger";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 const log = logger(__filename);
 
 const StyledWarning = styled(animated.div)`
   position: fixed;
   top: ${({ $hasTopBar }) => ($hasTopBar ? "72px" : "0")};
   width: 100%;
-  z-index: ${style.zindexTopBar};
+  z-index: ${(props) => props.theme.zindexTopBar};
+  color: ${(props) => props.theme[props.color]};
+  background: ${(props) => props.theme[props.backgroundCOlor]};
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     top: ${({ $hasTopBar, $hasDownloadBanner }) => {
       if ($hasTopBar && $hasDownloadBanner) {
         return "136px";
@@ -51,11 +51,11 @@ const ConnectivityWarning = ({ hasTopBar }) => {
   const [backgroundColor, color, warning] = useMemo(() => {
     switch (offline) {
       case false:
-        return [style.green500, style.green100, "Connexion rétablie"];
+        return ["success500", "success100", "Connexion rétablie"];
       case true:
-        return [style.redNSP, style.red100, "Aucune connexion internet"];
+        return ["error500", "error100", "Aucune connexion internet"];
       default:
-        return [style.primary500, style.primary100, "Connexion en cours..."];
+        return ["primary500", "primary100", "Connexion en cours..."];
     }
   }, [offline]);
 
@@ -74,11 +74,9 @@ const ConnectivityWarning = ({ hasTopBar }) => {
     (style, item) =>
       item && (
         <StyledWarning
-          style={{
-            ...style,
-            backgroundColor,
-            color,
-          }}
+          color
+          backgroundColor
+          style={style}
           $hasTopBar={hasTopBar}
           $hasDownloadBanner={hasDownloadBanner}
         >

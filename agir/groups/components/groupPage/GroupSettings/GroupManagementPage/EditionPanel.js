@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import GroupMemberList from "@agir/groups/groupPage/GroupSettings/GroupMemberList";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 import SelectField from "@agir/front/formComponents/SelectField";
@@ -22,7 +20,7 @@ const StyledList = styled.div`
     display: inline-flex;
     width: 0.5rem;
     height: 0.5rem;
-    background-color: ${style.primary500};
+    background-color: ${(props) => props.theme.primary500};
     border-radius: 2rem;
     margin-right: 0.5rem;
   }
@@ -64,12 +62,20 @@ const EditionPanel = (props) => {
       </StyledTitle>
       <Spacer size="1rem" />
       {members.length === 1 ? (
-        <span style={{ color: style.black700 }}>
+        <span
+          css={`
+            color: ${(props) => props.theme.text700};
+          `}
+        >
           Accueillez d’abord un·e membre dans votre groupe pour pouvoir lui
           donner un rôle de gestionnaire.
         </span>
       ) : candidates.length === 0 ? (
-        <span style={{ color: style.black700 }}>
+        <span
+          css={`
+            color: ${(props) => props.theme.text700};
+          `}
+        >
           Tous vos membres sont déjà tous gestionnaires ou animateur·ices.
         </span>
       ) : (

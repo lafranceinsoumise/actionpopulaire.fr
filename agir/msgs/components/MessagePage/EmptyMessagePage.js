@@ -1,8 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import illustration from "@agir/msgs/images/EmptyMessagePageIllustration.svg";
 
 import Button from "@agir/front/genericComponents/Button";
@@ -14,7 +12,7 @@ const StyledEmptyPage = styled.main`
   padding: 187px 0 0;
   max-width: 552px;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     padding: 100px 1.5rem 1.5rem;
   }
 
@@ -24,11 +22,11 @@ const StyledEmptyPage = styled.main`
 
   h2 {
     font-size: 1.5rem;
-    color: ${style.primary500};
+    color: ${(props) => props.theme.primary500};
     font-weight: 500;
     line-height: 1.4;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       font-size: 1.25rem;
     }
   }
@@ -39,7 +37,7 @@ const StyledEmptyPage = styled.main`
     line-height: 1.6;
     padding-bottom: 2rem;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       padding-bottom: 1.5rem;
     }
   }

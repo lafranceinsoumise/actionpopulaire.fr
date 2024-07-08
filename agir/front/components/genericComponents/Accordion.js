@@ -4,8 +4,6 @@ import PropTypes from "prop-types";
 import React, { memo, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import { useMeasure, usePrevious } from "@agir/lib/utils/hooks";
 
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
@@ -27,17 +25,18 @@ const Frame = styled.div`
     display: flex;
     gap: 1.5rem;
     padding: ${(props) => (props.$small ? "0.5rem" : "1rem 1.5rem")};
-    background-color: ${style.white};
+    color: ${(props) => props.theme.text1000};
+    background-color: ${(props) => props.theme.background0};
     border: none;
     border-top: ${(props) =>
-      props.$small ? "none" : `1px solid ${style.black100}`};
+      props.$small ? "none" : `1px solid ${(props) => props.theme.text100}`};
     border-bottom: ${({ $open }) =>
-      $open ? `1px solid ${style.black100}` : "none"};
+      $open ? `1px solid ${(props) => props.theme.text100}` : "none"};
     text-align: left;
     cursor: pointer;
 
     &:focus {
-      background-color: ${style.black50};
+      background-color: ${(props) => props.theme.text50};
     }
 
     ${RawFeatherIcon} {
@@ -58,10 +57,10 @@ const Frame = styled.div`
         width: 1.25rem;
         height: 1.25rem;
         margin-left: 0.4rem;
-        fill: ${style.primary100};
+        fill: ${(props) => props.theme.primary100};
 
         text {
-          fill: ${style.primary500};
+          fill: ${(props) => props.theme.primary500};
         }
       }
     }
@@ -71,7 +70,7 @@ const Frame = styled.div`
     will-change: opacity, height;
     padding: 0;
     overflow: hidden;
-    background-color: white;
+    background-color: ${(props) => props.theme.background0};
 
     & > * {
       overflow: auto;

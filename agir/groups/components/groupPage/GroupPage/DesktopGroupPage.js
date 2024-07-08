@@ -1,9 +1,9 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useMemo } from "react";
 import { useHistory } from "react-router-dom";
+import styled from "styled-components";
 
 import { routeConfig } from "@agir/front/app/routes.config";
-import * as style from "@agir/front/genericComponents/_variables.scss";
 import { useTabs } from "./routes.config";
 
 import { Column, Container, Row } from "@agir/front/genericComponents/grid";
@@ -28,13 +28,13 @@ import Routes from "./Routes";
 
 export const DesktopGroupPageSkeleton = () => (
   <Container
-    style={{
-      margin: "0 auto 4rem",
-      padding: "2rem 0 4rem",
-      background: "white",
-      maxWidth: "1336px",
-      width: "100%",
-    }}
+    css={`
+      margin: 0 auto 4rem;
+      padding: 0 4rem;
+      background: ${(props) => props.theme.background0};
+      max-width: 1336px;
+      width: 100%;
+    `}
   >
     <Row gutter={32} style={{ marginBottom: "3.5rem" }}>
       <Column grow>
@@ -110,13 +110,13 @@ const DesktopGroupPage = (props) => {
   return (
     <>
       <Container
-        style={{
-          margin: "0 auto 4rem",
-          padding: "0 4rem",
-          background: "white",
-          maxWidth: "1336px",
-          width: "100%",
-        }}
+        css={`
+          margin: 0 auto 4rem;
+          padding: 0 4rem;
+          background: ${(props) => props.theme.background0};
+          max-width: 1336px;
+          width: 100%;
+        `}
       >
         <Row style={{ minHeight: 56 }}>
           <Column grow>
@@ -161,7 +161,12 @@ const DesktopGroupPage = (props) => {
               groupSettingsLinks={groupSettingsLinks}
             />
             <GroupOrders {...group} />
-            <div style={{ backgroundColor: style.black25, padding: "1.5rem" }}>
+            <div
+              css={`
+                background-color: ${(props) => props.theme.text25};
+                padding: 1.5rem;
+              `}
+            >
               <GroupContactCard
                 id={group?.id}
                 isMessagingEnabled={group?.isMessagingEnabled}

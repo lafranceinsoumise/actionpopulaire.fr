@@ -2,7 +2,6 @@ import React, { useMemo } from "react";
 import PropTypes from "prop-types";
 
 import styled from "styled-components";
-import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import StaticToast from "@agir/front/genericComponents/StaticToast";
 import QuitEventButton from "./QuitEventButton";
@@ -20,7 +19,7 @@ const StyledJoin = styled.div`
 
   & > ${RawFeatherIcon} {
     height: 1.25rem;
-    color: ${(props) => props.theme.black500};
+    color: ${(props) => props.theme.text500};
   }
 
   &:last-child {
@@ -29,7 +28,7 @@ const StyledJoin = styled.div`
 `;
 
 const StyledWrapper = styled(StaticToast)`
-  border-radius: ${style.borderRadius};
+  border-radius: ${(props) => props.theme.borderRadius};
   border-color: lightgrey;
   display: flex;
   flex-direction: column;
@@ -207,7 +206,7 @@ const JoiningDetails = (props) => {
   }
 
   return (
-    <StyledWrapper $color={rsvpStatus?.color || "black500"}>
+    <StyledWrapper $color={rsvpStatus?.color || "text500"}>
       {logged && rsvp && (
         <RSVP
           eventPk={id}

@@ -4,8 +4,6 @@ import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 import useSWR from "swr";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import EventTextList from "@agir/events/groupUpcomingEventPage/EventTextList";
 import RadioField from "@agir/front/formComponents/RadioField";
 import Button from "@agir/front/genericComponents/Button";
@@ -30,7 +28,7 @@ const Skeleton = styled.div`
   height: 36px;
   margin-bottom: 10px;
   width: 50%;
-  background-color: ${style.black50};
+  background-color: ${(props) => props.theme.text50};
 `;
 
 const StyledHeading = styled.nav`
@@ -53,7 +51,7 @@ const StyledHeading = styled.nav`
 `;
 
 const StyledContent = styled.div`
-  color: ${(props) => props.theme.black700};
+  color: ${(props) => props.theme.text700};
 
   em {
     font-style: normal;
@@ -69,7 +67,7 @@ const StyledEmptySpace = styled.p`
   align-items: center;
   gap: 1rem;
   padding: 1.5rem;
-  border: 1px solid ${(props) => props.theme.black50};
+  border: 1px solid ${(props) => props.theme.text50};
 
   @media (max-width: ${(props) => props.theme.collapse}px) {
     padding: 1rem;
@@ -122,7 +120,11 @@ const GroupUpcomingEventPage = (props) => {
           </Button>
         )}
       </StyledHeading>
-      <span style={{ color: style.black700 }}>
+      <span
+        css={`
+          color: ${(props) => props.theme.text700};
+        `}
+      >
         Retrouvez une liste de tous les événements à venir organisés et
         co-organisés par votre groupe pour la semaine ou le mois, facilement
         diffusable.

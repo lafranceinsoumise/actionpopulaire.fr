@@ -39,7 +39,7 @@ const StyledCard = styled(Card)`
   &:hover,
   &:focus {
     border-radius: ${(props) => props.theme.borderRadius};
-    border: 1px solid ${(props) => props.theme.black500};
+    border: 1px solid ${(props) => props.theme.text500};
     box-shadow: none;
   }
 
@@ -55,7 +55,7 @@ const StyledCard = styled(Card)`
   ${Button} {
     margin-top: auto;
     align-self: center;
-    color: white;
+    color: ${(props) => props.theme.background0};
   }
 `;
 

@@ -13,7 +13,7 @@ export const STATUS_CONFIG = {
     id: "D",
     icon: "file-pen",
     label: "Brouillon à compléter",
-    color: "black500",
+    color: "text500",
   },
   // AWAITING_PEER_REVIEW
   G: {
@@ -29,7 +29,7 @@ export const STATUS_CONFIG = {
     label:
       "En attente de vérification par l'équipe de suivi des questions financières",
     shortLabel: "En attente de vérification par l'équipe de suivi",
-    color: "black500",
+    color: "text500",
   },
   // AWAITING_SUPPLEMENTARY_INFORMATION
   I: {
@@ -45,7 +45,7 @@ export const STATUS_CONFIG = {
     label:
       "Validée par l'équipe de suivi des questions financières, en attente des fonds",
     shortLabel: "Validée, en attente des fonds",
-    color: "green500",
+    color: "success500",
   },
   // TO_PAY
   T: {
@@ -53,14 +53,14 @@ export const STATUS_CONFIG = {
     icon: "euro-sign",
     label: "Décomptée de l'allocation du groupe, à payer",
     shortLabel: "Validée, en attente de paiement",
-    color: "redNSP",
+    color: "error500",
   },
   // PAID
   P: {
     id: "P",
     icon: "check",
     label: "Payée",
-    color: "green500",
+    color: "success500",
   },
   // REFUSED
   B: {
@@ -68,7 +68,7 @@ export const STATUS_CONFIG = {
     icon: "xmark",
     label: "Cette demande a été refusée",
     shortLabel: "Refusée",
-    color: "redNSP",
+    color: "error500",
   },
 };
 
@@ -139,7 +139,7 @@ const SpendingRequestStatus = (props) => {
   const [style] = useSpring(() => {
     const from = {
       color,
-      backgroundColor: theme.white,
+      backgroundColor: theme.background0,
     };
 
     return {
@@ -173,7 +173,7 @@ const SpendingRequestStatus = (props) => {
       >
         <FaIcon
           as={animated.i}
-          style={{ color: style.color }}
+          color={style.color}
           icon={config.icon + ":light"}
           size="1.5rem"
         />

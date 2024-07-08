@@ -33,12 +33,13 @@ const Template = (args) => {
 export const Default = Template.bind({});
 Default.args = {
   ...group,
-  type: "Groupe local",
+  typeLabel: "Groupe local",
 };
 
 export const NoMap = Template.bind({});
 NoMap.args = {
   ...group,
+  typeLabel: "Groupe local",
   location: {
     ...location,
     coordinates: null,

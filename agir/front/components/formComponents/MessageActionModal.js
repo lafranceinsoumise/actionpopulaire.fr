@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Button from "@agir/front/genericComponents/Button";
 import ModalWrapper from "@agir/front/genericComponents/Modal";
 
@@ -48,11 +46,11 @@ const StyledModalFooter = styled.footer`
 const StyledModalContent = styled.div`
   max-width: 415px;
   margin: 40px auto;
-  background-color: ${style.white};
-  border-radius: ${style.borderRadius};
+  background-color: ${(props) => props.theme.background0};
+  border-radius: ${(props) => props.theme.borderRadius};
   padding: 1rem;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     margin: 0;
     border-radius: 0;
     max-width: 100%;

@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Card from "./GroupPageCard";
 import Collapsible from "@agir/front/genericComponents/Collapsible";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
@@ -18,7 +16,7 @@ const StyledCard = styled(Card)`
   }
 
   && a {
-    color: ${style.primary500};
+    color: ${(props) => props.theme.primary500};
     text-decoration: none;
     cursor: pointer;
     font-weight: inherit;
@@ -29,7 +27,7 @@ const StyledCard = styled(Card)`
   }
 
   && ${RawFeatherIcon} {
-    color: ${style.black1000};
+    color: ${(props) => props.theme.text1000};
   }
 `;
 

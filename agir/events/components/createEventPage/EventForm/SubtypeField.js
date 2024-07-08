@@ -3,8 +3,6 @@ import React, { useCallback, useMemo } from "react";
 import { useHistory, useRouteMatch } from "react-router-dom";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import SubtypePanel from "@agir/events/common/SubtypePanel";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
@@ -22,7 +20,7 @@ export const StyledDefaultOptions = styled.div`
 
   ${StyledDefaultOption},
   ${StyledPanelTrigger} {
-    border-radius: ${style.borderRadius};
+    border-radius: ${(props) => props.theme.borderRadius};
     border: none;
     box-shadow: none;
     padding: 0;
@@ -30,7 +28,7 @@ export const StyledDefaultOptions = styled.div`
     font-size: 1rem;
     font-weight: 400;
     cursor: pointer;
-    color: ${style.primary500};
+    color: ${(props) => props.theme.primary500};
 
     &[disabled],
     &[disabled]:hover {
@@ -41,15 +39,15 @@ export const StyledDefaultOptions = styled.div`
 
   ${StyledDefaultOption} {
     padding: 0.5rem 0.75rem;
-    color: ${style.black1000};
+    color: ${(props) => props.theme.text1000};
     display: inline-grid;
     grid-gap: 0.5rem;
     grid-template-columns: auto auto auto;
     align-items: center;
-    border: 1px solid ${style.black100};
+    border: 1px solid ${(props) => props.theme.text100};
 
     &:hover {
-      background-color: ${style.black50};
+      background-color: ${(props) => props.theme.text50};
     }
 
     &[disabled],
@@ -72,7 +70,7 @@ export const StyledDefaultOptions = styled.div`
     gap: 0.5rem;
     font-size: 0.875rem;
     line-height: 1.5;
-    color: ${style.black500};
+    color: ${(props) => props.theme.text500};
 
     & > * {
       flex: 1 1 auto;
@@ -183,10 +181,10 @@ const SubtypeField = (props) => {
       <label htmlFor={name}>Type d'événement</label>
       {error && (
         <p
-          style={{
-            color: style.redNSP,
-            fontSize: "0.813rem",
-          }}
+          css={`
+            color: ${(props) => props.theme.error500};
+            font-size: 0.813rem;
+          `}
         >
           {error}
         </p>

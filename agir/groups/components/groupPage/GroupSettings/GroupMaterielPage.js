@@ -3,8 +3,6 @@ import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
@@ -36,14 +34,22 @@ const GroupMaterielPage = (props) => {
     <>
       <HeaderPanel onBack={onBack} illustration={illustration} />
       <StyledTitle>Matériel</StyledTitle>
-      <span style={{ color: style.black700 }}>
+      <span
+        css={`
+          color: ${(props) => props.theme.text700};
+        `}
+      >
         Accédez à du matériel (affiches, tracts, autocollants...) gratuit en
         utilisant les codes promos mis à disposition de votre groupe.
       </span>
       {ordersURL && (
         <>
           <Spacer size=".5rem" />
-          <span style={{ color: style.black700 }}>
+          <span
+            css={`
+              color: ${(props) => props.theme.text700};
+            `}
+          >
             Pour utiliser vos codes, accédez au site matériel&nbsp;:
           </span>
           <Spacer size="1.5rem" />

@@ -4,8 +4,6 @@ import styled from "styled-components";
 
 import { FaUsers } from "@agir/front/genericComponents/FaIcon";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 const StyledOption = styled.button`
   display: flex;
   flex-flow: row nowrap;
@@ -17,7 +15,7 @@ const StyledOption = styled.button`
   background: inherit;
   cursor: pointer;
   text-align: left;
-  color: ${style.black1000};
+  color: ${(props) => props.theme.text1000};
   font-size: 1rem;
   padding: 0.5rem 0;
 
@@ -29,14 +27,14 @@ const StyledOption = styled.button`
   &:focus {
     border: none;
     outline: none;
-    background-color: ${style.black50};
+    background-color: ${(props) => props.theme.text50};
     text-decoration: none;
   }
 
   i {
     flex: 0 0 2rem;
     height: 2rem;
-    background-color: ${style.primary500};
+    background-color: ${(props) => props.theme.primary500};
     border-radius: 100%;
     display: flex;
     align-items: center;
@@ -62,8 +60,8 @@ const StyledWarning = styled.p`
   font-size: 0.875rem;
   line-height: 1.5;
   margin: 0 1.5rem 1rem;
-  background-color: ${style.black50};
-  border-radius: ${style.borderRadius};
+  background-color: ${(props) => props.theme.text50};
+  border-radius: ${(props) => props.theme.borderRadius};
 
   strong {
     font-weight: 600;
@@ -77,7 +75,7 @@ const StyledWrapper = styled.div`
   overflow-x: hidden;
   overflow-y: auto;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     max-height: 100%;
   }
 
@@ -92,7 +90,7 @@ const StyledWrapper = styled.div`
   }
 
   h4 {
-    color: ${style.black1000};
+    color: ${(props) => props.theme.text1000};
     font-weight: 600;
     font-size: 1rem;
     line-height: 1.5;
@@ -106,7 +104,7 @@ const GroupStepOption = (props) => {
   return (
     <StyledOption onClick={() => onSelect(group)}>
       <i>
-        <FaUsers color={style.white} />
+        <FaUsers color="background0" />
       </i>
       <span title={group.name}>{group.name}</span>
     </StyledOption>

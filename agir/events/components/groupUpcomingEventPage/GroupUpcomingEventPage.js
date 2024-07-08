@@ -89,7 +89,7 @@ const StyledPage = styled.main`
   }
 
   h6 {
-    color: ${(props) => props.theme.black700};
+    color: ${(props) => props.theme.text700};
     font-size: 1rem;
     margin: 1.5rem 0 0.5rem;
 
@@ -105,7 +105,7 @@ const StyledPage = styled.main`
   em {
     font-style: normal;
     font-size: 0.875rem;
-    color: ${(props) => props.theme.black700};
+    color: ${(props) => props.theme.text700};
   }
 `;
 

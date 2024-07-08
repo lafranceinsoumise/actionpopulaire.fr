@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 export const LayoutSubtitle = styled.h2`
-  color: ${(props) => props.theme.black700};
+  color: ${(props) => props.theme.text700};
   font-weight: 400;
   font-size: 0.875rem;
   margin: 0.75rem 0;

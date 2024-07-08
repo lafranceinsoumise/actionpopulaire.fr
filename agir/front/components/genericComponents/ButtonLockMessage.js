@@ -5,8 +5,6 @@ import styled from "styled-components";
 import { mutate } from "swr";
 import useSWRImmutable from "swr/immutable";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Button from "@agir/front/genericComponents/Button";
 import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
@@ -26,7 +24,8 @@ const StyledButton = styled.button`
   opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
 
   ${RawFeatherIcon} {
-    ${({ $isLocked }) => $isLocked && `color: ${style.redNSP};`}
+    ${({ $isLocked }) =>
+      $isLocked && `color: ${(props) => props.theme.error500};`}
   }
 `;
 

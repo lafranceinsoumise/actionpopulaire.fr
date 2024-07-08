@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React, { memo, useCallback } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const StyledButton = styled.button`
@@ -16,16 +14,17 @@ const StyledButton = styled.button`
   border-radius: 4px;
   cursor: pointer;
   border: 1px solid;
-  background-color: ${({ $active }) =>
-    $active ? style.green200 : "transparent"};
-  color: ${({ $active }) => ($active ? style.black1000 : style.black500)};
-  border-color: ${({ $active }) => ($active ? style.green200 : style.black100)};
+  background-color: ${({ $active, theme }) =>
+    $active ? theme.success200 : theme.background0};
+  color: ${({ $active, theme }) => ($active ? theme.black : theme.text500)};
+  border-color: ${({ $active, theme }) =>
+    $active ? theme.success200 : theme.text100};
   visibility: ${({ $hidden }) => ($hidden ? "hidden" : "visible")};
 
   &:focus {
     outline: none;
     box-shadow: ${({ $disabled }) =>
-      !$disabled ? `0 0 0 4px ${style.black100}` : "none"};
+      !$disabled ? `0 0 0 4px ${(props) => props.theme.text100}` : "none"};
   }
 
   &[disabled] {
@@ -84,7 +83,12 @@ const NotificationSettingItem = (props) => {
         onClick={togglePush}
         disabled={disabled}
       >
-        <RawFeatherIcon width="1.25rem" height="1.25rem" name="smartphone" />
+        <RawFeatherIcon
+          width="1.25rem"
+          height="1.25rem"
+          name="smartphone"
+          color="currentcolor"
+        />
       </StyledButton>
       <StyledButton
         $active={email}
@@ -93,7 +97,12 @@ const NotificationSettingItem = (props) => {
         onClick={toggleEmail}
         disabled={disabled}
       >
-        <RawFeatherIcon width="1.25rem" height="1.25rem" name="mail" />
+        <RawFeatherIcon
+          width="1.25rem"
+          height="1.25rem"
+          name="mail"
+          color="currentcolor"
+        />
       </StyledButton>
     </StyledItem>
   );

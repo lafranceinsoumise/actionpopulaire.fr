@@ -21,7 +21,7 @@ import SelectedGroupWidget from "../common/SelectedGroupWidget";
 const StyledErrorMessage = styled.p`
   text-align: center;
   font-weight: 500;
-  color: ${(props) => props.theme.redNSP};
+  color: ${(props) => props.theme.error500};
   padding-bottom: 2rem;
 `;
 
@@ -30,7 +30,7 @@ const LegalParagraph = styled.p`
   margin: 0 auto;
   font-weight: 400;
   font-size: 0.813rem;
-  color: ${(props) => props.theme.black500};
+  color: ${(props) => props.theme.text500};
 `;
 
 const PaymentParagraph = styled.p`
@@ -40,7 +40,8 @@ const PaymentParagraph = styled.p`
   text-align: center;
   font-weight: 500;
   font-size: 0.813rem;
-  color: ${(props) => props.theme.black500};
+  color: ${(props) => props.theme.text500};
+
   & > span {
     display: flex;
     justify-content: center;

@@ -38,7 +38,7 @@ const AmountButton = styled.button`
     0px 2px 0px rgba(0, 35, 44, 0.15);
 
   &.btn-unselected {
-    background-color: white;
+    background-color: ${(props) => props.theme.background0};
     color: black;
   }
 `;

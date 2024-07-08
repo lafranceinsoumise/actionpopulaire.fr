@@ -3,8 +3,6 @@ import React, { useMemo } from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Card from "@agir/front/genericComponents/Card";
 import { Column, Row } from "@agir/front/genericComponents/grid";
 import {
@@ -19,22 +17,22 @@ import ClickableMap from "@agir/carte/common/Map/ClickableMap";
 import AddToCalendarWidget from "@agir/front/genericComponents/AddToCalendarWidget";
 
 const LocationName = styled.span`
-  color: ${style.black1000};
+  color: ${(props) => props.theme.text1000};
 `;
 
 const WithLinebreak = styled.span`
   white-space: pre-line;
-  color: ${style.black500};
+  color: ${(props) => props.theme.text500};
 `;
 
 const MapContainer = styled.div`
   margin: -1.5rem -1.5rem 1.5rem;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     margin: 24px 0 0 0;
 
     * {
-      border-radius: ${style.borderRadius};
+      border-radius: ${(props) => props.theme.borderRadius};
     }
   }
 
@@ -48,9 +46,9 @@ const MapContainer = styled.div`
 
 const StyledCard = styled(Card)`
   margin-bottom: 24px;
-  border-bottom: 1px solid ${style.black50};
+  border-bottom: 1px solid ${(props) => props.theme.text50};
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     display: flex;
     flex-flow: column-reverse;
   }
@@ -120,11 +118,11 @@ const EventLocationCard = (props) => {
               <br />
               {interval}
               <span
-                style={{
-                  paddingTop: 4,
-                  display: "block",
-                  color: style.black500,
-                }}
+                css={`
+                  padding-top: 4px;
+                  display: block;
+                  color: ${(props) => props.theme.text500};
+                `}
               >
                 <strong>({timezone})</strong>
                 <br />

@@ -32,7 +32,7 @@ const StyledCard = styled(Card)`
       font-weight: 700;
       line-height: 1.5;
       font-size: 1rem;
-      color: ${(props) => props.theme.black1000};
+      color: ${(props) => props.theme.text1000};
     }
 
     strong {
@@ -61,7 +61,7 @@ const StyledCard = styled(Card)`
       strong {
         font-weight: 600;
         font-size: 0.875rem;
-        color: ${(props) => props.theme.black700};
+        color: ${(props) => props.theme.text700};
       }
     }
   }

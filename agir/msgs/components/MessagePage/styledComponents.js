@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import * as style from "@agir/front/genericComponents/_variables.scss";
+
 import Avatar from "@agir/front/genericComponents/Avatar";
 
 export const StyledCard = styled.button`
@@ -11,8 +11,8 @@ export const StyledCard = styled.button`
   align-items: center;
   border: none;
   cursor: pointer;
-  background-color: ${({ $selected }) =>
-    $selected ? style.primary500 : style.white};
+  background-color: ${({ $selected, theme }) =>
+    $selected ? theme.primary500 : theme.background0};
 
   &[disabled] {
     cursor: default;
@@ -32,7 +32,7 @@ export const StyledCard = styled.button`
     flex: 1 1 auto;
     margin: 0 18px 0 12px;
     min-width: 0;
-    color: ${style.black700};
+    color: ${(props) => props.theme.text700};
 
     h6,
     h5,
@@ -60,7 +60,8 @@ export const StyledCard = styled.button`
     h5,
     h6,
     p {
-      color: ${({ $selected }) => ($selected ? style.white : style.black1000)};
+      color: ${({ $selected, theme }) =>
+        $selected ? theme.background0 : theme.text1000};
     }
 
     p {

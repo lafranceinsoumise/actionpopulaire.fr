@@ -633,7 +633,7 @@ const PollingStationOfficerForm = (props) => {
               padding: 1rem 0 0;
               margin: 0;
               font-size: 1rem;
-              color: ${({ theme }) => theme.redNSP};
+              color: ${({ theme }) => theme.error500};
             `}
           >
             {globalError}

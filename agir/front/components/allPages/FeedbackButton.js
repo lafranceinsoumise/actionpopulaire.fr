@@ -4,8 +4,6 @@ import { useTransition, animated } from "@react-spring/web";
 import { useEffectOnce } from "react-use";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getUser, getRoutes } from "@agir/front/globalContext/reducers";
 import { useMobileApp } from "@agir/front/app/hooks";
@@ -39,9 +37,9 @@ const Wrapper = styled(animated.div)`
   right: 1.5rem;
   width: 4rem;
   height: 4rem;
-  z-index: ${style.zindexFeedbackButton};
+  z-index: ${(props) => props.theme.zindexFeedbackButton};
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     width: 3rem;
     height: 3rem;
     bottom: 5rem;

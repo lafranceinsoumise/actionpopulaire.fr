@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react/display-name */
 import React from "react";
-import styled from "styled-components";
+import styled, { useTheme } from "styled-components";
 
 import fontawesome from "@agir/lib/utils/fontawesome";
 
@@ -31,11 +31,14 @@ const StyledIcon = styled.i.withConfig({
 
 const FaIcon =
   (defaultIcon) =>
-  ({ icon, className, ...props }) => {
+  ({ icon, className, color, ...props }) => {
     const iconConfig = fontawesome(icon || defaultIcon, true);
+    const theme = useTheme();
+
     return (
       <StyledIcon
         {...props}
+        color={theme[color] || color}
         className={`${className} ${iconConfig?.className}`.trim()}
       />
     );

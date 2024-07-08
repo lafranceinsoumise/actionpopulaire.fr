@@ -1,7 +1,5 @@
 import PropTypes from "prop-types";
 import React, { useState, useCallback } from "react";
-
-import * as style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
@@ -20,7 +18,7 @@ const StyledContainer = styled.div`
     width: 100%;
   }
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     flex-wrap: wrap;
     & > :first-child {
       width: 100%;

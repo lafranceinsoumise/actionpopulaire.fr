@@ -2,8 +2,6 @@ import React, { useCallback, useEffect, useMemo } from "react";
 import styled from "styled-components";
 import useSWR from "swr";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import { useIsOffline } from "@agir/front/offline/hooks";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getRoutes } from "@agir/front/globalContext/reducers";
@@ -30,7 +28,7 @@ import EmptyActivityList from "./EmptyActivityList";
 
 export const StyledList = styled.ul``;
 const Page = styled.article`
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     padding-bottom: 48px;
   }
 
@@ -41,7 +39,7 @@ const Page = styled.article`
     width: 100%;
     padding: 1.5rem 0;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       padding: 0 0 0.5rem;
       margin: 0 auto;
       max-width: 100%;

@@ -10,8 +10,6 @@ import styled from "styled-components";
 import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Button from "@agir/front/genericComponents/Button";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import TextField from "@agir/front/formComponents/TextField";
@@ -45,7 +43,7 @@ const Container = styled.form`
     text-align: center;
   }
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     h1 {
       font-size: 18px;
     }
@@ -65,7 +63,7 @@ const Form = styled.div`
   justify-content: center;
   align-items: end;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     grid-template-columns: 100%;
   }
 
@@ -79,7 +77,7 @@ const LocalCode = styled.h2`
   padding: 1rem 2rem;
   margin: 0;
   margin-top: 1rem;
-  background-color: ${style.green100};
+  background-color: ${(props) => props.theme.success100};
 `;
 
 const CodeConnexion = () => {

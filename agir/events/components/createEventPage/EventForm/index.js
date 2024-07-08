@@ -2,8 +2,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import { createEvent } from "@agir/events/common/api";
 import {
   DEFAULT_FORM_DATA,
@@ -34,7 +32,7 @@ const StyledGlobalError = styled.p`
   margin: 0;
   font-size: 1rem;
   text-align: center;
-  color: ${style.redNSP};
+  color: ${(props) => props.theme.error500};
 `;
 const StyledForm = styled.form`
   padding-bottom: 3rem;

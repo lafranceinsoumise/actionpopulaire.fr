@@ -17,8 +17,8 @@ const StyledWrapper = styled.span`
   ${Avatar} {
     width: 40px;
     height: 40px;
-    border: 3px solid white;
-    background-color: white;
+    border: 3px solid ${(props) => props.theme.background0};
+    background-color: ${(props) => props.theme.background0};
 
     &:first-child {
       grid-column: 1/3;

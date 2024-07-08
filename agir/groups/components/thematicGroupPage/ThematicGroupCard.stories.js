@@ -16,6 +16,7 @@ const Template = (args) => <ThematicGroupCard {...args} />;
 export const Default = Template.bind({});
 Default.args = {
   ...MOCK_GROUPS[0],
+  image: "https://loremflickr.com/320/320",
 };
 
 export const WithoutImage = Template.bind({});

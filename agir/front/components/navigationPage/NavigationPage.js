@@ -6,7 +6,6 @@ import FeatherIcon, {
   RawFeatherIcon,
 } from "@agir/front/genericComponents/FeatherIcon";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getRoutes } from "@agir/front/globalContext/reducers";
 
@@ -18,7 +17,7 @@ import CONFIG from "@agir/front/app/Navigation/navigation.config";
 const MAIN_LINKS = CONFIG.menuLinks.filter(({ mobile }) => mobile === false);
 
 const Navigation = styled.nav`
-  @media only screen and (min-width: ${style.collapse}px) {
+  @media only screen and (min-width: ${(props) => props.theme.collapse}px) {
     display: none;
   }
 `;
@@ -38,7 +37,8 @@ const MenuItem = styled.li`
   margin-bottom: 1rem;
 
   & ${RawFeatherIcon} {
-    color: ${(props) => (props.active ? style.primary500 : style.black500)};
+    color: ${(props) =>
+      props.active ? props.theme.primary500 : props.theme.text500};
     margin-right: 1rem;
   }
 
@@ -55,28 +55,28 @@ const MenuItem = styled.li`
   ${(props) =>
     props.active &&
     `
-    color: ${style.primary500};
+    color: ${(props) => props.theme.primary500};
     `}
 `;
 
 const Counter = styled.span`
   text-align: center;
   position: absolute;
-  background-color: ${style.secondary500};
-  color: #fff;
+  background-color: ${(props) => props.theme.secondary500};
+  color: ${(props) => props.theme.background0};
   font-size: 9px;
   height: 16px;
   width: 16px;
-  border-radius: ${style.borderRadius};
-  z-index: ${style.zindexNavigationCounter};
+  border-radius: ${(props) => props.theme.borderRadius};
+  z-index: ${(props) => props.theme.zindexNavigationCounter};
   line-height: 14px;
 
-  @media only screen and (max-width: ${style.collapse}px) {
+  @media only screen and (max-width: ${(props) => props.theme.collapse}px) {
     top: 11px;
     right: 16px;
   }
 
-  @media only screen and (min-width: ${style.collapse}px) {
+  @media only screen and (min-width: ${(props) => props.theme.collapse}px) {
     top: 0px;
     left: 14px;
   }

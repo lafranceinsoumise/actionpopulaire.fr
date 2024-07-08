@@ -13,7 +13,6 @@ import SoftLoginModal, {
   SOFT_LOGIN_MODAL_TAGS,
 } from "@agir/front/authentication/SoftLoginModal";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
 import "react-toastify/dist/ReactToastify.min.css";
 
 export const TOAST_TYPES = {
@@ -32,7 +31,7 @@ const StyledContainer = styled(ToastContainer)`
   left: 16px;
   right: 16px;
 
-  @media only screen and (max-width: ${style.collapse}px) {
+  @media only screen and (max-width: ${(props) => props.theme.collapse}px) {
     bottom: 144px;
   }
 
@@ -40,19 +39,19 @@ const StyledContainer = styled(ToastContainer)`
     cursor: auto;
     box-sizing: border-box;
     padding: 1rem 1.5rem;
-    background-color: white;
-    font-family: ${style.fontFamilyBase};
+    background-color: ${(props) => props.theme.background0};
+    font-family: ${(props) => props.theme.fontFamilyBase};
     line-height: 1.12;
-    color: ${style.black1000};
-    border-left: 6px solid ${style.black1000};
+    color: ${(props) => props.theme.text1000};
+    border-left: 6px solid ${(props) => props.theme.text1000};
   }
 
   .Toastify__toast--error {
-    border-left: 6px solid ${style.redNSP};
+    border-left: 6px solid ${(props) => props.theme.error500};
   }
 
   .Toastify__toast--success {
-    border-left: 6px solid ${style.green500};
+    border-left: 6px solid ${(props) => props.theme.success500};
   }
 
   .Toastify__toast-body {

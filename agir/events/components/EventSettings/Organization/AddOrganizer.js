@@ -1,9 +1,8 @@
 import PropTypes from "prop-types";
 import React, { useState } from "react";
+import styled from "styled-components";
 import { mutate } from "swr";
 
-import styled from "styled-components";
-import * as style from "@agir/front/genericComponents/_variables.scss";
 import * as api from "@agir/events/common/api";
 
 import Spacer from "@agir/front/genericComponents/Spacer.js";
@@ -22,7 +21,7 @@ const StyledList = styled.div`
     display: inline-flex;
     width: 0.5rem;
     height: 0.5rem;
-    background-color: ${style.primary500};
+    background-color: ${(props) => props.theme.primary500};
     border-radius: 2rem;
     margin-right: 0.5rem;
   }
@@ -60,7 +59,11 @@ export const AddOrganizer = ({ eventPk, participants, onBack }) => {
       <Spacer size="1rem" />
 
       {!participants.length ? (
-        <span style={{ color: style.black700 }}>
+        <span
+          css={`
+            color: ${(props) => props.theme.text700};
+          `}
+        >
           Accueillez d’abord un·e participant·e à l'événement pour pouvoir lui
           donner un rôle d'organisateur·ice.
         </span>

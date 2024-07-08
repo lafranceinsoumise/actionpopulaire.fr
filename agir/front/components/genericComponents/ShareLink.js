@@ -1,7 +1,5 @@
 import PropTypes from "prop-types";
 import React from "react";
-
-import * as style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
@@ -24,9 +22,8 @@ const StyledDiv = styled.div`
     ${({ $wrap }) =>
       $wrap
         ? `
-      @media (max-width: ${
-        typeof $wrap === "number" ? $wrap : style.collapse
-      }px) {
+      @media (max-width: ${(props) =>
+        typeof $wrap === "number" ? $wrap : props.theme.collapse}px) {
         display: grid;
         grid-template-columns: 1fr;
         grid-gap: 0.5rem;
@@ -43,15 +40,15 @@ const StyledDiv = styled.div`
   ${StyledInput} {
     flex: 1 1 240px;
     width: 100%;
-    border: 1px solid ${style.black100};
-    border-radius: ${style.softBorderRadius};
+    border: 1px solid ${(props) => props.theme.text100};
+    border-radius: ${(props) => props.theme.softBorderRadius};
     padding: 0.5rem;
     margin-right: 0.5rem;
 
     &:hover:not[:disabled],
     &:focus:not[:disabled] {
       outline: none;
-      border-color: ${style.black700};
+      border-color: ${(props) => props.theme.text700};
     }
   }
 

@@ -16,7 +16,8 @@ import EventGroupsAttendees from "./EventGroupsAttendees";
 const StyledLink = styled(Link)``;
 const StyledInfo = styled.div``;
 const Illustration = styled(Link)`
-  background-color: ${({ $img }) => ($img ? "#e5e5e5" : "#fafafa")};
+  background-color: ${({ $img, theme }) =>
+    $img ? theme.text100 : theme.text25};
   display: grid;
   isolation: isolate;
   z-index: 0;
@@ -86,7 +87,7 @@ const StyledCard = styled(Card)`
     display: flex;
     padding: 0;
     box-shadow: none;
-    border: 1px solid ${(props) => props.theme.black100};
+    border: 1px solid ${(props) => props.theme.text100};
     min-height: 125px;
   }
 
@@ -113,7 +114,7 @@ const StyledCard = styled(Card)`
       line-height: 1.5;
       margin: 0;
       color: ${(props) =>
-        props.$isPast ? props.theme.black500 : props.theme.primary500};
+        props.$isPast ? props.theme.text500 : props.theme.primary500};
     }
 
     ${StyledLink} {
@@ -147,7 +148,7 @@ const StyledCard = styled(Card)`
       p {
         font-weight: 400;
         font-size: 0.875rem;
-        color: ${(props) => props.theme.black700};
+        color: ${(props) => props.theme.text700};
         margin: 0 1.5rem 0;
         text-indent: -1.8rem;
 

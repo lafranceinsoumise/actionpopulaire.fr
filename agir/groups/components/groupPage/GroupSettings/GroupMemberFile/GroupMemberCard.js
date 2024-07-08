@@ -24,14 +24,14 @@ const StyledCard = styled.div`
     180deg,
     ${(props) => props.theme.primary50} 0px,
     ${(props) => props.theme.primary50} 4.375rem,
-    ${(props) => props.theme.white} 4.375rem
+    ${(props) => props.theme.background0} 4.375rem
   );
 
   header {
     ${Avatar} {
       width: 5rem;
       height: 5rem;
-      border: 3px solid ${(props) => props.theme.white};
+      border: 3px solid ${(props) => props.theme.background0};
     }
 
     h4 {
@@ -45,12 +45,12 @@ const StyledCard = styled.div`
         font-weight: 400;
         font-size: 0.875rem;
         line-height: 0;
-        color: ${(props) => props.theme.black500};
+        color: ${(props) => props.theme.text500};
         display: inline-flex;
         align-items: center;
         height: 29px;
         padding: 0 0.5rem;
-        border: 1px solid ${(props) => props.theme.black500};
+        border: 1px solid ${(props) => props.theme.text500};
         border-radius: ${(props) => props.theme.borderRadius};
 
         svg {
@@ -87,7 +87,7 @@ const StyledCard = styled.div`
         gap: 0.75rem;
 
         svg {
-          color: ${(props) => props.theme.black500};
+          color: ${(props) => props.theme.text500};
           stroke-width: 2;
         }
       }

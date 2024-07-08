@@ -22,7 +22,7 @@ const StyledLink = styled(Link)`
   &,
   &:hover,
   &:focus {
-    color: ${(props) => props.theme.black1000};
+    color: ${(props) => props.theme.text1000};
     text-decoration: none;
     outline: none;
   }
@@ -50,7 +50,7 @@ const StyledLink = styled(Link)`
     font-size: 0.875rem;
     font-weight: 400;
     line-height: 1.6;
-    color: ${(props) => props.theme.redNSP};
+    color: ${(props) => props.theme.error500};
   }
 
   & > ${Button} {
@@ -59,6 +59,7 @@ const StyledLink = styled(Link)`
     align-self: flex-start;
     background-color: #fbd8dd;
     border-color: #fbd8dd;
+    color: #000;
 
     &:hover {
       background-color: #fbd8dddc;
@@ -77,7 +78,7 @@ const StyledList = styled.ul`
   box-shadow: ${(props) => props.theme.cardShadow};
 
   ${StyledLink} {
-    border-bottom: 1px solid ${(props) => props.theme.black100};
+    border-bottom: 1px solid ${(props) => props.theme.text100};
   }
 `;
 

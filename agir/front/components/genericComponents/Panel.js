@@ -4,7 +4,6 @@ import { createPortal } from "react-dom";
 import { useTransition, animated } from "@react-spring/web";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
 import { useDisableBodyScroll } from "@agir/lib/utils/hooks";
 import { useDownloadBanner } from "@agir/front/app/hooks.js";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
@@ -86,7 +85,7 @@ export const StyledBackButton = styled.button`
 
 const PanelContent = styled(animated.aside)`
   position: fixed;
-  z-index: ${style.zindexPanel};
+  z-index: ${(props) => props.theme.zindexPanel};
   height: 100%;
   max-height: -webkit-fill-available;
   overflow: auto;
@@ -95,12 +94,12 @@ const PanelContent = styled(animated.aside)`
   display: inline-block;
   width: auto;
   min-width: 600px;
-  background-color: white;
+  background-color: ${(props) => props.theme.background0};
   margin: 0;
   padding: 2rem 1.5rem;
   will-change: transform;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     display: block;
     width: 100%;
     min-width: 100%;
@@ -125,15 +124,15 @@ const PanelFrame = styled.div`
   height: 100vh;
   max-height: -webkit-fill-available;
   overflow: hidden;
-  z-index: ${style.zindexPanel};
+  z-index: ${(props) => props.theme.zindexPanel};
   pointer-events: ${({ $open }) => ($open ? "auto" : "none")};
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     display: block;
     width: 100%;
     min-width: 100%;
-    z-index: ${({ $isBehindTopBar }) =>
-      $isBehindTopBar ? style.zindexTopBar - 1 : style.zindexPanel};
+    z-index: ${({ $isBehindTopBar, ...props }) =>
+      $isBehindTopBar ? props.zindexTopBar - 1 : props.zindexPanel};
 
     ${PanelContent} {
       padding-top: ${({ $isBehindTopBar, $hasDownloadBanner }) => {

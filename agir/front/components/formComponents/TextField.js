@@ -2,7 +2,6 @@ import PropTypes from "prop-types";
 import React, { forwardRef, useLayoutEffect, useRef } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
 import { mergeRefs } from "@agir/lib/utils/react";
 
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
@@ -15,7 +14,7 @@ const StyledInput = styled.input``;
 const StyledTextArea = styled.textarea``;
 const StyledErrorIcon = styled.span``;
 const StyledCounter = styled.span`
-  color: ${({ $invalid }) => ($invalid ? style.redNSP : "inherit")};
+  color: ${({ $invalid, theme }) => ($invalid ? theme.error500 : "inherit")};
 `;
 const StyledError = styled.span``;
 
@@ -47,27 +46,29 @@ const StyledField = styled.label`
     width: 3rem;
     font-size: ${({ $large }) => ($large ? "2rem" : "1rem")};
     justify-content: center;
-    color: ${({ $invalid }) => ($invalid ? style.redNSP : style.black500)};
+    color: ${({ $invalid, theme }) =>
+      $invalid ? theme.error500 : theme.text500};
     z-index: 2;
   }
 
   ${StyledInput}, ${StyledTextArea} {
     grid-row: 3;
     grid-column: 1/3;
-    border-radius: ${style.softBorderRadius};
+    border-radius: ${(props) => props.theme.softBorderRadius};
     border: 1px solid;
-    border-color: ${({ $invalid }) =>
-      $invalid ? style.redNSP : style.black100};
+    border-color: ${({ $invalid, theme }) =>
+      $invalid ? theme.error500 : theme.text100};
     max-width: 100%;
     padding: 0.5rem;
     padding-left: ${({ $icon, $large }) =>
       $icon ? "3rem" : $large ? "0.75rem" : "0.5rem"};
     padding-right: ${({ $invalid }) => ($invalid ? "3rem" : "0.5rem")};
-    background-color: ${({ $dark }) => ($dark ? style.black50 : "transparent")};
+    background-color: ${({ $dark, theme }) =>
+      $dark ? theme.text50 : "transparent"};
     -moz-appearance: textfield;
 
     &::placeholder {
-      color: ${({ $dark }) => ($dark ? style.black700 : style.black500)};
+      color: ${({ $dark, theme }) => ($dark ? theme.text700 : theme.text500)};
     }
 
     &::-webkit-outer-spin-button,
@@ -78,8 +79,8 @@ const StyledField = styled.label`
 
     &:focus {
       outline: none;
-      border-color: ${({ $invalid, $dark }) =>
-        $invalid ? style.redNSP : $dark ? style.black200 : style.black500};
+      border-color: ${({ $invalid, $dark, theme }) =>
+        $invalid ? theme.error500 : $dark ? theme.text200 : theme.text500};
     }
   }
   ${StyledInput} {
@@ -99,13 +100,13 @@ const StyledField = styled.label`
     align-items: ${({ $large }) => ($large ? "center" : "start")};
     justify-content: flex-end;
     padding: 0.5rem;
-    color: ${style.redNSP};
+    color: ${(props) => props.theme.error500};
   }
   ${StyledError} {
     display: ${({ $invalid }) => ($invalid ? "flex" : "none")};
     grid-row: 4;
     grid-column: ${({ $hasCounter }) => ($hasCounter ? "1/2" : "1/3")};
-    color: ${style.redNSP};
+    color: ${(props) => props.theme.error500};
     line-height: 1.3;
   }
   ${StyledCounter} {

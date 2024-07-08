@@ -32,3 +32,6 @@ db.sqlite3
 
 # clé google
 gce.json
+
+# Storybook build dir
+storybook-static/

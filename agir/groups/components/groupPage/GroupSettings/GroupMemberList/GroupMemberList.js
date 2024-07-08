@@ -39,7 +39,7 @@ const MemberList = styled.div`
     background-color: transparent;
     outline: none;
     border: none;
-    border-bottom: 1px solid ${(props) => props.theme.black50};
+    border-bottom: 1px solid ${(props) => props.theme.text50};
 
     &:first-child {
       border-radius: ${(props) => props.theme.borderRadius}
