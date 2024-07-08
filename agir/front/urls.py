@@ -243,42 +243,50 @@ contribution_patterns = [
 voting_proxy_patterns = [
     path(
         "",
-        views.VotingProxyRequestView.as_view(),
+        # views.VotingProxyRequestView.as_view(),
+        views.PostElectionRedirectView.as_view(),
         name="voting_proxy_landing_page",
     ),
     path(
         "donner-ma-procuration/",
-        views.VotingProxyRequestView.as_view(),
+        # views.VotingProxyRequestView.as_view(),
+        views.PostElectionRedirectView.as_view(),
         name="new_voting_proxy_request",
     ),
     path(
         "reponse/",
-        views.VotingProxyRequestView.as_view(),
+        # views.VotingProxyRequestView.as_view(),
+        views.PostElectionRedirectView.as_view(),
         name="voting_proxy_request_details",
     ),
     path(
         "prendre-une-procuration/",
-        views.VotingProxyView.as_view(),
+        # views.VotingProxyView.as_view(),
+        views.PostElectionRedirectView.as_view(),
         name="new_voting_proxy",
     ),
     path(
         "prendre-une-procuration/<uuid:pk>/",
-        views.VotingProxyView.as_view(),
+        # views.VotingProxyView.as_view(),
+        views.PostElectionRedirectView.as_view(),
         name="reply_to_voting_proxy_requests",
     ),
     path(
         "prendre-une-procuration/demande/<uuid:pk>/",
-        views.ReplyToSingleVotingProxyRequestView.as_view(),
+        # views.ReplyToSingleVotingProxyRequestView.as_view(),
+        views.PostElectionRedirectView.as_view(),
         name="reply_to_single_voting_proxy_request",
     ),
     path(
         "prendre-une-procuration/<uuid:pk>/acceptees/",
-        views.VotingProxyView.as_view(),
+        # views.VotingProxyView.as_view(),
+        views.PostElectionRedirectView.as_view(),
         name="accepted_voting_proxy_requests",
     ),
     path(
         "prendre-une-procuration/<uuid:pk>/demandes/",
-        views.VotingProxyView.as_view(),
+        # views.VotingProxyView.as_view(),
+        views.PostElectionRedirectView.as_view(),
         name="voting_proxy_requests_for_proxy",
     ),
 ]
@@ -512,7 +520,8 @@ urlpatterns = [
     # POLLING STATION OFFICERS
     path(
         "elections/assesseures-deleguees/",
-        views.PollingStationOfficerView.as_view(),
+        # views.PollingStationOfficerView.as_view(),
+        views.PostElectionRedirectView.as_view(),
         name="new_polling_station_officer",
     ),
     # TEST VIEWS

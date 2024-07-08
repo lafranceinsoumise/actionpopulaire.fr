@@ -21,7 +21,6 @@ import Skeleton from "@agir/front/genericComponents/Skeleton";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import EventSuggestions from "./EventSuggestions";
 
-import DonationAnnouncement from "@agir/activity/announcements/DonationAnnouncement";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import {
   getIsSessionLoaded,
@@ -141,7 +140,6 @@ const Agenda = () => {
           <ActionButtons />
         </Hide>
         <Hide as={Spacer} $over size="1.5rem" />
-        <DonationAnnouncement />
         <Hide as={Spacer} $under size="1.5rem" />
         <TopBar>
           <LayoutTitle>
