@@ -37,9 +37,7 @@ class Command(BaseCommand):
                 )
 
                 participants_since = (
-                    RSVP.objects.filter(event__id=event.id)
-                    .filter(status="CO")
-                    .count()
+                    RSVP.objects.filter(event__id=event.id).filter(status="CO").count()
                 )
 
                 average_since = amount_since / participants_since
