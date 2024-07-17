@@ -96,12 +96,27 @@ class CheckPaymentAdmin(
     )
     readonly_fields = (
         "id",
-        "created",
         "person_link",
         "get_type_display",
         "get_price_display",
+        "created",
+        "status",
+        "meta",
+        "events",
         "status_buttons",
-        "nom_facturation",
+    )
+    edit_readonly_fields = (
+        "mode",
+        "status",
+        "first_name",
+        "last_name",
+        "email",
+        "phone_number",
+        "location_address1",
+        "location_address2",
+        "location_zip",
+        "location_city",
+        "location_country",
     )
     autocomplete_fields = ("person",)
     list_filter = (
@@ -122,9 +137,11 @@ class CheckPaymentAdmin(
 
         return self.add_fieldsets
 
-    def has_change_permission(self, request, obj=None):
-        """Cette admin ne permet pas la modification"""
-        return False
+    def get_readonly_fields(self, request, obj=None):
+        if obj and obj.id:
+            return self.readonly_fields + self.edit_readonly_fields
+
+        return self.readonly_fields
 
     def nom_facturation(self, obj):
         if obj:
