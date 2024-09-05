@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.db.models import Count, Q, Exists, OuterRef
 from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.translation import gettext_lazy as _
 
 from agir.groups.models import Membership, SupportGroup
 from agir.lib.admin.autocomplete_filter import (
@@ -10,7 +11,7 @@ from agir.lib.admin.autocomplete_filter import (
 )
 from agir.lib.admin.form_fields import AutocompleteSelectModel
 from agir.mailing.models import Segment
-from agir.people.models import PersonQualification, PersonEmail
+from agir.people.models import PersonQualification, PersonEmail, Role, Person
 
 
 class SegmentFilter(AutocompleteRelatedModelFilter):
@@ -143,3 +144,25 @@ class PersonQualificationSupportGroupListFilter(AutocompleteSelectModelBaseFilte
             return queryset.filter(supportgroup_id=self.value())
         else:
             return queryset
+
+
+class PersonAccountActivateListFilter(admin.SimpleListFilter):
+    title = "compte activé ou non"
+    parameter_name = "disabled_account"
+    
+    def lookups(self, request, model_admin):
+        return (("enabled", _("Activé")), ("disabled", _("Désactivé")))
+
+    def queryset(self, request, queryset):
+        queryset = queryset.annotate(
+                is_enabled=Exists(
+                    Person.objects.filter(role_id=OuterRef("role__id")).filter(
+                        role__is_active=True
+                    )
+                )
+        )
+        
+        if self.value() == "enabled":
+            return queryset.filter(is_enabled=True)
+        if self.value() == "disabled":
+            return queryset.exclude(is_enabled=True)
