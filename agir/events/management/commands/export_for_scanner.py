@@ -16,8 +16,9 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("event", type=event_argument)
         parser.add_argument("category_field", type=str)
+        parser.add_argument("contribution_field", type=str)
 
-    def handle(self, event, category_field, **kwargs):
+    def handle(self, event, category_field , contribution_field, **kwargs):
         writer = csv.writer(sys.stdout)
         writer.writerow(
             [
@@ -73,7 +74,7 @@ class Command(BaseCommand):
                     emails.get(rsvp.person_id, None) or rsvp.person.email,
                     rsvp.person.gender or "",
                     rsvp.form_submission.data.get(category_field, ""),
-                    display_price(rsvp.payment.price if rsvp.payment else 0),
+                    display_price(rsvp.payment.price + rsvp.form_submission.data.get(contribution_field, "") * 100 if rsvp.payment else 0 if rsvp.form_submission.data.get(contribution_field, "") or rsvp.form_submission.data.get(contribution_field) < 0 else 0),
                     "completed" if rsvp.status == RSVP.Status.CONFIRMED else "on-hold",
                     (
                         rsvp.created.isoformat()
@@ -92,7 +93,7 @@ class Command(BaseCommand):
                     emails.get(guest.rsvp.person_id, None) or guest.rsvp.person.email,
                     guest.submission.data.get("gender", ""),
                     guest.submission.data.get(category_field, ""),
-                    display_price(guest.payment.price if guest.payment else 0),
+                    display_price(guest.payment.price + guest.submission.data.get(contribution_field, "") * 100 if guest.payment else 0 if guest.submission.data.get(contribution_field, "") or guest.submission.data.get(contribution_field) < 0 else 0),
                     "completed" if guest.status == RSVP.Status.CONFIRMED else "on-hold",
                     None,
                 ]
