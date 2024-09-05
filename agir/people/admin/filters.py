@@ -149,19 +149,19 @@ class PersonQualificationSupportGroupListFilter(AutocompleteSelectModelBaseFilte
 class PersonAccountActivateListFilter(admin.SimpleListFilter):
     title = "compte activé ou non"
     parameter_name = "disabled_account"
-    
+
     def lookups(self, request, model_admin):
         return (("enabled", _("Activé")), ("disabled", _("Désactivé")))
 
     def queryset(self, request, queryset):
         queryset = queryset.annotate(
-                is_enabled=Exists(
-                    Person.objects.filter(role_id=OuterRef("role__id")).filter(
-                        role__is_active=True
-                    )
+            is_enabled=Exists(
+                Person.objects.filter(role_id=OuterRef("role__id")).filter(
+                    role__is_active=True
                 )
+            )
         )
-        
+
         if self.value() == "enabled":
             return queryset.filter(is_enabled=True)
         if self.value() == "disabled":
