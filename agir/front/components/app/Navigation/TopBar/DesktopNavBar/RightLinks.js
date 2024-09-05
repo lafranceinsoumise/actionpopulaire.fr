@@ -27,7 +27,7 @@ const StyledLink = styled(Link)`
   &,
   &:hover,
   &:focus {
-    color: ${(props) => props.theme.black1000};
+    color: ${(props) => props.theme.text1000};
   }
 `;
 
@@ -44,7 +44,7 @@ const IconLink = styled(Link)`
   padding: 0 11px;
   font-size: 0.75rem;
   color: ${(props) =>
-    props.$active ? (props) => props.theme.primary500 : props.theme.black1000};
+    props.$active ? (props) => props.theme.primary500 : props.theme.text1000};
   box-shadow: ${(props) =>
     props.$active
       ? `0px -2px ${props.theme.primary500} inset`
@@ -145,7 +145,7 @@ const RightLinks = (props) => {
           <Popin
             isOpen={isUserMenuOpen}
             onDismiss={closeUserMenu}
-            shouldDismissOnClick
+            shouldDismissOnClick={false}
             position="bottom-right"
           >
             <UserMenu user={user} />

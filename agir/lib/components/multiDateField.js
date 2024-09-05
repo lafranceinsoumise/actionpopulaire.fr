@@ -3,7 +3,7 @@ import { renderReactComponent } from "@agir/lib/utils/react";
 import React from "react";
 
 import MultiDateInput from "@agir/front/formComponents/MultiDateField/MultiDateInput";
-import ThemeProvider from "@agir/front/theme/ThemeProvider";
+import ThemeProvider, { getTheme } from "@agir/front/theme/ThemeProvider";
 
 const renderField = (originalField) => {
   const parent = originalField.parentNode;
@@ -13,7 +13,7 @@ const renderField = (originalField) => {
   // const error = parent.querySelector("[id^='error']")?.innerText;
 
   renderReactComponent(
-    <ThemeProvider>
+    <ThemeProvider theme={getTheme("light")}>
       <MultiDateInput
         {...originalField.dataset}
         id={originalField.id}

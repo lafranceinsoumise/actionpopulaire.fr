@@ -10,7 +10,6 @@ import CenteredLayout from "@agir/front/app/Layout/CenteredLayout";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getRoutes } from "@agir/front/globalContext/reducers";
 
@@ -18,7 +17,7 @@ const StyledBlock = styled.article`
   padding: 0;
   margin-bottom: 2rem;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     padding: 0 25px;
     margin-bottom: 1rem;
   }
@@ -41,7 +40,7 @@ const GroupList = styled.article`
   margin-top: 2rem;
   margin-bottom: 2rem;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     padding: 0 1rem;
   }
 

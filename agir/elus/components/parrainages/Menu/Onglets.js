@@ -30,7 +30,7 @@ const StyledOnglets = styled("nav")`
   }
 
   a {
-    color: ${({ theme }) => theme.black1000};
+    color: ${({ theme }) => theme.text1000};
     display: block;
     width: 100%;
     text-decoration: none;

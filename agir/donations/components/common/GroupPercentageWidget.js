@@ -50,7 +50,7 @@ const StyledWidget = styled.div`
         font-weight: 400;
         height: 100%;
         border-radius: ${(props) => props.theme.borderRadius};
-        border: 1px solid ${(props) => props.theme.black100};
+        border: 1px solid ${(props) => props.theme.text100};
         outline: none;
         -moz-appearance: textfield;
 
@@ -61,7 +61,7 @@ const StyledWidget = styled.div`
         }
 
         &:focus {
-          border-color: ${(props) => props.theme.black1000};
+          border-color: ${(props) => props.theme.text1000};
         }
       }
 

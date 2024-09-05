@@ -3,8 +3,6 @@ import React from "react";
 import styled from "styled-components";
 import useSWR from "swr";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Button from "@agir/front/genericComponents/Button";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import ShareLink from "@agir/front/genericComponents/ShareLink";
@@ -21,7 +19,7 @@ const DonationSkeleton = styled.p`
   height: 36px;
   margin-bottom: 10px;
   width: 50%;
-  background-color: ${style.black50};
+  background-color: ${(props) => props.theme.text50};
 `;
 
 const StyledButtons = styled.p`
@@ -52,12 +50,20 @@ const GroupFinancePage = (props) => {
         </p>
         <Spacer size=".5rem" />
         {data && data.allocation === 0 && (
-          <p style={{ color: style.black700 }}>
+          <p
+            css={`
+              color: ${(props) => props.theme.text700};
+            `}
+          >
             Personne n'a encore alloué de dons à vos actions.
           </p>
         )}
       </PageFadeIn>
-      <p style={{ color: style.black700 }}>
+      <p
+        css={`
+          color: ${(props) => props.theme.text700};
+        `}
+      >
         Vous pouvez allouer des dons à vos actions de manière ponctuelle ou avec
         une contribution financière sur l'année.
       </p>
@@ -86,7 +92,11 @@ const GroupFinancePage = (props) => {
         Solliciter des dons pour mon groupe
       </StyledTitle>
 
-      <p style={{ color: style.black700 }}>
+      <p
+        css={`
+          color: ${(props) => props.theme.text700};
+        `}
+      >
         Partagez ce lien pour solliciter des dons pour votre groupe&nbsp;:
       </p>
 
@@ -102,11 +112,19 @@ const GroupFinancePage = (props) => {
         <StyledTitle style={{ fontSize: "1.25rem" }}>
           Demandes de dépense
         </StyledTitle>
-        <p style={{ color: style.black700 }}>
+        <p
+          css={`
+            color: ${(props) => props.theme.text700};
+          `}
+        >
           Vous pouvez créer une demande de remboursement ou de paiement à tout
           moment et en enregistrer le brouillon.
         </p>
-        <p style={{ color: style.black700 }}>
+        <p
+          css={`
+            color: ${(props) => props.theme.text700};
+          `}
+        >
           Si la demande est complète et l'allocation de votre groupe suffisante,
           vous pourrez la transmettre pour vérification à un·e autre
           animateur·ice ou gestionnaire de votre groupe, et ensuite la faire

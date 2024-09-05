@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Editor from "./Editor";
 
 const StyledLabel = styled.span``;
@@ -41,7 +39,7 @@ const StyledField = styled.label`
     display: ${({ $invalid }) => ($invalid ? "flex" : "none")};
     grid-row: 4;
     grid-column: 1/3;
-    color: ${style.redNSP};
+    color: ${(props) => props.theme.error500};
   }
 `;
 

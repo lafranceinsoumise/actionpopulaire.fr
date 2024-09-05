@@ -26,9 +26,6 @@ export const RawFeatherIcon = styled.span
         "stroke-linecap": strokeLinecap,
         "stroke-linejoin": strokeLinejoin,
       };
-      if (typeof color !== "undefined") {
-        attrs.color = color;
-      }
       Object.keys(attrs).map((k) => attrs[k] === undefined && delete attrs[k]);
 
       if (svgStyle !== undefined) {
@@ -53,6 +50,7 @@ export const RawFeatherIcon = styled.span
     width: ${(props) => props.width};
     height: ${(props) => props.height};
     top: ${(props) => props.top};
+    color: ${(props) => (props.color ? props.theme[props.color] || props.color : "currentcolor")};
   }
 `;
 

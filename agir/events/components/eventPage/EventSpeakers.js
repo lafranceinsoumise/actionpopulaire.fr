@@ -12,7 +12,7 @@ const StyledEventSpeaker = styled.div`
   grid-auto-flow: dense;
   align-items: center;
   gap: 0 1rem;
-  color: ${(props) => props.theme.black500};
+  color: ${(props) => props.theme.text500};
   font-weight: 400;
   font-size: 1rem;
   line-height: 1.5;
@@ -36,7 +36,7 @@ const StyledEventSpeaker = styled.div`
   }
 
   strong {
-    color: ${(props) => props.theme.black1000};
+    color: ${(props) => props.theme.text1000};
   }
 `;
 const StyledCard = styled(Card)`
@@ -53,7 +53,7 @@ const StyledCard = styled(Card)`
     font-size: 1rem;
     line-height: 1.5;
     font-weight: 700;
-    color: ${(props) => props.theme.black500};
+    color: ${(props) => props.theme.text500};
     margin: 0;
   }
 `;

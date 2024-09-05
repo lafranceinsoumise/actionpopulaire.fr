@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
@@ -13,7 +11,7 @@ const StyledWrapper = styled.div`
     font-weight: 700;
     margin-bottom: 1.5rem;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       font-size: 1.25rem;
     }
   }
@@ -41,7 +39,7 @@ const StyledWrapper = styled.div`
     display: flex;
     line-height: 0;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       flex-flow: column-reverse nowrap;
 
       ${Button} {
@@ -64,7 +62,13 @@ const ConfirmContact = (props) => {
         <p>{data.phone}</p>
         {data.address ? <p>{data.address}</p> : null}
         <p>{`${data.zip} ${data.city || ""} ${data.country || ""}`.trim()}</p>
-        <p style={{ color: style.primary500 }}>{data.email}</p>
+        <p
+          css={`
+            color: ${(props) => props.theme.primary500};
+          `}
+        >
+          {data.email}
+        </p>
       </div>
       <Spacer size="1.5rem" />
       <ul>

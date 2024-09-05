@@ -8,8 +8,6 @@ import React, {
 } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import { lazy } from "@agir/front/app/utils";
 
 const RSBS = lazy(() => import("./ReactSpringBottomSheet"));
@@ -21,14 +19,15 @@ const StyledBottomSheetFooter = styled.footer`
     width: calc(100% - 3rem);
     height: 1px;
     margin: 0 auto;
-    background-color: ${style.black200};
+    background-color: ${(props) => props.theme.text200};
   }
 
   button {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: white;
+    color: ${(props) => props.theme.text1000};
+    background-color: ${(props) => props.theme.background0};
     box-shadow: none;
     border: none;
     height: 54px;
@@ -39,10 +38,11 @@ const StyledBottomSheetFooter = styled.footer`
 `;
 const StyledBottomSheet = styled(RSBS)`
   [data-rsbs-overlay] {
-    z-index: ${style.zindexPanel};
+    background-color: ${(props) => props.theme.background0};
+    z-index: ${(props) => props.theme.zindexPanel};
   }
   [data-rsbs-backdrop] {
-    z-index: ${style.zindexPanel};
+    z-index: ${(props) => props.theme.zindexPanel};
     background-color: rgba(0, 10, 44, 0.6);
   }
   [data-rsbs-footer] {

@@ -9,8 +9,6 @@ import React, {
 } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import ExpandButton from "@agir/front/genericComponents/ExpandButton";
 
 const FadingOverflowWrapper = styled.div`
@@ -19,7 +17,7 @@ const FadingOverflowWrapper = styled.div`
   overflow: hidden;
   position: relative;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     font-size: 0.875rem;
     line-height: 1.6;
   }
@@ -34,7 +32,11 @@ const FadingOverflowWrapper = styled.div`
     width: 100%;
     height: ${({ collapsed, maxHeight }) =>
       collapsed && maxHeight ? "2rem" : "0"};
-    background: linear-gradient(0deg, white 0%, transparent 100%);
+    background: linear-gradient(
+      0deg,
+      ${(props) => props.theme.background0} 0%,
+      transparent 100%
+    );
   }
 `;
 const FadingOverflowCollapsible = (props) => {
@@ -104,7 +106,7 @@ FadingOverflowCollapsible.defaultProps = {
 };
 
 const StyledWrapper = styled.div`
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     font-size: 0.875rem;
     line-height: 1.6;
   }

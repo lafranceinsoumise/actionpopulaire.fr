@@ -16,7 +16,7 @@ const StyledField = styled.div`
   ${StyledError} {
     display: flex;
     gap: 0.5rem;
-    color: ${(props) => props.theme.redNSP};
+    color: ${(props) => props.theme.error500};
 
     &:empty {
       display: none;

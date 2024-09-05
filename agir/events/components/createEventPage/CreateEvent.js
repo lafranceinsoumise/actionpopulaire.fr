@@ -1,8 +1,6 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import { useMissingRequiredEventDocuments } from "@agir/events/common/hooks";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getIsSessionLoaded } from "@agir/front/globalContext/reducers";
@@ -48,7 +46,7 @@ const StyledInfoBlock = styled.p`
   }
 
   ${Illustration} {
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       display: none;
     }
   }
@@ -58,14 +56,14 @@ const StyledContainer = styled(Container)`
   margin: 4rem auto;
   margin-top: 2rem;
   padding: 0;
-  background-color: white;
+  background-color: ${(props) => props.theme.background0};
   width: 100%;
   max-width: 1098px;
   display: grid;
   grid-template-columns: 1fr 300px;
   grid-gap: 1.5rem;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     margin: 0;
     display: block;
   }
@@ -77,7 +75,7 @@ const StyledContainer = styled(Container)`
   & > div + div {
     padding: 0;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       display: none;
     }
   }
@@ -144,7 +142,7 @@ const CreateEvent = () => {
       <StyledContainer>
         <div>
           <BackLink style={{ margin: 0 }}>
-            <RawFeatherIcon name="arrow-left" color={style.black1000} />
+            <RawFeatherIcon name="arrow-left" color="currentcolor" />
           </BackLink>
           <Spacer size="1.5rem" />
           <h2>Nouvel événement</h2>

@@ -3,8 +3,6 @@ import PropTypes from "prop-types";
 import React, { forwardRef } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 
 import "cleave.js/dist/addons/cleave-phone.fr";
@@ -43,10 +41,10 @@ const StyledField = styled.label`
 
     input {
       display: block;
-      border-radius: ${style.softBorderRadius};
+      border-radius: ${(props) => props.theme.softBorderRadius};
       border: 1px solid;
-      border-color: ${({ $invalid }) =>
-        $invalid ? style.redNSP : style.black100};
+      border-color: ${({ $invalid, theme }) =>
+        $invalid ? theme.error500 : theme.text100};
       width: 100%;
       padding: 0.5rem;
       padding-right: ${({ $invalid }) => ($invalid ? "3.25rem" : "0.5rem")};
@@ -54,8 +52,8 @@ const StyledField = styled.label`
       font-size: 1rem;
 
       &:focus {
-        border-color: ${({ $invalid }) =>
-          $invalid ? style.redNSP : style.black500};
+        border-color: ${({ $invalid, theme }) =>
+          $invalid ? theme.error500 : theme.text500};
       }
     }
   }
@@ -66,13 +64,13 @@ const StyledField = styled.label`
     align-items: flex-start;
     justify-content: flex-end;
     padding: 0.5rem;
-    color: ${style.redNSP};
+    color: ${(props) => props.theme.error500};
   }
   ${StyledError} {
     display: ${({ $invalid }) => ($invalid ? "flex" : "none")};
     grid-row: 4;
     grid-column: 1/3;
-    color: ${style.redNSP};
+    color: ${(props) => props.theme.error500};
   }
 `;
 

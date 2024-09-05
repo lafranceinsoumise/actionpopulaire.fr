@@ -1,8 +1,6 @@
 import React, { useCallback, useRef, useState } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import nonReactRoutes from "@agir/front/globalContext/nonReactRoutes.config";
 
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
@@ -17,9 +15,9 @@ const SearchBarInput = styled.input``;
 const SearchBarWrapper = styled.form`
   display: flex;
   border: 1px solid;
-  border-color: ${({ $focused, $empty }) =>
-    $focused || !$empty ? style.black1000 : style.black100};
-  border-radius: ${style.borderRadius};
+  border-color: ${({ $focused, $empty, theme }) =>
+    $focused || !$empty ? theme.text1000 : theme.text100};
+  border-radius: ${(props) => props.theme.borderRadius};
   align-items: center;
   height: 40px;
 
@@ -31,8 +29,8 @@ const SearchBarWrapper = styled.form`
     display: flex;
 
     svg {
-      stroke: ${({ $focused, $empty }) =>
-        $focused || !$empty ? style.black1000 : style.black500};
+      stroke: ${({ $focused, $empty, theme }) =>
+        $focused || !$empty ? theme.text1000 : theme.text500};
     }
   }
 
@@ -41,15 +39,15 @@ const SearchBarWrapper = styled.form`
     height: 2rem;
     margin: 0;
     padding: 0;
-    color: ${style.black1000};
+    color: ${(props) => props.theme.text1000};
     border: none;
     background-color: transparent;
     outline: none;
-    border-radius: ${style.softBorderRadius};
+    border-radius: ${(props) => props.theme.softBorderRadius};
   }
 
   ${SearchBarInput}::placeholder {
-    color: ${style.black500};
+    color: ${(props) => props.theme.text500};
     font-weight: 400;
     text-overflow: ellipsis;
     font-size: 0.875rem;
@@ -122,7 +120,7 @@ const SearchBar = () => {
       <SearchBarButton type="submit" color="primary">
         <RawFeatherIcon
           name="arrow-right"
-          color="#fff"
+          color="background0"
           width="1rem"
           height="1rem"
           strokeWidth={2}

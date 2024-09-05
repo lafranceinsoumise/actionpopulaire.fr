@@ -21,7 +21,7 @@ const StyledModalContent = styled.div`
   margin: 40px auto 0;
   border-radius: ${(props) => props.theme.borderRadius};
   box-shadow: ${(props) => props.theme.elaborateShadow};
-  background-color: ${(props) => props.theme.white};
+  background-color: ${(props) => props.theme.background0};
 
   @media (max-width: ${(props) => props.theme.collapse}px) {
     margin-top: 1rem;
@@ -54,7 +54,7 @@ const StyledModalContent = styled.div`
     }
 
     em {
-      color: ${(props) => props.theme.black500};
+      color: ${(props) => props.theme.text500};
     }
   }
 

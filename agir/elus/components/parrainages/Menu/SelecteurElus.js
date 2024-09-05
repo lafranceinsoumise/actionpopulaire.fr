@@ -8,13 +8,13 @@ const SelecteurElusLayout = styled.ul`
   display: block;
   margin: 0;
   padding: 0;
-  background-color: ${(props) => props.theme.black25};
+  background-color: ${(props) => props.theme.text25};
 
   li {
   }
 
   li + li {
-    border-top: 1px solid ${(props) => props.theme.black50};
+    border-top: 1px solid ${(props) => props.theme.text50};
   }
 
   strong {
@@ -26,13 +26,12 @@ const SelecteurElusLayout = styled.ul`
 const Button = styled.button`
   width: 100%;
 
-  background-color: ${(props) => props.theme.black25};
+  background-color: ${(props) => props.theme.text25};
   border: 0;
   margin: 0;
   padding: 1rem;
   border-left: 3px solid
-    ${(props) =>
-      props.selected ? props.theme.primary500 : props.theme.black25};
+    ${(props) => (props.selected ? props.theme.primary500 : props.theme.text25)};
   cursor: pointer;
 
   text-align: left;

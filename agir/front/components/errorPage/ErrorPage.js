@@ -56,7 +56,7 @@ const StyledContainer = styled.div`
     padding: 1.5rem;
     margin: 0 0 1rem;
     overflow: auto;
-    background-color: ${(props) => props.theme.black50};
+    background-color: ${(props) => props.theme.text50};
     border-radius: ${(props) => props.theme.borderRadius};
     text-align: center;
   }

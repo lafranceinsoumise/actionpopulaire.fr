@@ -6,8 +6,6 @@ import useSWR from "swr";
 import { useToast } from "@agir/front/globalContext/hooks";
 import * as api from "@agir/events/common/api";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import Map from "@agir/carte/common/Map";
@@ -97,7 +95,11 @@ const EventLocation = (props) => {
       </Button>
       <Spacer size="1rem" />
 
-      <span style={{ color: style.black700 }}>
+      <span
+        css={`
+          color: ${(props) => props.theme.text700};
+        `}
+      >
         Si vous ne souhaitez pas rendre cette adresse publique, indiquez un
         endroit à proximité (café, mairie...)
         <Spacer size="0.5rem" />
@@ -120,7 +122,7 @@ const EventLocation = (props) => {
       {errors.global && (
         <p
           css={`
-            color: ${(props) => props.theme.redNSP};
+            color: ${(props) => props.theme.error500};
             margin: 0;
           `}
         >

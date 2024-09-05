@@ -31,7 +31,7 @@ const StyledTaxReduction = styled.p`
   margin: 1rem 0 2rem;
   border-radius: ${(props) => props.theme.borderRadius};
   border: 1px solid
-    ${(props) => (props.error ? props.theme.redNSP : props.theme.black200)};
+    ${(props) => (props.error ? props.theme.error500 : props.theme.text200)};
   font-weight: 500;
 
   span {
@@ -45,12 +45,12 @@ const StyledTaxReduction = styled.p`
 
   ${RawFeatherIcon}, strong {
     color: ${(props) =>
-      props.error ? props.theme.redNSP : props.theme.green500};
+      props.error ? props.theme.error500 : props.theme.success500};
   }
 
   strong {
     font-weight: 600;
-    box-shadow: inset 0 -2px ${(props) => (props.error ? props.theme.redNSP : props.theme.green500)};
+    box-shadow: inset 0 -2px ${(props) => (props.error ? props.theme.error500 : props.theme.success500)};
   }
 `;
 

@@ -52,7 +52,7 @@ const TimezoneToggle = styled.p`
 `;
 
 const ErrorMessage = styled.p`
-  color: ${(props) => props.theme.redNSP};
+  color: ${(props) => props.theme.error500};
 `;
 
 const Field = styled.div`

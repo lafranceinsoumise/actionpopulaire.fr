@@ -11,27 +11,33 @@ import facebookLogo from "@agir/front/genericComponents/logos/facebook.svg";
 import facebookWhiteLogo from "@agir/front/genericComponents/logos/facebook_white.svg";
 
 const FacebookLoginContainer = styled.div`
-  background-color: #e8f2fe;
-  max-width: 255px;
+  background-color: ${(props) => props.theme.facebookLight};
+  color: ${(props) => props.theme.black};
+  max-width: 15.9375rem;
   border-radius: ${(props) => props.theme.borderRadius};
-  padding: 24px;
-  font-size: 14px;
-  margin-bottom: 16px;
+  padding: 1.5rem;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+
+  h6 {
+    color: inherit;
+  }
 `;
 
 const DismissMessage = styled.a`
-  color: ${(props) => props.theme.black1000};
+  color: ${(props) => props.theme.black};
   text-decoration: underline;
-  margin-top: 16px;
+  margin-top: 1rem;
 
   &:hover {
-    color: ${(props) => props.theme.black1000};
+    color: ${(props) => props.theme.black};
   }
 `;
 
 const FacebookLoginAd = () => {
   const [announcement, dismissCallback] =
     useCustomAnnouncement("facebook-login-ad");
+
   const { data: session } = useSWR("/api/session/");
   const { isIOS } = useMobileApp();
 

@@ -5,7 +5,6 @@ import Link from "@agir/front/app/Link";
 import Avatar from "@agir/front/genericComponents/Avatar";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
-import * as style from "@agir/front/genericComponents/_variables.scss";
 import { MEMBERSHIP_TYPES } from "@agir/groups/utils/group";
 import styled from "styled-components";
 
@@ -24,7 +23,7 @@ const StyledPerson = styled.div`
 const StyledContainer = styled.div`
   padding: 1rem;
 
-  @media (min-width: ${style.collapse}px) {
+  @media (min-width: ${(props) => props.theme.collapse}px) {
     max-width: 400px;
     padding: 0;
   }

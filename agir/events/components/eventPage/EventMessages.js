@@ -1,8 +1,6 @@
 import PropTypes from "prop-types";
 import React, { Fragment } from "react";
-
 import styled from "styled-components";
-import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import Spacer from "@agir/front/genericComponents/Spacer";
 import { MessageReadonlyCard } from "@agir/front/genericComponents/MessageCard";
@@ -13,7 +11,7 @@ import { getUser } from "@agir/front/globalContext/reducers";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 
 const StyledH3 = styled.h3`
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     padding-left: 1rem;
   }
 `;

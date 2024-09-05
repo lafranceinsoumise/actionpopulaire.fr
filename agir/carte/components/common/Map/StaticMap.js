@@ -8,7 +8,7 @@ import React, {
 } from "react";
 import styled, { keyframes } from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables-light.scss";
 import fontawesome from "@agir/lib/utils/fontawesome";
 
 import { fontawesomeIsLoaded } from "@agir/carte/map/utils";
@@ -27,16 +27,16 @@ const StyledStaticMapWrapper = styled.div`
   width: 100%;
   height: 100%;
   position: relative;
-  background-color: lightgrey;
+  background-color: ${(props) => props.theme.text50};
   background-image: linear-gradient(
       100deg,
-      rgba(230, 230, 230, 0) 0,
-      rgba(230, 230, 230, 1) 50%,
-      rgba(230, 230, 230, 0) 100%
+      ${(props) => props.theme.text50}00 0,
+      ${(props) => props.theme.text50} 50%,
+      ${(props) => props.theme.text50}00 100%
     ),
-    linear-gradient(rgba(220, 220, 220, 1) 100%, transparent 0%);
+    linear-gradient(${(props) => props.theme.text100} 100%, transparent 0%);
   background-size:
-    33% 100%,
+    300% 100%,
     100% 100%;
   background-position:
     -150% 0,
@@ -52,6 +52,7 @@ const StyledStaticMapWrapper = styled.div`
   }
 
   & > ${StyledStaticMapBackground} {
+    filter: ${(props) => props.theme.mapFilter};
     background-position: center center;
     background-repeat: no-repeat;
     background-size: auto auto;
@@ -139,7 +140,7 @@ export const MapMarker = (props) => {
       <path
         d="M19.4125 36.53L19.7578 36.8915L20.1032 36.53L29.8864 26.2879C35.4834 20.4284 35.4342 10.8888 29.7907 4.98059C24.1473 -0.927579 15.035 -0.979031 9.43801 4.88049C3.84101 10.74 3.89016 20.2796 9.53364 26.1878L19.4125 36.53Z"
         fill={color ? color : style.secondary500}
-        stroke={color ? style.white : style.black1000}
+        stroke={color ? style.background0 : style.text1000}
         strokeWidth="2px"
       />
       {iconName && fontawesome(iconName) ? (

@@ -3,8 +3,6 @@ import React, { useMemo } from "react";
 import { NavLink } from "react-router-dom";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import { Hide } from "@agir/front/genericComponents/grid";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
@@ -13,8 +11,8 @@ import BackButton from "./BackButton";
 
 const StyledWarning = styled.p`
   font-size: 0.875rem;
-  color: ${style.black700};
-  background-color: ${style.black100};
+  color: ${(props) => props.theme.text700};
+  background-color: ${(props) => props.theme.text100};
   border-radius: 0.5rem;
   padding: 1rem;
 
@@ -40,8 +38,8 @@ const StyledMenuItem = styled(NavLink)`
   font-size: 1rem;
   line-height: 1.1;
   font-weight: 500;
-  color: ${({ disabled, $cancel }) =>
-    $cancel ? style.redNSP : disabled ? style.black500 : style.black1000};
+  color: ${({ disabled, $cancel, theme }) =>
+    $cancel ? theme.error500 : disabled ? theme.text500 : theme.text1000};
   cursor: ${({ disabled }) => (disabled ? "default" : "pointer")};
 
   && {
@@ -51,8 +49,8 @@ const StyledMenuItem = styled(NavLink)`
   &:hover {
     text-decoration: none;
     cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
-    color: ${({ disabled, $cancel }) =>
-      $cancel ? style.redNSP : disabled ? style.black500 : style.primary500};
+    color: ${({ disabled, $cancel, theme }) =>
+      $cancel ? theme.error500 : disabled ? theme.text500 : theme.primary500};
   }
 
   & > * {
@@ -75,15 +73,15 @@ const StyledMenuItem = styled(NavLink)`
     justify-content: center;
     width: 2rem;
     height: 2rem;
-    background-color: ${({ disabled, active }) => {
-      if (disabled) return style.black100;
-      if (active) return style.primary500;
-      return style.secondary500;
+    background-color: ${({ disabled, active, theme }) => {
+      if (disabled) return theme.text100;
+      if (active) return theme.primary500;
+      return theme.secondary500;
     }};
-    color: ${({ disabled, active }) => {
-      if (disabled) return style.black500;
-      if (active) return "#fff";
-      return style.black1000;
+    color: ${({ disabled, active, theme }) => {
+      if (disabled) return theme.text500;
+      if (active) return theme.background0;
+      return theme.text1000;
     }};
     margin-right: 1rem;
     clip-path: circle(1rem);
@@ -92,18 +90,18 @@ const StyledMenuItem = styled(NavLink)`
 
   &.active {
     span {
-      color: ${({ $cancel, disabled }) =>
-        $cancel ? style.redNSP : disabled ? style.black500 : style.primary500};
+      color: ${({ $cancel, disabled, theme }) =>
+        $cancel ? theme.error500 : disabled ? theme.text500 : theme.primary500};
     }
 
     ${RawFeatherIcon} {
-      background-color: ${({ disabled }) => {
-        if (disabled) return style.black100;
-        return style.primary500;
+      background-color: ${({ disabled, theme }) => {
+        if (disabled) return theme.text100;
+        return theme.primary500;
       }};
-      color: ${({ disabled }) => {
-        if (disabled) return style.black500;
-        return style.white;
+      color: ${({ disabled, theme }) => {
+        if (disabled) return theme.text500;
+        return theme.background0;
       }};
     }
   }
@@ -113,22 +111,22 @@ const StyledMenu = styled.div`
   width: 100%;
   height: 100%;
   padding: 1.5rem;
-  background-color: ${style.black25};
+  background-color: ${(props) => props.theme.text25};
   box-shadow: inset -1px 0px 0px #dfdfdf;
   overflow: auto;
 
-  @media (min-width: ${style.collapse}px) {
+  @media (min-width: ${(props) => props.theme.collapse}px) {
     width: 360px;
   }
 
-  @media (max-width: ${style.collapse}px) {
-    background-color: ${style.white};
+  @media (max-width: ${(props) => props.theme.collapse}px) {
+    background-color: ${(props) => props.theme.background0};
   }
 
   h6 {
     font-size: 0.875rem;
     font-weight: 400;
-    color: ${style.black700};
+    color: ${(props) => props.theme.text700};
     margin: 0;
     padding-bottom: 0.25rem;
 
@@ -154,7 +152,7 @@ const StyledMenu = styled.div`
     }
 
     hr {
-      border-color: ${style.black200};
+      border-color: ${(props) => props.theme.text200};
       margin: 0.5rem 0 1.5rem;
     }
 

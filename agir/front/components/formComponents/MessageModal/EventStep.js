@@ -10,7 +10,6 @@ import {
   FaCalendar,
 } from "@agir/front/genericComponents/FaIcon";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
 import { displayHumanDateString } from "@agir/lib/utils/time";
 
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
@@ -36,7 +35,8 @@ const StyledOption = styled.button`
   text-align: left;
   -webkit-appearance: none;
   -moz-appearance: none;
-  color: ${({ $loadMore }) => ($loadMore ? style.primary500 : style.black1000)};
+  color: ${({ $loadMore, theme }) =>
+    $loadMore ? theme.primary500 : theme.text1000};
   font-size: ${({ $loadMore }) => ($loadMore ? "0.875rem" : "1rem")};
   line-height: 1.2;
   padding: 0.5rem 0;
@@ -49,8 +49,8 @@ const StyledOption = styled.button`
   &:focus {
     border: none;
     outline: none;
-    background-color: ${({ $loadMore }) =>
-      $loadMore ? "transparent" : style.black50};
+    background-color: ${({ $loadMore, theme }) =>
+      $loadMore ? "transparent" : theme.text50};
     text-decoration: ${({ $loadMore }) => ($loadMore ? "underline" : "none")};
   }
 
@@ -74,12 +74,12 @@ const StyledOption = styled.button`
 
     strong {
       font-weight: 600;
-      color: ${style.primary500};
+      color: ${(props) => props.theme.primary500};
     }
 
     em {
       font-weight: 400;
-      color: ${style.black700};
+      color: ${(props) => props.theme.text700};
       font-style: normal;
 
       &::first-letter {
@@ -105,7 +105,7 @@ const StyledWarning = styled.p`
   font-size: 0.875rem;
   line-height: 1.5;
   margin: 0 1.5rem 1rem;
-  border-left: 2px solid ${style.primary500};
+  border-left: 2px solid ${(props) => props.theme.primary500};
 
   strong {
     font-weight: 600;
@@ -121,7 +121,7 @@ const StyledWrapper = styled.div`
   overflow-y: auto;
   padding-top: 1.5rem;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     max-height: 100%;
   }
 
@@ -136,7 +136,7 @@ const StyledWrapper = styled.div`
   }
 
   h4 {
-    color: ${style.black1000};
+    color: ${(props) => props.theme.text1000};
     font-weight: 600;
     font-size: 1rem;
     line-height: 1.5;
@@ -159,7 +159,7 @@ const EventStepOption = (props) => {
 
   return (
     <StyledOption onClick={handleClick}>
-      <Icon color={style.primary500} />
+      <Icon color="primary500" />
       <span>
         <strong>{event.name}</strong>
         <br />
@@ -167,7 +167,7 @@ const EventStepOption = (props) => {
           {event.startTime ? displayHumanDateString(event.startTime) : null}
         </em>
       </span>
-      <RawFeatherIcon name="chevron-right" color={style.primary500} />
+      <RawFeatherIcon name="chevron-right" color="primary500" />
     </StyledOption>
   );
 };

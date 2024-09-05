@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import AppStore from "@agir/front/genericComponents/AppStore";
 import Link from "@agir/front/app/Link";
 import LogoAP from "@agir/front/genericComponents/LogoAP";
@@ -14,14 +12,14 @@ import FooterBanner from "./FooterBanner";
 const StyledAppStore = styled(AppStore)``;
 const StyledFooter = styled.div`
   width: 100%;
-  background-color: ${style.white};
-  border-top: 1px solid ${style.black100};
+  background-color: ${(props) => props.theme.background0};
+  border-top: 1px solid ${(props) => props.theme.text100};
 
   article {
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
-    color: ${style.black1000};
+    color: ${(props) => props.theme.text1000};
     margin: 0 auto;
     display: flex;
     flex-flow: row nowrap;
@@ -30,7 +28,7 @@ const StyledFooter = styled.div`
     padding: 60px 1.5rem;
     gap: 1rem;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       flex-flow: column nowrap;
       width: 100%;
       padding: 1.5rem 1.5rem 0;
@@ -40,7 +38,7 @@ const StyledFooter = styled.div`
       padding: 20px 0;
       color: inherit;
 
-      @media (min-width: ${style.collapse}px) {
+      @media (min-width: ${(props) => props.theme.collapse}px) {
         flex: 0 1 auto;
         min-width: 110px;
 
@@ -61,7 +59,7 @@ const StyledFooter = styled.div`
         }
       }
 
-      @media (max-width: ${style.collapse}px) {
+      @media (max-width: ${(props) => props.theme.collapse}px) {
         flex: 0 0 auto;
 
         &:first-child {
@@ -73,15 +71,15 @@ const StyledFooter = styled.div`
         width: 100%;
         height: auto;
 
-        @media (max-width: ${style.collapse}px) {
+        @media (max-width: ${(props) => props.theme.collapse}px) {
           width: 125px;
           height: 62px;
         }
-        background-color: ${style.white};
+        background-color: ${(props) => props.theme.background0};
       }
 
       h3 {
-        color: ${style.primary500};
+        color: ${(props) => props.theme.primary500};
         text-transform: uppercase;
         margin-top: 0;
         margin-bottom: 0.75rem;
@@ -105,7 +103,7 @@ const StyledFooter = styled.div`
 `;
 
 const FooterWrapper = styled.footer`
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     padding-bottom: 72px;
   }
 `;

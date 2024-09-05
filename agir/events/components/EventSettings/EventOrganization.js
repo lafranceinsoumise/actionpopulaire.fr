@@ -2,7 +2,6 @@ import PropTypes from "prop-types";
 import React, { useState, useMemo } from "react";
 import useSWR from "swr";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
 import * as api from "@agir/events/common/api";
 
 import Spacer from "@agir/front/genericComponents/Spacer.js";
@@ -70,7 +69,11 @@ const EventOrganization = (props) => {
       groups.length + groupsInvited.length === 1 ? (
         <>
           <StyledTitle>Groupe organisateur</StyledTitle>
-          <span style={{ color: style.black700 }}>
+          <span
+            css={`
+              color: ${(props) => props.theme.text700};
+            `}
+          >
             Les animateur·ices du groupe peuvent accéder à la gestion de
             l'événement et la liste des participant·es.
           </span>
@@ -78,7 +81,11 @@ const EventOrganization = (props) => {
       ) : (
         <>
           <StyledTitle>Groupes organisateurs</StyledTitle>
-          <span style={{ color: style.black700 }}>
+          <span
+            css={`
+              color: ${(props) => props.theme.text700};
+            `}
+          >
             Les animateur·ices de ces groupes peuvent accéder à la gestion de
             l'événement et la liste des participant·es.
           </span>
@@ -112,7 +119,11 @@ const EventOrganization = (props) => {
       <Spacer size="1.5rem" />
 
       <StyledTitle>Participant·es organisateur·ices</StyledTitle>
-      <span style={{ color: style.black700 }}>
+      <span
+        css={`
+          color: ${(props) => props.theme.text700};
+        `}
+      >
         Donnez des droits d’accès à des participant·es pour leur permettre de
         gérer l’événement.
       </span>

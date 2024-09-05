@@ -1,8 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import sunIcon from "@agir/activity/images/sunIcon.svg";
 
 export const StyledEmptyList = styled.p`
@@ -11,10 +9,10 @@ export const StyledEmptyList = styled.p`
   display: flex;
   flex-flow: row nowrap;
   align-items: stretch;
-  border: 1px solid ${style.black100};
+  border: 1px solid ${(props) => props.theme.text100};
   margin: 32px 0;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     margin: 24px 16px;
   }
 

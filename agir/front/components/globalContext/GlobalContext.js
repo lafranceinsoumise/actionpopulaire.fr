@@ -3,10 +3,8 @@ import React, { useContext, useEffect, useMemo, Suspense } from "react";
 import { StateInspector, useReducer } from "reinspect";
 import useSWR from "swr";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import QueryStringParamsActions from "./QueryStringParamsActions";
-import ThemeProvider from "@agir/front/theme/ThemeProvider";
+import ThemeProvider, { getTheme } from "@agir/front/theme/ThemeProvider";
 
 import rootReducer from "@agir/front/globalContext/reducers";
 import createDispatch, {
@@ -23,7 +21,12 @@ const Toasts = lazy(() => import("@agir/front/globalContext/Toast"), null);
 
 const GlobalContext = React.createContext({});
 
-const ProdProvider = ({ hasRouter = false, hasToasts = false, children }) => {
+const ProdProvider = ({
+  hasRouter = false,
+  hasToasts = false,
+  colorScheme,
+  children,
+}) => {
   const [state, dispatch] = useReducer(
     rootReducer,
     rootReducer({}, init(hasRouter)),
@@ -60,7 +63,9 @@ const ProdProvider = ({ hasRouter = false, hasToasts = false, children }) => {
 
   return (
     <GlobalContext.Provider value={{ state, dispatch: doDispatch }}>
-      <ThemeProvider>
+      <ThemeProvider
+        theme={(colorScheme && getTheme(colorScheme)) || undefined}
+      >
         <QueryStringParamsActions user={sessionContext?.user} />
         {children}
         {hasToasts && state.toasts?.length > 0 ? (

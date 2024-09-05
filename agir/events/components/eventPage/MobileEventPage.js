@@ -3,8 +3,6 @@ import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import defaultEventImage from "@agir/front/genericComponents/images/banner-map-background.svg";
 
 import ClickableMap from "@agir/carte/common/Map/ClickableMap";
@@ -15,7 +13,6 @@ import Card from "@agir/front/genericComponents/Card";
 import ContactCard from "@agir/front/genericComponents/ContactCard";
 import RenderIfVisible from "@agir/front/genericComponents/RenderIfVisible";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
-import Spacer from "@agir/front/genericComponents/Spacer";
 import {
   GroupsJoiningCard,
   GroupsOrganizingCard,
@@ -73,7 +70,7 @@ const StyledMap = styled(RenderIfVisible)`
   position: relative;
   background-size: 0 0;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     clip-path: none;
     width: 100%;
     height: 155px;
@@ -145,14 +142,16 @@ const MobileEventPage = (props) => {
     <>
       <StyledMap
         once
-        style={{
-          backgroundColor: illustration?.thumbnail
-            ? style.white
-            : style.secondary500,
-          backgroundImage: !illustration?.thumbnail
+        illustration={illustration}
+        css={`
+          background-color: ${(props) =>
+            props.illustration?.thumbnail
+              ? props.theme.background0
+              : props.theme.secondary500};
+          background-image: ${!props.illustration?.thumbnail
             ? `url(${defaultEventImage})`
-            : undefined,
-        }}
+            : undefined};
+        `}
       >
         {illustration ? (
           <>

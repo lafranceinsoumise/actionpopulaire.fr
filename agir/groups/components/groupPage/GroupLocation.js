@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Card from "./GroupPageCard";
 import Map from "@agir/carte/common/Map";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
@@ -11,7 +9,7 @@ import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 const StyledMap = styled.div`
   height: 308px;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     height: 155px;
   }
 `;
@@ -32,14 +30,14 @@ const StyledAddress = styled.div`
     display: flex;
     flex-flow: column nowrap;
     font-size: 0.875rem;
-    color: ${style.black500};
+    color: ${(props) => props.theme.text500};
     line-height: 1.5;
     font-weight: 400;
 
     span {
       &:first-child {
         font-weight: 500;
-        color: ${style.black1000};
+        color: ${(props) => props.theme.text1000};
       }
     }
 
@@ -50,7 +48,7 @@ const StyledAddress = styled.div`
     a {
       font-weight: 500;
       text-decoration: none;
-      color: ${style.primary500};
+      color: ${(props) => props.theme.primary500};
     }
   }
 `;

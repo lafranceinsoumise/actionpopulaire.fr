@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Button from "@agir/front/genericComponents/Button";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
@@ -33,7 +31,7 @@ const StyledFloatingButton = styled(Button)`
     &::before {
       content: "+";
       position: absolute;
-      color: white;
+      color: ${(props) => props.theme.background0};
       font-size: 11px;
       font-weight: 600;
       top: 2px;
@@ -48,15 +46,15 @@ const StyledFloatingButton = styled(Button)`
 
 const StyledButton = styled.button`
   border: ${({ $outlined }) =>
-    $outlined ? `1px solid ${style.primary500}` : "none"};
+    $outlined ? `1px solid ${(props) => props.theme.primary500}` : "none"};
   margin: 0;
   text-decoration: none;
-  background-color: ${style.white};
+  background-color: ${(props) => props.theme.background0};
   cursor: pointer;
   text-align: center;
   -webkit-appearance: none;
   -moz-appearance: none;
-  color: ${style.primary500};
+  color: ${(props) => props.theme.primary500};
   display: flex;
   justify-content: center;
   align-items: center;
@@ -64,9 +62,9 @@ const StyledButton = styled.button`
   height: 54px;
   padding: 0.5rem;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     border: ${({ $outlined }) =>
-      $outlined ? `1px solid ${style.black100}` : "none"};
+      $outlined ? `1px solid ${(props) => props.theme.text100}` : "none"};
   }
 
   &:focus,
@@ -89,7 +87,7 @@ const StyledButton = styled.button`
     justify-content: center;
     width: 2rem;
     height: 2rem;
-    background-color: ${style.primary500};
+    background-color: ${(props) => props.theme.primary500};
     margin-right: 12px;
     position: relative;
     border-radius: 100%;
@@ -97,7 +95,7 @@ const StyledButton = styled.button`
     &::before {
       content: "+";
       position: absolute;
-      color: white;
+      color: ${(props) => props.theme.background0};
       font-size: 11px;
       font-weight: 600;
       top: 11px;
@@ -117,7 +115,7 @@ export const FloatingTrigger = (props) => {
     <StyledFloatingButton color="primary" onClick={onClick}>
       <RawFeatherIcon
         name="edit-2"
-        color="white"
+        color="background0"
         width="1rem"
         height="1rem"
         strokeWidth={3}
@@ -134,7 +132,7 @@ const Trigger = (props) => {
     <StyledButton onClick={onClick} $outlined={outlined}>
       <RawFeatherIcon
         name="edit-2"
-        color="white"
+        color="background0"
         width="13px"
         height="13px"
         strokeWidth={3}

@@ -3,8 +3,6 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import useSWR from "swr";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import DateField from "@agir/events/createEventPage/EventForm/DateField";
 import EventSubtypeField from "@agir/events/EventSettings/EventSubtypeField";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
@@ -22,7 +20,7 @@ import { useEventFormOptions } from "@agir/events/common/hooks";
 import { useToast } from "@agir/front/globalContext/hooks";
 
 const StyledDateField = styled(DateField)`
-  @media (min-width: ${style.collapse}px) {
+  @media (min-width: ${(props) => props.theme.collapse}px) {
     && {
       grid-template-columns: 190px 159px 180px;
     }
@@ -153,7 +151,11 @@ const EventGeneral = (props) => {
       <form onSubmit={handleSubmit}>
         <HeaderPanel onBack={onBack} illustration={illustration} />
         <StyledTitle>Général</StyledTitle>
-        <span style={{ color: style.black700 }}>
+        <span
+          css={`
+            color: ${(props) => props.theme.text700};
+          `}
+        >
           Ces informations seront affichées en public.
         </span>
         <Spacer size="1rem" />
@@ -204,7 +206,11 @@ const EventGeneral = (props) => {
           disabled={isDisabled}
         />
         <h4>Image mise en avant</h4>
-        <span style={{ color: style.black700 }}>
+        <span
+          css={`
+            color: ${(props) => props.theme.text700};
+          `}
+        >
           Taille : 1200*630px ou plus. Elle apparaîtra sur la page et sur les
           réseaux sociaux.
         </span>
@@ -223,7 +229,11 @@ const EventGeneral = (props) => {
             <CheckboxField
               value={hasCheckedImageLicence}
               label={
-                <span style={{ color: style.black700 }}>
+                <span
+                  css={`
+                    color: ${(props) => props.theme.text700};
+                  `}
+                >
                   En important une image, je certifie être le propriétaire des
                   droits et accepte de la partager sous licence libre{" "}
                   <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/fr/">
@@ -254,7 +264,7 @@ const EventGeneral = (props) => {
         {errors.global && (
           <p
             css={`
-              color: ${(props) => props.theme.redNSP};
+              color: ${(props) => props.theme.error500};
               margin: 0;
             `}
           >

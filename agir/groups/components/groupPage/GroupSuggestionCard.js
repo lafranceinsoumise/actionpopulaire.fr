@@ -4,7 +4,6 @@ import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
 import { routeConfig } from "@agir/front/app/routes.config";
-import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
 import Card from "@agir/front/genericComponents/Card";
@@ -18,13 +17,13 @@ const StyledBody = styled.div``;
 const StyledCard = styled(Card)`
   padding: 0;
   max-width: 397px;
-  border: 1px solid ${style.black100};
+  border: 1px solid ${(props) => props.theme.text100};
   box-shadow: none;
   cursor: pointer;
   overflow: hidden;
-  border-radius: ${style.borderRadius};
+  border-radius: ${(props) => props.theme.borderRadius};
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     width: calc(100vw - 4rem);
     max-width: 294px;
     height: 360px;
@@ -38,7 +37,7 @@ const StyledCard = styled(Card)`
     background-color: #fafafa;
     height: 216px;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       height: 159px;
     }
 
@@ -55,7 +54,7 @@ const StyledCard = styled(Card)`
     text-align: center;
     padding: 2.5rem 1.5rem;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       padding: 1.5rem;
     }
 
@@ -69,7 +68,7 @@ const StyledCard = styled(Card)`
     p {
       margin: 0 0 1rem;
       font-size: 0.875rem;
-      color: ${style.black500};
+      color: ${(props) => props.theme.text500};
       line-height: 1.5;
       font-weight: 400;
     }

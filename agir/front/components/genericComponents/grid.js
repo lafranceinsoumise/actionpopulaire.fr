@@ -1,10 +1,9 @@
-import styled from "styled-components";
 import PropTypes from "prop-types";
-import Card from "./Card";
-import * as style from "@agir/front/genericComponents/_variables.scss";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import React from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import styled, { useTheme } from "styled-components";
+
 import { useDownloadBanner } from "../app/hooks";
+import Card from "./Card";
 
 /**
  * Accessibility
@@ -41,12 +40,12 @@ export const PullRight = styled.div`
 /**
  * Media queries
  */
-export const Hide = styled.div.attrs(({ $under, $over }) => ({
+export const Hide = styled.div.attrs(({ $under, $over, theme }) => ({
   $under: $under
-    ? `max-width: ${typeof $under === "number" ? $under : style.collapse}px`
+    ? `max-width: ${typeof $under === "number" ? $under : theme.collapse}px`
     : "width <= 0",
   $over: $over
-    ? `min-width: ${typeof $over === "number" ? $over : style.collapse}px`
+    ? `min-width: ${typeof $over === "number" ? $over : theme.collapse}px`
     : "width <= 0",
 }))`
   min-width: 0;
@@ -67,7 +66,7 @@ export const Hide = styled.div.attrs(({ $under, $over }) => ({
 const gutter = 16;
 
 export const GrayBackground = styled.div`
-  background-color: ${style.black25};
+  background-color: ${(props) => props.theme.text25};
 `;
 
 export const Column = styled.div.withConfig({
@@ -83,7 +82,7 @@ export const Column = styled.div.withConfig({
     margin-bottom: 16px;
   }
 
-  @media (max-width: ${(props) => props.collapse || style.collapse}px) {
+  @media (max-width: ${(props) => props.collapse || props.theme.collapse}px) {
     flex-basis: ${(props) =>
       Array.isArray(props.width) && props.width[0] ? props.width[0] : "100%"};
     padding-left: 0;
@@ -129,10 +128,7 @@ export const Row = styled.div.withConfig({
     border-radius: 0px;
   }
 
-  @media (max-width: ${(props) =>
-      typeof props.collapse === "undefined"
-        ? style.collapse
-        : props.collapse || 0}px) {
+  @media (max-width: ${(props) => props.collapse || props.theme.collapse}px) {
     & > ${Column} > ${Card} {
       margin-left: -${(props) => (typeof props.gutter === "undefined" ? gutter : props.gutter)}px;
       margin-right: -${(props) => (typeof props.gutter === "undefined" ? gutter : props.gutter)}px;
@@ -174,7 +170,8 @@ export const Container = styled.section`
 `;
 
 export const useIsDesktop = (breakpoint) => {
-  breakpoint = breakpoint || style.collapse;
+  const theme = useTheme();
+  breakpoint = breakpoint || theme.collapse;
   const [isDesktop, setDesktop] = useState(window.innerWidth > breakpoint);
 
   let refresh = useCallback(

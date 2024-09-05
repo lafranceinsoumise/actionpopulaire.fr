@@ -46,7 +46,7 @@ const StyledPersonalInformation = styled.div`
   flex-flow: column nowrap;
   padding: 1rem;
   border-radius: ${(props) => props.theme.borderRadius};
-  border: 1px solid ${(props) => props.theme.black100};
+  border: 1px solid ${(props) => props.theme.text100};
 
   p {
     margin: 0;
@@ -100,7 +100,7 @@ const StyledContent = styled.div`
     gap: 1rem;
     align-items: center;
     border-radius: ${(props) => props.theme.borderRadius};
-    border: 1px solid ${(props) => props.theme.black100};
+    border: 1px solid ${(props) => props.theme.text100};
     padding: 1rem;
   }
 

@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import CountryField from "@agir/front/formComponents/CountryField";
 import TextField from "@agir/front/formComponents/TextField";
 
@@ -14,7 +12,7 @@ const StyledField = styled.div`
   grid-auto-rows: auto;
   grid-gap: 1rem 0.5rem;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     grid-template-columns: 1fr;
   }
 
@@ -27,7 +25,7 @@ const StyledField = styled.div`
       grid-column: span 1;
     }
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       grid-column: span 1;
     }
   }
@@ -50,7 +48,7 @@ const StyledField = styled.div`
       cursor: default;
     }
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       text-align: left;
       line-height: 1.5;
     }

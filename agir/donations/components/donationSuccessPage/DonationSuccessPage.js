@@ -80,7 +80,7 @@ const DonationPage = () => {
               <div
                 css={`
                   padding: 1rem;
-                  background-color: ${({ theme }) => theme.black25};
+                  background-color: ${({ theme }) => theme.text25};
                   border-radius: ${({ theme }) => theme.borderRadius};
                   font-size: 0.875rem;
                 `}

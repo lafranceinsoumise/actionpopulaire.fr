@@ -4,8 +4,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { mutate } from "swr";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import * as api from "@agir/events/common/api";
 import * as apiGroup from "@agir/groups/utils/api";
 import { useToast } from "@agir/front/globalContext/hooks.js";
@@ -23,14 +21,14 @@ const StyledListBlock = styled.div`
     display: inline-flex;
     width: 0.5rem;
     height: 0.5rem;
-    background-color: ${style.primary500};
+    background-color: ${(props) => props.theme.primary500};
     border-radius: 2rem;
     margin-right: 0.5rem;
   }
 `;
 
 const StyledSearch = styled.div`
-  border-radius: ${style.borderRadius};
+  border-radius: ${(props) => props.theme.borderRadius};
   border: 1px solid #ddd;
   display: flex;
   height: 2.5rem;
@@ -133,7 +131,11 @@ export const AddGroupOrganizer = ({ eventPk, groups, onBack }) => {
 
       {!selectedGroup ? (
         <>
-          <span style={{ color: style.black700 }}>
+          <span
+            css={`
+              color: ${(props) => props.theme.text700};
+            `}
+          >
             Invitez des groupes à organiser votre événement. Ils s’afficheront
             sur la page publiquement.
           </span>

@@ -1,6 +1,6 @@
 import React from "react";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables-light.scss";
 import user from "@agir/front/mockData/user";
 import DashboardPageBar from "./DashboardPageBar";
 
@@ -8,7 +8,7 @@ export default {
   component: DashboardPageBar,
   title: "Navigation/TopBar/Mobile/Dashboard page",
   parameters: {
-    backgrounds: { default: "black50" },
+    backgrounds: { default: "text50" },
   },
 };
 

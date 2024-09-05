@@ -3,21 +3,18 @@ import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 
 import Button from "@agir/front/genericComponents/Button";
 import Card from "@agir/front/genericComponents/Card";
 import EventCard from "@agir/front/genericComponents/EventCard";
-import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const StyledList = styled.div`
   padding-bottom: 1.5rem;
 
-  @media (max-width: ${style.collapse}px) {
-    background: ${style.black25};
+  @media (max-width: ${(props) => props.theme.collapse}px) {
+    background: ${(props) => props.theme.text25};
     padding-bottom: ${({ $length }) => ($length === 1 ? "0" : "1.5rem")};
   }
 
@@ -25,7 +22,7 @@ const StyledList = styled.div`
     margin: 0;
     padding: 0 0 1.5rem 0;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       padding: 1.5rem 1rem;
     }
 
@@ -39,7 +36,7 @@ const StyledList = styled.div`
   }
 
   & > ${Button} {
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       width: 100%;
     }
   }

@@ -3,7 +3,6 @@ import React, { useCallback } from "react";
 import { animated, useTransition } from "@react-spring/web";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
 import { timeAgo } from "@agir/lib/utils/time";
 
 import Avatar from "@agir/front/genericComponents/Avatar";
@@ -18,11 +17,11 @@ const StyledInlineMenuItems = styled.div`
   flex-flow: column nowrap;
   align-items: stretch;
   list-style: none;
-  color: ${style.primary500};
+  color: ${(props) => props.theme.primary500};
   padding: 0;
   margin: 0;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     padding: 1.5rem;
   }
 
@@ -41,7 +40,7 @@ const StyledInlineMenuItems = styled.div`
     font-size: 0.875rem;
     line-height: 20px;
     font-weight: 400;
-    color: ${style.black1000};
+    color: ${(props) => props.theme.text1000};
     margin-bottom: 0.5rem;
 
     &:last-child {
@@ -63,7 +62,7 @@ const StyledInlineMenuItems = styled.div`
       cursor: default;
     }
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       margin-bottom: 1.5rem;
       text-decoration: none;
     }
@@ -73,7 +72,7 @@ const StyledInlineMenuItems = styled.div`
       width: 1rem;
       height: 1rem;
 
-      @media (max-width: ${style.collapse}px) {
+      @media (max-width: ${(props) => props.theme.collapse}px) {
         margin-right: 1rem;
         width: 1.5rem;
         height: 1.5rem;
@@ -99,7 +98,7 @@ const StyledWrapper = styled(animated.div)`
   align-items: flex-start;
   max-width: 100%;
   padding: 1rem 0;
-  border-top: 1px solid ${(props) => props.theme.black100};
+  border-top: 1px solid ${(props) => props.theme.text100};
 
   &:first-child {
     border-top: none;
@@ -115,7 +114,7 @@ const StyledWrapper = styled(animated.div)`
   ${StyledMessage} {
     display: flex;
     flex: 1 1 auto;
-    border-radius: ${style.borderRadius};
+    border-radius: ${(props) => props.theme.borderRadius};
     flex-direction: column;
   }
 
@@ -138,7 +137,7 @@ const StyledWrapper = styled(animated.div)`
       padding-left: 1rem;
       flex: 0 0 auto;
       font-size: 0.813rem;
-      color: ${style.black700};
+      color: ${(props) => props.theme.text700};
       font-style: normal;
     }
 

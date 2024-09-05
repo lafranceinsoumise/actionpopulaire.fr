@@ -13,7 +13,7 @@ import { getGenderedWord } from "@agir/lib/utils/display";
 
 const StyledContent = styled.div`
   p {
-    color: ${(props) => props.theme.black700};
+    color: ${(props) => props.theme.text700};
     font-size: 1rem;
   }
 `;

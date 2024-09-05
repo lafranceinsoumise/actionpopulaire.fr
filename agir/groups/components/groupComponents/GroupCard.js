@@ -4,7 +4,6 @@ import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
 import { routeConfig } from "@agir/front/app/routes.config";
-import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import Link from "@agir/front/app/Link";
 import Button from "@agir/front/genericComponents/Button";
@@ -25,26 +24,22 @@ const GroupIcon = styled.div`
   margin: 0;
   padding: 0;
   border-radius: 100%;
-  background-color: ${(props) => props.theme.black50};
-  color: ${(props) => props.theme.black1000};
+  background-color: ${(props) => props.theme.text50};
+  color: ${(props) => props.theme.text1000};
 `;
 
 const Label = styled.span`
   font-size: 13px;
   display: inline-block;
   padding: 6px 10px;
-  border: 1px solid #dfdfdf;
+  background: ${(props) =>
+    props.main ? props.theme.background50 : "transparent"};
+  border: 1px solid
+    ${(props) => (props.main ? props.theme.background50 : props.theme.text100)};
   margin-right: 8px;
   margin-bottom: 4px;
   line-height: 16px;
   border-radius: 20px;
-  ${({ main }) =>
-    main
-      ? `
-    background: #EEEEEE;
-    border: 0;
-    `
-      : ""}
 `;
 
 const StyledRow = styled(Row)`
@@ -116,7 +111,11 @@ const GroupCard = ({
               {name}
             </Link>
           </h3>
-          <small style={{ color: style.black500 }}>
+          <small
+            css={`
+              color: ${(props) => props.theme.text500};
+            `}
+          >
             {eventCount || membersCount
               ? [
                   eventCount &&

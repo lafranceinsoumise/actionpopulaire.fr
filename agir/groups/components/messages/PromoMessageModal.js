@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React, { useState, useCallback } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Modal from "@agir/front/genericComponents/Modal";
 import Button from "@agir/front/genericComponents/Button";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
@@ -24,13 +22,13 @@ const StyledModalContent = styled.div`
   width: 100%;
   padding: 0 0 36px;
   margin: 60px auto 0;
-  box-shadow: ${style.elaborateShadow};
-  border-radius: ${style.borderRadius};
-  background-color: ${style.white};
+  box-shadow: ${(props) => props.theme.elaborateShadow};
+  border-radius: ${(props) => props.theme.borderRadius};
+  background-color: ${(props) => props.theme.background0};
   overflow-x: hidden;
   overflow-y: auto;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     margin-top: 20px;
     max-width: calc(100% - 40px);
     padding: 0 0 1.5rem;
@@ -40,7 +38,7 @@ const StyledModalContent = styled.div`
     margin: 0;
     padding: 0 3.375rem;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       padding: 0 1.5rem;
     }
   }
@@ -50,7 +48,7 @@ const StyledModalContent = styled.div`
     top: 1rem;
     right: 1rem;
     padding: 0;
-    color: ${style.black1000};
+    color: ${(props) => props.theme.text1000};
     z-index: 1;
     background-color: transparent;
     border: none;
@@ -64,12 +62,12 @@ const StyledModalContent = styled.div`
     position: relative;
     width: 100%;
     height: 177px;
-    background-color: ${style.secondary500};
+    background-color: ${(props) => props.theme.secondary500};
     background-position: bottom center;
     background-repeat: no-repeat;
     margin-bottom: 56px;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       height: 100px;
       background-size: 160px auto;
     }
@@ -99,17 +97,29 @@ const Container = styled.div`
   overflow-y: auto;
   width: 100%;
   border: 1px solid #dfdfdf;
-  background-color: #fff;
+  background-color: ${(props) => props.theme.background0};
 
-  img {
-    user-select: none;
+  & > div:nth-child(2) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+
+    img {
+      display: inline-block;
+      background-color: ${(props) => props.theme.white};
+      border-radius: 2rem;
+      padding: 1rem;
+      user-select: none;
+
+      @media (max-width: ${(props) => props.theme.collapse}px) {
+        width: 150px;
+      }
+    }
   }
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     padding: 1rem;
-    img {
-      width: 150px;
-    }
   }
 `;
 
@@ -118,7 +128,7 @@ const Title = styled.div`
   font-size: 1.5rem;
   font-weight: 700;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     font-size: 1rem;
     text-align: center;
   }
@@ -142,7 +152,7 @@ const Mark = styled.span`
   cursor: pointer;
   transition: background-color 0.5s ease-in-out;
   background-color: ${(props) =>
-    props.$active ? style.black700 : style.black200};
+    props.$active ? props.theme.text700 : props.theme.text200};
 `;
 
 const StyledContent = styled.div`
@@ -157,7 +167,7 @@ const StyledContent = styled.div`
     max-width: 600px;
     font-size: 18px;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       font-size: 14px;
     }
   }

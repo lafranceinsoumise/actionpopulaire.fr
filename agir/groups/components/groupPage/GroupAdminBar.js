@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Button from "@agir/front/genericComponents/Button";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import InlineMenu from "@agir/front/genericComponents/InlineMenu";
@@ -16,7 +14,7 @@ const InlineMenuList = styled.ul`
   flex-flow: column nowrap;
   align-items: stretch;
   list-style: none;
-  color: ${style.primary500};
+  color: ${(props) => props.theme.primary500};
   padding: 0;
   margin: 0;
 
@@ -25,7 +23,7 @@ const InlineMenuList = styled.ul`
     font-size: 14px;
     line-height: 1.5;
     font-weight: 400;
-    color: ${style.black1000};
+    color: ${(props) => props.theme.text1000};
   }
 `;
 const StyledBar = styled.nav`
@@ -34,7 +32,7 @@ const StyledBar = styled.nav`
   height: 82px;
   align-items: center;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     display: none;
   }
 
@@ -69,21 +67,21 @@ const GroupAdminBar = (props) => {
         <InlineMenuList>
           {routes.animation && (
             <li>
-              <FeatherIcon inline small name="settings" color={style.primary} />
+              <FeatherIcon inline small name="settings" color="primary" />
               &ensp;
               <a href={routes.animation}>Animation</a>
             </li>
           )}
           {routes.membershipTransfer && (
             <li>
-              <FeatherIcon inline small name="settings" color={style.primary} />
+              <FeatherIcon inline small name="settings" color="primary" />
               &ensp;
               <a href={routes.membershipTransfer}>Transfert de membres</a>
             </li>
           )}
           {routes.admin && (
             <li>
-              <FeatherIcon inline small name="settings" color={style.primary} />
+              <FeatherIcon inline small name="settings" color="primary" />
               &ensp;
               <a href={routes.admin}>Administration</a>
             </li>

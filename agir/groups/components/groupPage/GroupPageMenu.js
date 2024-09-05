@@ -4,8 +4,6 @@ import { NavLink } from "react-router-dom";
 
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 const StyledMenu = styled.nav`
   position: sticky;
   z-index: 2;
@@ -17,14 +15,14 @@ const StyledMenu = styled.nav`
   justify-content: center;
   padding: 0;
   margin: 0 1rem;
-  background-color: white;
-  box-shadow: inset 0px -1px 0px ${style.black100};
+  background-color: ${(props) => props.theme.background0};
+  box-shadow: inset 0px -1px 0px ${(props) => props.theme.text100};
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     justify-content: flex-start;
     margin: 0;
     padding: 0 1rem;
-    border-top: 1px solid ${style.black100};
+    border-top: 1px solid ${(props) => props.theme.text100};
     box-shadow:
       0px 0px 3px rgba(0, 35, 44, 0.1),
       0px 2px 1px rgba(0, 35, 44, 0.08);
@@ -45,10 +43,10 @@ const StyledMenu = styled.nav`
     cursor: pointer;
     transition: all 200ms ease-in-out;
     box-shadow: none;
-    color: ${style.black1000};
+    color: ${(props) => props.theme.text1000};
     white-space: nowrap;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       height: 2.875rem;
       min-width: max-content;
       font-size: 14px;
@@ -59,7 +57,7 @@ const StyledMenu = styled.nav`
     &.active,
     &:hover,
     &:focus {
-      color: ${style.primary500};
+      color: ${(props) => props.theme.primary500};
       border: none;
       outline: none;
       text-decoration: none;
@@ -67,7 +65,7 @@ const StyledMenu = styled.nav`
 
     &.active {
       background-size: 100%;
-      box-shadow: 0 -3px 0 ${style.primary500} inset;
+      box-shadow: 0 -3px 0 ${(props) => props.theme.primary500} inset;
     }
   }
 `;

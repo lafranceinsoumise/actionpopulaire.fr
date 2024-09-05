@@ -17,7 +17,7 @@ const Lien = styled.a`
   align-items: center;
   justify-content: center;
 
-  color: ${({ theme }) => theme.black1000};
+  color: ${({ theme }) => theme.text1000};
   font-weight: 500;
   height: 4.5rem;
   padding: 0 0.5rem;
@@ -32,7 +32,7 @@ const Lien = styled.a`
   :hover {
     outline: none;
     text-decoration: none;
-    color: ${({ theme }) => theme.black1000};
+    color: ${({ theme }) => theme.text1000};
 
     & > * {
       text-decoration: underline;
@@ -49,7 +49,7 @@ const Lien = styled.a`
 const Container = styled.div`
   width: 100%;
   flex-grow: 0;
-  border-bottom: 2px solid ${({ theme }) => theme.black100};
+  border-bottom: 2px solid ${({ theme }) => theme.text100};
   margin: 0;
   padding: 0;
 `;
@@ -57,7 +57,7 @@ const Container = styled.div`
 const Contenu = styled.nav`
   max-width: 1320px;
 
-  background-color: #fff;
+  background-color: ${(props) => props.theme.background0};
   margin: 0 auto;
   padding: 0 1.5rem;
   @media (max-width: ${({ theme }) => +theme.collapse - 1}px) {

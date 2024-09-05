@@ -17,8 +17,8 @@ const GroupLink = styled.button`
   outline: none;
   border: none;
   border-collapse: collapse;
-  border-top: 1px solid ${(props) => props.theme.black100};
-  border-bottom: 1px solid ${(props) => props.theme.black100};
+  border-top: 1px solid ${(props) => props.theme.text100};
+  border-bottom: 1px solid ${(props) => props.theme.text100};
   margin-top: -1px;
 
   ${RawFeatherIcon} {

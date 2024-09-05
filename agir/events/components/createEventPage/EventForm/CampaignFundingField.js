@@ -12,12 +12,12 @@ const StyledError = styled.p`
   padding: 0;
   margin: 0;
   font-size: 1rem;
-  color: ${(props) => props.theme.redNSP};
+  color: ${(props) => props.theme.error500};
 `;
 
 const StyledCampaignFundingField = styled.div`
   padding: 1rem;
-  background-color: ${(props) => props.theme.black50};
+  background-color: ${(props) => props.theme.text50};
   border-radius: ${(props) => props.theme.borderRadius};
 
   p:not(:last-child) > a:last-child {

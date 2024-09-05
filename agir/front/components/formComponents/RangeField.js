@@ -14,15 +14,15 @@ const StyledRangeInput = styled.div`
   border: 1px solid;
   border-color: ${(props) =>
     props.$invalid
-      ? props.theme.redNSP
+      ? props.theme.error500
       : props.$focused
-        ? props.theme.black500
-        : props.theme.black100};
+        ? props.theme.text500
+        : props.theme.text100};
   outline-style: solid;
   outline-color: ${(props) =>
     props.$focused && props.$invalid
-      ? props.theme.redNSP
-      : props.theme.black500};
+      ? props.theme.error500
+      : props.theme.text500};
   outline-width: ${(props) => (props.$focused && props.$invalid ? 1 : 0)}px;
 
   input {
@@ -48,7 +48,7 @@ const StyledRangeInput = styled.div`
     }
 
     &:disabled {
-      color: ${(props) => props.theme.black500};
+      color: ${(props) => props.theme.text500};
     }
 
     /* === WebKit specific styles === */
@@ -100,7 +100,7 @@ const StyledRangeInput = styled.div`
 
     &::-webkit-slider-runnable-track {
       border-radius: 0.5rem;
-      background: linear-gradient(${(props) => props.theme.black200} 0 0) scroll
+      background: linear-gradient(${(props) => props.theme.text200} 0 0) scroll
         no-repeat center / 100% calc(0.125rem + 1px);
     }
 
@@ -138,7 +138,7 @@ const StyledRangeInput = styled.div`
     &::-moz-range-track {
       border-radius: 0.5rem;
       width: 100%;
-      background: ${(props) => props.theme.black200};
+      background: ${(props) => props.theme.text200};
     }
 
     &::-moz-range-progress {
@@ -176,15 +176,15 @@ const StyledNumberInput = styled.div`
     -moz-appearance: textfield;
     border: 1px solid;
     border-color: ${(props) =>
-      props.$invalid ? props.theme.redNSP : props.theme.black100};
+      props.$invalid ? props.theme.error500 : props.theme.text100};
     outline-color: ${(props) =>
-      props.$invalid ? props.theme.redNSP : props.theme.black500};
+      props.$invalid ? props.theme.error500 : props.theme.text500};
 
     &:focus {
       outline-style: solid;
       outline-width: ${(props) => (props.$invalid ? 1 : 0)}px;
       border-color: ${(props) =>
-        props.$invalid ? props.theme.redNSP : props.theme.black500};
+        props.$invalid ? props.theme.error500 : props.theme.text500};
     }
 
     &::-webkit-outer-spin-button,
@@ -236,7 +236,7 @@ const StyledField = styled.div`
   ${StyledRangeInput}, ${StyledNumberInput} {
     grid-column: span 1;
     height: 100%;
-    ${(props) => (props.$disabled ? `color: ${props.theme.black500};` : "")}
+    ${(props) => (props.$disabled ? `color: ${props.theme.text500};` : "")}
   }
 
   ${StyledRangeInput}, ${StyledNumberInput} input {
@@ -245,7 +245,7 @@ const StyledField = styled.div`
 
   ${StyledError} {
     display: flex;
-    color: ${(props) => props.theme.redNSP};
+    color: ${(props) => props.theme.error500};
 
     &:empty {
       display: none;

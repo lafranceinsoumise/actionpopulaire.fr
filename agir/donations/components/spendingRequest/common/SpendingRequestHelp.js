@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import InlineMenu from "@agir/front/genericComponents/InlineMenu";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
@@ -13,7 +11,7 @@ import goodDocument from "@agir/donations/spendingRequest/images/good_doc.jpg";
 const StyledMenuTrigger = styled.button`
   background: transparent;
   border: none;
-  color: ${style.primary500};
+  color: ${(props) => props.theme.primary500};
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -26,7 +24,7 @@ const StyledMenuTrigger = styled.button`
     text-decoration: underline;
   }
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     font-size: 0.875rem;
     align-items: start;
   }
@@ -36,7 +34,7 @@ const StyledMenuTrigger = styled.button`
     width: 1rem;
     height: 1rem;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       margin-top: 3px;
     }
   }
@@ -51,7 +49,7 @@ const StyledInlineMenu = styled.div`
   max-width: 600px;
   font-size: 0.875rem;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     padding: 1.5rem;
     grid-template-columns: repeat(auto-fill, minmax(275px, 1fr));
     max-width: 100%;
@@ -111,7 +109,7 @@ export const HELP_CONFIG = {
             width="2.5rem"
             height="2.5rem"
             strokeWidth={1}
-            style={{ color: style.redNSP }}
+            color="error500"
           />
           <h5 style={{ textTransform: "uppercase" }}>
             Exemple de document illisible
@@ -129,7 +127,7 @@ export const HELP_CONFIG = {
             width="2.5rem"
             height="2.5rem"
             strokeWidth={1}
-            style={{ color: style.green500 }}
+            color="success500"
           />
           <h5 style={{ textTransform: "uppercase" }}>
             Exemple de document lisible

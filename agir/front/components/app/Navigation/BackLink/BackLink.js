@@ -12,7 +12,6 @@ import {
 import { getBackLink } from "@agir/front/globalContext/reducers";
 import { routeConfig } from "@agir/front/app/routes.config";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
 import { useLocation } from "react-router-dom";
 import { setBackLink } from "@agir/front/globalContext/actions";
 
@@ -21,10 +20,10 @@ const IconLink = styled(Link)`
   height: 2rem;
   width: 2rem;
   align-items: center;
-  color: ${(props) => props.theme.black1000};
+  color: ${(props) => props.theme.text1000};
   line-height: 0;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     display: flex;
   }
 `;
@@ -43,10 +42,10 @@ const IconTextLink = styled(Link)`
   &:focus,
   &:active {
     text-decoration: none;
-    color: #585858;
+    color: ${(props) => props.theme.text700};
   }
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     display: none;
   }
 `;

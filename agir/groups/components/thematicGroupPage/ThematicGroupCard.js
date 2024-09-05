@@ -10,7 +10,8 @@ import { useIsDesktop } from "@agir/front/genericComponents/grid";
 const StyledIllustration = styled.figure`
   padding: 0;
   margin: 0;
-  background-color: ${({ $img }) => ($img ? "#e5e5e5" : "#fafafa")};
+  background-color: ${({ $img, theme }) =>
+    $img ? theme.text100 : theme.text25};
   display: grid;
   isolation: isolate;
   z-index: 0;
@@ -66,7 +67,7 @@ const StyledCard = styled(Card).attrs({ bordered: true })`
 
   @media (min-width: ${(props) => props.theme.collapse}px) {
     box-shadow: none;
-    border: 1px solid ${(props) => props.theme.black100};
+    border: 1px solid ${(props) => props.theme.text100};
     min-height: 136px;
     flex-direction: row;
   }

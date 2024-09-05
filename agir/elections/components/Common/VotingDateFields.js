@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useMemo } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import { WarningBlock } from "@agir/elections/Common/StyledComponents";
 
@@ -31,7 +29,7 @@ const StyledFieldset = styled.fieldset`
   }
 
   ${StyledError} {
-    color: ${style.redNSP};
+    color: ${(props) => props.theme.error500};
   }
 `;
 

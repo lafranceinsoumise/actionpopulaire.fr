@@ -10,7 +10,7 @@ import { getReminder, getAllocationOptions } from "./allocations.config";
 
 const StyledError = styled.span`
   font-size: 13px;
-  color: ${(props) => props.theme.redNSP};
+  color: ${(props) => props.theme.error500};
 `;
 
 const StyledAllocationOption = styled.label`
@@ -22,10 +22,10 @@ const StyledAllocationOption = styled.label`
   font-size: 0.875rem;
   color: ${(props) =>
     props.$error
-      ? props.theme.redNSP
+      ? props.theme.error500
       : props.$disabled
-        ? props.theme.black500
-        : props.theme.black1000};
+        ? props.theme.text500
+        : props.theme.text1000};
 
   span {
     display: block;
@@ -56,7 +56,7 @@ const StyledAllocationOption = styled.label`
     height: 100%;
     border-radius: ${(props) => props.theme.borderRadius};
     border: 1px solid
-      ${(props) => (props.$error ? props.theme.redNSP : props.theme.black100)};
+      ${(props) => (props.$error ? props.theme.error500 : props.theme.text100)};
     outline: none;
     -moz-appearance: textfield;
 
@@ -69,13 +69,13 @@ const StyledAllocationOption = styled.label`
     &:focus {
       border: 1px solid
         ${(props) =>
-          props.$error ? props.theme.redNSP : props.theme.black1000};
+          props.$error ? props.theme.error500 : props.theme.text1000};
     }
 
     &:disabled,
     &:disabled:focus {
-      background-color: ${(props) => props.theme.black100};
-      border: 1px solid ${(props) => props.theme.black100};
+      background-color: ${(props) => props.theme.text100};
+      border: 1px solid ${(props) => props.theme.text100};
     }
   }
 

@@ -2,11 +2,8 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Button from "@agir/front/genericComponents/Button";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
-import { Hide } from "@agir/front/genericComponents/grid";
 import Link from "@agir/front/app/Link";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import SelectField from "@agir/front/formComponents/SelectField";
@@ -23,11 +20,12 @@ const StyledMapButton = styled.div`
   width: 100%;
   overflow: hidden;
   border: 1px solid #ddd;
-  border-radius: ${style.borderRadius};
+  border-radius: ${(props) => props.theme.borderRadius};
   cursor: pointer;
   margin-bottom: 0.5rem;
 
   ${StyledLink} > div:first-child {
+    filter: ${(props) => props.theme.mapFilter};
     height: 80px;
     background-image: url("${mapImg}");
     background-size: cover;
@@ -37,7 +35,7 @@ const StyledMapButton = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    color: ${style.black1000};
+    color: ${(props) => props.theme.text1000};
   }
 `;
 
@@ -47,7 +45,7 @@ const StyledHeaderSearch = styled.div`
   align-items: flex-end;
   gap: 0.5rem;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     flex-direction: column-reverse;
     align-items: stretch;
   }
@@ -55,7 +53,7 @@ const StyledHeaderSearch = styled.div`
   & > *:last-child {
     flex: 0 0 auto;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       max-width: 100%;
     }
   }
@@ -68,7 +66,7 @@ const StyledHeaderSearch = styled.div`
     font-size: 2rem;
     margin: 0 0 0.5rem;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       font-size: 1.5rem;
     }
   }
@@ -83,7 +81,7 @@ const SearchBarWrapper = styled.div`
   flex: 1;
   height: 50px;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     height: 40px;
   }
 `;
@@ -99,7 +97,7 @@ const SearchBarInput = styled.input`
   flex: 1;
 
   &::placeholder {
-    color: ${style.black500};
+    color: ${(props) => props.theme.text500};
     font-weight: 400;
     text-overflow: ellipsis;
     font-size: 0.875rem;

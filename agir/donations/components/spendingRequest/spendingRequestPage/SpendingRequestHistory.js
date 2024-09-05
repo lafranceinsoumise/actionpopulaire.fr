@@ -19,8 +19,8 @@ const StyledHistoryItem = styled.li`
     to right,
     transparent 0%,
     transparent calc(var(--lineX) - 0.5px),
-    ${(props) => props.theme.black50} calc(var(--lineX) - 0.5px),
-    ${(props) => props.theme.black50} calc(var(--lineX) + 0.5px),
+    ${(props) => props.theme.text50} calc(var(--lineX) - 0.5px),
+    ${(props) => props.theme.text50} calc(var(--lineX) + 0.5px),
     transparent calc(var(--lineX) + 0.5px),
     transparent 100%
   );
@@ -34,8 +34,8 @@ const StyledHistoryItem = styled.li`
   &:first-child {
     background: linear-gradient(
         to bottom,
-        white 0%,
-        white 50%,
+        ${(props) => props.theme.background0} 0%,
+        ${(props) => props.theme.background0} 50%,
         transparent 50%,
         transparent 100%
       ),
@@ -45,8 +45,8 @@ const StyledHistoryItem = styled.li`
   &:last-child {
     background: linear-gradient(
         to top,
-        white 0%,
-        white 50%,
+        ${(props) => props.theme.background0} 0%,
+        ${(props) => props.theme.background0} 50%,
         transparent 50%,
         transparent 100%
       ),
@@ -70,19 +70,18 @@ const StyledHistoryItem = styled.li`
     align-items: center;
     justify-content: center;
     color: ${(props) =>
-      props.$admin ? props.theme.primary500 : props.theme.black500};
+      props.$admin ? props.theme.primary500 : props.theme.text500};
     background-color: ${(props) =>
-      props.$admin ? props.theme.primary50 : props.theme.white};
+      props.$admin ? props.theme.primary50 : props.theme.background0};
     border: 1px solid
-      ${(props) =>
-        props.$admin ? props.theme.primary100 : props.theme.black50};
+      ${(props) => (props.$admin ? props.theme.primary100 : props.theme.text50)};
     border-radius: 100%;
   }
 
   ${Card} {
     flex: 1 1 100%;
     background-color: ${(props) =>
-      props.$admin ? "transparent" : props.theme.black25};
+      props.$admin ? "transparent" : props.theme.text25};
     margin-top: 1rem;
     display: flex;
     flex-flow: column nowrap;
@@ -96,7 +95,7 @@ const StyledHistoryItem = styled.li`
     h6 {
       text-transform: uppercase;
       margin: 0;
-      color: ${(props) => props.theme.black500};
+      color: ${(props) => props.theme.text500};
       font-weight: 700;
       font-size: 0.75rem;
       line-height: 1.5;
@@ -147,7 +146,7 @@ const StyledHistoryItem = styled.li`
 
     p + p {
       background-color: ${(props) =>
-        props.$admin ? props.theme.black25 : "transparent"};
+        props.$admin ? props.theme.text25 : "transparent"};
       font-style: ${(props) => (props.$admin ? "normal" : "italic")};
       padding: ${(props) => (props.$admin ? "0.5rem 0.75rem" : "0")};
       font-size: 0.875rem;

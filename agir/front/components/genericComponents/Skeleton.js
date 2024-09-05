@@ -3,7 +3,7 @@ import React, { useMemo } from "react";
 import styled from "styled-components";
 
 const Bone = styled.div`
-  background-color: ${(props) => props.theme.black50};
+  background-color: ${(props) => props.theme.background50};
   height: 177px;
   margin-bottom: 32px;
 `;

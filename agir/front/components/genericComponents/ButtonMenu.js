@@ -2,7 +2,6 @@ import PropTypes from "prop-types";
 import React, { useState, useCallback } from "react";
 import styled from "styled-components";
 
-import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 import Popin from "@agir/front/genericComponents/Popin";
 import BottomSheet from "@agir/front/genericComponents/BottomSheet";

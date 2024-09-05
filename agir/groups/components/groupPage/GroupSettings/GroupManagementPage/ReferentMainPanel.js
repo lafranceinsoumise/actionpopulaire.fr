@@ -1,8 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import GroupMemberList from "@agir/groups/groupPage/GroupSettings/GroupMemberList";
 import { RawFeatherIcon as FeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
@@ -34,11 +32,19 @@ export const ReferentMainPanel = (props) => {
   return (
     <>
       <StyledTitle>Animateurs et animatrices</StyledTitle>
-      <span style={{ color: style.black700 }}>
+      <span
+        css={`
+          color: ${(props) => props.theme.text700};
+        `}
+      >
         Les animateur·ices organisent la vie du groupe.
       </span>
       <Spacer size=".5rem" />
-      <span style={{ color: style.black700 }}>
+      <span
+        css={`
+          color: ${(props) => props.theme.text700};
+        `}
+      >
         Pour respecter la{" "}
         <a href="https://infos.actionpopulaire.fr/charte-des-groupes-action-populaire/">
           charte des groupes d'actions
@@ -92,11 +98,19 @@ export const ReferentMainPanel = (props) => {
       {(routes?.animationChangeRequest ||
         routes?.referentResignmentRequest) && <Spacer size="1.5rem" />}
       <StyledTitle>Gestionnaires</StyledTitle>
-      <span style={{ color: style.black700 }}>
+      <span
+        css={`
+          color: ${(props) => props.theme.text700};
+        `}
+      >
         Ajoutez des gestionnaires pour vous assister sur Action Populaire.
       </span>
       <Spacer size="0.5rem" />
-      <span style={{ color: style.black700 }}>
+      <span
+        css={`
+          color: ${(props) => props.theme.text700};
+        `}
+      >
         Ces derniers ont accès à la liste des membres, peuvent modifier les
         informations et créer des événements au nom du groupe.
       </span>
@@ -111,7 +125,12 @@ export const ReferentMainPanel = (props) => {
       {routes?.deleteGroup && (
         <>
           <hr />
-          <a href={routes.deleteGroup} style={{ color: style.redNSP }}>
+          <a
+            href={routes.deleteGroup}
+            css={`
+              color: ${(props) => props.theme.error500};
+            `}
+          >
             Supprimer le groupe
           </a>
         </>

@@ -2,7 +2,6 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
 import Avatar from "@agir/front/genericComponents/Avatar";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Button from "@agir/front/genericComponents/Button";
@@ -12,7 +11,7 @@ const Name = styled.span``;
 const Label = styled.span``;
 const StyledGroup = styled.div`
   cursor: ${({ $isSelectGroup }) => ($isSelectGroup ? "pointer" : "default")};
-  background-color: ${style.white};
+  background-color: ${(props) => props.theme.background0};
   padding: 0.75rem 1rem;
   display: flex;
   flex-direction: column;
@@ -28,7 +27,7 @@ const StyledGroup = styled.div`
     overflow: hidden;
     width: 100%;
 
-    @media (min-width: ${style.collapse}px) {
+    @media (min-width: ${(props) => props.theme.collapse}px) {
       display: inline-flex;
     }
   }
@@ -36,7 +35,7 @@ const StyledGroup = styled.div`
   > div:last-child {
     display: block;
 
-    @media (min-width: ${style.collapse}px) {
+    @media (min-width: ${(props) => props.theme.collapse}px) {
       display: inline-flex;
       align-items: center;
     }
@@ -51,7 +50,7 @@ const StyledGroup = styled.div`
     width: 2rem;
     height: 2rem;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       grid-row: span 3;
       width: 1.5rem;
       height: 1.5rem;
@@ -66,8 +65,8 @@ const StyledGroup = styled.div`
     justify-content: center;
     width: 2rem;
     height: 2rem;
-    background-color: ${style.primary500};
-    color: #fff;
+    background-color: ${(props) => props.theme.primary500};
+    color: ${(props) => props.theme.background0};
     clip-path: circle(1rem);
     text-align: center;
   }
@@ -92,7 +91,7 @@ const StyledGroup = styled.div`
   }
 
   ${Button} {
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       display: none;
     }
   }

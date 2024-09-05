@@ -13,7 +13,6 @@ import { useToast } from "@agir/front/globalContext/hooks";
 import Link from "@agir/front/app/Link";
 import Button from "@agir/front/genericComponents/Button";
 import Popin from "@agir/front/genericComponents/Popin";
-import * as style from "@agir/front/genericComponents/_variables.scss";
 import { Hide } from "@agir/front/genericComponents/grid";
 
 import { routeConfig } from "@agir/front/app/routes.config";
@@ -31,7 +30,7 @@ import logger from "@agir/lib/utils/logger";
 const log = logger(__filename);
 
 const EventHeaderContainer = styled.div`
-  @media (min-width: ${style.collapse}px) {
+  @media (min-width: ${(props) => props.theme.collapse}px) {
     margin-bottom: 2rem;
   }
   > * {
@@ -45,7 +44,7 @@ const EventTitle = styled.h2`
   font-weight: 700;
   margin-bottom: 0;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     font-size: 1.25rem;
   }
 `;
@@ -57,7 +56,7 @@ const EventDate = styled.div`
 
 const SmallText = styled.div`
   font-size: 0.81rem;
-  color: ${style.black500};
+  color: ${(props) => props.theme.text500};
 `;
 
 const ActionLink = styled(Link)`
@@ -83,7 +82,7 @@ const StyledActions = styled.div`
     display: none;
   }
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     flex-direction: column;
   }
 

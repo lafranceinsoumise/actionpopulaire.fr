@@ -48,7 +48,7 @@ const ModalContainer = styled.div`
   max-width: 740px;
   margin: 40px auto;
   margin-bottom: 40px;
-  background-color: ${(props) => props.theme.white};
+  background-color: ${(props) => props.theme.background0};
   padding: 40px;
 
   @media (min-width: ${(props) => props.theme.collapse}px) {

@@ -17,7 +17,7 @@ const StyledReportCard = styled(StyledCard)`
   h5 {
     font-size: 1.125rem;
     font-weight: 600;
-    color: ${(props) => props.theme.black1000};
+    color: ${(props) => props.theme.text1000};
   }
 
   p {
@@ -26,7 +26,7 @@ const StyledReportCard = styled(StyledCard)`
 
     @media (max-width: ${(props) => props.theme.collapse}px) {
       font-size: 0.875rem;
-      color: ${(props) => props.theme.black700};
+      color: ${(props) => props.theme.text700};
     }
   }
 

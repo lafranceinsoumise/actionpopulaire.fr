@@ -14,43 +14,49 @@ const Template = (args) => <CertificationStatus {...args} />;
 
 export const Certifiable = Template.bind({});
 Certifiable.args = {
-  routes: {
-    certificationRequest: "/certificationPanelRoute",
-  },
+  routes: [
+    {
+      id: "certification",
+      getLink: () => "/certificationPanelRoute",
+    },
+  ],
+  isCertifiable: true,
   isCertified: false,
   certificationCriteria: {
-    gender: true,
-    activity: true,
-    members: true,
-    creation: true,
+    gender: { value: true },
+    activity: { value: true },
+    members: { value: true },
+    creation: { value: true },
   },
 };
 
 export const Uncertifiable = Template.bind({});
 Uncertifiable.args = {
   ...Certifiable.args,
+  isCertifiable: true,
   certificationCriteria: {
-    gender: true,
-    activity: false,
-    members: false,
-    creation: false,
+    gender: { value: true },
+    activity: { value: false },
+    members: { value: true },
+    creation: { value: true },
   },
 };
 
 export const Certified = Template.bind({});
 Certified.args = {
   ...Certifiable.args,
+  isCertifiable: true,
   isCertified: true,
 };
 
 export const CertifiedWithWarning = Template.bind({});
 CertifiedWithWarning.args = {
   ...Certified.args,
+  isCertifiable: true,
   certificationCriteria: {
-    gender: false,
-    activity: true,
-    members: true,
-    creation: true,
-    Boom: false,
+    gender: { value: false },
+    activity: { value: true },
+    members: { value: true },
+    creation: { value: true },
   },
 };

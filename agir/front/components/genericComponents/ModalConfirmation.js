@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import BottomSheet from "@agir/front/genericComponents/BottomSheet";
 import Button from "@agir/front/genericComponents/Button";
 import Modal from "@agir/front/genericComponents/Modal";
@@ -11,15 +9,15 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 
 const ModalContainer = styled.div`
-  background: white;
+  background: ${(props) => props.theme.background0};
   width: 40%;
   max-width: 500px;
   margin: 5% auto;
-  border-radius: ${style.borderRadius};
+  border-radius: ${(props) => props.theme.borderRadius};
   display: flex;
   justify-content: center;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     width: 100%;
     max-width: unset;
     margin: 0;
@@ -37,12 +35,6 @@ const ModalContent = styled.div`
 
   & > ${Button} {
     margin-bottom: 1rem;
-    color: white;
-
-    &:hover,
-    &:focus {
-      color: white;
-    }
   }
 `;
 
@@ -107,7 +99,9 @@ const ModalConfirmation = (props) => {
               wrap
               type="button"
               onClick={onClose}
-              style={{ color: style.black1000 }}
+              css={`
+                color: ${(props) => props.theme.text1000};
+              `}
               disabled={isConfirming}
             >
               {dismissLabel}

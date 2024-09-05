@@ -2,14 +2,12 @@ import React from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Spacer from "@agir/front/genericComponents/Spacer";
 import { Hide } from "@agir/front/genericComponents/grid";
 import { useIsDesktop } from "@agir/front/genericComponents/grid";
 
 const StyledCustomField = styled.div`
-  @media (min-width: ${style.collapse}px) {
+  @media (min-width: ${(props) => props.theme.collapse}px) {
     display: grid;
     grid-template-columns: 10rem 30.25rem;
     gap: 0.25rem;
@@ -21,7 +19,7 @@ const StyledDescription = styled.div`
   margin-left: 10.5rem;
   font-size: 0.8125rem;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     margin-bottom: 0.25rem;
     margin-left: 0;
     font-size: 0.875rem;

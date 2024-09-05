@@ -1,7 +1,7 @@
 import illustration2022BGD from "./images/illustration_2022_BG_D.jpg";
 import illustration2022BGM from "./images/illustration_2022_BG_M.jpg";
 import logo from "@agir/front/genericComponents/logos/melenchon2022.svg";
-import * as style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables-light.scss";
 
 const theme = {
   default: style,

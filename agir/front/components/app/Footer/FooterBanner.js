@@ -1,8 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Link from "@agir/front/app/Link";
 import Button from "@agir/front/genericComponents/Button";
 
@@ -13,11 +11,11 @@ const FooterForm = styled.div`
   flex-flow: column nowrap;
   align-items: flex-start;
   justify-content: center;
-  color: ${style.white};
+  color: ${(props) => props.theme.background0};
   padding: 0 10%;
   width: 100%;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     padding: 1.5rem;
   }
 
@@ -26,7 +24,7 @@ const FooterForm = styled.div`
     max-width: 557px;
     margin: 0;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       max-width: 100%;
     }
   }
@@ -39,7 +37,7 @@ const FooterForm = styled.div`
     font-size: 1.875rem;
     font-weight: 800;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       font-size: 1.25rem;
     }
   }
@@ -52,13 +50,13 @@ const FooterForm = styled.div`
     line-height: 2rem;
 
     &.small-only {
-      @media (min-width: ${style.collapse}px) {
+      @media (min-width: ${(props) => props.theme.collapse}px) {
         display: none;
       }
     }
 
     &.large-only {
-      @media (max-width: ${style.collapse}px) {
+      @media (max-width: ${(props) => props.theme.collapse}px) {
         display: none;
       }
     }
@@ -67,25 +65,25 @@ const FooterForm = styled.div`
       font-size: 14px;
       margin: 0 0.5rem;
 
-      @media (max-width: ${style.collapse}px) {
+      @media (max-width: ${(props) => props.theme.collapse}px) {
         margin: 0;
       }
     }
 
     & > ${Button} {
-      color: ${style.black1000};
+      color: ${(props) => props.theme.text1000};
 
       & + ${Button} {
         margin-left: 0.5rem;
 
-        @media (max-width: ${style.collapse}px) {
+        @media (max-width: ${(props) => props.theme.collapse}px) {
           margin-left: 0;
           margin-top: 0.5rem;
         }
       }
     }
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       flex-flow: column nowrap;
       align-items: flex-start;
     }
@@ -107,15 +105,15 @@ const StyledBanner = styled.div`
   width: calc(100% - 60px);
   max-width: 1400px;
   margin: 0 auto 1rem;
-  background-color: ${style.primary500};
-  border-radius: ${style.borderRadius};
+  background-color: ${(props) => props.theme.primary500};
+  border-radius: ${(props) => props.theme.borderRadius};
   height: 360px;
   display: flex;
   flex-flow: row nowrap;
   align-items: stretch;
   overflow: hidden;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     width: 100%;
     border-radius: 0;
     height: auto;
@@ -135,7 +133,7 @@ const StyledBanner = styled.div`
     background-position: center center;
     background-image: url(${footerBanner});
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       display: none;
     }
   }

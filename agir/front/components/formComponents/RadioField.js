@@ -41,21 +41,21 @@ const StyledOption = styled.label`
         return props.theme.primary500;
       }
       if (props.$disabled) {
-        return props.theme.black200;
+        return props.theme.text200;
       }
-      return props.theme.black1000;
+      return props.theme.text1000;
     }};
     background: ${(props) => {
       if (props.$checked && props.$disabled) {
-        return `radial-gradient(circle, ${props.theme.primary150} 4px, ${props.theme.white} 5px, ${props.theme.white} 6px, ${props.theme.primary150} 7px)`;
+        return `radial-gradient(circle, ${props.theme.primary150} 4px, ${props.theme.background0} 5px, ${props.theme.background0} 6px, ${props.theme.primary150} 7px)`;
       }
       if (props.$checked) {
-        return `radial-gradient(circle, ${props.theme.primary500} 4px, ${props.theme.white} 5px, ${props.theme.white} 6px, ${props.theme.primary500} 7px)`;
+        return `radial-gradient(circle, ${props.theme.primary500} 4px, ${props.theme.background0} 5px, ${props.theme.background0} 6px, ${props.theme.primary500} 7px)`;
       }
       if (props.$disabled) {
-        return props.theme.black100;
+        return props.theme.text100;
       }
-      return props.theme.white;
+      return props.theme.background0;
     }};
     transition: all 100ms ease-in;
   }
@@ -63,7 +63,7 @@ const StyledOption = styled.label`
   &:hover ${StyledBox} {
     ${({ $checked, $disabled }) =>
       !$disabled && !$checked
-        ? `background: ${(props) => props.theme.black50};`
+        ? `background: ${(props) => props.theme.text50};`
         : ""};
   }
 
@@ -77,7 +77,7 @@ const StyledOption = styled.label`
     flex: 1 1 auto;
     font-weight: 400;
     color: ${(props) =>
-      props.$disabled ? props.theme.black500 : props.theme.black1000};
+      props.$disabled ? props.theme.text500 : props.theme.text1000};
   }
 `;
 
@@ -111,7 +111,7 @@ const StyledField = styled.div`
 
   ${StyledError} {
     display: ${({ $invalid }) => ($invalid ? "flex" : "none")};
-    color: ${(props) => props.theme.redNSP};
+    color: ${(props) => props.theme.error500};
   }
 `;
 

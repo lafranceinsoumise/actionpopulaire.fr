@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React, { Fragment, useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import { EVENT_TYPES, getEventSubtypeInfo } from "@agir/events/common/utils";
 import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
 
@@ -22,7 +20,8 @@ const StyledOption = styled.li`
   min-height: 2rem;
   align-items: center;
   line-height: 1.5;
-  color: ${({ $selected }) => ($selected ? style.primary500 : style.black1000)};
+  color: ${({ $selected, theme }) =>
+    $selected ? theme.primary500 : theme.text1000};
   cursor: ${({ $selected }) => ($selected ? "default" : "pointer")};
   font-size: 1rem;
   gap: 0.5rem;
@@ -79,7 +78,7 @@ const StyledOptions = styled.ul`
 `;
 
 const StyledEmptyMessage = styled.p`
-  color: ${(props) => props.theme.black700};
+  color: ${(props) => props.theme.text700};
   padding: 1rem 0.5rem;
 `;
 

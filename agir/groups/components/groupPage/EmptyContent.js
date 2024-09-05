@@ -1,8 +1,6 @@
 import PropTypes from "prop-types";
 import React from "react";
-import styled from "styled-components";
-
-import * as style from "@agir/front/genericComponents/_variables.scss";
+import styled, { useTheme } from "styled-components";
 
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Link from "@agir/front/app/Link";
@@ -30,25 +28,25 @@ const StyledEmptyContent = styled.div`
   flex-flow: row nowrap;
   padding: 30px;
   align-items: center;
-  border: 1px solid ${style.black100};
+  border: 1px solid ${(props) => props.theme.text100};
   margin-bottom: 1.5rem;
-  background-color: white;
+  background-color: ${(props) => props.theme.background0};
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     flex-direction: column;
   }
 
   ${StyledIcon} {
     margin-right: 20px;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       margin-right: 0;
       margin-bottom: 22px;
     }
   }
 
   ${StyledContent} {
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       text-align: center;
     }
 
@@ -56,13 +54,13 @@ const StyledEmptyContent = styled.div`
       max-width: 546px;
       margin: 0 auto;
 
-      @media (max-width: ${style.collapse}px) {
+      @media (max-width: ${(props) => props.theme.collapse}px) {
         max-width: 264px;
       }
     }
 
     p + p {
-      @media (max-width: ${style.collapse}px) {
+      @media (max-width: ${(props) => props.theme.collapse}px) {
         margin: 0.5rem auto;
       }
     }
@@ -75,7 +73,7 @@ const StyledEmptyContent = styled.div`
     }
 
     h6 {
-      color: ${style.redNSP};
+      color: ${(props) => props.theme.error500};
       text-transform: uppercase;
       font-size: 0.875rem;
       font-weight: 500;
@@ -88,7 +86,7 @@ const StyledEmptyContent = styled.div`
       margin-bottom: 22px;
       max-width: 588px;
 
-      @media (max-width: ${style.collapse}px) {
+      @media (max-width: ${(props) => props.theme.collapse}px) {
         font-size: 1rem;
         font-weight: 600;
         margin-top: 0.5rem;
@@ -121,6 +119,8 @@ const StyledEmptyContent = styled.div`
 
 const EmptyContent = (props) => {
   const { icon, children } = props;
+  const theme = useTheme();
+
   return (
     <StyledEmptyContent style={props.style}>
       {icon ? (
@@ -130,7 +130,7 @@ const EmptyContent = (props) => {
             width="40px"
             height="40px"
             strokeWidth={0}
-            svgStyle={{ fill: style.black50 }}
+            svgStyle={{ fill: theme.text50 }}
           />
           <RawFeatherIcon
             name={icon}

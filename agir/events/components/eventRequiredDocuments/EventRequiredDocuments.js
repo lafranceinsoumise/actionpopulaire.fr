@@ -28,12 +28,12 @@ const StyledDocumentList = styled.div`
     font-size: 1.125rem;
     line-height: 1.5;
     color: ${(props) =>
-      props.$required ? props.theme.redNSP : props.theme.black1000};
+      props.$required ? props.theme.error500 : props.theme.text1000};
 
     small {
       display: block;
       color: ${(props) =>
-        props.$required ? props.theme.redNSP : props.theme.black700};
+        props.$required ? props.theme.error500 : props.theme.text700};
       font-size: 0.875rem;
       font-weight: 400;
     }
@@ -41,7 +41,7 @@ const StyledDocumentList = styled.div`
 `;
 
 const HelpLink = styled.div`
-  color: ${(props) => props.theme.black700};
+  color: ${(props) => props.theme.text700};
 
   & > div {
     display: flex;
@@ -92,7 +92,7 @@ const StyledWrapper = styled.main`
 
     h5 {
       font-size: 0.875rem;
-      color: ${(props) => props.theme.black700};
+      color: ${(props) => props.theme.text700};
     }
   }
 

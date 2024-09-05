@@ -1,7 +1,5 @@
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Link from "@agir/front/app/Link";
 import Avatar from "@agir/front/genericComponents/Avatar";
 import Card from "@agir/front/genericComponents/Card";
@@ -13,10 +11,10 @@ export const StyledInlineMenuItems = styled.div`
   flex-flow: column nowrap;
   align-items: stretch;
   list-style: none;
-  color: ${style.primary500};
+  color: ${(props) => props.theme.primary500};
   padding: 0;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     margin: 0;
     padding: 1.5rem;
   }
@@ -25,10 +23,10 @@ export const StyledInlineMenuItems = styled.div`
     font-size: 0.875rem;
     line-height: 20px;
     font-weight: 400;
-    color: ${style.black1000};
+    color: ${(props) => props.theme.text1000};
     margin-bottom: 0.5rem;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       margin-bottom: 1.5rem;
     }
   }
@@ -49,7 +47,7 @@ export const StyledInlineMenuItems = styled.div`
     font-size: 0.875rem;
     line-height: 20px;
     font-weight: 400;
-    color: ${style.black1000};
+    color: ${(props) => props.theme.text1000};
     margin-bottom: 0.5rem;
 
     &:last-child {
@@ -71,7 +69,7 @@ export const StyledInlineMenuItems = styled.div`
       cursor: default;
     }
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       margin-bottom: 1.5rem;
       text-decoration: none;
     }
@@ -82,7 +80,7 @@ export const StyledInlineMenuItems = styled.div`
       height: 1rem;
       font-size: 1rem;
 
-      @media (max-width: ${style.collapse}px) {
+      @media (max-width: ${(props) => props.theme.collapse}px) {
         margin-right: 1rem;
         width: 1.5rem;
         height: 1.5rem;
@@ -110,7 +108,7 @@ export const StyledContent = styled.div`
   font-size: inherit;
   line-height: 1.65;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     font-size: 0.875rem;
     line-height: 1.6;
   }
@@ -159,7 +157,7 @@ export const StyledHeader = styled.div`
     em {
       font-style: normal;
       font-weight: normal;
-      color: ${style.black500};
+      color: ${(props) => props.theme.text500};
       margin-left: 0;
       margin-top: 0.25rem;
       font-size: 0.875rem;
@@ -197,9 +195,9 @@ export const StyledComments = styled.div`
   flex-flow: column nowrap;
   justify-content: flex-start;
 
-  @media (min-width: ${style.collapse}px) {
+  @media (min-width: ${(props) => props.theme.collapse}px) {
     border-top: ${({ $empty }) =>
-      $empty ? "none" : `1px solid ${style.black100}`};
+      $empty ? "none" : `1px solid ${(props) => props.theme.text100}`};
     transform: ${({ $empty }) => ($empty ? "none" : "translateY(0.5rem)")};
   }
 
@@ -221,16 +219,16 @@ export const StyledWrapper = styled.div`
   width: 100%;
   padding: 1.5rem;
   margin: 0;
-  background-color: white;
+  background-color: ${(props) => props.theme.background0};
   scroll-margin-top: 160px;
-  border: 1px solid ${style.black100};
+  border: 1px solid ${(props) => props.theme.text100};
   overflow-x: hidden;
   height: calc(100% - 80px);
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     scroll-margin-top: 120px;
     padding: 1.5rem 1rem;
-    box-shadow: ${style.elaborateShadow};
+    box-shadow: ${(props) => props.theme.elaborateShadow};
   }
 
   ${StyledMessage} {
@@ -254,9 +252,9 @@ export const StyledWrapper = styled.div`
     }
 
     ${Card} {
-      @media (max-width: ${style.collapse}px) {
+      @media (max-width: ${(props) => props.theme.collapse}px) {
         box-shadow: none;
-        border: 1px solid ${style.black100};
+        border: 1px solid ${(props) => props.theme.text100};
       }
     }
 
@@ -271,8 +269,8 @@ export const StyledWrapper = styled.div`
           padding: 0;
           width: 100%;
           height: 9px;
-          background-color: ${style.black50};
-          box-shadow: 0 1px 0 ${style.black200} inset;
+          background-color: ${(props) => props.theme.text50};
+          box-shadow: 0 1px 0 ${(props) => props.theme.text200} inset;
           margin: 0 -1rem 1rem;
           box-sizing: content-box;
           padding: 0 1rem;
@@ -283,9 +281,9 @@ export const StyledWrapper = styled.div`
 `;
 export const StyledPrivateVisibility = styled.div`
   padding: 20px;
-  background-color: ${style.primary50};
+  background-color: ${(props) => props.theme.primary50};
   margin-bottom: 1rem;
-  border-radius: ${style.borderRadius};
+  border-radius: ${(props) => props.theme.borderRadius};
   display: flex;
   align-items: start;
 `;
@@ -295,7 +293,7 @@ export const StyledLoadComments = styled.div`
   justify-content: left;
   padding: 10px;
   cursor: pointer;
-  color: ${style.primary500};
+  color: ${(props) => props.theme.primary500};
 
   ${RawFeatherIcon} {
     margin-right: 0.5rem;

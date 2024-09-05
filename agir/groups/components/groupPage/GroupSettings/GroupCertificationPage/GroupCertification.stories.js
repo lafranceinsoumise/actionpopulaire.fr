@@ -18,10 +18,14 @@ Certifiable.args = {
     "https://lafranceinsoumise.fr/groupes-appui/demande-de-certification/",
   isCertified: false,
   certificationCriteria: {
-    gender: true,
-    activity: true,
-    members: true,
-    creation: true,
+    gender: { value: true, label: "Animation paritaire" },
+    activity: {
+      value: true,
+      label:
+        "Le groupe doit avoir organisé au moins trois événements dans les trois dernièrs mois d'un type très spécifique qui concerne les actions tournées vers l'extérieur et la société et non pas l'entre-soi des réunions internes de groupe.",
+    },
+    members: { value: true, label: "Nombre de membres" },
+    creation: { value: true, label: "Date de création" },
   },
 };
 
@@ -29,10 +33,10 @@ export const Uncertifiable = Template.bind({});
 Uncertifiable.args = {
   ...Certifiable.args,
   certificationCriteria: {
-    gender: false,
-    activity: false,
-    members: false,
-    creation: false,
+    gender: { value: false, label: "Animation paritaire" },
+    activity: { value: false, label: "Activité du groupe" },
+    members: { value: false, label: "Nombre de membres" },
+    creation: { value: false, label: "Date de création" },
   },
 };
 
@@ -46,10 +50,10 @@ export const CertifiedWithWarning = Template.bind({});
 CertifiedWithWarning.args = {
   ...Certified.args,
   certificationCriteria: {
-    gender: false,
-    activity: true,
-    members: true,
-    creation: true,
-    Boom: false,
+    gender: { value: false, label: "Animation paritaire" },
+    activity: { value: true, label: "Activité du groupe" },
+    members: { value: true, label: "Nombre de membres" },
+    creation: { value: true, label: "Date de création" },
+    Boom: { value: false },
   },
 };

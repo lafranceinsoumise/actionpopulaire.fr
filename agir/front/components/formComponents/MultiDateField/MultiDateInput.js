@@ -5,32 +5,35 @@ import DatePanel from "react-multi-date-picker/plugins/date_panel";
 import TimePicker from "react-multi-date-picker/plugins/time_picker";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
 import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
 import { getIconDataUrl } from "@agir/front/genericComponents/Button/utils";
 
 import gregorian_en from "react-date-object/locales/gregorian_en";
 
 const StyledHelpText = styled.p`
-  color: ${style.black700};
+  color: ${(props) => props.theme.text700};
   font-size: 0.75rem;
   text-align: left;
   padding: 1rem;
   margin: 0;
-  border-top: 1px solid ${style.black100};
+  border-top: 1px solid ${(props) => props.theme.text100};
   text-align: center;
+
+  & + & {
+    color: ${(props) => props.theme.error500};
+  }
 `;
 
 const StyledCalendar = styled(Calendar)`
   clear: both;
   border-radius: 0;
-  border: 1px solid ${style.black100};
+  border: 1px solid ${(props) => props.theme.text100};
   box-shadow: none !important;
 
   /* CALENDAR */
 
   .rmdp-week-day {
-    color: ${style.primary500};
+    color: ${(props) => props.theme.primary500};
   }
 
   .rmdp-day {
@@ -38,42 +41,47 @@ const StyledCalendar = styled(Calendar)`
     height: 40px;
 
     &.rmdp-deactive {
-      color: ${style.primary600};
+      color: ${(props) => props.theme.primary600};
     }
     &.rmdp-today span,
     &.rmdp-today span:hover {
-      color: ${style.primary500};
+      color: ${(props) => props.theme.primary500};
       background-color: transparent;
       font-weight: 700;
     }
     &.rmdp-selected span.highlight,
     &.rmdp-selected span:not(.highlight) {
-      color: ${(props) => (props.disabled ? style.black1000 : style.white)};
+      color: ${(props) =>
+        props.disabled ? props.theme.text1000 : props.theme.background0};
       background-color: ${(props) =>
-        props.disabled ? style.primary150 : style.primary500};
+        props.disabled ? props.theme.primary150 : props.theme.primary500};
       box-shadow: none;
     }
     &.rmdp-selected span.highlight {
-      box-shadow: 0 0 0 3px ${style.primary150};
+      box-shadow: 0 0 0 3px ${(props) => props.theme.primary150};
     }
     &:not(.rmdp-day-hidden) span:hover {
       background-color: ${(props) =>
-        props.disabled ? "transparent" : style.primary600} !important;
+        props.disabled ? "transparent" : props.theme.primary600} !important;
       color: ${(props) =>
-        props.disabled ? style.black1000 : style.white} !important;
+        props.disabled
+          ? props.theme.text1000
+          : props.theme.background0} !important;
     }
     &.rmdp-today:not(.rmdp-day-hidden) span:hover {
       color: ${(props) =>
-        props.disabled ? style.primary500 : style.white} !important;
+        props.disabled
+          ? props.theme.primary500
+          : props.theme.background0} !important;
     }
     &.rmdp-selected:not(.rmdp-day-hidden) span:hover {
-      background-color: ${style.primary150} !important;
-      color: ${style.primary600};
+      background-color: ${(props) => props.theme.primary150} !important;
+      color: ${(props) => props.theme.primary600};
     }
   }
 
   .rmdp-range {
-    background-color: ${style.primary500};
+    background-color: ${(props) => props.theme.primary500};
     box-shadow: none;
   }
 
@@ -83,14 +91,14 @@ const StyledCalendar = styled(Calendar)`
     justify-content: center;
 
     &:hover {
-      background-color: ${style.primary500};
+      background-color: ${(props) => props.theme.primary500};
       box-shadow: none;
     }
   }
 
   .rmdp-arrow {
     margin: 0;
-    border: solid ${style.primary500};
+    border: solid ${(props) => props.theme.primary500};
     border-width: 0 2px 2px 0;
   }
 
@@ -111,7 +119,7 @@ const StyledCalendar = styled(Calendar)`
   /* DATE LIST */
   .rmdp-rtl .rmdp-panel {
     border-left: unset;
-    border-right: 1px solid ${style.primary600};
+    border-right: 1px solid ${(props) => props.theme.primary600};
   }
   .rmdp-panel-header:empty {
     display: none;
@@ -130,7 +138,7 @@ const StyledCalendar = styled(Calendar)`
     position: static;
 
     &::-webkit-scrollbar-thumb {
-      background: ${style.primary500};
+      background: ${(props) => props.theme.primary500};
     }
 
     li {
@@ -142,8 +150,8 @@ const StyledCalendar = styled(Calendar)`
       border-radius: 0.25rem;
 
       .b-date {
-        background-color: ${style.primary100};
-        color: ${style.black1000};
+        background-color: ${(props) => props.theme.primary100};
+        color: ${(props) => props.theme.text1000};
         padding: 0.25rem 0.75rem;
         font-size: 0.75rem;
         text-align: left;
@@ -153,17 +161,17 @@ const StyledCalendar = styled(Calendar)`
 
         &:focus,
         &:hover {
-          background-color: ${style.primary150};
+          background-color: ${(props) => props.theme.primary150};
         }
       }
 
       &.last-selected-day .b-date {
-        border-left: 0.5rem solid ${style.primary150};
+        border-left: 0.5rem solid ${(props) => props.theme.primary150};
         font-weight: 500;
 
         &:focus,
         &:hover {
-          border-color: ${style.primary500};
+          border-color: ${(props) => props.theme.primary500};
         }
       }
 
@@ -176,19 +184,20 @@ const StyledCalendar = styled(Calendar)`
         border-radius: 0;
         color: transparent;
         line-height: normal;
-        background-color: ${style.black100};
-        background-image: ${getIconDataUrl({
-          color: style.black1000,
-        })({
-          icon: "trash-2",
-        })};
+        background-color: ${(props) => props.theme.text100};
+        background-image: ${(props) =>
+          getIconDataUrl({
+            color: props.theme.text1000,
+          })({
+            icon: "trash-2",
+          })};
         background-size: 1rem 1rem;
         background-repeat: no-repeat;
         background-position: center center;
 
         &:focus,
         &:hover {
-          background-color: ${style.black200};
+          background-color: ${(props) => props.theme.text200};
         }
       }
     }
@@ -418,9 +427,7 @@ const MultiDateInput = (props) => {
         current={value?.length || 0}
       />
       {helpText && <StyledHelpText>{helpText}</StyledHelpText>}
-      {error && (
-        <StyledHelpText style={{ color: style.redNSP }}>{error}</StyledHelpText>
-      )}
+      {error && <StyledHelpText>{error}</StyledHelpText>}
     </StyledCalendar>
   );
 };

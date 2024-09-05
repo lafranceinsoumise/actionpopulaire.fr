@@ -19,8 +19,6 @@ import { routeConfig } from "@agir/front/app/routes.config";
 import { useSelectMessage } from "@agir/msgs/common/hooks";
 import { useToast } from "@agir/front/globalContext/hooks.js";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 const StyledContent = styled.div`
   padding: 0;
   display: flex;
@@ -28,8 +26,8 @@ const StyledContent = styled.div`
   flex-flow: column nowrap;
   margin-bottom: 1rem;
 
-  @media (max-width: ${style.collapse}px) {
-    background-color: white;
+  @media (max-width: ${(props) => props.theme.collapse}px) {
+    background-color: ${(props) => props.theme.background0};
     width: 100%;
     padding: 0 1rem 1.5rem;
     padding-bottom: 0.5rem;

@@ -4,8 +4,6 @@ import styled from "styled-components";
 
 import { useCustomAnnouncement } from "@agir/activity/common/hooks";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const StyledAnnouncement = styled.div`
@@ -15,10 +13,10 @@ const StyledAnnouncement = styled.div`
   flex-flow: row nowrap;
   align-items: flex-start;
   justify-content: space-between;
-  background-color: ${style.secondary100};
+  background-color: ${(props) => props.theme.secondary100};
   margin-bottom: 2rem;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     padding: 1.5em;
   }
 
@@ -33,7 +31,7 @@ const StyledAnnouncement = styled.div`
     background-size: contain;
     background-position: top center;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       display: none;
     }
   }
@@ -69,7 +67,7 @@ const StyledAnnouncement = styled.div`
   & > div + article {
     padding-left: 1.5rem;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       padding-left: 0;
     }
   }
@@ -82,6 +80,7 @@ const StyledAnnouncement = styled.div`
     cursor: pointer;
     padding: 0;
     margin: 0;
+    color: ${(props) => props.theme.text1000};
   }
 `;
 
@@ -103,7 +102,7 @@ export const CustomAnnouncementCard = (props) => {
           <div dangerouslySetInnerHTML={{ __html: config.content }} />
         </article>
         <button onClick={onClose} aria-label="Fermer ce message">
-          <RawFeatherIcon name="x" color={style.black1000} />
+          <RawFeatherIcon name="x" color="currentcolor" />
         </button>
       </StyledAnnouncement>
     );
@@ -114,7 +113,7 @@ export const CustomAnnouncementCard = (props) => {
       <StyledAnnouncement>
         {children(config, onClose)}
         <button onClick={onClose} aria-label="Fermer ce message">
-          <RawFeatherIcon name="x" color={style.black1000} />
+          <RawFeatherIcon name="x" color="currentcolor" />
         </button>
       </StyledAnnouncement>
     );
@@ -133,7 +132,7 @@ export const CustomAnnouncementCard = (props) => {
         {children}
       </article>
       <button onClick={onClose} aria-label="Fermer ce message">
-        <RawFeatherIcon name="x" color={style.black1000} />
+        <RawFeatherIcon name="x" color="currentcolor" />
       </button>
     </StyledAnnouncement>
   );

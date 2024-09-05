@@ -27,7 +27,7 @@ const StyledWrapper = styled.div`
   }
 
   p + p {
-    color: ${(props) => props.theme.black700};
+    color: ${(props) => props.theme.text700};
     font-size: 0.813rem;
     margin-top: 0.5rem;
   }

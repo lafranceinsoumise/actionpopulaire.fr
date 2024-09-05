@@ -63,7 +63,7 @@ const StyledArticle = styled.article`
       justify-content: center;
       height: 5rem;
       border-radius: ${(props) => props.theme.borderRadius};
-      border: 1px solid ${(props) => props.theme.black200};
+      border: 1px solid ${(props) => props.theme.text200};
       padding: 0 12px;
 
       @media (min-width: ${(props) => props.theme.collapse}px) {
@@ -71,7 +71,7 @@ const StyledArticle = styled.article`
       }
 
       &:hover {
-        border-color: ${(props) => props.theme.black500};
+        border-color: ${(props) => props.theme.text500};
       }
     }
   }

@@ -38,7 +38,7 @@ const StyledCard = styled.div`
   gap: 1rem;
   align-items: center;
   padding: 1rem;
-  border: 1px solid ${(props) => props.theme.black100};
+  border: 1px solid ${(props) => props.theme.text100};
 
   & > * {
     flex: 0 0 auto;
@@ -122,7 +122,7 @@ const StyledSubtypeCard = styled.div`
 
 const StyledLocationCard = styled.div`
   padding: 1rem;
-  border: 1px solid ${(props) => props.theme.black100};
+  border: 1px solid ${(props) => props.theme.text100};
   display: flex;
   flex-flow: row nowrap;
   gap: 1rem;
@@ -154,7 +154,7 @@ const StyledLocationCard = styled.div`
     }
 
     span {
-      color: ${(props) => props.theme.black500};
+      color: ${(props) => props.theme.text500};
     }
   }
 `;

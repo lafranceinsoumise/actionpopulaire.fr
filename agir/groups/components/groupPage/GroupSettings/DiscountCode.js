@@ -33,7 +33,7 @@ const StyledDiscountCode = styled.div`
 
   & > p {
     padding-top: 0.75rem;
-    color: ${(props) => props.theme.black700};
+    color: ${(props) => props.theme.text700};
     font-size: 0.875rem;
     line-height: 1.5;
   }

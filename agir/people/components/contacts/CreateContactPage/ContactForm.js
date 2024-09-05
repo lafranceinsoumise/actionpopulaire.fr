@@ -475,7 +475,7 @@ export const ContactForm = (props) => {
             margin: 0;
             font-size: 1rem;
             text-align: center;
-            color: ${({ theme }) => theme.redNSP};
+            color: ${({ theme }) => theme.error500};
           `}
         >
           {errors.global}

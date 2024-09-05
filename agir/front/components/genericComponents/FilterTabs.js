@@ -3,20 +3,19 @@ import React, { useMemo } from "react";
 import { useScrollbarWidth } from "react-use";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 const Tab = styled.button`
   background-color: transparent;
   border: none;
-  color: ${({ $active }) => ($active ? style.primary500 : style.black500)};
+  color: ${({ $active, theme }) =>
+    $active ? theme.primary500 : theme.text500};
   box-shadow: ${({ $active }) =>
     $active
-      ? `inset 0 -0.1875rem 0 ${style.primary500}`
+      ? `inset 0 -0.1875rem 0 ${(props) => props.theme.primary500}`
       : "inset 0 0 0 transparent"};
   transition: all 200ms ease-in-out;
 
   &:disabled {
-    color: ${style.black200};
+    color: ${(props) => props.theme.text200};
   }
 `;
 const TabList = styled.div``;
@@ -26,7 +25,7 @@ const TabListWrapper = styled.div`
   overflow-x: auto;
   overflow-y: visible;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     margin: 0 auto;
     padding: 0 0 ${(props) => props.$sbw || 16}px;
   }
@@ -34,7 +33,7 @@ const TabListWrapper = styled.div`
   ${TabList} {
     padding: 0.0625rem 1rem 0 0.0625rem;
     white-space: nowrap;
-    border-bottom: 0.0625rem solid ${style.black200};
+    border-bottom: 0.0625rem solid ${(props) => props.theme.text200};
     display: inline-flex;
     gap: 1rem;
     min-width: 100%;
@@ -65,16 +64,16 @@ const TabListWrapper = styled.div`
     height: 2rem;
     position: absolute;
     right: 0;
-    background: rgba(250, 250, 250, 0.001);
+    background: ${(props) => props.theme.text25}00;
     background-image: -webkit-linear-gradient(
       left,
-      rgba(250, 250, 250, 0.001) calc(100% - 3rem),
-      rgba(250, 250, 250, 1)
+      ${(props) => props.theme.text25}00 calc(100% - 3rem),
+      ${(props) => props.theme.text25}
     );
     background-image: linear-gradient(
       to right,
-      rgba(250, 250, 250, 0.001) calc(100% - 3rem),
-      rgba(250, 250, 250, 1)
+      ${(props) => props.theme.text25}00 calc(100% - 3rem),
+      ${(props) => props.theme.text25}
     );
     pointer-events: none;
   }

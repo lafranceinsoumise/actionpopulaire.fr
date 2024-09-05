@@ -1,8 +1,6 @@
 import PropTypes from "prop-types";
 import React from "react";
-import styled from "styled-components";
-
-import hrefs from "@agir/front/globalContext/nonReactRoutes.config";
+import styled, { useTheme } from "styled-components";
 
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
@@ -39,6 +37,8 @@ const StyledContent = styled.div`
 export const MissingDocumentModal = (props) => {
   const { projects, isBlocked } = props;
 
+  const theme = useTheme();
+
   return (
     <StyledContent>
       <header>
@@ -72,7 +72,10 @@ export const MissingDocumentModal = (props) => {
         {projects && projects.length > 0 ? (
           <MissingDocumentList projects={projects} />
         ) : (
-          <StaticToast $color="#16A460" style={{ margin: 0, fontWeight: 500 }}>
+          <StaticToast
+            $color={theme.success500}
+            style={{ margin: 0, fontWeight: 500 }}
+          >
             <RawFeatherIcon name="check" strokeWidth={2} />
             &ensp;Vous êtes à jour de vos documents à envoyer&nbsp;!
           </StaticToast>

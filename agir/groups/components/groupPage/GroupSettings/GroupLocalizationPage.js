@@ -5,8 +5,6 @@ import useSWR from "swr";
 
 import { useToast } from "@agir/front/globalContext/hooks.js";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import Map from "@agir/carte/common/Map";
@@ -25,7 +23,7 @@ const StyledMap = styled(Map)`
 const StyledMapConfig = styled(Map)`
   height: calc(100vh - 230px);
 
-  @media (min-width: ${style.collapse}px) {
+  @media (min-width: ${(props) => props.theme.collapse}px) {
     height: 400px;
   }
 `;
@@ -119,7 +117,11 @@ const GroupLocalizationPage = (props) => {
       </Button>
       <Spacer size="1rem" />
 
-      <span style={{ color: style.black700 }}>
+      <span
+        css={`
+          color: ${(props) => props.theme.text700};
+        `}
+      >
         Si vous ne souhaitez pas rendre votre adresse personnelle publique,
         indiquez un endroit à proximité (café, mairie...)
         <Spacer size="0.5rem" />
@@ -143,12 +145,6 @@ const GroupLocalizationPage = (props) => {
       <Button type="submit" color="secondary" wrap disabled={isLoading}>
         Enregistrer
       </Button>
-
-      {/* <hr />
-      <Spacer size="1rem" />
-      <a href="#" style={{ color: style.redNSP }}>
-        Supprimer la localisation (déconseillé)
-      </a> */}
     </form>
   );
 };

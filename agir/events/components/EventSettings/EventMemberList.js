@@ -3,18 +3,16 @@ import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import EventMember from "./EventMember";
 import ButtonAddList from "@agir/front/genericComponents/ObjectManagement/ButtonAddList.js";
 
 const MemberList = styled.div`
-  box-shadow: ${style.cardShadow};
+  box-shadow: ${(props) => props.theme.cardShadow};
   border-radius: 8px;
   overflow: hidden;
 
   & > * {
-    border-bottom: 1px solid ${style.black50};
+    border-bottom: 1px solid ${(props) => props.theme.text50};
   }
 `;
 

@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
 import {
   FlexContainer,
   MarginBox,
@@ -27,7 +26,7 @@ export const RecipientContainer = styled.div`
   font-weight: bold;
   width: 25rem;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     width: 100%;
   }
 `;
@@ -48,7 +47,7 @@ export const SliderContainer = styled.div`
   flex-grow: 1;
   margin: 0 1.5rem;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     display: none;
   }
 `;
@@ -57,7 +56,7 @@ export const AmountBoxContainer = styled.div`
   max-width: 12rem;
   margin: 10px 0;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     max-width: 100%;
   }
 

@@ -1,25 +1,48 @@
 import illustrationLFIBGD from "./images/illustration_FI_BG_D.jpg";
 import illustrationLFIBGM from "./images/illustration_FI_BG_M.jpg";
-import logo from "@agir/front/genericComponents/logos/LFI-NUPES-Violet-H.webp";
-import * as style from "@agir/front/genericComponents/_variables.scss";
+
+import Logo from "@agir/front/genericComponents/LogoFI";
+
+import * as light from "@agir/front/genericComponents/_variables-light.scss";
+import * as dark from "@agir/front/genericComponents/_variables-dark.scss";
 
 const theme = {
-  default: style,
-  logo,
-  logoHeight: "80px",
+  light: {
+    secondary600: light.LFIsecondary600,
+    secondary500: light.LFIsecondary500,
+    secondary150: light.LFIsecondary150,
+    secondary100: light.LFIsecondary100,
 
-  secondary600: "#B71F00",
-  secondary500: "#C9462C",
-  secondary150: "#F2CAC2",
-  secondary100: "#FDECEE",
-  primary600: "#07758A",
-  primary500: "#0098B6",
-  primary150: "#B1D8E3",
-  primary100: "#D8EEF8",
+    primary600: light.LFIprimary600,
+    primary500: light.LFIprimary500,
+    primary150: light.LFIprimary150,
+    primary100: light.LFIprimary100,
 
-  illustration: {
-    small: illustrationLFIBGM,
-    large: illustrationLFIBGD,
+    Logo,
+    logoHeight: "5rem",
+    illustration: {
+      small: illustrationLFIBGM,
+      large: illustrationLFIBGD,
+    },
+  },
+
+  dark: {
+    secondary600: dark.LFIsecondary600,
+    secondary500: dark.LFIsecondary500,
+    secondary150: dark.LFIsecondary150,
+    secondary100: dark.LFIsecondary100,
+
+    primary600: dark.LFIprimary600,
+    primary500: dark.LFIprimary500,
+    primary150: dark.LFIprimary150,
+    primary100: dark.LFIprimary100,
+
+    Logo,
+    logoHeight: "80px",
+    illustration: {
+      small: illustrationLFIBGM,
+      large: illustrationLFIBGD,
+    },
   },
 };
 
