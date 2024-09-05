@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Button from "@agir/front/genericComponents/Button";
 import { Hide } from "@agir/front/genericComponents/grid";
 import Link from "@agir/front/app/Link";
@@ -43,6 +41,10 @@ const StyledWrapper = styled.div`
     width: 100%;
     margin-bottom: 1rem;
   }
+
+  footer + footer {
+    color: ${(props) => props.theme.error500};
+  }
 `;
 
 const DeviceNotificationSubscription = (props) => {
@@ -74,9 +76,7 @@ const DeviceNotificationSubscription = (props) => {
         </Button>
         <Button onClick={onDismiss}>Pas maintenant</Button>
         <footer>Vous pourrez changer à tout moment</footer>
-        {subscriptionError && (
-          <footer style={{ color: style.redNSP }}>{subscriptionError}</footer>
-        )}
+        {subscriptionError && <footer>{subscriptionError}</footer>}
       </StyledWrapper>
     </>
   );

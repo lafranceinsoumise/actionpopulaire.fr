@@ -15,12 +15,11 @@ const Template = () => {
         width: "100%",
         height: "80vh",
         maxWidth: "400px",
-        background: "#DFDFDF",
         boxShadow: "1px 1px 5px #DFDFDF",
       }}
     >
       <Accordion name="Nouveautés" icon="rss">
-        <div style={{ background: "white", width: "100%", padding: "1.5rem" }}>
+        <div style={{ width: "100%", padding: "1.5rem" }}>
           <strong style={{ margin: 0 }}>Nouveautés</strong>
           <p>
             But we’ve met before. That was a long time ago, I was a kid at St.
@@ -28,9 +27,7 @@ const Template = () => {
           </p>
         </div>
         <Accordion name="Nouveautés (bis)" icon="repeat">
-          <div
-            style={{ background: "white", width: "100%", padding: "1.5rem" }}
-          >
+          <div style={{ width: "100%", padding: "1.5rem" }}>
             <strong style={{ margin: 0 }}>Nouveautés (bis)</strong>
             <p>
               But we’ve met before. That was a long time ago, I was a kid at St.
@@ -40,7 +37,7 @@ const Template = () => {
         </Accordion>
       </Accordion>
       <Accordion name="Compte et sécurité" icon="lock">
-        <div style={{ background: "white", width: "100%", padding: "1.5rem" }}>
+        <div style={{ width: "100%", padding: "1.5rem" }}>
           <strong style={{ margin: 0 }}>Compte et sécurité</strong>
           <p>
             It used to be funded by the Wayne Foundation. It’s an orphanage. My
@@ -52,7 +49,7 @@ const Template = () => {
         </div>
       </Accordion>
       <Accordion name="Les insoumis·es Pyrénées-Ménilmontant" icon="users">
-        <div style={{ background: "white", width: "100%", padding: "1.5rem" }}>
+        <div style={{ width: "100%", padding: "1.5rem" }}>
           <strong style={{ margin: 0 }}>
             Les insoumis·es Pyrénées-Ménilmontant
           </strong>

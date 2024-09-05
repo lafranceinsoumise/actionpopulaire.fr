@@ -9,7 +9,7 @@ import AppRedirect from "@agir/front/app/Redirect";
 import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 
 const StyledError = styled.p`
-  color: ${(props) => props.theme.redNSP};
+  color: ${(props) => props.theme.error500};
   text-align: center;
   font-weight: 500;
 

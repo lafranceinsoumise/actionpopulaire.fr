@@ -1,6 +1,6 @@
 import React from "react";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables-light.scss";
 
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
@@ -49,15 +49,15 @@ const ACTIONS = {
     key: "createEvent",
     route: "createEvent",
     label: ["Créer événement", "Créer un événement"],
-    color: style.primary500,
+    color: "primary500",
     icon: (
-      <span style={{ backgroundColor: style.primary500 }}>
+      <span>
         <svg
           width="24"
           height="24"
           viewBox="0 0 16 16"
           fill="none"
-          stroke={style.white}
+          stroke="currentcolor"
           strokeWidth={1.33}
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -78,29 +78,30 @@ const ACTIONS = {
     route: "coupDeFil",
     label: ["Coup de fil", "Coup de fil pour convaincre"],
     icon: "phone",
-    color: style.green500,
+    color: "success500",
   },
   materiel: {
     key: "materiel",
     route: "materiel",
     label: "Matériel",
     icon: "shopping-bag",
-    color: style.secondary500,
-    textColor: style.black1000,
+    color: "secondary500",
+    textColor: "text1000",
   },
   createContact: {
     key: "createContact",
     route: "createContact",
     label: ["Ajouter contact", "Ajouter un contact"],
     icon: "user-plus",
-    color: "#4D26B9",
+    color: "primary600",
+    textColor: "background0",
   },
   toktokPreview: {
     key: "toktokPreview",
     route: "toktokPreview",
     label: ["Porte-à-porte", "TokTok - Porte-à-porte"],
     icon: (
-      <span style={{ backgroundColor: style.PULBleu }}>
+      <span style={{ backgroundColor: "PULBleu" }}>
         <svg
           width="24"
           height="24"
@@ -129,7 +130,7 @@ const ACTIONS = {
         </svg>
       </span>
     ),
-    color: style.primary500,
+    color: "primary500",
   },
   votingProxy: (user) =>
     user?.votingProxyId && user?.hasVotingProxyRequests
@@ -139,36 +140,29 @@ const ACTIONS = {
           routeParams: { votingProxyPk: user.votingProxyId },
           label: ["Mes procurations", "Mes procurations de vote"],
           icon: "edit-3",
-          color: style.votingProxyOrange,
+          color: "votingProxyOrange",
         }
       : {
           key: "votingProxy",
           route: "votingProxyLandingPage",
           label: ["Procuration", "Espace procurations"],
           icon: "edit-3",
-          color: style.votingProxyOrange,
+          color: "votingProxyOrange",
         },
   actionTools: {
     key: "actionTools",
     route: "actionTools",
     label: "Voir tout",
-    icon: (
-      <RawFeatherIcon
-        style={{
-          backgroundColor: "transparent",
-          border: `1px solid ${style.black200}`,
-          color: style.black1000,
-        }}
-        name="arrow-right"
-      />
-    ),
+    icon: "arrow-right",
+    textColor: "text1000",
+    borderColor: "text200",
   },
   newPollingStationOfficer: {
     key: "newPollingStationOfficer",
     route: "newPollingStationOfficer",
     label: ["Assesseurs/délégués", "Devenir assesseur·e ou délégué·e"],
     icon: (
-      <span style={{ backgroundColor: style.referralPink }}>
+      <span style={{ backgroundColor: "referralPink" }}>
         <svg
           width="25"
           height="24"
@@ -207,8 +201,8 @@ const ACTIONS = {
     route: "help",
     label: ["Aide", "Centre d'aide"],
     icon: "help-circle",
-    color: style.black100,
-    textColor: style.black1000,
+    color: "text100",
+    textColor: "text1000",
   },
   publicMeetingRequest: {
     key: "publicMeetingRequest",

@@ -19,7 +19,7 @@ const StyledCard = styled.div`
     line-height: 1.5;
     font-weight: 600;
     color: ${(props) =>
-      props.$pending ? props.theme.green500 : props.theme.black700};
+      props.$pending ? props.theme.success500 : props.theme.text700};
   }
 
   p {

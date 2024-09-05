@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Button from "@agir/front/genericComponents/Button";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import ModalWrapper from "@agir/front/genericComponents/Modal";
@@ -42,7 +40,7 @@ const StyledIconButton = styled.button`
   text-align: center;
   -webkit-appearance: none;
   -moz-appearance: none;
-  color: ${style.black1000};
+  color: ${(props) => props.theme.text1000};
 
   &:last-child {
     justify-content: flex-end;
@@ -58,7 +56,7 @@ const StyledModalHeader = styled.header`
   padding: 0 1.5rem;
   height: 54px;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     display: ${({ $mobile }) => ($mobile ? "flex" : "none")};
     align-items: center;
     height: 4rem;
@@ -66,12 +64,12 @@ const StyledModalHeader = styled.header`
     gap: 0.5rem;
     position: sticky;
     top: 0;
-    background-color: white;
+    background-color: ${(props) => props.theme.background0};
     z-index: 1;
   }
 
   & > * {
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       flex: 0 0 auto;
     }
   }
@@ -88,7 +86,7 @@ const StyledModalHeader = styled.header`
     grid-column: 2/3;
     grid-row: 1/2;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       margin-right: auto;
     }
   }
@@ -100,7 +98,7 @@ const StyledModalBody = styled.div`
 const StyledModalFooter = styled.footer`
   padding: 0 1rem 1rem;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     display: none;
   }
 
@@ -111,10 +109,10 @@ const StyledModalFooter = styled.footer`
 const StyledModalContent = styled.div`
   max-width: 600px;
   margin: 40px auto;
-  background-color: white;
-  border-radius: ${style.borderRadius};
+  background-color: ${(props) => props.theme.background0};
+  border-radius: ${(props) => props.theme.borderRadius};
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     border-radius: 0;
     max-width: 100%;
     min-height: 100vh;
@@ -127,8 +125,8 @@ const StyledModalContent = styled.div`
   ${StyledModalHeader} {
     border-bottom: ${({ $isLoading }) =>
       $isLoading
-        ? `8px solid ${style.secondary500}`
-        : `1px solid ${style.black100};`};
+        ? `8px solid ${(props) => props.theme.secondary500}`
+        : `1px solid ${(props) => props.theme.text100};`};
     transition: border-bottom 250ms ease-in-out;
   }
   ${StyledModalBody},
@@ -137,7 +135,7 @@ const StyledModalContent = styled.div`
     transition: opacity 250ms ease-in-out;
   }
   ${StyledModalBody} {
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       flex: 1 1 auto;
     }
   }

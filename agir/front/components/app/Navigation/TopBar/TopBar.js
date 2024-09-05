@@ -16,7 +16,7 @@ const StyledPageHead = styled.div`
   left: 0;
   z-index: ${(props) => props.theme.zindexTopBar};
   width: 100%;
-  background-color: ${(props) => props.theme.white};
+  background-color: ${(props) => props.theme.background0};
   isolation: isolate;
 `;
 

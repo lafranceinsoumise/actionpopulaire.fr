@@ -28,9 +28,9 @@ const StyledFaIcon = styled(FaIcon)``;
 const StyledFeatherIcon = styled(RawFeatherIcon)``;
 const StyledRecap = styled.div`
   padding: 1rem 1.5rem;
-  background-color: ${({ theme }) => theme.white};
+  background-color: ${({ theme }) => theme.background0};
   border-radius: ${({ theme }) => theme.borderRadius};
-  border: 1px solid ${({ theme }) => theme.black100};
+  border: 1px solid ${({ theme }) => theme.text100};
 
   & > ${WarningBlock} {
     font-size: 0.875rem;
@@ -55,7 +55,7 @@ const StyledRecap = styled.div`
 
     ${StyledFaIcon},
     ${StyledFeatherIcon} {
-      color: ${(props) => props.theme.black500};
+      color: ${(props) => props.theme.text500};
 
       @media (max-width: 350px) {
         display: none;
@@ -82,7 +82,7 @@ const StyledActionRadiusWarning = styled.div`
   grid-template-columns: 1fr;
   gap: 0.5rem;
   border-radius: ${(props) => props.theme.borderRadius};
-  border: 1px solid ${(props) => props.theme.redNSP};
+  border: 1px solid ${(props) => props.theme.error500};
 
   h6,
   p {
@@ -90,7 +90,7 @@ const StyledActionRadiusWarning = styled.div`
   }
 
   h6 {
-    color: ${(props) => props.theme.redNSP};
+    color: ${(props) => props.theme.error500};
     font-size: 1.25rem;
     line-height: 1.5;
     display: flex;
@@ -355,7 +355,7 @@ const ReplyingForm = (props) => {
               margin: 0;
               font-size: 1rem;
               font-weight: 500;
-              color: ${({ theme }) => theme.redNSP};
+              color: ${({ theme }) => theme.error500};
             `}
           >
             ⚠&ensp;

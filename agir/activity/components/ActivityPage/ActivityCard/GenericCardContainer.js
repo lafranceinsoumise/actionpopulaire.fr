@@ -3,8 +3,6 @@ import PropTypes from "prop-types";
 import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import { ACTIVITY_STATUS } from "@agir/activity/common/helpers";
 import { dateFromISOString, displayHumanDate } from "@agir/lib/utils/time";
 
@@ -18,7 +16,8 @@ import Skeleton from "@agir/front/genericComponents/Skeleton";
 
 const StyledChildrenWrapper = styled.div`
   margin-bottom: 0;
-  color: ${(props) => (props.$isUnread ? style.black1000 : style.black700)};
+  color: ${(props) =>
+    props.$isUnread ? props.theme.text1000 : props.theme.text700};
   font-weight: ${(props) => (props.$isUnread ? 600 : 500)};
 
   strong,
@@ -40,14 +39,14 @@ const StyledChildrenWrapper = styled.div`
 
     &:hover,
     &:focus {
-      border-bottom: 1px dotted ${style.black500};
+      border-bottom: 1px dotted ${(props) => props.theme.text500};
     }
   }
 `;
 
 const LowMarginCard = styled(Card)`
   background-color: ${(props) =>
-    props.$isUnread ? style.primary50 : "transparent"};
+    props.$isUnread ? props.theme.primary50 : "transparent"};
   transition: background-color 100ms ease-out;
   border-left: none;
   border-right: none;
@@ -62,7 +61,7 @@ const LowMarginCard = styled(Card)`
     overflow: hidden;
     text-overflow: ellipsis;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       margin-bottom: 0;
     }
   }
@@ -71,14 +70,14 @@ const LowMarginCard = styled(Card)`
 const EventCardContainer = styled(PageFadeIn)`
   margin-top: 1rem;
 
-  @media only screen and (min-width: ${style.collapse}px) {
+  @media only screen and (min-width: ${(props) => props.theme.collapse}px) {
     padding-left: 2.5rem;
     margin-bottom: 0.5rem;
   }
 
   & ${Card} {
     box-shadow: none;
-    border: 1px solid ${style.black100};
+    border: 1px solid ${(props) => props.theme.text100};
   }
 `;
 
@@ -185,7 +184,7 @@ export const GenericCardContainer = (props) => {
         <Column width="1rem" collapse={0} style={{ paddingTop: "2px" }}>
           <FeatherIcon
             name={iconName}
-            color={isUnread ? style.primary500 : style.black500}
+            color={isUnread ? "primary500" : "text500"}
           />
         </Column>
         <Column collapse={0} grow style={{ fontSize: "15px" }}>
@@ -194,12 +193,12 @@ export const GenericCardContainer = (props) => {
           </StyledChildrenWrapper>
           {!config.hideDate && (
             <p
-              style={{
-                margin: "0.125rem 0 0",
-                fontSize: ".875rem",
-                color: style.black500,
-                fontWeight: isUnread ? 600 : 400,
-              }}
+              css={`
+                margin: 0.125rem 0 0;
+                font-size: 0.875rem;
+                color: ${(props) => props.theme.text500};
+                font-weight: ${isUnread ? 600 : 400};
+              `}
             >
               {date}
             </p>
@@ -212,11 +211,11 @@ export const GenericCardContainer = (props) => {
           ready={!isLoadingEventCard}
           wait={
             <Skeleton
-              style={{
-                borderRadius: style.borderRadius,
-                margin: "1rem 0 0",
-                height: 124,
-              }}
+              css={`
+                border-radius: ${(props) => props.theme.borderRadius},
+                margin: 1rem 0 0,
+                height: 7.75rem,
+              `}
               boxes={1}
             />
           }

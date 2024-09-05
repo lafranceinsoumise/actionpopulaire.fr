@@ -2,7 +2,7 @@ import large from "./images/illustration_legislatives2024_BG_D.png";
 import small from "./images/illustration_legislatives2024_BG_M.jpg";
 import logo from "@agir/front/genericComponents/logos/FI.svg";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables-light.scss";
 
 const theme = {
   default: style,

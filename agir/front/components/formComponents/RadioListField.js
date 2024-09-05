@@ -19,17 +19,17 @@ const StyledOption = styled.label`
   gap: 0.5rem;
   border: 1px solid;
   border-color: ${(props) =>
-    props.$disabled ? props.theme.black50 : props.theme.black200};
+    props.$disabled ? props.theme.text50 : props.theme.text200};
   cursor: ${(props) => (props.$disabled ? "default" : "pointer")};
   color: ${(props) =>
-    props.$disabled ? props.theme.black500 : props.theme.black1000};
+    props.$disabled ? props.theme.text500 : props.theme.text1000};
   background-color: ${(props) =>
-    props.$disabled ? props.theme.black50 : "transparent"};
+    props.$disabled ? props.theme.text50 : "transparent"};
 
   transition: background-color 200ms;
 
   ${RawFeatherIcon} {
-    color: ${(props) => props.theme.green500};
+    color: ${(props) => props.theme.success500};
   }
 `;
 
@@ -68,13 +68,13 @@ const StyledField = styled.div`
     }
 
     input:focus + ${StyledOption} {
-      border-color: ${(props) => props.theme.black500};
+      border-color: ${(props) => props.theme.text500};
     }
   }
 
   ${StyledError} {
     display: ${({ $invalid }) => ($invalid ? "flex" : "none")};
-    color: ${(props) => props.theme.redNSP};
+    color: ${(props) => props.theme.error500};
   }
 `;
 

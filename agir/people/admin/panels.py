@@ -195,6 +195,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "gender",
         filters.TagListFilter,
         filters.AnimateMoreThanOneGroup,
+        filters.PersonAccountActivateListFilter,
         ("created", DateRangeFilter),
     )
 

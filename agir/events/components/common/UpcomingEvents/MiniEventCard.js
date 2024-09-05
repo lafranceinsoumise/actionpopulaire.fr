@@ -14,7 +14,7 @@ const StyledCard = styled(Link)`
   padding: 1rem;
   border-radius: ${(props) => props.theme.borderRadius};
   box-shadow: ${(props) => props.theme.cardShadow};
-  background-color: white;
+  background-color: ${(props) => props.theme.background0};
 
   &:hover,
   &:focus {
@@ -40,7 +40,7 @@ const StyledCard = styled(Link)`
   }
 
   & > strong {
-    color: ${(props) => props.theme.black1000};
+    color: ${(props) => props.theme.text1000};
   }
 `;
 

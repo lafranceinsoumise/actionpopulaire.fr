@@ -7,6 +7,7 @@ const StyledBackButton = styled.button`
   &,
   &:hover,
   &:focus {
+    color: currentcolor;
     background-color: transparent;
     border: none;
     box-shadow: none;

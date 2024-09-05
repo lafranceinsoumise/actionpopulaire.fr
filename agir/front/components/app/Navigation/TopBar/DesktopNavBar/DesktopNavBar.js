@@ -22,7 +22,7 @@ const LogoLink = styled(Link)`
   line-height: 0;
   overflow-x: hidden;
 
-  img {
+  & > * {
     transform: translateX(-15px);
   }
 `;
@@ -31,7 +31,7 @@ const StyledBar = styled.div`
   width: 1432px;
   max-width: 100%;
   height: 100%;
-  background-color: ${(props) => props.theme.white};
+  background-color: ${(props) => props.theme.background0};
   display: flex;
   flex-flow: row nowrap;
   align-items: center;

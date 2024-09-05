@@ -13,7 +13,7 @@ const StyledText = styled.p`
   em {
     font-style: normal;
     font-size: 0.875rem;
-    color: ${({ theme }) => theme.black700};
+    color: ${({ theme }) => theme.text700};
   }
 `;
 
@@ -23,7 +23,7 @@ const StyledPre = styled.pre`
   font-family: ${(props) => props.theme.fontFamilyBase};
   line-height: 1.5;
   padding: 1rem;
-  border: 1px solid ${(props) => props.theme.black100};
+  border: 1px solid ${(props) => props.theme.text100};
   border-radius: ${(props) => props.theme.borderRadius};
 `;
 

@@ -54,8 +54,7 @@ Default.args = {
   startTime: defaultStartTime.toMillis(),
   duration: 2,
   illustration: {
-    thumbnail:
-      "https://i.picsum.photos/id/523/1920/1080.jpg?hmac=sy_3fHrsxYu8cmYYWmQ2yWzPMfGNI42qloxWKF97ISk",
+    thumbnail: "https://loremflickr.com/1920/1080",
   },
   locationName: "Place de la République",
   locationAddress: "Place de la République\n75011 Paris",

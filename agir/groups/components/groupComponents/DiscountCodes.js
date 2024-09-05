@@ -10,7 +10,7 @@ const StyledSection = styled.section`
   margin: 1.5rem 0 0;
 
   & > * {
-    color: ${(props) => props.theme.black1000};
+    color: ${(props) => props.theme.text1000};
     margin: 0.5rem 0;
   }
 `;

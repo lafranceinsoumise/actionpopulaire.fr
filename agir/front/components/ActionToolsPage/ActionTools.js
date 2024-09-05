@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unknown-property */
 import React from "react";
-import styled from "styled-components";
+import styled, { useTheme } from "styled-components";
 
 import Link from "@agir/front/app/Link";
 import Button from "@agir/front/genericComponents/Button";
@@ -17,7 +17,7 @@ const StyledCardItem = styled(Link)`
   gap: ${(props) => (props.$highlight ? 1.5 : 1)}rem;
   box-shadow: ${({ theme }) => theme.cardShadow};
   background-color: ${(props) =>
-    props.$highlight ? props.theme[props.$highlight] : props.theme.white};
+    props.$highlight ? props.theme[props.$highlight] : props.theme.background0};
 
   @media (max-width: ${({ theme }) => theme.collapse}px) {
     align-items: flex-start;
@@ -47,7 +47,7 @@ const StyledCardItem = styled(Link)`
   & > ${RawFeatherIcon}, & > ${Button}, & > img {
     flex: 0 0 auto;
 
-    @media (max-width: 360px) {
+    @media (max-width: ${(props) => props.theme.collapseSmallMobile}px) {
       display: none;
     }
   }
@@ -71,7 +71,7 @@ const StyledCardItem = styled(Link)`
     & > span {
       font-size: 0.875rem;
       line-height: 1.5;
-      color: ${({ theme }) => theme.black700};
+      color: ${({ theme }) => theme.text700};
     }
   }
 `;
@@ -85,6 +85,8 @@ const StyledCard = styled.ul`
 `;
 
 export const ActionTools = () => {
+  const theme = useTheme();
+
   return (
     <StyledCard>
       <StyledCardItem route="donationLanding" $highlight="primary50">
@@ -92,7 +94,7 @@ export const ActionTools = () => {
           aria-hidden="true"
           css={`
             background-color: #fd3d66;
-            color: ${({ theme }) => theme.white};
+            color: ${theme.background0};
           `}
         >
           <RawFeatherIcon name="heart" />
@@ -128,8 +130,8 @@ export const ActionTools = () => {
         <i
           aria-hidden="true"
           css={`
-            background-color: ${({ theme }) => theme.primary500};
-            color: ${({ theme }) => theme.white};
+            background-color: ${theme.primary500};
+            color: ${theme.background0};
           `}
         >
           <RawFeatherIcon name="calendar" />
@@ -162,8 +164,8 @@ export const ActionTools = () => {
         <i
           aria-hidden="true"
           css={`
-            background-color: ${({ theme }) => theme.secondary500};
-            color: ${({ theme }) => theme.black1000};
+            background-color: ${theme.secondary500};
+            color: ${theme.text1000};
           `}
         >
           <RawFeatherIcon name="shopping-bag" />
@@ -182,7 +184,7 @@ export const ActionTools = () => {
           aria-hidden="true"
           css={`
             background-color: #00ace0;
-            color: ${({ theme }) => theme.white};
+            color: ${theme.background0};
           `}
         >
           <RawFeatherIcon name="radio" />
@@ -217,6 +219,8 @@ export const ActionTools = () => {
           css={`
             background-color: #040408;
             color: #f47a2a;
+            border: ${(props) => `2px solid ${props.theme.text1000}`};
+
             && {
               font-size: 1.5em;
             }
@@ -249,8 +253,8 @@ export const ActionTools = () => {
         <i
           aria-hidden="true"
           css={`
-            background-color: ${({ theme }) => theme.PULBleu};
-            color: ${({ theme }) => theme.white};
+            background-color: ${theme.PULBleu};
+            color: ${theme.background0};
           `}
         >
           <svg
@@ -262,7 +266,7 @@ export const ActionTools = () => {
           >
             <path
               d="M19.5 21V1.5H4.5V21"
-              stroke="white"
+              stroke={theme.white}
               strokeWidth="2.25"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -272,12 +276,12 @@ export const ActionTools = () => {
               y1="21.375"
               x2="21.375"
               y2="21.375"
-              stroke="white"
+              stroke={theme.white}
               strokeWidth="2.25"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
-            <circle cx="15" cy="10.5" r="1.5" fill="white" />
+            <circle cx="15" cy="10.5" r="1.5" fill={theme.white} />
           </svg>
         </i>
         <span>
@@ -309,7 +313,7 @@ export const ActionTools = () => {
           aria-hidden="true"
           css={`
             background-color: #00b171;
-            color: ${({ theme }) => theme.white};
+            color: ${theme.background0};
           `}
         >
           <RawFeatherIcon name="coffee" />
@@ -339,8 +343,8 @@ export const ActionTools = () => {
         <i
           aria-hidden="true"
           css={`
-            background-color: #4d26b9;
-            color: ${({ theme }) => theme.white};
+            background-color: ${theme.primary600};
+            color: ${theme.background0};
           `}
         >
           <RawFeatherIcon name="user-plus" />
@@ -359,8 +363,8 @@ export const ActionTools = () => {
           icon="book-bookmark:regular"
           aria-hidden="true"
           css={`
-            background-color: ${({ theme }) => theme.vermillon};
-            color: ${({ theme }) => theme.white};
+            background-color: ${theme.vermillon};
+            color: ${theme.background0};
             && {
               font-size: 1.25em;
             }

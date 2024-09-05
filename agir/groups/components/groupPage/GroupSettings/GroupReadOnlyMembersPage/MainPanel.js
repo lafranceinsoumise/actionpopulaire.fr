@@ -1,8 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import GroupMemberList from "@agir/groups/groupPage/GroupSettings/GroupMemberList";
 
 import ShareLink from "@agir/front/genericComponents/ShareLink";
@@ -30,7 +28,7 @@ const GroupMemberMainPanel = (props) => {
         {members.length}&nbsp;
         {members.length > 1 ? "Membres" : "Membre"}
       </StyledTitle>
-      <p style={{ color: style.black700, margin: 0 }}>
+      <p style={{ color: style.text700, margin: 0 }}>
         Retrouvez ici la liste des membres de votre groupe
       </p>
       <Spacer size="1rem" />

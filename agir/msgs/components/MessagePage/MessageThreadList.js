@@ -1,9 +1,7 @@
 import PropTypes from "prop-types";
 import React, { useEffect, useRef } from "react";
 import { useIntersection, usePrevious } from "react-use";
-import styled from "styled-components";
-
-import * as style from "@agir/front/genericComponents/_variables.scss";
+import styled, { useTheme } from "styled-components";
 
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Panel from "@agir/front/genericComponents/Panel";
@@ -23,7 +21,7 @@ const StyledContent = styled.article`
   overflow-x: hidden;
   overflow-y: auto;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     padding-bottom: 0;
   }
 
@@ -44,11 +42,11 @@ const StyledList = styled.main`
   align-items: stretch;
   flex-flow: row nowrap;
   overflow: hidden;
-  border: 1px solid ${style.black200};
+  border: 1px solid ${(props) => props.theme.text200};
   border-top: 0;
   border-bottom: 0;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     display: block;
     border: none;
     border-radius: none;
@@ -60,7 +58,7 @@ const StyledList = styled.main`
     height: 100%;
 
     &:first-child {
-      @media (min-width: ${style.collapse}px) {
+      @media (min-width: ${(props) => props.theme.collapse}px) {
         flex: 0 0 400px;
       }
     }
@@ -205,6 +203,8 @@ const MobileThreadList = (props) => {
     commentErrors,
   } = props;
 
+  const theme = useTheme();
+
   const [scrollableRef, bottomRef] = useAutoScrollToBottom(
     selectedMessage?.comments?.length,
     selectedMessagePk,
@@ -232,7 +232,7 @@ const MobileThreadList = (props) => {
           paddingLeft: "0",
           paddingRight: "0",
           paddingBottom: "0",
-          background: "white",
+          background: theme.background0,
         }}
         shouldShow={!!selectedMessage}
         noScroll

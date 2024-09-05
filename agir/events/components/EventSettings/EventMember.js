@@ -4,8 +4,6 @@ import styled from "styled-components";
 
 import { FaMicrophone, FaLock } from "@agir/front/genericComponents/FaIcon";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Avatar from "@agir/front/genericComponents/Avatar";
 import { GENDER, getGenderedWord } from "@agir/lib/utils/display";
 import useCopyToClipboard from "@agir/front/genericComponents/useCopyToClipboard";
@@ -15,7 +13,7 @@ const Role = styled.span``;
 const ResetMembershipType = styled.button``;
 const Email = styled.button``;
 const Member = styled.div`
-  background-color: ${style.white};
+  background-color: ${(props) => props.theme.background0};
   padding: 0.75rem 1rem;
   display: grid;
   grid-template-columns: auto 1fr auto;
@@ -23,7 +21,7 @@ const Member = styled.div`
   align-items: center;
   grid-gap: 0 1rem;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     grid-template-columns: auto 1fr;
     grid-template-rows: auto auto auto;
   }
@@ -37,7 +35,7 @@ const Member = styled.div`
     width: 2rem;
     height: 2rem;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       grid-row: span 3;
       width: 1.5rem;
       height: 1.5rem;
@@ -46,14 +44,14 @@ const Member = styled.div`
   }
 
   ${Role} {
-    color: ${style.green500};
+    color: ${(props) => props.theme.success500};
     font-size: 0.813rem;
     text-align: right;
     display: flex;
     flex-flow: row wrap;
     align-items: center;
 
-    @media (min-width: ${style.collapse}px) {
+    @media (min-width: ${(props) => props.theme.collapse}px) {
       grid-column: 3/4;
       grid-row: span 2;
       flex-flow: column nowrap;
@@ -69,7 +67,7 @@ const Member = styled.div`
       padding-right: 1rem;
       margin-right: auto;
 
-      @media (min-width: ${style.collapse}px) {
+      @media (min-width: ${(props) => props.theme.collapse}px) {
         justify-content: flex-end;
       }
     }
@@ -81,7 +79,7 @@ const Member = styled.div`
       background-color: transparent;
       text-decoration: underline;
       font-size: inherit;
-      color: ${style.black500};
+      color: ${(props) => props.theme.text500};
       cursor: pointer;
     }
   }
@@ -89,7 +87,7 @@ const Member = styled.div`
   ${Name} {
     font-weight: 500;
 
-    @media (min-width: ${style.collapse}px) {
+    @media (min-width: ${(props) => props.theme.collapse}px) {
       grid-column: 2/3;
       grid-row: 1/2;
     }
@@ -99,12 +97,12 @@ const Member = styled.div`
     border: none;
     background-color: transparent;
     text-align: left;
-    color: ${style.black500};
+    color: ${(props) => props.theme.text500};
     font-weight: 400;
     font-size: 0.875rem;
     cursor: pointer;
 
-    @media (min-width: ${style.collapse}px) {
+    @media (min-width: ${(props) => props.theme.collapse}px) {
       grid-column: 2/3;
       grid-row: 2/3;
     }

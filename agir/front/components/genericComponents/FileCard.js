@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Button from "@agir/front/genericComponents/Button";
 import Card from "@agir/front/genericComponents/Card";
 import { useIsDesktop } from "@agir/front/genericComponents/grid";
@@ -42,12 +40,12 @@ const StyledCard = styled(Card)`
 
     & > strong {
       font-size: 0.75rem;
-      color: ${style.primary600};
-      background-color: ${style.primary100};
+      color: ${(props) => props.theme.primary600};
+      background-color: ${(props) => props.theme.primary100};
       padding: 0.25rem 0.5rem;
       border-radius: 0.5rem;
 
-      @media (max-width: ${style.collapse}px) {
+      @media (max-width: ${(props) => props.theme.collapse}px) {
         display: none;
       }
     }
@@ -55,7 +53,7 @@ const StyledCard = styled(Card)`
 
   & > p {
     font-size: 0.875rem;
-    color: ${style.black700};
+    color: ${(props) => props.theme.text700};
     margin-bottom: 0.25rem;
   }
 `;

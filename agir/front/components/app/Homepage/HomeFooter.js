@@ -2,18 +2,16 @@ import React from "react";
 
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 const StyledFooter = styled.main`
   padding: 6rem 3.5rem;
-  background-color: ${style.primary500};
-  color: white;
+  background-color: ${(props) => props.theme.primary500};
+  color: ${(props) => props.theme.background0};
   text-align: center;
 
-  @media (min-width: ${style.collapse}px) {
+  @media (min-width: ${(props) => props.theme.collapse}px) {
     display: flex;
     flex-flow: row nowrap;
     justify-content: center;
@@ -28,7 +26,7 @@ const StyledFooter = styled.main`
     font-weight: 700;
     color: inherit;
 
-    @media (min-width: ${style.collapse}px) {
+    @media (min-width: ${(props) => props.theme.collapse}px) {
       flex: 0 0 auto;
     }
   }
@@ -37,9 +35,9 @@ const StyledFooter = styled.main`
     width: 100%;
     height: 70px;
     font-size: 1.25rem;
-    border: 1px solid ${style.white};
+    border: 1px solid ${(props) => props.theme.background0};
 
-    @media (min-width: ${style.collapse}px) {
+    @media (min-width: ${(props) => props.theme.collapse}px) {
       flex: 0 0 200px;
     }
   }

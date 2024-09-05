@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Card from "./GroupPageCard";
 import LinkIcon from "@agir/front/genericComponents/LinkIcon";
 
@@ -14,7 +12,7 @@ const StyledList = styled.ul`
   font-weight: 400;
 
   li {
-    color: ${style.primary500};
+    color: ${(props) => props.theme.primary500};
     display: flex;
     height: 27px;
     align-items: center;
@@ -25,7 +23,7 @@ const StyledList = styled.ul`
       text-overflow: ellipsis;
       overflow: hidden;
       display: inline-block;
-      color: ${style.black1000};
+      color: ${(props) => props.theme.text1000};
     }
   }
 `;

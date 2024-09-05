@@ -11,15 +11,13 @@ import {
 import { animated, useTransition } from "@react-spring/web";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 import Panel from "@agir/front/genericComponents/Panel";
 import ManagementMenu from "@agir/front/genericComponents/ObjectManagement/ManagementMenu";
 import ManagementPanel from "@agir/front/genericComponents/ObjectManagement/ManagementPanel";
 
 const StyledSubPanel = styled(animated.div)`
-  box-shadow: ${style.elaborateShadow};
+  box-shadow: ${(props) => props.theme.elaborateShadow};
   width: 100%;
   height: 100%;
   will-change: transform, opacity;
@@ -31,7 +29,7 @@ const StyledSubPanel = styled(animated.div)`
     display: none;
   }
 
-  @media (min-width: ${style.collapse}px) {
+  @media (min-width: ${(props) => props.theme.collapse}px) {
     display: flex;
     & > * {
       flex: 0 0 auto;
@@ -45,7 +43,7 @@ const StyledPanel = styled(Panel)`
     overflow-x: hidden;
     background-color: transparent;
 
-    @media (min-width: ${style.collapse}px) {
+    @media (min-width: ${(props) => props.theme.collapse}px) {
       min-width: 0;
       display: flex;
       flex-flow: row nowrap;

@@ -24,7 +24,7 @@ const StyledCloseButton = styled.button`
   top: 0.5rem;
   right: 0.5rem;
   cursor: pointer;
-  color: ${(props) => props.theme.black700};
+  color: ${(props) => props.theme.text700};
 `;
 
 const BasePopin = styled(animated.div)`
@@ -34,7 +34,7 @@ const BasePopin = styled(animated.div)`
   width: max-content;
   height: auto;
   padding: ${(props) => (props.$close ? "2rem 1rem 1rem" : "1rem")};
-  background-color: ${(props) => props.theme.white};
+  background-color: ${(props) => props.theme.background0};
   box-shadow: ${(props) => props.theme.cardShadow};
   border-radius: ${(props) => props.theme.borderRadius};
 

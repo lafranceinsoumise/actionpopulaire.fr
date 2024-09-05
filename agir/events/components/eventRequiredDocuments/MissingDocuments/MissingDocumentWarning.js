@@ -16,9 +16,10 @@ const StyledWarning = styled.div`
   & > button {
     width: 100%;
     padding: 1rem;
-    background-color: ${(props) => props.theme.white};
+    color: ${(props) => props.theme.text700};
+    background-color: ${(props) => props.theme.background0};
     border-radius: ${(props) => props.theme.borderRadius};
-    border: 1px solid ${(props) => props.theme.redNSP};
+    border: 1px solid ${(props) => props.theme.error500};
     box-shadow:
       0px 0px 2px rgba(233, 58, 85, 0.5),
       0px 3px 3px rgba(233, 58, 85, 0.1);
@@ -31,7 +32,7 @@ const StyledWarning = styled.div`
 
     &:hover,
     &:focus {
-      color: ${(props) => props.theme.black1000};
+      color: ${(props) => props.theme.text1000};
       text-decoration: none;
     }
 
@@ -49,7 +50,7 @@ const StyledWarning = styled.div`
         flex: 0 0 auto;
 
         &:first-child {
-          color: ${(props) => props.theme.redNSP};
+          color: ${(props) => props.theme.error500};
         }
 
         &:nth-child(2) {
@@ -65,7 +66,7 @@ const StyledWarning = styled.div`
       font-size: 0.875rem;
       font-weight: 500;
       line-height: 1.6;
-      color: ${(props) => props.theme.redNSP};
+      color: ${(props) => props.theme.error500};
       padding-left: 2rem;
     }
   }

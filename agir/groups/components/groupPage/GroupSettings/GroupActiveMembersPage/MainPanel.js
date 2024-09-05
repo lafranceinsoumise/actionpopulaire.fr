@@ -1,8 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import GroupMemberList from "@agir/groups/groupPage/GroupSettings/GroupMemberList";
 
 import Link from "@agir/front/app/Link";
@@ -18,8 +16,8 @@ const FullGroupWarning = () => (
   <div
     css={`
       font-size: 0.875rem;
-      color: ${style.black700};
-      background-color: ${style.black100};
+      color: ${(props) => props.theme.text700};
+      background-color: ${(props) => props.theme.text100};
       border-radius: 0.5rem;
       padding: 1rem;
       margin: 1rem 0;
@@ -68,7 +66,12 @@ const GroupMemberMainPanel = (props) => {
         {activeMembers.length}&nbsp;
         {activeMembers.length > 1 ? "Membres actifs" : "Membre actif"}
       </StyledTitle>
-      <p style={{ color: style.black700, margin: 0 }}>
+      <p
+        css={`
+          color: ${(props) => props.theme.text700};
+          margin: 0;
+        `}
+      >
         Vos membres impliqués activement. Quand une personne rejoint votre
         groupe, elle est considérée comme membre actif.
       </p>

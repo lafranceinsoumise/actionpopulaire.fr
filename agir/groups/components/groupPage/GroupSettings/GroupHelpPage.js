@@ -1,8 +1,6 @@
 import PropTypes from "prop-types";
 import React from "react";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import FileCard from "@agir/front/genericComponents/FileCard";
 import HelpCenterCard from "@agir/front/genericComponents/HelpCenterCard";
 import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
@@ -20,7 +18,11 @@ const GroupHelpPage = (props) => {
       <HeaderPanel onBack={onBack} illustration={illustration} />
       <StyledTitle>Ressources</StyledTitle>
       <Spacer size="1rem" />
-      <span style={{ color: style.black700 }}>
+      <span
+        css={`
+          color: ${(props) => props.theme.text700};
+        `}
+      >
         Retrouvez ici la liste des ressources qui pourront vous être utiles pour
         l'animation et la gestion de votre groupe.
       </span>
@@ -39,7 +41,7 @@ const GroupHelpPage = (props) => {
             icon="file-text"
             href={group.routes.downloadAttendanceList}
             downloadLabel="Télécharger la liste d'émargement"
-            isNew
+            isNew={false}
           />
           <Spacer size="1rem" />
         </>

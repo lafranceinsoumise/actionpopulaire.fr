@@ -35,7 +35,7 @@ const CounterBadge = styled(Counter)`
   fill: ${(props) =>
     props.$background
       ? props.theme[props.$background] || props.$background
-      : props.theme.redNSP};
+      : props.theme.error500};
   z-index: ${(props) => props.theme.zindexNavigationCounter};
 
   circle {

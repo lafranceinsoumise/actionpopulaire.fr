@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Card from "@agir/front/genericComponents/Card";
 import Link from "@agir/front/app/Link";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
@@ -15,12 +13,12 @@ const StyledCard = styled(Card)`
   flex-flow: column nowrap;
   align-items: stretch;
   justify-content: flex-start;
-  padding: 0;
+  padding: 1rem;
   border: none;
   box-shadow: none;
 
   && {
-    @media (min-width: ${style.collapse}px) {
+    @media (min-width: ${(props) => props.theme.collapse}px) {
       background-color: transparent;
       margin-bottom: 1.5rem;
 
@@ -29,7 +27,7 @@ const StyledCard = styled(Card)`
       }
     }
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       padding: 1.5rem 1rem;
       box-shadow:
         rgba(0, 35, 44, 0.5) 0px 0px 1px,
@@ -40,10 +38,10 @@ const StyledCard = styled(Card)`
   ${({ highlight }) =>
     highlight
       ? `
-    @media (min-width: ${style.collapse}px) {
+    @media (min-width: ${(props) => props.theme.collapse}px) {
       padding: 1.5rem;
       border: none;
-      background-color: white;
+      background-color: ${(props) => props.theme.background0};
       background: linear-gradient(0, white 1.5rem, transparent 1.5rem),
         linear-gradient(180deg, white 1.5rem, transparent 1.5rem),
         linear-gradient(90deg, ${highlight} 3px, transparent 3px);
@@ -54,9 +52,9 @@ const StyledCard = styled(Card)`
   ${({ outlined }) =>
     outlined
       ? `
-    @media (min-width: ${style.collapse}px) {
+    @media (min-width: ${(props) => props.theme.collapse}px) {
       padding: 1.5rem;
-      border: 1px solid ${style.black100};
+      border: 1px solid ${(props) => props.theme.text100};
     }
   `
       : ""}
@@ -88,7 +86,7 @@ const StyledCard = styled(Card)`
       display: flex;
       align-items: center;
       justify-content: center;
-      color: ${style.black1000};
+      color: ${(props) => props.theme.text1000};
 
       ${RawFeatherIcon} {
         width: 1rem;
@@ -97,7 +95,7 @@ const StyledCard = styled(Card)`
     }
 
     h4 + a {
-      @media (min-width: ${style.collapse}px) {
+      @media (min-width: ${(props) => props.theme.collapse}px) {
         margin-left: 0;
       }
     }
@@ -109,7 +107,7 @@ const StyledCard = styled(Card)`
     flex: 1 1 auto;
     font-size: 0.875rem;
     line-height: 1.6;
-    color: ${style.black1000};
+    color: ${(props) => props.theme.text1000};
     font-weight: 400;
   }
 `;

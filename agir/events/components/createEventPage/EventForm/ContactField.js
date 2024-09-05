@@ -2,15 +2,13 @@ import PropTypes from "prop-types";
 import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import PhoneField from "@agir/front/formComponents/PhoneField";
 import TextField from "@agir/front/formComponents/TextField";
 
 const StyledDefaultField = styled.div`
   padding: 0.5rem 0.75rem;
-  border: 1px solid ${style.black100};
+  border: 1px solid ${(props) => props.theme.text100};
 
   p {
     margin: 0;
@@ -27,7 +25,7 @@ const StyledDefaultField = styled.div`
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
-    color: ${style.primary500};
+    color: ${(props) => props.theme.primary500};
     text-align: left;
 
     &[disabled],

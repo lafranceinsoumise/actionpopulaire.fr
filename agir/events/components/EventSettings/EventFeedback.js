@@ -1,11 +1,10 @@
 import PropTypes from "prop-types";
 import React, { useState, useMemo, useCallback, useEffect } from "react";
+import styled from "styled-components";
 import useSWR from "swr";
 
 import { useToast } from "@agir/front/globalContext/hooks.js";
 import * as api from "@agir/events/common/api";
-
-import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import ImageField from "@agir/front/formComponents/ImageField";
 import Button from "@agir/front/genericComponents/Button";
@@ -96,7 +95,11 @@ const EventFeedback = (props) => {
     <form onSubmit={handleSubmit}>
       <HeaderPanel onBack={onBack} illustration={illustration} />
       <StyledTitle>Compte rendu</StyledTitle>
-      <p style={{ color: style.black700 }}>
+      <p
+        css={`
+          color: ${(props) => props.theme.text700};
+        `}
+      >
         Le compte rendu et les photos de l'événement seront visibles uniquement
         pour les organisateur·ices, les participant·es ainsi que pour les
         membres actifs des groupes organisateurs.
@@ -133,7 +136,11 @@ const EventFeedback = (props) => {
           <CheckboxField
             value={hasCheckedImageLicence}
             label={
-              <span style={{ color: style.black700 }}>
+              <span
+                css={`
+                  color: ${(props) => props.theme.text700};
+                `}
+              >
                 En important une image, je certifie être le propriétaire des
                 droits et accepte de la partager sous licence libre{" "}
                 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/fr/">

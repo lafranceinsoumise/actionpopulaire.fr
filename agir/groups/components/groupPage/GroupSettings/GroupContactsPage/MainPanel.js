@@ -48,7 +48,7 @@ const GroupContactsMainPanel = (props) => {
       </StyledTitle>
       <p
         css={`
-          color: ${({ theme }) => theme.black700};
+          color: ${({ theme }) => theme.text700};
           margin: 0;
         `}
       >
@@ -93,7 +93,7 @@ const GroupContactsMainPanel = (props) => {
       <Spacer size="2rem" />
       <footer
         css={`
-          color: ${({ theme }) => theme.black700};
+          color: ${({ theme }) => theme.text700};
           font-size: 0.875rem;
         `}
       >

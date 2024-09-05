@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React, { useState, useEffect } from "react";
 import useSWR from "swr";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents.js";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel.js";
@@ -63,7 +61,11 @@ const EventVisio = (props) => {
       <HeaderPanel onBack={onBack} illustration={illustration} />
       <StyledTitle>Visioconférence</StyledTitle>
 
-      <span style={{ color: style.black700 }}>
+      <span
+        css={`
+          color: ${(props) => props.theme.text700};
+        `}
+      >
         Pour vos réunions en ligne, utilisez le service d’Action Populaire.
         Votre salon de visioconférence est déjà prêt si vous voulez
         l’utiliser&nbsp;!

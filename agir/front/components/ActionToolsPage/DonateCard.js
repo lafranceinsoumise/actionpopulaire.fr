@@ -1,15 +1,15 @@
 import PropTypes from "prop-types";
 import React from "react";
 import { animated, useSpring } from "@react-spring/web";
-import styled from "styled-components";
+import styled, { useTheme } from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
 
 const StyledCard = styled.div`
   padding: 1.5rem;
-  background-color: ${(props) => props.theme.redNSP};
+  background-color: ${(props) => props.theme.error500};
   border-radius: ${(props) => props.theme.borderRadius};
-  color: ${(props) => props.theme.white};
+  color: ${(props) => props.theme.background0};
   display: flex;
   flex-flow: column nowrap;
   gap: 1rem;
@@ -49,6 +49,8 @@ const formatCurrency = (amount) =>
 export const DonateCard = (props) => {
   const { amount } = props;
 
+  const theme = useTheme();
+
   const target = Math.ceil(amount / 100000000) * 100000000;
 
   const { progress, animatedAmount } = useSpring({
@@ -80,7 +82,7 @@ export const DonateCard = (props) => {
           height="7"
           rx="0.6%"
           ry="3.5"
-          fill="#FFFFFF"
+          fill={theme.background0}
         />
       </svg>
       <Button link route="donationLanding" icon="heart" color="whiteRed">

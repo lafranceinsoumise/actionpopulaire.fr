@@ -66,7 +66,7 @@ const StyledGlobalError = styled.p`
   padding: 1rem 0 0;
   margin: 0;
   font-size: 1rem;
-  color: ${(props) => props.theme.redNSP};
+  color: ${(props) => props.theme.error500};
   text-align: center;
 
   strong {

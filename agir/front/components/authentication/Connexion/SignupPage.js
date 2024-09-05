@@ -1,10 +1,10 @@
 import React from "react";
 
-import logoMobile from "@agir/front/genericComponents/logos/action-populaire_mini.svg";
 import { Hide } from "@agir/front/genericComponents/grid";
-import Signup from "./Signup";
+import { IconLogo } from "@agir/front/genericComponents/LogoAP";
 import LeftBlockDesktop from "./LeftBlockDesktop";
-import { MainBlock, Container, BackgroundMobile } from "./styledComponents";
+import Signup from "./Signup";
+import { BackgroundMobile, Container, MainBlock } from "./styledComponents";
 
 const SignupPage = () => {
   return (
@@ -13,18 +13,10 @@ const SignupPage = () => {
       <MainBlock>
         <Container>
           <Hide $over style={{ textAlign: "center", marginTop: "3rem" }}>
-            <img
-              src={logoMobile}
-              width="70"
-              height="67"
-              alt="logo"
-              style={{ width: "69px", marginBottom: "1.5rem" }}
-            />
+            <IconLogo style={{ width: "69px", marginBottom: "1.5rem" }} />
           </Hide>
-
           <Signup />
         </Container>
-
         <Hide $over>
           <BackgroundMobile />
         </Hide>

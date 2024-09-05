@@ -1,7 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useState, useCallback } from "react";
 import styled from "styled-components";
-import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import Link from "@agir/front/app/Link";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
@@ -26,7 +25,7 @@ const StyledContainer = styled.div`
     min-width: 1px;
     padding: 0.75rem;
     background-color: transparent;
-    color: ${style.black1000};
+    color: ${(props) => props.theme.text1000};
     border: none;
     text-align: center;
     font-size: 0.875rem;

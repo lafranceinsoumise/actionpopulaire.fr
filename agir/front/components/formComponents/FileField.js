@@ -8,10 +8,10 @@ import { RawFeatherIcon } from "../genericComponents/FeatherIcon";
 
 const StyledLabel = styled.span``;
 const StyledHelpText = styled.span`
-  color: ${(props) => props.theme.black700};
+  color: ${(props) => props.theme.text700};
 `;
 const StyledError = styled.span`
-  color: ${(props) => props.theme.redNSP};
+  color: ${(props) => props.theme.error500};
 `;
 const StyledClearButton = styled.button``;
 const StyledButtonWrapper = styled.span`
@@ -23,7 +23,7 @@ const StyledButtonWrapper = styled.span`
     ${(props) => (props.$empty ? 0 : 1)}rem;
   border: 1px solid;
   border-color: ${({ $empty, $invalid, theme }) =>
-    !$empty && $invalid ? theme.redNSP : "transparent"};
+    !$empty && $invalid ? theme.error500 : "transparent"};
   border-radius: ${(props) => props.theme.borderRadius};
   box-shadow: ${({ $empty, $invalid }) =>
     $empty
@@ -51,7 +51,7 @@ const StyledButtonWrapper = styled.span`
     border: none;
     border-radius: 0;
     color: ${({ $invalid, theme }) =>
-      $invalid ? theme.redNSP : theme.black500};
+      $invalid ? theme.error500 : theme.text500};
     display: flex;
     align-items: center;
     justify-content: start;

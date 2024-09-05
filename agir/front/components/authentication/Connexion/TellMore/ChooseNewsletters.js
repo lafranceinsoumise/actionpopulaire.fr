@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import * as style from "@agir/front/genericComponents/_variables.scss";
+
 import Button from "@agir/front/genericComponents/Button";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import Spacer from "@agir/front/genericComponents/Spacer";
@@ -23,7 +23,7 @@ const Container = styled.form`
   max-width: 640px;
   margin: 0 auto;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     max-width: 400px;
     padding: 3rem 2rem 1.5rem;
     text-align: left;
@@ -40,7 +40,7 @@ const Container = styled.form`
     font-weight: 700;
     line-height: 1.5;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       font-size: 1.125rem;
     }
 
@@ -55,7 +55,7 @@ const Container = styled.form`
 
     &[type="button"] {
       background-color: transparent;
-      color: ${style.black500};
+      color: ${(props) => props.theme.text500};
       font-size: 0.875rem;
       font-weight: 400;
     }
@@ -75,7 +75,7 @@ const RadioBlock = styled.div`
   cursor: pointer;
   transition: ease 0.2s;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     flex-direction: row;
     justify-content: flex-start;
     width: 100%;
@@ -83,10 +83,10 @@ const RadioBlock = styled.div`
   }
 
   &.responsive-margin {
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       margin-top: 1rem;
     }
-    @media (min-width: ${style.collapse}px) {
+    @media (min-width: ${(props) => props.theme.collapse}px) {
       margin-left: 1.5rem;
     }
   }
@@ -94,8 +94,8 @@ const RadioBlock = styled.div`
   ${(props) => {
     if (props.$checked) {
       return `
-        border 1px solid ${style.primary500};
-        box-shadow: 0px 0px 3px ${style.primary500}, 0px 2px 0px rgba(87, 26, 255, 0.2);
+        border 1px solid ${(props) => props.theme.primary500};
+        box-shadow: 0px 0px 3px ${(props) => props.theme.primary500}, 0px 2px 0px rgba(87, 26, 255, 0.2);
         `;
     } else {
       return `
@@ -105,7 +105,7 @@ const RadioBlock = styled.div`
   }};
 
   &:hover {
-    border-color: ${style.primary500};
+    border-color: ${(props) => props.theme.primary500};
   }
 
   > div {
@@ -122,20 +122,21 @@ const RadioBlock = styled.div`
     border: 1px solid #333;
   }
   span {
-    ${(props) => props.$checked && `color: ${style.primary500}`};
+    ${(props) =>
+      props.$checked && `color: ${(props) => props.theme.primary500}`};
     margin-top: 14px;
     padding: 10px;
     font-weight: 600;
     font-size: 1rem;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       margin-top: 0;
     }
   }
   img {
     width: 114px;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       width: 80px;
     }
   }

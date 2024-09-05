@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Button from "@agir/front/genericComponents/Button";
 import { Hide } from "@agir/front/genericComponents/grid";
 import Link from "@agir/front/app/Link";
@@ -24,7 +22,7 @@ const Container = styled.form`
   max-width: 500px;
   margin: 0 auto;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     max-width: 400px;
     padding: 3rem 2rem 1.5rem;
   }
@@ -44,7 +42,7 @@ const Container = styled.form`
     span {
       display: block;
 
-      @media (max-width: ${style.collapse}px) {
+      @media (max-width: ${(props) => props.theme.collapse}px) {
         display: inline;
       }
     }
@@ -53,13 +51,13 @@ const Container = styled.form`
   & > ${Button} {
     max-width: 100%;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       width: 100%;
     }
 
     &[type="button"] {
       background-color: transparent;
-      color: ${style.black500};
+      color: ${(props) => props.theme.text500};
       font-size: 0.875rem;
       font-weight: 400;
     }
@@ -94,15 +92,15 @@ const ChooseCampaign = ({ fromSignup, dismiss }) => {
       <Container onSubmit={handleSubmit}>
         {fromSignup && (
           <div
-            style={{
-              display: "inline-flex",
-              fontWeight: 600,
-              padding: "0.5rem 1rem",
-              backgroundColor: style.green100,
-              marginBottom: "2rem",
-              flex: "0 0 auto",
-              alignSelf: "center",
-            }}
+            css={`
+              display: inline-flex;
+              font-weight: 600;
+              padding: 0.5rem 1rem;
+              background-color: ${(props) => props.theme.success100};
+              margin-bottom: 2rem;
+              flex: 0 0 auto;
+              align-self: center;
+            `}
           >
             <FeatherIcon
               name="check"

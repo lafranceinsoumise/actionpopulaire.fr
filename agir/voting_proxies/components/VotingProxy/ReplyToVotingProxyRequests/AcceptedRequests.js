@@ -21,9 +21,9 @@ const StyledFaIcon = styled(FaIcon)``;
 const StyledFeatherIcon = styled(RawFeatherIcon)``;
 const StyledRecap = styled.div`
   padding: 1rem 1.5rem;
-  background-color: ${({ theme }) => theme.white};
+  background-color: ${({ theme }) => theme.background0};
   border-radius: ${({ theme }) => theme.borderRadius};
-  border: 1px solid ${({ theme }) => theme.black100};
+  border: 1px solid ${({ theme }) => theme.text100};
 
   p {
     margin: 0;
@@ -37,7 +37,7 @@ const StyledRecap = styled.div`
 
     ${StyledFaIcon},
     ${StyledFeatherIcon} {
-      color: ${(props) => props.theme.black500};
+      color: ${(props) => props.theme.text500};
 
       @media (max-width: 350px) {
         display: none;
@@ -286,7 +286,7 @@ const AcceptedRequests = (props) => {
               margin: 0;
               font-size: 1rem;
               font-weight: 500;
-              color: ${({ theme }) => theme.redNSP};
+              color: ${({ theme }) => theme.error500};
               text-align: center;
             `}
           >
@@ -323,7 +323,7 @@ const AcceptedRequests = (props) => {
               margin: 0;
               font-size: 1rem;
               font-weight: 500;
-              color: ${({ theme }) => theme.redNSP};
+              color: ${({ theme }) => theme.error500};
               text-align: center;
             `}
           >
@@ -360,7 +360,7 @@ const AcceptedRequests = (props) => {
               margin: 0;
               font-size: 1rem;
               font-weight: 500;
-              color: ${({ theme }) => theme.redNSP};
+              color: ${({ theme }) => theme.error500};
               text-align: center;
             `}
           >

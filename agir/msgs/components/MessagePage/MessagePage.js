@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React, { useEffect } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import { useMessageSWR, useMessageActions } from "@agir/msgs/common/hooks";
 import { useCommentsSWR } from "@agir/msgs/common/hooks";
 import { mutate } from "swr";
@@ -36,7 +34,7 @@ const StyledPage = styled.div`
   max-width: 1320px;
   height: calc(100vh - 72px);
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     padding: 0;
     height: calc(100vh - 56px);
     max-width: 100%;

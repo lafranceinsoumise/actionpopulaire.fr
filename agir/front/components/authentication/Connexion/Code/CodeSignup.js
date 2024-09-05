@@ -1,8 +1,8 @@
 import React from "react";
-import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import styled from "styled-components";
-import * as style from "@agir/front/genericComponents/_variables.scss";
 import { useLocation } from "react-router-dom";
+
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const Container = styled.div`
   display: flex;
@@ -25,7 +25,7 @@ const Container = styled.div`
   p {
     text-align: center;
   }
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     h1 {
       font-size: 18px;
     }

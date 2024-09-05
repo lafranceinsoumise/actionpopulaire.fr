@@ -25,7 +25,7 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 const StyledErrorMessage = styled.p`
   text-align: center;
   font-weight: 500;
-  color: ${({ theme }) => theme.redNSP};
+  color: ${({ theme }) => theme.error500};
   padding-bottom: 2rem;
 `;
 
@@ -34,7 +34,7 @@ const LegalParagraph = styled.p`
   margin: 0 auto;
   font-weight: 400;
   font-size: 0.813rem;
-  color: ${({ theme }) => theme.black500};
+  color: ${({ theme }) => theme.text500};
 `;
 
 const PaymentParagraph = styled.p`
@@ -44,7 +44,7 @@ const PaymentParagraph = styled.p`
   text-align: center;
   font-weight: 500;
   font-size: 0.813rem;
-  color: ${({ theme }) => theme.black500};
+  color: ${({ theme }) => theme.text500};
 
   & > span {
     display: flex;

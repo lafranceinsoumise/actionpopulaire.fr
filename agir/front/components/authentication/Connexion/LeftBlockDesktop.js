@@ -1,21 +1,20 @@
 import React from "react";
+import styled, { useTheme } from "styled-components";
+
 import LogoAP from "@agir/front/genericComponents/LogoAP";
-import bgDesktop from "@agir/front/genericComponents/images/login_bg_desktop.svg";
-import styled from "styled-components";
-import * as style from "@agir/front/genericComponents/_variables.scss";
 import Link from "@agir/front/app/Link";
 
 const LeftBlock = styled.div`
   width: 524px;
   max-width: 40%;
-  background-color: ${style.secondary100};
+  background-color: ${(props) => props.theme.secondary100};
   position: relative;
 
   > :first-child {
     padding-bottom: calc(100vh - 213px);
   }
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     display: none;
   }
 `;
@@ -27,15 +26,12 @@ const Title = styled.div`
   padding-right: 10px;
 `;
 
-const BackgroundDesktop = styled.div`
+const BackgroundDesktop = styled.svg`
   position: absolute;
   bottom: 0px;
   left: 0px;
   width: 100%;
-  height: calc(100vh - 213px);
-  background-image: url(${bgDesktop});
-  background-size: cover;
-  background-repeat: no-repeat;
+  height: 100vh - 213px;
 `;
 
 const InlineBlock = styled.span`
@@ -43,6 +39,8 @@ const InlineBlock = styled.span`
 `;
 
 const LeftBlockDesktop = () => {
+  const theme = useTheme();
+
   return (
     <LeftBlock>
       <div>
@@ -56,7 +54,24 @@ const LeftBlockDesktop = () => {
           <InlineBlock>de la France insoumise</InlineBlock>
         </Title>
       </div>
-      <BackgroundDesktop />
+      <BackgroundDesktop width="524" height="685" fill="none">
+        <path
+          fill={theme.primary500}
+          d="M404.084 120.319 99.444 38.691 50.884 219.92l304.64 81.628z"
+        />
+        <path
+          fill={theme.error500}
+          d="m727.201 207.652-304.64-81.628-48.56 181.228 304.64 81.628zm-472.406 85.74-304.64-81.628-48.56 181.228 304.64 81.628z"
+        />
+        <path
+          fill={theme.secondary500}
+          d="m100.666 464.688-304.64-81.628-48.56 181.228 304.64 81.628zM83.113 34.313l-304.64-81.627-48.559 181.228 304.64 81.627zm665.619 604.999-304.64-81.628-48.56 181.228 304.64 81.628zM273.657 724.61l-304.64-81.628-48.56 181.228 304.64 81.628zm303.394-344.377-304.64-81.628-48.56 181.228 304.64 81.628z"
+        />
+        <path
+          fill={theme.primary500}
+          d="m428.213 553.429-304.64-81.628-48.56 181.228 304.64 81.628z"
+        />
+      </BackgroundDesktop>
     </LeftBlock>
   );
 };

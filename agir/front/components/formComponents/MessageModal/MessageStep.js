@@ -3,13 +3,12 @@ import React, { Suspense, useCallback, useMemo, useRef } from "react";
 import styled from "styled-components";
 
 import { lazy } from "@agir/front/app/utils";
-import Spacer from "@agir/front/genericComponents/Spacer";
-import * as style from "@agir/front/genericComponents/_variables.scss";
 import { displayShortDate } from "@agir/lib/utils/time";
 
 import MessageAttachment, {
   IconFileInput,
 } from "@agir/front/formComponents/MessageAttachment";
+import Spacer from "@agir/front/genericComponents/Spacer";
 import TextField from "@agir/front/formComponents/TextField";
 import Avatar from "@agir/front/genericComponents/Avatar";
 import StaticToast from "@agir/front/genericComponents/StaticToast";
@@ -24,10 +23,10 @@ const StyledCounter = styled.p`
   font-size: 1rem;
   font-weight: 400;
   line-height: 1;
-  color: ${({ $invalid }) => ($invalid ? style.redNSP : "inherit")};
+  color: ${({ $invalid, theme }) => ($invalid ? theme.error500 : "inherit")};
   text-align: right;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     display: inline;
   }
 `;
@@ -76,7 +75,7 @@ const StyledWrapper = styled.div`
         text-align: center;
         -webkit-appearance: none;
         -moz-appearance: none;
-        color: ${style.primary500};
+        color: ${(props) => props.theme.primary500};
 
         &:focus,
         &:hover {
@@ -95,7 +94,7 @@ const StyledWrapper = styled.div`
           }
         }
 
-        @media (max-width: ${style.collapse}px) {
+        @media (max-width: ${(props) => props.theme.collapse}px) {
           display: block;
         }
       }
@@ -106,7 +105,7 @@ const StyledWrapper = styled.div`
     font-size: 1rem;
 
     header {
-      border-bottom: 1px solid ${style.black100};
+      border-bottom: 1px solid ${(props) => props.theme.text100};
 
       input {
         &,
@@ -126,7 +125,7 @@ const StyledWrapper = styled.div`
     textarea {
       max-height: 12rem;
 
-      @media (max-width: ${style.collapse}px) {
+      @media (max-width: ${(props) => props.theme.collapse}px) {
         max-height: none;
       }
 
@@ -152,7 +151,7 @@ const StyledWrapper = styled.div`
       margin-top: 2rem;
 
       & > * {
-        @media (max-width: ${style.collapse}px) {
+        @media (max-width: ${(props) => props.theme.collapse}px) {
           display: none;
         }
       }
@@ -259,12 +258,12 @@ const MessageStep = (props) => {
     <StyledWrapper>
       {!!groupPk && (
         <div
-          style={{
-            padding: "20px",
-            backgroundColor: style.primary50,
-            marginBottom: "1rem",
-            borderRadius: style.borderRadius,
-          }}
+          css={`
+            padding: 20px;
+            background-color: ${(props) => props.theme.primary50};
+            margin-bottom: 1rem;
+            border-radius: ${(props) => props.theme.borderRadius};
+          `}
         >
           {isUserGroup ? (
             <>
@@ -287,7 +286,14 @@ const MessageStep = (props) => {
           )}
           Vous recevrez leur réponse{" "}
           <strong>par notification et sur votre e-mail</strong> (
-          <span style={{ color: style.primary500 }}>{user.email}</span>)
+          <span
+            css={`
+              color: ${(props) => props.theme.primary500};
+            `}
+          >
+            {user.email}
+          </span>
+          )
         </div>
       )}
       <StyledLabel>

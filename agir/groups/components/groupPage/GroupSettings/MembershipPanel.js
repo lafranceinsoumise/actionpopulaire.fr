@@ -22,7 +22,7 @@ const slideInTransition = {
 
 const StyledSkeleton = styled.div`
   & > * {
-    background-color: ${(props) => props.theme.black50};
+    background-color: ${(props) => props.theme.text50};
     margin: 0;
     width: 100%;
   }
@@ -48,7 +48,7 @@ const SecondaryPanel = styled(animated.div)`
   left: 0;
   padding: 1.5rem;
   z-index: 1;
-  background-color: white;
+  background-color: ${(props) => props.theme.background0};
   width: 100%;
   height: 100%;
   box-shadow: ${(props) => props.theme.elaborateShadow};

@@ -9,7 +9,7 @@ import styled from "styled-components";
 
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables-light.scss";
 
 const StyledOverlay = styled.div`
   display: ${({ $isOpen }) => ($isOpen ? "block" : "none")};
@@ -97,7 +97,7 @@ const StyledPickerWrapper = styled(animated.div)`
   text-align: left;
   z-index: 1;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     position: fixed;
     top: unset;
     bottom: 0;
@@ -215,7 +215,7 @@ const EmojiPicker = (props) => {
             <RawFeatherIcon
               name="smile"
               width={small ? "1rem" : "1.5rem"}
-              color={style.black1000}
+              color="text1000"
             />
             <em-emoji id="smile" set="twitter" size={small ? 16 : 24} />
           </StyledTriggerIcon>

@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React, { useMemo, Fragment } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import { MessageReadonlyCard } from "@agir/front/genericComponents/MessageCard";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
@@ -17,13 +15,13 @@ const RoutePreview = styled.div`
   padding: 0 0 1.5rem;
   width: 100%;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     margin-bottom: 0;
     padding: 1.5rem 1rem;
-    background: ${style.black25};
+    background: ${(props) => props.theme.text25};
 
     & + & {
-      border-top: 1px solid ${style.black100};
+      border-top: 1px solid ${(props) => props.theme.text100};
     }
   }
 
@@ -46,11 +44,11 @@ const RoutePreview = styled.div`
         align-items: center;
         margin-left: 1rem;
         padding: 0;
-        color: ${style.primary500};
+        color: ${(props) => props.theme.primary500};
         font-weight: inherit;
         font-size: inherit;
 
-        @media (max-width: ${style.collapse}px) {
+        @media (max-width: ${(props) => props.theme.collapse}px) {
           margin-left: auto;
         }
 
@@ -76,14 +74,14 @@ const RoutePreview = styled.div`
       padding: 0;
       width: 100%;
 
-      @media (max-width: ${style.collapse}px) {
+      @media (max-width: ${(props) => props.theme.collapse}px) {
         border: none;
       }
 
       & > * {
-        @media (max-width: ${style.collapse}px) {
+        @media (max-width: ${(props) => props.theme.collapse}px) {
           margin: 0;
-          background-color: ${style.white};
+          background-color: ${(props) => props.theme.background0};
 
           & + & {
             margin-top: 1rem;

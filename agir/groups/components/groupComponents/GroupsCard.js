@@ -5,8 +5,6 @@ import styled from "styled-components";
 import { routeConfig } from "@agir/front/app/routes.config";
 import { routeConfig as eventRouteConfig } from "@agir/events/EventSettings/routes.config";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import Link from "@agir/front/app/Link";
 import AddGroupAttendee from "@agir/events/eventPage/AddGroupAttendee";
@@ -23,7 +21,7 @@ const GroupIcon = styled.div`
   padding: 0;
   border-radius: 100%;
   background-color: ${(props) => props.theme.primary500};
-  color: white;
+  color: ${(props) => props.theme.background0};
 `;
 
 const StyledGroupLine = styled.div`
@@ -92,7 +90,11 @@ const GroupLine = ({
         </Link>
       </h3>
       {isDetailed && (
-        <small style={{ color: style.black500 }}>
+        <small
+          css={`
+            color: ${(props) => props.theme.text500};
+          `}
+        >
           {eventCount} événement{eventCount > 1 ? "s" : ""} &bull;{" "}
           {membersCount} membre{membersCount > 1 ? "s" : ""}
         </small>

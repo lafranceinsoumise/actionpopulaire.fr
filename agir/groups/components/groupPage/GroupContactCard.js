@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Card from "./GroupPageCard";
 import Link from "@agir/front/app/Link";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
@@ -27,7 +25,7 @@ const StyledContactSection = styled.p`
   && > a {
     font-weight: 500;
     text-decoration: none;
-    color: ${style.primary500};
+    color: ${(props) => props.theme.primary500};
     cursor: pointer;
   }
 `;
@@ -48,7 +46,7 @@ const GroupContactCard = (props) => {
             <Link to={editLinkTo}>
               <RawFeatherIcon
                 name="edit-2"
-                color={style.black1000}
+                color="text1000"
                 width="1rem"
                 height="1rem"
               />

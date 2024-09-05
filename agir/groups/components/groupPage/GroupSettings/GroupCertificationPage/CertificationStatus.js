@@ -11,8 +11,8 @@ const StyledProgress = styled.div`
   display: inline-grid;
   color: ${(props) =>
     props.$progress === 1 && !props.$hasAlert
-      ? props.theme.white
-      : props.theme.black1000};
+      ? props.theme.background0
+      : props.theme.text1000};
 
   & > * {
     grid-row: 1/2;
@@ -25,17 +25,17 @@ const StyledProgress = styled.div`
     transform: rotate(-90deg);
 
     circle {
-      stroke: ${(props) => props.theme.black100};
+      stroke: ${(props) => props.theme.text100};
       fill: transparent;
       stroke-dashoffset: 0;
     }
 
     circle + circle {
       stroke: ${(props) =>
-        props.$hasAlert ? props.theme.secondary600 : props.theme.green500};
+        props.$hasAlert ? props.theme.secondary600 : props.theme.success500};
       fill: ${(props) =>
         props.$progress === 1 && !props.$hasAlert
-          ? props.theme.green500
+          ? props.theme.success500
           : "transparent"};
     }
   }
@@ -45,7 +45,7 @@ const StyledCard = styled(Card)`
   padding: 1rem;
   background-color: transparent;
   border-radius: ${(props) => props.theme.borderRadius};
-  color: ${(props) => props.theme.black700};
+  color: ${(props) => props.theme.text700};
 
   & > div {
     display: flex;
@@ -60,7 +60,7 @@ const StyledCard = styled(Card)`
       strong {
         font-size: 1rem;
         font-weight: 500;
-        color: ${(props) => props.theme.black1000};
+        color: ${(props) => props.theme.text1000};
       }
     }
 
@@ -122,7 +122,11 @@ const CertificationStatus = (props) => {
     ?.getLink();
 
   const criteria = useMemo(
-    () => Object.values(certificationCriteria),
+    () =>
+      Object.entries(certificationCriteria).map(([id, val]) => ({
+        id,
+        ...val,
+      })),
     [certificationCriteria],
   );
 

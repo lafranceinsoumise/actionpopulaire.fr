@@ -2,19 +2,17 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Button from "@agir/front/genericComponents/Button";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Link from "@agir/front/app/Link";
 
 const StyledPanel = styled.div`
   width: 100%;
-  background-color: ${style.primary100};
+  background-color: ${(props) => props.theme.primary100};
   padding: 1.5rem;
   margin: 0;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     display: none;
   }
 
@@ -22,7 +20,7 @@ const StyledPanel = styled.div`
     margin: 0;
     font-size: 1rem;
     line-height: 1;
-    color: ${style.primary500};
+    color: ${(props) => props.theme.primary500};
     margin-bottom: 1rem;
     font-weight: bold;
   }
@@ -39,7 +37,7 @@ const StyledPanel = styled.div`
       align-items: baseline;
 
       a {
-        color: ${style.black1000};
+        color: ${(props) => props.theme.text1000};
         margin-left: 0.5rem;
       }
     }
@@ -72,7 +70,7 @@ const StyledPanel = styled.div`
   }
 
   & ~ ${Button} {
-    @media (min-width: ${style.collapse}px) {
+    @media (min-width: ${(props) => props.theme.collapse}px) {
       display: none;
     }
   }
@@ -105,25 +103,25 @@ const ManagerActions = (props) => {
         <ul>
           {groupSettingsLinks?.members && (
             <li>
-              <RawFeatherIcon color={style.primary500} name="users" />
+              <RawFeatherIcon color="primary500" name="users" />
               <Link to={groupSettingsLinks.members}>Membres</Link>
             </li>
           )}
           {groupSettingsLinks?.contacts && (
             <li>
-              <RawFeatherIcon color={style.primary500} name="rss" />
+              <RawFeatherIcon color="primary500" name="rss" />
               <Link to={groupSettingsLinks.contacts}>Contacts</Link>
             </li>
           )}
           {groupSettingsLinks?.general && (
             <li>
-              <RawFeatherIcon name="file-text" color={style.primary500} />
+              <RawFeatherIcon color="primary500" name="file-text" />
               <Link to={groupSettingsLinks.general}>Informations</Link>
             </li>
           )}
           {groupSettingsLinks?.manage && (
             <li>
-              <RawFeatherIcon color={style.primary500} name="lock" />
+              <RawFeatherIcon color="primary500" name="lock" />
               <Link to={groupSettingsLinks.manage}>
                 Animateur·ices et gestionnaires
               </Link>
@@ -131,7 +129,7 @@ const ManagerActions = (props) => {
           )}
           {groupSettingsLinks?.finance && (
             <li>
-              <RawFeatherIcon color={style.primary500} name="briefcase" />
+              <RawFeatherIcon color="primary500" name="briefcase" />
               <Link to={groupSettingsLinks.finance}>
                 {isBoucleDepartementale
                   ? "Caisse de la boucle"
@@ -141,19 +139,19 @@ const ManagerActions = (props) => {
           )}
           {groupSettingsLinks?.upcomingEvents && (
             <li>
-              <RawFeatherIcon color={style.primary500} name="calendar" />
+              <RawFeatherIcon color="primary500" name="calendar" />
               <Link to={groupSettingsLinks.upcomingEvents}>Agenda</Link>
             </li>
           )}
           {groupSettingsLinks?.links && (
             <li>
-              <RawFeatherIcon color={style.primary500} name="loader" />
+              <RawFeatherIcon color="primary500" name="loader" />
               <Link to={groupSettingsLinks.links}>Liens externes</Link>
             </li>
           )}
           {groupSettingsLinks?.stats && (
             <li>
-              <RawFeatherIcon color={style.primary500} name="trello" />
+              <RawFeatherIcon color="primary500" name="trello" />
               <Link to={groupSettingsLinks.stats}>Statistiques</Link>
             </li>
           )}

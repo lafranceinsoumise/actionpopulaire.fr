@@ -4,8 +4,8 @@ import styled from "styled-components";
 import { Button } from "@agir/donations/common/StyledComponents";
 
 const StyledWrapper = styled.div`
-  background-color: #502582;
-  color: ${(props) => props.theme.white};
+  background-color: ${(props) => props.theme.primary600};
+  color: ${(props) => props.theme.background0};
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: auto auto;

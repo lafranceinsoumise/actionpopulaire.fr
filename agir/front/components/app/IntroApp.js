@@ -10,8 +10,6 @@ import { useSprings, animated } from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Button from "@agir/front/genericComponents/Button";
 import Link from "@agir/front/app/Link";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
@@ -29,7 +27,7 @@ const Mark = styled.span`
   display: inline-block;
   transition: background-color 0.5s ease-in-out;
   background-color: ${(props) =>
-    props.$active ? style.primary500 : style.black200};
+    props.$active ? props.theme.primary500 : props.theme.text200};
 `;
 
 const WhiteTriangle = styled.div`
@@ -50,7 +48,7 @@ const WhiteTriangle = styled.div`
     bottom: -1px;
     left: 0;
     width: 100%;
-    background-color: #fff;
+    background-color: ${(props) => props.theme.background0};
     height: 80px;
     clip-path: polygon(0px 100%, 100% 0px, 100% 100%, 0px 100%);
   }
@@ -63,7 +61,7 @@ const StyledHeader = styled.header`
 const StyledHeaderImage = styled(animated.div)`
   position: absolute;
   background-image: url(${({ $image }) => $image || logo});
-  background-color: ${style.secondary500};
+  background-color: ${(props) => props.theme.secondary500};
   background-size: ${({ $image }) => ($image ? "cover" : "210px auto")};
   background-position: center;
   background-repeat: no-repeat;
@@ -97,7 +95,7 @@ const StyledMainContent = styled(animated.p)`
   }
 
   strong {
-    color: ${style.primary500};
+    color: ${(props) => props.theme.primary500};
     font-weight: 700;
     font-size: 1.75em;
   }
@@ -136,7 +134,7 @@ const StyledSearchLink = styled(Link)`
   &,
   &:hover,
   &:focus {
-    color: ${style.black1000};
+    color: ${(props) => props.theme.text1000};
   }
 
   ${RawFeatherIcon} {
@@ -147,7 +145,7 @@ const StyledSearchLink = styled(Link)`
 const StyledWrapper = styled.div`
   position: fixed;
   top: 0;
-  z-index: ${style.zindexTopBar + 1};
+  z-index: ${(props) => props.theme.zindexTopBar + 1};
   width: 100%;
   height: 100vh;
   display: flex;

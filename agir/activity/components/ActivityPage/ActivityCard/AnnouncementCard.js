@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import GenericCardContainer from "./GenericCardContainer";
 
 const StyledContent = styled.p`
@@ -22,8 +20,8 @@ const StyledContent = styled.p`
     height: auto;
     margin-bottom: 1rem;
 
-    @media (max-width: ${style.collapse}px) {
-      border-radius: ${style.borderRadius};
+    @media (max-width: ${(props) => props.theme.collapse}px) {
+      border-radius: ${(props) => props.theme.borderRadius};
     }
   }
 

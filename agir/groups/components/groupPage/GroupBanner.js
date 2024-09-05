@@ -1,8 +1,7 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useMemo, useState } from "react";
-import styled from "styled-components";
+import styled, { useTheme } from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
 import { getGroupTypeWithLocation } from "./utils";
 
 import Map from "@agir/carte/common/Map";
@@ -19,11 +18,11 @@ const StyledModalBody = styled.div`
   max-width: 600px;
   padding: 0;
   margin: 100px auto 0;
-  background-color: white;
-  box-shadow: ${style.elaborateShadow};
-  border-radius: ${style.borderRadius};
+  background-color: ${(props) => props.theme.background0};
+  box-shadow: ${(props) => props.theme.elaborateShadow};
+  border-radius: ${(props) => props.theme.borderRadius};
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     max-width: calc(100% - 20px);
     margin: 10px auto 0;
     padding-bottom: 10px;
@@ -43,7 +42,7 @@ const StyledModalBody = styled.div`
     align-self: flex-end;
     background: none;
     cursor: pointer;
-    color: ${style.black1000};
+    color: ${(props) => props.theme.text1000};
 
     &:hover {
       opacity: 0.75;
@@ -60,20 +59,20 @@ const StyledMap = styled.div``;
 const StyledBanner = styled.div`
   display: flex;
   flex-flow: row-reverse nowrap;
-  background-color: ${style.secondary500};
+  background-color: ${(props) => props.theme.secondary500};
   margin: 0 auto;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     max-width: 100%;
     flex-flow: column nowrap;
-    background-color: white;
+    background-color: ${(props) => props.theme.background0};
   }
 
   header {
     flex: 1 1 auto;
     padding: 2.25rem;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       padding: 1.5rem 1.5rem 1.25rem;
       text-align: center;
     }
@@ -93,7 +92,7 @@ const StyledBanner = styled.div`
     line-height: 1.419;
     margin-bottom: 0.5rem;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       font-size: 1.25rem;
       line-height: 1.519;
     }
@@ -104,7 +103,7 @@ const StyledBanner = styled.div`
     font-weight: 500;
     line-height: 1.5;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       font-size: 0.875rem;
     }
 
@@ -128,7 +127,7 @@ const StyledBanner = styled.div`
     position: relative;
     background-size: 0 0;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       clip-path: none;
       width: 100%;
       height: 155px;
@@ -163,6 +162,8 @@ const StyledBanner = styled.div`
 
 const GroupBanner = (props) => {
   const { name, typeLabel, location, iconConfiguration, image } = props;
+
+  const theme = useTheme();
   const [shouldShowModal, setShouldShowModal] = useState();
 
   const subtitle = useMemo(
@@ -187,7 +188,7 @@ const GroupBanner = (props) => {
       <StyledMap
         onClick={hasMap && !image ? openModal : undefined}
         style={{
-          backgroundColor: image ? style.white : style.secondary500,
+          backgroundColor: image ? theme.background0 : theme.secondary500,
           backgroundImage: !image ? `url(${defaultGroupImage})` : undefined,
           cursor: hasMap && !image ? "pointer" : "default",
         }}

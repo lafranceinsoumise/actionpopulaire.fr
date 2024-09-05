@@ -51,7 +51,7 @@ const LayoutInterieur = styled.main`
     }
 
     > ${ScrollableBlock.Layout} {
-      background-color: #fff;
+      background-color: ${(props) => props.theme.background0};
 
       display: none;
 

@@ -11,8 +11,8 @@ const SettingsMenuLink = styled(Link)`
   padding: 6px 5px;
   bottom: 0;
   right: 0;
-  background-color: ${(props) => props.theme.black1000};
-  color: ${(props) => props.theme.black25};
+  background-color: ${(props) => props.theme.text1000};
+  color: ${(props) => props.theme.text25};
   width: 42px;
   height: 42px;
   display: flex;
@@ -26,8 +26,8 @@ const SettingsMenuLink = styled(Link)`
 
   &:hover,
   &:focus {
-    background-color: ${(props) => props.theme.black1000};
-    color: ${(props) => props.theme.white};
+    background-color: ${(props) => props.theme.text1000};
+    color: ${(props) => props.theme.background0};
     opacity: 1;
   }
 `;

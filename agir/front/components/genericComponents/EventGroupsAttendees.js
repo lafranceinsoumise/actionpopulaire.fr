@@ -1,8 +1,6 @@
 import PropTypes from "prop-types";
 import React from "react";
-
 import styled from "styled-components";
-import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
@@ -11,7 +9,7 @@ import { getUser } from "@agir/front/globalContext/reducers";
 
 const StyledGroupsAttendees = styled.div`
   padding: 10px;
-  background-color: ${style.primary50};
+  background-color: ${(props) => props.theme.primary50};
   display: flex;
   align-items: center;
   flex-wrap: wrap;

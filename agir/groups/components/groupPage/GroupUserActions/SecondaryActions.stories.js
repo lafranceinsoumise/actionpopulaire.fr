@@ -11,7 +11,7 @@ export default {
 };
 
 const Template = (args) => (
-  <div style={{ backgroundColor: "gold", maxWidth: "100%", width: "320px" }}>
+  <div style={{ maxWidth: "100%", width: "320px" }}>
     <SecondaryActions {...args} />
   </div>
 );

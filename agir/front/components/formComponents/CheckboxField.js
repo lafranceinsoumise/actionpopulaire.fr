@@ -37,7 +37,7 @@ const StyledField = styled.label`
     border-style: solid;
     border-width: ${({ $checked }) => ($checked ? 0 : 1)}px;
     border-color: ${({ $disabled, theme }) =>
-      $disabled ? theme.black200 : theme.black1000};
+      $disabled ? theme.text200 : theme.text1000};
     background-color: ${({ $checked, $disabled, theme }) => {
       if ($checked && $disabled) {
         return theme.primary150;
@@ -46,7 +46,7 @@ const StyledField = styled.label`
         return theme.primary500;
       }
       if ($disabled) {
-        return theme.black100;
+        return theme.text100;
       }
       return "transparent";
     }};
@@ -82,21 +82,21 @@ const StyledField = styled.label`
 
     &::before {
       grid-column: span 2;
-      height: 50%;
+      height: 0.5rem;
       border-radius: 2.5rem;
       background: ${(props) => props.theme.primary100};
       background-color: ${({ $checked, theme }) =>
         $checked ? theme.primary100 : "transparent"};
       border: 1px solid;
       border-color: ${({ $checked, theme }) =>
-        $checked ? theme.primary100 : theme.black100};
+        $checked ? theme.primary100 : theme.text100};
       opacity: ${({ $disabled }) => ($disabled ? 0.5 : 1)};
     }
 
     &::after {
       position: absolute;
-      width: 100%;
-      height: 75%;
+      width: 1rem;
+      height: 1rem;
       border-radius: 100%;
       background: ${(props) => props.theme.primary500};
       background-color: ${({ $checked, $disabled, theme }) => {
@@ -107,10 +107,10 @@ const StyledField = styled.label`
           return theme.primary500;
         }
         if ($disabled) {
-          return theme.black100;
+          return theme.text100;
         }
 
-        return theme.black200;
+        return theme.text200;
       }};
       grid-column: ${({ $checked }) => ($checked ? "2/3" : "1/2")};
     }
@@ -127,7 +127,7 @@ const StyledField = styled.label`
     flex: 1 1 auto;
     font-weight: inherit;
     color: ${({ $disabled, theme }) =>
-      $disabled ? theme.black500 : theme.black1000};
+      $disabled ? theme.text500 : theme.text1000};
 
     &::first-letter {
       text-transform: uppercase;

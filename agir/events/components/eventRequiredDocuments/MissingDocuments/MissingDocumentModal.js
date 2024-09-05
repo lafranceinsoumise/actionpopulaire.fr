@@ -14,7 +14,7 @@ const StyledModalContent = styled.div`
   padding: 3rem;
   margin: 60px auto 0;
   box-shadow: ${(props) => props.theme.elaborateShadow};
-  background-color: ${(props) => props.theme.white};
+  background-color: ${(props) => props.theme.background0};
   overflow-x: hidden;
   overflow-y: auto;
 
@@ -30,7 +30,7 @@ const StyledModalContent = styled.div`
     top: 3rem;
     right: 3rem;
     padding: 0;
-    color: ${(props) => props.theme.black1000};
+    color: ${(props) => props.theme.text1000};
     z-index: 1;
     background-color: transparent;
     border: none;

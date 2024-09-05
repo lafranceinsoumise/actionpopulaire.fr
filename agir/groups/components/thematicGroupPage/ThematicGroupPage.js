@@ -24,7 +24,7 @@ const StyledPage = styled.main`
   max-width: 70rem;
   margin: 0 auto;
   min-height: 50vh;
-  background-color: ${(props) => props.theme.white};
+  background-color: ${(props) => props.theme.background0};
 
   @media (max-width: ${(props) => props.theme.collapse}px) {
     padding: 1rem;

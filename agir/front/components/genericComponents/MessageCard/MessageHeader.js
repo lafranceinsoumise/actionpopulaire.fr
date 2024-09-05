@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React, { useState } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import ButtonLockMessage from "@agir/front/genericComponents/ButtonLockMessage";
 import ButtonMuteMessage from "@agir/front/genericComponents/ButtonMuteMessage";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
@@ -25,12 +23,12 @@ const StyledSubject = styled.h2`
   display: block;
   cursor: pointer;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     white-space: normal;
     cursor: default;
   }
 
-  @media (min-width: ${style.collapse}px) {
+  @media (min-width: ${(props) => props.theme.collapse}px) {
     max-width: 360px;
   }
   @media (min-width: 1300px) {
@@ -53,11 +51,11 @@ const StyledMessageHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  border: 1px solid #dfdfdf;
+  border: 1px solid ${(props) => props.theme.text100};
   border-bottom: none;
-  background-color: white;
+  background-color: ${(props) => props.theme.background0};
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     padding: 0;
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;

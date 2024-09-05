@@ -2,8 +2,6 @@ import React, { useCallback, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import { BlockSwitchLink } from "./styledComponents";
 import Button from "@agir/front/genericComponents/Button";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
@@ -32,7 +30,7 @@ const CountryToggle = styled.button`
     text-decoration: underline;
   }
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     text-align: left;
   }
 `;
@@ -43,19 +41,19 @@ const InputGroup = styled.div`
   grid-template-columns: 340px 140px;
   grid-gap: 0.5rem;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     grid-template-columns: 140px 1fr;
   }
 
   & > div {
     &:nth-child(1) {
-      @media (max-width: ${style.collapse}px) {
+      @media (max-width: ${(props) => props.theme.collapse}px) {
         grid-column: span 2;
       }
     }
 
     &:nth-child(3) {
-      @media (min-width: ${style.collapse}px) {
+      @media (min-width: ${(props) => props.theme.collapse}px) {
         grid-column: span 2;
       }
     }

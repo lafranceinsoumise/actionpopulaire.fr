@@ -1,17 +1,15 @@
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Card from "@agir/front/genericComponents/Card";
 
 const StyledCard = styled(Card)`
   padding: 1.5rem;
   margin: 2rem 0;
-  border-bottom: 1px solid ${style.black50};
-  border-radius: ${style.borderRadius};
-  background-color: ${style.white};
+  border-bottom: 1px solid ${(props) => props.theme.text50};
+  border-radius: ${(props) => props.theme.borderRadius};
+  background-color: ${(props) => props.theme.background0};
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     margin: 0;
   }
 
@@ -26,7 +24,7 @@ const StyledCard = styled(Card)`
     font-weight: 600;
     line-height: 1.5;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       font-size: 0.875rem;
       font-weight: 700;
     }
@@ -37,7 +35,7 @@ const StyledCard = styled(Card)`
     line-height: 1.6;
     padding: 0.25rem 0 0;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       font-size: 0.875rem;
     }
   }

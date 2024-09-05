@@ -4,7 +4,6 @@ import { createPortal } from "react-dom";
 import { useTransition, animated } from "@react-spring/web";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
 import { useDisableBodyScroll, useFocusTrap } from "@agir/lib/utils/hooks";
 import { RawFeatherIcon } from "./FeatherIcon";
 
@@ -76,7 +75,7 @@ const ModalFrame = styled.div`
   min-height: 100vh;
   overflow-x: hidden;
   overflow-y: auto;
-  z-index: ${style.zindexModal};
+  z-index: ${(props) => props.theme.zindexModal};
 `;
 
 const StyledCloseButton = styled.button`
@@ -84,7 +83,7 @@ const StyledCloseButton = styled.button`
   top: 1rem;
   right: 1rem;
   padding: 0;
-  color: ${style.black700};
+  color: ${(props) => props.theme.text700};
   z-index: 1;
   background-color: transparent;
   border: none;

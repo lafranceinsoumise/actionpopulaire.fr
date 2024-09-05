@@ -6,8 +6,6 @@ import { Swiper, SwiperSlide } from "swiper/react";
 
 import "swiper/scss";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Button from "@agir/front/genericComponents/Button";
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
@@ -15,11 +13,11 @@ import GroupSuggestionCard from "./GroupSuggestionCard";
 
 export const Carousel = styled(animated.div)`
   isolation: isolate;
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     margin-left: 0;
   }
   .swiper {
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       padding-left: 1.5rem;
     }
     .swiper-slide {
@@ -34,7 +32,7 @@ export const StyledWrapper = styled.div`
   padding-bottom: 56px;
   text-align: center;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     text-align: left;
     padding-top: 0;
     padding-bottom: 0;
@@ -50,7 +48,7 @@ export const StyledWrapper = styled.div`
     line-height: 1.5;
     font-weight: 700;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       font-size: 1rem;
       font-weight: 600;
     }
@@ -61,11 +59,11 @@ export const StyledWrapper = styled.div`
   }
 
   ${Carousel} {
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       margin-left: 0;
     }
     .swiper {
-      @media (max-width: ${style.collapse}px) {
+      @media (max-width: ${(props) => props.theme.collapse}px) {
         padding-left: 1.5rem;
       }
       .swiper-slide {
@@ -79,14 +77,14 @@ export const StyledWrapper = styled.div`
     flex-flow: row nowrap;
     justify-content: center;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       justify-content: flex-start;
     }
 
     & > * {
       flex: 1 1 397px;
 
-      @media (min-width: ${style.collapse}px) {
+      @media (min-width: ${(props) => props.theme.collapse}px) {
         margin-right: 2rem;
       }
     }

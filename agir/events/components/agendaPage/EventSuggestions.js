@@ -16,7 +16,7 @@ import { useEventSuggestions } from "./api";
 
 const Bone = styled.div`
   border-radius: ${(props) => props.theme.borderRadius};
-  background-color: ${(props) => props.theme.black50};
+  background-color: ${(props) => props.theme.text50};
   margin-top: 1.5rem;
   height: 1.5rem;
   width: 30%;
@@ -52,12 +52,12 @@ const EventGroupSectionTitle = styled(Link)`
   margin-top: 2rem;
   margin-bottom: -1rem;
   text-transform: uppercase;
-  color: ${(props) => props.theme.black500};
+  color: ${(props) => props.theme.text500};
 
   &:hover,
   &:focus {
     text-decoration: none;
-    color: ${(props) => props.theme.black500};
+    color: ${(props) => props.theme.text500};
   }
 `;
 
@@ -66,7 +66,7 @@ const EmptyAgenda = styled.div`
 
   p {
     strong {
-      color: ${(props) => props.theme.black1000};
+      color: ${(props) => props.theme.text1000};
     }
 
     a {

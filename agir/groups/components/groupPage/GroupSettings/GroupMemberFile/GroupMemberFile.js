@@ -56,7 +56,7 @@ const GroupMemberFile = (props) => {
       <Spacer size="1.5rem" />
       <p
         css={`
-          color: ${({ theme }) => theme.black700};
+          color: ${({ theme }) => theme.text700};
         `}
       >
         Cette personne a transmis ces informations volontairement à votre

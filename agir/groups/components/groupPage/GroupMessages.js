@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React, { Fragment } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import { useMessageActions } from "@agir/groups/groupPage/hooks/messages";
 
 import Button from "@agir/front/genericComponents/Button";
@@ -27,16 +25,16 @@ const StyledButton = styled.div`
     &:hover,
     &:focus,
     &:active {
-      background-color: white;
+      background-color: ${(props) => props.theme.background0};
       width: auto;
       margin: 0 auto;
       justify-content: center;
 
-      @media (max-width: ${style.collapse}px) {
+      @media (max-width: ${(props) => props.theme.collapse}px) {
         width: 100%;
         margin-bottom: 1.5rem;
         font-size: 0.875rem;
-        box-shadow: ${style.elaborateShadow};
+        box-shadow: ${(props) => props.theme.elaborateShadow};
       }
     }
   }
@@ -48,12 +46,12 @@ const StyledMessages = styled.div`
   align-items: center;
   flex-direction: column;
 
-  @media (max-width: ${style.collapse}px) {
-    background-color: ${style.black50};
+  @media (max-width: ${(props) => props.theme.collapse}px) {
+    background-color: ${(props) => props.theme.text50};
   }
 `;
 const StyledWrapper = styled.div`
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     margin-top: 1rem;
   }
 
@@ -61,7 +59,7 @@ const StyledWrapper = styled.div`
     margin: 0;
     padding: 0 0 1.5rem 0;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       padding: 1.5rem 1rem 0.5rem;
     }
   }

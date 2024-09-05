@@ -25,13 +25,13 @@ const StyledItem = styled(Card).attrs((props) => ({
   & > span,
   & > strong {
     grid-column: 1/3;
-    color: ${(props) => props.theme.black1000};
+    color: ${(props) => props.theme.text1000};
     font-weight: 400;
   }
 
   & > span {
     grid-row: 1/2;
-    color: ${(props) => props.theme.black500};
+    color: ${(props) => props.theme.text500};
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -44,7 +44,7 @@ const StyledItem = styled(Card).attrs((props) => ({
   & > strong + span:not(${RawFeatherIcon}) {
     grid-row: 3/4;
     font-size: 0.875rem;
-    color: ${(props) => props.theme.redNSP};
+    color: ${(props) => props.theme.error500};
     white-space: normal;
     overflow: unset;
     display: flex;
@@ -63,7 +63,7 @@ const StyledItem = styled(Card).attrs((props) => ({
     text-decoration: none;
     grid-row: 1/3;
     cursor: pointer;
-    color: ${(props) => props.theme.black1000};
+    color: ${(props) => props.theme.text1000};
 
     &:hover,
     &:focus {
@@ -75,7 +75,7 @@ const StyledItem = styled(Card).attrs((props) => ({
     &[disabled]:hover,
     &[disabled]:focus {
       cursor: default;
-      color: ${(props) => props.theme.black200};
+      color: ${(props) => props.theme.text200};
     }
 
     ${RawFeatherIcon} {

@@ -2,7 +2,6 @@ import PropTypes from "prop-types";
 import React, { useEffect } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
 import { useIsDesktop } from "@agir/front/genericComponents/grid";
 
 const StyledContainer = styled.div`
@@ -11,25 +10,25 @@ const StyledContainer = styled.div`
   height: 100%;
   isolation: isolate;
 
-  @media (min-width: ${style.collapse}px) {
+  @media (min-width: ${(props) => props.theme.collapse}px) {
     display: inline-block;
     width: 600px;
   }
 `;
 
 const StyledPanel = styled.div`
-  background-color: ${style.white};
+  background-color: ${(props) => props.theme.background0};
   width: 100%;
   height: 100vh;
   padding: 2rem;
   overflow: auto;
 
-  @media (min-width: ${style.collapse}px) {
+  @media (min-width: ${(props) => props.theme.collapse}px) {
     width: 600px;
     overflow: auto;
   }
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     padding: 1.5rem;
   }
 

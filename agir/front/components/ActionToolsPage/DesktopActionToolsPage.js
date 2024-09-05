@@ -37,7 +37,7 @@ const MainContainer = styled.div`
 
     small {
       font-size: 0.813rem;
-      color: ${(props) => props.theme.redNSP};
+      color: ${(props) => props.theme.error500};
       text-transform: uppercase;
     }
   }

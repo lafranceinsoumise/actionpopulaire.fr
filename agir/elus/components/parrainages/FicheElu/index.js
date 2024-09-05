@@ -80,7 +80,7 @@ BoutonCreerParrainage.propTypes = {
 };
 
 const InteractionBoxLayout = styled(MarginBlock)`
-  border: 1px solid ${(props) => props.theme.black200};
+  border: 1px solid ${(props) => props.theme.text200};
   padding: 20px;
 `;
 

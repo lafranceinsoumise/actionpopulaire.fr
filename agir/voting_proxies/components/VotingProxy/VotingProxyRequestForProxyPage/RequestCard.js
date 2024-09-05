@@ -14,9 +14,9 @@ const StyledRequestCard = styled.div`
   align-items: start;
   gap: 1rem;
   padding: 1rem;
-  background-color: ${({ theme }) => theme.white};
+  background-color: ${({ theme }) => theme.background0};
   border-radius: ${({ theme }) => theme.borderRadius};
-  border: 1px solid ${({ theme }) => theme.black100};
+  border: 1px solid ${({ theme }) => theme.text100};
 
   @media (max-width: ${(props) => props.theme.collapse}px) {
     grid-template-columns: 1fr;

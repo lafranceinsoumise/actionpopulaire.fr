@@ -1,14 +1,13 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useCallback } from "react";
 import styled from "styled-components";
-
-import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import Link from "@agir/front/app/Link";
 
 import Avatar from "@agir/front/genericComponents/Avatar";
 import Button from "@agir/front/genericComponents/Button";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import { useColorScheme } from "@agir/front/theme/ThemeProvider";
 
 const IconLink = styled(Link)``;
 const StyledLink = styled(Link)``;
@@ -19,7 +18,7 @@ const StyledUserMenu = styled.div`
   text-align: center;
   cursor: default;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     padding: 1.5rem 0;
     margin: 0 auto;
   }
@@ -46,16 +45,16 @@ const StyledUserMenu = styled.div`
       top: 0;
       right: 0;
       transform: translateX(50%);
-      background-color: ${style.white};
+      background-color: ${(props) => props.theme.background0};
       outline: none;
-      border: 1px solid ${style.black200};
+      border: 1px solid ${(props) => props.theme.text200};
       border-radius: 100%;
       transition: all 100ms ease-in-out;
 
       &:hover,
       &:focus {
-        background-color: ${style.black25};
-        border: 1px solid ${style.black100};
+        background-color: ${(props) => props.theme.text25};
+        border: 1px solid ${(props) => props.theme.text100};
         cursor: pointer;
       }
     }
@@ -70,7 +69,7 @@ const StyledUserMenu = styled.div`
 
     ${StyledLink} {
       display: block;
-      color: ${style.black1000};
+      color: ${(props) => props.theme.text1000};
       margin: 0;
       padding: 0;
 
@@ -97,15 +96,68 @@ const StyledUserMenu = styled.div`
   footer {
     margin: 0;
     padding: 0.5rem 0;
-    border-top: 1px solid ${style.black100};
+    border-top: 1px solid ${(props) => props.theme.text100};
     font-size: 10px;
-    color: ${style.black500};
+    color: ${(props) => props.theme.text500};
   }
 
   ${Button} {
     width: 230px;
   }
 `;
+
+const ColorModeToggle = (props) => {
+  const [colorScheme, setColorScheme, colorSchemeChoice] = useColorScheme();
+
+  return (
+    <div
+      css={`
+        display: flex;
+        gap: 0.5rem;
+        padding-inline: 0.5rem;
+        justify-content: center;
+
+        & > ${Button} {
+          flex: 0 0 2.5rem;
+          height: 2.5rem;
+          border-radius: 100%;
+
+          & span:empty {
+            display: none;
+          }
+        }
+      `}
+    >
+      <Button
+        small
+        type="button"
+        onClick={() => setColorScheme("light")}
+        disabled={colorSchemeChoice === "light"}
+        color={colorSchemeChoice === "light" ? "primary" : "confirmed"}
+        title="Couleurs claires"
+        icon="sun"
+      ></Button>
+      <Button
+        small
+        type="button"
+        onClick={() => setColorScheme("dark")}
+        disabled={colorSchemeChoice === "dark"}
+        color={colorSchemeChoice === "dark" ? "primary" : "confirmed"}
+        title="Couleurs sombres"
+        icon="moon"
+      ></Button>
+      <Button
+        small
+        type="button"
+        onClick={() => setColorScheme("auto")}
+        disabled={colorSchemeChoice === "auto"}
+        color={colorSchemeChoice === "auto" ? "primary" : "confirmed"}
+        title="Couleurs par défaut"
+        icon="monitor"
+      ></Button>
+    </div>
+  );
+};
 
 export const UserMenu = (props) => {
   const { user } = props;
@@ -128,10 +180,14 @@ export const UserMenu = (props) => {
         <StyledLink route="personalInformation">{user.email}</StyledLink>
         <StyledLink
           route="personalInformation"
-          style={{ color: style.black500, lineHeight: 2 }}
+          css={`
+            color: ${(props) => props.theme.text500};
+            line-height: 2;
+          `}
         >
           {`${user.zip} ${user.city}`.trim()}
         </StyledLink>
+        <ColorModeToggle />
         <Button
           link
           route="personalInformation"

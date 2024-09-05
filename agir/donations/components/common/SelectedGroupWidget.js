@@ -13,7 +13,7 @@ const StyledWidget = styled.div`
   gap: 1rem;
   padding: 1rem;
   border-radius: ${({ theme }) => theme.borderRadius};
-  border: 1px solid ${({ theme }) => theme.black200};
+  border: 1px solid ${({ theme }) => theme.text200};
 
   & > div {
     font-size: 0.875rem;

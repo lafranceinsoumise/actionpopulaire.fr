@@ -50,7 +50,6 @@ const Template = (args) => {
   return (
     <div
       style={{
-        background: "white",
         minHeight: "100vh",
         padding: "16px",
       }}

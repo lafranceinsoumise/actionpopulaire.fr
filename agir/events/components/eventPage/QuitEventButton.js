@@ -17,7 +17,7 @@ const log = logger(__filename);
 const StyledDialog = styled.div`
   max-width: 540px;
   margin: 160px auto;
-  background-color: ${(props) => props.theme.white};
+  background-color: ${(props) => props.theme.background0};
   border-radius: ${(props) => props.theme.borderRadius};
   padding: 1rem;
 
@@ -41,7 +41,7 @@ const StyledDialog = styled.div`
       padding: 0;
       font-size: 0.875rem;
       line-height: 1.5;
-      color: ${(props) => props.theme.black500};
+      color: ${(props) => props.theme.text500};
     }
   }
 
@@ -60,7 +60,7 @@ const StyledDialog = styled.div`
 const StyledWrapper = styled.div`
   font-size: 1rem;
   font-weight: 600;
-  color: ${(props) => props.theme.black500};
+  color: ${(props) => props.theme.text500};
   white-space: nowrap;
 `;
 

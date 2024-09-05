@@ -22,7 +22,7 @@ const DescriptionSection = styled.div`
   }
 
   & > p {
-    color: ${(props) => props.theme.black700};
+    color: ${(props) => props.theme.text700};
   }
 `;
 
@@ -41,7 +41,7 @@ const StyledActionButtons = styled.div`
 const StyleDescriptionCard = styled(StyledCard)`
   margin-bottom: 24px;
   overflow: hidden;
-  border-bottom: 1px solid ${(props) => props.theme.black50};
+  border-bottom: 1px solid ${(props) => props.theme.text50};
 `;
 
 const EventDescriptionCard = ({

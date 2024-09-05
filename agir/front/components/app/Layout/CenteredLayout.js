@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import { Column, Container, Row } from "@agir/front/genericComponents/grid";
 import BackLink from "@agir/front/app/Navigation/BackLink";
@@ -15,7 +13,7 @@ export const LayoutTitle = styled.h1`
   margin: 0 0 1rem;
   font-weight: 700;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     font-size: 20px;
     padding: 0 1.5rem;
   }
@@ -26,7 +24,7 @@ const MainColumn = styled(Column)`
   margin: 0 auto;
   max-width: 100%;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     padding-top: 0;
   }
 
@@ -48,17 +46,20 @@ const MainColumn = styled(Column)`
 const MainContainer = styled(Container)`
   padding-bottom: 72px;
 
-  @media (min-width: ${style.collapse}px) {
+  @media (min-width: ${(props) => props.theme.collapse}px) {
     max-width: ${({ $maxWidth }) => $maxWidth || "580px"};
 
     & > ${Row} {
       flex-wrap: nowrap;
     }
   }
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     padding-top: 24px;
-    background-color: ${({ $smallBackgroundColor }) =>
-      $smallBackgroundColor || "transparent"};
+    background-color: ${({ props }) =>
+      props.$smallBackgroundColor
+        ? props.theme[props.$smallBackgroundColor] ||
+          props.$smallBackgroundColor
+        : "transparent"};
   }
 `;
 
@@ -76,7 +77,7 @@ const CenteredLayout = (props) => (
                 name={props.icon}
                 width="2rem"
                 height="2rem"
-                color={style.primary500}
+                color="primary500"
               />
             ) : null}
             {props.title ? <LayoutTitle>{props.title}</LayoutTitle> : null}

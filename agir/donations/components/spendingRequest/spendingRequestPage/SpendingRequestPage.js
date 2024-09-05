@@ -40,14 +40,14 @@ const StyledNav = styled(Hide).attrs((attrs) => ({
     width: 100%;
     flex-flow: column nowrap;
     align-items: stretch;
-    background-color: white;
+    background-color: ${(props) => props.theme.background0};
     gap: 0.5rem;
     margin: 0;
     padding: 2rem 1.5rem;
     box-shadow: ${(props) =>
       props.$stuck ? props.theme.elaborateShadow : "none"};
     border-top: ${(props) =>
-      props.$stuck ? "1px solid " + props.theme.black100 : "none"};
+      props.$stuck ? "1px solid " + props.theme.text100 : "none"};
     border-collapse: collapse;
   }
 `;

@@ -1,9 +1,7 @@
 import PropTypes from "prop-types";
 import React, { useCallback } from "react";
 import Select, { components, createFilter } from "react-select";
-import styled, { keyframes } from "styled-components";
-
-import * as style from "@agir/front/genericComponents/_variables.scss";
+import styled, { keyframes, useTheme } from "styled-components";
 
 import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
 
@@ -27,7 +25,7 @@ const StyledError = styled.span``;
 const StyledMenuList = styled.div``;
 
 const BackgroundOpacity = styled.div`
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     z-index: -1;
     height: 100vh;
     width: 100vw;
@@ -66,17 +64,20 @@ const StyledField = styled.label`
     display: none;
   }
   .select__dropdown-indicator {
-    color: ${({ $invalid }) => ($invalid ? style.redNSP : style.black100)};
+    color: ${({ $invalid, theme }) =>
+      $invalid ? theme.error500 : theme.text100};
   }
 
   .select__control {
-    border-radius: ${style.softBorderRadius};
+    border-radius: ${(props) => props.theme.softBorderRadius};
     border: 1px solid;
     max-width: 100%;
     min-height: 2.5rem;
     line-height: 1.5;
     font-size: ${({ $small }) => ($small ? "0.875rem" : "1rem")};
     font-weight: ${({ $small }) => ($small ? "600" : "auto")};
+    background-color: ${(props) => props.theme.background0};
+    color: ${(props) => props.theme.text1000};
 
     &,
     &:hover,
@@ -84,18 +85,23 @@ const StyledField = styled.label`
     &.select__control--is-focused {
       outline: none;
       box-shadow: none;
-      border-color: ${({ $invalid }) =>
-        $invalid ? style.redNSP : style.black100};
+      border-color: ${({ $invalid, theme }) =>
+        $invalid ? theme.error500 : theme.text100};
     }
 
     &:focus,
     &.select__control--is-focused {
-      border-color: ${({ $invalid }) =>
-        $invalid ? style.redNSP : style.black500};
+      border-color: ${({ $invalid, theme }) =>
+        $invalid ? theme.error500 : theme.text500};
     }
 
     &.select__control--is-disabled {
-      background-color: ${style.black100};
+      background-color: ${(props) => props.theme.text100};
+    }
+
+    .select__input-container,
+    .select__single-value {
+      color: ${(props) => props.theme.text1000};
     }
 
     & .select__placeholder {
@@ -106,13 +112,15 @@ const StyledField = styled.label`
   }
 
   .select__menu {
-    border: 1px solid ${style.black100};
+    background-color: ${(props) => props.theme.background0};
+    color: ${(props) => props.theme.text1000};
+    border: 1px solid ${(props) => props.theme.text100};
     box-shadow: 0px 3px 2px rgba(0, 35, 44, 0.05);
     margin-top: 0;
     border-radius: 0;
     padding: 0;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       position: fixed;
       bottom: 0;
       top: unset;
@@ -121,7 +129,8 @@ const StyledField = styled.label`
       width: 100%;
       margin: 0;
       max-height: 40vh;
-      border-radius: ${style.borderRadius} ${style.borderRadius} 0 0;
+      border-radius: ${(props) => props.theme.borderRadius}
+        ${(props) => props.theme.borderRadius} 0 0;
       overflow-x: hidden;
       overflow-y: auto;
       animation: ${slideIn} 200ms ease-out;
@@ -129,21 +138,21 @@ const StyledField = styled.label`
   }
 
   ${BackgroundOpacity} {
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       display: block;
       opacity: ${(props) => (props.$searchable ? 0.15 : 0.5)};
     }
   }
 
   .select__menu-list {
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       padding-bottom: 60px;
       max-height: 100%;
     }
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       padding-top: 10px;
-      background-color: white;
+      background-color: ${(props) => props.theme.background0};
     }
 
     footer {
@@ -152,10 +161,10 @@ const StyledField = styled.label`
       width: 100%;
       display: none;
 
-      @media (max-width: ${style.collapse}px) {
+      @media (max-width: ${(props) => props.theme.collapse}px) {
         display: block;
         z-index: 1;
-        box-shadow: -10px -10px 15px white;
+        box-shadow: -10px -10px 15px ${(props) => props.theme.background0};
       }
 
       &::before {
@@ -164,14 +173,14 @@ const StyledField = styled.label`
         width: 80%;
         height: 1px;
         margin: 0 auto;
-        background-color: ${style.black200};
+        background-color: ${(props) => props.theme.text200};
       }
 
       button {
         display: flex;
         align-items: center;
         justify-content: center;
-        background-color: white;
+        background-color: ${(props) => props.theme.background0};
         box-shadow: none;
         border: none;
         height: 54px;
@@ -199,12 +208,42 @@ const StyledField = styled.label`
         text-overflow: ellipsis;
     `
         : ""}
+
+    &.select__option--is-selected {
+      background-color: transparent;
+      color: ${(props) => props.theme.primary500};
+    }
+
+    &.select__option--is-focused {
+      color: ${(props) => props.theme.background0};
+      background-color: ${(props) => props.theme.primary500};
+    }
+  }
+
+  .select__multi-value {
+    color: ${(props) => props.theme.background0};
+    background-color: ${(props) => props.theme.primary500};
+
+    .select__multi-value__label {
+      color: inherit;
+      font-weight: 600;
+    }
+
+    .select__multi-value__remove {
+      cursor: pointer;
+
+      &:hover,
+      &:focus {
+        color: ${(props) => props.theme.background0};
+        background-color: ${(props) => props.theme.primary600};
+      }
+    }
   }
 
   ${StyledError} {
     line-height: 1.3;
     display: ${({ $invalid }) => ($invalid ? "flex" : "none")};
-    color: ${style.redNSP};
+    color: ${(props) => props.theme.error500};
   }
 `;
 
@@ -236,15 +275,6 @@ SelectMenuList.propTypes = {
   }),
 };
 
-const selectFieldTheme = (theme) => ({
-  ...theme,
-  colors: {
-    ...theme.colors,
-    primary: style.primary500,
-    primary25: style.black100,
-  },
-});
-
 const SelectField = (props) => {
   const {
     id,
@@ -259,6 +289,20 @@ const SelectField = (props) => {
     noWrapOptions,
     ...rest
   } = props;
+
+  const theme = useTheme();
+
+  const selectFieldTheme = useCallback(
+    (t) => ({
+      ...t,
+      colors: {
+        ...t.colors,
+        primary: theme.primary500,
+        primary25: theme.text100,
+      },
+    }),
+    [theme],
+  );
 
   const maxMenuHeight = useResponsiveMemo(isSearchable ? 124 : 238, 238);
 

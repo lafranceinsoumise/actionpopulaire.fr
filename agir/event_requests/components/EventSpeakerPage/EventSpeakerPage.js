@@ -28,7 +28,7 @@ const StyledPage = styled.div`
 
   @media (max-width: ${(props) => props.theme.collapse}px) {
     padding: 1rem 1rem 3rem;
-    background-color: ${(props) => props.theme.black25};
+    background-color: ${(props) => props.theme.text25};
   }
 
   h3 {
@@ -60,7 +60,7 @@ const StyledPage = styled.div`
 
       & p {
         font-size: 0.875rem;
-        color: ${(props) => props.theme.black700};
+        color: ${(props) => props.theme.text700};
       }
     }
 

@@ -1,7 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
-import * as style from "@agir/front/genericComponents/_variables.scss";
 
 /**
  * Énumération à utiliser comme état interne pour les composants chargés de faire des requêtes HTTP
@@ -71,33 +70,33 @@ export const InfosElu = PropTypes.shape({
 const statutsConfig = {
   [ELU_STATUTS.DISPONIBLE]: {
     label: "Disponible",
-    bg: style.primary100,
-    text: style.primary500,
+    bg: "primary100",
+    text: "primary500",
   },
   [ELU_STATUTS.A_CONTACTER]: {
     label: "À contacter",
-    bg: style.secondary500,
-    text: style.black1000,
+    bg: "secondary500",
+    text: "text1000",
   },
   [ELU_STATUTS.EN_COURS]: {
     label: "En cours",
-    bg: style.black100,
-    text: style.black1000,
+    bg: "text100",
+    text: "text1000",
   },
   [ELU_STATUTS.TERMINE]: {
     label: "Déjà rencontré",
-    bg: style.green100,
-    text: style.black1000,
+    bg: "success100",
+    text: "text1000",
   },
   [ELU_STATUTS.PERSONNELLEMENT_VU]: {
     label: "Je l'ai vu",
-    bg: style.green100,
-    text: style.black1000,
+    bg: "success100",
+    text: "text1000",
   },
   [ELU_STATUTS.CC]: {
     label: "Reçu par le CC",
-    bg: style.green500,
-    text: style.black25,
+    bg: "success500",
+    text: "text25",
   },
 };
 
@@ -158,8 +157,8 @@ export const REVERSE_DECISIONS = DECISIONS.filter(
 
 const StatutPillLayout = styled.span`
   display: inline-block;
-  color: ${(props) => props.text};
-  background-color: ${(props) => props.bg};
+  color: ${(props) => props.theme[props.text]};
+  background-color: ${(props) => props.theme[props.bg]};
   padding: 0.5rem 1rem;
   border-radius: 7rem;
   font-size: 14px;

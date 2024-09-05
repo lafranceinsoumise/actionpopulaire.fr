@@ -29,5 +29,5 @@ export const Default = Template.bind({});
 Default.args = {
   alt: "La France insoumise",
   height: "auto",
-  width: "auto",
+  width: "100%",
 };

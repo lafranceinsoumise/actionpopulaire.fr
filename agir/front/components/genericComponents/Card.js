@@ -1,71 +1,66 @@
 import isPropValid from "@emotion/is-prop-valid";
 import PropTypes from "prop-types";
-import * as style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
 
 const cardTypes = {
   default: {
-    background: style.white,
+    backgroundColor: "background0",
     borderRadius: 0,
   },
   primary: {
-    background: style.primary100,
+    backgroundColor: "primary100",
   },
   alert: {
-    backgroundImage: `linear-gradient(90deg, transparent 0, transparent 3px, ${style.white} 3px)`,
-    backgroundColor: style.black1000,
+    backgroundImage: `linear-gradient(90deg, transparent 0, transparent 3px, ${(props) => props.theme.background0} 3px)`,
+    backgroundColor: "background0",
   },
   alert_dismissed: {
-    backgroundImage: `linear-gradient(90deg, transparent 0, transparent 3px, ${style.white} 3px)`,
-    backgroundColor: style.white,
+    backgroundImage: `linear-gradient(90deg, transparent 0, transparent 3px, ${(props) => props.theme.background0} 3px)`,
+    backgroundColor: "background0",
   },
   error: {
-    backgroundImage: `linear-gradient(90deg, transparent 0, transparent 8px, ${style.white} 8px)`,
-    backgroundColor: style.redNSP,
+    backgroundImage: `linear-gradient(90deg, transparent 0, transparent 8px, ${(props) => props.theme.background0} 8px)`,
+    backgroundColor: "error500",
   },
 };
 
-const Card = styled.div.withConfig({
-  shouldForwardProp: isPropValid,
-})`
-  background: ${({ type }) =>
-    type && cardTypes[type] && cardTypes[type].background
-      ? cardTypes[type].background
-      : cardTypes.default.background};
-  background-image: ${({ type }) =>
-    type && cardTypes[type] && cardTypes[type].backgroundImage
-      ? cardTypes[type].backgroundImage
-      : "none"};
-  background-color: ${({ type }) =>
-    type && cardTypes[type] && cardTypes[type].backgroundColor
-      ? cardTypes[type].backgroundColor
-      : cardTypes.default.background};
+const Card = styled.div
+  .withConfig({
+    shouldForwardProp: isPropValid,
+  })
+  .attrs(({ type, ...props }) => ({
+    ...props,
+    config: type && cardTypes[type] ? cardTypes[type] : cardTypes.default,
+  }))`
+  background-image: ${({ config }) => config.backgroundImage || "none"};
+  background-color: ${({ config, theme }) =>
+    theme[config.backgroundColor] || config.backgroundColor};
   padding: 1.5rem;
   font-weight: 500;
   cursor: ${({ onClick }) => (onClick ? "pointer" : "default")};
   border: 1px solid;
-  border-color: ${style.black100};
+  border-color: ${(props) => props.theme.text100};
   transition:
     border-color,
     background-color 300ms;
-  border-radius: ${style.borderRadius};
+  border-radius: ${(props) => props.theme.borderRadius};
 
   &:hover {
     ${({ onClick }) =>
       onClick
         ? `
-      border-color: ${style.black100};
+      border-color: ${(props) => props.theme.text100};
     `
         : ""}
   }
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     padding: 1rem;
     ${(props) =>
       !props.bordered
         ? `
       border: none;
-      box-shadow: ${style.elaborateShadow};
+      box-shadow: ${(props) => props.theme.elaborateShadow};
       border-radius: 0;
     `
         : ""}

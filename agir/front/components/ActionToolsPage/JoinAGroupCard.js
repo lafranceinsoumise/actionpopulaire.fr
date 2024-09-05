@@ -12,7 +12,7 @@ const StyledCard = styled.div`
   padding: 1rem;
   background-color: ${(props) => props.theme.primary500};
   border-radius: ${(props) => props.theme.borderRadius};
-  color: ${(props) => props.theme.white};
+  color: ${(props) => props.theme.background0};
   display: flex;
   flex-flow: column nowrap;
   gap: 1rem;

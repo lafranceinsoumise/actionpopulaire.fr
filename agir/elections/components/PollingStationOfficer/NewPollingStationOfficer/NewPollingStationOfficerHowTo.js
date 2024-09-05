@@ -159,7 +159,7 @@ const NewPollingStationOfficerHowTo = () => (
     <Spacer size="1.5rem" />
     <p
       css={`
-        color: ${(props) => props.theme.black500};
+        color: ${(props) => props.theme.text500};
       `}
     >
       ⏱️ Durée du formulaire&nbsp;:&nbsp;4 minutes

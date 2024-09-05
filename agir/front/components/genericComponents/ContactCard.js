@@ -4,12 +4,10 @@ import React from "react";
 import { IconList, IconListItem } from "./FeatherIcon";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 const StyledCard = styled(Card)`
   margin-bottom: 24px;
   overflow: hidden;
-  border-bottom: 1px solid ${style.black50};
+  border-bottom: 1px solid ${(props) => props.theme.text50};
 `;
 
 const ContactCard = ({ name, phone, email }) =>

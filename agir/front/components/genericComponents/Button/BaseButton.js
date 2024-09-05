@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled, { keyframes } from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Link from "@agir/front/app/Link";
 
 import { ICONS, getIconDataUrl } from "./utils";
@@ -112,11 +110,11 @@ export const BaseButton = styled.button
   line-height: ${({ small }) => (small ? "1.25" : "1.5")};
   font-size: ${({ small }) => (small ? "0.875rem" : "1rem")};
 
-  border-radius: ${style.borderRadius};
+  border-radius: ${(props) => props.theme.borderRadius};
 
-  background-color: ${style.black50};
-  border-color: ${style.black50};
-  color: ${style.black1000};
+  background-color: ${(props) => props.theme.text50};
+  border-color: ${(props) => props.theme.text50};
+  color: ${(props) => props.theme.text1000};
 
   &:hover,
   &:focus,
@@ -140,7 +138,7 @@ export const BaseButton = styled.button
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center center;
-    background-image: ${getIconDataUrl({ color: style.black1000 })};
+    background-image: ${(props) => getIconDataUrl({ color: props.theme.text1000 })};
     display: ${({ icon }) => (icon && ICONS[icon] ? "inline-block" : "none")};
   }
 

@@ -2,8 +2,6 @@ import React from "react";
 
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Button from "@agir/front/genericComponents/Button";
 import Link from "@agir/front/app/Link";
 
@@ -17,7 +15,7 @@ const StyledActions = styled.main`
   display: grid;
   grid-gap: 3.5rem 2.5rem;
 
-  @media (min-width: ${style.collapse}px) {
+  @media (min-width: ${(props) => props.theme.collapse}px) {
     max-width: 1156px;
     margin: 0 auto;
     grid-template-columns: 1fr 1fr 1fr;
@@ -26,9 +24,9 @@ const StyledActions = styled.main`
   ${StyledArticle} {
     text-align: center;
     padding: 0 1rem;
-    color: ${style.black1000};
+    color: ${(props) => props.theme.text1000};
 
-    @media (min-width: ${style.collapse}px) {
+    @media (min-width: ${(props) => props.theme.collapse}px) {
       padding: 0;
     }
 
@@ -44,7 +42,7 @@ const StyledActions = styled.main`
       padding: 1rem 0 0;
       line-height: 1;
 
-      @media (min-width: ${style.collapse}px) {
+      @media (min-width: ${(props) => props.theme.collapse}px) {
         padding-top: 2rem;
       }
     }
@@ -53,7 +51,7 @@ const StyledActions = styled.main`
       padding: 0.5rem 0 1rem;
       line-height: 1.5;
 
-      @media (min-width: ${style.collapse}px) {
+      @media (min-width: ${(props) => props.theme.collapse}px) {
         padding-bottom: 1.25rem;
       }
     }

@@ -11,6 +11,10 @@ const Template = (args) => {
   const { url, name } = args;
   const links = [
     {
+      url: "https://actionpopulaire.fr/groupes/aec78081-3b87-40d5-b097-e8374eef4a89/",
+      label: "Action pop",
+    },
+    {
       url: "https://www.youtube.com/channel/UCZpyv_I2kx4FemBXYgKfomQ/",
       label: "YouTube",
     },

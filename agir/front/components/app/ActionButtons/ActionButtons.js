@@ -7,7 +7,7 @@ import useSWR from "swr";
 
 import "swiper/scss";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables-light.scss";
 
 import { getActionsForUser } from "./actions.config";
 
@@ -51,12 +51,20 @@ const Carousel = styled(animated.div)`
 
   &::before {
     left: 0;
-    background: linear-gradient(90deg, ${style.black25}, ${style.black25}00);
+    background: linear-gradient(
+      90deg,
+      ${(props) => props.theme.text25},
+      ${(props) => props.theme.text25}00
+    );
   }
 
   &::after {
     right: 0;
-    background: linear-gradient(-90deg, ${style.black25}, ${style.black25}00);
+    background: linear-gradient(
+      -90deg,
+      ${(props) => props.theme.text25},
+      ${(props) => props.theme.text25}00
+    );
   }
 `;
 

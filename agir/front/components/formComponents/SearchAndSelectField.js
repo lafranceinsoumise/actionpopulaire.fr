@@ -77,12 +77,14 @@ const StyledField = styled.label`
     .select-search__dropdown-indicator {
       color: ${({ $invalid }) =>
         $invalid
-          ? (props) => props.theme.redNSP
-          : (props) => props.theme.black100};
+          ? (props) => props.theme.error500
+          : (props) => props.theme.text700};
     }
   }
 
   .select-search__control {
+    background-color: ${(props) => props.theme.background0};
+    color: ${(props) => props.theme.text1000};
     border-radius: ${(props) => props.theme.softBorderRadius};
     border: 1px solid;
     max-width: 100%;
@@ -97,16 +99,23 @@ const StyledField = styled.label`
       box-shadow: none;
       border-color: ${({ $invalid }) =>
         $invalid
-          ? (props) => props.theme.redNSP
-          : (props) => props.theme.black100};
+          ? (props) => props.theme.error500
+          : (props) => props.theme.text100};
     }
 
     &:focus,
     &.select-search__control--is-focused {
       border-color: ${({ $invalid }) =>
         $invalid
-          ? (props) => props.theme.redNSP
-          : (props) => props.theme.black500};
+          ? (props) => props.theme.error500
+          : (props) => props.theme.text500};
+    }
+
+    .select__input-container,
+    .select-search__input-container,
+    .select__single-value,
+    .select-search__single-value {
+      color: ${(props) => props.theme.text1000};
     }
 
     .select-search__placeholder {
@@ -117,7 +126,7 @@ const StyledField = styled.label`
     }
 
     ${RawFeatherIcon} {
-      color: ${(props) => props.theme.black700};
+      color: ${(props) => props.theme.text700};
       width: 1.5rem;
       height: 100%;
       display: flex;
@@ -128,7 +137,9 @@ const StyledField = styled.label`
   }
 
   .select-search__menu {
-    border: 1px solid ${(props) => props.theme.black100};
+    background-color: ${(props) => props.theme.background0};
+    color: ${(props) => props.theme.text1000};
+    border: 1px solid ${(props) => props.theme.text100};
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
     margin-top: -1px;
     border-radius: 0;
@@ -141,12 +152,12 @@ const StyledField = styled.label`
     align-items: center;
     font-size: 1rem;
     padding: 0.5rem 1rem;
-    color: ${(props) => props.theme.black1000};
+    color: ${(props) => props.theme.text1000};
     cursor: pointer;
     background-color: transparent;
 
     &.select-search__option--is-focused {
-      background-color: ${(props) => props.theme.black50};
+      background-color: ${(props) => props.theme.text50};
     }
 
     &.select-search__option--is-selected {
@@ -190,7 +201,7 @@ const StyledField = styled.label`
         color: ${({ isSelected }) =>
           isSelected
             ? (props) => props.theme.primary500
-            : (props) => props.theme.black700};
+            : (props) => props.theme.text700};
       }
     }
 
@@ -210,7 +221,7 @@ const StyledField = styled.label`
 
   ${StyledError} {
     display: ${({ $invalid }) => ($invalid ? "flex" : "none")};
-    color: ${(props) => props.theme.redNSP};
+    color: ${(props) => props.theme.error500};
   }
 `;
 

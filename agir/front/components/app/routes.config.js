@@ -1,6 +1,5 @@
 import pathToRegexp from "path-to-regexp-es";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
 import logger from "@agir/lib/utils/logger";
 
 import { AUTHENTICATION } from "@agir/front/authentication/common";
@@ -76,7 +75,7 @@ export const routeConfig = {
     Component: RouteComponents.AgendaPage,
     hasLayout: true,
     layoutProps: {
-      $smallBackgroundColor: style.black25,
+      $smallBackgroundColor: "text25",
     },
     hideFeedbackButton: true,
     keepScroll: true,
@@ -209,7 +208,7 @@ export const routeConfig = {
     Component: RouteComponents.GroupsPage,
     hasLayout: true,
     layoutProps: {
-      $smallBackgroundColor: style.black25,
+      $smallBackgroundColor: "text25",
     },
     keepScroll: true,
   }),
@@ -331,7 +330,7 @@ export const routeConfig = {
     Component: RouteComponents.ActivityPage,
     hasLayout: true,
     layoutProps: {
-      $smallBackgroundColor: style.black25,
+      $smallBackgroundColor: "text25",
     },
     topBarRightLink: {
       label: notificationSettingRoute.label,

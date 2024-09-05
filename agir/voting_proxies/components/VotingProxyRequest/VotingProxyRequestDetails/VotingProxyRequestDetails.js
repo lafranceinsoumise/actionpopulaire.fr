@@ -178,7 +178,7 @@ const VotingProxyRequestDetails = () => {
             <footer
               css={`
                 font-size: 0.875rem;
-                color: ${({ theme }) => theme.black500};
+                color: ${({ theme }) => theme.text500};
               `}
             >
               <p>

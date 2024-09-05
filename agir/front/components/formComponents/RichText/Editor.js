@@ -3,7 +3,7 @@ import React, { useCallback, useState } from "react";
 import ReactQuill, { Quill } from "react-quill";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables-light.scss";
 
 import "react-quill/dist/quill.snow.css";
 
@@ -18,28 +18,61 @@ QuillIcons.header["3"] = `
     </g>
 </svg>`;
 
-const StyledEditor = styled(ReactQuill)`
+const StyledEditor = styled((props) => <ReactQuill {...props} theme="snow" />)`
   z-index: 0;
   width: 100%;
   min-height: 80px;
   padding: 0;
   font-size: 1rem;
   border: 1px solid;
-  border-radius: ${style.softBorderRadius};
-  border-color: ${({ $invalid, $focused, readOnly }) => {
+  border-radius: ${(props) => props.theme.softBorderRadius};
+  border-color: ${({ $invalid, $focused, readOnly, theme }) => {
     if ($invalid) {
-      return style.redNSP;
+      return theme.error500;
     }
     if (readOnly) {
-      return style.black100;
+      return theme.text100;
     }
     if ($focused) {
-      return style.black500;
+      return theme.text500;
     }
-    return style.black100;
+    return theme.text100;
   }};
-  background-color: ${({ readOnly }) =>
-    readOnly ? style.black100 : "transparent"};
+  background-color: ${({ readOnly, theme }) =>
+    readOnly ? theme.text100 : "transparent"};
+
+  // I18N
+  .ql-picker.ql-header {
+    .ql-picker-label::before {
+      content: "Paragraphe" !important;
+    }
+    .ql-picker-label[data-value="2"]::before {
+      content: "Titre2" !important;
+    }
+    .ql-picker-label[data-value="3"]::before {
+      content: "Titre3" !important;
+    }
+  }
+  .ql-picker.ql-header {
+    .ql-picker-item::before {
+      content: "Paragraphe" !important;
+    }
+    .ql-picker-item[data-value="2"]::before {
+      content: "Titre2" !important;
+    }
+    .ql-picker-item[data-value="3"]::before {
+      content: "Titre3" !important;
+    }
+  }
+  .ql-tooltip[data-mode="link"]::before {
+    content: "Entrer le lien" !important;
+  }
+  .ql-tooltip[data-mode="video"]::before {
+    content: "Entrez la vidéo" !important;
+  }
+  .ql-snow .ql-tooltip.ql-editing a.ql-action::after {
+    content: "Sauvegarder" !important;
+  }
 
   && > .ql-container {
     border: none;
@@ -54,10 +87,11 @@ const StyledEditor = styled(ReactQuill)`
 
     .ql-editor {
       padding: 0;
-      font-family: ${style.fontFamilyBase};
+      font-family: ${(props) => props.theme.fontFamilyBase};
       font-size: 1rem;
-      line-height: ${style.lineHeightBase};
-      color: ${({ readOnly }) => (readOnly ? style.black500 : style.textColor)};
+      line-height: ${(props) => props.theme.lineHeightBase};
+      color: ${({ readOnly, theme }) =>
+        readOnly ? theme.text500 : theme.textColor};
       h1,
       h2,
       h3,
@@ -66,7 +100,7 @@ const StyledEditor = styled(ReactQuill)`
       h6 {
         font-weight: 600;
         line-height: 1.2;
-        color: #00232c;
+        color: ${(props) => props.theme.black1000};
         margin-top: 0.5em;
         margin-bottom: 0.7em;
       }
@@ -98,14 +132,14 @@ const StyledEditor = styled(ReactQuill)`
         }
       }
       a {
-        color: ${style.linkColor};
+        color: ${(props) => props.theme.linkColor};
         text-decoration: none;
         font-weight: 600;
 
         &:hover,
         &:focus {
-          color: ${style.linkHoverColor};
-          text-decoration: ${style.linkHoverDecoration};
+          color: ${(props) => props.theme.linkHoverColor};
+          text-decoration: ${(props) => props.theme.linkHoverDecoration};
         }
 
         &:focus {
@@ -119,11 +153,11 @@ const StyledEditor = styled(ReactQuill)`
     }
   }
 
-  && > .ql-toolbar {
+  && .ql-toolbar {
     border: none;
-    border-bottom: 1px solid ${style.black100};
+    border-bottom: 1px solid ${(props) => props.theme.text100};
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       display: ${({ $focused }) => ($focused ? "block" : "none")};
       position: fixed;
       bottom: 0;
@@ -131,7 +165,7 @@ const StyledEditor = styled(ReactQuill)`
       right: 0;
       z-index: 1;
       border: none;
-      background-color: white;
+      background-color: ${(props) => props.theme.background0};
       box-shadow:
         0px -3px 3px rgba(0, 35, 44, 0.1),
         0px 2px 0px rgba(0, 35, 44, 0.08);
@@ -142,39 +176,90 @@ const StyledEditor = styled(ReactQuill)`
     }
 
     button {
-      color: ${style.black500};
+      color: ${(props) => props.theme.text500};
 
       .ql-fill {
-        fill: ${style.black500};
+        fill: ${(props) => props.theme.text500};
       }
+
       .ql-stroke {
-        stroke: ${style.black500};
+        stroke: ${(props) => props.theme.text500};
       }
 
       &.ql-active,
       &:hover,
       &:focus {
-        color: ${style.black1000};
+        color: ${(props) => props.theme.primary600};
+
         .ql-fill {
-          fill: ${style.black1000};
+          fill: ${(props) => props.theme.primary600};
         }
+
         .ql-stroke {
-          stroke: ${style.black1000};
+          stroke: ${(props) => props.theme.primary600};
         }
+      }
+    }
+  }
+
+  && .ql-tooltip {
+    a {
+      color: ${(props) => props.theme.linkColor};
+
+      &:hover,
+      &:focus {
+        color: ${(props) => props.theme.linkHoverColor};
+        text-decoration: ${(props) => props.theme.linkHoverDecoration};
       }
     }
   }
 `;
 
+const COLORS = [
+  style.background25,
+  style.background50,
+  style.background100,
+  style.background200,
+  style.backgroun500,
+  style.background700,
+  style.text1000,
+  style.background0,
+  style.background0,
+  style.primary50,
+  style.primary100,
+  style.primary150,
+  style.primary500,
+  style.primary600,
+  style.background0,
+  style.secondary100,
+  style.secondary500,
+  style.secondary600,
+  style.success100,
+  style.success200,
+  style.success500,
+  style.error100,
+  style.error500,
+  style.LFIprimary500,
+  style.LFIsecondary500,
+  style.vermillon,
+  style.referralPink,
+  style.materielBlue,
+  style.votingProxyOrange,
+];
+
 const MODULES = {
   toolbar: [
-    { header: 2 },
-    { header: 3 },
-    "bold",
-    "italic",
-    "underline",
-    "strike",
-    "link",
+    [
+      { header: 2 },
+      { header: 2 },
+      { header: 3 },
+      "bold",
+      "italic",
+      "underline",
+      "strike",
+      "link",
+    ],
+    [({ list: "ordered" }, { list: "bullet" })],
   ],
 };
 
@@ -198,7 +283,6 @@ const Editor = (props) => {
       value={value}
       onChange={onChange}
       readOnly={disabled}
-      theme="snow"
       modules={MODULES}
       onFocus={handleFocus}
       onBlur={handleBlur}

@@ -3,7 +3,6 @@ import React, { Suspense, useEffect, useMemo } from "react";
 import { useHistory, useLocation, useParams } from "react-router-dom";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
 import {
   setAdminLink,
   setBackLink,
@@ -30,7 +29,7 @@ const StyledPage = styled.div`
   isolation: isolate;
   padding-top: ${({ $hasTopBar }) => ($hasTopBar ? "72px" : "0")};
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     padding-top: ${({ $hasTopBar }) => ($hasTopBar ? "56px" : "0")};
   }
 `;

@@ -52,7 +52,7 @@ const NewVotingProxyRequestIntro = () => (
     <Spacer size="1rem" />
     <p
       css={`
-        color: ${({ theme }) => theme.black500};
+        color: ${({ theme }) => theme.text500};
       `}
     >
       ⏱️ Durée du formulaire&nbsp;:&nbsp;1 minute

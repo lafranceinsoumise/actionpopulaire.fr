@@ -3,8 +3,6 @@ import React, { useState, useCallback } from "react";
 import styled from "styled-components";
 import useSWRImmutable from "swr/immutable";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Button from "@agir/front/genericComponents/Button";
 import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
@@ -26,12 +24,13 @@ const StyledMuteButton = styled.button`
   cursor: pointer;
   ${({ disabled }) => (!disabled ? `opacity: 1;` : `opacity: 0.5;`)}
   ${RawFeatherIcon} {
-    ${({ $isMuted }) => $isMuted && `color: ${style.redNSP};`}
+    ${({ $isMuted }) =>
+      $isMuted && `color: ${(props) => props.theme.error500};`}
   }
 
-  @media (min-width: ${style.collapse}px) {
+  @media (min-width: ${(props) => props.theme.collapse}px) {
     ${RawFeatherIcon}:hover {
-      color: ${style.primary500};
+      color: ${(props) => props.theme.primary500};
     }
   }
 `;

@@ -23,7 +23,7 @@ const StyledIconButton = styled.button`
   text-align: center;
   -webkit-appearance: none;
   -moz-appearance: none;
-  color: ${(props) => props.theme.black1000};
+  color: ${(props) => props.theme.text1000};
 
   span {
     display: flex;
@@ -47,7 +47,7 @@ const StyledHeader = styled.header`
     position: sticky;
     top: 0;
     height: 64px;
-    background-color: white;
+    background-color: ${(props) => props.theme.background0};
     z-index: 1;
   }
 
@@ -79,7 +79,7 @@ const StyledForm = styled.form`
 const StyledModalContent = styled.div`
   max-width: 600px;
   margin: 40px auto;
-  background-color: white;
+  background-color: ${(props) => props.theme.background0};
   border-radius: ${(props) => props.theme.borderRadius};
 
   @media (max-width: ${(props) => props.theme.collapse}px) {
@@ -96,7 +96,7 @@ const StyledModalContent = styled.div`
     border-bottom: ${(props) =>
       props.$isLoading
         ? `8px solid ${props.theme.secondary500}`
-        : `1px solid ${props.theme.black100};`};
+        : `1px solid ${props.theme.text100};`};
     transition: border-bottom 250ms ease-in-out;
   }
 

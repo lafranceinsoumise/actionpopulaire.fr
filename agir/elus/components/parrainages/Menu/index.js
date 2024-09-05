@@ -15,7 +15,7 @@ const CODE_POSTAL_REGEX = /^\d{5}$/;
 
 const BoiteRechercheLayout = styled.div`
   flex-grow: 0;
-  background-color: white;
+  background-color: ${(props) => props.theme.background0};
   margin: 0;
   padding: 0.5rem 10px;
   display: flex;
@@ -24,7 +24,7 @@ const BoiteRechercheLayout = styled.div`
     flex-grow: 1;
     margin: 0;
     padding: 1rem;
-    background-color: ${(props) => props.theme.black50};
+    background-color: ${(props) => props.theme.text50};
     border-radius: 0.5rem;
     border: none;
   }
@@ -109,14 +109,14 @@ const MenuLayout = styled.section`
   display: flex;
   flex-direction: column;
 
-  border-right: 2px solid ${(props) => props.theme.black100};
+  border-right: 2px solid ${(props) => props.theme.text100};
 
   ${ScrollableBlock.Layout} {
     flex-grow: 1;
   }
 
   ${SelecteurElus.Layout} {
-    border-top: 10px solid ${(props) => props.theme.black50};
+    border-top: 10px solid ${(props) => props.theme.text50};
   }
 
   @media (max-width: ${(props) => props.theme.collapse}px) {

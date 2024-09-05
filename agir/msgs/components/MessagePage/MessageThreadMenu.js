@@ -3,8 +3,6 @@ import React from "react";
 import { useLocation } from "react-router-dom";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import Button from "@agir/front/genericComponents/Button";
 import Link from "@agir/front/app/Link";
 import { Hide } from "@agir/front/genericComponents/grid";
@@ -22,14 +20,14 @@ import { mutate } from "swr";
 const StyledNewMessageButton = styled.div`
   padding: 0.5rem 1.5rem 1.5rem;
 
-  @media (max-width: ${style.collapse}px) {
-    background-color: ${style.white};
+  @media (max-width: ${(props) => props.theme.collapse}px) {
+    background-color: ${(props) => props.theme.background0};
     padding: 1rem;
     position: fixed;
     bottom: 72px;
     left: 0;
     right: 0;
-    box-shadow: ${style.cardShadow};
+    box-shadow: ${(props) => props.theme.cardShadow};
     z-index: 1;
   }
 `;
@@ -40,11 +38,11 @@ const StyledMenu = styled.menu`
   width: 100%;
   text-align: center;
   max-width: 400px;
-  border-right: 1px solid ${style.black200};
+  border-right: 1px solid ${(props) => props.theme.text200};
   overflow-x: hidden;
   overflow-y: auto;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     max-width: 100%;
     border-right: none;
     padding-bottom: 160px;
@@ -98,11 +96,11 @@ export const MessageOptions = () => {
     >
       <StyledInlineMenuItems>
         <button onClick={markAllRead}>
-          <RawFeatherIcon name="check-circle" color={style.primary500} />
+          <RawFeatherIcon name="check-circle" color="primary500" />
           Tout marquer comme lu
         </button>
         <Link to={route} icon="settings">
-          <RawFeatherIcon name="settings" color={style.primary500} />
+          <RawFeatherIcon name="settings" color="primary500" />
           Paramètres de notifications
         </Link>
       </StyledInlineMenuItems>

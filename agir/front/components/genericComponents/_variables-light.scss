@@ -1,0 +1,157 @@
+@import "./_variables.scss";
+
+$background0: #fff;
+$background25: #f9f9f9;
+$background50: #eeeeee;
+$background100: #dfdfdf;
+$background200: #c4c4c4;
+$backgroun500: #777777;
+$background700: #4f4f4f;
+
+$text1000: #000A2C;
+$text700: #4f4f4f;
+$text500: #777777;
+$text200: #c4c4c4;
+$text100: #dfdfdf;
+$text50: #eeeeee;
+$text25: #fafafa;
+
+$primary600: #4d26b9;
+$primary500: #571aff;
+$primary150: #cbbfec;
+$primary100: #e9e1ff;
+$primary50: #f6f2fc;
+
+$secondary600: #f5e30f;
+$secondary500: #f4ed0f;
+$secondary100: #fcfbd9;
+
+$success500: #16a460;
+$success200: #b4ffdb;
+$success100: #d9ffed;
+
+$error500: #e93a55;
+$error100: #fdecee;
+$vermillon: #ff5e35;
+
+$LFI-primary600: #200054;
+$LFI-primary500:#5A2582;
+$LFI-primary150: #FDBCFF;
+$LFI-primary100:#FDBCFF;
+
+$LFI-secondary600: #D31529;
+$LFI-secondary500:#F53B3B;
+$LFI-secondary150: #EFA79C;
+$LFI-secondary100:#FFE5DD;
+
+$referralPink: #f831a0;
+$materielBlue: #38a5f4;
+$votingProxyOrange: #ea610b;
+$PULBleu: #3f2682;
+
+$text-color: $text1000;
+$link-color: $primary500;
+$link-hover-color: $primary600;
+$mark-color: $primary50;
+
+$elaborate-shadow: 0px 0px 3px rgba(0, 35, 44, 0.1),
+  0px 2px 0px rgba(0, 35, 44, 0.08);
+$card-shadow: 0px 0px 1px 0px $background200, 0px 1px 1px 0px $background100;
+
+$map_filter: none;
+
+:export {
+  background0: $background0;
+  background25: $background25;
+  background50: $background50;
+  background100: $background100;
+  background200: $background200;
+  backgroun500: $backgroun500;
+  background700: $background700;
+
+  text1000: $text1000;
+  text700: $text700;
+  text500: $text500;
+  text200: $text200;
+  text100: $text100;
+  text50: $text50;
+  text25: $text25;
+
+  primary500: $primary500;
+  primary600: $primary600;
+  primary150: $primary150;
+  primary100: $primary100;
+  primary50: $primary50;
+
+  secondary600: $secondary600;
+  secondary500: $secondary500;
+  secondary100: $secondary100;
+
+  success500: $success500;
+  success200: $success200;
+  success100: $success100;
+
+  error500: $error500;
+  error100: $error100;
+  vermillon: $vermillon;
+
+  LFIprimary600: $LFI-primary600;
+  LFIprimary500: $LFI-primary500;
+  LFIprimary150: $LFI-primary150;
+  LFIprimary100: $LFI-primary100;
+
+  LFIsecondary600: $LFI-secondary600;
+  LFIsecondary500: $LFI-secondary500;
+  LFIsecondary150: $LFI-secondary150;
+  LFIsecondary100: $LFI-secondary100;
+
+  referralPink: $referralPink;
+  materielBlue: $materielBlue;
+  votingProxyOrange: $votingProxyOrange;
+  PULBleu: $PULBleu;
+
+  textColor: $text-color;
+  linkColor: $link-color;
+  linkHoverColor: $link-hover-color;
+  markColor: $mark-color;
+
+  elaborateShadow: $elaborate-shadow;
+  cardShadow: $card-shadow;
+
+  mapFilter: $map_filter;
+
+  white: $white;
+  black: $black;
+  facebook: $facebook;
+  facebookLight: $facebookLight;
+  twitter: $twitter;
+  whatsapp: $whatsapp;
+  telegram: $telegram;
+  nupesBlue: $nupesBlue;
+  nupesRed: $nupesRed;
+  nupesPink: $nupesPink;
+  nupesGreen: $nupesGreen;
+  nupesYellow: $nupesYellow;
+
+  fontFamilyBase: $font-family-base;
+  fontSizeBase: $font-size-base;
+  lineHeightBase: $line-height-base;
+
+  linkHoverDecoration: $link-hover-decoration;
+
+  collapse: $collapse-mobile;
+  collapseSmallMobile: $collapse-small-mobile;
+  collapseMobile: $collapse-mobile;
+  collapseTablet: $collapse-tablet;
+
+  softBorderRadius: $soft-border-radius;
+  borderRadius: $border-radius;
+
+  zindexMainContent: $zindex__mainContent;
+  zindexTopBar: $zindex__topBar;
+  zindexBottomBar: $zindex__bottomBar;
+  zindexNavigationCounter: $zindex__navigationCounter;
+  zindexModal: $zindex__modal;
+  zindexPanel: $zindex__panel;
+  zindexFeedbackButton: $zindex__feedback-button;
+}

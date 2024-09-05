@@ -3,7 +3,6 @@ import React from "react";
 import styled from "styled-components";
 
 import CONFIG from "@agir/front/app/Navigation/navigation.config";
-import * as style from "@agir/front/genericComponents/_variables.scss";
 
 import CounterBadge from "@agir/front/app/Navigation/CounterBadge";
 import Link from "@agir/front/app/Link";
@@ -19,13 +18,13 @@ const MenuLink = styled(Link)`
   height: 70px;
   font-size: 11px;
   font-weight: 500;
-  color: ${({ $active }) => ($active ? style.primary500 : "inherit")};
+  color: ${({ $active, theme }) => ($active ? theme.primary500 : "inherit")};
   border-top: 2px solid
-    ${({ $active }) => ($active ? style.primary500 : "transparent")};
+    ${({ $active, theme }) => ($active ? theme.primary500 : "transparent")};
 
   &:hover,
   &:focus {
-    color: ${({ $active }) => ($active ? style.primary500 : "inherit")};
+    color: ${({ $active, theme }) => ($active ? theme.primary500 : "inherit")};
     text-decoration: none;
   }
 
@@ -56,12 +55,12 @@ const MenuLink = styled(Link)`
 `;
 
 const StyledBottomBar = styled.nav`
-  background-color: ${(props) => props.theme.white};
+  background-color: ${(props) => props.theme.background0};
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  box-shadow: inset 0 1px 0 ${(props) => props.theme.black50};
+  box-shadow: inset 0 1px 0 ${(props) => props.theme.text50};
   height: 72px;
   padding: 0 0.5rem;
   z-index: ${(props) => props.theme.zindexBottomBar};

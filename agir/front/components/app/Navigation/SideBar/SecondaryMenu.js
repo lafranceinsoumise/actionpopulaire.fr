@@ -12,12 +12,12 @@ const StyledMenu = styled.ul`
   margin-bottom: 1rem;
   list-style-type: none;
   font-weight: 400;
-  color: ${(props) => props.theme.black500};
+  color: ${(props) => props.theme.text500};
 
   h6 {
     font-size: 12px;
     line-height: 15px;
-    color: ${(props) => props.theme.black500};
+    color: ${(props) => props.theme.text500};
     margin-bottom: 0.5rem;
     font-weight: bold;
     overflow-wrap: break-word;
@@ -37,7 +37,7 @@ const StyledMenu = styled.ul`
       &:hover,
       &:focus,
       &:active {
-        color: ${(props) => props.theme.black700};
+        color: ${(props) => props.theme.text700};
         font-weight: 400;
         font-size: 13px;
         line-height: inherit;

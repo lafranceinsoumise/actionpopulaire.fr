@@ -9,8 +9,6 @@ import React, {
 } from "react";
 import styled from "styled-components";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
-
 import { lazy } from "@agir/front/app/utils";
 import { useResizeObserver } from "@agir/lib/utils/hooks";
 
@@ -33,19 +31,19 @@ const PLACEHOLDER_MESSAGE = "Écrire une réponse";
 const COMMENT_MAX_LENGTH = 1000;
 
 const StyledCommentButton = styled.button`
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     display: flex;
     width: 100%;
     margin: 0;
-    border-radius: ${style.borderRadius};
+    border-radius: ${(props) => props.theme.borderRadius};
     border: none;
     padding: 0.5rem 0.75rem;
     text-decoration: none;
-    background-color: ${({ $disabled }) =>
-      $disabled ? style.black100 : style.black50};
+    background-color: ${({ $disabled, theme }) =>
+      $disabled ? theme.text100 : theme.text50};
     font-size: 1rem;
     line-height: 1.65;
-    color: ${style.black500};
+    color: ${(props) => props.theme.text500};
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -56,7 +54,7 @@ const StyledCommentButton = styled.button`
     &:hover,
     &:focus {
       outline: none;
-      background-color: ${style.black50};
+      background-color: ${(props) => props.theme.text50};
       transition: background-color 250ms ease-in-out;
     }
   }
@@ -74,7 +72,7 @@ const StyledWrapper = styled.form`
   max-width: 100%;
   gap: 0.5rem;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     position: fixed;
     width: 100%;
     bottom: 0;
@@ -88,7 +86,7 @@ const StyledWrapper = styled.form`
     max-height: 50vh;
     overflow: hidden;
     overflow-y: auto;
-    background-color: white;
+    background-color: ${(props) => props.theme.background0};
     box-shadow:
       0px -3px 3px rgba(0, 35, 44, 0.1),
       0px 2px 0px rgba(0, 35, 44, 0.08);
@@ -103,7 +101,7 @@ const StyledWrapper = styled.form`
     width: 2rem;
     height: 2rem;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       display: ${(props) => (!props.$expanded ? "inline-block" : "none")};
       margin-right: 0.5rem;
     }
@@ -112,9 +110,9 @@ const StyledWrapper = styled.form`
   ${StyledMessage} {
     flex: 1 1 auto;
     border: none;
-    border-radius: ${style.borderRadius};
-    background-color: ${({ $disabled }) =>
-      $disabled ? style.black100 : style.black50};
+    border-radius: ${(props) => props.theme.borderRadius};
+    background-color: ${({ $disabled, theme }) =>
+      $disabled ? theme.text100 : theme.text50};
     transition: background-color 250ms ease-in-out;
     display: grid;
     grid-template-columns: 1fr auto auto;
@@ -127,14 +125,16 @@ const StyledWrapper = styled.form`
 
     &:hover {
       ${({ $expanded }) =>
-        !$expanded ? `background-color: ${style.black100};` : ""}
+        !$expanded
+          ? `background-color: ${(props) => props.theme.text100};`
+          : ""}
 
-      @media (max-width: ${style.collapse}px) {
-        background-color: white;
+      @media (max-width: ${(props) => props.theme.collapse}px) {
+        background-color: ${(props) => props.theme.background0};
       }
     }
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       background-color: transparent;
       padding: ${(props) =>
         props.$expanded ? "0.5rem 0 0.875rem" : "0.5rem 0 0.5rem 0.5rem"};
@@ -176,7 +176,7 @@ const StyledWrapper = styled.form`
     }
 
     ${StyledError} {
-      color: ${(props) => props.theme.redNSP};
+      color: ${(props) => props.theme.error500};
       font-size: 0.875rem;
       display: block;
       display: flex;
@@ -509,7 +509,7 @@ const CommentField = (props) => {
           >
             <RawFeatherIcon
               name="send"
-              color={maySend ? style.primary500 : style.black500}
+              color={maySend ? "primary500" : "text500"}
             />
           </button>
         )}

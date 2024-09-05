@@ -6,7 +6,7 @@ import styled from "styled-components";
 import Button from "@agir/front/genericComponents/Button";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import ShareLink from "@agir/front/genericComponents/ShareLink";
-import * as style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables-light.scss";
 import {
   FaWhatsapp,
   FaFacebook,
@@ -19,8 +19,9 @@ const StyledContainer = styled.div`
 
   & > ${Button} {
     margin-bottom: 1rem;
-    color: white;
     line-height: 1.5rem;
+    color: ${(props) => props.theme.white};
+    font-weight: 600;
 
     & > span {
       display: inline-flex;
@@ -41,7 +42,7 @@ const ShareContentUrl = ({ url }) => {
         rel="noopener noreferrer"
         href={`https://www.facebook.com/sharer/sharer.php?u=${urlEncoded}`}
       >
-        <FaFacebook size="1.5rem" height="32" width="32" color={style.white} />
+        <FaFacebook size="1.5rem" height="32" width="32" />
         &nbsp; Partager sur Facebook
       </Button>
       <Button
@@ -63,7 +64,7 @@ const ShareContentUrl = ({ url }) => {
         rel="noopener noreferrer"
         href={`https://t.me/share/url?url=${urlEncoded}`}
       >
-        <FaTelegram size="1.5rem" height="32" width="32" color={style.white} />
+        <FaTelegram size="1.5rem" height="32" width="32" />
         &nbsp; Partager sur Telegram
       </Button>
       <Button
@@ -74,7 +75,7 @@ const ShareContentUrl = ({ url }) => {
         rel="noopener noreferrer"
         href={`https://wa.me/?text=${urlEncoded}`}
       >
-        <FaWhatsapp size="1.5rem" height="32" width="32" color={style.white} />
+        <FaWhatsapp size="1.5rem" height="32" width="32" />
         &nbsp; Partager sur Whatsapp
       </Button>
       <ShareLink $wrap label="Copier le lien" url={url} />

@@ -2,7 +2,7 @@ import React from "react";
 
 import user from "@agir/front/mockData/user";
 
-import * as style from "@agir/front/genericComponents/_variables.scss";
+import * as style from "@agir/front/genericComponents/_variables-light.scss";
 
 import { DesktopNavBar } from "./DesktopNavBar";
 
@@ -10,7 +10,7 @@ export default {
   component: DesktopNavBar,
   title: "Navigation/TopBar/Desktop/NavBar",
   parameters: {
-    backgrounds: { default: "black50" },
+    backgrounds: { default: "text50" },
   },
 };
 
