@@ -156,9 +156,9 @@ class PersonAccountActivateListFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         queryset = queryset.exclude(role=None).annotate(
             is_enabled=Exists(
-                Person.objects.filter(role_id=OuterRef("role__id"))
-                .exclude(role_id=None)
-                .filter(role__is_active=True)
+                Person.objects.filter(role_id=OuterRef("role__id")).filter(
+                    role__is_active=True
+                )
             )
         )
 
