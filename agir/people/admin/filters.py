@@ -154,7 +154,7 @@ class PersonAccountActivateListFilter(admin.SimpleListFilter):
         return (("enabled", _("Activé")), ("disabled", _("Désactivé")))
 
     def queryset(self, request, queryset):
-        queryset = queryset.annotate(
+        queryset = queryset.exclude(role=None).annotate(
             is_enabled=Exists(
                 Person.objects.filter(role_id=OuterRef("role__id")).filter(
                     role__is_active=True
