@@ -30,10 +30,6 @@ function getChoices(select) {
   return choices;
 }
 
-const render = (widget, element) => {
-  renderReactComponent(widget, element);
-};
-
 const replaceForm = (selector) => {
   const form = document.querySelector(selector);
   if (!form) {
@@ -89,7 +85,7 @@ const replaceForm = (selector) => {
   form.parentNode.removeChild(form);
   // remove all children of the form
 
-  render(<DonationForm {...props} />, reactDiv);
+  renderReactComponent(<DonationForm {...props} />, reactDiv);
 };
 
 onDOMReady(() => replaceForm("form.donation-form"));
