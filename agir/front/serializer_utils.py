@@ -4,6 +4,7 @@ from rest_framework import serializers
 
 from agir.lib.utils import front_url
 
+
 class TimeZoneField(serializers.Field):
     def to_representation(self, value):
         return value
@@ -14,6 +15,7 @@ class TimeZoneField(serializers.Field):
         except UnknownTimeZoneError:
             raise serializers.ValidationError("TimeZone inconnue")
         return data
+
 
 class RoutesField(serializers.SerializerMethodField):
     def __init__(self, *, routes=None, **kwargs):

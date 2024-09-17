@@ -78,7 +78,7 @@ class CreateEventAPITestCase(APITestCase):
 
     def test_wrong_timezone_raise_correct_exception(self):
         self.client.force_login(self.person.role)
-        form_with_wrong_timezone = { **self.valid_data, "timezone": "Africa/Porto+Novo" }
+        form_with_wrong_timezone = {**self.valid_data, "timezone": "Africa/Porto+Novo"}
         res = self.client.post("/api/evenements/creer/", data=form_with_wrong_timezone)
         self.assertEqual(res.status_code, 422)
         self.assertEqual(res.data["timezone"][0], "TimeZone inconnue")
