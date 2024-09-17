@@ -76,6 +76,13 @@ class CreateEventAPITestCase(APITestCase):
             "onlineUrl": "https://visio.lafranceinsoumise.fr/abcdef",
         }
 
+    def test_wrong_timezone_raise_correct_exception(self):
+        self.client.force_login(self.person.role)
+        form_with_wrong_timezone = { **self.valid_data, "timezone": "Africa/Porto+Novo" }
+        res = self.client.post("/api/evenements/creer/", data=form_with_wrong_timezone)
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(res.data["timezone"][0], "TimeZone inconnue")
+
     def test_anonymous_person_cannot_post(self):
         self.client.logout()
         res = self.client.post("/api/evenements/creer/", data=self.valid_data)

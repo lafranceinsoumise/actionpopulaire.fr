@@ -16,7 +16,7 @@ from rest_framework.fields import empty
 
 from agir.activity.models import Activity
 from agir.events.tasks import NOTIFIED_CHANGES
-from agir.front.serializer_utils import RoutesField
+from agir.front.serializer_utils import RoutesField, TimeZoneField
 from agir.lib.admin.utils import admin_url
 from agir.lib.html import textify
 from agir.lib.serializers import (
@@ -215,7 +215,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     metaImage = serializers.SerializerMethodField()
     startTime = serializers.SerializerMethodField()
     endTime = serializers.SerializerMethodField()
-    timezone = serializers.CharField()
+    timezone = TimeZoneField()
     location = LocationSerializer(source="*")
     isOrganizer = serializers.SerializerMethodField()
     isManager = serializers.SerializerMethodField()
@@ -759,7 +759,7 @@ class CreateEventSerializer(serializers.Serializer):
     )
 
     name = serializers.CharField(max_length=100, min_length=3)
-    timezone = serializers.CharField()
+    timezone = TimeZoneField()
     startTime = DateTimeWithTimezoneField(source="start_time")
     endTime = DateTimeWithTimezoneField(source="end_time")
     contact = NestedContactSerializer(source="*")

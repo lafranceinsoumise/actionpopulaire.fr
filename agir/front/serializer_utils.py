@@ -1,7 +1,19 @@
+import pytz
+from pytz.exceptions import UnknownTimeZoneError
 from rest_framework import serializers
 
 from agir.lib.utils import front_url
 
+class TimeZoneField(serializers.Field):
+    def to_representation(self, value):
+        return value
+
+    def to_internal_value(self, data):
+        try:
+            pytz.timezone(data)
+        except UnknownTimeZoneError:
+            raise serializers.ValidationError("TimeZone inconnue")
+        return data
 
 class RoutesField(serializers.SerializerMethodField):
     def __init__(self, *, routes=None, **kwargs):
