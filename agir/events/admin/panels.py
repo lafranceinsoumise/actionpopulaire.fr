@@ -695,12 +695,6 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         # classe Media requise par le CirconscriptionLegislativeFilter, quand bien même elle est vide
         pass
 
-    def render_change_form(self, *args, obj=None, **kwargs):
-        # Display the event start and end date relative to the event timezone
-        if obj:
-            timezone.activate(obj.timezone)
-        return super().render_change_form(*args, obj=obj, **kwargs)
-
     def save_model(self, request, obj, form, change):
         # Update the event start and end date relative to the event timezone
         if "timezone" in form.changed_data or "start_time" in form.changed_data:
