@@ -7,9 +7,11 @@ import ShareLink from "@agir/front/genericComponents/ShareLink";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
+import {useTheme} from "styled-components";
 
 const GroupMemberMainPanel = (props) => {
   const { members, onClickMember } = props;
+  const theme = useTheme();
 
   const emails = useMemo(
     () =>
@@ -28,7 +30,7 @@ const GroupMemberMainPanel = (props) => {
         {members.length}&nbsp;
         {members.length > 1 ? "Membres" : "Membre"}
       </StyledTitle>
-      <p style={{ color: style.text700, margin: 0 }}>
+      <p style={{ color: theme.text700, margin: 0 }}>
         Retrouvez ici la liste des membres de votre groupe
       </p>
       <Spacer size="1rem" />
