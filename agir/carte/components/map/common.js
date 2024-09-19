@@ -38,7 +38,8 @@ export function setUpMap(elementId, layers) {
         source: new XYZ({
           url: "https://tile.jawg.io/jawg-streets/{z}/{x}/{y}.png?access-token=mGYrqYC5XjG6lXEoz0e5ejl1wSS0GovRMqBw8LEuhFfz2PYILpp8YFzx6TnKxAHe",
           attributions: [
-            '&#169; les contributeurs <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>',
+            '&#169; les contributeurs <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> | ',
+            '<a href="https://jawg.io?utm_medium=map&utm_source=attribution" title="Tuiles fournies par Jawg Maps" target="_blank" class="jawg-attrib" >&copy; <b>Jawg</b>Maps</a>',
           ],
         }),
       }),
