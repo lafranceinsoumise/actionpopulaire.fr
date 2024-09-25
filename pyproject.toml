@@ -94,7 +94,7 @@ nested-multipart-parser = "^1.5.0"
 emoji = "^2.8.0"
 weasyprint = "^60.2"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 ipython = "*"
 black = "==24.4.2"
 coverage = "*"
@@ -103,9 +103,6 @@ redislite = "==6.2.805324"  # used for testing - locked to 6.2.805324 version to
 pympler = "*"
 hypothesis = {extras = ["django"], version = "^6.70.0"}
 flower = "*"
-
-[tool.poetry.group.dev.dependencies]
-redislite = "6.2.805324"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
