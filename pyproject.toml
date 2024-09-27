@@ -78,9 +78,9 @@ django-admin-rangefilter = "*"
 faker = "*"
 django-silk = "*"
 sentry-sdk = "*"
-django-push-notifications =  {version = "*", extras=["apns"]}
+django-push-notifications =  {version = "^3.1.0", extras = ["FCM", "WP"]}
 pywebpush = "*"
-social-auth-core = "==4.0.2"
+social-auth-core = "4.0.3"
 django-storages = "^1.13.2"
 qrcode = {extras = ["pil"], version = "^7.4"}
 xlsxwriter = "*"

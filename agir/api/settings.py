@@ -1053,20 +1053,25 @@ if municipales_campagnes_filename:
 else:
     MUNICIPALES_CAMPAGNES = []
 
+
+# Push notifications
+import firebase_admin
+from firebase_admin import credentials
+
+if os.environ.get("FIREBASE_CERT_PATH") is not None:
+    cred = credentials.Certificate(os.environ.get("FIREBASE_CERT_PATH"))
+    firebase_app = firebase_admin.initialize_app(cred)
+else:
+    firebase_app = firebase_admin.initialize_app()
+
 # Push notifications
 PUSH_NOTIFICATIONS_SETTINGS = {
     "UPDATE_ON_DUPLICATE_REG_ID": True,
     "UNIQUE_REG_ID": True,
     "WP_PRIVATE_KEY": os.environ.get("WEBPUSH_PRIVATE_KEY"),
     "WP_CLAIMS": {"sub": "mailto: site@lafranceinsoumise.fr"},
-    "APNS_AUTH_KEY_PATH": os.environ.get(
-        "APNS_AUTH_KEY_PATH", BASE_DIR.parent / "apns.p8"
-    ),
-    "APNS_AUTH_KEY_ID": os.environ.get("APNS_AUTH_KEY_ID"),
-    "APNS_TEAM_ID": os.environ.get("APNS_TEAM_ID"),
-    "APNS_TOPIC": os.environ.get("APNS_TOPIC", "fr.actionpopulaire.ios"),
-    "APNS_USE_SANDBOX": os.environ.get("APNS_USE_SANDBOX", "true").lower() == "true",
-    "FCM_API_KEY": os.environ.get("FCM_API_KEY"),
+    "PLATFORM": "FCM",
+    "FIREBASE_APP": firebase_app,
 }
 NUNTIUS_PUSH_NOTIFICATION_SETTINGS = PUSH_NOTIFICATIONS_SETTINGS
 
