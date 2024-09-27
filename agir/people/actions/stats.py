@@ -2,7 +2,7 @@ import statistics
 from datetime import timedelta
 
 from django.utils import timezone
-from push_notifications.models import GCMDevice, APNSDevice
+from push_notifications.models import GCMDevice
 
 from agir.groups.models import Membership, SupportGroup
 from agir.lib.data import code_postal_vers_code_departement, departements_par_code

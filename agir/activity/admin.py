@@ -195,7 +195,7 @@ class PushAnnouncementAdmin(admin.ModelAdmin):
         if obj._state.adding:
             return "-"
 
-        android, ios = obj.get_notification_kwargs()
+        android, ios = obj.get_fcm_kwargs()
         return display_json_details(
             {"android": android, "ios": ios}, "Données de notification"
         )
