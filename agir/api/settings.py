@@ -1054,7 +1054,9 @@ import firebase_admin
 from firebase_admin import credentials
 from firebase_admin.credentials import Certificate
 
-if os.environ.get("FIREBASE_CERT_FILE") is not None:
+if os.environ.get("FIREBASE_CERT_FILE") is not None and os.path.exists(
+    os.environ.get("FIREBASE_CERT_FILE")
+):
     cred = credentials.Certificate(os.environ.get("FIREBASE_CERT_FILE"))
     firebase_app = firebase_admin.initialize_app(cred)
 else:
