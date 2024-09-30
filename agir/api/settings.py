@@ -1053,8 +1053,8 @@ else:
 import firebase_admin
 from firebase_admin import credentials
 
-if os.environ.get("FIREBASE_CERT_PATH") is not None:
-    cred = credentials.Certificate(os.environ.get("FIREBASE_CERT_PATH"))
+if os.environ.get("FCM_API_KEY") is not None:
+    cred = credentials.Certificate(os.environ.get("FCM_API_KEY"))
     firebase_app = firebase_admin.initialize_app(cred)
 else:
     firebase_app = firebase_admin.initialize_app()
