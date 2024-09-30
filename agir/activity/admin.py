@@ -195,9 +195,9 @@ class PushAnnouncementAdmin(admin.ModelAdmin):
         if obj._state.adding:
             return "-"
 
-        android, ios = obj.get_fcm_kwargs()
+        fcm_message = obj.get_fcm_kwargs()
         return display_json_details(
-            {"android": android, "ios": ios}, "Données de notification"
+            {fcm_message}, "Données de notification"
         )
 
     @admin.display(description="Nombre de destinataires de test")

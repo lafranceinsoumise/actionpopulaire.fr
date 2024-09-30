@@ -345,7 +345,7 @@ class NuntiusPushCampaignAdmin(PushCampaignAdmin):
             return "-"
         return (
             instance.segment.get_subscribers_queryset()
-            .filter(Q(role__gcmdevice__active=True) | Q(role__apnsdevice__active=True))
+            .filter(Q(role__gcmdevice__active=True))
             .count()
         )
 

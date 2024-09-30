@@ -1,7 +1,5 @@
-from django.db import transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from functools import partial
 
 from push_notifications.models import GCMDevice, WebPushDevice
 
