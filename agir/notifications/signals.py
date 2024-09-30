@@ -19,14 +19,14 @@ from agir.people.models import Person
 
 @receiver(post_save, sender=Activity, dispatch_uid="push_new_activity")
 def push_new_activity(sender, instance, created=False, **kwargs):
-    '''
+    """
     Trigger à chaque création d'une activité
     :param sender:
     :param instance:
     :param created:
     :param kwargs:
     :return:
-    '''
+    """
     if instance is None or not created:
         return
 
