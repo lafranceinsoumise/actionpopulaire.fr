@@ -1057,9 +1057,12 @@ else:
 # Push notifications
 import firebase_admin
 from firebase_admin import credentials
+from firebase_admin.credentials import Certificate
 
-if os.environ.get("FCM_API_KEY") is not None:
-    cred = credentials.Certificate(os.environ.get("FCM_API_KEY"))
+if os.environ.get("FIREBASE_CERT_FILE") is not None and os.path.exists(
+    os.environ.get("FIREBASE_CERT_FILE")
+):
+    cred = credentials.Certificate(os.environ.get("FIREBASE_CERT_FILE"))
     firebase_app = firebase_admin.initialize_app(cred)
 else:
     firebase_app = firebase_admin.initialize_app()

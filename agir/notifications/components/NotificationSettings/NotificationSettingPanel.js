@@ -15,6 +15,7 @@ import { getUser } from "@agir/front/globalContext/reducers";
 
 import { useMobileApp } from "@agir/front/app/hooks";
 import { usePush } from "@agir/notifications/push/subscriptions";
+import NotificationGrantedPanel from "./NotificationGrantedPanel";
 
 const StyledGroupName = styled.div`
   display: grid;
@@ -193,6 +194,7 @@ const NotificationSettingPanel = (props) => {
           Gérer mes paramètres de contact
         </Button>
       </div>
+      <NotificationGrantedPanel />
       <PageFadeIn ready={ready}>
         <PushNotificationControls />
         {Object.keys(byType).map((type) => (

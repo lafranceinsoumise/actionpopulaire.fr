@@ -23,7 +23,7 @@ module.exports = merge.merge(common("dev"), {
   mode: "development",
   devtool: "eval-cheap-module-source-map",
   output: {
-    publicPath: `http://${serverName}/`,
+    publicPath: `http://${serverName}:${8000}/`,
     devtoolModuleFilenameTemplate: "webpack://[absolute-resource-path]",
     filename: "[name].js",
     pathinfo: false,

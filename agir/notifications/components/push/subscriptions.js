@@ -8,6 +8,7 @@ import { useLocalStorage } from "@agir/lib/utils/hooks";
 const log = logger(__filename);
 
 import * as API from "./api";
+import {androidNotificationPermissionIsGranted} from "./android.utils";
 
 const useServerSubscription = (deviceType, token) => {
   const [ready, setReady] = useState(false);

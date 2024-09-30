@@ -588,30 +588,22 @@ class PushAnnouncement(BaseAPIResource):
             "activity:push_announcement_link", args=[self.pk], absolute=True
         )
 
-
     def get_fcm_kwargs(self):
-        '''Generate payload as FCM message
-        Handle android & iOS devices'''
+        """Generate payload as FCM message
+        Handle android & iOS devices"""
 
         return messaging.Message(
-            data={
-                "url": self.get_link_url()
-            },
+            data={"url": self.get_link_url()},
             notification=messaging.Notification(
-                title=self.title,
-                body=self.message,
-                image=self.get_absolute_image_url()
+                title=self.title, body=self.message, image=self.get_absolute_image_url()
             ),
-            android=messaging.AndroidConfig(
-                ttl=self.ttl,
-                collapse_key=str(self.id)
-            ),
+            android=messaging.AndroidConfig(ttl=self.ttl, collapse_key=str(self.id)),
             apns=messaging.APNSConfig(
                 headers={
                     "apns-expiration": str(self.ttl),
-                    "apns-collapse-id": str(self.id)
+                    "apns-collapse-id": str(self.id),
                 }
-            )
+            ),
         )
 
     def can_send(self):
