@@ -12,8 +12,7 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from agir.lib.form_components import HalfCol, FullCol, ThirdCol
-from agir.lib.form_mixins import TagMixin, MetaFieldsMixin, ImageFormMixin
-from agir.lib.forms import MediaInHead
+from agir.lib.form_mixins import TagMixin, MetaFieldsMixin, ImageFormMixin, MediaInHead
 from agir.lib.models import RE_FRENCH_ZIPCODE
 from agir.lib.tasks import geocode_person
 from agir.people.form_mixins import ContactPhoneNumberMixin

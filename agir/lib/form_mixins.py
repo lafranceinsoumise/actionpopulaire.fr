@@ -1,35 +1,56 @@
+import json
+import re
+import string
+from collections import Counter
 from pathlib import PurePath
+from typing import List, Mapping, Optional
 from uuid import uuid4
 
 import iso8601
 import os
+
+import requests
 from crispy_forms.layout import Submit, Row
 from django import forms
 from django.conf import settings
+from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.core.files import File
 from django.core.files.storage import default_storage
+from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import RegexValidator
 from django.db import IntegrityError
 from django.forms import fields_for_model
+from django.template import loader
 from django.utils.formats import localize
+from django.utils.safestring import mark_safe
 from django.utils.timezone import get_current_timezone
 from django.utils.translation import gettext_lazy as _, gettext
-from django.utils.html import format_html
+from django.utils.html import format_html, _json_script_escapes
 from django.contrib.gis.forms.widgets import OSMWidget
 from crispy_forms.helper import FormHelper
 from phonenumber_field.formfields import PhoneNumberField
 from phonenumber_field.phonenumber import PhoneNumber
 from phonenumbers import NumberParseException
+from unidecode import unidecode
 
 from agir.lib.form_components import *
 from agir.lib.form_fields import AcceptCreativeCommonsLicenceField
+from agir.lib.geo import geocode_element
 from agir.lib.models import LocationMixin
 
 from django.utils.translation import gettext as _
 from django_countries import countries
 
-__all__ = ["TagMixin", "LocationFormMixin", "ContactFormMixin", "MetaFieldsMixin"]
+__all__ = [
+    "TagMixin",
+    "LocationFormMixin",
+    "ContactFormMixin",
+    "MetaFieldsMixin",
+    "LocationMixin",
+    "MediaInHead",
+    "CoordinatesFormMixin",
+]
 
 french_zipcode_validator = RegexValidator(
     r"[0-9]{5}", message="Un code postal valide est obligatoire."
@@ -357,3 +378,150 @@ class ImageFormMixin(forms.Form):
             )
 
         return cleaned_data
+
+
+class CoordinatesFormMixin(forms.Form):
+    redo_geocoding = forms.BooleanField(
+        label=_("Recalculer la position"),
+        required=False,
+        initial=False,
+        help_text=_(
+            "Si cette case n'est pas cochée, la localisation n'est calculée que si les coordonnées précédentes"
+            " étaient automatiques et que l'adresse a changé. Cocher cette case ignorera tout changement de"
+            " position éventuellement réalisé ci-dessus."
+        ),
+    )
+
+    def save(self, commit=True, request=None):
+        # on calcule la position si
+        # - c'est demandé explicitement
+        # - il n'y a pas de position pour cet item
+        # - ou l'adresse a changé et ce n'était pas une position manuelle
+
+        address_changed = any(
+            f in self.changed_data for f in self.instance.GEOCODING_FIELDS
+        )
+        explicitly_asked_for = self.cleaned_data["redo_geocoding"]
+        setting_manually = "coordinates" in self.changed_data
+
+        if setting_manually and not explicitly_asked_for:
+            self.instance.coordinates_type = LocationMixin.COORDINATES_MANUAL
+        # if setting manually, we don't relocate
+
+        if explicitly_asked_for or (
+            address_changed and self.instance.should_relocate_when_address_changed()
+        ):
+            self.instance.location_citycode = ""
+            # geocode directly in process
+            try:
+                geocode_element(self.instance)
+            except (
+                requests.HTTPError,
+                requests.RequestException,
+                requests.exceptions.Timeout,
+            ):
+                if request:
+                    messages.warning(
+                        request,
+                        "La géolocalisation automatique n'est actuellement pas disponible. "
+                        "Veuillez indiquer les coordonnées manuellement pour que l'élément apparaisse sur la carte.",
+                    )
+
+        return super().save(commit=commit)
+
+
+class MediaInHead(forms.Media):
+    def __repr__(self):
+        return "MediaInHead(css=%r, js=%r)" % (self._css, self._js)
+
+    def render(self):
+        assets = {
+            "js": [self.absolute_path(path) for path in self._js],
+            "css": [
+                [self.absolute_path(path), medium]
+                for medium in self._css
+                for path in self._css[medium]
+            ],
+        }
+
+        json_assets = mark_safe(
+            json.dumps(assets, cls=DjangoJSONEncoder).translate(_json_script_escapes)
+        )
+
+        return loader.get_template("lib/media_in_head.html").render(
+            {"assets": json_assets}
+        )
+
+    def __add__(self, other):
+        return MediaInHead.from_media(super().__add__(other))
+
+    @classmethod
+    def from_media(cls, media):
+        return MediaInHead(js=media._js, css=media._css)
+
+
+class ImportTableForm(forms.Form):
+    columns_namespace = "COL_"
+    columns_key = "columns"
+    dest_columns = None
+    PUNCTUATION_RE = re.compile(rf"[{re.escape(string.punctuation)}]+")
+    MULTIPLE_WHITESPACE_RE = re.compile(r"\s+")
+
+    def __init__(
+        self,
+        *args,
+        source_file_columns: List[str],
+        **kwargs,
+    ):
+        super().__init__(*args, **kwargs)
+
+        self.source_file_columns = source_file_columns
+
+        defaults = {self.normalize_col_name(v): k for k, v in self.dest_columns.items()}
+        empty_choice = ("", "Ne pas utiliser")
+        choices = (empty_choice, *(self.dest_columns.items()))
+
+        fields = {
+            f"{self.columns_namespace}{i}": forms.ChoiceField(
+                choices=choices,
+                required=False,
+                default=defaults.get(self.normalize_col_name(col), ""),
+            )
+            for i, col in enumerate(source_file_columns)
+        }
+
+        self.fields.update(fields)
+
+    def clean_columns(self, columns: List[Optional[str]]) -> List[Optional[str]]:
+        # par défaut, on vérifie simplement qu'aucune valeur de colonne n'a été sélectionnée plus d'une fois
+        c = Counter(columns)
+        if c.most_common(n=1)[0][1] > 1:
+            raise forms.ValidationError(
+                "Vous ne pouvez sélectionner qu'au plus une fois chaque champ."
+            )
+
+        return columns
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        # on renvoie une liste plutôt qu'un dictionnaire parce qu'on a pas de garantie que
+        # les colonnes du fichier source soient uniques
+        columns = [
+            cleaned_data.get(f"{self.columns_namespace}{i}", None)
+            for i in range(len(self.source_file_columns))
+        ]
+
+        columns = self.clean_columns(columns)
+
+        cleaned_data[self.columns_key] = columns
+
+        return cleaned_data
+
+    @classmethod
+    def normalize_col_name(cls, col):
+        col = unidecode(col)
+        col = cls.PUNCTUATION_RE.sub(" ", col)
+        col = cls.MULTIPLE_WHITESPACE_RE.sub(" ", col)
+
+        return col.lower().strip()

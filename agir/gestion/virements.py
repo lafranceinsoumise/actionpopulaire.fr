@@ -5,6 +5,7 @@ from datetime import date
 from typing import Optional, List
 
 import pandas as pd
+from django.core.exceptions import ValidationError
 from django.utils.translation import ngettext
 from lxml import etree
 from sepaxml import SepaTransfer
@@ -53,7 +54,7 @@ def generer_fichier_virement(
     check: bool = True,
 ) -> bytes:
     if not emetteur.iban.is_valid():
-        raise ValueError("L'IBAN émetteur n'est pas valide.")
+        raise ValueError(f"L'IBAN émetteur n'est pas valide : {emetteur.iban}.")
 
     missing_labels = [
         v.beneficiaire.label or v.beneficiaire.nom
@@ -75,17 +76,17 @@ def generer_fichier_virement(
 
     if missing_full_names:
         missing_full_names = ",".join(f"« {b} »" for b in missing_full_names)
-        raise ValueError(
+        raise ValidationError(
             f"Les bénéficiaires suivants n'ont pas de nom : {missing_full_names}."
         )
 
     invalid_ibans = [
-        v.beneficiaire.nom for v in virements if not v.beneficiaire.iban.is_valid()
+        v.beneficiaire for v in virements if not v.beneficiaire.iban.is_valid()
     ]
 
     if invalid_ibans:
-        invalid_ibans = ",".join(f"« {b} »" for b in invalid_ibans)
-        raise ValueError(
+        invalid_ibans = ",".join(f"« {b.nom}:{b.iban} »" for b in invalid_ibans)
+        raise ValidationError(
             f"Les IBAN des bénéficiaires suivants sont invalides : {invalid_ibans}."
         )
 

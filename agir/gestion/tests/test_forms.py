@@ -2,15 +2,15 @@ from django.core.files.base import ContentFile
 from django.utils import timezone
 from hypothesis import given, strategies as st
 from hypothesis.extra.django import TestCase
+from schwifty import IBAN
 
 from agir.gestion.admin.forms import ReglementForm
 from agir.gestion.models import Reglement
 from agir.gestion.tests.strategies import depense, fournisseur
-from agir.lib.tests.strategies import iban
 
 
 class NouveauReglementFormTestCase(TestCase):
-    @given(depense(), fournisseur(iban=iban()))
+    @given(depense(), fournisseur(iban=IBAN.random()))
     def test_preuve_interdite_pour_un_reglement_a_faire(self, depense, fournisseur):
         form_data = {
             "intitule": "Solde",
@@ -34,7 +34,7 @@ class NouveauReglementFormTestCase(TestCase):
         self.assertIn("preuve", f.errors)
         self.assertEqual(f.errors.as_data()["preuve"][0].code, "preuve_interdite")
 
-    @given(depense(), fournisseur(iban=iban()))
+    @given(depense(), fournisseur(iban=IBAN.random()))
     def test_programmer_virement(self, depense, fournisseur):
         form_data = {
             "intitule": "Solde",

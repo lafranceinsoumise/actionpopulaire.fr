@@ -25,7 +25,7 @@ from ..tasks import send_organizer_validation_notification
 from ...gestion.typologies import TypeDocument
 from ...lib.admin.form_fields import AutocompleteSelectModel
 from ...lib.form_fields import AdminRichEditorWidget
-from ...lib.forms import CoordinatesFormMixin
+from ...lib.form_mixins import CoordinatesFormMixin
 
 
 class CalendarIterator:

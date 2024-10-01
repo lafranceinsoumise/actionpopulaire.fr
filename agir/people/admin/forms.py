@@ -10,7 +10,7 @@ from django.utils.safestring import mark_safe
 
 from agir.lib.admin.form_fields import AdminJsonWidget
 from agir.lib.form_fields import AdminRichEditorWidget
-from agir.lib.forms import CoordinatesFormMixin
+from agir.lib.form_mixins import CoordinatesFormMixin
 from agir.lib.google_sheet import (
     parse_sheet_link,
     check_sheet_permissions,
