@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useMemo } from "react";
+import React, {useEffect, useMemo} from "react";
 
 import { routeConfig } from "@agir/front/app/routes.config";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
@@ -12,6 +12,7 @@ import {
 
 import DashboardPageBar from "./DashboardPageBar";
 import SecondaryPageBar from "./SecondaryPageBar";
+import {askNotificationPermission} from "@agir/notifications/push/android.utils";
 
 const MobileNavBar = (props) => {
   const { path } = props;

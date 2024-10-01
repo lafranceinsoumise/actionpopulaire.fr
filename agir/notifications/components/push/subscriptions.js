@@ -8,6 +8,7 @@ import { useLocalStorage } from "@agir/lib/utils/hooks";
 const log = logger(__filename);
 
 import * as API from "./api";
+import {askNotificationPermission} from "@agir/notifications/push/android.utils";
 
 const useServerSubscription = (deviceType, token) => {
   const [ready, setReady] = useState(false);
@@ -63,6 +64,10 @@ const useAndroidPush = () => {
     API.DEVICE_TYPE.ANDROID,
     token,
   );
+
+  useEffect(() => {
+    askNotificationPermission()
+  }, []);
 
   const state = useMemo(() => {
     if (!isAndroid) {
