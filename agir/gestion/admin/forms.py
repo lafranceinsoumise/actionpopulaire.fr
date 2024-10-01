@@ -1,3 +1,5 @@
+from typing import List, Optional
+
 from django import forms
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.core.exceptions import ValidationError
@@ -16,11 +18,13 @@ from ..models import (
     Fournisseur,
     Projet,
     Reglement,
+    Compte,
 )
-from ..models.commentaires import ajouter_commentaire
+from ..models.commentaires import ajouter_commentaire, nombre_commentaires_a_faire
 from ..models.documents import Document, VersionDocument
 from ..typologies import TypeDocument, TypeDepense, NATURE
 from ..virements import generer_endtoend_id
+from ...lib.form_mixins import ImportTableForm
 
 
 class DocumentForm(forms.ModelForm):
@@ -628,3 +632,42 @@ class InlineReglementForm(forms.ModelForm):
                 )
             except Depense.DoesNotExist:
                 self.fields["facture"].queryset = Document.objects.none()
+
+
+class ImportTableauVirementsForm(forms.Form):
+    nom = forms.CharField(required=True, label="Nom")
+    emetteur = forms.ModelChoiceField(
+        queryset=Compte.objects.all(),
+        required=True,
+        label="Emetteur",
+        help_text="Sélectionner le compte à partir duquel les virements vont être effectués",
+    )
+    tableau_virement_file = forms.FileField(
+        required=True,
+        help_text="""
+        Fichier contant les virements pour la création de l'ordre.
+        Sous format Excel, la première ligne contient les noms des colonnes,
+        Les lignes suivantes correspondent aux virements.
+        """,
+        label="Tableau des virements",
+    )
+
+
+class TableauVirementsLierColonne(ImportTableForm):
+    dest_columns = {
+        "montant": "Montant",
+        "description": "Motif",
+        "iban": "IBAN",
+        "nom": "Nom",
+        "bic": "Bic",
+    }
+
+    def clean_columns(self, columns: List[Optional[str]]) -> List[Optional[str]]:
+        columns = super().clean_columns(columns)
+        required_columns = {"montant", "description", "iban", "nom"}
+        if not required_columns.issubset(columns):
+            raise forms.ValidationError(
+                "Vous devez sélectionner toutes les colonnes, colonne(s) manquante(s): "
+                + ",".join(required_columns.difference(columns))
+            )
+        return columns

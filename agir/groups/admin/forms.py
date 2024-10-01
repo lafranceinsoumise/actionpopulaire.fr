@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from agir.groups.models import SupportGroupSubtype, Membership
 from agir.lib.form_fields import AdminRichEditorWidget
-from agir.lib.forms import CoordinatesFormMixin
+from ...lib.form_mixins import CoordinatesFormMixin
 from agir.people.models import Person
 from .. import models
 from ...lib.admin.form_fields import AutocompleteSelectModel
