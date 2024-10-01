@@ -639,6 +639,9 @@ if not DEBUG:
                 "level": "ERROR",
                 "class": "django.utils.log.AdminEmailHandler",
             },
+            "console": {
+                "class": "logging.StreamHandler",
+            },
         },
         "loggers": {
             "django.template": {
@@ -660,7 +663,7 @@ if not DEBUG:
                 "propagate": True,
             },
             "agir": {
-                "handlers": ["journald", "admins_mail"],
+                "handlers": ["console", "journald", "admins_mail"],
                 "level": "DEBUG",
                 "propagate": True,
             },

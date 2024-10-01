@@ -1,14 +1,21 @@
+import logging
 import re
 from functools import partial
 
-from django.contrib import admin
+import pandas as pd
+from django.contrib import admin, messages
+from django.contrib.admin import helpers
 from django.contrib.postgres.search import SearchQuery
+from django.core.exceptions import PermissionDenied, ValidationError
+from django.db import transaction, router
 from django.db.models import Count, Sum, Subquery, OuterRef, CharField, Value
 from django.db.models.functions import Concat, LPad, Cast
 from django.http import QueryDict, HttpResponseRedirect
+from django.template.defaultfilters import floatformat
 from django.urls import reverse, path
 from django.utils.html import format_html_join, format_html
 from django.utils.safestring import mark_safe
+from django.views import View
 from reversion.admin import VersionAdmin
 
 from agir.events.models import Event
@@ -29,6 +36,7 @@ from .forms import (
     DepenseForm,
     ProjetForm,
     OrdreVirementForm,
+    ImportTableauVirementsForm,
 )
 from .inlines import (
     VersionDocumentInline,
@@ -53,11 +61,19 @@ from ..models import (
     InstanceCherchable,
 )
 from ..models.depenses import etat_initial, Reglement
+from ..models.ordre_virement import FichierOrdreDeVirement, Statut, Statut_couleur
 from ..models.projets import ProjetMilitant
 from ..models.virements import OrdreVirement
 from ..permissions import peut_voir_montant_depense
 from ..typologies import TypeDepense
 from ..utils import lien
+
+FICHIER_ORDRE_VIREMENT_NAMESPACE = "import_tableau_virement"
+ORDRE_DE_VIREMENT_EMETTEUR_ID_NAMESPACE = "emetteur_id"
+ORDRE_DE_VIREMENT_FILE_PATH_NAMESPACE = "file_path"
+
+
+logger = logging.getLogger(__name__)
 
 
 @admin.register(Compte)
@@ -1037,3 +1053,154 @@ class ReglementAdmin(BaseGestionModelAdmin):
     )
     def numero_complet(self, obj):
         return obj.numero_complet
+
+
+class FichierOrdreVirementLierColonne(View):
+    def get(self, request):
+        if request.session[FICHIER_ORDRE_VIREMENT_NAMESPACE] is None:
+            return self.redirect_to_first_page()
+
+        file_path = request.session[FICHIER_ORDRE_VIREMENT_NAMESPACE].get(
+            ORDRE_DE_VIREMENT_FILE_PATH_NAMESPACE
+        )
+        emetteur_id = request.session[FICHIER_ORDRE_VIREMENT_NAMESPACE].get(
+            ORDRE_DE_VIREMENT_EMETTEUR_ID_NAMESPACE
+        )
+
+        if file_path is None or emetteur_id is None:
+            return self.redirect_to_first_page()
+
+        try:
+            excel = pd.read_excel(file_path)
+            # columns = excel.columns
+
+        except FileNotFoundError:
+            return self.redirect_to_first_page()
+
+    def redirect_to_first_page(self):
+        return HttpResponseRedirect(reverse("admin:gestion_fichierordrevirement_add"))
+
+
+@admin.register(FichierOrdreDeVirement)
+class FichierOrdreVirementAdmin(admin.ModelAdmin):
+    list_display = [
+        "nom",
+        "compte_emetteur",
+        "created",
+        "statut_colored",
+        "montant_total_currency",
+        "iban_copy",
+    ]
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    "nom",
+                    "id",
+                    "created",
+                    "statut",
+                    "compte_emetteur",
+                    "iban_copy",
+                    "nombre_transaction",
+                    "montant_total_currency",
+                    "tableau_virement_file",
+                    "tableau_virement_gsheet",
+                    "ordre_de_virement_out",
+                )
+            },
+        ),
+    )
+    readonly_fields = (
+        "id",
+        "created",
+        "compte_emetteur",
+        "iban_copy",
+        "bic_copy",
+        "nombre_transaction",
+        "montant_total_currency",
+        "ordre_de_virement_out",
+    )
+
+    actions = ["mark_transmis_banque", "mark_virement_valide", "mark_cree"]
+
+    @admin.action(description="Transmis à la banque")
+    def mark_transmis_banque(self, request, queryset):
+        queryset.update(statut=Statut.TRANSMIS)
+
+    @admin.action(description="Virement validé")
+    def mark_virement_valide(self, request, queryset):
+        queryset.update(statut=Statut.VALIDE)
+
+    @admin.action(description="Passer en état créé")
+    def mark_cree(self, request, queryset):
+        queryset.update(statut=Statut.CREE)
+
+    @admin.display(description="Statut")
+    def statut_colored(self, obj):
+        return format_html(
+            '<span style="padding: 3px;background-color: {};">{}</span>',
+            Statut_couleur[obj.statut],
+            Statut(obj.statut).label.upper(),
+        )
+
+    @admin.display(description="Montant total")
+    def montant_total_currency(self, obj):
+        montant = float(obj.montant_total / 100)
+        return f"{montant:_} €".replace("_", " ")
+
+    def add_view(self, request, form_url="", extra_context=None):
+        with transaction.atomic(using=router.db_for_write(FichierOrdreDeVirement)):
+            if not self.has_add_permission(request):
+                raise PermissionDenied
+            if request.method == "POST":
+                form = ImportTableauVirementsForm(request.POST, request.FILES)
+                if form.is_valid():
+                    ordre_de_virement = FichierOrdreDeVirement()
+
+                    ordre_de_virement.tableau_virement_file = request.FILES[
+                        "tableau_virement_file"
+                    ]
+                    compte_id = form.cleaned_data["emetteur"].id
+                    compte = Compte.objects.get(id=compte_id)
+                    ordre_de_virement.nom = form.cleaned_data["nom"]
+                    ordre_de_virement.compte_emetteur = compte
+                    try:
+                        ordre_de_virement.generer_fichier_ordre_virement()
+                    except ValidationError as error:
+                        self.message_user(
+                            request,
+                            f"Une erreur a été trouvé dans l'insertion : {repr(error.messages)}",
+                            level=messages.WARNING,
+                        )
+                        return HttpResponseRedirect(".")
+
+                    ordre_de_virement.save()
+
+                    return HttpResponseRedirect(
+                        reverse("admin:gestion_fichierordredevirement_changelist")
+                    )
+            else:
+                form = ImportTableauVirementsForm()
+            fieldsets = ((None, {"fields": list(form.fields.keys())}),)
+            admin_form = helpers.AdminForm(form, fieldsets, {}, model_admin=self)
+
+            context = {
+                **self.admin_site.each_context(request),
+                "title": "Importation fichier de virements",
+                "subtitle": None,
+                "adminform": admin_form,
+                "object_id": None,
+                "original": None,
+                "is_popup": False,
+                "to_field": None,
+                "media": None,
+                "inline_admin_formsets": (),
+                "errors": helpers.AdminErrorList(form, ()),
+                "preserved_filters": self.get_preserved_filters(request),
+            }
+            context.update(extra_context or {})
+
+            return self.render_change_form(
+                request, context, add=True, change=False, form_url=form_url
+            )

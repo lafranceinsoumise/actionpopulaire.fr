@@ -6,6 +6,22 @@
 
 # actionpopulaire.fr
 
+
+## Mise en place du projet
+
+
+```bash
+lando start
+lando manage migrate 
+
+# create a super user for the admin part
+lando manage createsuperperson --email yourEmail@email.com
+
+```
+
+
+# OLD
+
 1. [Vagrant installation](#vagrant)
 2. [Useful commands](#frontend-pages)
 

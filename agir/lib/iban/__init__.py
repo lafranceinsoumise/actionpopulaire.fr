@@ -1,13 +1,19 @@
 import csv
+import logging
 import re
 import string
 from importlib.resources import open_text
 
 from django.core import validators
 
+from schwifty import IBAN as IBAN_schwifty
+
 BIC_REGEX = re.compile(
     r"^(?P<banque>[A-Z]{4})(?P<pays>[A-Z]{2})(?P<localisation>[A-Z0-9]{2})(?P<filiale>[A-Z0-9]{3})?"
 )
+
+
+logger = logging.getLogger(__name__)
 
 
 def _iban_regex(s: str):
@@ -57,13 +63,15 @@ class IBAN:
 
     @property
     def bic(self):
-        if self.country != "FR":
-            raise AttributeError("Pas de BIC automatique pour les IBAN non-français")
-
         try:
             return bic_from_cib(self.value[4:9])
         except KeyError:
-            raise AttributeError("BIC inconnu pour cette banque")
+            """
+            use IBAN schwifty en tant qu'alternative,
+            remplacer cette classe d'utils une fois que schwifty supporte nos banques
+            PR on progress https://github.com/mdomke/schwifty/pull/224
+            """
+            return IBAN_schwifty(self.value).bic
 
     def __init__(self, value):
         self.value = re.sub(r"\s+", "", value).upper()
