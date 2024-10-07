@@ -192,7 +192,7 @@ const items = [
   {
     header: img1,
     title: "Rencontrez",
-    body: <>d'autres membres et agissez ensemble&nbsp;!</>,
+    body: <>d'autres membres?? et agissez ensemble&nbsp;!</>,
   },
   {
     header: img2,

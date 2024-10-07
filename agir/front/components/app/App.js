@@ -1,5 +1,4 @@
 import React from "react";
-
 import { GlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
 import SWRContext from "@agir/front/allPages/SWRContext";
 

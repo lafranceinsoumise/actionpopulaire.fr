@@ -1,10 +1,11 @@
+import logger from "@agir/lib/utils/logger";
 
+const log = logger(__filename);
 
+export function notificationPermissionIsGranted() {
+    return androidApp?.notificationPermissionIsGranted() ?? false;
+}
 
 export function askNotificationPermission() {
-    // global var setup by the Android webview to trigger the notification permission
-    if (androidApp) {
-        androidApp.setupNotificationPermission();
-    }
-
+    androidApp?.setupNotificationPermission();
 }
