@@ -20,7 +20,7 @@ from ..models import (
     Reglement,
     Compte,
 )
-from ..models.commentaires import ajouter_commentaire
+from ..models.commentaires import ajouter_commentaire, nombre_commentaires_a_faire
 from ..models.documents import Document, VersionDocument
 from ..typologies import TypeDocument, TypeDepense, NATURE
 from ..virements import generer_endtoend_id

@@ -11,7 +11,6 @@ from django.db import transaction, router
 from django.db.models import Count, Sum, Subquery, OuterRef, CharField, Value
 from django.db.models.functions import Concat, LPad, Cast
 from django.http import QueryDict, HttpResponseRedirect
-from django.template.defaultfilters import floatformat
 from django.urls import reverse, path
 from django.utils.html import format_html_join, format_html
 from django.utils.safestring import mark_safe
@@ -1157,15 +1156,14 @@ class FichierOrdreVirementAdmin(admin.ModelAdmin):
                 form = ImportTableauVirementsForm(request.POST, request.FILES)
                 if form.is_valid():
                     ordre_de_virement = FichierOrdreDeVirement()
-
-                    ordre_de_virement.tableau_virement_file = request.FILES[
-                        "tableau_virement_file"
-                    ]
-                    compte_id = form.cleaned_data["emetteur"].id
-                    compte = Compte.objects.get(id=compte_id)
-                    ordre_de_virement.nom = form.cleaned_data["nom"]
-                    ordre_de_virement.compte_emetteur = compte
                     try:
+                        ordre_de_virement.tableau_virement_file = request.FILES[
+                            "tableau_virement_file"
+                        ]
+                        compte_id = form.cleaned_data["emetteur"].id
+                        compte = Compte.objects.get(id=compte_id)
+                        ordre_de_virement.nom = form.cleaned_data["nom"]
+                        ordre_de_virement.compte_emetteur = compte
                         ordre_de_virement.generer_fichier_ordre_virement()
                     except ValidationError as error:
                         self.message_user(

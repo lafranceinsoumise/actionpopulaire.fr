@@ -10,7 +10,7 @@ from agir.lib.tests.strategies import iban
 
 
 class NouveauReglementFormTestCase(TestCase):
-    @given(depense(), fournisseur(iban=iban()))
+    @given(depense(), fournisseur(iban=iban("FR7010096000502581761548M79")))
     def test_preuve_interdite_pour_un_reglement_a_faire(self, depense, fournisseur):
         form_data = {
             "intitule": "Solde",
