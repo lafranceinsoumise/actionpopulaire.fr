@@ -91,12 +91,20 @@ class FichierOrdreDeVirement(TimeStampedModel):
         ),
     )
 
-    def save(self, *args, **kwargs):
+    def get_iban_debiteur_from_excel(self, df):
+        iban = None
+        try:
+            iban_debiteur_col = df["IBAN Débiteur"]
+            iban = iban_debiteur_col[0]
+        except KeyError:
+            pass
+        return iban
+
+    def setupIbanBic(self, iban, bic):
         if self.iban_copy is None or self.iban_copy == "":
-            self.iban_copy = self.compte_emetteur.emetteur_iban
+            self.iban_copy = iban
         if self.bic_copy is None or self.bic_copy == "":
-            self.bic_copy = self.compte_emetteur.emetteur_bic
-        super().save(*args, **kwargs)
+            self.bic_copy = bic
 
     def generer_fichier_ordre_virement(self):
         if self.tableau_virement_file is None:
@@ -111,16 +119,18 @@ class FichierOrdreDeVirement(TimeStampedModel):
             )
         self.montant_total = df["MONTANT"].sum() * 100
         self.nombre_transaction = df["MONTANT"].count()
-
+        iban_from_excel = self.get_iban_debiteur_from_excel(df)
         virements = extract_virements(df)
         emetteur_iban = self.compte_emetteur.emetteur_iban
-        if emetteur_iban is None or emetteur_iban is "":
+        if (emetteur_iban is None or emetteur_iban is "") and iban_from_excel is None:
             raise ValidationError("L'emetteur n'a pas de IBAN, merci d'en ajouter un.")
+
         iban = (
-            IBAN(self.iban_copy)
-            if self.iban_copy is not None and self.iban_copy != ""
+            IBAN(iban_from_excel)
+            if iban_from_excel is not None
             else self.compte_emetteur.emetteur_iban
         )
+        self.setupIbanBic(iban.value, iban.bic)
         emetteur = Partie(
             nom=self.compte_emetteur.designation,
             iban=iban,
