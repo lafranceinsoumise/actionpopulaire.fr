@@ -1101,6 +1101,7 @@ class FichierOrdreVirementAdmin(admin.ModelAdmin):
                     "statut",
                     "compte_emetteur",
                     "iban_copy",
+                    "bic_copy",
                     "nombre_transaction",
                     "montant_total_currency",
                     "tableau_virement_file",
