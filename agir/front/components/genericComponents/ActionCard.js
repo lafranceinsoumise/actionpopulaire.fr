@@ -4,10 +4,14 @@ import styled from "styled-components";
 
 import { dateFromISOString, displayHumanDate } from "@agir/lib/utils/time";
 
-import { Container, Row, Column } from "@agir/front/genericComponents/grid";
 import Card from "@agir/front/genericComponents/Card";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import Button from "@agir/front/genericComponents/Button";
+
+const CardContainer = styled.div`
+  display: flex;
+  gap: 10px;
+`
 
 const StyledText = styled.p`
   && {
@@ -68,16 +72,15 @@ const ActionCard = (props) => {
 
   return (
     <Card type={dismissed ? "alert_dismissed" : "alert"}>
-      <Container style={{ width: "auto" }}>
-        <Row justify="flex-start">
-          <Column width="auto" collapse={0} style={{ padding: 0 }}>
+      <CardContainer>
+          <div>
             {dismissed ? (
               <FeatherIcon name="check-circle" color="success500" />
             ) : (
               <FeatherIcon name={iconName} />
             )}
-          </Column>
-          <Column grow collapse={0}>
+          </div>
+          <div>
             <StyledText>
               {text}
               <br />
@@ -116,9 +119,8 @@ const ActionCard = (props) => {
                 </Button>
               )}
             </StyledFooter>
-          </Column>
-        </Row>
-      </Container>
+          </div>
+      </CardContainer>
     </Card>
   );
 };

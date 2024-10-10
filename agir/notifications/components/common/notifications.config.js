@@ -364,3 +364,10 @@ export const getNotificationStatus = (activeNotifications) => {
   });
   return active;
 };
+
+export function getDefaultNotifications() {
+  return [
+      ...PERSON_NOTIFICATIONS.filter((notification) =>
+          notification.hasPush && notification.id !== "event_rsvp_notifications")
+  ]
+}

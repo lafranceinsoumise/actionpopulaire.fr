@@ -27,7 +27,7 @@ import {
 } from "@agir/front/globalContext/reducers";
 import logger from "@agir/lib/utils/logger";
 import {getAgendaEndpoint} from "./api.js";
-import NotificationRationaleModal from "@agir/notifications/push/NotificationRationaleModal";
+import NotificationRationaleModal from "./NotificationRationaleModal.js";
 
 const log = logger(__filename);
 
