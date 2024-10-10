@@ -10,7 +10,7 @@ from django.utils.translation import ngettext
 from lxml import etree
 from sepaxml import SepaTransfer
 
-from agir.lib.iban import IBAN
+from schwifty import IBAN
 
 
 def generer_endtoend_id():
@@ -53,7 +53,7 @@ def generer_fichier_virement(
     batch: bool = False,
     check: bool = True,
 ) -> bytes:
-    if not emetteur.iban.is_valid():
+    if not emetteur.iban.is_valid:
         raise ValueError(f"L'IBAN émetteur n'est pas valide : {emetteur.iban}.")
 
     missing_labels = [
@@ -81,7 +81,7 @@ def generer_fichier_virement(
         )
 
     invalid_ibans = [
-        v.beneficiaire for v in virements if not v.beneficiaire.iban.is_valid()
+        v.beneficiaire for v in virements if not v.beneficiaire.iban.is_valid
     ]
 
     if invalid_ibans:
@@ -93,7 +93,7 @@ def generer_fichier_virement(
     fichier_sepa = SepaTransfer(
         {
             "name": emetteur.nom,
-            "IBAN": emetteur.iban.as_stored_value,
+            "IBAN": str(emetteur.iban),
             "BIC": emetteur.bic or emetteur.iban.bic,
             "batch": paiement_unique,
             "currency": currency,
@@ -108,7 +108,7 @@ def generer_fichier_virement(
         fichier_sepa.add_payment(
             {
                 "name": virement.beneficiaire.nom,
-                "IBAN": virement.beneficiaire.iban.as_stored_value,
+                "IBAN": str(virement.beneficiaire.iban),
                 "BIC": virement.beneficiaire.bic or virement.beneficiaire.iban.bic,
                 "amount": virement.montant,
                 "execution_date": virement.date_execution,
@@ -134,7 +134,7 @@ def generer_fichier_virement(
 
 def validate_bank_transfer_recipients(recipients):
     invalid_ibans = [
-        i for i, p in enumerate(recipients) if not p.iban or not p.iban.is_valid()
+        i for i, p in enumerate(recipients) if not p.iban or not p.iban.is_valid
     ]
 
     if invalid_ibans:
@@ -150,9 +150,7 @@ def validate_bank_transfer_recipients(recipients):
 
         raise ValueError(f"{base_message}\n{message}")
 
-    missing_bics = [
-        i for i, p in enumerate(recipients) if not p.bic and not hasattr(p.iban, "bic")
-    ]
+    missing_bics = [i for i, p in enumerate(recipients) if not p.bic and not p.iban.bic]
 
     if missing_bics:
         base_message = ngettext(

@@ -1,5 +1,6 @@
 import datetime
 import json
+from typing import Optional, List
 from uuid import UUID
 
 import emoji
@@ -20,18 +21,18 @@ from django.forms.widgets import (
 )
 from django.utils import formats, timezone
 from django.utils.translation import gettext_lazy as _, ngettext_lazy
-from django_countries import countries
 from phonenumber_field.phonenumber import PhoneNumber
 
-from agir.lib.iban import IBAN, to_iban
+from agir.lib.iban import to_iban
 from agir.lib.time import dehumanize_naturaltime
 from agir.lib.validators import (
     MinValueListValidator,
     MinDaysDeltaValidator,
     MaxDaysDeltaValidator,
     MaxValueListValidator,
+    IBANAllowedCountriesValidator,
 )
-from agir.lib.validators import validate_iban
+from agir.lib.validators import iban_validator
 
 
 class BootstrapDateTimePickerBaseWidget(DateTimeBaseInput):
@@ -186,8 +187,6 @@ class CustomJSONEncoder(DjangoJSONEncoder):
             return str(o)
         if isinstance(o, PhoneNumber):
             return o.as_e164
-        if isinstance(o, IBAN):
-            return o.as_stored_value
         if isinstance(o, datetime.datetime):
             return o.isoformat("T", "seconds")
         if isinstance(o, datetime.date):
@@ -207,7 +206,7 @@ class IBANWidget(Input):
 
 
 class IBANField(forms.Field):
-    default_validators = [validate_iban]
+    default_validators = [iban_validator]
     empty_value = ""
     default_error_messages = {
         "invalid": "Indiquez un numéro IBAN identifiant un compte existant. Ce numéro, composé de 14 à 34 chiffres et"
@@ -216,49 +215,24 @@ class IBANField(forms.Field):
     }
     widget = IBANWidget
 
-    def __init__(self, *args, allowed_countries=None, **kwargs):
-        self.allowed_countries = allowed_countries
+    def __init__(self, *args, allowed_countries: Optional[List[str]] = None, **kwargs):
         super().__init__(*args, **kwargs)
 
-        if self.allowed_countries is not None:
+        if allowed_countries is not None:
+            countries_validator = IBANAllowedCountriesValidator(allowed_countries)
             # noinspection PyUnresolvedReferences
-            self.widget.attrs["data-allowed-countries"] = ",".join(
-                self.allowed_countries
-            )
+            self.widget.attrs["data-allowed-countries"] = ",".join(allowed_countries)
             # noinspection PyUnresolvedReferences
             self.widget.attrs["data-allowed-countries-error"] = (
-                self.allowed_countries_error_message()
+                countries_validator.error_message()
             )
+            self.validators.append(countries_validator)
 
     def to_python(self, value):
         if value in self.empty_values:
             return self.empty_value
 
         return to_iban(value)
-
-    def allowed_countries_error_message(self):
-        return self.error_messages["forbidden_country"] % {
-            "countries": ", ".join(
-                countries.name(code) or code for code in self.allowed_countries
-            )
-        }
-
-    def validate(self, value):
-        super().validate(value)
-
-        is_empty = value == self.empty_value
-
-        if not is_empty and not value.is_valid():
-            raise ValidationError(self.error_messages["invalid"], code="invalid")
-
-        if (
-            not is_empty
-            and self.allowed_countries
-            and value.country not in self.allowed_countries
-        ):
-            raise ValidationError(
-                self.allowed_countries_error_message(), code="forbidden_country"
-            )
 
     def widget_attrs(self, widget):
         attrs = super().widget_attrs(widget)

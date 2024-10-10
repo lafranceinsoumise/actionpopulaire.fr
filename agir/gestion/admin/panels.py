@@ -102,7 +102,7 @@ class CompteAdmin(admin.ModelAdmin):
         return (
             obj.emetteur_designation
             and obj.emetteur_iban
-            and obj.emetteur_iban.is_valid()
+            and obj.emetteur_iban.is_valid
             and obj.emetteur_bic
         )
 
@@ -113,7 +113,7 @@ class CompteAdmin(admin.ModelAdmin):
         return (
             obj.beneficiaire_designation
             and obj.beneficiaire_iban
-            and obj.beneficiaire_iban.is_valid()
+            and obj.beneficiaire_iban.is_valid
             and obj.beneficiaire_bic
         )
 

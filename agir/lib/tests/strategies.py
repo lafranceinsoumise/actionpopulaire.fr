@@ -1,11 +1,9 @@
 import re
-import string
 
 from hypothesis import strategies as st
 from hypothesis.extra.django import from_model, TestCase as HypothesisTestCase
 
 from agir.authentication.models import Role
-from agir.lib.iban import IBAN_REGEX_NATIONALES, IBAN
 from agir.people.models import Person
 
 
@@ -159,40 +157,3 @@ class TestCase(HypothesisTestCase):
         if self._should_call_setup_teardown_each_example():
             self.tearDown()
         super().teardown_example(example)
-
-
-@st.composite
-def iban(draw, country=None):
-    if country is None:
-        country = draw(st.sampled_from(list(IBAN_REGEX_NATIONALES)))
-
-    code = draw(to_strategy(country))
-    regex = IBAN_REGEX_NATIONALES[country]
-    random_part = draw(st.from_regex(regex))
-    iban = IBAN(f"{code}00{random_part}")
-    modulo = iban._get_modulo()
-    if modulo == 1:
-        return iban
-
-    checksum = 98 - iban._get_modulo()
-    return IBAN(f"{code}{checksum:02d}{random_part}")
-
-
-@st.composite
-def bic(draw, country=None, filiale=False):
-    if country is None:
-        country = st.sampled_from(list(IBAN_REGEX_NATIONALES))
-
-    code = draw(to_strategy(country))
-
-    banque = draw(st.text(string.ascii_uppercase, min_size=4, max_size=4))
-    localisation = draw(
-        st.text(string.ascii_uppercase + string.digits, min_size=2, max_size=2)
-    )
-    filiale = (
-        draw(st.text(string.ascii_uppercase + string.digits), min_size=3, max_size=3)
-        if draw(to_strategy(filiale))
-        else ""
-    )
-
-    return f"{banque}{code}{localisation}{filiale}"

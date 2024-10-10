@@ -47,7 +47,7 @@ def generate_reimbursement_file(config: Mapping[str, str], payments: Iterable[Pa
     for payment in payments:
         iban = to_iban(payment.meta.get("iban"))
 
-        if not iban.is_valid():
+        if not iban.is_valid:
             raise ValueError(f"L'IBAN pour le paiement {payment!r} n'est pas valide")
 
         bic = payment.meta.get("bic", iban.bic)
@@ -65,7 +65,7 @@ def generate_reimbursement_file(config: Mapping[str, str], payments: Iterable[Pa
         sepa.add_payment(
             {
                 "name": f"{payment.first_name} {payment.last_name}",
-                "IBAN": iban.as_stored_value,
+                "IBAN": iban,
                 "BIC": bic,
                 "amount": payment.price - rembourse,
                 "execution_date": today,

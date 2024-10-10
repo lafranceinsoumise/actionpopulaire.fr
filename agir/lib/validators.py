@@ -7,8 +7,9 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext_lazy
 from django_countries import countries
 from rest_framework import serializers
+from schwifty import IBAN, BIC
 
-from agir.lib.iban import IBAN, BIC
+from agir.lib.iban import to_iban, to_bic
 
 
 class ListValidatorMixin:
@@ -82,30 +83,6 @@ class FileSizeValidator:
 
 
 @deconstructible
-class AllowedCountriesValidator:
-    message = _(
-        "Seuls les comptes des pays suivants sont autorisés : {allowed_countries}."
-    )
-    code = "invalid_country"
-    validation_error_class = forms.ValidationError
-
-    def __init__(self, allowed_countries=None):
-        self.allowed_countries = allowed_countries
-
-    def __call__(self, value):
-        if self.allowed_countries and value.country not in self.allowed_countries:
-            message = self.message.format(
-                allowed_countries=", ".join(
-                    countries.name(code) or code for code in self.allowed_countries
-                )
-            )
-            raise self.validation_error_class(message, self.code)
-
-
-validate_allowed_countries = AllowedCountriesValidator()
-
-
-@deconstructible
 class IBANValidator:
     message = _(
         "Votre IBAN n'est pas au format correct. Un IBAN comprend entre 14 et 34 caractères (27 pour un compte français),"
@@ -117,12 +94,35 @@ class IBANValidator:
 
     def __call__(self, iban):
         if not isinstance(iban, IBAN):
-            iban = IBAN(iban)
-        if not iban.is_valid():
+            iban = to_iban(iban)
+        if not iban.is_valid:
             raise self.validation_error_class(self.message, self.code)
 
 
-validate_iban = IBANValidator()
+iban_validator = IBANValidator()
+
+
+@deconstructible
+class IBANAllowedCountriesValidator:
+    message = _(
+        "Seuls les comptes des pays suivants sont autorisés : {allowed_countries}."
+    )
+    code = "invalid_country"
+    validation_error_class = forms.ValidationError
+
+    def __init__(self, allowed_countries=None):
+        self.allowed_countries = allowed_countries
+
+    def error_message(self):
+        return self.message.format(
+            allowed_countries=", ".join(
+                countries.name(code) or code for code in self.allowed_countries
+            )
+        )
+
+    def __call__(self, value):
+        if self.allowed_countries and value.country_code not in self.allowed_countries:
+            raise self.validation_error_class(self.error_message(), self.code)
 
 
 @deconstructible
@@ -135,15 +135,15 @@ class BICValidator:
 
     def __call__(self, bic):
         if not isinstance(bic, BIC):
-            bic = BIC(bic)
-        if not bic.is_valid():
+            bic = to_bic(bic)
+        if not bic.is_valid:
             raise self.validation_error_class(self.message, self.code)
 
 
-validate_bic = BICValidator()
+bic_validator = BICValidator()
 
 
-class AllowedCountriesSerializerValidator(AllowedCountriesValidator):
+class IBANAllowedCountriesSerializerValidator(IBANAllowedCountriesValidator):
     validation_error_class = serializers.ValidationError
 
 

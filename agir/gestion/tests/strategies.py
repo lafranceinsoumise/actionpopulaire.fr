@@ -4,7 +4,7 @@ from hypothesis import strategies as st
 
 from agir.gestion.models import Depense, Projet, Compte, Fournisseur
 from agir.gestion.typologies import TypeDepense, TypeProjet
-from agir.lib.tests.strategies import to_strategy, printable_text, iban, bic
+from agir.lib.tests.strategies import to_strategy, printable_text
 
 
 @st.composite
@@ -68,17 +68,10 @@ def fournisseur(draw, **kwargs):
         "nom": printable_text(min_size=1, max_size=10),
         "location_city": printable_text(min_size=1, max_size=10),
         "location_country": "FR",
-        "iban": st.one_of(st.just(""), iban()),
         **kwargs,
     }
 
     f = Fournisseur(**{k: draw(to_strategy(v)) for k, v in kwargs.items()})
-
-    if f.iban and not f.bic and "bic" not in kwargs:
-        try:
-            f.iban.bic
-        except AttributeError:
-            f.bic = draw(bic(country=f.iban.as_stored_value[:2]))
 
     f.save()
     return f

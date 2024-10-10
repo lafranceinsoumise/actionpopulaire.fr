@@ -3,18 +3,18 @@ import re
 from django import forms
 from django.contrib.postgres.fields import ArrayField
 from django.core import checks, exceptions
-from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.itercompat import is_iterable
 from django.utils.translation import gettext_lazy as _
+from schwifty import IBAN, BIC
 
 from agir.lib.form_fields import IBANField as FormIBANField
-from agir.lib.iban import to_iban, IBAN, BIC_REGEX, to_bic, BIC
+from agir.lib.iban import to_iban, to_bic
 from agir.lib.utils import (
     validate_facebook_event_url,
     INVALID_FACEBOOK_EVENT_LINK_MESSAGE,
 )
-from agir.lib.validators import validate_iban
+from agir.lib.validators import iban_validator, bic_validator
 
 
 class IBANFieldDescriptor:
@@ -34,7 +34,7 @@ class IBANField(models.Field):
     description = _("IBAN identifiant un compte un banque")
     descriptor_class = IBANFieldDescriptor
 
-    default_validators = [validate_iban]
+    default_validators = [iban_validator]
 
     def __init__(self, *args, allowed_countries=None, **kwargs):
         self.allowed_countries = allowed_countries
@@ -59,7 +59,7 @@ class IBANField(models.Field):
         value = self.to_python(value)
 
         if isinstance(value, IBAN):
-            return value.as_stored_value
+            return str(value)
         return value
 
     def formfield(self, **kwargs):
@@ -108,27 +108,13 @@ class BICField(models.CharField):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, max_length=11, **kwargs)
-        self.validators.append(
-            RegexValidator(
-                regex=BIC_REGEX,
-                message=self.message,
-            )
-        )
+        self.validators.append(bic_validator)
 
     def get_internal_type(self):
         return "CharField"
 
     def to_python(self, value):
         return to_bic(value)
-
-    def get_prep_value(self, value):
-        value = super().get_prep_value(value)
-        value = self.to_python(value)
-
-        if isinstance(value, BIC):
-            return value.as_stored_value
-
-        return value
 
     def deconstruct(self):
         *res, keywords = super().deconstruct()
@@ -137,7 +123,7 @@ class BICField(models.CharField):
 
     def formfield(self, **kwargs):
         kwargs["validators"] = (
-            RegexValidator(regex=BIC_REGEX, message=self.message),
+            bic_validator,
             *kwargs.get("validators", ()),
         )
         return super().formfield(**kwargs)

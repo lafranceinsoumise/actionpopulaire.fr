@@ -2,9 +2,12 @@ from django import forms
 from django.db.models import F
 from django.test import TestCase
 
+from schwifty import IBAN
+
 from agir.lib.form_fields import IBANField
-from agir.lib.iban import IBAN
+from agir.lib.iban import to_iban
 from agir.lib.tests.models import IBANTestModel
+from agir.lib.validators import IBANAllowedCountriesValidator
 
 # generated on http://randomiban.com/
 GOOD_IBANS = [
@@ -26,11 +29,11 @@ BAD_IBANS = [
 class IBANTestCase(TestCase):
     def test_invalid_ibans(self):
         for iban in BAD_IBANS:
-            self.assertFalse(IBAN(iban).is_valid())
+            self.assertFalse(to_iban(iban).is_valid)
 
     def test_valid_ibans(self):
         for iban in GOOD_IBANS:
-            self.assertTrue(IBAN(iban).is_valid())
+            self.assertTrue(to_iban(iban).is_valid)
 
 
 class IBANModelFieldTestCase(TestCase):
@@ -87,11 +90,11 @@ class IBANFormFieldTestCase(TestCase):
 
     def test_validates_when_country_is_allowed(self):
         form = IBANForm(data={"iban": "FR3130066119293675223821795"})
-        form.fields["iban"].allowed_countries = ["FR"]
+        form.fields["iban"].validators.append(IBANAllowedCountriesValidator(["FR"]))
         self.assertTrue(form.is_valid())
 
     def test_has_error_when_country_is_not_allowed(self):
         form = IBANForm(data={"iban": "FR3130066119293675223821795"})
-        form.fields["iban"].allowed_countries = ["SE"]
+        form.fields["iban"].validators.append(IBANAllowedCountriesValidator(["SE"]))
         self.assertFalse(form.is_valid())
-        self.assertTrue(form.has_error("iban", code="forbidden_country"))
+        self.assertTrue(form.has_error("iban", code="invalid_country"))

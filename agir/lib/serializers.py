@@ -17,7 +17,7 @@ from .tasks import create_static_map_image_from_coordinates
 from .validators import (
     IBANSerializerValidator,
     BICSerializerValidator,
-    AllowedCountriesValidator,
+    IBANAllowedCountriesValidator,
 )
 
 
@@ -412,7 +412,7 @@ class IBANSerializerField(serializers.CharField):
         self.validators.append(IBANSerializerValidator())
         if allowed_countries:
             self.validators.append(
-                AllowedCountriesValidator(allowed_countries=allowed_countries)
+                IBANAllowedCountriesValidator(allowed_countries=allowed_countries)
             )
 
     def to_internal_value(self, data):
@@ -431,7 +431,7 @@ class BICSerializerField(serializers.CharField):
         self.validators.append(BICSerializerValidator())
         if allowed_countries:
             self.validators.append(
-                AllowedCountriesValidator(allowed_countries=allowed_countries)
+                IBANAllowedCountriesValidator(allowed_countries=allowed_countries)
             )
 
     def to_internal_value(self, data):

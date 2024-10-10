@@ -90,7 +90,7 @@ class BaseLoanPersonalInformationView(MaxTotalLoanMixin, BasePersonalInformation
             "contact_phone": data["contact_phone"].as_e164,
             "date_of_birth": data["date_of_birth"].strftime("%d/%m/%Y"),
             "payment_mode": data["payment_mode"].id,
-            "iban": data["iban"].as_stored_value,
+            "iban": data["iban"],
         }
 
     def form_valid(self, form):
