@@ -1,26 +1,32 @@
 from django.utils import timezone
 
 from agir.gestion.virements import generer_endtoend_id, Virement, Partie
-from agir.lib.iban import IBAN
+from agir.lib.iban import to_iban
+
+ORDRE_DE_VIREMENT_REQUIRED_COLUMNS = [
+    "MONTANT",
+    "NOM BENEFICIAIRE",
+    "IBAN BENEFICIAIRE",
+    "MOTIF",
+]
 
 
 def extract_virements(df):
     virements = []
 
-    for ind in df.index:
-        iban_str = df["IBAN BENEFICIAIRE"][ind]
-        iban = IBAN(iban_str)
+    for row in df.fillna("").to_dict(orient="records"):
+        iban = to_iban(row["IBAN BENEFICIAIRE"])
         beneficiaire = Partie(
-            nom=df["NOM BENEFICIAIRE"][ind],
+            nom=row["NOM BENEFICIAIRE"],
             iban=iban,
-            bic=iban.bic,
+            bic=row.get("BIC BENEFICIAIRE") or iban.bic,
         )
         virements.append(
             Virement(
                 beneficiaire=beneficiaire,
-                montant=round(int(df["MONTANT"][ind]) * 100),
+                montant=round(int(row["MONTANT"]) * 100),
                 date_execution=timezone.now().date(),
-                description=df["MOTIF"][ind],
+                description=row["MOTIF"],
                 id=generer_endtoend_id(),
             )
         )

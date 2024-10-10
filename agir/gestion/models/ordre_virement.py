@@ -1,15 +1,9 @@
 import logging
 
 import dynamic_filenames
-import pandas as pd
-from django.core.exceptions import ValidationError
-from django.core.files.base import ContentFile
 from django.db import models
 
-from agir.gestion.admin.ordre_de_virement_utils import extract_virements
 from agir.gestion.models import Compte
-from agir.gestion.virements import generer_fichier_virement, Partie
-from agir.lib.iban import IBAN
 from agir.lib.models import TimeStampedModel
 
 logger = logging.getLogger(__name__)
@@ -26,13 +20,6 @@ Statut_couleur = {
     Statut.VALIDE: "#78e08f",
     Statut.TRANSMIS: "#f6b93b",
 }
-
-ORDRE_DE_VIREMENT_NECESSARY_KEYS = [
-    "MONTANT",
-    "NOM BENEFICIAIRE",
-    "IBAN BENEFICIAIRE",
-    "MOTIF",
-]
 
 
 class FichierOrdreDeVirement(TimeStampedModel):
@@ -97,41 +84,3 @@ class FichierOrdreDeVirement(TimeStampedModel):
         if self.bic_copy is None or self.bic_copy == "":
             self.bic_copy = self.compte_emetteur.emetteur_bic
         super().save(*args, **kwargs)
-
-    def generer_fichier_ordre_virement(self):
-        if self.tableau_virement_file is None:
-            raise ValidationError("Fichier inexistant pour générer l'ordre de virement")
-        df = pd.read_excel(self.tableau_virement_file)
-        missing_columns = [
-            column for column in ORDRE_DE_VIREMENT_NECESSARY_KEYS if column not in df
-        ]
-        if len(missing_columns) > 0:
-            raise ValidationError(
-                f"Colonne(s) manquante(s) : {', '.join(missing_columns)}"
-            )
-        self.montant_total = df["MONTANT"].sum() * 100
-        self.nombre_transaction = df["MONTANT"].count()
-
-        virements = extract_virements(df)
-        iban = (
-            IBAN(self.iban_copy)
-            if self.iban_copy is not None and self.iban_copy != ""
-            else self.compte_emetteur.emetteur_iban
-        )
-        emetteur = Partie(
-            nom=self.compte_emetteur.designation,
-            iban=iban,
-            bic=self.compte_emetteur.emetteur_bic,
-            label=self.compte_emetteur.nom.upper(),
-        )
-
-        ordre_virement_contenu = generer_fichier_virement(
-            emetteur=emetteur,
-            virements=virements,
-        )
-        self.ordre_de_virement_out = ContentFile(
-            ordre_virement_contenu,
-            name=self._meta.get_field("ordre_de_virement_out").generate_filename(
-                self, f"ordre_virement_{self.id}.xml"
-            ),
-        )

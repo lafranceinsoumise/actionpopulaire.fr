@@ -1054,32 +1054,6 @@ class ReglementAdmin(BaseGestionModelAdmin):
         return obj.numero_complet
 
 
-class FichierOrdreVirementLierColonne(View):
-    def get(self, request):
-        if request.session[FICHIER_ORDRE_VIREMENT_NAMESPACE] is None:
-            return self.redirect_to_first_page()
-
-        file_path = request.session[FICHIER_ORDRE_VIREMENT_NAMESPACE].get(
-            ORDRE_DE_VIREMENT_FILE_PATH_NAMESPACE
-        )
-        emetteur_id = request.session[FICHIER_ORDRE_VIREMENT_NAMESPACE].get(
-            ORDRE_DE_VIREMENT_EMETTEUR_ID_NAMESPACE
-        )
-
-        if file_path is None or emetteur_id is None:
-            return self.redirect_to_first_page()
-
-        try:
-            excel = pd.read_excel(file_path)
-            # columns = excel.columns
-
-        except FileNotFoundError:
-            return self.redirect_to_first_page()
-
-    def redirect_to_first_page(self):
-        return HttpResponseRedirect(reverse("admin:gestion_fichierordrevirement_add"))
-
-
 @admin.register(FichierOrdreDeVirement)
 class FichierOrdreVirementAdmin(admin.ModelAdmin):
     list_display = [
@@ -1145,8 +1119,7 @@ class FichierOrdreVirementAdmin(admin.ModelAdmin):
 
     @admin.display(description="Montant total")
     def montant_total_currency(self, obj):
-        montant = float(obj.montant_total / 100)
-        return f"{montant:_} €".replace("_", " ")
+        return display_price(obj.montant_total)
 
     def add_view(self, request, form_url="", extra_context=None):
         with transaction.atomic(using=router.db_for_write(FichierOrdreDeVirement)):
@@ -1155,25 +1128,7 @@ class FichierOrdreVirementAdmin(admin.ModelAdmin):
             if request.method == "POST":
                 form = ImportTableauVirementsForm(request.POST, request.FILES)
                 if form.is_valid():
-                    ordre_de_virement = FichierOrdreDeVirement()
-                    try:
-                        ordre_de_virement.tableau_virement_file = request.FILES[
-                            "tableau_virement_file"
-                        ]
-                        compte_id = form.cleaned_data["emetteur"].id
-                        compte = Compte.objects.get(id=compte_id)
-                        ordre_de_virement.nom = form.cleaned_data["nom"]
-                        ordre_de_virement.compte_emetteur = compte
-                        ordre_de_virement.generer_fichier_ordre_virement()
-                    except ValidationError as error:
-                        self.message_user(
-                            request,
-                            f"Une erreur a été trouvé dans l'insertion : {repr(error.messages)}",
-                            level=messages.WARNING,
-                        )
-                        return HttpResponseRedirect(".")
-
-                    ordre_de_virement.save()
+                    form.save()
 
                     return HttpResponseRedirect(
                         reverse("admin:gestion_fichierordredevirement_changelist")

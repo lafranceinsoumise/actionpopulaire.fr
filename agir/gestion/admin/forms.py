@@ -1,16 +1,20 @@
-from typing import List, Optional
-
+import pandas as pd
 from django import forms
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.core.exceptions import ValidationError
-from django.core.validators import MaxValueValidator
+from django.core.files.base import ContentFile
 from django.db import transaction
 from django.db.models import Sum
 from django.urls import reverse
 from django.utils.html import format_html, format_html_join
+from django.utils.translation.trans_real import ngettext
 
 from agir.events.models import Event
 from agir.lib.admin.form_fields import SuggestingTextInput, CleavedDateInput
+from .ordre_de_virement_utils import (
+    extract_virements,
+    ORDRE_DE_VIREMENT_REQUIRED_COLUMNS,
+)
 from ..admin.widgets import HierarchicalSelect
 from ..models import (
     Commentaire,
@@ -20,11 +24,11 @@ from ..models import (
     Reglement,
     Compte,
 )
-from ..models.commentaires import ajouter_commentaire, nombre_commentaires_a_faire
+from ..models.commentaires import ajouter_commentaire
 from ..models.documents import Document, VersionDocument
+from ..models.ordre_virement import FichierOrdreDeVirement
 from ..typologies import TypeDocument, TypeDepense, NATURE
-from ..virements import generer_endtoend_id
-from ...lib.form_mixins import ImportTableForm
+from ..virements import generer_endtoend_id, generer_fichier_virement, Partie
 
 
 class DocumentForm(forms.ModelForm):
@@ -652,22 +656,140 @@ class ImportTableauVirementsForm(forms.Form):
         label="Tableau des virements",
     )
 
-
-class TableauVirementsLierColonne(ImportTableForm):
-    dest_columns = {
-        "montant": "Montant",
-        "description": "Motif",
-        "iban": "IBAN",
-        "nom": "Nom",
-        "bic": "Bic",
-    }
-
-    def clean_columns(self, columns: List[Optional[str]]) -> List[Optional[str]]:
-        columns = super().clean_columns(columns)
-        required_columns = {"montant", "description", "iban", "nom"}
-        if not required_columns.issubset(columns):
-            raise forms.ValidationError(
-                "Vous devez sélectionner toutes les colonnes, colonne(s) manquante(s): "
-                + ",".join(required_columns.difference(columns))
+    def clean_tableau_virement_file(self):
+        fichier_virement = self.cleaned_data["tableau_virement_file"]
+        try:
+            self.dataframe = pd.read_excel(fichier_virement).fillna("")
+        except ValueError:
+            raise ValidationError(
+                "Le fichier que vous avez sélectionné n'est pas un fichier excel valide.",
+                code="invalid_excel",
             )
-        return columns
+
+        missing_columns = [
+            column
+            for column in ORDRE_DE_VIREMENT_REQUIRED_COLUMNS
+            if column not in self.dataframe
+        ]
+        if len(missing_columns) > 0:
+            raise ValidationError(
+                f"Colonne(s) manquante(s) : {', '.join(missing_columns)}",
+                code="missing_columns",
+                params=missing_columns,
+            )
+
+        missing_values = [
+            (i + 2,)
+            for i, ligne in enumerate(self.dataframe.to_dict(orient="records"))
+            if not all(ligne[k] for k in ORDRE_DE_VIREMENT_REQUIRED_COLUMNS)
+        ]
+
+        if missing_values:
+            base_message = ngettext(
+                "Il manque des informations à la ligne :",
+                "Il manque des informations  aux lignes :",
+                len(missing_values),
+            )
+
+            message = format_html(
+                "<p>{}</p><ul>{}</ul>",
+                base_message,
+                format_html_join("\n", "<li>Ligne {}</li>", missing_values),
+            )
+
+            raise ValidationError(
+                message,
+                code="missing_values",
+                params=[e[0] for e in missing_values],
+            )
+
+        self.virements = extract_virements(self.dataframe)
+
+        errors = []
+
+        invalid_ibans = [
+            (i + 2, v.beneficiaire.nom, v.description)
+            for i, v in enumerate(self.virements)
+            if not v.beneficiaire.iban.is_valid
+        ]
+        missing_bics = [
+            (i + 2, v.beneficiaire.nom, v.description)
+            for i, v in enumerate(self.virements)
+            if v.beneficiaire.iban.is_valid and not v.beneficiaire.bic
+        ]
+
+        if invalid_ibans:
+            base_message = ngettext(
+                "L'IBAN suivant n'est pas valide :",
+                "Les IBANs suivants sont invalides :",
+                len(invalid_ibans),
+            )
+
+            message = format_html(
+                "<p>{}</p><ul>{}</ul>",
+                base_message,
+                format_html_join(
+                    "\n",
+                    "<li>Ligne {} : {} ({})</li>",
+                    invalid_ibans,
+                ),
+            )
+
+            errors.append(
+                ValidationError(
+                    message,
+                    code="invalid_ibans",
+                    params=[e[0] for e in invalid_ibans],
+                )
+            )
+
+        if missing_bics:
+            base_message = ngettext(
+                "Le BIC manque et n'a pas pu être déduit de l'IBAN pour la ligne suivante :",
+                "Les BICs manquent et n'ont pas pu être déduits de l'IBAN pour les lignes suivantes :",
+                len(missing_bics),
+            )
+
+            message = format_html(
+                "<p>{}</p><ul>{}</ul>",
+                base_message,
+                format_html_join("\n", "<li>Ligne {} : {} ({})", missing_bics),
+            )
+
+            errors.append(
+                ValidationError(
+                    message,
+                    code="missing_bics",
+                    params=[e[0] for e in missing_bics],
+                )
+            )
+
+        if errors:
+            raise ValidationError(errors)
+
+        return fichier_virement
+
+    def save(self):
+        if not self.is_valid():
+            raise ValueError(
+                "`save` ne peut être appelé que sur un formulaire entièrement valide"
+            )
+
+        emetteur = Partie(
+            self.cleaned_data["emetteur"].nom,
+            self.cleaned_data["emetteur"].iban,
+            self.cleaned_data["emetteur"].bic or self.cleaned_data["emetteur"].iban.bic,
+        )
+        contenu = generer_fichier_virement(
+            emetteur=emetteur,
+            virements=self.virements,
+        )
+
+        return FichierOrdreDeVirement.objects.create(
+            nom=self.cleaned_data["nom"],
+            compte_emetteur=self.cleaned_data["emetteur"],
+            tableau_virement_file=self.cleaned_data["tableau_virement_file"],
+            montant_total=self.dataframe["MONTANT"].sum(),
+            nombre_transaction=len(self.dataframe),
+            ordre_de_virement_out=ContentFile(contenu, "virements.xml"),
+        )
