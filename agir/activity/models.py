@@ -1,3 +1,5 @@
+import json
+
 import dynamic_filenames
 from django.conf import settings
 from django.core import validators
@@ -620,13 +622,16 @@ class PushAnnouncement(BaseAPIResource):
         gcm_devices = self.get_gcm_subscriber_devices(segment)
 
         try:
-            reponse = gcm_devices.send_message(notification_message)
+            response = gcm_devices.send_message(notification_message)
         except Exception as e:
             response = f"Exception: {str(e)}"
 
         return {
             "segment": f"{segment.name} [#{segment.id}]",
             "recipients": gcm_devices.count(),
+            "success_devices": response.success_count,
+            "failure_devices": response.failure_count,
+            "result": "Envoy&eacute;" if response.responses is not None else response,
         }
 
     def send(self):

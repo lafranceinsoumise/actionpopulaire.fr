@@ -196,7 +196,14 @@ class PushAnnouncementAdmin(admin.ModelAdmin):
             return "-"
 
         fcm_message = obj.get_fcm_kwargs()
-        return display_json_details({fcm_message}, "Données de notification")
+        return display_json_details(
+            {
+                "android": fcm_message.android.__dict__,
+                "ios": fcm_message.apns.__dict__,
+                "notification": fcm_message.notification.__dict__,
+            },
+            "Données de notification",
+        )
 
     @admin.display(description="Nombre de destinataires de test")
     def test_recipient_count(self, obj):

@@ -1,7 +1,7 @@
 from push_notifications.models import GCMDevice
 
 from agir.activity.models import Activity
-from agir.lib.celery import http_task, gcm_push_task
+from agir.lib.celery import gcm_push_task
 from agir.notifications.serializers import ACTIVITY_NOTIFICATION_SERIALIZERS
 
 
