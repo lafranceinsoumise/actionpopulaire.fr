@@ -194,7 +194,9 @@ const NotificationSettingPanel = (props) => {
           Gérer mes paramètres de contact
         </Button>
       </div>
-      <NotificationGrantedPanel />
+      <div style={{ paddingLeft: "10px", paddingRight: "10px" }}>
+        <NotificationGrantedPanel />
+      </div>
       <PageFadeIn ready={ready}>
         <PushNotificationControls />
         {Object.keys(byType).map((type) => (
