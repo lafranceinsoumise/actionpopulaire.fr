@@ -621,6 +621,13 @@ class PushAnnouncement(BaseAPIResource):
         # Send messages
         gcm_devices = self.get_gcm_subscriber_devices(segment)
 
+        if gcm_devices.count() == 0:
+            return {
+                "segment": f"{segment.name} [#{segment.id}]",
+                "recipients": gcm_devices.count(),
+                "result": "Segment vide pour les push notifications",
+            }
+
         try:
             response = gcm_devices.send_message(notification_message)
         except Exception as e:
@@ -629,8 +636,8 @@ class PushAnnouncement(BaseAPIResource):
         return {
             "segment": f"{segment.name} [#{segment.id}]",
             "recipients": gcm_devices.count(),
-            "success_devices": response.success_count,
-            "failure_devices": response.failure_count,
+            "success_devices": response.success_count if response.succcess_count else 0,
+            "failure_devices": response.failure_count if response.failure_count else 0,
             "result": "Envoy&eacute;" if response.responses is not None else response,
         }
 
