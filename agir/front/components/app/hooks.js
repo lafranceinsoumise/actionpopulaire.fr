@@ -80,7 +80,7 @@ export function useNotificationGrant() {
 
   const onAndroidMessage = useCallback((message) => {
     if (message.channel === "NOTIFICATION" && message.value === "granted") {
-      grantObservers.forEach((obs) => obs(true))
+      grantObservers.forEach((obs) => obs(true));
       async function setupDefaultNotification() {
         /**
          * we must send subscribe for each notification type because if

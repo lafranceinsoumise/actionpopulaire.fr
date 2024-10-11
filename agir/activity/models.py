@@ -636,7 +636,7 @@ class PushAnnouncement(BaseAPIResource):
         return {
             "segment": f"{segment.name} [#{segment.id}]",
             "recipients": gcm_devices.count(),
-            "success_devices": response.success_count if response.succcess_count else 0,
+            "success_devices": response.success_count if response.success_count else 0,
             "failure_devices": response.failure_count if response.failure_count else 0,
             "result": "Envoy&eacute;" if response.responses is not None else response,
         }
