@@ -65,6 +65,7 @@ export const useMobileApp = () => {
   return state;
 };
 
+let grantObservers = [];
 export function useNotificationGrant() {
   const [androidNotificationGranted, setAndroidNotificationGranted] = useState(androidNotificationPermissionIsGranted)
   const {isMobileApp, isAndroid, isIOS} = useMobileApp();
@@ -79,8 +80,8 @@ export function useNotificationGrant() {
 
   const onAndroidMessage = useCallback((message) => {
     if (message.channel === "NOTIFICATION" && message.value === "granted") {
+      grantObservers.forEach((obs) => obs(true))
       async function setupDefaultNotification() {
-        setAndroidNotificationGranted(true);
         /**
          * we must send subscribe for each notification type because if
          * we send as a list, and there is only on which is already registered, the API will trigger a constraint and ignore the other ones.
@@ -96,12 +97,21 @@ export function useNotificationGrant() {
       }
       setupDefaultNotification();
     }
-  })
+  }, []);
+
 
   useEffect(() => {
     if (!window.onAndroidMessage) {
-      window.onAndroidMessage = function (message) {
+      window.onAndroidMessage = (message) => {
         onAndroidMessage(message);
+      }
+    }
+    grantObservers.push(setAndroidNotificationGranted)
+    return () => {
+      const observerIndex = grantObservers.findIndex((obs) => obs === setAndroidNotificationGranted)
+      grantObservers.splice(observerIndex, 1);
+      if (grantObservers.length === 0) {
+        window.onAndroidMessage = undefined
       }
     }
   }, []);
@@ -109,7 +119,7 @@ export function useNotificationGrant() {
 
   return {
    notificationIsGranted: isMobileApp && androidNotificationGranted,
-    grantNotification
+   grantNotification
   }
 }
 

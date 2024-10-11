@@ -1,12 +1,8 @@
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
-import {askNotificationPermission, androidNotificationPermissionIsGranted} from "@agir/notifications/push/android.utils";
 import {useMobileApp} from "@agir/front/app/hooks";
-import {createSubscriptions} from "../../../notifications/components/common/api";
-import {getDefaultNotifications} from "../../../notifications/components/common/notifications.config";
 import styled from "styled-components";
 import {useLocalStorage} from "../../../lib/components/utils/hooks";
-import {useError} from "react-use";
 import {useNotificationGrant} from "../../../front/components/app/hooks";
 
 const BellTitle = styled.div`
@@ -15,8 +11,7 @@ const BellTitle = styled.div`
     margin-bottom: 30px;
 `
 
-export default function NotificationRationaleModal({ shouldOpen }) {
-
+export default function NotificationRationaleModal({ shouldOpen, onClose }) {
     const {isAndroid, isIOS} = useMobileApp();
     const [userDeclinedNotification, setUserDeclinedNotification] = useLocalStorage("AP__userDeclinedNotification", false);
     const {notificationIsGranted, grantNotification} = useNotificationGrant()
@@ -29,18 +24,22 @@ export default function NotificationRationaleModal({ shouldOpen }) {
     }, [shouldOpen]);
 
     useEffect(() => {
-        setUserDeclinedNotification(false);
+        if (notificationIsGranted && modalOpen) {
+            setUserDeclinedNotification(false);
+            setModalOpen(false);
+            onClose?.()
+        }
     }, [notificationIsGranted])
 
-    function onConfirm() {
+    const onConfirm = useCallback(() => {
         grantNotification();
-        setModalOpen(false);
-    }
+    }, []);
 
-    function onDismiss() {
+    const onDismiss = useCallback(() => {
         setUserDeclinedNotification(true);
         setModalOpen(false);
-    }
+        onClose?.()
+    }, []);
 
     return <ModalConfirmation confirmationLabel="Ok pour moi"
                               dismissLabel="Une prochaine fois"
