@@ -4,9 +4,9 @@ import styled from "styled-components";
 
 import Spacer from "@agir/front/genericComponents/Spacer";
 
-import lfiLogo from "@agir/front/genericComponents/logos/LFI-NUPES-Violet-H.webp";
+import lfiLogo from "@agir/front/genericComponents/logos/LOGO-LFI_3.png";
 import linsoumissionLogo from "@agir/front/genericComponents/logos/linsoumission.svg";
-import nupesLogo from "@agir/front/genericComponents/logos/nupes.svg";
+import nfpLogo from "@agir/front/genericComponents/logos/nouveau-front-populaire.png";
 
 const StyledArticle = styled.article`
   padding: 0 1.5rem;
@@ -98,10 +98,10 @@ const HomeExternalLinks = () => {
           />
         </a>
         <Spacer size="1rem" />
-        <a href="https://nupes-2022.fr">
+        <a href="https://www.nouveaufrontpopulaire.fr/">
           <img
-            src={nupesLogo}
-            alt="logo de la Nouvelle Union Populaire Écologique et Sociale"
+            src={nfpLogo}
+            alt="logo du Nouveau Front Populaire"
             width="200"
             height="67"
           />
