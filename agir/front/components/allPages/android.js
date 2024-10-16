@@ -14,15 +14,11 @@ export function askNotificationPermission() {
 let grantObservers = [];
 export function useAndroidNotificationGrant() {
     const [androidNotificationGranted, setAndroidNotificationGranted] = useState(androidNotificationPermissionIsGranted())
-    const {isMobileApp, isAndroid} = useMobileApp();
+    const {isMobileApp} = useMobileApp();
 
 
     const grantNotification = useCallback(() => {
-        if (isAndroid) {
-            askNotificationPermission();
-        } else if (isIOS) {
-            //TODO do the same for iOS
-        }
+        askNotificationPermission();
     }, [isMobileApp])
 
     const onAndroidMessage = useCallback((message) => {

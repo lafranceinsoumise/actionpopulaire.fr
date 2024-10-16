@@ -99,7 +99,7 @@ const InlineBlock = styled.span`
 const PushNotificationControls = () => {
   const { isMobileApp } = useMobileApp();
 
-  if (isMobileApp) {
+  if (!isMobileApp) {
     return (
       <StyledPushNotificationControls>
         <p>Installez l'application pour recevoir des notifications</p>
