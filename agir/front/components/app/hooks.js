@@ -9,12 +9,10 @@ import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getHasRouter, getRoutes } from "@agir/front/globalContext/reducers";
 import { useLocalStorage } from "@agir/lib/utils/hooks";
 import { parseQueryStringParams } from "@agir/lib/utils/url";
-import {
-  androidNotificationPermissionIsGranted,
-  askNotificationPermission
-} from "../../../notifications/components/push/android.utils";
 import {getDefaultNotifications} from "../../../notifications/components/common/notifications.config";
 import {createSubscriptions} from "../../../notifications/components/common/api";
+import {useIOSNotificationGrant} from "@agir/front/allPages/ios";
+import {useAndroidNotificationGrant} from "@agir/front/allPages/android"
 
 export const useCustomBackNavigation = (callback) => {
   const history = useHistory();
@@ -65,62 +63,17 @@ export const useMobileApp = () => {
   return state;
 };
 
-let grantObservers = [];
 export function useNotificationGrant() {
-  const [androidNotificationGranted, setAndroidNotificationGranted] = useState(androidNotificationPermissionIsGranted)
   const {isMobileApp, isAndroid, isIOS} = useMobileApp();
 
-  const grantNotification = useCallback(() => {
-    if (isAndroid) {
-      askNotificationPermission();
-    } else if (isIOS) {
-      //TODO do the same for iOS
-    }
-  }, [isMobileApp])
-
-  const onAndroidMessage = useCallback((message) => {
-    if (message.channel === "NOTIFICATION" && message.value === "granted") {
-      grantObservers.forEach((obs) => obs(true));
-      async function setupDefaultNotification() {
-        /**
-         * we must send subscribe for each notification type because if
-         * we send as a list, and there is only on which is already registered, the API will trigger a constraint and ignore the other ones.
-         */
-        const subscriptionRequest = getDefaultNotifications().map((notification) => {
-          return notification.activityTypes.map((type) =>
-              createSubscriptions([{
-                activityType: type,
-                type: "push",
-              }]));
-        });
-        await Promise.all(subscriptionRequest.flat(2))
-      }
-      setupDefaultNotification();
-    }
-  }, []);
-
-
-  useEffect(() => {
-    if (!window.onAndroidMessage) {
-      window.onAndroidMessage = (message) => {
-        onAndroidMessage(message);
-      }
-    }
-    grantObservers.push(setAndroidNotificationGranted)
-    return () => {
-      const observerIndex = grantObservers.findIndex((obs) => obs === setAndroidNotificationGranted)
-      grantObservers.splice(observerIndex, 1);
-      if (grantObservers.length === 0) {
-        window.onAndroidMessage = undefined
-      }
-    }
-  }, []);
-
+  const {notificationIsGranted: notificationGrantedAndroid, grantNotification: grantNotificationAndroid } = useAndroidNotificationGrant()
+  const {notificationIsGranted: notificationGrantedIOS, grantNotification: grantNotificationIOS} = useIOSNotificationGrant()
 
   return {
-   notificationIsGranted: isMobileApp && androidNotificationGranted,
-   grantNotification
+    notificationIsGranted: notificationGrantedAndroid || notificationGrantedIOS,
+    grantNotification: isMobileApp ? (isAndroid ? grantNotificationAndroid : grantNotificationIOS) : null
   }
+
 }
 
 const useHasDownloadBanner = createGlobalState(undefined);

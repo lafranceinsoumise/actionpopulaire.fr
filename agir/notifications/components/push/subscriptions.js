@@ -8,7 +8,6 @@ import { useLocalStorage } from "@agir/lib/utils/hooks";
 const log = logger(__filename);
 
 import * as API from "./api";
-import {androidNotificationPermissionIsGranted} from "./android.utils";
 
 const useServerSubscription = (deviceType, token) => {
   const [ready, setReady] = useState(false);
@@ -190,7 +189,7 @@ export const usePush = () => {
 
   const state = useMemo(() => {
     let currentState = {
-      ready: iosPushState.ready && androidPushState.ready,
+      ready: iosPushState.ready || androidPushState.ready,
       available: false,
     };
     if (iosPushState.ready && iosPushState.available) {
