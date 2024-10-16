@@ -99,31 +99,10 @@ const InlineBlock = styled.span`
 const PushNotificationControls = () => {
   const { isMobileApp } = useMobileApp();
 
-  const { ready, available, isSubscribed, subscribe } = usePush();
-
-  if (isMobileApp && ready && !available) {
+  if (isMobileApp) {
     return (
       <StyledPushNotificationControls>
         <p>Installez l'application pour recevoir des notifications</p>
-      </StyledPushNotificationControls>
-    );
-  }
-
-  if (isMobileApp && ready && available && !isSubscribed && subscribe) {
-    return (
-      <StyledPushNotificationControls
-        css={`
-          background-color: ${(props) => props.theme.primary100};
-        `}
-      >
-        <p>
-          <strong>Notifications désactivées</strong>
-          <br />
-          Autorisez les notifications sur cet appareil
-        </p>
-        <Button onClick={subscribe} color="primary">
-          Activer
-        </Button>
       </StyledPushNotificationControls>
     );
   }
