@@ -40,27 +40,16 @@ export const useCustomBackNavigation = (callback) => {
 export const useMobileApp = () => {
   const [isAndroid, setIsAndroid] = useLocalStorage("AP_isAndroid", "0");
   const [isIOS, setIsIOS] = useLocalStorage("AP_isIOS", "0");
+  const params = parseQueryStringParams();
 
-  const state = useMemo(() => {
-    const params = parseQueryStringParams();
+  const ios = isIOS === "1" || params.ios === "1";
+  const android = isAndroid === "1" || params.android === "1";
 
-    if (params.ios || params.android) {
-      params.ios && setIsIOS(params.ios);
-      params.android && setIsAndroid(params.android);
-    }
-
-    const ios = isIOS === "1" || params.ios === "1";
-    const android = isAndroid === "1" || params.android === "1";
-
-    return {
-      isIOS: ios,
-      isAndroid: android,
-      isMobileApp: ios || android,
-    };
-    // eslint-disable-next-line
-  }, []);
-
-  return state;
+  return {
+    isIOS: ios,
+    isAndroid: android,
+    isMobileApp: ios || android
+  };
 };
 
 export function useNotificationGrant() {

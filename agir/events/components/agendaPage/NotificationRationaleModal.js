@@ -32,8 +32,8 @@ export default function NotificationRationaleModal({ shouldOpen, onClose }) {
     }, [notificationIsGranted])
 
     const onConfirm = useCallback(() => {
-        grantNotification();
-    }, []);
+        grantNotification?.();
+    }, [grantNotification]);
 
     const onDismiss = useCallback(() => {
         setUserDeclinedNotification(true);
@@ -45,6 +45,7 @@ export default function NotificationRationaleModal({ shouldOpen, onClose }) {
                               dismissLabel="Une prochaine fois"
                               onDismiss={onDismiss}
                               onConfirm={onConfirm}
+                              onClose={() => setModalOpen(false)}
                               shouldShow={modalOpen}>
         <BellTitle><span className="fa-regular fa-bell fa-2xl"/></BellTitle>
         <p>Nous allons vous demander un accès aux notifications.

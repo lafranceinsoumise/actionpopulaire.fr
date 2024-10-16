@@ -34,6 +34,8 @@ export const useIOSNotificationGrant = () => {
   const grantNotification = useCallback(() => {
     if (postMessage) {
       postMessage && postMessage({ action: "enableNotifications" });
+    } else {
+      console.error("postMessage not found !")
     }
   }, [postMessage])
 
