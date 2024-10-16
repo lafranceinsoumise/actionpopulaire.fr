@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 
 import logger from "@agir/lib/utils/logger";
 
@@ -15,6 +15,33 @@ window.iOSNativeMessage = (data) => {
 
   window.dispatchEvent(event);
 };
+
+const iosAction= {
+  SET_NOTIFICATION_STATE: 'setNotificationState',
+};
+
+export const useIOSNotificationGrant = () => {
+  const [notificationIsGranted, setNotificationIsGranted] = useState(false)
+
+  const iosMessageHandler = useCallback(async (data) => {
+    if (data.action === iosAction.SET_NOTIFICATION_STATE && !data.noPermission) {
+      setNotificationIsGranted(true);
+    }
+  }, []);
+
+  const postMessage = useIOSMessages(iosMessageHandler);
+
+  const grantNotification = useCallback(() => {
+    if (postMessage) {
+      postMessage && postMessage({ action: "enableNotifications" });
+    }
+  }, [postMessage])
+
+  return {
+    grantNotification,
+    notificationIsGranted
+  }
+}
 
 export const useIOSMessages = (cb) => {
   const savedCallback = useRef();

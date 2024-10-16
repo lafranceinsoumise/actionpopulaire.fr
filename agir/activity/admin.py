@@ -140,8 +140,6 @@ class PushAnnouncementAdmin(admin.ModelAdmin):
                     "image",
                     "thread_id",
                     "ttl",
-                    "has_ios",
-                    "has_android",
                     "notification_data",
                 )
             },
