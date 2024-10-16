@@ -153,11 +153,9 @@ export const Footer = (props) => {
               <Link route="avenir-en-commun" target="_blank">
                 Le programme l'Avenir en commun
               </Link>
-              <Link route="nupesPlatform" target="_blank">
-                Le programme de la{" "}
-                <abbr title="Nouvelle Union Populaire Écologique et sociale">
-                  NUPES
-                </abbr>
+              <Link route="nfpProgramme" target="_blank">
+                Le programme du {"Nouveau Front Populaire"}
+                <abbr title="Nouvelle Union Populaire Écologique et sociale">NFP</abbr>
               </Link>
             </p>
           </div>
