@@ -32,6 +32,8 @@ from psycopg2._range import DateRange
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
 
+import pandas as pd
+
 
 def env_separated_value(env_var, sep=","):
     raw_value = os.environ.get(env_var)
@@ -1097,3 +1099,14 @@ ILB_DONS_REMERCIEMENTS_URL = os.environ.get(
 
 MATERIEL_REST_API_USERNAME = os.environ.get("MATERIEL_REST_API_USERNAME")
 MATERIEL_REST_API_PASSWORD = os.environ.get("MATERIEL_REST_API_PASSWORD")
+
+EVENT_BLACK_LIST_WORD_DESCRIPTION = []
+EVENT_BLACK_LIST_WORD_NAME = []
+try:
+    black_list_data_frame = pd.read_csv("black_list_words.csv")
+    EVENT_BLACK_LIST_WORD_DESCRIPTION = (
+        black_list_data_frame.event_description.dropna().to_list()
+    )
+    EVENT_BLACK_LIST_WORD_NAME = black_list_data_frame.event_name.dropna().toList()
+except Exception as e:
+    print("Cannot load black list words", e)

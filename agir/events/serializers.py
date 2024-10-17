@@ -57,6 +57,7 @@ from .tasks import (
     send_event_changed_notification,
     notify_on_event_report,
 )
+from ..api.settings import EVENT_BLACK_LIST_WORD_NAME, EVENT_BLACK_LIST_WORD_DESCRIPTION
 from ..elections.utils import is_forbidden_during_treve_event
 from ..gestion.models import Projet, Document, VersionDocument
 from ..groups.models import Membership, SupportGroup
@@ -752,6 +753,10 @@ class DateTimeWithTimezoneField(serializers.DateTimeField):
         return value
 
 
+def field_in_list(field, black_list):
+    return len(list(filter(lambda word: str(word) in field.lower(), black_list))) > 0
+
+
 class CreateEventSerializer(serializers.Serializer):
     id = serializers.UUIDField(read_only=True)
     url = serializers.HyperlinkedIdentityField(
@@ -787,6 +792,15 @@ class CreateEventSerializer(serializers.Serializer):
     def validate(self, data):
         organizer = data.get("organizerPerson", None)
         organizer_group = data.get("organizerGroup", None)
+
+        if field_in_list(data["name"], EVENT_BLACK_LIST_WORD_NAME) or (
+            "description" in data
+            and field_in_list(data["description"], EVENT_BLACK_LIST_WORD_DESCRIPTION)
+        ):
+            raise serializers.ValidationError(
+                "Une erreur s'est produite lors de la création de votre évènement.",
+                code="wrong_event",
+            )
 
         if organizer_group and organizer not in organizer_group.managers:
             raise serializers.ValidationError(

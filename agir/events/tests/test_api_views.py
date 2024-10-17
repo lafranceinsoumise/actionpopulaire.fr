@@ -9,6 +9,10 @@ from django.urls import reverse
 from django.utils import timezone
 from rest_framework.test import APITestCase
 
+from agir.api.settings import (
+    EVENT_BLACK_LIST_WORD_NAME,
+    EVENT_BLACK_LIST_WORD_DESCRIPTION,
+)
 from agir.event_requests.models import EventAsset
 from agir.events.models import Event, EventSubtype, GroupAttendee, OrganizerConfig, RSVP
 from agir.events.serializers import EventProjectSerializer
@@ -75,6 +79,40 @@ class CreateEventAPITestCase(APITestCase):
             "legal": "{}",
             "onlineUrl": "https://visio.lafranceinsoumise.fr/abcdef",
         }
+
+    def test_create_event_with_black_list_word_name(self):
+        self.client.force_login(self.person.role)
+        EVENT_BLACK_LIST_WORD_NAME.append("marabout")
+
+        form_with_black_list_words = {
+            **self.valid_data,
+            "name": "Marabout venez à moi !",
+        }
+        res = self.client.post(
+            "/api/evenements/creer/", data=form_with_black_list_words
+        )
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(
+            res.data["non_field_errors"][0],
+            "Une erreur s'est produite lors de la création de votre évènement.",
+        )
+
+    def test_create_event_with_black_list_word_description(self):
+        self.client.force_login(self.person.role)
+        EVENT_BLACK_LIST_WORD_DESCRIPTION.append("marabout")
+
+        form_with_black_list_words = {
+            **self.valid_data,
+            "description": "Marabout venez à moi !",
+        }
+        res = self.client.post(
+            "/api/evenements/creer/", data=form_with_black_list_words
+        )
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(
+            res.data["non_field_errors"][0],
+            "Une erreur s'est produite lors de la création de votre évènement.",
+        )
 
     def test_wrong_timezone_raise_correct_exception(self):
         self.client.force_login(self.person.role)
