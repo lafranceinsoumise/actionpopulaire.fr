@@ -19,9 +19,9 @@ class EventCheckPaymentMode(AbstractCheckPaymentMode):
 
     order = "AFLFI"
     address = [
-        "La France insoumise - Service Événement",
-        "25 passage Dubail",
-        "75010 Paris",
+        "AFLFI - Service Événement",
+        "BP 45",
+        "91305 MASSY CEDEX",
     ]
     additional_information = (
         "Votre versement ne sera confirmé qu'à réception du chèque. Vous recevrez un message de confirmation"
