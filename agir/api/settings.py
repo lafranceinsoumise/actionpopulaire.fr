@@ -1104,9 +1104,9 @@ EVENT_BLACK_LIST_WORD_DESCRIPTION = []
 EVENT_BLACK_LIST_WORD_NAME = []
 try:
     black_list_data_frame = pd.read_csv(BASE_DIR.parent / "black_list_words.csv")
-    EVENT_BLACK_LIST_WORD_DESCRIPTION = (
-        black_list_data_frame.event_description.dropna().to_list()
+    EVENT_BLACK_LIST_WORD_DESCRIPTION = list(
+        black_list_data_frame.event_description.dropna()
     )
-    EVENT_BLACK_LIST_WORD_NAME = black_list_data_frame.event_name.dropna().toList()
+    EVENT_BLACK_LIST_WORD_NAME = list(black_list_data_frame.event_name.dropna())
 except Exception as e:
     print("Cannot load black list words", e)
