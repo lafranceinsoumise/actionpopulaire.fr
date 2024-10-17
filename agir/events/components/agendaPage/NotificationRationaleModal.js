@@ -4,6 +4,7 @@ import {useMobileApp} from "@agir/front/app/hooks";
 import styled from "styled-components";
 import {useLocalStorage} from "../../../lib/components/utils/hooks";
 import {useNotificationGrant} from "../../../front/components/app/hooks";
+import {usePush} from "@agir/notifications/push/subscriptions";
 
 const BellTitle = styled.div`
     display: flex;
@@ -16,6 +17,7 @@ export default function NotificationRationaleModal({ shouldOpen, onClose }) {
     const [userDeclinedNotification, setUserDeclinedNotification] = useLocalStorage("AP__userDeclinedNotification", false);
     const {notificationIsGranted, grantNotification} = useNotificationGrant()
     const [modalOpen, setModalOpen] = useState(!notificationIsGranted && (isAndroid || isIOS) && !userDeclinedNotification);
+    const { subscribe } = usePush()
 
     useEffect(() => {
         if (shouldOpen) {
@@ -27,6 +29,7 @@ export default function NotificationRationaleModal({ shouldOpen, onClose }) {
         if (notificationIsGranted && modalOpen) {
             setUserDeclinedNotification(false);
             setModalOpen(false);
+            subscribe();
             onClose?.()
         }
     }, [notificationIsGranted])
