@@ -53,6 +53,19 @@ const StyledGroup = styled.div`
   }
 `;
 
+const StyledPanel = styled(Panel)`
+  padding-left: 0;
+  padding-right: 0;
+  ${StyledBackButton} {
+    margin-left: 1.5rem;
+    padding-bottom: 0;
+  }
+  & > p {
+    padding: 0 1.5rem 0.5rem;
+    display: inline-block;
+  }
+`;
+
 const AccordionContent = styled.div`
   padding: 1.5rem;
 `;
