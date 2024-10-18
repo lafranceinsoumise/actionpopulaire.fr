@@ -95,42 +95,14 @@ const useAndroidPush = () => {
 
 const useIOSPush = () => {
   const [phoneReady, setPhoneReady] = useState(false);
-  const [subscriptionToken, setSubscriptionToken] = useState(null);
+  const [subscriptionToken, setSubscriptionToken] =  useLocalStorage("AP_FCMToken", null);
 
   const {
     ready: serverReady,
     isSubscribed,
-    subscribe: serverSubscribe,
+    subscribe,
     unsubscribe,
   } = useServerSubscription(API.DEVICE_TYPE.IOS, subscriptionToken);
-
-  // We change state when iOS app send information
-  const messageHandler = useCallback(async (data) => {
-    log.debug(`${API.DEVICE_TYPE.IOS}: Received message`, data);
-    if (data.action !== "setNotificationState") {
-      return;
-    }
-    setPhoneReady(true);
-    if (data.noPermission) {
-      return;
-    }
-    if (data.token) {
-      setSubscriptionToken(data.token);
-    }
-  }, []);
-
-  const postMessage = useIOSMessages(messageHandler);
-
-  const subscribe = useCallback(async () => {
-    if (subscriptionToken) {
-      return await serverSubscribe(subscriptionToken);
-    }
-    postMessage && postMessage({ action: "enableNotifications" });
-  }, [postMessage, serverSubscribe, subscriptionToken]);
-
-  useEffect(() => {
-    postMessage && postMessage({ action: "getNotificationState" });
-  }, [postMessage]);
 
   const state = useMemo(() => {
     // Not on iOSDevice
@@ -158,7 +130,6 @@ const useIOSPush = () => {
       return {
         ready: true,
         available: false,
-        errorMessage: "Veuillez activer la permisson pour les notifications.",
       };
     }
 
