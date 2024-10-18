@@ -18,6 +18,8 @@ window.iOSNativeMessage = (data) => {
 
 const iosAction= {
   SET_NOTIFICATION_STATE: 'setNotificationState',
+  GET_NOTIFICATION_STATE: 'getNotificationState',
+  ENABLE_NOTIFICATIONS: 'enableNotifications'
 };
 
 export const useIOSNotificationGrant = () => {
@@ -31,9 +33,13 @@ export const useIOSNotificationGrant = () => {
 
   const postMessage = useIOSMessages(iosMessageHandler);
 
+  useEffect(() => {
+    postMessage && postMessage({ action: iosAction.GET_NOTIFICATION_STATE });
+  }, [postMessage]);
+
   const grantNotification = useCallback(() => {
     if (postMessage) {
-      postMessage && postMessage({ action: "enableNotifications" });
+      postMessage && postMessage({ action: iosAction.ENABLE_NOTIFICATIONS });
     } else {
       console.error("postMessage not found !")
     }
