@@ -26,10 +26,15 @@ export default function NotificationRationaleModal({ shouldOpen, onClose }) {
     }, [shouldOpen]);
 
     useEffect(() => {
+       if (notificationIsGranted) {
+           subscribe?.();
+       }
+    }, [notificationIsGranted]);
+
+    useEffect(() => {
         if (notificationIsGranted && modalOpen) {
             setUserDeclinedNotification(false);
             setModalOpen(false);
-            subscribe();
             onClose?.()
         }
     }, [notificationIsGranted])
