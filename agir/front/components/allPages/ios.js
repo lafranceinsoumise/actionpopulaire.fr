@@ -25,8 +25,9 @@ const iosAction= {
 export const useIOSNotificationGrant = () => {
   const [notificationIsGranted, setNotificationIsGranted] = useState(false)
 
-  const iosMessageHandler = useCallback(async (data) => {
-    if (data.action === iosAction.SET_NOTIFICATION_STATE && !data.noPermission) {
+  const iosMessageHandler = useCallback(async ({action, noPermission}) => {
+    console.log('event', action, noPermission)
+    if (action === iosAction.SET_NOTIFICATION_STATE && noPermission === "false") {
       setNotificationIsGranted(true);
     }
   }, []);
