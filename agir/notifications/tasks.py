@@ -49,4 +49,5 @@ def send_fcm_activity(activity_pk, fcm_device_pk):
     data = serializer(instance=activity).data
     data["image"] = data.pop("icon")
 
-    return fcm_device.send_message(message=None, thread_id=activity.type, extra=data)
+    # TODO disable for now, current GCM system is deprecated and fill the celery worker
+    # return fcm_device.send_message(message=None, thread_id=activity.type, extra=data)
