@@ -49,20 +49,6 @@ def push_new_activity(sender, instance, created=False, **kwargs):
             apns_device_pk,
         )
 
-    # SEND FCM NOTIFICATIONS
-    fcm_device_pks = [
-        fcm_device.pk
-        for fcm_device in GCMDevice.objects.filter(
-            user=instance.recipient.role, active=True
-        )
-    ]
-
-    for fcm_device_pk in fcm_device_pks:
-        send_fcm_activity.delay(
-            instance.pk,
-            fcm_device_pk,
-        )
-
 
 @receiver(
     post_save,
