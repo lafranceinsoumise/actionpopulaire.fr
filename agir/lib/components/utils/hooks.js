@@ -155,7 +155,7 @@ export const useLocalStorage = (key, initialValue) => {
   const getCurrentValue = useCallback(() => {
     const item = window.localStorage.getItem(key);
     return item ? JSON.parse(item) : initialValue;
-  }, [])
+  }, [key])
 
   const [storedValue, setStoredValue] = useState(() => {
     try {
@@ -168,7 +168,7 @@ export const useLocalStorage = (key, initialValue) => {
 
   const refresh = useCallback(() => {
     setStoredValue(getCurrentValue())
-  }, []);
+  }, [key]);
 
   const update = useCallback((value) => {
     try {

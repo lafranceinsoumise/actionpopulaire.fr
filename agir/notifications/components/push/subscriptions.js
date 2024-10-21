@@ -115,6 +115,7 @@ const useIOSPush = () => {
       return {
         ready: true,
         available: false,
+        refreshToken
       };
     }
 
@@ -145,9 +146,11 @@ const useIOSPush = () => {
       available: true,
       isSubscribed,
       subscribe,
+      refreshToken,
       unsubscribe: isSubscribed ? unsubscribe : undefined,
     };
   }, [
+    refreshToken,
     postMessage,
     phoneReady,
     subscriptionToken,
