@@ -17,7 +17,7 @@ export default function NotificationRationaleModal({ shouldOpen, onClose }) {
     const [userDeclinedNotification, setUserDeclinedNotification] = useLocalStorage("AP__userDeclinedNotification", false);
     const {notificationIsGranted, grantNotification} = useNotificationGrant()
     const [modalOpen, setModalOpen] = useState(!notificationIsGranted && (isAndroid || isIOS) && !userDeclinedNotification);
-    const { subscribe } = usePush()
+    const { subscribe, isSubscribed, refreshToken } = usePush()
 
     useEffect(() => {
         if (shouldOpen) {
@@ -26,10 +26,12 @@ export default function NotificationRationaleModal({ shouldOpen, onClose }) {
     }, [shouldOpen]);
 
     useEffect(() => {
-       if (notificationIsGranted) {
+       if (notificationIsGranted && subscribe && !isSubscribed) {
            subscribe?.();
-       }
-    }, [notificationIsGranted]);
+       } else if (notificationIsGranted && !subscribe) {
+           refreshToken()
+        }
+    }, [notificationIsGranted, subscribe]);
 
     useEffect(() => {
         if (notificationIsGranted && modalOpen) {

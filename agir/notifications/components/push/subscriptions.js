@@ -14,9 +14,11 @@ const useServerSubscription = (deviceType, token) => {
   const [isSubscribed, setIsSubscribed] = useState(false);
 
   const subscribe = useCallback(async () => {
-    const isSubscribed = await API.subscribe(deviceType, token);
-    setReady(true);
-    setIsSubscribed(isSubscribed);
+    if (!ready && token) {
+      const isSubscribed = await API.subscribe(deviceType, token);
+      setReady(true);
+      setIsSubscribed(isSubscribed);
+    }
   }, [deviceType, token]);
 
   const unsubscribe = useCallback(async () => {
@@ -57,7 +59,7 @@ const useServerSubscription = (deviceType, token) => {
 
 const useAndroidPush = () => {
   const { isAndroid } = useMobileApp();
-  const [token] = useLocalStorage("AP_FCMToken", null);
+  const [token, setToken, removeToken, refreshToken] = useLocalStorage("AP_FCMToken", null);
 
   const { ready, isSubscribed, subscribe, unsubscribe } = useServerSubscription(
     API.DEVICE_TYPE.ANDROID,
@@ -77,6 +79,7 @@ const useAndroidPush = () => {
       log.debug(`${API.DEVICE_TYPE.ANDROID}: Missing token for Android device`);
       return {
         ready: false,
+        refreshToken
       };
     }
 
@@ -87,6 +90,7 @@ const useAndroidPush = () => {
       isSubscribed,
       subscribe,
       unsubscribe: isSubscribed ? unsubscribe : undefined,
+      refreshToken
     };
   }, [isAndroid, ready, isSubscribed, subscribe, unsubscribe]);
 
@@ -95,7 +99,7 @@ const useAndroidPush = () => {
 
 const useIOSPush = () => {
   const [phoneReady, setPhoneReady] = useState(false);
-  const [subscriptionToken, setSubscriptionToken] =  useLocalStorage("AP_FCMToken", null);
+  const [subscriptionToken, setSubscriptionToken, removeToken, refreshToken] =  useLocalStorage("AP_FCMToken", null);
 
   const {
     ready: serverReady,
@@ -121,6 +125,7 @@ const useIOSPush = () => {
       );
       return {
         ready: false,
+        refreshToken,
       };
     }
 
@@ -130,6 +135,7 @@ const useIOSPush = () => {
       return {
         ready: true,
         available: false,
+        refreshToken
       };
     }
 
@@ -162,6 +168,7 @@ export const usePush = () => {
     let currentState = {
       ready: iosPushState.ready || androidPushState.ready,
       available: false,
+      refreshToken: () => { iosPushState.refreshToken?.();  androidPushState.refreshToken?.() }
     };
     if (iosPushState.ready && iosPushState.available) {
       currentState = iosPushState;

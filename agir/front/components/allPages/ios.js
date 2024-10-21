@@ -1,4 +1,5 @@
 import {useCallback, useEffect, useRef, useState} from "react";
+import {setupDefaultNotification} from "@agir/notifications/common/api";
 
 import logger from "@agir/lib/utils/logger";
 
@@ -26,9 +27,9 @@ export const useIOSNotificationGrant = () => {
   const [notificationIsGranted, setNotificationIsGranted] = useState(false)
 
   const iosMessageHandler = useCallback(async ({action, noPermission}) => {
-    console.log('event', action, noPermission)
     if (action === iosAction.SET_NOTIFICATION_STATE && noPermission === "false") {
       setNotificationIsGranted(true);
+      setupDefaultNotification();
     }
   }, []);
 

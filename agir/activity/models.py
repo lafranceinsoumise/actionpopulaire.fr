@@ -9,6 +9,7 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 from push_notifications.models import GCMDevice
 from firebase_admin import messaging
+from pympler.util.bottle import response
 from stdimage import StdImageField
 from stdimage.validators import MinSizeValidator
 
@@ -554,8 +555,6 @@ class PushAnnouncement(BaseAPIResource):
         )
 
     def get_gcm_subscriber_devices(self, segment):
-        if not self.has_android:
-            return GCMDevice.objects.none()
         subscribers = segment.get_people()
         return GCMDevice.objects.filter(
             active=True, user__is_active=True, user__person__in=subscribers
@@ -636,9 +635,13 @@ class PushAnnouncement(BaseAPIResource):
         return {
             "segment": f"{segment.name} [#{segment.id}]",
             "recipients": gcm_devices.count(),
-            "success_devices": response.success_count if response.success_count else 0,
-            "failure_devices": response.failure_count if response.failure_count else 0,
-            "result": "Envoy&eacute;" if response.responses is not None else response,
+            "success_devices": (
+                response.success_count if not isinstance(response, str) else 0
+            ),
+            "failure_devices": (
+                response.failure_count if not isinstance(response, str) else 0
+            ),
+            "result": "Envoy&eacute;" if not isinstance(response, str) else response,
         }
 
     def send(self):

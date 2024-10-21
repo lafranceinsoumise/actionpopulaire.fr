@@ -151,15 +151,24 @@ export function useMeasure() {
 }
 
 export const useLocalStorage = (key, initialValue) => {
+
+  const getCurrentValue = useCallback(() => {
+    const item = window.localStorage.getItem(key);
+    return item ? JSON.parse(item) : initialValue;
+  }, [])
+
   const [storedValue, setStoredValue] = useState(() => {
     try {
-      const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
+      return getCurrentValue()
     } catch (error) {
       log.debug(error);
       return initialValue;
     }
   });
+
+  const refresh = useCallback(() => {
+    setStoredValue(getCurrentValue())
+  }, []);
 
   const update = useCallback((value) => {
     try {
@@ -179,7 +188,7 @@ export const useLocalStorage = (key, initialValue) => {
     }
   }, []);
 
-  return [storedValue, update, remove];
+  return [storedValue, update, remove, refresh];
 };
 
 /**

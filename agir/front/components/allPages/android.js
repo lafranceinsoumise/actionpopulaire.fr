@@ -1,7 +1,6 @@
 import React, {useCallback, useEffect, useState} from "react";
-import {getDefaultNotifications} from "@agir/notifications/common/notifications.config";
-import {createSubscriptions} from "@agir/notifications/common/api";
 import {useMobileApp} from "@agir/front/app/hooks";
+import {setupDefaultNotification} from "@agir/notifications/common/api";
 
 export function androidNotificationPermissionIsGranted() {
     return window.androidApp?.notificationPermissionIsGranted() ?? false;
@@ -16,7 +15,6 @@ export function useAndroidNotificationGrant() {
     const [androidNotificationGranted, setAndroidNotificationGranted] = useState(androidNotificationPermissionIsGranted())
     const {isMobileApp} = useMobileApp();
 
-
     const grantNotification = useCallback(() => {
         askNotificationPermission();
     }, [isMobileApp])
@@ -24,20 +22,6 @@ export function useAndroidNotificationGrant() {
     const onAndroidMessage = useCallback((message) => {
         if (message.channel === "NOTIFICATION" && message.value === "granted") {
             grantObservers.forEach((obs) => obs(true));
-            async function setupDefaultNotification() {
-                /**
-                 * we must send subscribe for each notification type because if
-                 * we send as a list, and there is only on which is already registered, the API will trigger a constraint and ignore the other ones.
-                 */
-                const subscriptionRequest = getDefaultNotifications().map((notification) => {
-                    return notification.activityTypes.map((type) =>
-                        createSubscriptions([{
-                            activityType: type,
-                            type: "push",
-                        }]));
-                });
-                await Promise.all(subscriptionRequest.flat(2))
-            }
             setupDefaultNotification();
         }
     }, []);
@@ -45,9 +29,7 @@ export function useAndroidNotificationGrant() {
 
     useEffect(() => {
         if (!window.onAndroidMessage) {
-            window.onAndroidMessage = (message) => {
-                onAndroidMessage(message);
-            }
+            window.onAndroidMessage = onAndroidMessage
         }
         grantObservers.push(setAndroidNotificationGranted)
         return () => {
