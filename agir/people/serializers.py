@@ -365,6 +365,7 @@ class PersonSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
         source="action_radius", required=False, min_value=1, max_value=500
     )
     hasLocation = serializers.BooleanField(source="has_location", read_only=True)
+    created = serializers.CharField(read_only=True)
 
     def update(self, instance, validated_data):
         instance = super().update(instance, validated_data)
@@ -394,6 +395,7 @@ class PersonSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
             "mandat",
             "actionRadius",
             "hasLocation",
+            "created",
         )
 
 
