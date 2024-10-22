@@ -33,10 +33,6 @@ const ONBOARDING_TYPE = {
           Les groupes d'action permettent aux militants de s’organiser dans leur
           quartier ou dans leur commune.
         </p>
-        <p>
-          Rejoignez un groupe, agissez sur le terrain et organisez des moments
-          de réflexions politiques&nbsp;!
-        </p>
       </>
     ),
     mapIframe: "groupsMap",
