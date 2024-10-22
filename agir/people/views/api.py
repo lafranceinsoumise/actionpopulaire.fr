@@ -102,6 +102,7 @@ class PersonProfileAPIView(RetrieveUpdateAPIView):
                 "newsletters",
                 "actionRadius",
                 "hasLocation",
+                "created",
             ],
             **kwargs,
         )

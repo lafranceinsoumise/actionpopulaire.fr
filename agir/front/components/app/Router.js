@@ -22,6 +22,7 @@ import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage";
 import Page from "./Page";
 
 import logger from "@agir/lib/utils/logger";
+import ModalMissingNewsletter from "@agir/front/app/ModalMissingNewsletter";
 
 const log = logger(__filename);
 
@@ -92,6 +93,7 @@ const Router = ({ children }) => {
   const { isMobileApp } = useMobileApp();
   return (
     <BrowserRouter basename={BASE_PATH}>
+      <ModalMissingNewsletter />
       <TrackingComponent />
       <ScrollMemory />
       <TopBar />
