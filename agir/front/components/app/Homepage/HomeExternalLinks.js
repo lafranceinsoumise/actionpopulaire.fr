@@ -102,8 +102,7 @@ const HomeExternalLinks = () => {
           <img
             src={nfpLogo}
             alt="logo du Nouveau Front Populaire"
-            width="200"
-            height="67"
+            width="140"
           />
         </a>
         <Spacer size="1rem" />
