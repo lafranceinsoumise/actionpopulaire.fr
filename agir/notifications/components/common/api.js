@@ -44,7 +44,7 @@ export const deleteSubscriptions = async (subscriptions) => {
 export async function setupDefaultNotification() {
   /**
    * we must send subscribe for each notification type because if
-   * we send as a list, and there is only on which is already registered, the API will trigger a constraint and ignore the other ones.
+   * we send as a list, and there is only one which is already registered, the API will trigger a constraint and ignore the other ones.
    */
   const subscriptionRequest = getDefaultNotifications().map((notification) => {
     return notification.activityTypes.map((type) =>

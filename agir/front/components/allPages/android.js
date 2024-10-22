@@ -11,7 +11,7 @@ export function askNotificationPermission() {
 }
 
 let grantObservers = [];
-export function useAndroidNotificationGrant() {
+export function useAndroidNotificationGrant(onNotificationGrant) {
     const [androidNotificationGranted, setAndroidNotificationGranted] = useState(androidNotificationPermissionIsGranted())
     const {isMobileApp} = useMobileApp();
 
@@ -21,8 +21,8 @@ export function useAndroidNotificationGrant() {
 
     const onAndroidMessage = useCallback((message) => {
         if (message.channel === "NOTIFICATION" && message.value === "granted") {
+            onNotificationGrant?.()
             grantObservers.forEach((obs) => obs(true));
-            setupDefaultNotification();
         }
     }, []);
 

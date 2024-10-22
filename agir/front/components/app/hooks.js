@@ -10,7 +10,7 @@ import { getHasRouter, getRoutes } from "@agir/front/globalContext/reducers";
 import { useLocalStorage } from "@agir/lib/utils/hooks";
 import { parseQueryStringParams } from "@agir/lib/utils/url";
 import {getDefaultNotifications} from "../../../notifications/components/common/notifications.config";
-import {createSubscriptions} from "../../../notifications/components/common/api";
+import {createSubscriptions, setupDefaultNotification} from "../../../notifications/components/common/api";
 import {useIOSNotificationGrant} from "@agir/front/allPages/ios";
 import {useAndroidNotificationGrant} from "@agir/front/allPages/android"
 
@@ -52,11 +52,22 @@ export const useMobileApp = () => {
   };
 };
 
+
 export function useNotificationGrant() {
   const {isMobileApp, isAndroid, isIOS} = useMobileApp();
+  const [alreadyGrant, setAlreadyGrant] = useLocalStorage("AP_notification_already_grant", false)
 
-  const {notificationIsGranted: notificationGrantedAndroid, grantNotification: grantNotificationAndroid } = useAndroidNotificationGrant()
-  const {notificationIsGranted: notificationGrantedIOS, grantNotification: grantNotificationIOS} = useIOSNotificationGrant()
+  const onNotificationGrant = useCallback(() => {
+    console.log('on notification grant')
+    if (!alreadyGrant) {
+      console.log('>> set')
+      setupDefaultNotification();
+      setAlreadyGrant(true);
+    }
+  }, [alreadyGrant])
+
+  const {notificationIsGranted: notificationGrantedAndroid, grantNotification: grantNotificationAndroid } = useAndroidNotificationGrant(onNotificationGrant)
+  const {notificationIsGranted: notificationGrantedIOS, grantNotification: grantNotificationIOS} = useIOSNotificationGrant(onNotificationGrant)
 
   return {
     notificationIsGranted: notificationGrantedAndroid || notificationGrantedIOS,

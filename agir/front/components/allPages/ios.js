@@ -23,13 +23,13 @@ const iosAction= {
   ENABLE_NOTIFICATIONS: 'enableNotifications'
 };
 
-export const useIOSNotificationGrant = () => {
+export const useIOSNotificationGrant = (onNotificationGrant) => {
   const [notificationIsGranted, setNotificationIsGranted] = useState(false)
 
   const iosMessageHandler = useCallback(async ({action, noPermission}) => {
     if (action === iosAction.SET_NOTIFICATION_STATE && noPermission === "false") {
       setNotificationIsGranted(true);
-      setupDefaultNotification();
+      onNotificationGrant?.()
     }
   }, []);
 
