@@ -58,9 +58,7 @@ export function useNotificationGrant() {
   const [alreadyGrant, setAlreadyGrant] = useLocalStorage("AP_notification_already_grant", false)
 
   const onNotificationGrant = useCallback(() => {
-    console.log('on notification grant')
     if (!alreadyGrant) {
-      console.log('>> set')
       setupDefaultNotification();
       setAlreadyGrant(true);
     }
