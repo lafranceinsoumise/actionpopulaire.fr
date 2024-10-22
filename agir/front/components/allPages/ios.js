@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef } from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
+import {setupDefaultNotification} from "@agir/notifications/common/api";
 
 import logger from "@agir/lib/utils/logger";
 
@@ -15,6 +16,42 @@ window.iOSNativeMessage = (data) => {
 
   window.dispatchEvent(event);
 };
+
+const iosAction= {
+  SET_NOTIFICATION_STATE: 'setNotificationState',
+  GET_NOTIFICATION_STATE: 'getNotificationState',
+  ENABLE_NOTIFICATIONS: 'enableNotifications'
+};
+
+export const useIOSNotificationGrant = (onNotificationGrant) => {
+  const [notificationIsGranted, setNotificationIsGranted] = useState(false)
+
+  const iosMessageHandler = useCallback(async ({action, noPermission}) => {
+    if (action === iosAction.SET_NOTIFICATION_STATE && noPermission === "false") {
+      setNotificationIsGranted(true);
+      onNotificationGrant?.()
+    }
+  }, []);
+
+  const postMessage = useIOSMessages(iosMessageHandler);
+
+  useEffect(() => {
+    postMessage && postMessage({ action: iosAction.GET_NOTIFICATION_STATE });
+  }, [postMessage]);
+
+  const grantNotification = useCallback(() => {
+    if (postMessage) {
+      postMessage && postMessage({ action: iosAction.ENABLE_NOTIFICATIONS });
+    } else {
+      console.error("postMessage not found !")
+    }
+  }, [postMessage])
+
+  return {
+    grantNotification,
+    notificationIsGranted
+  }
+}
 
 export const useIOSMessages = (cb) => {
   const savedCallback = useRef();

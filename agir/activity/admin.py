@@ -140,8 +140,6 @@ class PushAnnouncementAdmin(admin.ModelAdmin):
                     "image",
                     "thread_id",
                     "ttl",
-                    "has_ios",
-                    "has_android",
                     "notification_data",
                 )
             },
@@ -195,9 +193,14 @@ class PushAnnouncementAdmin(admin.ModelAdmin):
         if obj._state.adding:
             return "-"
 
-        android, ios = obj.get_notification_kwargs()
+        fcm_message = obj.get_fcm_kwargs()
         return display_json_details(
-            {"android": android, "ios": ios}, "Données de notification"
+            {
+                "android": fcm_message.android.__dict__,
+                "ios": fcm_message.apns.__dict__,
+                "notification": fcm_message.notification.__dict__,
+            },
+            "Données de notification",
         )
 
     @admin.display(description="Nombre de destinataires de test")

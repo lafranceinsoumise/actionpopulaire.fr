@@ -29,7 +29,7 @@ from django_prometheus.models import ExportModelOperationsMixin
 from dynamic_filenames import FilePattern
 from nuntius.models import AbstractSubscriber
 from phonenumber_field.modelfields import PhoneNumberField
-from push_notifications.models import APNSDevice, GCMDevice
+from push_notifications.models import GCMDevice
 from stdimage.models import StdImageField
 
 from agir.authentication.models import Role
@@ -145,8 +145,8 @@ class PersonQueryset(models.QuerySet):
 
     def app(self, installed=True):
         if installed:
-            return self.exclude(Q(role__apnsdevice=None) & Q(role__gcmdevice=None))
-        return self.filter(Q(role__apnsdevice=None) & Q(role__gcmdevice=None))
+            return self.exclude(Q(role__gcmdevice=None))
+        return self.filter(Q(role__gcmdevice=None))
 
     def liaisons(self, from_date=None, to_date=None):
         from agir.people.actions.subscription import DATE_2022_LIAISON_META_PROPERTY
@@ -942,11 +942,7 @@ class Person(
         }
 
     def get_subscriber_push_devices(self):
-        apns_devices = list(
-            APNSDevice.objects.filter(user_id=self.role_id, active=True)
-        )
-        gcm_devices = list(GCMDevice.objects.filter(user_id=self.role_id, active=True))
-        return apns_devices + gcm_devices
+        return list(GCMDevice.objects.filter(user_id=self.role_id, active=True))
 
     def ensure_role_exists(self):
         """Crée un compte pour cette personne si aucun n'existe.

@@ -6,7 +6,7 @@ import requests
 from celery import shared_task
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from push_notifications.gcm import GCMError
+from firebase_admin.exceptions import FirebaseError
 
 TASK_PRIORITY_LOW = settings.CELERY_TASK_PRIORITY_LOW
 TASK_PRIORITY_NORMAL = settings.CELERY_TASK_PRIORITY_NORMAL
@@ -108,7 +108,7 @@ def emailing_task(post_save=False, priority=TASK_PRIORITY_NORMAL):
 
 def gcm_push_task(post_save=False):
     retry_on = (
-        GCMError,
+        FirebaseError,
         requests.HTTPError,
         requests.RequestException,
         requests.exceptions.Timeout,

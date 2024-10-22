@@ -9,6 +9,10 @@ import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getHasRouter, getRoutes } from "@agir/front/globalContext/reducers";
 import { useLocalStorage } from "@agir/lib/utils/hooks";
 import { parseQueryStringParams } from "@agir/lib/utils/url";
+import {getDefaultNotifications} from "../../../notifications/components/common/notifications.config";
+import {createSubscriptions, setupDefaultNotification} from "../../../notifications/components/common/api";
+import {useIOSNotificationGrant} from "@agir/front/allPages/ios";
+import {useAndroidNotificationGrant} from "@agir/front/allPages/android"
 
 export const useCustomBackNavigation = (callback) => {
   const history = useHistory();
@@ -36,28 +40,39 @@ export const useCustomBackNavigation = (callback) => {
 export const useMobileApp = () => {
   const [isAndroid, setIsAndroid] = useLocalStorage("AP_isAndroid", "0");
   const [isIOS, setIsIOS] = useLocalStorage("AP_isIOS", "0");
+  const params = parseQueryStringParams();
 
-  const state = useMemo(() => {
-    const params = parseQueryStringParams();
+  const ios = isIOS === "1" || params.ios === "1";
+  const android = isAndroid === "1" || params.android === "1";
 
-    if (params.ios || params.android) {
-      params.ios && setIsIOS(params.ios);
-      params.android && setIsAndroid(params.android);
-    }
-
-    const ios = isIOS === "1" || params.ios === "1";
-    const android = isAndroid === "1" || params.android === "1";
-
-    return {
-      isIOS: ios,
-      isAndroid: android,
-      isMobileApp: ios || android,
-    };
-    // eslint-disable-next-line
-  }, []);
-
-  return state;
+  return {
+    isIOS: ios,
+    isAndroid: android,
+    isMobileApp: ios || android
+  };
 };
+
+
+export function useNotificationGrant() {
+  const {isMobileApp, isAndroid, isIOS} = useMobileApp();
+  const [alreadyGrant, setAlreadyGrant] = useLocalStorage("AP_notification_already_grant", false)
+
+  const onNotificationGrant = useCallback(() => {
+    if (!alreadyGrant) {
+      setupDefaultNotification();
+      setAlreadyGrant(true);
+    }
+  }, [alreadyGrant])
+
+  const {notificationIsGranted: notificationGrantedAndroid, grantNotification: grantNotificationAndroid } = useAndroidNotificationGrant(onNotificationGrant)
+  const {notificationIsGranted: notificationGrantedIOS, grantNotification: grantNotificationIOS} = useIOSNotificationGrant(onNotificationGrant)
+
+  return {
+    notificationIsGranted: notificationGrantedAndroid || notificationGrantedIOS,
+    grantNotification: isMobileApp ? (isAndroid ? grantNotificationAndroid : grantNotificationIOS) : null
+  }
+
+}
 
 const useHasDownloadBanner = createGlobalState(undefined);
 export const useDownloadBanner = () => {

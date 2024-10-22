@@ -14,9 +14,11 @@ const useServerSubscription = (deviceType, token) => {
   const [isSubscribed, setIsSubscribed] = useState(false);
 
   const subscribe = useCallback(async () => {
-    const isSubscribed = await API.subscribe(deviceType, token);
-    setReady(true);
-    setIsSubscribed(isSubscribed);
+    if (!ready && token) {
+      const isSubscribed = await API.subscribe(deviceType, token);
+      setReady(true);
+      setIsSubscribed(isSubscribed);
+    }
   }, [deviceType, token]);
 
   const unsubscribe = useCallback(async () => {
@@ -57,7 +59,7 @@ const useServerSubscription = (deviceType, token) => {
 
 const useAndroidPush = () => {
   const { isAndroid } = useMobileApp();
-  const [token] = useLocalStorage("AP_FCMToken", null);
+  const [token, setToken, removeToken, refreshToken] = useLocalStorage("AP_FCMToken", null);
 
   const { ready, isSubscribed, subscribe, unsubscribe } = useServerSubscription(
     API.DEVICE_TYPE.ANDROID,
@@ -77,6 +79,7 @@ const useAndroidPush = () => {
       log.debug(`${API.DEVICE_TYPE.ANDROID}: Missing token for Android device`);
       return {
         ready: false,
+        refreshToken
       };
     }
 
@@ -87,6 +90,7 @@ const useAndroidPush = () => {
       isSubscribed,
       subscribe,
       unsubscribe: isSubscribed ? unsubscribe : undefined,
+      refreshToken
     };
   }, [isAndroid, ready, isSubscribed, subscribe, unsubscribe]);
 
@@ -95,42 +99,14 @@ const useAndroidPush = () => {
 
 const useIOSPush = () => {
   const [phoneReady, setPhoneReady] = useState(false);
-  const [subscriptionToken, setSubscriptionToken] = useState(null);
+  const [subscriptionToken, setSubscriptionToken, removeToken, refreshToken] =  useLocalStorage("AP_FCMToken", null);
 
   const {
     ready: serverReady,
     isSubscribed,
-    subscribe: serverSubscribe,
+    subscribe,
     unsubscribe,
   } = useServerSubscription(API.DEVICE_TYPE.IOS, subscriptionToken);
-
-  // We change state when iOS app send information
-  const messageHandler = useCallback(async (data) => {
-    log.debug(`${API.DEVICE_TYPE.IOS}: Received message`, data);
-    if (data.action !== "setNotificationState") {
-      return;
-    }
-    setPhoneReady(true);
-    if (data.noPermission) {
-      return;
-    }
-    if (data.token) {
-      setSubscriptionToken(data.token);
-    }
-  }, []);
-
-  const postMessage = useIOSMessages(messageHandler);
-
-  const subscribe = useCallback(async () => {
-    if (subscriptionToken) {
-      return await serverSubscribe(subscriptionToken);
-    }
-    postMessage && postMessage({ action: "enableNotifications" });
-  }, [postMessage, serverSubscribe, subscriptionToken]);
-
-  useEffect(() => {
-    postMessage && postMessage({ action: "getNotificationState" });
-  }, [postMessage]);
 
   const state = useMemo(() => {
     // Not on iOSDevice
@@ -139,6 +115,7 @@ const useIOSPush = () => {
       return {
         ready: true,
         available: false,
+        refreshToken
       };
     }
 
@@ -149,6 +126,7 @@ const useIOSPush = () => {
       );
       return {
         ready: false,
+        refreshToken,
       };
     }
 
@@ -158,7 +136,7 @@ const useIOSPush = () => {
       return {
         ready: true,
         available: false,
-        errorMessage: "Veuillez activer la permisson pour les notifications.",
+        refreshToken
       };
     }
 
@@ -168,9 +146,11 @@ const useIOSPush = () => {
       available: true,
       isSubscribed,
       subscribe,
+      refreshToken,
       unsubscribe: isSubscribed ? unsubscribe : undefined,
     };
   }, [
+    refreshToken,
     postMessage,
     phoneReady,
     subscriptionToken,
@@ -189,8 +169,9 @@ export const usePush = () => {
 
   const state = useMemo(() => {
     let currentState = {
-      ready: iosPushState.ready && androidPushState.ready,
+      ready: iosPushState.ready || androidPushState.ready,
       available: false,
+      refreshToken: () => { iosPushState.refreshToken?.();  androidPushState.refreshToken?.() }
     };
     if (iosPushState.ready && iosPushState.available) {
       currentState = iosPushState;

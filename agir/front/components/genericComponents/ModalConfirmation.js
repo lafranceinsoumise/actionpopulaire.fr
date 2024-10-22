@@ -51,6 +51,7 @@ const ModalConfirmation = (props) => {
     shouldDismissOnClick = true,
     isConfirming = false,
     disabled = false,
+    onDismiss
   } = props;
 
   return (
@@ -98,7 +99,7 @@ const ModalConfirmation = (props) => {
             <Button
               wrap
               type="button"
-              onClick={onClose}
+              onClick={(e) => { onClose?.(e); onDismiss?.(e)}}
               css={`
                 color: ${(props) => props.theme.text1000};
               `}
@@ -118,6 +119,7 @@ ModalConfirmation.propTypes = {
   onClose: PropTypes.func,
   title: PropTypes.node,
   children: PropTypes.node,
+  onDismiss: PropTypes.func,
   dismissLabel: PropTypes.node,
   confirmationLabel: PropTypes.node,
   confirmationUrl: PropTypes.string,

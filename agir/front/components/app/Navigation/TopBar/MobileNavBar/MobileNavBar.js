@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useMemo } from "react";
+import React, {useEffect, useMemo} from "react";
 
 import { routeConfig } from "@agir/front/app/routes.config";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
@@ -17,6 +17,7 @@ const MobileNavBar = (props) => {
   const { path } = props;
 
   const isSessionLoaded = useSelector(getIsSessionLoaded);
+
   const user = useSelector(getUser);
   const pageTitle = useSelector(getPageTitle);
   const settingsLink = useSelector(getTopBarRightLink);

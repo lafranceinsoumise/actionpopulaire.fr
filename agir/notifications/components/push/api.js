@@ -4,9 +4,13 @@ import axios from "@agir/lib/utils/axios";
 import logger from "@agir/lib/utils/logger";
 const log = logger(__filename);
 
+/**
+ * On utilise GCM pour gérer les appareils Android et iOS via Firebase.
+ * @type {{WEBPUSH: string, ANDROID: string, IOS: string}}
+ */
 export const DEVICE_TYPE = {
-  ANDROID: "android",
-  IOS: "apple",
+  ANDROID: "gcm",
+  IOS: "gcm",
   WEBPUSH: "webpush",
 };
 

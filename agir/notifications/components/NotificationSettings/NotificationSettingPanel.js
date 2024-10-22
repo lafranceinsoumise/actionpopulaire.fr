@@ -15,6 +15,7 @@ import { getUser } from "@agir/front/globalContext/reducers";
 
 import { useMobileApp } from "@agir/front/app/hooks";
 import { usePush } from "@agir/notifications/push/subscriptions";
+import NotificationGrantedPanel from "./NotificationGrantedPanel";
 
 const StyledGroupName = styled.div`
   display: grid;
@@ -52,83 +53,26 @@ const StyledGroup = styled.div`
   }
 `;
 
-const AccordionContent = styled.div`
-  padding: 1.5rem;
-`;
-
-const StyledPushNotificationControls = styled.div`
-  padding: 1rem;
-  display: flex;
-  align-items: center;
-  border-radius: ${(props) => props.theme.borderRadius};
-  background-color: ${(props) => props.theme.text50};
-  width: calc(100% - 3rem);
-  margin: 0 auto 1.5rem;
-  gap: 1rem;
-
-  p {
-    flex: 1 1 auto;
-    font-size: 0.875rem;
-    line-height: 1.5;
-    margin: 0;
-    padding: 0;
-    font-weight: 400;
-  }
-`;
-
 const StyledPanel = styled(Panel)`
   padding-left: 0;
   padding-right: 0;
-
   ${StyledBackButton} {
     margin-left: 1.5rem;
     padding-bottom: 0;
   }
-
   & > p {
     padding: 0 1.5rem 0.5rem;
     display: inline-block;
   }
 `;
 
+const AccordionContent = styled.div`
+  padding: 1.5rem;
+`;
+
 const InlineBlock = styled.span`
   display: inline-block;
 `;
-
-const PushNotificationControls = () => {
-  const { isMobileApp } = useMobileApp();
-
-  const { ready, available, isSubscribed, subscribe } = usePush();
-
-  if (isMobileApp && ready && !available) {
-    return (
-      <StyledPushNotificationControls>
-        <p>Installez l'application pour recevoir des notifications</p>
-      </StyledPushNotificationControls>
-    );
-  }
-
-  if (isMobileApp && ready && available && !isSubscribed && subscribe) {
-    return (
-      <StyledPushNotificationControls
-        css={`
-          background-color: ${(props) => props.theme.primary100};
-        `}
-      >
-        <p>
-          <strong>Notifications désactivées</strong>
-          <br />
-          Autorisez les notifications sur cet appareil
-        </p>
-        <Button onClick={subscribe} color="primary">
-          Activer
-        </Button>
-      </StyledPushNotificationControls>
-    );
-  }
-
-  return null;
-};
 
 const NotificationSettingPanel = (props) => {
   const {
@@ -193,8 +137,10 @@ const NotificationSettingPanel = (props) => {
           Gérer mes paramètres de contact
         </Button>
       </div>
+      <div style={{ paddingLeft: "10px", paddingRight: "10px" }}>
+        <NotificationGrantedPanel />
+      </div>
       <PageFadeIn ready={ready}>
-        <PushNotificationControls />
         {Object.keys(byType).map((type) => (
           <Accordion key={type} name={type} icon={icons[type] || "settings"}>
             <AccordionContent>

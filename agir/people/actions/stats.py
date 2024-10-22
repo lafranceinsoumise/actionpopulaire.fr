@@ -2,7 +2,7 @@ import statistics
 from datetime import timedelta
 
 from django.utils import timezone
-from push_notifications.models import GCMDevice, APNSDevice
+from push_notifications.models import GCMDevice
 
 from agir.groups.models import Membership, SupportGroup
 from agir.lib.data import code_postal_vers_code_departement, departements_par_code
@@ -155,14 +155,8 @@ def get_statistics_for_queryset(original_queryset):
             + [("90+", len([age for age in stats["ages"] if age >= 90]))]
         )
 
-    stats["android_users"] = (
+    stats["mobile_users"] = (
         GCMDevice.objects.filter(active=True, user_id__in=user_ids)
-        .values("user_id")
-        .distinct()
-        .count()
-    )
-    stats["ios_users"] = (
-        APNSDevice.objects.filter(active=True, user_id__in=user_ids)
         .values("user_id")
         .distinct()
         .count()

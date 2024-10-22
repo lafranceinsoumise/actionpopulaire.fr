@@ -1,3 +1,5 @@
+import json
+
 import dynamic_filenames
 from django.conf import settings
 from django.core import validators
@@ -5,7 +7,9 @@ from django.core.validators import FileExtensionValidator
 from django.db import models, transaction
 from django.utils import timezone
 from django.utils.functional import cached_property
-from push_notifications.models import GCMDevice, APNSDevice
+from push_notifications.models import GCMDevice
+from firebase_admin import messaging
+from pympler.util.bottle import response
 from stdimage import StdImageField
 from stdimage.validators import MinSizeValidator
 
@@ -509,7 +513,7 @@ class PushAnnouncement(BaseAPIResource):
 
     @cached_property
     def android_recipient_device_count(self):
-        return self.get_android_subscriber_devices(self.segment).count()
+        return self.get_gcm_subscriber_devices(self.segment).count()
 
     @cached_property
     def ios_recipient_device_count(self):
@@ -523,7 +527,7 @@ class PushAnnouncement(BaseAPIResource):
     def recipient_ids(self):
         return list(
             set(
-                self.get_android_subscriber_devices(self.segment)
+                self.get_gcm_subscriber_devices(self.segment)
                 .values_list("user__person__id", flat=True)
                 .union(
                     self.get_ios_subscriber_devices(self.segment).values_list(
@@ -540,7 +544,7 @@ class PushAnnouncement(BaseAPIResource):
 
         return list(
             set(
-                self.get_android_subscriber_devices(self.test_segment)
+                self.get_gcm_subscriber_devices(self.test_segment)
                 .values_list("user__person__id", flat=True)
                 .union(
                     self.get_ios_subscriber_devices(self.test_segment).values_list(
@@ -550,19 +554,9 @@ class PushAnnouncement(BaseAPIResource):
             )
         )
 
-    def get_android_subscriber_devices(self, segment):
-        if not self.has_android:
-            return GCMDevice.objects.none()
+    def get_gcm_subscriber_devices(self, segment):
         subscribers = segment.get_people()
         return GCMDevice.objects.filter(
-            active=True, user__is_active=True, user__person__in=subscribers
-        )
-
-    def get_ios_subscriber_devices(self, segment):
-        if not self.has_ios:
-            return APNSDevice.objects.none()
-        subscribers = segment.get_people()
-        return APNSDevice.objects.filter(
             active=True, user__is_active=True, user__person__in=subscribers
         )
 
@@ -595,34 +589,23 @@ class PushAnnouncement(BaseAPIResource):
             "activity:push_announcement_link", args=[self.pk], absolute=True
         )
 
-    def get_notification_kwargs(self):
-        base_notification = {
-            "title": self.title,
-            "body": self.message,
-            "image": self.get_absolute_image_url(),
-        }
-        android_kwargs = {
-            "message": None,
-            "time_to_live": self.ttl,
-            "extra": {
-                **base_notification,
-                "collapse_id": str(self.id),
-                "url": self.get_link_url(),
-                "android_group": self.thread_id,
-            },
-        }
-        ios_kwargs = {
-            "message": {
-                **base_notification,
-                "subtitle": self.subtitle,
-                "thread_id": self.thread_id,
-            },
-            "expiration": self.ttl,
-            "collapse_id": str(self.id),
-            "extra": {"url": self.get_link_url()},
-        }
+    def get_fcm_kwargs(self):
+        """Generate payload as FCM message
+        Handle android & iOS devices"""
 
-        return android_kwargs, ios_kwargs
+        return messaging.Message(
+            data={"url": self.get_link_url()},
+            notification=messaging.Notification(
+                title=self.title, body=self.message, image=self.get_absolute_image_url()
+            ),
+            android=messaging.AndroidConfig(ttl=self.ttl, collapse_key=str(self.id)),
+            apns=messaging.APNSConfig(
+                headers={
+                    "apns-expiration": str(self.ttl),
+                    "apns-collapse-id": str(self.id),
+                }
+            ),
+        )
 
     def can_send(self):
         return self.sending_date is None
@@ -632,37 +615,33 @@ class PushAnnouncement(BaseAPIResource):
             segment = self.segment
 
         # Get notification payloads
-        android_kwargs, ios_kwargs = self.get_notification_kwargs()
+        notification_message = self.get_fcm_kwargs()
 
         # Send messages
-        android_devices = self.get_android_subscriber_devices(segment)
+        gcm_devices = self.get_gcm_subscriber_devices(segment)
+
+        if gcm_devices.count() == 0:
+            return {
+                "segment": f"{segment.name} [#{segment.id}]",
+                "recipients": gcm_devices.count(),
+                "result": "Segment vide pour les push notifications",
+            }
 
         try:
-            android_response = android_devices.send_message(**android_kwargs)
+            response = gcm_devices.send_message(notification_message)
         except Exception as e:
-            android_response = f"Exception: {str(e)}"
-
-        ios_devices = self.get_ios_subscriber_devices(segment)
-        try:
-            ios_response = ios_devices.send_message(**ios_kwargs)
-        except Exception as e:
-            ios_response = f"Exception: {str(e)}"
-
-        android_count = android_devices.count()
-        ios_count = ios_devices.count()
-        recipient_count = android_count + ios_count
+            response = f"Exception: {str(e)}"
 
         return {
             "segment": f"{segment.name} [#{segment.id}]",
-            "recipients": recipient_count,
-            "android": {
-                "recipients": android_count,
-                "result": android_response,
-            },
-            "ios": {
-                "recipients": ios_count,
-                "result": ios_response,
-            },
+            "recipients": gcm_devices.count(),
+            "success_devices": (
+                response.success_count if not isinstance(response, str) else 0
+            ),
+            "failure_devices": (
+                response.failure_count if not isinstance(response, str) else 0
+            ),
+            "result": "Envoy&eacute;" if not isinstance(response, str) else response,
         }
 
     def send(self):

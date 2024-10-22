@@ -1,9 +1,7 @@
-from django.db import transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from functools import partial
 
-from push_notifications.models import APNSDevice, GCMDevice, WebPushDevice
+from push_notifications.models import GCMDevice, WebPushDevice
 
 from agir.activity.models import Activity
 from agir.groups.models import Membership
@@ -14,7 +12,6 @@ from agir.notifications.actions import (
 )
 from agir.notifications.models import Subscription
 from agir.notifications.tasks import (
-    send_apns_activity,
     send_fcm_activity,
 )
 from agir.people.models import Person
@@ -22,6 +19,14 @@ from agir.people.models import Person
 
 @receiver(post_save, sender=Activity, dispatch_uid="push_new_activity")
 def push_new_activity(sender, instance, created=False, **kwargs):
+    """
+    Trigger à chaque création d'une activité
+    :param sender:
+    :param instance:
+    :param created:
+    :param kwargs:
+    :return:
+    """
     if instance is None or not created:
         return
 
@@ -34,20 +39,6 @@ def push_new_activity(sender, instance, created=False, **kwargs):
         ).exists()
     ):
         return
-
-    # SEND APPLE PUSH NOTIFICATION SERVICE NOTIFICATIONS
-    apns_device_pks = [
-        apns_device.pk
-        for apns_device in APNSDevice.objects.filter(
-            user=instance.recipient.role, active=True
-        )
-    ]
-
-    for apns_device_pk in apns_device_pks:
-        send_apns_activity.delay(
-            instance.pk,
-            apns_device_pk,
-        )
 
     # SEND FCM NOTIFICATIONS
     fcm_device_pks = [
@@ -66,11 +57,6 @@ def push_new_activity(sender, instance, created=False, **kwargs):
 
 @receiver(
     post_save,
-    sender=APNSDevice,
-    dispatch_uid="create_default_person_subscriptions__apns",
-)
-@receiver(
-    post_save,
     sender=GCMDevice,
     dispatch_uid="create_default_person_subscriptions__fcm",
 )
@@ -79,8 +65,7 @@ def push_device_post_save_handler(sender, instance, created=False, **kwargs):
         instance is not None
         and created is True
         and not Subscription.objects.filter(person=instance.user.person).exists()
-        and APNSDevice.objects.filter(user=instance.user).count()
-        + GCMDevice.objects.filter(user=instance.user).count()
+        and GCMDevice.objects.filter(user=instance.user).count()
         + WebPushDevice.objects.filter(user=instance.user).count()
         == 1
     )
