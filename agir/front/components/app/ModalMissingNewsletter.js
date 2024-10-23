@@ -23,6 +23,7 @@ const StyledModalContent = styled.div`
 export default function ModalMissingNewsletter() {
     const [alreadyShowNewsletterModal, setAlreadyShowNewsletterModal] = useLocalStorage("AP_show_newsletter_modal", false)
     const {data: profile, mutate: mutateProfile, isLoading} = useSWR("/api/user/profile/");
+    const [isLoadingUpdateProfile, setIsLoadingUpdateProfile] = useState(false);
     const newsletterOptions = useMemo(() => getNewsletterStatus(profile?.newsletters), [profile]);
 
     function userRegisteredToReguliere() {
@@ -30,8 +31,11 @@ export default function ModalMissingNewsletter() {
     }
 
     async function inscription() {
+        setIsLoadingUpdateProfile(true)
         const updatedProfile = await updateProfile({"newsletters": ["LFI_reguliere"]});
         await mutateProfile(() => updatedProfile?.data)
+
+        setIsLoadingUpdateProfile(false);
         setAlreadyShowNewsletterModal(true)
     }
 
@@ -60,6 +64,7 @@ export default function ModalMissingNewsletter() {
         onConfirm={inscription}
         onClose={() => setAlreadyShowNewsletterModal(true)}
         shouldDismissOnClick={false}
+        isConfirming={isLoadingUpdateProfile}
     >
         <StyledModalContent>
 
