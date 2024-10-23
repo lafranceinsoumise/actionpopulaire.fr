@@ -512,27 +512,15 @@ class PushAnnouncement(BaseAPIResource):
         return self.segment.get_people()
 
     @cached_property
-    def android_recipient_device_count(self):
-        return self.get_gcm_subscriber_devices(self.segment).count()
-
-    @cached_property
-    def ios_recipient_device_count(self):
-        return self.get_ios_subscriber_devices(self.segment).count()
-
-    @cached_property
     def recipient_device_count(self):
-        return self.android_recipient_device_count + self.ios_recipient_device_count
+        return self.get_gcm_subscriber_devices(self.segment).count()
 
     @cached_property
     def recipient_ids(self):
         return list(
             set(
-                self.get_gcm_subscriber_devices(self.segment)
-                .values_list("user__person__id", flat=True)
-                .union(
-                    self.get_ios_subscriber_devices(self.segment).values_list(
-                        "user__person__id", flat=True
-                    )
+                self.get_gcm_subscriber_devices(self.segment).values_list(
+                    "user__person__id", flat=True
                 )
             )
         )
@@ -544,12 +532,8 @@ class PushAnnouncement(BaseAPIResource):
 
         return list(
             set(
-                self.get_gcm_subscriber_devices(self.test_segment)
-                .values_list("user__person__id", flat=True)
-                .union(
-                    self.get_ios_subscriber_devices(self.test_segment).values_list(
-                        "user__person__id", flat=True
-                    )
+                self.get_gcm_subscriber_devices(self.test_segment).values_list(
+                    "user__person__id", flat=True
                 )
             )
         )
@@ -632,6 +616,10 @@ class PushAnnouncement(BaseAPIResource):
         except Exception as e:
             response = f"Exception: {str(e)}"
 
+        exceptions = []
+        for r in response.responses:
+            exceptions.append(str(r.exception))
+
         return {
             "segment": f"{segment.name} [#{segment.id}]",
             "recipients": gcm_devices.count(),
@@ -641,6 +629,7 @@ class PushAnnouncement(BaseAPIResource):
             "failure_devices": (
                 response.failure_count if not isinstance(response, str) else 0
             ),
+            "exceptions": ", ".join(exceptions),
             "result": "Envoy&eacute;" if not isinstance(response, str) else response,
         }
 
