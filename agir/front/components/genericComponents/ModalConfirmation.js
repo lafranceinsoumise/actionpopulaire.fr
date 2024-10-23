@@ -11,7 +11,7 @@ import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 const ModalContainer = styled.div`
   background: ${(props) => props.theme.background0};
   width: 40%;
-  max-width: 500px;
+  max-width: 650px;
   margin: 5% auto;
   border-radius: ${(props) => props.theme.borderRadius};
   display: flex;
