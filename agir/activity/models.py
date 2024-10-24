@@ -9,7 +9,6 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 from push_notifications.models import GCMDevice
 from firebase_admin import messaging
-from pympler.util.bottle import response
 from stdimage import StdImageField
 from stdimage.validators import MinSizeValidator
 
@@ -19,6 +18,10 @@ from agir.lib.utils import front_url, is_absolute_url
 __all__ = ["Activity", "Announcement", "PushAnnouncement"]
 
 from agir.lib.validators import FileSizeValidator
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class ActivityQuerySet(models.QuerySet):
@@ -616,20 +619,18 @@ class PushAnnouncement(BaseAPIResource):
         except Exception as e:
             response = f"Exception: {str(e)}"
 
-        exceptions = []
-        for r in response.responses:
-            exceptions.append(str(r.exception))
+        if not isinstance(response, str):
+            for r in response.responses:
+                logger.warning(f"Can't send notification: {str(r.exception)}")
 
         return {
             "segment": f"{segment.name} [#{segment.id}]",
-            "recipients": gcm_devices.count(),
-            "success_devices": (
+            "Notifications achemin&eacutees": (
                 response.success_count if not isinstance(response, str) else 0
             ),
-            "failure_devices": (
+            "Notifications &eacutechou&eacutees": (
                 response.failure_count if not isinstance(response, str) else 0
             ),
-            "exceptions": ", ".join(exceptions),
             "result": "Envoy&eacute;" if not isinstance(response, str) else response,
         }
 
